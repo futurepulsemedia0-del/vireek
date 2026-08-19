@@ -7,6 +7,10 @@ import { Solution } from '@/components/sections/Solution';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { Industries } from '@/components/sections/Industries';
 import { LiveDemo } from '@/components/sections/LiveDemo';
+import { Features } from '@/components/sections/Features';
+import { SocialProof } from '@/components/sections/SocialProof';
+import { Pricing } from '@/components/sections/Pricing';
+import { SignupForm } from '@/components/sections/SignupForm';
 
 function App() {
   return (
@@ -20,6 +24,10 @@ function App() {
         <HowItWorks />
         <Industries />
         <LiveDemo />
+        <Features />
+        <SocialProof />
+        <Pricing />
+        <SignupForm />
       </main>
     </ThemeProvider>
   );
