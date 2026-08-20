@@ -1,11 +1,13 @@
 import { Mail, Linkedin, Phone } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { SARAH_PHONE } from '@/lib/site';
 
 const QUICK_LINKS = [
-  { label: 'Features', href: '#features' },
-  { label: 'Industries', href: '#industries' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Features', href: '#features', type: 'hash' as const },
+  { label: 'Industries', href: '#industries', type: 'hash' as const },
+  { label: 'Pricing', href: '#pricing', type: 'hash' as const },
+  { label: 'FAQ', href: '#faq', type: 'hash' as const },
+  { label: 'Privacy', href: '/privacy', type: 'route' as const },
 ];
 
 const EMAIL = 'ali@vireek.com';
@@ -54,12 +56,21 @@ export function Footer() {
             <ul className="mt-4 flex flex-col gap-3">
               {QUICK_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-                  >
-                    {link.label}
-                  </a>
+                  {link.type === 'route' ? (
+                    <Link
+                      to={link.href}
+                      className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -99,12 +110,12 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-sm text-text-secondary">© 2026 Vireek. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <a
-              href="#"
+            <Link
+              to="/privacy"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
               Privacy
-            </a>
+            </Link>
             <a
               href="#"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"

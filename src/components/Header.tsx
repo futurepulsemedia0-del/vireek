@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NAV_LINKS, TRIAL_URL } from '@/lib/site';
@@ -47,6 +48,10 @@ function NavLink({ label, href, onClick }: { label: string; href: string; onClic
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
+  const navHref = (href: string) => (isHome ? href : `/${href}`);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -73,14 +78,14 @@ export function Header() {
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <a href="#top" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <Logo />
             <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-          </a>
+          </Link>
 
           <nav className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((link) => (
-              <NavLink key={link.href} label={link.label} href={link.href} />
+              <NavLink key={link.href} label={link.label} href={navHref(link.href)} />
             ))}
           </nav>
 
@@ -139,7 +144,7 @@ export function Header() {
                 {NAV_LINKS.map((link) => (
                   <a
                     key={link.href}
-                    href={link.href}
+                    href={navHref(link.href)}
                     onClick={() => setDrawerOpen(false)}
                     className="focus-ring rounded-lg px-3 py-3 text-base font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
                   >
