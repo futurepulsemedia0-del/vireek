@@ -8,6 +8,7 @@ const QUICK_LINKS = [
   { label: 'Pricing', href: '#pricing', type: 'hash' as const },
   { label: 'FAQ', href: '#faq', type: 'hash' as const },
   { label: 'Privacy', href: '/privacy', type: 'route' as const },
+  { label: 'Terms', href: '/terms', type: 'route' as const },
 ];
 
 const EMAIL = 'ali@vireek.com';
@@ -116,12 +117,12 @@ export function Footer() {
             >
               Privacy
             </Link>
-            <a
-              href="#"
+            <Link
+              to="/terms"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
               Terms
-            </a>
+            </Link>
           </div>
         </div>
       </div>

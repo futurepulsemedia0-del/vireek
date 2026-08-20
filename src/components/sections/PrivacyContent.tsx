@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, AlertTriangle, MessageSquareText, Mail } from 'lucide-react';
+import { ChevronDown, TriangleAlert as AlertTriangle, MessageSquareText, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { EASE, viewport } from '@/lib/motion';
 
 const CONTACT_EMAIL = 'ali@vireek.com';
@@ -450,6 +451,19 @@ export function PrivacyContent() {
                 </a>
               </div>
             </SectionBody>
+
+            {/* Cross-link to Terms of Service */}
+            <div className="mt-12 rounded-2xl border border-border bg-bg-secondary p-6 md:p-8">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-text-secondary">
+                Related
+              </p>
+              <Link
+                to="/terms"
+                className="mt-3 flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+              >
+                Terms of Service &rarr;
+              </Link>
+            </div>
           </div>
         </div>
       </div>
