@@ -115,14 +115,22 @@ export function Footer() {
               to="/privacy"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
-              Privacy
+              Privacy Policy
             </Link>
+            <span className="text-text-secondary/30">|</span>
             <Link
               to="/terms"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
-              Terms
+              Terms of Service
             </Link>
+            <span className="text-text-secondary/30">|</span>
+            <a
+              href={`mailto:${EMAIL}`}
+              className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+            >
+              Contact
+            </a>
           </div>
         </div>
       </div>

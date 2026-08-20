@@ -3,6 +3,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { TermsContent } from '@/components/sections/TermsContent';
+import { CookieConsent } from '@/components/CookieConsent';
 
 export function TermsPage() {
   useEffect(() => {
@@ -16,6 +17,7 @@ export function TermsPage() {
         <TermsContent />
       </main>
       <Footer />
+      <CookieConsent />
     </ThemeProvider>
   );
 }

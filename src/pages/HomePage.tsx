@@ -14,6 +14,7 @@ import { Pricing } from '@/components/sections/Pricing';
 import { SignupForm } from '@/components/sections/SignupForm';
 import { FAQ } from '@/components/sections/FAQ';
 import { FinalCTA } from '@/components/sections/FinalCTA';
+import { CookieConsent } from '@/components/CookieConsent';
 
 export function HomePage() {
   return (
@@ -35,6 +36,7 @@ export function HomePage() {
         <FinalCTA />
       </main>
       <Footer />
+      <CookieConsent />
     </ThemeProvider>
   );
 }

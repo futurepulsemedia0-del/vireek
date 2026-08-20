@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Phone, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, sectionHeadingClass, viewport } from '@/lib/motion';
 import { SARAH_PHONE } from '@/lib/site';
@@ -11,6 +12,7 @@ type FormData = {
   companyName: string;
   phone: string;
   bestTimeToCall: string;
+  smsConsent: boolean;
 };
 
 const INITIAL: FormData = {
@@ -19,6 +21,7 @@ const INITIAL: FormData = {
   companyName: '',
   phone: '',
   bestTimeToCall: '',
+  smsConsent: false,
 };
 
 const inputClass =
@@ -42,6 +45,7 @@ export function SignupForm() {
     if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) errors.email = true;
     if (!formData.companyName.trim()) errors.companyName = true;
     if (!formData.phone.trim()) errors.phone = true;
+    if (!formData.smsConsent) errors.smsConsent = true;
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -165,6 +169,54 @@ export function SignupForm() {
                     <option value="Evening 5-8">Evening 5-8</option>
                   </select>
                 </Field>
+
+                {/* SMS / TCPA consent checkbox */}
+                <div>
+                  <label
+                    htmlFor="smsConsent"
+                    className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-text-secondary"
+                  >
+                    <input
+                      id="smsConsent"
+                      type="checkbox"
+                      checked={formData.smsConsent}
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, smsConsent: e.target.checked }));
+                        if (fieldErrors.smsConsent)
+                          setFieldErrors((prev) => ({ ...prev, smsConsent: false }));
+                      }}
+                      className="focus-ring mt-0.5 h-5 w-5 shrink-0 rounded-md border border-border bg-bg-primary text-accent transition-colors focus-visible:border-accent"
+                    />
+                    <span>
+                      I agree to receive service-related calls and SMS messages from Vireek regarding
+                      my account and trial. Message and data rates may apply. Reply STOP to opt out.
+                      See our{' '}
+                      <Link
+                        to="/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-accent hover:underline"
+                      >
+                        Privacy Policy
+                      </Link>{' '}
+                      and{' '}
+                      <Link
+                        to="/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-accent hover:underline"
+                      >
+                        Terms of Service
+                      </Link>
+                      .
+                    </span>
+                  </label>
+                  {fieldErrors.smsConsent && (
+                    <p className="mt-1.5 text-xs text-danger">
+                      You must agree to the consent terms to continue.
+                    </p>
+                  )}
+                </div>
 
                 {error && (
                   <p className="flex items-center gap-2 text-sm text-danger">

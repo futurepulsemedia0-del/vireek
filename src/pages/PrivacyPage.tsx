@@ -3,6 +3,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { PrivacyContent } from '@/components/sections/PrivacyContent';
+import { CookieConsent } from '@/components/CookieConsent';
 
 export function PrivacyPage() {
   useEffect(() => {
@@ -16,6 +17,7 @@ export function PrivacyPage() {
         <PrivacyContent />
       </main>
       <Footer />
+      <CookieConsent />
     </ThemeProvider>
   );
 }
