@@ -1,12 +1,11 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, ArrowRight, Loader as Loader2, Phone } from 'lucide-react';
+import { Mail, ArrowRight, Loader2, Phone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { SARAH_PHONE } from '@/lib/site';
 import { supabase } from '@/lib/supabase';
 
 type Step = 'email' | 'otp';
@@ -242,10 +241,8 @@ export function LoginPage() {
               New to Vireek? Your account is created automatically when you sign in.
             </p>
             <p className="mt-4 text-sm text-text-secondary">
-              Prefer to call? Reach Sarah at{' '}
-              <a href={SARAH_PHONE} className="font-semibold text-accent hover:underline">
-                +1 (650) 910-6703
-              </a>
+              Demo account: <span className="font-semibold text-accent">demo@vireek.com</span> / password{' '}
+              <span className="font-semibold text-accent">demodemo123</span>
             </p>
           </div>
         </div>

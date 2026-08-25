@@ -78,4 +78,11 @@ body {
       0 0 0 2px rgb(var(--bg-primary)),
       0 0 0 4px rgb(var(--accent-primary));
   }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
