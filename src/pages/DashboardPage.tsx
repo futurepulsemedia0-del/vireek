@@ -1,27 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  Phone,
-  Clock,
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle2,
-  DollarSign,
-  Activity,
-  ArrowRight,
-  LogOut,
-  Calendar,
-  User,
-  Settings,
-  Lightbulb,
-  XCircle,
-  MapPin,
-  Zap,
-  Bell,
-  Wrench,
-  X,
-} from 'lucide-react';
+import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, LogOut, Calendar, User, Settings, Lightbulb, Circle as XCircle, MapPin, Zap, Bell, Wrench, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
