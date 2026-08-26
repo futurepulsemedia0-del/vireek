@@ -1,11 +1,12 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, ArrowRight, Loader as Loader2, Phone, ArrowLeft } from 'lucide-react';
+import { Mail, ArrowRight, Loader as Loader2, Phone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { BackButton } from '@/components/BackButton';
 import { SARAH_PHONE } from '@/lib/site';
 import { supabase } from '@/lib/supabase';
 
@@ -102,10 +103,7 @@ export function LoginPage() {
             </span>
             <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
           </Link>
-          <Link to="/" className="focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">
-            <ArrowLeft size={16} />
-            Back
-          </Link>
+          <BackButton fallback="/" />
         </div>
         <ThemeToggle />
       </div>

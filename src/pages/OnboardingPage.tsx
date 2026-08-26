@@ -1,12 +1,13 @@
 import { useState, FormEvent, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Loader as Loader2, ArrowRight, Check, Phone, ArrowLeft } from 'lucide-react';
+import { Loader as Loader2, ArrowRight, Check, Phone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { BackButton } from '@/components/BackButton';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
@@ -76,10 +77,7 @@ export function OnboardingPage() {
             </span>
             <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
           </span>
-          <Link to="/login" className="focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">
-            <ArrowLeft size={16} />
-            Back
-          </Link>
+          <BackButton fallback="/login" to="/login" />
         </div>
         <ThemeToggle />
       </div>

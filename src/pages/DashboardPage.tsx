@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, Clock, TrendingUp, Settings, LogOut, ArrowRight, ArrowLeft, Calendar, User, CircleAlert as AlertCircle, Lightbulb, CircleCheck as CheckCircle2, Circle as XCircle, MapPin, DollarSign } from 'lucide-react';
+import { Phone, Clock, TrendingUp, Settings, LogOut, ArrowRight, Calendar, User, CircleAlert as AlertCircle, Lightbulb, CircleCheck as CheckCircle2, Circle as XCircle, MapPin, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { BackButton } from '@/components/BackButton';
 import { supabase, Call, Job, Lead, AiInsight } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 
@@ -207,10 +208,7 @@ export function DashboardPage() {
                 Dashboard
               </span>
             </div>
-            <Link to="/" className="focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">
-              <ArrowLeft size={16} />
-              Back
-            </Link>
+            <BackButton fallback="/" to="/" />
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
