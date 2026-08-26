@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
-import { Check, ShieldCheck } from 'lucide-react';
+import { Check, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
-import { TRIAL_URL } from '@/lib/site';
+
+const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/5kQ7sK450c57checve5wI00';
 
 const STARTER_FEATURES = [
   '50 Minutes Included',
@@ -65,11 +67,11 @@ export function Pricing() {
                 </li>
               ))}
             </ul>
-            <a href={TRIAL_URL} target="_blank" rel="noreferrer" className="mt-8">
+            <Link to="/login" className="mt-8">
               <Button variant="secondary" size="lg" className="w-full">
                 Start Free
               </Button>
-            </a>
+            </Link>
           </motion.div>
 
           {/* Professional */}
@@ -99,9 +101,15 @@ export function Pricing() {
                 </li>
               ))}
             </ul>
-            <a href={TRIAL_URL} target="_blank" rel="noreferrer" className="mt-8">
-              <Button variant="primary" size="lg" className="w-full">
+            <a
+              href={STRIPE_CHECKOUT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8"
+            >
+              <Button variant="primary" size="lg" className="w-full gap-2">
                 Start Free Trial
+                <ArrowRight size={18} />
               </Button>
             </a>
           </motion.div>

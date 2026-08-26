@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
-import { Phone } from 'lucide-react';
+import { Phone, Star, Zap, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { SARAH_PHONE } from '@/lib/site';
 
 const TRUST_ITEMS = [
-  '24/7 AI Answering',
-  'Emergency Detection',
-  'Setup in 15 Min',
-  'No Credit Card Required',
+  { icon: Clock, label: '24/7 AI Answering' },
+  { icon: Zap, label: 'Emergency Detection' },
+  { icon: ShieldCheck, label: 'Setup in 15 Min' },
+  { icon: Star, label: 'No Credit Card Required' },
 ];
 
 const fadeUp = {
@@ -48,6 +48,27 @@ export function Hero() {
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg-primary via-bg-primary to-bg-secondary" />
 
       <div className="mx-auto w-full max-w-7xl px-6 py-32 text-center">
+        {/* Social proof badge */}
+        <motion.div
+          {...fadeUp}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto mb-6 flex w-fit items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-2"
+        >
+          <div className="flex -space-x-2">
+            {['J', 'M', 'S', 'R'].map((initial, i) => (
+              <span
+                key={i}
+                className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-bg-primary bg-accent/20 text-xs font-bold text-accent"
+              >
+                {initial}
+              </span>
+            ))}
+          </div>
+          <span className="text-sm font-medium text-text-secondary">
+            Join 200+ contractors never missing a call
+          </span>
+        </motion.div>
+
         <motion.p
           {...fadeUp}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -79,8 +100,9 @@ export function Hero() {
           className="mt-10 flex flex-wrap items-center justify-center gap-4"
         >
           <Link to="/login">
-            <Button variant="primary" size="lg">
+            <Button variant="primary" size="lg" className="gap-2">
               Start Free Trial
+              <ArrowRight size={18} />
             </Button>
           </Link>
           <a href={SARAH_PHONE}>
@@ -91,15 +113,23 @@ export function Hero() {
           </a>
         </motion.div>
 
+        <motion.p
+          {...fadeUp}
+          transition={{ duration: 0.5, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-4 text-sm font-medium text-text-secondary/80"
+        >
+          14-day free trial · No credit card required · Cancel anytime
+        </motion.p>
+
         <motion.div
           {...fadeUp}
           transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-text-secondary"
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-text-secondary"
         >
-          {TRUST_ITEMS.map((item, i) => (
-            <span key={item} className="flex items-center gap-3">
-              {i > 0 && <span className="h-1 w-1 rounded-full bg-text-secondary/40" />}
-              {item}
+          {TRUST_ITEMS.map((item) => (
+            <span key={item.label} className="flex items-center gap-2">
+              <item.icon size={16} className="text-accent" />
+              {item.label}
             </span>
           ))}
         </motion.div>
