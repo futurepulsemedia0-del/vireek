@@ -39,7 +39,10 @@ export function LoginPage() {
     }
     setSubmitting(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email: email.trim() });
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: { emailRedirectTo: window.location.origin },
+      });
       if (error) throw error;
       setStep('otp');
       setResendCooldown(60);
@@ -78,7 +81,10 @@ export function LoginPage() {
     if (resendCooldown > 0) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email: email.trim() });
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: { emailRedirectTo: window.location.origin },
+      });
       if (error) throw error;
       setResendCooldown(60);
       toast('New code sent. Check your inbox.', 'info');
