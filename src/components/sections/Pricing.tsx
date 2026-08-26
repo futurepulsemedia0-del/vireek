@@ -14,7 +14,6 @@ const STARTER_FEATURES = [
 ];
 
 const PRO_FEATURES = [
-  '1,500 Minutes Included',
   'Emergency Detection & Dispatch',
   'Smart Calendar Booking',
   'SMS Confirmations',
@@ -57,7 +56,8 @@ export function Pricing() {
               <span className="text-text-secondary">/month</span>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-              Try Sarah risk-free. Perfect for seeing how AI answering works for your business.
+              Experience Sarah risk-free with 50 included minutes. See exactly how AI answering
+              captures and qualifies your customer calls.
             </p>
             <ul className="mt-6 flex flex-1 flex-col gap-3">
               {STARTER_FEATURES.map((f) => (
@@ -90,8 +90,15 @@ export function Pricing() {
               <span className="text-4xl font-bold tracking-tight text-text-primary">$297</span>
               <span className="text-text-secondary">/month</span>
             </div>
+            <div className="mt-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3">
+              <p className="text-sm font-semibold text-accent">1,500 Minutes Included</p>
+              <p className="mt-0.5 text-xs text-text-secondary">
+                Enough for 300+ calls a month — most contractors never reach the limit.
+              </p>
+            </div>
             <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-              Everything you need to never miss a call again. Replaces a $3,000/month receptionist.
+              Everything you need to never miss a call again. Replaces a $3,000/month receptionist
+              for a fraction of the cost.
             </p>
             <ul className="mt-6 flex flex-1 flex-col gap-3">
               {PRO_FEATURES.map((f) => (
@@ -122,9 +129,23 @@ export function Pricing() {
           transition={{ duration: 0.5, ease: EASE }}
           className="mx-auto mt-8 max-w-2xl text-center text-sm leading-relaxed text-text-secondary/80"
         >
-          Fair use: 1,500 minutes/month included on Professional. Overage: $0.15/minute. No hidden
-          fees, cancel anytime. Professional pays for itself with a single booked emergency job.
+          1,500 minutes covers roughly 300+ calls a month for most contractors. Most businesses
+          never reach the limit. Additional usage is a clear $0.15/minute shown on your bill. No
+          contracts, no hidden fees, cancel anytime.
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={viewport}
+          transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+          className="mx-auto mt-4 flex max-w-2xl items-center justify-center gap-2 text-center"
+        >
+          <ShieldCheck size={15} className="shrink-0 text-accent" />
+          <p className="text-xs font-medium leading-relaxed text-text-secondary/70">
+            Vireek includes 1,500 minutes/month so contractors can handle more customer calls confidently.
+          </p>
+        </motion.div>
       </div>
     </section>
   );
