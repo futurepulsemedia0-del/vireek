@@ -2,8 +2,6 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Phone,
-  LogOut,
   ArrowLeft,
   RefreshCw,
   X,
@@ -15,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, AiInsight } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 
@@ -118,7 +116,7 @@ function InsightCard({
 
 export function InsightsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, signOut } = useAuth();
+  const { user, profile, profileLoading } = useAuth();
   const { toast } = useToast();
 
   const [insights, setInsights] = useState<AiInsight[]>([]);
@@ -163,12 +161,6 @@ export function InsightsPage() {
       }
     },
   });
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast('Signed out successfully.', 'info');
-    navigate('/login', { replace: true });
-  };
 
   const handleDismiss = async (id: string) => {
     setInsights((prev) => prev.filter((i) => i.id !== id));
@@ -219,34 +211,7 @@ export function InsightsPage() {
   const hasInsights = insights.length > 0;
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-bg-primary/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
-              <Phone size={16} strokeWidth={2.5} />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-            <span className="ml-2 rounded-full bg-bg-tertiary px-2.5 py-1 text-xs font-medium text-text-secondary">
-              Insights
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-colors hover:border-danger/40 hover:text-danger"
-              aria-label="Sign out"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-6 py-8">
+    <DashboardLayout activeLabel="Insights">
         {/* Back button */}
         <button
           type="button"
@@ -348,7 +313,6 @@ export function InsightsPage() {
             Insights are generated from your last 30 days of data. Dismissed insights won't reappear.
           </p>
         )}
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }

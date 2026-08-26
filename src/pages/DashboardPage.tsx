@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, LogOut, Calendar, User, Settings, Lightbulb, Circle as XCircle, MapPin, Zap, Bell, Wrench, X } from 'lucide-react';
+import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, Calendar, User, Settings, Lightbulb, Circle as XCircle, MapPin, Zap, Bell, Wrench, ShieldCheck, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call, Job, Lead, AiInsight, Profile } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 
@@ -361,7 +361,7 @@ function formatCurrency(amount: number | null): string {
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, signOut } = useAuth();
+  const { user, profile, profileLoading, isOwner, permissions } = useAuth();
   const { toast } = useToast();
 
   const [calls, setCalls] = useState<Call[]>([]);
@@ -416,12 +416,6 @@ export function DashboardPage() {
       }
     },
   });
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast('Signed out successfully.', 'info');
-    navigate('/login', { replace: true });
-  };
 
   const handleDismissInsight = async (id: string) => {
     setInsights((prev) => prev.filter((i) => i.id !== id));
@@ -640,34 +634,7 @@ export function DashboardPage() {
   const dailyDigest = insights.find((i) => i.insight_type === 'pattern');
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-bg-primary/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
-              <Phone size={16} strokeWidth={2.5} />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-            <span className="ml-2 rounded-full bg-bg-tertiary px-2.5 py-1 text-xs font-medium text-text-secondary">
-              Dashboard
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-colors hover:border-danger/40 hover:text-danger"
-              aria-label="Sign out"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-6 py-8">
+    <DashboardLayout activeLabel="Overview">
         {/* Welcome header */}
         <div className="mb-8">
           {profileLoading ? (
@@ -862,21 +829,23 @@ export function DashboardPage() {
         {/* QUICK ACTIONS */}
         <div className="mt-8">
           <h2 className="text-lg font-semibold text-text-primary">Quick Actions</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard/analytics')}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <TrendingUp size={20} />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Analytics</p>
-                <p className="text-xs text-text-secondary">Deep dive into performance</p>
-              </div>
-              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-            </button>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {(isOwner || permissions.can_view_billing) && (
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/analytics')}
+                className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <TrendingUp size={20} />
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text-primary">Analytics</p>
+                  <p className="text-xs text-text-secondary">Deep dive into performance</p>
+                </div>
+                <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+              </button>
+            )}
             <button
               type="button"
               onClick={() => navigate('/dashboard/calls')}
@@ -914,25 +883,27 @@ export function DashboardPage() {
                 <Wrench size={20} />
               </span>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Jobs</p>
+                <p className="text-sm font-semibold text-text-primary">{isOwner || permissions.can_view_all_jobs ? 'Jobs' : 'My Jobs'}</p>
                 <p className="text-xs text-text-secondary">Work orders & invoicing</p>
               </div>
               <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
             </button>
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard/business-profile')}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Settings size={20} />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Business Profile</p>
-                <p className="text-xs text-text-secondary">Services, hours & FAQs</p>
-              </div>
-              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-            </button>
+            {(isOwner || permissions.can_edit_business_profile) && (
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/business-profile')}
+                className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <Settings size={20} />
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text-primary">Business Profile</p>
+                  <p className="text-xs text-text-secondary">Services, hours & FAQs</p>
+                </div>
+                <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+              </button>
+            )}
             <button
               type="button"
               onClick={() => navigate('/dashboard/insights')}
@@ -947,6 +918,22 @@ export function DashboardPage() {
               </div>
               <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
             </button>
+            {(isOwner || permissions.can_manage_team) && (
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/team')}
+                className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <ShieldCheck size={20} />
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text-primary">Team</p>
+                  <p className="text-xs text-text-secondary">Manage members & permissions</p>
+                </div>
+                <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -954,7 +941,6 @@ export function DashboardPage() {
         <div className="mt-8">
           <RecentActivity items={metrics.activityItems} />
         </div>
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }

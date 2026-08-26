@@ -2,8 +2,6 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Phone,
-  LogOut,
   ArrowLeft,
   Search,
   X,
@@ -24,7 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 
@@ -610,7 +608,7 @@ function CreateJobModal({
 export function JobsPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, profile, profileLoading, signOut } = useAuth();
+  const { user, profile, profileLoading, isOwner, permissions, teamMember } = useAuth();
   const { toast } = useToast();
 
   const [allJobs, setAllJobs] = useState<Job[]>([]);
@@ -630,6 +628,8 @@ export function JobsPage() {
 
   const searchRef = useRef<HTMLInputElement>(null);
 
+  const canViewAll = isOwner || permissions.can_view_all_jobs;
+
   const loadData = useCallback(async () => {
     if (!user) return;
     setDataLoading(true);
@@ -638,14 +638,19 @@ export function JobsPage() {
         supabase.from('jobs').select('*').order('created_at', { ascending: false }),
         supabase.from('team_members').select('*').eq('role', 'technician').eq('invite_status', 'active'),
       ]);
-      if (jobsRes.data) setAllJobs(jobsRes.data as Job[]);
+      let jobs = (jobsRes.data as Job[]) ?? [];
+      // Technicians without can_view_all_jobs only see jobs assigned to them
+      if (!canViewAll && teamMember) {
+        jobs = jobs.filter((j) => j.assigned_technician_id === teamMember.id);
+      }
+      setAllJobs(jobs);
       if (techRes.data) setTechnicians(techRes.data as TeamMember[]);
     } catch {
       // empty states
     } finally {
       setDataLoading(false);
     }
-  }, [user]);
+  }, [user, canViewAll, teamMember]);
 
   useEffect(() => {
     loadData();
@@ -685,12 +690,6 @@ export function JobsPage() {
       }
     },
   });
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast('Signed out successfully.', 'info');
-    navigate('/login', { replace: true });
-  };
 
   const techMap = useMemo(() => {
     const m = new Map<string, TeamMember>();
@@ -877,35 +876,8 @@ export function JobsPage() {
   const hasActiveFilters = search || techFilter !== 'all' || statusFilter !== 'all';
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-bg-primary/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
-              <Phone size={16} strokeWidth={2.5} />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-            <span className="ml-2 rounded-full bg-bg-tertiary px-2.5 py-1 text-xs font-medium text-text-secondary">
-              Jobs
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-colors hover:border-danger/40 hover:text-danger"
-              aria-label="Sign out"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-6 py-8">
-        {/* Page header */}
+    <DashboardLayout activeLabel={canViewAll ? 'Jobs' : 'My Jobs'}>
+      {/* Page header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -917,8 +889,8 @@ export function JobsPage() {
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Jobs</h1>
-              <p className="mt-1 text-sm text-text-secondary">Track every job from scheduled to paid.</p>
+              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
+              <p className="mt-1 text-sm text-text-secondary">{canViewAll ? 'Track every job from scheduled to paid.' : 'Your assigned jobs, from scheduled to paid.'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -1240,8 +1212,6 @@ export function JobsPage() {
             </table>
           </div>
         )}
-      </main>
-
       {/* Detail panel */}
       <AnimatePresence>
         {selectedJob && (
@@ -1277,6 +1247,6 @@ export function JobsPage() {
           />
         )}
       </AnimatePresence>
-    </div>
+    </DashboardLayout>
   );
 }

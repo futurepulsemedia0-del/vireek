@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, LogOut, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2 } from 'lucide-react';
+import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, BusinessProfile } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 
@@ -76,7 +76,7 @@ function hoursToDb(hours: HoursState): Record<string, { open: string; close: str
 
 export function BusinessProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, signOut } = useAuth();
+  const { user, profile, profileLoading } = useAuth();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -136,12 +136,6 @@ export function BusinessProfilePage() {
       }
     },
   });
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast('Signed out successfully.', 'info');
-    navigate('/login', { replace: true });
-  };
 
   const addService = () => {
     const trimmed = newService.trim();
@@ -215,35 +209,8 @@ export function BusinessProfilePage() {
     'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-bg-primary/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
-              <Phone size={16} strokeWidth={2.5} />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-            <span className="ml-2 rounded-full bg-bg-tertiary px-2.5 py-1 text-xs font-medium text-text-secondary">
-              Business Profile
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-colors hover:border-danger/40 hover:text-danger"
-              aria-label="Sign out"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-6 py-8">
-        {/* Back button */}
+    <DashboardLayout activeLabel="Business Profile">
+      {/* Back button */}
         <button
           type="button"
           onClick={() => navigate('/dashboard')}
@@ -486,8 +453,7 @@ export function BusinessProfilePage() {
             </div>
           </div>
         )}
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }
 

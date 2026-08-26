@@ -9,6 +9,7 @@ import { LeadsPage } from '@/pages/LeadsPage';
 import { JobsPage } from '@/pages/JobsPage';
 import { BusinessProfilePage } from '@/pages/BusinessProfilePage';
 import { InsightsPage } from '@/pages/InsightsPage';
+import { TeamPage } from '@/pages/TeamPage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
 import { TermsPage } from '@/pages/TermsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -74,6 +75,14 @@ function App() {
         element={
           <ProtectedRoute>
             <InsightsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/team"
+        element={
+          <ProtectedRoute>
+            <TeamPage />
           </ProtectedRoute>
         }
       />

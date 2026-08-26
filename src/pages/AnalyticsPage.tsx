@@ -2,8 +2,6 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Phone,
-  LogOut,
   ArrowLeft,
   Download,
   Calendar,
@@ -14,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call, Job, Lead } from '@/lib/supabase';
 
 // ============================================================
@@ -700,7 +698,7 @@ interface AnalyticsMetrics {
 
 export function AnalyticsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, signOut } = useAuth();
+  const { user, profile, profileLoading } = useAuth();
   const { toast } = useToast();
 
   const [allCalls, setAllCalls] = useState<Call[]>([]);
@@ -749,12 +747,6 @@ export function AnalyticsPage() {
       navigate('/onboarding', { replace: true });
     }
   }, [profile, profileLoading, navigate]);
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast('Signed out successfully.', 'info');
-    navigate('/login', { replace: true });
-  };
 
   const rangeState = useMemo(() => getDateRangeState(range, customStart, customEnd), [range, customStart, customEnd]);
 
@@ -970,34 +962,7 @@ export function AnalyticsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-bg-primary/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
-              <Phone size={16} strokeWidth={2.5} />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-            <span className="ml-2 rounded-full bg-bg-tertiary px-2.5 py-1 text-xs font-medium text-text-secondary">
-              Analytics
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-colors hover:border-danger/40 hover:text-danger"
-              aria-label="Sign out"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-6 py-8">
+    <DashboardLayout activeLabel="Analytics">
         {/* Page header with date range picker */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
@@ -1183,7 +1148,6 @@ export function AnalyticsPage() {
             </ChartCard>
           )}
         </div>
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }
