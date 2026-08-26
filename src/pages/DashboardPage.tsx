@@ -876,15 +876,15 @@ export function DashboardPage() {
             </button>
             <button
               type="button"
-              onClick={() => toast('Call history page coming soon.', 'info')}
+              onClick={() => navigate('/dashboard/analytics')}
               className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Calendar size={20} />
+                <TrendingUp size={20} />
               </span>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Call History</p>
-                <p className="text-xs text-text-secondary">Review calls Sarah has handled</p>
+                <p className="text-sm font-semibold text-text-primary">Analytics</p>
+                <p className="text-xs text-text-secondary">Deep dive into your performance</p>
               </div>
               <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
             </button>
