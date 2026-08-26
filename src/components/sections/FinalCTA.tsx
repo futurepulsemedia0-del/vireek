@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, viewport } from '@/lib/motion';
-import { TRIAL_URL } from '@/lib/site';
 
 export function FinalCTA() {
   return (
@@ -31,12 +31,12 @@ export function FinalCTA() {
             free and hear how she handles your calls.
           </p>
           <div className="mt-9 flex justify-center">
-            <a href={TRIAL_URL} target="_blank" rel="noopener noreferrer">
+            <Link to="/login">
               <Button variant="primary" size="lg" className="shadow-glow-cta">
                 Start Free Trial
                 <ArrowRight size={18} />
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
       </motion.div>

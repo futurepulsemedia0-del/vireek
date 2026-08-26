@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { Phone } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-import { SARAH_PHONE, TRIAL_URL } from '@/lib/site';
+import { SARAH_PHONE } from '@/lib/site';
 
 const TRUST_ITEMS = [
   '24/7 AI Answering',
@@ -77,11 +78,11 @@ export function Hero() {
           transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           className="mt-10 flex flex-wrap items-center justify-center gap-4"
         >
-          <a href={TRIAL_URL} target="_blank" rel="noreferrer">
+          <Link to="/login">
             <Button variant="primary" size="lg">
               Start Free Trial
             </Button>
-          </a>
+          </Link>
           <a href={SARAH_PHONE}>
             <Button variant="ghost" size="lg" className="gap-2">
               <Phone size={18} />
