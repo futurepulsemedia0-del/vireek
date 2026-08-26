@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Phone, LogOut, Menu, X, LayoutDashboard, TrendingUp, PhoneCall, Users, Wrench, Settings, Lightbulb, ShieldCheck, CircleUser as UserCircle } from 'lucide-react';
+import { Phone, LogOut, Menu, X, LayoutDashboard, TrendingUp, PhoneCall, Users, Wrench, Settings, Lightbulb, ShieldCheck, CreditCard, Plug, CircleUser as UserCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -20,6 +20,8 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
+  { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
+  { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, requiresPermission: 'can_edit_business_profile' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
 ];

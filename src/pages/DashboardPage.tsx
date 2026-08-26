@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, Calendar, User, Settings, Lightbulb, Circle as XCircle, MapPin, Zap, Bell, Wrench, ShieldCheck, X } from 'lucide-react';
+import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, Calendar, User, Settings, Lightbulb, Circle as XCircle, MapPin, Zap, Bell, Wrench, ShieldCheck, CreditCard, Plug, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { UsageAlertBanner } from '@/pages/BillingPage';
 import { supabase, Call, Job, Lead, AiInsight, Profile } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 
@@ -635,6 +636,8 @@ export function DashboardPage() {
 
   return (
     <DashboardLayout activeLabel="Overview">
+      {/* Usage alert banner */}
+      <UsageAlertBanner onUpgrade={() => navigate('/dashboard/billing')} />
         {/* Welcome header */}
         <div className="mb-8">
           {profileLoading ? (
@@ -934,6 +937,36 @@ export function DashboardPage() {
                 <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
               </button>
             )}
+            {(isOwner || permissions.can_view_billing) && (
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/billing')}
+                className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <CreditCard size={20} />
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text-primary">Billing</p>
+                  <p className="text-xs text-text-secondary">Plan & customer invoices</p>
+                </div>
+                <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/integrations')}
+              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <Plug size={20} />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-text-primary">Integrations</p>
+                <p className="text-xs text-text-secondary">Connect your tools</p>
+              </div>
+              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+            </button>
           </div>
         </div>
 

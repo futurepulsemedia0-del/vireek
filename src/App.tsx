@@ -10,6 +10,8 @@ import { JobsPage } from '@/pages/JobsPage';
 import { BusinessProfilePage } from '@/pages/BusinessProfilePage';
 import { InsightsPage } from '@/pages/InsightsPage';
 import { TeamPage } from '@/pages/TeamPage';
+import { BillingPage } from '@/pages/BillingPage';
+import { IntegrationsPage } from '@/pages/IntegrationsPage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
 import { TermsPage } from '@/pages/TermsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -83,6 +85,22 @@ function App() {
         element={
           <ProtectedRoute>
             <TeamPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/billing"
+        element={
+          <ProtectedRoute>
+            <BillingPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/integrations"
+        element={
+          <ProtectedRoute>
+            <IntegrationsPage />
           </ProtectedRoute>
         }
       />
