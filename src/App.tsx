@@ -3,6 +3,8 @@ import { LoginPage } from '@/pages/LoginPage';
 import { OnboardingPage } from '@/pages/OnboardingPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
+import { CallsPage } from '@/pages/CallsPage';
+import { LeadsPage } from '@/pages/LeadsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
@@ -23,6 +25,22 @@ function App() {
         element={
           <ProtectedRoute>
             <AnalyticsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/calls"
+        element={
+          <ProtectedRoute>
+            <CallsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/leads"
+        element={
+          <ProtectedRoute>
+            <LeadsPage />
           </ProtectedRoute>
         }
       />

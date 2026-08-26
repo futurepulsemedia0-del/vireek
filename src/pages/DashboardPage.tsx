@@ -859,21 +859,7 @@ export function DashboardPage() {
         {/* QUICK ACTIONS */}
         <div className="mt-8">
           <h2 className="text-lg font-semibold text-text-primary">Quick Actions</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <button
-              type="button"
-              onClick={() => toast('Settings page coming soon.', 'info')}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Settings size={20} />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Account Settings</p>
-                <p className="text-xs text-text-secondary">Manage your profile and plan</p>
-              </div>
-              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-            </button>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <button
               type="button"
               onClick={() => navigate('/dashboard/analytics')}
@@ -884,21 +870,49 @@ export function DashboardPage() {
               </span>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-text-primary">Analytics</p>
-                <p className="text-xs text-text-secondary">Deep dive into your performance</p>
+                <p className="text-xs text-text-secondary">Deep dive into performance</p>
               </div>
               <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
               type="button"
-              onClick={() => toast('Business profile page coming soon.', 'info')}
+              onClick={() => navigate('/dashboard/calls')}
+              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <Phone size={20} />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-text-primary">Call History</p>
+                <p className="text-xs text-text-secondary">Review and manage calls</p>
+              </div>
+              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/leads')}
               className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
                 <User size={20} />
               </span>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Business Profile</p>
-                <p className="text-xs text-text-secondary">Tell Sarah about your business</p>
+                <p className="text-sm font-semibold text-text-primary">Leads</p>
+                <p className="text-xs text-text-secondary">Kanban board & pipeline</p>
+              </div>
+              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => toast('Settings page coming soon.', 'info')}
+              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <Settings size={20} />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-text-primary">Settings</p>
+                <p className="text-xs text-text-secondary">Manage your profile</p>
               </div>
               <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
             </button>
