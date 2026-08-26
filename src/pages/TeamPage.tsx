@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, TeamMember } from '@/lib/supabase';
+import { useKeyboardShortcut } from '@/lib/hooks';
 
 // ============================================================
 // TYPES & CONSTANTS
@@ -442,6 +443,10 @@ export function TeamPage() {
   const navigate = useNavigate();
   const { user, isOwner, profile, profileLoading } = useAuth();
   const { toast } = useToast();
+
+  useKeyboardShortcut({
+    key: '/', handler: () => navigate('/dashboard'),
+  });
 
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);

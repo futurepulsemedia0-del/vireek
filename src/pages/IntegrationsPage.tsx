@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Integration } from '@/lib/supabase';
+import { useKeyboardShortcut } from '@/lib/hooks';
 
 // ============================================================
 // CONSTANTS
@@ -81,6 +82,10 @@ export function IntegrationsPage() {
   const navigate = useNavigate();
   const { user, profile, profileLoading } = useAuth();
   const { toast } = useToast();
+
+  useKeyboardShortcut({
+    key: '/', handler: () => navigate('/dashboard'),
+  });
 
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [loading, setLoading] = useState(true);

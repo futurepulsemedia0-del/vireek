@@ -14,6 +14,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call, Job, Lead } from '@/lib/supabase';
+import { useKeyboardShortcut } from '@/lib/hooks';
+import { Lock } from 'lucide-react';
 
 // ============================================================
 // TYPES
@@ -698,8 +700,14 @@ interface AnalyticsMetrics {
 
 export function AnalyticsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user, profile, profileLoading, isOwner, permissions } = useAuth();
   const { toast } = useToast();
+
+  const canAccess = isOwner || permissions.can_view_billing;
+
+  useKeyboardShortcut({
+    key: '/', handler: () => navigate('/dashboard'), enabled: canAccess,
+  });
 
   const [allCalls, setAllCalls] = useState<Call[]>([]);
   const [allJobs, setAllJobs] = useState<Job[]>([]);
@@ -960,6 +968,22 @@ export function AnalyticsPage() {
     exportCsv(callsInRange, jobsInRange, leadsInRange, rangeState, metrics);
     toast('Report exported as CSV.', 'success');
   };
+
+  if (!canAccess) {
+    return (
+      <DashboardLayout activeLabel="Analytics">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
+            <Lock size={26} />
+          </span>
+          <h3 className="mt-4 text-lg font-semibold text-text-primary">You don't have access to this page</h3>
+          <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-text-secondary">
+            Analytics access is restricted. Ask your account owner to grant you the "View Billing" permission.
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout activeLabel="Analytics">

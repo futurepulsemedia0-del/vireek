@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, AiInsight } from '@/lib/supabase';
+import { useKeyboardShortcut } from '@/lib/hooks';
 
 // ============================================================
 // CONSTANTS
@@ -149,6 +150,10 @@ export function BillingPage() {
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
   const canAccess = isOwner || permissions.can_view_billing;
+
+  useKeyboardShortcut({
+    key: '/', handler: () => navigate('/dashboard'), enabled: canAccess,
+  });
 
   const loadJobs = useCallback(async () => {
     if (!user) return;

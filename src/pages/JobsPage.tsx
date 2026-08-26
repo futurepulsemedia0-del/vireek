@@ -1112,8 +1112,8 @@ export function JobsPage() {
 
         {/* List view */}
         {viewMode === 'list' && !dataLoading && filteredJobs.length > 0 && (
-          <div className="overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
-            <table className="w-full">
+          <div className="overflow-x-auto rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
+            <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b border-border bg-bg-tertiary/50">
                   <th className="px-4 py-3 text-left">
