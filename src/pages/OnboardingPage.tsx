@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Loader as Loader2, ArrowRight, Check, Phone } from 'lucide-react';
+import { Loader as Loader2, ArrowRight, Check, Phone, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
@@ -69,12 +69,18 @@ export function OnboardingPage() {
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg-primary via-bg-primary to-bg-secondary" />
 
       <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-6 py-4">
-        <span className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
-            <Phone size={16} strokeWidth={2.5} />
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+              <Phone size={16} strokeWidth={2.5} />
+            </span>
+            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
           </span>
-          <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-        </span>
+          <Link to="/login" className="focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">
+            <ArrowLeft size={16} />
+            Back
+          </Link>
+        </div>
         <ThemeToggle />
       </div>
 

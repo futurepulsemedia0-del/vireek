@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, Clock, TrendingUp, Settings, LogOut, ArrowRight, Calendar, User, CircleAlert as AlertCircle, Lightbulb, CircleCheck as CheckCircle2, Circle as XCircle, MapPin, DollarSign } from 'lucide-react';
+import { Phone, Clock, TrendingUp, Settings, LogOut, ArrowRight, ArrowLeft, Calendar, User, CircleAlert as AlertCircle, Lightbulb, CircleCheck as CheckCircle2, Circle as XCircle, MapPin, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -197,14 +197,20 @@ export function DashboardPage() {
     <div className="min-h-screen bg-bg-primary">
       <header className="sticky top-0 z-40 border-b border-border bg-bg-primary/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
-              <Phone size={16} strokeWidth={2.5} />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-            <span className="ml-2 rounded-full bg-bg-tertiary px-2.5 py-1 text-xs font-medium text-text-secondary">
-              Dashboard
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+                <Phone size={16} strokeWidth={2.5} />
+              </span>
+              <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
+              <span className="ml-2 rounded-full bg-bg-tertiary px-2.5 py-1 text-xs font-medium text-text-secondary">
+                Dashboard
+              </span>
+            </div>
+            <Link to="/" className="focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">
+              <ArrowLeft size={16} />
+              Back
+            </Link>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
