@@ -859,7 +859,7 @@ export function DashboardPage() {
         {/* QUICK ACTIONS */}
         <div className="mt-8">
           <h2 className="text-lg font-semibold text-text-primary">Quick Actions</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <button
               type="button"
               onClick={() => navigate('/dashboard/analytics')}
@@ -899,6 +899,20 @@ export function DashboardPage() {
               <div className="flex-1">
                 <p className="text-sm font-semibold text-text-primary">Leads</p>
                 <p className="text-xs text-text-secondary">Kanban board & pipeline</p>
+              </div>
+              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/jobs')}
+              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <Wrench size={20} />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-text-primary">Jobs</p>
+                <p className="text-xs text-text-secondary">Work orders & invoicing</p>
               </div>
               <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
             </button>

@@ -5,6 +5,7 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { CallsPage } from '@/pages/CallsPage';
 import { LeadsPage } from '@/pages/LeadsPage';
+import { JobsPage } from '@/pages/JobsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
@@ -41,6 +42,14 @@ function App() {
         element={
           <ProtectedRoute>
             <LeadsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/jobs"
+        element={
+          <ProtectedRoute>
+            <JobsPage />
           </ProtectedRoute>
         }
       />

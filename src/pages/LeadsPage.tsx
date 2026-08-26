@@ -314,135 +314,6 @@ function LeadDetailPanel({
 }
 
 // ============================================================
-// CREATE JOB MODAL
-// ============================================================
-
-function CreateJobModal({
-  lead,
-  onClose,
-  onCreated,
-}: {
-  lead: Lead;
-  onClose: () => void;
-  onCreated: () => void;
-}) {
-  const [customerName, setCustomerName] = useState(lead.name);
-  const [serviceType, setServiceType] = useState(lead.service_interested ?? '');
-  const [address, setAddress] = useState('');
-  const [scheduledDate, setScheduledDate] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customerName.trim()) return;
-    setSubmitting(true);
-    try {
-      const jobInsert: Record<string, unknown> = {
-        customer_name: customerName.trim(),
-        service_type: serviceType.trim() || null,
-        address: address.trim() || null,
-        lead_id: lead.id,
-        job_status: 'scheduled',
-      };
-      if (lead.call_id) jobInsert.call_id = lead.call_id;
-      if (scheduledDate) jobInsert.scheduled_datetime = new Date(scheduledDate).toISOString();
-
-      const { error } = await supabase.from('jobs').insert(jobInsert);
-      if (error) throw error;
-
-      await supabase.from('leads').update({ stage: 'won' }).eq('id', lead.id);
-      onCreated();
-    } catch {
-      // handled by parent toast
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-lg rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
-      >
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-text-primary">Create Job from Lead</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-primary">Customer Name</label>
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-primary">Service Type</label>
-            <input
-              type="text"
-              value={serviceType}
-              onChange={(e) => setServiceType(e.target.value)}
-              placeholder="e.g. Plumbing repair"
-              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-primary">Service Address</label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="e.g. 123 Main St, Springfield"
-              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-primary">Scheduled Date (optional)</label>
-            <input
-              type="datetime-local"
-              value={scheduledDate}
-              onChange={(e) => setScheduledDate(e.target.value)}
-              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
-            />
-          </div>
-
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={submitting || !customerName.trim()}
-              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
-            >
-              <Wrench size={16} />
-              {submitting ? 'Creating…' : 'Create Job'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="focus-ring rounded-xl border border-border px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </motion.div>
-    </div>
-  );
-}
-
-// ============================================================
 // MAIN LEADS PAGE
 // ============================================================
 
@@ -455,7 +326,6 @@ export function LeadsPage() {
   const [allCalls, setAllCalls] = useState<Call[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [showJobModal, setShowJobModal] = useState(false);
   const [search, setSearch] = useState('');
   const [mobileStage, setMobileStage] = useState<Stage | 'all'>('all');
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -498,9 +368,7 @@ export function LeadsPage() {
   useKeyboardShortcut({
     key: 'Escape',
     handler: () => {
-      if (showJobModal) {
-        setShowJobModal(false);
-      } else if (selectedLead) {
+      if (selectedLead) {
         setSelectedLead(null);
       } else if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
@@ -626,14 +494,17 @@ export function LeadsPage() {
   };
 
   const handleConvertToJob = () => {
-    setShowJobModal(true);
-  };
-
-  const handleJobCreated = () => {
-    setShowJobModal(false);
-    setSelectedLead(null);
-    loadData();
-    toast('Job created from lead. Lead marked as Won.', 'success');
+    if (!selectedLead) return;
+    navigate('/dashboard/jobs', {
+      state: {
+        prefill: {
+          customer_name: selectedLead.name,
+          service_type: selectedLead.service_interested ?? '',
+          lead_id: selectedLead.id,
+          call_id: selectedLead.call_id ?? undefined,
+        },
+      },
+    });
   };
 
   const originatingCall = selectedLead?.call_id
@@ -835,7 +706,7 @@ export function LeadsPage() {
 
       {/* Detail panel */}
       <AnimatePresence>
-        {selectedLead && !showJobModal && (
+        {selectedLead && (
           <>
             <div
               className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
@@ -854,16 +725,6 @@ export function LeadsPage() {
         )}
       </AnimatePresence>
 
-      {/* Create job modal */}
-      <AnimatePresence>
-        {showJobModal && selectedLead && (
-          <CreateJobModal
-            lead={selectedLead}
-            onClose={() => setShowJobModal(false)}
-            onCreated={handleJobCreated}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
