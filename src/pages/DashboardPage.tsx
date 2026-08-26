@@ -215,7 +215,7 @@ interface AttentionItem {
   icon: typeof Phone;
 }
 
-function NeedsAttention({ items }: { items: AttentionItem[] }) {
+function NeedsAttention({ items, onInsightClick }: { items: AttentionItem[]; onInsightClick?: () => void }) {
   const priorityConfig = {
     urgent: { color: 'border-l-danger bg-danger/5', iconColor: 'text-danger', label: 'Urgent' },
     warning: { color: 'border-l-warning-500 bg-warning-500/5', iconColor: 'text-warning-500', label: 'Warning' },
@@ -251,7 +251,10 @@ function NeedsAttention({ items }: { items: AttentionItem[] }) {
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
-                className={`flex items-start gap-3 rounded-xl border-l-4 ${config.color} px-4 py-3.5`}
+                onClick={() => {
+                  if (item.type === 'insight' && onInsightClick) onInsightClick();
+                }}
+                className={`flex items-start gap-3 rounded-xl border-l-4 ${config.color} px-4 py-3.5 ${item.type === 'insight' && onInsightClick ? 'cursor-pointer' : ''}`}
               >
                 <item.icon size={20} className={`mt-0.5 shrink-0 ${config.iconColor}`} />
                 <div className="flex-1 min-w-0">
@@ -813,7 +816,7 @@ export function DashboardPage() {
         {/* CHART + NEEDS ATTENTION */}
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
           {dataLoading ? <ChartSkeleton /> : <CallVolumeChart data={metrics.chartData} />}
-          <NeedsAttention items={metrics.attentionItems} />
+          <NeedsAttention items={metrics.attentionItems} onInsightClick={() => navigate('/dashboard/insights')} />
         </div>
 
         {/* AI INSIGHTS (if any non-digest insights exist) */}
@@ -859,7 +862,7 @@ export function DashboardPage() {
         {/* QUICK ACTIONS */}
         <div className="mt-8">
           <h2 className="text-lg font-semibold text-text-primary">Quick Actions</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
             <button
               type="button"
               onClick={() => navigate('/dashboard/analytics')}
@@ -918,15 +921,29 @@ export function DashboardPage() {
             </button>
             <button
               type="button"
-              onClick={() => toast('Settings page coming soon.', 'info')}
+              onClick={() => navigate('/dashboard/business-profile')}
               className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
                 <Settings size={20} />
               </span>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Settings</p>
-                <p className="text-xs text-text-secondary">Manage your profile</p>
+                <p className="text-sm font-semibold text-text-primary">Business Profile</p>
+                <p className="text-xs text-text-secondary">Services, hours & FAQs</p>
+              </div>
+              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/insights')}
+              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <Lightbulb size={20} />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-text-primary">Insights</p>
+                <p className="text-xs text-text-secondary">AI smart suggestions</p>
               </div>
               <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
             </button>

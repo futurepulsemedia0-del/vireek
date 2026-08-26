@@ -6,6 +6,8 @@ import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { CallsPage } from '@/pages/CallsPage';
 import { LeadsPage } from '@/pages/LeadsPage';
 import { JobsPage } from '@/pages/JobsPage';
+import { BusinessProfilePage } from '@/pages/BusinessProfilePage';
+import { InsightsPage } from '@/pages/InsightsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
@@ -50,6 +52,22 @@ function App() {
         element={
           <ProtectedRoute>
             <JobsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/business-profile"
+        element={
+          <ProtectedRoute>
+            <BusinessProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/insights"
+        element={
+          <ProtectedRoute>
+            <InsightsPage />
           </ProtectedRoute>
         }
       />
