@@ -12,11 +12,11 @@ function Logo({ mobile = false }: { mobile?: boolean }) {
   const size = mobile ? 'h-10 w-10' : 'h-12 w-12';
 
   return (
-    <span className={`relative block shrink-0 overflow-hidden rounded-xl border border-border bg-bg-secondary p-1.5 ${size}`}>
+    <span className={`relative block shrink-0 ${size}`}>
       <img
         src="/assets/logos/logo-dark.png.png"
         alt="Vireek"
-        className={`absolute inset-1.5 h-[calc(100%-0.75rem)] w-[calc(100%-0.75rem)] object-contain transition-opacity duration-200 ${
+        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
           theme === 'light' ? 'opacity-100' : 'opacity-0'
         }`}
       />
@@ -24,7 +24,7 @@ function Logo({ mobile = false }: { mobile?: boolean }) {
         src="/assets/logos/logo-light.png.png"
         alt=""
         aria-hidden="true"
-        className={`absolute inset-1.5 h-[calc(100%-0.75rem)] w-[calc(100%-0.75rem)] object-contain transition-opacity duration-200 ${
+        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
           theme === 'dark' ? 'opacity-100' : 'opacity-0'
         }`}
       />
