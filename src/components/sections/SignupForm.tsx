@@ -1,10 +1,11 @@
 import { FormEvent, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Phone, AlertCircle } from 'lucide-react';
+import { CircleCheck as CheckCircle2, Phone, CircleAlert as AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, sectionHeadingClass, viewport } from '@/lib/motion';
 import { SARAH_PHONE } from '@/lib/site';
+import { supabase } from '@/lib/supabase';
 
 type FormData = {
   fullName: string;
@@ -56,15 +57,18 @@ export function SignupForm() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const response = await fetch('https://submit-form.com/USdWD1urW', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      const { error: insertError } = await supabase.from('sales_inquiries').insert({
+        full_name: formData.fullName,
+        email: formData.email,
+        company_name: formData.companyName || null,
+        phone: formData.phone || null,
+        best_time_to_call: formData.bestTimeToCall || null,
+        sms_consent: formData.smsConsent,
       });
-      if (response.ok) {
-        setSubmitted(true);
-      } else {
+      if (insertError) {
         setError(true);
+      } else {
+        setSubmitted(true);
       }
     } catch (err) {
       setError(true);
