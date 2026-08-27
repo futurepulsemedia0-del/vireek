@@ -25,6 +25,8 @@ export interface Profile {
   onboarding_completed: boolean;
   forwarding_number: string | null;
   external_id: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
   created_at: string;
 }
 
