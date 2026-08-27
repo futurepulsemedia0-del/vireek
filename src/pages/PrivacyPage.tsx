@@ -4,7 +4,6 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { PrivacyContent } from '@/components/sections/PrivacyContent';
 import { CookieConsent } from '@/components/CookieConsent';
-import { BackButton } from '@/components/BackButton';
 
 export function PrivacyPage() {
   useEffect(() => {
@@ -15,9 +14,6 @@ export function PrivacyPage() {
     <ThemeProvider>
       <Header />
       <main>
-        <div className="mx-auto max-w-4xl px-6 pt-8">
-          <BackButton fallback="/" />
-        </div>
         <PrivacyContent />
       </main>
       <Footer />

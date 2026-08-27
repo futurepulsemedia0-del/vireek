@@ -4,7 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { NAV_LINKS, TRIAL_URL } from '@/lib/site';
+import { NAV_LINKS } from '@/lib/site';
 import { useTheme } from '@/contexts/ThemeContext';
 
 function Logo({ mobile = false }: { mobile?: boolean }) {
@@ -12,11 +12,11 @@ function Logo({ mobile = false }: { mobile?: boolean }) {
   const size = mobile ? 'h-10 w-10' : 'h-12 w-12';
 
   return (
-    <span className={`relative block shrink-0 overflow-hidden rounded-xl border border-border bg-bg-secondary p-1.5 ${size}`}>
+    <span className={`relative block shrink-0 ${size}`}>
       <img
         src="/assets/logos/logo-dark.png.png"
         alt="Vireek"
-        className={`absolute inset-1.5 h-[calc(100%-0.75rem)] w-[calc(100%-0.75rem)] object-contain transition-opacity duration-200 ${
+        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
           theme === 'light' ? 'opacity-100' : 'opacity-0'
         }`}
       />
@@ -24,7 +24,7 @@ function Logo({ mobile = false }: { mobile?: boolean }) {
         src="/assets/logos/logo-light.png.png"
         alt=""
         aria-hidden="true"
-        className={`absolute inset-1.5 h-[calc(100%-0.75rem)] w-[calc(100%-0.75rem)] object-contain transition-opacity duration-200 ${
+        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
           theme === 'dark' ? 'opacity-100' : 'opacity-0'
         }`}
       />
@@ -91,11 +91,11 @@ export function Header() {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <a href={TRIAL_URL} target="_blank" rel="noreferrer" className="hidden sm:block">
+            <Link to="/login" className="hidden sm:block">
               <Button variant="primary" size="sm">
                 Start Free Trial
               </Button>
-            </a>
+            </Link>
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
@@ -152,11 +152,11 @@ export function Header() {
                   </a>
                 ))}
               </nav>
-              <a href={TRIAL_URL} target="_blank" rel="noreferrer" className="mt-auto">
+              <Link to="/login" className="mt-auto">
                 <Button variant="primary" size="md" className="w-full">
                   Start Free Trial
                 </Button>
-              </a>
+              </Link>
             </motion.aside>
           </>
         )}
