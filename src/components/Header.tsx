@@ -73,17 +73,17 @@ export function Header() {
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-200 ease-out ${
           scrolled
-            ? 'border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl'
-            : 'border-b border-transparent bg-transparent'
+            ? 'border-b border-border/80 bg-bg-secondary/90 shadow-sm backdrop-blur-xl'
+            : 'border-b border-transparent bg-bg-primary/70 backdrop-blur-md'
         }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link to="/" className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3">
             <Logo />
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-7 rounded-full border border-border/70 bg-bg-secondary/70 px-5 py-2 shadow-sm backdrop-blur md:flex">
             {NAV_LINKS.map((link) => (
               <NavLink key={link.href} label={link.label} href={navHref(link.href)} />
             ))}
@@ -92,8 +92,8 @@ export function Header() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link to="/login" className="hidden sm:block">
-              <Button variant="primary" size="sm">
-                Start Free Trial
+              <Button variant="primary" size="sm" className="px-5 shadow-glow-accent">
+                Start free trial
               </Button>
             </Link>
             <button
@@ -154,7 +154,7 @@ export function Header() {
               </nav>
               <Link to="/login" className="mt-auto">
                 <Button variant="primary" size="md" className="w-full">
-                  Start Free Trial
+                  Start free trial
                 </Button>
               </Link>
             </motion.aside>

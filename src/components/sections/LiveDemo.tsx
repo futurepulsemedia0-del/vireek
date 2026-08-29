@@ -28,7 +28,7 @@ export function LiveDemo() {
           className="max-w-3xl"
         >
           <p className={eyebrowClass()}>Live demo</p>
-          <h2 className={sectionHeadingClass()}>Talk to Sarah Right Now</h2>
+          <h2 className={sectionHeadingClass()}>See the AI receptionist experience your callers get.</h2>
         </motion.div>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-2">
@@ -50,7 +50,7 @@ export function LiveDemo() {
               {PHONE_DISPLAY}
             </span>
             <span className="mt-3 text-base text-text-secondary">
-              Tap to call from your phone. She answers in seconds.
+              Tap to call from your phone and experience the intake flow in seconds.
             </span>
           </motion.a>
 
@@ -62,7 +62,7 @@ export function LiveDemo() {
             className="rounded-2xl border border-border bg-bg-tertiary p-6 md:p-8"
           >
             <p className="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-text-secondary">
-              Sample conversation
+              Live intake preview
             </p>
             <div className="flex flex-col gap-4">
               {MESSAGES.map((msg, i) => {
@@ -105,7 +105,7 @@ export function LiveDemo() {
               transition={{ duration: 0.5, delay: 1.2 }}
               className="mt-6 text-sm text-text-secondary"
             >
-              Sarah understands context, urgency, and trade-specific terminology — not just keywords.
+              Sarah turns natural conversation into urgency, customer details, and a clear next action for your team.
             </motion.p>
           </motion.div>
         </div>

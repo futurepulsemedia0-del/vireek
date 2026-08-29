@@ -24,16 +24,15 @@ export function FinalCTA() {
         />
         <div className="relative">
           <h2 className="text-3xl font-bold leading-[1.15] tracking-tight text-white text-balance md:text-5xl">
-            Stop Losing Jobs to Voicemail
+            Put an AI receptionist on your business line today.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg text-pretty">
-            Every call Sarah answers is a customer who reached a real voice instead of a beep. Start
-            free and hear how she handles your calls.
+            Start with a free trial, call Sarah yourself, and see how Vireek captures callers your team would otherwise miss.
           </p>
           <div className="mt-9 flex justify-center">
             <Link to="/login">
               <Button variant="primary" size="lg" className="shadow-glow-cta">
-                Start Free Trial
+                Start free trial
                 <ArrowRight size={18} />
               </Button>
             </Link>

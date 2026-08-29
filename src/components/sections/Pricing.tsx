@@ -37,18 +37,18 @@ export function Pricing() {
             {"Start Your 14-Day Free Trial \u2014 No Credit Card Required"}
           </span>
           <p className={`${eyebrowClass()} mt-8`}>Pricing</p>
-          <h2 className={sectionHeadingClass()}>Simple Pricing. No Surprises.</h2>
-          <p className={`${bodyClass()} mx-auto`}>One powerful plan. Cancel anytime.</p>
+          <h2 className={sectionHeadingClass()}>Start small. Scale call coverage when it proves ROI.</h2>
+          <p className={`${bodyClass()} mx-auto`}>Transparent plans for validating Vireek quickly, then standardizing AI call coverage across your business.</p>
         </motion.div>
 
-        <div className="mx-auto mt-14 grid max-w-4xl items-start gap-6 md:grid-cols-2">
-          {/* Starter */}
+        <div className="mx-auto mt-14 grid max-w-5xl items-stretch gap-6 md:grid-cols-2">
+          {/* Trial */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewport}
             transition={{ duration: 0.5, ease: EASE }}
-            className="flex h-full flex-col rounded-2xl border border-border bg-bg-secondary p-8 shadow-card dark:shadow-card-dark"
+            className="flex h-full flex-col rounded-3xl border border-border bg-bg-secondary p-8 shadow-card dark:shadow-card-dark"
           >
             <h3 className="text-lg font-semibold text-text-primary">Starter</h3>
             <div className="mt-4 flex items-baseline gap-1">
@@ -56,8 +56,7 @@ export function Pricing() {
               <span className="text-text-secondary">/month</span>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-              Experience Sarah risk-free with 50 included minutes. See exactly how AI answering
-              captures and qualifies your customer calls.
+              Validate Sarah risk-free with 50 included minutes and hear exactly how she handles your real callers.
             </p>
             <ul className="mt-6 flex flex-1 flex-col gap-3">
               {STARTER_FEATURES.map((f) => (
@@ -74,16 +73,16 @@ export function Pricing() {
             </Link>
           </motion.div>
 
-          {/* Professional */}
+          {/* Growth */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewport}
             transition={{ duration: 0.5, delay: 0.08, ease: EASE }}
-            className="relative flex h-full flex-col rounded-2xl border-2 border-accent bg-bg-secondary p-8 shadow-glow-accent"
+            className="relative flex h-full flex-col rounded-3xl border-2 border-accent bg-bg-secondary p-8 shadow-glow-accent"
           >
             <span className="absolute -top-3 right-6 inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-glow-accent animate-pulse">
-              Recommended
+              Most popular
             </span>
             <h3 className="text-lg font-semibold text-text-primary">Professional</h3>
             <div className="mt-4 flex items-baseline gap-1">
@@ -97,8 +96,7 @@ export function Pricing() {
               </p>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-              Everything you need to never miss a call again. Replaces a $3,000/month receptionist
-              for a fraction of the cost.
+              A complete AI receptionist system for teams ready to capture after-hours demand, route emergencies, and reduce admin work.
             </p>
             <ul className="mt-6 flex flex-1 flex-col gap-3">
               {PRO_FEATURES.map((f) => (

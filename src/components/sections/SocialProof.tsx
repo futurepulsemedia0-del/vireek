@@ -1,86 +1,56 @@
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Building2, Globe2, LockKeyhole, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
-import { EASE, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
+import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 
 const STATS = [
-  {
-    value: '60\u201380%',
-    label: 'of calls to home service businesses go unanswered industry-wide',
-  },
-  {
-    value: '62%',
-    label: "of callers who don't get through call a competitor instead",
-  },
-  {
-    value: '$1,200+',
-    label: 'average value of a single missed emergency job',
-  },
+  { value: '24/7', label: 'coverage for every inbound call' },
+  { value: '<2 sec', label: 'AI answer experience for urgent callers' },
+  { value: '300+', label: 'typical monthly calls included on Professional' },
+];
+
+const TRUST = [
+  { icon: Building2, title: 'Built for operators', body: 'Designed around real service workflows: urgency, job details, address capture, and follow-up.' },
+  { icon: LockKeyhole, title: 'Business-ready handoff', body: 'Every conversation becomes a structured summary your team can act on quickly.' },
+  { icon: Globe2, title: 'Global SaaS standard', body: 'Clear onboarding, transparent pricing, responsive support, and product-led trial conversion.' },
 ];
 
 export function SocialProof() {
   return (
     <section className="py-24 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
-        {/* Built on Industry Data */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={viewport}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="max-w-3xl"
-        >
-          <h3 className={sectionHeadingClass()}>Built on Industry Data</h3>
+        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={viewport} transition={{ duration: 0.5, ease: EASE }} className="mx-auto max-w-3xl text-center">
+          <p className={eyebrowClass()}>Trust layer</p>
+          <h2 className={sectionHeadingClass()}>Enterprise-grade call coverage for teams that cannot afford voicemail.</h2>
         </motion.div>
 
-        <motion.div
-          variants={staggerContainer}
-          initial="initial"
-          whileInView="whileInView"
-          viewport={viewport}
-          className="mt-12 grid gap-6 md:grid-cols-3"
-        >
+        <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={viewport} className="mt-14 grid gap-6 md:grid-cols-3">
           {STATS.map(({ value, label }) => (
             <motion.div key={value} variants={fadeUpItem} transition={{ duration: 0.5, ease: EASE }}>
-              <Card className="h-full">
-                <p className="text-4xl font-bold tracking-tight text-accent md:text-5xl">{value}</p>
-                <p className="mt-4 text-base leading-relaxed text-text-secondary">{label}</p>
+              <Card className="h-full text-center">
+                <p className="text-5xl font-extrabold tracking-tight text-accent md:text-6xl">{value}</p>
+                <p className="mx-auto mt-4 max-w-xs text-base leading-relaxed text-text-secondary">{label}</p>
               </Card>
             </motion.div>
           ))}
         </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={viewport}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="mt-6 text-sm text-text-secondary/70"
-        >
-          Source: industry research on home services call handling, 2026.
-        </motion.p>
-
-        {/* Founding Contractors */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={viewport}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="mt-20"
-        >
-          <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-bg-secondary p-10 shadow-card dark:shadow-card-dark md:p-14">
-            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-accent/[0.06] via-transparent to-cta/[0.06]" />
-            <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-eyebrow font-semibold uppercase text-accent">
-              <Sparkles size={14} />
-              Now in Early Access
-            </span>
-            <h3 className="mt-6 max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight text-text-primary md:text-4xl text-balance">
-              Be one of the first contractors on Vireek
-            </h3>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary md:text-lg">
-              Vireek is new. Early contractors get hands-on setup help and direct input on what we
-              build next.
-            </p>
+        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={viewport} transition={{ duration: 0.5, ease: EASE }} className="mt-16 overflow-hidden rounded-3xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="bg-slate-950 p-8 text-white md:p-10">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-white/80"><Sparkles size={13} />Early access</span>
+              <h3 className="mt-6 text-3xl font-bold leading-tight md:text-4xl">A premium AI receptionist without enterprise complexity.</h3>
+              <p className="mt-4 text-base leading-relaxed text-slate-300">Vireek is new, focused, and hands-on. Early customers get guided setup and direct influence on the roadmap.</p>
+            </div>
+            <div className="grid gap-0 md:grid-cols-3">
+              {TRUST.map(({ icon: Icon, title, body }) => (
+                <div key={title} className="border-b border-border p-7 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0">
+                  <Icon size={24} className="text-accent" />
+                  <h4 className="mt-5 text-lg font-semibold text-text-primary">{title}</h4>
+                  <p className="mt-3 text-sm leading-relaxed text-text-secondary">{body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>
