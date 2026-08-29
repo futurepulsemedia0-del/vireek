@@ -12,7 +12,7 @@ const SOLUTIONS = [
   },
   {
     icon: AlertTriangle,
-    badge: 'orange',
+    badge: 'violet',
     title: 'Detects Real Emergencies',
     body: 'A burst pipe at 2am gets flagged and dispatched, not queued behind a routine tune-up request.',
   },

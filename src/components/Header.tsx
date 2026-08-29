@@ -73,14 +73,14 @@ export function Header() {
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-200 ease-out ${
           scrolled
-            ? 'border-b border-border bg-bg-primary/80 backdrop-blur-md'
+            ? 'border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl'
             : 'border-b border-transparent bg-transparent'
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-3">
             <Logo />
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
+            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
 
           <nav className="hidden items-center gap-8 md:flex">
@@ -129,7 +129,7 @@ export function Header() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Logo mobile />
-                  <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
+                  <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
                 </div>
                 <button
                   type="button"

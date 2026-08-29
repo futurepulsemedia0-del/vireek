@@ -12,7 +12,7 @@ const FEATURES = [
   },
   {
     icon: Siren,
-    badge: 'orange',
+    badge: 'violet',
     title: 'Emergency Detection',
     body: 'Urgent jobs get flagged and dispatched instantly instead of waiting in a queue.',
   },
@@ -30,7 +30,7 @@ const FEATURES = [
   },
   {
     icon: MessageSquareText,
-    badge: 'orange',
+    badge: 'violet',
     title: 'SMS Confirmations',
     body: 'Customers get an instant text confirming the time, address, and details.',
   },
