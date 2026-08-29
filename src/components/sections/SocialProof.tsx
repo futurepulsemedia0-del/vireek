@@ -69,7 +69,7 @@ export function SocialProof() {
           className="mt-20"
         >
           <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-bg-secondary p-10 shadow-card dark:shadow-card-dark md:p-14">
-            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-accent/[0.06] via-transparent to-cta/[0.05]" />
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-accent/[0.06] via-transparent to-cta/[0.06]" />
             <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-eyebrow font-semibold uppercase text-accent">
               <Sparkles size={14} />
               Now in Early Access

@@ -11,19 +11,21 @@
   --text-primary: 15 23 42;
   --text-secondary: 71 85 105;
   --border-default: 226 232 240;
-  --accent-primary: 37 99 235;
-  --success: 34 197 94;
-  --danger: 239 68 68;
+  --accent-primary: 29 78 216;
+  --accent-secondary: 109 40 217;
+  --success: 22 163 74;
+  --danger: 220 38 38;
 }
 
 .dark {
-  --bg-primary: 2 6 23;
-  --bg-secondary: 15 23 42;
-  --bg-tertiary: 30 41 59;
-  --text-primary: 241 245 249;
+  --bg-primary: 3 7 18;
+  --bg-secondary: 10 18 32;
+  --bg-tertiary: 15 23 42;
+  --text-primary: 248 250 252;
   --text-secondary: 148 163 184;
   --border-default: 30 41 59;
-  --accent-primary: 59 130 246;
+  --accent-primary: 96 165 250;
+  --accent-secondary: 167 139 250;
   --success: 74 222 128;
   --danger: 248 113 113;
 }
@@ -64,9 +66,9 @@ body {
 
   .bg-gradient-mesh {
     background-image:
-      radial-gradient(circle at 15% 20%, rgb(var(--accent-primary) / 0.12), transparent 45%),
-      radial-gradient(circle at 85% 15%, rgb(249 115 22 / 0.08), transparent 40%),
-      radial-gradient(circle at 50% 90%, rgb(var(--accent-primary) / 0.06), transparent 50%);
+      radial-gradient(circle at 15% 20%, rgb(var(--accent-primary) / 0.14), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgb(var(--accent-secondary) / 0.10), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgb(var(--success) / 0.055), transparent 50%);
   }
 
   .focus-ring {

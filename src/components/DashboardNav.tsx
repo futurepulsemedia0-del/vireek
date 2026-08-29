@@ -61,7 +61,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             onClick={() => setDrawerOpen(false)}
             className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
               active
-                ? 'bg-accent/10 text-accent'
+                ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/15'
                 : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
             }`}
           >
@@ -76,12 +76,12 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border bg-bg-secondary lg:flex">
+      <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex">
         <div className="flex items-center gap-2.5 px-6 py-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
             <Phone size={16} strokeWidth={2.5} />
           </span>
-          <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
+          <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-4">
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-secondary/60">
@@ -105,13 +105,13 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       </aside>
 
       {/* Mobile header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-bg-primary/80 backdrop-blur-md lg:hidden">
+      <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <Link to="/dashboard" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
               <Phone size={16} strokeWidth={2.5} />
             </span>
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
+            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -148,10 +148,10 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             >
               <div className="flex items-center justify-between px-5 py-4">
                 <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
                     <Phone size={16} strokeWidth={2.5} />
                   </span>
-                  <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
+                  <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
                 </div>
                 <button
                   type="button"

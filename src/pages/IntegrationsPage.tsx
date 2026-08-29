@@ -50,8 +50,8 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     name: 'HubSpot',
     description: 'Push leads and customer data into your HubSpot CRM.',
     icon: Mail,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10',
+    color: 'text-violet-500',
+    bgColor: 'bg-violet-500/10',
     hasWebhook: false,
   },
   {
@@ -68,8 +68,8 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     name: 'Webhook',
     description: 'Receive real-time event notifications at your own endpoint.',
     icon: Webhook,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
+    color: 'text-indigo-500',
+    bgColor: 'bg-indigo-500/10',
     hasWebhook: true,
   },
 ];
