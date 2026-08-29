@@ -15,6 +15,7 @@ import { BillingPage } from '@/pages/BillingPage';
 import { IntegrationsPage } from '@/pages/IntegrationsPage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
 import { TermsPage } from '@/pages/TermsPage';
+import { FAQPage } from '@/pages/FAQPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
       <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+      <Route path="/faq" element={<FAQPage />} />
       <Route
         path="/dashboard"
         element={

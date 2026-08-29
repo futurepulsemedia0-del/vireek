@@ -2,13 +2,16 @@ import { Mail, Linkedin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SARAH_PHONE } from '@/lib/site';
 
-const QUICK_LINKS = [
+const EXPLORE_LINKS = [
   { label: 'Features', href: '#features', type: 'hash' as const },
   { label: 'Industries', href: '#industries', type: 'hash' as const },
   { label: 'Pricing', href: '#pricing', type: 'hash' as const },
-  { label: 'FAQ', href: '#faq', type: 'hash' as const },
   { label: 'Privacy', href: '/privacy', type: 'route' as const },
   { label: 'Terms', href: '/terms', type: 'route' as const },
+];
+
+const SUPPORT_LINKS = [
+  { label: 'FAQ', href: '/faq' },
 ];
 
 const EMAIL = 'ali@vireek.com';
@@ -19,7 +22,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-bg-tertiary">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
+        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="max-w-sm">
             <span className="text-xl font-bold tracking-tight text-accent">Vireek</span>
@@ -55,7 +58,7 @@ export function Footer() {
               Explore
             </h3>
             <ul className="mt-4 flex flex-col gap-3">
-              {QUICK_LINKS.map((link) => (
+              {EXPLORE_LINKS.map((link) => (
                 <li key={link.href}>
                   {link.type === 'route' ? (
                     <Link
@@ -72,6 +75,26 @@ export function Footer() {
                       {link.label}
                     </a>
                   )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+
+          {/* Support */}
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
+              Support
+            </h3>
+            <ul className="mt-4 flex flex-col gap-3">
+              {SUPPORT_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    to={link.href}
+                    className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
