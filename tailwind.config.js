@@ -6,7 +6,9 @@ export default {
     extend: {
       colors: {
         accent: {
-          DEFAULT: 'rgb(var(--accent-primary) / <alpha-value>)',
+          DEFAULT: '#6366F1',
+          hover: '#4F46E5',
+          light: '#EEF2FF',
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
@@ -36,15 +38,27 @@ export default {
         'bg-primary': 'rgb(var(--bg-primary) / <alpha-value>)',
         'bg-secondary': 'rgb(var(--bg-secondary) / <alpha-value>)',
         'bg-tertiary': 'rgb(var(--bg-tertiary) / <alpha-value>)',
-        'text-primary': 'rgb(var(--text-primary) / <alpha-value>)',
-        'text-secondary': 'rgb(var(--text-secondary) / <alpha-value>)',
-        border: 'rgb(var(--border-default) / <alpha-value>)',
+        text: {
+          primary: '#0A0A0A',
+          secondary: '#6B7280',
+        },
+        'text-primary': '#0A0A0A',
+        'text-secondary': '#6B7280',
+        border: {
+          DEFAULT: '#E5E7EB',
+        },
         success: 'rgb(var(--success) / <alpha-value>)',
         'success-500': 'rgb(var(--success) / <alpha-value>)',
         'warning-500': '#D97706',
         danger: 'rgb(var(--danger) / <alpha-value>)',
       },
+      borderRadius: {
+        full: '9999px',
+        md: '12px',
+      },
       boxShadow: {
+        sm: '0 1px 2px rgba(0,0,0,0.04)',
+        md: '0 4px 12px rgba(0,0,0,0.08)',
         card: '0 1px 2px rgb(15 23 42 / 0.04), 0 10px 30px -24px rgb(15 23 42 / 0.28)',
         'card-hover': '0 18px 50px -28px rgb(15 23 42 / 0.32), 0 8px 18px -12px rgb(29 78 216 / 0.18)',
         'card-dark': '0 1px 2px rgb(0 0 0 / 0.35), 0 18px 44px -28px rgb(0 0 0 / 0.75)',
