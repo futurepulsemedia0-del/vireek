@@ -51,7 +51,10 @@ export function Header() {
   const location = useLocation();
   const isHome = location.pathname === '/';
 
-  const navHref = (href: string) => (isHome ? href : `/${href}`);
+  const navHref = (href: string) => {
+    if (href.startsWith('/')) return href;
+    return isHome ? href : `/${href}`;
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);

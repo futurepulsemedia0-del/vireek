@@ -12,7 +12,6 @@ import { Features } from '@/components/sections/Features';
 import { SocialProof } from '@/components/sections/SocialProof';
 import { Pricing } from '@/components/sections/Pricing';
 import { SignupForm } from '@/components/sections/SignupForm';
-import { FAQ } from '@/components/sections/FAQ';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 import { CookieConsent } from '@/components/CookieConsent';
 
@@ -31,7 +30,6 @@ export function HomePage() {
         <Features />
         <SocialProof />
         <Pricing />
-        <FAQ />
         <SignupForm />
         <FinalCTA />
       </main>
