@@ -1,0 +1,8 @@
+[functions.check-usage-alert]
+verify_jwt = false
+
+[functions.generate-insights]
+verify_jwt = false
+
+[functions.notify-sales-inquiry]
+verify_jwt = false
