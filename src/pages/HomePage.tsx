@@ -3,6 +3,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/sections/Hero';
 import { Problem } from '@/components/sections/Problem';
+import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
 import { BeforeAfter } from '@/components/sections/BeforeAfter';
 import { Solution } from '@/components/sections/Solution';
 import { HowItWorks } from '@/components/sections/HowItWorks';
@@ -22,6 +23,7 @@ export function HomePage() {
       <main>
         <Hero />
         <Problem />
+        <MissedCallCalculator />
         <BeforeAfter />
         <Solution />
         <HowItWorks />
