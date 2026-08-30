@@ -5,29 +5,31 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: 248 250 252;
+  --bg-primary: 251 251 253;
   --bg-secondary: 255 255 255;
-  --bg-tertiary: 241 245 249;
-  --text-primary: 15 23 42;
-  --text-secondary: 71 85 105;
-  --border-default: 226 232 240;
-  --accent-primary: 29 78 216;
-  --accent-secondary: 109 40 217;
-  --success: 22 163 74;
+  --bg-tertiary: 245 245 247;
+  --text-primary: 29 29 31;
+  --text-secondary: 110 110 115;
+  --border-default: 224 224 229;
+  --accent-primary: 79 70 229;
+  --accent-secondary: 108 47 242;
+  --success: 5 150 105;
   --danger: 220 38 38;
+  --warning: 217 119 6;
 }
 
 .dark {
-  --bg-primary: 3 7 18;
-  --bg-secondary: 10 18 32;
-  --bg-tertiary: 15 23 42;
-  --text-primary: 248 250 252;
-  --text-secondary: 148 163 184;
-  --border-default: 30 41 59;
-  --accent-primary: 96 165 250;
+  --bg-primary: 8 8 10;
+  --bg-secondary: 17 17 20;
+  --bg-tertiary: 24 24 28;
+  --text-primary: 245 245 247;
+  --text-secondary: 165 165 172;
+  --border-default: 40 40 46;
+  --accent-primary: 129 140 248;
   --accent-secondary: 167 139 250;
-  --success: 74 222 128;
+  --success: 52 211 153;
   --danger: 248 113 113;
+  --warning: 251 191 36;
 }
 
 html {
