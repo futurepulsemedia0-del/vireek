@@ -5,6 +5,7 @@ import { Phone, LogOut, Menu, X, LayoutDashboard, TrendingUp, PhoneCall, Users, 
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { UpgradeBanner } from '@/components/UpgradeBanner';
 
 interface NavItem {
   label: string;
@@ -194,7 +195,10 @@ export function DashboardLayout({
     <div className="min-h-screen bg-bg-primary">
       <DashboardNav activeLabel={activeLabel} />
       <div className="lg:pl-60">
-        <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+        <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
+          <UpgradeBanner />
+          {children}
+        </main>
       </div>
     </div>
   );
