@@ -1,3 +1,64 @@
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/index.html b/index.html
+--- a/index.html	2026-08-30 17:34:42.000000000 +0000
++++ b/index.html	2026-08-30 19:02:49.830359494 +0000
+@@ -3,7 +3,56 @@
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-    <title>Vireek Dashboard</title>
++
++    <!-- Primary SEO -->
++    <title>Vireek — AI Receptionist for Home Service Businesses</title>
++    <meta name="description" content="Vireek is the AI receptionist built for plumbers, HVAC, electricians, and home service pros. Never miss another call: instant answering, appointment booking, lead capture, and CRM sync — 24/7." />
++    <meta name="keywords" content="AI receptionist, missed call, home service business, appointment booking software, AI answering service, plumber software, HVAC software, electrician CRM" />
++    <link rel="canonical" href="https://vireek.com/" />
++    <meta name="robots" content="index, follow" />
++    <meta name="author" content="Vireek" />
++
++    <!-- Favicon -->
++    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
++    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
++    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
++    <meta name="theme-color" content="#4F46E5" />
++
++    <!-- Open Graph (Facebook, LinkedIn, WhatsApp, iMessage...) -->
++    <meta property="og:type" content="website" />
++    <meta property="og:site_name" content="Vireek" />
++    <meta property="og:url" content="https://vireek.com/" />
++    <meta property="og:title" content="Vireek — AI Receptionist for Home Service Businesses" />
++    <meta property="og:description" content="Never miss another call. Vireek answers, books appointments, and captures leads for your home service business, 24/7." />
++    <meta property="og:image" content="https://vireek.com/og-image.png" />
++    <meta property="og:image:width" content="1200" />
++    <meta property="og:image:height" content="630" />
++    <meta property="og:locale" content="en_US" />
++
++    <!-- Twitter Card -->
++    <meta name="twitter:card" content="summary_large_image" />
++    <meta name="twitter:title" content="Vireek — AI Receptionist for Home Service Businesses" />
++    <meta name="twitter:description" content="Never miss another call. Vireek answers, books appointments, and captures leads for your home service business, 24/7." />
++    <meta name="twitter:image" content="https://vireek.com/og-image.png" />
++
++    <!-- Structured Data (Google rich results) -->
++    <script type="application/ld+json">
++    {
++      "@context": "https://schema.org",
++      "@type": "SoftwareApplication",
++      "name": "Vireek",
++      "applicationCategory": "BusinessApplication",
++      "operatingSystem": "Web",
++      "url": "https://vireek.com/",
++      "description": "AI receptionist for home service businesses. Instant call answering, appointment booking, lead capture, and CRM sync — 24/7.",
++      "offers": {
++        "@type": "Offer",
++        "price": "0",
++        "priceCurrency": "USD",
++        "description": "Free plan available"
++      }
++    }
++    </script>
+   </head>
+   <body>
+     <div id="root"></div>
 diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/DashboardNav.tsx b/src/components/DashboardNav.tsx
 --- a/src/components/DashboardNav.tsx	2026-08-30 17:34:42.000000000 +0000
 +++ b/src/components/DashboardNav.tsx	2026-08-30 18:51:57.874534891 +0000
@@ -226,3 +287,188 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/UpgradeBanner.t
 +    </AnimatePresence>
 +  );
 +}
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/sections/WhyVireek.tsx b/src/components/sections/WhyVireek.tsx
+--- a/src/components/sections/WhyVireek.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/sections/WhyVireek.tsx	2026-08-30 19:03:10.657982586 +0000
+@@ -0,0 +1,148 @@
++import { motion } from 'framer-motion';
++import { Check, X, Minus, Sparkles } from 'lucide-react';
++import { EASE, sectionHeadingClass, eyebrowClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
++
++// ============================================================
++// DATA
++// ============================================================
++//
++// Deliberately compares against generic categories ("Traditional
++// Answering Service", "Voicemail / Missed Calls") rather than any
++// named competitor brand — every claim here is a factual, defensible
++// statement about how each category of solution typically behaves.
++
++type CellValue = 'yes' | 'no' | 'partial';
++
++interface ComparisonRow {
++  label: string;
++  vireek: CellValue;
++  answeringService: CellValue;
++  voicemail: CellValue;
++}
++
++const ROWS: ComparisonRow[] = [
++  { label: 'Answers every call, 24/7/365', vireek: 'yes', answeringService: 'partial', voicemail: 'no' },
++  { label: 'Books appointments automatically', vireek: 'yes', answeringService: 'no', voicemail: 'no' },
++  { label: 'Captures & qualifies leads instantly', vireek: 'yes', answeringService: 'partial', voicemail: 'no' },
++  { label: 'Syncs to your CRM in real time', vireek: 'yes', answeringService: 'no', voicemail: 'no' },
++  { label: 'Flags true emergencies for dispatch', vireek: 'yes', answeringService: 'partial', voicemail: 'no' },
++  { label: 'No hold times or hiring / training', vireek: 'yes', answeringService: 'no', voicemail: 'yes' },
++  { label: 'Live insights & call analytics', vireek: 'yes', answeringService: 'no', voicemail: 'no' },
++];
++
++function Cell({ value }: { value: CellValue }) {
++  if (value === 'yes') {
++    return (
++      <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-success-500/15 text-success-500">
++        <Check size={15} strokeWidth={2.75} />
++      </span>
++    );
++  }
++  if (value === 'partial') {
++    return (
++      <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-warning-500/15 text-warning-500">
++        <Minus size={15} strokeWidth={2.75} />
++      </span>
++    );
++  }
++  return (
++    <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-danger/10 text-danger">
++      <X size={15} strokeWidth={2.75} />
++    </span>
++  );
++}
++
++// ============================================================
++// SECTION
++// ============================================================
++
++export function WhyVireek() {
++  return (
++    <section className="py-24 md:py-28">
++      <div className="mx-auto max-w-6xl px-6">
++        <motion.div
++          initial={{ opacity: 0, y: 16 }}
++          whileInView={{ opacity: 1, y: 0 }}
++          viewport={viewport}
++          transition={{ duration: 0.5, ease: EASE }}
++          className="mx-auto max-w-2xl text-center"
++        >
++          <p className={eyebrowClass()}>The Comparison</p>
++          <h2 className={sectionHeadingClass()}>
++            Why home service teams are switching to Vireek
++          </h2>
++          <p className="mt-4 text-base leading-relaxed text-text-secondary">
++            See how an always-on AI receptionist stacks up against the two ways most
++            businesses handle calls today.
++          </p>
++        </motion.div>
++
++        <motion.div
++          initial={{ opacity: 0, y: 20 }}
++          whileInView={{ opacity: 1, y: 0 }}
++          viewport={viewport}
++          transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
++          className="mt-14 overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark"
++        >
++          <div className="overflow-x-auto">
++            <table className="w-full min-w-[560px] border-collapse text-sm">
++              <thead>
++                <tr className="border-b border-border">
++                  <th className="w-1/2 px-6 py-5 text-left text-sm font-semibold text-text-secondary">
++                    Capability
++                  </th>
++                  <th className="px-4 py-5">
++                    <div className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-gradient-to-r from-accent to-cta px-3.5 py-1.5 text-xs font-bold text-white shadow-glow-accent">
++                      <Sparkles size={12} />
++                      Vireek
++                    </div>
++                  </th>
++                  <th className="px-4 py-5 text-center text-xs font-semibold text-text-secondary">
++                    Answering
++                    <br />
++                    Service
++                  </th>
++                  <th className="px-4 py-5 text-center text-xs font-semibold text-text-secondary">
++                    Voicemail /<br />
++                    Missed Calls
++                  </th>
++                </tr>
++              </thead>
++              <motion.tbody variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={viewport}>
++                {ROWS.map((row, i) => (
++                  <motion.tr
++                    key={row.label}
++                    variants={fadeUpItem}
++                    transition={{ duration: 0.35, ease: EASE }}
++                    className={`${i !== ROWS.length - 1 ? 'border-b border-border/60' : ''} hover:bg-bg-tertiary/50`}
++                  >
++                    <td className="px-6 py-4 text-sm font-medium text-text-primary">{row.label}</td>
++                    <td className="bg-accent/5 px-4 py-4 text-center">
++                      <Cell value={row.vireek} />
++                    </td>
++                    <td className="px-4 py-4 text-center">
++                      <Cell value={row.answeringService} />
++                    </td>
++                    <td className="px-4 py-4 text-center">
++                      <Cell value={row.voicemail} />
++                    </td>
++                  </motion.tr>
++                ))}
++              </motion.tbody>
++            </table>
++          </div>
++        </motion.div>
++
++        <motion.p
++          initial={{ opacity: 0 }}
++          whileInView={{ opacity: 1 }}
++          viewport={viewport}
++          transition={{ duration: 0.5, ease: EASE }}
++          className="mt-5 text-center text-xs text-text-secondary/60"
++        >
++          &ldquo;Partial&rdquo; reflects that outcome typically depending on staffing, hours, or manual follow-up.
++        </motion.p>
++      </div>
++    </section>
++  );
++}
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/HomePage.tsx b/src/pages/HomePage.tsx
+--- a/src/pages/HomePage.tsx	2026-08-30 17:34:42.000000000 +0000
++++ b/src/pages/HomePage.tsx	2026-08-30 19:03:19.581673895 +0000
+@@ -10,12 +10,12 @@
+ import { Industries } from '@/components/sections/Industries';
+ import { LiveDemo } from '@/components/sections/LiveDemo';
+ import { Features } from '@/components/sections/Features';
++import { WhyVireek } from '@/components/sections/WhyVireek';
+ import { SocialProof } from '@/components/sections/SocialProof';
+ import { Pricing } from '@/components/sections/Pricing';
+ import { SignupForm } from '@/components/sections/SignupForm';
+ import { FinalCTA } from '@/components/sections/FinalCTA';
+ import { CookieConsent } from '@/components/CookieConsent';
+-import { UpgradeBadge } from '@/components/UpgradeBadge';
+ 
+ export function HomePage() {
+   return (
+@@ -31,6 +31,7 @@
+         <Industries />
+         <LiveDemo />
+         <Features />
++        <WhyVireek />
+         <SocialProof />
+         <Pricing />
+         <SignupForm />
+@@ -38,7 +39,6 @@
+       </main>
+       <Footer />
+       <CookieConsent />
+-      <UpgradeBadge />
+     </ThemeProvider>
+   );
+ }
