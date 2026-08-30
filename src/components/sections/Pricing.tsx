@@ -7,7 +7,7 @@ import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/
 import {
   PRICING_PLANS,
   getPlanHref,
-  isStripeCheckout,
+  isExternalLink,
   type BillingCycle,
 } from '@/lib/pricing';
 
@@ -76,7 +76,7 @@ export function Pricing() {
             const price = billing === 'annual' ? plan.annual! : plan.monthly!;
             const displayPrice = billing === 'annual' ? Math.round(price / 12) : price;
             const href = getPlanHref(plan.id, billing);
-            const external = isStripeCheckout(plan.id);
+            const external = isExternalLink(plan.id);
 
             return (
               <motion.div
