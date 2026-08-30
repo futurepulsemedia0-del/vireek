@@ -165,15 +165,29 @@ export const STRIPE_CHECKOUT_LINKS: Partial<Record<PlanId, Record<BillingCycle, 
 };
 
 /** Where a plan's CTA button should point for a given billing cycle. */
+/** Sales inbox for Enterprise inquiries. Update this if the address ever changes. */
+export const SALES_EMAIL = 'ali@vireek.com';
+
+function buildEnterpriseMailto(): string {
+  const subject = encodeURIComponent('Enterprise plan inquiry');
+  const body = encodeURIComponent(
+    "Hi Vireek team,\n\nI'm interested in the Enterprise plan. Here are a few details about my business:\n\n- Company name:\n- Number of locations:\n- Approximate monthly call volume:\n\nThanks!"
+  );
+  return `mailto:${SALES_EMAIL}?subject=${subject}&body=${body}`;
+}
+
 export function getPlanHref(planId: PlanId, billing: BillingCycle): string {
   if (planId === 'free') return '/login';
-  if (planId === 'enterprise') return '/#contact';
+  if (planId === 'enterprise') return buildEnterpriseMailto();
   return STRIPE_CHECKOUT_LINKS[planId]?.[billing] ?? '/login';
 }
 
-/** Stripe checkout links open in a new tab; internal routes should not. */
-export function isStripeCheckout(planId: PlanId): boolean {
-  return planId === 'starter' || planId === 'professional' || planId === 'business';
+/**
+ * Every plan except Free links away from the SPA (Stripe checkout or a mailto: link),
+ * so it must render as a plain <a>, not React Router's <Link>.
+ */
+export function isExternalLink(planId: PlanId): boolean {
+  return planId !== 'free';
 }
 
 export interface CompareRow {
