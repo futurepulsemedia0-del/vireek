@@ -7,6 +7,7 @@ import {
   Loader as Loader2,
   CircleAlert as AlertCircle,
   X,
+  Check,
   CircleCheck as CheckCircle2,
   Mail,
   Lock,
@@ -104,6 +105,7 @@ export function SignupPage() {
   const [nameTouched, setNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [confirmTouched, setConfirmTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
 
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -150,7 +152,10 @@ export function SignupPage() {
   }, [confirmPassword, password]);
 
   const strength = useMemo(() => getPasswordStrength(password), [password]);
-  const passwordMeetsPolicy = password.length >= 8 && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password);
+  const hasMinLength = password.length >= 8;
+  const hasNumber = /[0-9]/.test(password);
+  const hasSymbol = /[^A-Za-z0-9]/.test(password);
+  const passwordMeetsPolicy = hasMinLength && hasNumber && hasSymbol;
 
   const isFormValid =
     fullName.trim().length >= 2 &&
@@ -457,9 +462,15 @@ export function SignupPage() {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => setPasswordTouched(true)}
                   placeholder="Create a password"
-                  aria-describedby="password-help"
-                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-3 pl-11 pr-11 text-base text-text-primary placeholder:text-text-secondary/50 transition-colors focus-visible:border-accent"
+                  aria-invalid={passwordTouched && !passwordMeetsPolicy}
+                  aria-describedby="password-requirements"
+                  className={`focus-ring w-full rounded-xl border bg-bg-primary py-3 pl-11 pr-11 text-base text-text-primary placeholder:text-text-secondary/50 transition-colors ${
+                    passwordTouched && !passwordMeetsPolicy
+                      ? 'border-danger/50 focus-visible:border-danger'
+                      : 'border-border focus-visible:border-accent'
+                  }`}
                 />
                 <button
                   type="button"
@@ -490,9 +501,35 @@ export function SignupPage() {
                   </span>
                 </div>
               )}
-              <p id="password-help" className="mt-1.5 text-xs text-text-secondary/60">
-                Min 8 characters with at least one number and one symbol.
-              </p>
+              {/* Live requirement checklist — makes it obvious exactly why the
+                  submit button is disabled, instead of it silently staying grey. */}
+              <ul id="password-requirements" className="mt-2 space-y-1">
+                {[
+                  { met: hasMinLength, label: 'At least 8 characters' },
+                  { met: hasNumber, label: 'At least one number' },
+                  { met: hasSymbol, label: 'At least one symbol (e.g. ! @ # $ %)' },
+                ].map(({ met, label }) => (
+                  <li
+                    key={label}
+                    className={`flex items-center gap-1.5 text-xs transition-colors ${
+                      met
+                        ? 'text-success-500'
+                        : passwordTouched
+                          ? 'text-danger'
+                          : 'text-text-secondary/60'
+                    }`}
+                  >
+                    {met ? (
+                      <Check size={12} className="shrink-0" />
+                    ) : passwordTouched ? (
+                      <X size={12} className="shrink-0" />
+                    ) : (
+                      <span className="ml-[1px] h-1 w-1 shrink-0 rounded-full bg-current" />
+                    )}
+                    {label}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Confirm Password */}
