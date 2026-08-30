@@ -10,12 +10,12 @@ import { HowItWorks } from '@/components/sections/HowItWorks';
 import { Industries } from '@/components/sections/Industries';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { Features } from '@/components/sections/Features';
+import { WhyVireek } from '@/components/sections/WhyVireek';
 import { SocialProof } from '@/components/sections/SocialProof';
 import { Pricing } from '@/components/sections/Pricing';
 import { SignupForm } from '@/components/sections/SignupForm';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 import { CookieConsent } from '@/components/CookieConsent';
-import { UpgradeBadge } from '@/components/UpgradeBadge';
 
 export function HomePage() {
   return (
@@ -31,6 +31,7 @@ export function HomePage() {
         <Industries />
         <LiveDemo />
         <Features />
+        <WhyVireek />
         <SocialProof />
         <Pricing />
         <SignupForm />
@@ -38,7 +39,6 @@ export function HomePage() {
       </main>
       <Footer />
       <CookieConsent />
-      <UpgradeBadge />
     </ThemeProvider>
   );
 }
