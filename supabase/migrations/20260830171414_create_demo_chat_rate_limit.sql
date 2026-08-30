@@ -1,0 +1,217 @@
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Loader2, Phone, Send, Sparkles } from 'lucide-react';
+import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
+import { SARAH_PHONE } from '@/lib/site';
+import { supabase } from '@/lib/supabase';
+
+const PHONE_DISPLAY = '+1 (650) 910-6703';
+
+const STARTER_PROMPTS = [
+  'My water heater is leaking everywhere!',
+  'Can you book me in for Tuesday afternoon?',
+  'What are your hours and service area?',
+];
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+const OPENING_MESSAGE: ChatMessage = {
+  role: 'assistant',
+  content: "Hi, this is Sarah! Type what you'd say if you were calling in — I'll answer just like I would on a real call.",
+};
+
+export function LiveDemo() {
+  const [messages, setMessages] = useState<ChatMessage[]>([OPENING_MESSAGE]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+  }, [messages, loading]);
+
+  async function sendMessage(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed || loading) return;
+
+    const nextMessages: ChatMessage[] = [...messages, { role: 'user', content: trimmed }];
+    setMessages(nextMessages);
+    setInput('');
+    setError(null);
+    setLoading(true);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('demo-chat', {
+        body: {
+          message: trimmed,
+          history: nextMessages.slice(0, -1),
+        },
+      });
+
+      if (fnError) throw fnError;
+      if (data?.error) {
+        setError(data.error);
+      } else {
+        setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+      }
+    } catch {
+      setError("Sarah is having trouble responding right now — please try again in a moment.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section id="demo" className="py-24 md:py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={{ duration: 0.5, ease: EASE }}
+          className="max-w-3xl"
+        >
+          <p className={eyebrowClass()}>Live demo — not a script</p>
+          <h2 className={sectionHeadingClass()}>Talk to Sarah Right Now</h2>
+        </motion.div>
+
+        <div className="mt-14 grid gap-6 lg:grid-cols-2">
+          {/* Phone demo */}
+          <motion.a
+            href={SARAH_PHONE}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewport}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="focus-ring group flex flex-col items-start justify-center rounded-2xl border border-border bg-bg-secondary p-8 shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-glow-accent dark:shadow-card-dark"
+          >
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-white">
+              <Phone size={24} />
+            </span>
+            <span className="mt-6 text-sm font-medium uppercase tracking-[0.18em] text-text-secondary">
+              Call Sarah
+            </span>
+            <span className="mt-2 text-3xl font-bold tracking-tight text-text-primary md:text-4xl">
+              {PHONE_DISPLAY}
+            </span>
+            <span className="mt-3 text-base text-text-secondary">
+              Tap to call from your phone. She answers in seconds.
+            </span>
+          </motion.a>
+
+          {/* Live typed chat with the real AI */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewport}
+            transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+            className="flex h-[520px] flex-col overflow-hidden rounded-2xl border border-border bg-bg-tertiary"
+          >
+            <div className="flex items-center gap-2 border-b border-border bg-bg-secondary px-5 py-4">
+              <Sparkles size={16} className="text-accent" />
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-text-secondary">
+                No account, no phone call — just type
+              </p>
+            </div>
+
+            <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
+              {messages.map((msg, i) => {
+                const isSarah = msg.role === 'assistant';
+                return (
+                  <div key={i} className={`flex items-end gap-3 ${isSarah ? 'flex-row' : 'flex-row-reverse'}`}>
+                    <span
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                        isSarah
+                          ? 'bg-accent text-white'
+                          : 'border border-border bg-bg-secondary text-text-secondary'
+                      }`}
+                    >
+                      {isSarah ? 'S' : 'Y'}
+                    </span>
+                    <div
+                      className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                        isSarah
+                          ? 'bg-bg-secondary text-text-primary shadow-card dark:shadow-card-dark'
+                          : 'bg-accent/10 text-text-primary'
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                  </div>
+                );
+              })}
+              {loading && (
+                <div className="flex items-end gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                    S
+                  </span>
+                  <div className="flex items-center gap-2 rounded-2xl bg-bg-secondary px-4 py-3 text-sm text-text-secondary shadow-card dark:shadow-card-dark">
+                    <Loader2 size={14} className="animate-spin" />
+                    typing…
+                  </div>
+                </div>
+              )}
+              {error && <p className="text-center text-xs font-medium text-danger">{error}</p>}
+            </div>
+
+            {messages.length <= 1 && (
+              <div className="flex flex-wrap gap-2 border-t border-border px-5 py-3">
+                {STARTER_PROMPTS.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => sendMessage(p)}
+                    className="focus-ring rounded-full border border-border bg-bg-secondary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-text-primary"
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage(input);
+              }}
+              className="flex items-center gap-2 border-t border-border bg-bg-secondary p-3"
+            >
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type what you'd say to a receptionist…"
+                maxLength={400}
+                disabled={loading}
+                className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+              />
+              <button
+                type="submit"
+                disabled={loading || !input.trim()}
+                aria-label="Send message"
+                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white transition-opacity hover:brightness-110 disabled:opacity-40"
+              >
+                <Send size={16} />
+              </button>
+            </form>
+          </motion.div>
+        </div>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={viewport}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-6 text-sm text-text-secondary"
+        >
+          This is the real AI, typing back live — not a canned transcript. On an actual phone
+          call, Sarah understands context, urgency, and trade-specific terminology the same way.
+        </motion.p>
+      </div>
+    </section>
+  );
+}
