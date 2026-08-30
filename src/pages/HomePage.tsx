@@ -15,6 +15,7 @@ import { Pricing } from '@/components/sections/Pricing';
 import { SignupForm } from '@/components/sections/SignupForm';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 import { CookieConsent } from '@/components/CookieConsent';
+import { UpgradeBadge } from '@/components/UpgradeBadge';
 
 export function HomePage() {
   return (
@@ -37,6 +38,7 @@ export function HomePage() {
       </main>
       <Footer />
       <CookieConsent />
+      <UpgradeBadge />
     </ThemeProvider>
   );
 }
