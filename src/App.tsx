@@ -3,6 +3,7 @@ import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/pages/LoginPage';
 import { SignupPage } from '@/pages/SignupPage';
 import { OnboardingPage } from '@/pages/OnboardingPage';
+import { PricingPage } from '@/pages/PricingPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { CallsPage } from '@/pages/CallsPage';
@@ -28,6 +29,7 @@ function App() {
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/faq" element={<FAQPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
       <Route
         path="/dashboard"
         element={
