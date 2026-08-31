@@ -18,6 +18,10 @@ import { PrivacyPage } from '@/pages/PrivacyPage';
 import { TermsPage } from '@/pages/TermsPage';
 import { FAQPage } from '@/pages/FAQPage';
 import { IndustryPage } from '@/pages/IndustryPage';
+import { DemoPage } from '@/pages/DemoPage';
+import { SecurityPage } from '@/pages/SecurityPage';
+import { AccessibilityPage } from '@/pages/AccessibilityPage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
@@ -32,6 +36,9 @@ function App() {
       <Route path="/faq" element={<FAQPage />} />
       <Route path="/industries/:slug" element={<IndustryPage />} />
       <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/demo" element={<DemoPage />} />
+      <Route path="/security" element={<SecurityPage />} />
+      <Route path="/accessibility" element={<AccessibilityPage />} />
       <Route
         path="/dashboard"
         element={
@@ -112,7 +119,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<HomePage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
