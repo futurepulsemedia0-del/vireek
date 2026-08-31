@@ -61,11 +61,29 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/index.html b/index.html
      <div id="root"></div>
 diff -ruN '--exclude=vite.config.ts.timestamp*' a/public/sitemap.xml b/public/sitemap.xml
 --- a/public/sitemap.xml	2026-08-30 17:34:42.000000000 +0000
-+++ b/public/sitemap.xml	2026-08-31 04:36:51.518769560 +0000
-@@ -13,6 +13,36 @@
++++ b/public/sitemap.xml	2026-08-31 04:58:19.382159637 +0000
+@@ -13,6 +13,54 @@
      <priority>0.7</priority>
    </url>
    <url>
++    <loc>https://vireek.com/accessibility</loc>
++    <lastmod>2026-08-31</lastmod>
++    <changefreq>yearly</changefreq>
++    <priority>0.3</priority>
++  </url>
++  <url>
++    <loc>https://vireek.com/demo</loc>
++    <lastmod>2026-08-31</lastmod>
++    <changefreq>monthly</changefreq>
++    <priority>0.7</priority>
++  </url>
++  <url>
++    <loc>https://vireek.com/security</loc>
++    <lastmod>2026-08-31</lastmod>
++    <changefreq>monthly</changefreq>
++    <priority>0.6</priority>
++  </url>
++  <url>
 +    <loc>https://vireek.com/industries/hvac</loc>
 +    <lastmod>2026-08-31</lastmod>
 +    <changefreq>monthly</changefreq>
@@ -101,23 +119,39 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/public/sitemap.xml b/public/si
      <changefreq>monthly</changefreq>
 diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/App.tsx b/src/App.tsx
 --- a/src/App.tsx	2026-08-30 17:34:42.000000000 +0000
-+++ b/src/App.tsx	2026-08-31 04:36:31.398631196 +0000
-@@ -17,6 +17,7 @@
++++ b/src/App.tsx	2026-08-31 04:58:12.610097175 +0000
+@@ -17,6 +17,11 @@
  import { PrivacyPage } from '@/pages/PrivacyPage';
  import { TermsPage } from '@/pages/TermsPage';
  import { FAQPage } from '@/pages/FAQPage';
 +import { IndustryPage } from '@/pages/IndustryPage';
++import { DemoPage } from '@/pages/DemoPage';
++import { SecurityPage } from '@/pages/SecurityPage';
++import { NotFoundPage } from '@/pages/NotFoundPage';
++import { AccessibilityPage } from '@/pages/AccessibilityPage';
  import { ProtectedRoute } from '@/components/ProtectedRoute';
  
  function App() {
-@@ -29,6 +30,7 @@
+@@ -29,6 +34,10 @@
        <Route path="/privacy" element={<PrivacyPage />} />
        <Route path="/terms" element={<TermsPage />} />
        <Route path="/faq" element={<FAQPage />} />
 +      <Route path="/industries/:slug" element={<IndustryPage />} />
++      <Route path="/demo" element={<DemoPage />} />
++      <Route path="/security" element={<SecurityPage />} />
++      <Route path="/accessibility" element={<AccessibilityPage />} />
        <Route path="/pricing" element={<PricingPage />} />
        <Route
          path="/dashboard"
+@@ -110,7 +119,7 @@
+           </ProtectedRoute>
+         }
+       />
+-      <Route path="*" element={<HomePage />} />
++      <Route path="*" element={<NotFoundPage />} />
+     </Routes>
+   );
+ }
 diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/DashboardNav.tsx b/src/components/DashboardNav.tsx
 --- a/src/components/DashboardNav.tsx	2026-08-30 17:34:42.000000000 +0000
 +++ b/src/components/DashboardNav.tsx	2026-08-30 18:51:57.874534891 +0000
@@ -141,6 +175,189 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/DashboardNav.ts
        </div>
      </div>
    );
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/ExitIntentCapture.tsx b/src/components/ExitIntentCapture.tsx
+--- a/src/components/ExitIntentCapture.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/ExitIntentCapture.tsx	2026-08-31 04:49:03.421275337 +0000
+@@ -0,0 +1,162 @@
++import { FormEvent, useEffect, useRef, useState } from 'react';
++import { AnimatePresence, motion } from 'framer-motion';
++import { X, Mail, CheckCircle2 } from 'lucide-react';
++import { Button } from '@/components/ui/Button';
++import { EASE } from '@/lib/motion';
++
++const SESSION_KEY = 'vireek-exit-intent-shown';
++
++/**
++ * Fires once per browser session when the cursor leaves through the top of
++ * the viewport (the classic "about to close the tab / hit the back button"
++ * signal) — but only on desktop pointer devices, and never if the visitor
++ * has already scrolled past the point of just bouncing immediately, or if
++ * they've already interacted with a form on the page.
++ */
++export function ExitIntentCapture() {
++  const [visible, setVisible] = useState(false);
++  const [email, setEmail] = useState('');
++  const [loading, setLoading] = useState(false);
++  const [submitted, setSubmitted] = useState(false);
++  const hasArmedRef = useRef(false);
++
++  useEffect(() => {
++    // Only for pointer (mouse) devices — exit-intent via mouse position
++    // doesn't make sense on touch, and firing it there would just annoy
++    // mobile visitors.
++    if (window.matchMedia('(pointer: coarse)').matches) return;
++
++    try {
++      if (sessionStorage.getItem(SESSION_KEY) === '1') return;
++    } catch {
++      // sessionStorage unavailable — fall through and allow it to show,
++      // worst case it can show more than once for this visitor.
++    }
++
++    // Give the page a couple seconds before arming, so an immediate mouse
++    // movement toward the address bar right on load doesn't trigger it.
++    const armTimer = window.setTimeout(() => {
++      hasArmedRef.current = true;
++    }, 4000);
++
++    const handleMouseLeave = (e: MouseEvent) => {
++      if (!hasArmedRef.current) return;
++      if (e.clientY > 0) return; // only the top edge counts
++      setVisible(true);
++      try {
++        sessionStorage.setItem(SESSION_KEY, '1');
++      } catch {
++        // Non-fatal — see above.
++      }
++      document.removeEventListener('mouseleave', handleMouseLeave);
++    };
++
++    document.addEventListener('mouseleave', handleMouseLeave);
++    return () => {
++      window.clearTimeout(armTimer);
++      document.removeEventListener('mouseleave', handleMouseLeave);
++    };
++  }, []);
++
++  const close = () => setVisible(false);
++
++  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
++    e.preventDefault();
++    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
++    setLoading(true);
++    try {
++      // Reuses the same lead-capture endpoint as the rest of the site.
++      const response = await fetch('https://submit-form.com/USdWD1urW', {
++        method: 'POST',
++        headers: { 'Content-Type': 'application/json' },
++        body: JSON.stringify({ email, requestType: 'exit_intent_capture' }),
++      });
++      if (response.ok) setSubmitted(true);
++    } catch {
++      // Fail silently — this is a low-stakes secondary capture, not a
++      // critical flow. No need to surface an error UI for it.
++    } finally {
++      setLoading(false);
++    }
++  };
++
++  return (
++    <AnimatePresence>
++      {visible && (
++        <motion.div
++          initial={{ opacity: 0 }}
++          animate={{ opacity: 1 }}
++          exit={{ opacity: 0 }}
++          transition={{ duration: 0.2 }}
++          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
++          role="dialog"
++          aria-modal="true"
++          aria-label="Before you go"
++          onClick={close}
++        >
++          <motion.div
++            initial={{ opacity: 0, y: 24, scale: 0.96 }}
++            animate={{ opacity: 1, y: 0, scale: 1 }}
++            exit={{ opacity: 0, y: 16, scale: 0.97 }}
++            transition={{ duration: 0.35, ease: EASE }}
++            onClick={(e) => e.stopPropagation()}
++            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-bg-secondary p-7 shadow-card-hover dark:shadow-card-hover-dark sm:p-8"
++          >
++            <button
++              type="button"
++              onClick={close}
++              aria-label="Close"
++              className="focus-ring absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary/70 transition-colors hover:bg-bg-tertiary hover:text-text-primary"
++            >
++              <X size={16} />
++            </button>
++
++            {submitted ? (
++              <div className="flex flex-col items-center py-6 text-center">
++                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-success-500/10 text-success-500">
++                  <CheckCircle2 size={22} />
++                </span>
++                <h2 className="mt-4 text-lg font-bold text-text-primary">You&apos;re on the list</h2>
++                <p className="mt-1.5 text-sm text-text-secondary">
++                  We&apos;ll send it straight to your inbox.
++                </p>
++              </div>
++            ) : (
++              <>
++                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++                  <Mail size={20} />
++                </span>
++                <h2 className="mt-4 text-xl font-bold text-text-primary">Before you go \u2014</h2>
++                <p className="mt-2 text-sm leading-relaxed text-text-secondary">
++                  Get a free guide on how much missed calls are actually costing your business,
++                  plus a heads-up when we run limited-time offers.
++                </p>
++                <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
++                  <input
++                    type="email"
++                    required
++                    value={email}
++                    onChange={(e) => setEmail(e.target.value)}
++                    placeholder="you@company.com"
++                    aria-label="Email address"
++                    className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent"
++                  />
++                  <Button type="submit" variant="primary" disabled={loading} className="shrink-0">
++                    {loading ? 'Sending…' : 'Send it to me'}
++                  </Button>
++                </form>
++                <button
++                  type="button"
++                  onClick={close}
++                  className="focus-ring mt-3 text-xs text-text-secondary/70 transition-colors hover:text-text-secondary"
++                >
++                  No thanks, just leaving
++                </button>
++              </>
++            )}
++          </motion.div>
++        </motion.div>
++      )}
++    </AnimatePresence>
++  );
++}
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/Footer.tsx b/src/components/Footer.tsx
+--- a/src/components/Footer.tsx	2026-08-30 17:34:42.000000000 +0000
++++ b/src/components/Footer.tsx	2026-08-31 04:58:16.679111292 +0000
+@@ -8,10 +8,13 @@
+   { label: 'Pricing', href: '#pricing', type: 'hash' as const },
+   { label: 'Privacy', href: '/privacy', type: 'route' as const },
+   { label: 'Terms', href: '/terms', type: 'route' as const },
++  { label: 'Accessibility', href: '/accessibility', type: 'route' as const },
+ ];
+ 
+ const SUPPORT_LINKS = [
+   { label: 'FAQ', href: '/faq' },
++  { label: 'Security', href: '/security' },
++  { label: 'Book a Demo', href: '/demo' },
+ ];
+ 
+ const EMAIL = 'ali@vireek.com';
 diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/UpgradeBanner.tsx b/src/components/UpgradeBanner.tsx
 --- a/src/components/UpgradeBanner.tsx	1970-01-01 00:00:00.000000000 +0000
 +++ b/src/components/UpgradeBanner.tsx	2026-08-30 19:20:55.787589438 +0000
@@ -776,10 +993,425 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/lib/industries.ts b/src/li
 +export function getIndustryBySlug(slug: string | undefined): Industry | undefined {
 +  return INDUSTRIES.find((i) => i.slug === slug);
 +}
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/AccessibilityPage.tsx b/src/pages/AccessibilityPage.tsx
+--- a/src/pages/AccessibilityPage.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/pages/AccessibilityPage.tsx	2026-08-31 04:58:02.727250099 +0000
+@@ -0,0 +1,125 @@
++import { useEffect } from 'react';
++import { Link } from 'react-router-dom';
++import { motion } from 'framer-motion';
++import { Accessibility, Mail } from 'lucide-react';
++import { Header } from '@/components/Header';
++import { Footer } from '@/components/Footer';
++import { CookieConsent } from '@/components/CookieConsent';
++import { EASE } from '@/lib/motion';
++
++const EMAIL = 'ali@vireek.com';
++
++function SEO() {
++  useEffect(() => {
++    const previousTitle = document.title;
++    document.title = 'Accessibility Statement | Vireek';
++    let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
++    const previousContent = meta?.getAttribute('content') ?? null;
++    if (!meta) {
++      meta = document.createElement('meta');
++      meta.setAttribute('name', 'description');
++      document.head.appendChild(meta);
++    }
++    meta.setAttribute('content', "Vireek's ongoing commitment to digital accessibility and how to report an accessibility issue.");
++    return () => {
++      document.title = previousTitle;
++      if (previousContent === null) meta?.remove();
++      else meta?.setAttribute('content', previousContent);
++    };
++  }, []);
++  return null;
++}
++
++export function AccessibilityPage() {
++  return (
++    <>
++      <SEO />
++      <Header />
++      <main className="min-h-screen overflow-hidden bg-bg-primary px-6 pb-24 pt-32">
++        <motion.div
++          initial={{ opacity: 0, y: 18 }}
++          animate={{ opacity: 1, y: 0 }}
++          transition={{ duration: 0.5, ease: EASE }}
++          className="mx-auto max-w-3xl"
++        >
++          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
++            <Accessibility size={26} />
++          </span>
++          <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl">
++            Accessibility Statement
++          </h1>
++          <p className="mt-4 text-sm text-text-secondary">Last updated: August 2026</p>
++
++          <div className="mt-10 space-y-8 text-base leading-relaxed text-text-secondary">
++            <div>
++              <h2 className="text-xl font-bold text-text-primary">Our commitment</h2>
++              <p className="mt-3">
++                Vireek is committed to making our website and dashboard usable by as many people
++                as possible, including people with disabilities. We are actively working to
++                align our site with the{' '}
++                <a
++                  href="https://www.w3.org/WAI/standards-guidelines/wcag/"
++                  target="_blank"
++                  rel="noopener noreferrer"
++                  className="font-semibold text-accent hover:underline"
++                >
++                  Web Content Accessibility Guidelines (WCAG) 2.1
++                </a>{' '}
++                at Level AA, and we treat this as an ongoing process rather than a one-time
++                project.
++              </p>
++            </div>
++
++            <div>
++              <h2 className="text-xl font-bold text-text-primary">What we&apos;ve done so far</h2>
++              <ul className="mt-3 list-disc space-y-2 pl-5">
++                <li>Semantic HTML and ARIA labelling on interactive elements like navigation, forms, and dialogs.</li>
++                <li>Visible keyboard focus states across buttons, links, and form fields.</li>
++                <li>Color combinations chosen with contrast in mind across both light and dark themes.</li>
++                <li>Descriptive alt text and labels on icons and images that convey meaning.</li>
++              </ul>
++            </div>
++
++            <div>
++              <h2 className="text-xl font-bold text-text-primary">Known limitations</h2>
++              <p className="mt-3">
++                No website is perfectly accessible, and ours is no exception. Some third-party
++                embedded components (such as payment or scheduling widgets) are outside our
++                direct control. We prioritize fixes as they&apos;re identified.
++              </p>
++            </div>
++
++            <div>
++              <h2 className="text-xl font-bold text-text-primary">Reporting an issue</h2>
++              <p className="mt-3">
++                If you encounter a barrier while using Vireek, please tell us. Include the page
++                URL and a brief description of the issue, and we&apos;ll work to address it.
++              </p>
++              <a
++                href={`mailto:${EMAIL}?subject=Accessibility%20issue`}
++                className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent"
++              >
++                <Mail size={16} />
++                {EMAIL}
++              </a>
++            </div>
++
++            <p className="text-sm text-text-secondary/70">
++              See also our{' '}
++              <Link to="/privacy" className="font-semibold text-accent hover:underline">
++                Privacy Policy
++              </Link>{' '}
++              and{' '}
++              <Link to="/terms" className="font-semibold text-accent hover:underline">
++                Terms of Service
++              </Link>
++              .
++            </p>
++          </div>
++        </motion.div>
++      </main>
++      <Footer />
++      <CookieConsent />
++    </>
++  );
++}
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/DemoPage.tsx b/src/pages/DemoPage.tsx
+--- a/src/pages/DemoPage.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/pages/DemoPage.tsx	2026-08-31 04:48:12.865272332 +0000
+@@ -0,0 +1,282 @@
++import { FormEvent, useEffect, useState } from 'react';
++import { motion } from 'framer-motion';
++import { Link } from 'react-router-dom';
++import { CheckCircle2, AlertCircle, Users, Sparkles } from 'lucide-react';
++import { Header } from '@/components/Header';
++import { Footer } from '@/components/Footer';
++import { CookieConsent } from '@/components/CookieConsent';
++import { Button } from '@/components/ui/Button';
++import { EASE } from '@/lib/motion';
++
++type FormData = {
++  fullName: string;
++  workEmail: string;
++  companyName: string;
++  phone: string;
++  teamSize: string;
++  message: string;
++};
++
++const INITIAL: FormData = {
++  fullName: '',
++  workEmail: '',
++  companyName: '',
++  phone: '',
++  teamSize: '',
++  message: '',
++};
++
++const TEAM_SIZES = ['1-5', '6-20', '21-50', '50+'];
++
++const inputClass =
++  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
++
++function SEO() {
++  useEffect(() => {
++    const title = 'Book a Demo | Vireek AI Voice Receptionist';
++    const description =
++      'Talk to the Vireek team about answering calls, booking jobs, and capturing leads for your home service business. Book a live walkthrough.';
++    const previousTitle = document.title;
++    let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
++    const previousContent = meta?.getAttribute('content') ?? null;
++    if (!meta) {
++      meta = document.createElement('meta');
++      meta.setAttribute('name', 'description');
++      document.head.appendChild(meta);
++    }
++    meta.setAttribute('content', description);
++    document.title = title;
++    return () => {
++      document.title = previousTitle;
++      if (previousContent === null) meta?.remove();
++      else meta?.setAttribute('content', previousContent);
++    };
++  }, []);
++  return null;
++}
++
++export function DemoPage() {
++  const [formData, setFormData] = useState<FormData>(INITIAL);
++  const [loading, setLoading] = useState(false);
++  const [submitted, setSubmitted] = useState(false);
++  const [error, setError] = useState(false);
++  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormData, boolean>>>({});
++
++  const update = (key: keyof FormData, value: string) => {
++    setFormData((prev) => ({ ...prev, [key]: value }));
++    if (fieldErrors[key]) setFieldErrors((prev) => ({ ...prev, [key]: false }));
++  };
++
++  const validate = () => {
++    const errors: Partial<Record<keyof FormData, boolean>> = {};
++    if (!formData.fullName.trim()) errors.fullName = true;
++    if (!formData.workEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.workEmail)) errors.workEmail = true;
++    if (!formData.companyName.trim()) errors.companyName = true;
++    if (!formData.teamSize) errors.teamSize = true;
++    setFieldErrors(errors);
++    return Object.keys(errors).length === 0;
++  };
++
++  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
++    e.preventDefault();
++    setError(false);
++    if (!validate()) return;
++    setLoading(true);
++    try {
++      // Reuses the same lead-capture endpoint as the homepage signup form,
++      // tagged so submissions can be told apart in the inbox/sheet.
++      // NOTE: for cleaner separation, point this at its own
++      // https://submit-form.com endpoint once you create one for Demo Requests.
++      const response = await fetch('https://submit-form.com/USdWD1urW', {
++        method: 'POST',
++        headers: { 'Content-Type': 'application/json' },
++        body: JSON.stringify({ ...formData, requestType: 'demo_request' }),
++      });
++      if (response.ok) {
++        setSubmitted(true);
++      } else {
++        setError(true);
++      }
++    } catch {
++      setError(true);
++    } finally {
++      setLoading(false);
++    }
++  };
++
++  return (
++    <>
++      <SEO />
++      <Header />
++      <main className="min-h-screen overflow-hidden bg-bg-primary pt-24">
++        <section className="relative bg-gradient-mesh bg-noise px-6 py-20 sm:py-24">
++          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
++          <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-start">
++            {/* Left: pitch */}
++            <motion.div
++              initial={{ opacity: 0, y: 18 }}
++              animate={{ opacity: 1, y: 0 }}
++              transition={{ duration: 0.55, ease: EASE }}
++            >
++              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-bg-secondary/80 px-4 py-2 text-sm font-semibold text-text-secondary shadow-sm backdrop-blur">
++                <Users className="h-4 w-4 text-accent" />
++                For teams & multi-location businesses
++              </div>
++              <h1 className="mt-6 text-balance text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl">
++                See Vireek answer real calls, live.
++              </h1>
++              <p className="mt-6 max-w-lg text-lg leading-8 text-text-secondary">
++                If you run a larger team or want to see exactly how Vireek would handle your
++                calls before signing up, book a walkthrough with us instead of self-serve
++                onboarding.
++              </p>
++              <ul className="mt-8 space-y-4">
++                {[
++                  'A live demo tailored to your trade and call volume',
++                  'Answers on CRM sync, escalation rules, and setup time',
++                  'No pressure — you can still self-serve sign up anytime',
++                ].map((item) => (
++                  <li key={item} className="flex gap-3 text-sm text-text-secondary">
++                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
++                    {item}
++                  </li>
++                ))}
++              </ul>
++              <p className="mt-8 text-sm text-text-secondary">
++                In a hurry?{' '}
++                <Link to="/signup" className="focus-ring font-semibold text-accent hover:text-cta">
++                  Start your free trial instead
++                </Link>
++              </p>
++            </motion.div>
++
++            {/* Right: form */}
++            <motion.div
++              initial={{ opacity: 0, y: 18 }}
++              animate={{ opacity: 1, y: 0 }}
++              transition={{ duration: 0.55, ease: EASE, delay: 0.1 }}
++              className="rounded-3xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark sm:p-8"
++            >
++              {submitted ? (
++                <div className="flex flex-col items-center py-10 text-center">
++                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-success-500/10 text-success-500">
++                    <Sparkles size={26} />
++                  </span>
++                  <h2 className="mt-5 text-xl font-bold text-text-primary">Request received</h2>
++                  <p className="mt-2 max-w-xs text-sm text-text-secondary">
++                    We&apos;ll reach out to schedule a time that works for you, usually within one
++                    business day.
++                  </p>
++                </div>
++              ) : (
++                <form onSubmit={handleSubmit} noValidate>
++                  <h2 className="text-xl font-bold text-text-primary">Tell us about your business</h2>
++                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
++                    <div className="sm:col-span-1">
++                      <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium text-text-primary">
++                        Full name
++                      </label>
++                      <input
++                        id="fullName"
++                        value={formData.fullName}
++                        onChange={(e) => update('fullName', e.target.value)}
++                        className={`${inputClass} ${fieldErrors.fullName ? 'border-danger/60' : ''}`}
++                        placeholder="Jane Smith"
++                      />
++                    </div>
++                    <div className="sm:col-span-1">
++                      <label htmlFor="workEmail" className="mb-1.5 block text-sm font-medium text-text-primary">
++                        Work email
++                      </label>
++                      <input
++                        id="workEmail"
++                        type="email"
++                        value={formData.workEmail}
++                        onChange={(e) => update('workEmail', e.target.value)}
++                        className={`${inputClass} ${fieldErrors.workEmail ? 'border-danger/60' : ''}`}
++                        placeholder="jane@company.com"
++                      />
++                    </div>
++                    <div className="sm:col-span-1">
++                      <label htmlFor="companyName" className="mb-1.5 block text-sm font-medium text-text-primary">
++                        Company name
++                      </label>
++                      <input
++                        id="companyName"
++                        value={formData.companyName}
++                        onChange={(e) => update('companyName', e.target.value)}
++                        className={`${inputClass} ${fieldErrors.companyName ? 'border-danger/60' : ''}`}
++                        placeholder="Smith Plumbing Co."
++                      />
++                    </div>
++                    <div className="sm:col-span-1">
++                      <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-text-primary">
++                        Phone <span className="font-normal text-text-secondary">(optional)</span>
++                      </label>
++                      <input
++                        id="phone"
++                        type="tel"
++                        value={formData.phone}
++                        onChange={(e) => update('phone', e.target.value)}
++                        className={inputClass}
++                        placeholder="(555) 555-5555"
++                      />
++                    </div>
++                    <div className="sm:col-span-2">
++                      <label htmlFor="teamSize" className="mb-1.5 block text-sm font-medium text-text-primary">
++                        Team size
++                      </label>
++                      <div className="flex flex-wrap gap-2">
++                        {TEAM_SIZES.map((size) => (
++                          <button
++                            key={size}
++                            type="button"
++                            onClick={() => update('teamSize', size)}
++                            className={`focus-ring rounded-xl border px-4 py-2 text-sm font-semibold transition-colors ${
++                              formData.teamSize === size
++                                ? 'border-accent bg-accent/10 text-accent'
++                                : 'border-border text-text-secondary hover:border-accent/40'
++                            } ${fieldErrors.teamSize ? 'border-danger/60' : ''}`}
++                          >
++                            {size}
++                          </button>
++                        ))}
++                      </div>
++                    </div>
++                    <div className="sm:col-span-2">
++                      <label htmlFor="message" className="mb-1.5 block text-sm font-medium text-text-primary">
++                        Anything specific you want us to cover?{' '}
++                        <span className="font-normal text-text-secondary">(optional)</span>
++                      </label>
++                      <textarea
++                        id="message"
++                        rows={3}
++                        value={formData.message}
++                        onChange={(e) => update('message', e.target.value)}
++                        className={inputClass}
++                        placeholder="E.g. CRM integration, multi-location routing..."
++                      />
++                    </div>
++                  </div>
++
++                  {error && (
++                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
++                      <AlertCircle size={16} className="shrink-0" />
++                      Something went wrong. Please try again.
++                    </div>
++                  )}
++
++                  <Button type="submit" variant="primary" size="lg" className="mt-6 w-full" disabled={loading}>
++                    {loading ? 'Sending…' : 'Request a Demo'}
++                  </Button>
++                </form>
++              )}
++            </motion.div>
++          </div>
++        </section>
++      </main>
++      <Footer />
++      <CookieConsent />
++    </>
++  );
++}
 diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/HomePage.tsx b/src/pages/HomePage.tsx
 --- a/src/pages/HomePage.tsx	2026-08-30 17:34:42.000000000 +0000
-+++ b/src/pages/HomePage.tsx	2026-08-30 19:03:19.581673895 +0000
-@@ -10,12 +10,12 @@
++++ b/src/pages/HomePage.tsx	2026-08-31 04:49:14.477443796 +0000
+@@ -10,12 +10,13 @@
  import { Industries } from '@/components/sections/Industries';
  import { LiveDemo } from '@/components/sections/LiveDemo';
  import { Features } from '@/components/sections/Features';
@@ -790,10 +1422,11 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/HomePage.tsx b/src/p
  import { FinalCTA } from '@/components/sections/FinalCTA';
  import { CookieConsent } from '@/components/CookieConsent';
 -import { UpgradeBadge } from '@/components/UpgradeBadge';
++import { ExitIntentCapture } from '@/components/ExitIntentCapture';
  
  export function HomePage() {
    return (
-@@ -31,6 +31,7 @@
+@@ -31,6 +32,7 @@
          <Industries />
          <LiveDemo />
          <Features />
@@ -801,11 +1434,12 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/HomePage.tsx b/src/p
          <SocialProof />
          <Pricing />
          <SignupForm />
-@@ -38,7 +39,6 @@
+@@ -38,7 +40,7 @@
        </main>
        <Footer />
        <CookieConsent />
 -      <UpgradeBadge />
++      <ExitIntentCapture />
      </ThemeProvider>
    );
  }
@@ -1033,6 +1667,276 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/IndustryPage.tsx b/s
 +              <a href="tel:+16509106703" className="focus-ring inline-flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-accent">
 +                <PhoneCall className="h-4 w-4" /> Or call our demo line
 +              </a>
++            </div>
++          </div>
++        </section>
++      </main>
++      <Footer />
++      <CookieConsent />
++    </>
++  );
++}
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/NotFoundPage.tsx b/src/pages/NotFoundPage.tsx
+--- a/src/pages/NotFoundPage.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/pages/NotFoundPage.tsx	2026-08-31 04:57:41.132632616 +0000
+@@ -0,0 +1,79 @@
++import { useEffect } from 'react';
++import { Link } from 'react-router-dom';
++import { motion } from 'framer-motion';
++import { PhoneOff, ArrowRight, Home } from 'lucide-react';
++import { Header } from '@/components/Header';
++import { Footer } from '@/components/Footer';
++import { CookieConsent } from '@/components/CookieConsent';
++import { Button } from '@/components/ui/Button';
++import { EASE } from '@/lib/motion';
++
++function SEO() {
++  useEffect(() => {
++    const previousTitle = document.title;
++    document.title = 'Page Not Found | Vireek';
++
++    // Tell search engines this URL isn't a real page, so it never gets
++    // indexed as duplicate/soft-404 content.
++    let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
++    const previousRobots = robots?.getAttribute('content') ?? null;
++    if (!robots) {
++      robots = document.createElement('meta');
++      robots.setAttribute('name', 'robots');
++      document.head.appendChild(robots);
++    }
++    robots.setAttribute('content', 'noindex, follow');
++
++    return () => {
++      document.title = previousTitle;
++      if (previousRobots === null) robots?.remove();
++      else robots?.setAttribute('content', previousRobots);
++    };
++  }, []);
++  return null;
++}
++
++export function NotFoundPage() {
++  return (
++    <>
++      <SEO />
++      <Header />
++      <main className="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg-primary px-6 pt-24">
++        <motion.div
++          initial={{ opacity: 0, y: 18 }}
++          animate={{ opacity: 1, y: 0 }}
++          transition={{ duration: 0.5, ease: EASE }}
++          className="flex max-w-lg flex-col items-center text-center"
++        >
++          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10 text-accent">
++            <PhoneOff size={28} />
++          </span>
++          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-accent">404</p>
++          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
++            This call didn&apos;t go through.
++          </h1>
++          <p className="mt-4 text-base leading-7 text-text-secondary">
++            The page you&apos;re looking for doesn&apos;t exist or may have moved. Let&apos;s get
++            you back on the line.
++          </p>
++          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
++            <Link to="/">
++              <Button variant="primary" size="lg">
++                <Home className="h-4 w-4" />
++                Back to Home
++              </Button>
++            </Link>
++            <Link
++              to="/faq"
++              className="focus-ring inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-text-primary transition-colors hover:text-accent"
++            >
++              Visit our FAQ <ArrowRight className="h-4 w-4" />
++            </Link>
++          </div>
++        </motion.div>
++      </main>
++      <Footer />
++      <CookieConsent />
++    </>
++  );
++}
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/SecurityPage.tsx b/src/pages/SecurityPage.tsx
+--- a/src/pages/SecurityPage.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/pages/SecurityPage.tsx	2026-08-31 04:48:41.589274039 +0000
+@@ -0,0 +1,183 @@
++import { useEffect } from 'react';
++import { motion } from 'framer-motion';
++import { Link } from 'react-router-dom';
++import { ShieldCheck, Lock, Database, UserCog, Eye, ArrowRight } from 'lucide-react';
++import { Header } from '@/components/Header';
++import { Footer } from '@/components/Footer';
++import { CookieConsent } from '@/components/CookieConsent';
++import { Button } from '@/components/ui/Button';
++import { Card } from '@/components/ui/Card';
++import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
++
++// ============================================================
++// CONTENT
++// ============================================================
++//
++// Every claim below is a factual statement about how the platform is
++// built (encryption in transit/at rest via the hosting provider, RLS-based
++// per-account isolation, role-based access) rather than a compliance
++// certification Vireek does not currently hold. If/when a SOC 2 report,
++// HIPAA BAA, etc. is obtained, add it explicitly here — don't imply one
++// that doesn't exist.
++
++const PILLARS = [
++  {
++    icon: Lock,
++    title: 'Encryption in transit and at rest',
++    body: 'All traffic between your browser, the Vireek dashboard, and our database runs over TLS. Data at rest is encrypted by our infrastructure provider.',
++  },
++  {
++    icon: Database,
++    title: 'Isolated by account, by design',
++    body: 'Every account\u2019s calls, leads, and jobs are protected with row-level security policies, so one business can never query or see another business\u2019s data.',
++  },
++  {
++    icon: UserCog,
++    title: 'Role-based team access',
++    body: 'Account owners control who on their team can view billing, manage the team, edit the business profile, or see all jobs \u2014 down to the individual permission.',
++  },
++  {
++    icon: Eye,
++    title: 'You control what Vireek says and does',
++    body: 'Escalation rules, greetings, and business details are all set by you. Nothing is shared with a caller that you haven\u2019t configured.',
++  },
++];
++
++function SEO() {
++  useEffect(() => {
++    const title = 'Trust & Security | Vireek';
++    const description =
++      'How Vireek protects your business data: encryption, account isolation, role-based access, and data handling practices.';
++    const previousTitle = document.title;
++    let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
++    const previousContent = meta?.getAttribute('content') ?? null;
++    if (!meta) {
++      meta = document.createElement('meta');
++      meta.setAttribute('name', 'description');
++      document.head.appendChild(meta);
++    }
++    meta.setAttribute('content', description);
++    document.title = title;
++    return () => {
++      document.title = previousTitle;
++      if (previousContent === null) meta?.remove();
++      else meta?.setAttribute('content', previousContent);
++    };
++  }, []);
++  return null;
++}
++
++export function SecurityPage() {
++  return (
++    <>
++      <SEO />
++      <Header />
++      <main className="min-h-screen overflow-hidden bg-bg-primary pt-24">
++        <section className="relative bg-gradient-mesh bg-noise px-6 py-20 sm:py-24">
++          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
++          <div className="mx-auto max-w-3xl text-center">
++            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: EASE }}>
++              <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-bg-secondary/80 px-4 py-2 text-sm font-semibold text-text-secondary shadow-sm backdrop-blur">
++                <ShieldCheck className="h-4 w-4 text-accent" />
++                Trust & Security
++              </div>
++              <h1 className="text-balance text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl">
++                Your calls and customer data, protected by design.
++              </h1>
++              <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-text-secondary">
++                A plain-language look at how Vireek handles the data your business trusts it with.
++              </p>
++            </motion.div>
++          </div>
++        </section>
++
++        <section className="px-6 py-16 sm:py-20">
++          <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2">
++            {PILLARS.map(({ icon: Icon, title, body }, i) => (
++              <motion.div
++                key={title}
++                initial={{ opacity: 0, y: 16 }}
++                whileInView={{ opacity: 1, y: 0 }}
++                viewport={viewport}
++                transition={{ duration: 0.45, ease: EASE, delay: Math.min(i * 0.06, 0.2) }}
++              >
++                <Card className="h-full">
++                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++                    <Icon size={20} />
++                  </span>
++                  <h3 className="mt-4 text-lg font-semibold text-text-primary">{title}</h3>
++                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">{body}</p>
++                </Card>
++              </motion.div>
++            ))}
++          </div>
++        </section>
++
++        <section className="px-6 py-16 sm:py-20">
++          <div className="mx-auto max-w-4xl">
++            <p className={`${eyebrowClass()} text-center`}>Data Handling</p>
++            <h2 className={`${sectionHeadingClass()} text-center`}>What we store, and why</h2>
++            <div className="mt-10 space-y-4">
++              <div className="rounded-2xl border border-border bg-bg-secondary/90 p-6 shadow-card dark:shadow-card-dark">
++                <h3 className="text-base font-semibold text-text-primary">Call data</h3>
++                <p className="mt-2 text-sm leading-relaxed text-text-secondary">
++                  Call transcripts and summaries are stored so your team can review conversations
++                  and follow up. Access is limited to your account and any team members you
++                  grant permission to.
++                </p>
++              </div>
++              <div className="rounded-2xl border border-border bg-bg-secondary/90 p-6 shadow-card dark:shadow-card-dark">
++                <h3 className="text-base font-semibold text-text-primary">Customer & lead information</h3>
++                <p className="mt-2 text-sm leading-relaxed text-text-secondary">
++                  Names, phone numbers, and job details captured on calls are stored under your
++                  account and synced to your CRM if you\u2019ve connected one, so leads never live
++                  only in a call log.
++                </p>
++              </div>
++              <div className="rounded-2xl border border-border bg-bg-secondary/90 p-6 shadow-card dark:shadow-card-dark">
++                <h3 className="text-base font-semibold text-text-primary">Payment information</h3>
++                <p className="mt-2 text-sm leading-relaxed text-text-secondary">
++                  Billing is handled by a dedicated payment processor. Vireek does not store your
++                  raw card details on its own servers.
++                </p>
++              </div>
++            </div>
++            <p className="mt-6 text-center text-sm text-text-secondary">
++              For the full legal terms, see our{' '}
++              <Link to="/privacy" className="font-semibold text-accent hover:text-cta">
++                Privacy Policy
++              </Link>{' '}
++              and{' '}
++              <Link to="/terms" className="font-semibold text-accent hover:text-cta">
++                Terms of Service
++              </Link>
++              .
++            </p>
++          </div>
++        </section>
++
++        <section className="px-6 pb-24">
++          <div className="mx-auto max-w-4xl rounded-[2rem] border border-border bg-bg-secondary p-8 text-center shadow-card dark:shadow-card-dark sm:p-12">
++            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Questions about security?</p>
++            <h2 className="mt-4 text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
++              Talk to us before you connect anything.
++            </h2>
++            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-text-secondary">
++              If your business has specific security or compliance requirements, we\u2019re happy to
++              walk through them before you sign up.
++            </p>
++            <div className="mt-8">
++              <Link to="/demo">
++                <Button variant="primary" size="lg">
++                  Book a Demo <ArrowRight className="h-4 w-4" />
++                </Button>
++              </Link>
 +            </div>
 +          </div>
 +        </section>
