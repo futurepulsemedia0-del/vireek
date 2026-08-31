@@ -49,13 +49,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string) => {
     setProfileLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      if (error) throw error;
-      const prof = data as Profile | null;
+      // The `profiles` row is created by a database trigger right after
+      // auth signup (email or OAuth). That trigger can lag the client by a
+      // few hundred ms, so a query fired immediately after signup can race
+      // it and come back empty. Retry briefly instead of accepting a false
+      // "no profile" result — this is what previously caused things like
+      // the upgrade banner to silently stay hidden for freshly created
+      // (especially Google OAuth) accounts until a manual refresh.
+      let prof: Profile | null = null;
+      const maxAttempts = 4;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+        if (error) throw error;
+        prof = data as Profile | null;
+        if (prof) break;
+        if (attempt < maxAttempts) {
+          await new Promise((resolve) => setTimeout(resolve, 400 * attempt));
+        }
+      }
       setProfile(prof);
 
       // If not an owner, fetch their team_members record for permissions
