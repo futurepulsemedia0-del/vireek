@@ -1,35 +1,9 @@
 import { motion } from 'framer-motion';
-import { Flame, Droplets, Home, Zap, Wind } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
-
-const INDUSTRIES = [
-  {
-    icon: Wind,
-    name: 'HVAC',
-    terms: ['AC repair', 'furnace issues', 'heat pumps', 'no heat', 'no cool', 'thermostat problems'],
-  },
-  {
-    icon: Droplets,
-    name: 'Plumbing',
-    terms: ['Burst pipes', 'leaks', 'drain cleaning', 'water heaters', 'sewer backup', 'low pressure'],
-  },
-  {
-    icon: Home,
-    name: 'Roofing',
-    terms: ['Leak repair', 'storm damage', 'missing shingles', 'gutter issues', 'flashing', 'ice dams'],
-  },
-  {
-    icon: Zap,
-    name: 'Electrical',
-    terms: ['Power issues', 'breaker problems', 'flickering lights', 'panel upgrades', 'GFCI'],
-  },
-  {
-    icon: Flame,
-    name: 'Restoration',
-    terms: ['Flood extraction', 'structural drying', 'smoke damage', 'mold remediation', 'board-up'],
-  },
-];
+import { INDUSTRIES } from '@/lib/industries';
 
 export function Industries() {
   return (
@@ -57,9 +31,9 @@ export function Industries() {
           viewport={viewport}
           className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {INDUSTRIES.map(({ icon: Icon, name, terms }) => (
+          {INDUSTRIES.map(({ icon: Icon, name, slug, terms }) => (
             <motion.div key={name} variants={fadeUpItem} transition={{ duration: 0.5, ease: EASE }}>
-              <Card className="h-full">
+              <Card className="flex h-full flex-col">
                 <div className="flex items-center gap-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Icon size={20} />
@@ -76,6 +50,13 @@ export function Industries() {
                     </li>
                   ))}
                 </ul>
+                <Link
+                  to={`/industries/${slug}`}
+                  className="focus-ring mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-cta"
+                >
+                  See how Vireek helps {name.toLowerCase()}
+                  <ArrowRight size={14} />
+                </Link>
               </Card>
             </motion.div>
           ))}
