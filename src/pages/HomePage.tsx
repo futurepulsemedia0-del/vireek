@@ -1,4 +1,3 @@
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/sections/Hero';
@@ -19,7 +18,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 
 export function HomePage() {
   return (
-    <ThemeProvider>
+    <>
       <Header />
       <main>
         <Hero />
@@ -39,6 +38,6 @@ export function HomePage() {
       </main>
       <Footer />
       <CookieConsent />
-    </ThemeProvider>
+    </>
   );
 }
