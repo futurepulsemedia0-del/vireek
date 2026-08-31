@@ -84,8 +84,8 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/DashboardNav.ts
    );
 diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/UpgradeBanner.tsx b/src/components/UpgradeBanner.tsx
 --- a/src/components/UpgradeBanner.tsx	1970-01-01 00:00:00.000000000 +0000
-+++ b/src/components/UpgradeBanner.tsx	2026-08-30 18:48:54.128516880 +0000
-@@ -0,0 +1,201 @@
++++ b/src/components/UpgradeBanner.tsx	2026-08-30 19:20:55.787589438 +0000
+@@ -0,0 +1,207 @@
 +import { useCallback, useEffect, useState } from 'react';
 +import { AnimatePresence, motion } from 'framer-motion';
 +import { useNavigate } from 'react-router-dom';
@@ -108,11 +108,12 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/UpgradeBanner.t
 +// ============================================================
 +
 +/**
-+ * localStorage key used to persist the "dismissed" choice on this device.
-+ * Bump the version suffix if the banner's offer changes meaningfully and
-+ * you want it to resurface for users who already dismissed the old copy.
++ * localStorage key prefix used to persist the "dismissed" choice on this
++ * device. Suffixed with the user's id so dismissing the banner on one
++ * account never hides it for a different account signing in on the same
++ * browser (e.g. testing with email, then with Google).
 + */
-+const DISMISS_STORAGE_KEY = 'vireek-upgrade-banner-dismissed-v1';
++const DISMISS_STORAGE_PREFIX = 'vireek-upgrade-banner-dismissed-v1';
 +
 +/** Where the primary CTA sends the user. Reuses the existing billing route. */
 +const UPGRADE_ROUTE = '/dashboard/billing';
@@ -143,9 +144,9 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/UpgradeBanner.t
 +// touching any rendering logic below. `refreshProfile()` from AuthContext
 +// already exists for that future wiring.
 +
-+function readDismissed(): boolean {
++function readDismissed(userId: string): boolean {
 +  try {
-+    return window.localStorage.getItem(DISMISS_STORAGE_KEY) === '1';
++    return window.localStorage.getItem(`${DISMISS_STORAGE_PREFIX}:${userId}`) === '1';
 +  } catch {
 +    // Storage may be unavailable (Safari private mode, disabled cookies, etc).
 +    // Fail open to "not dismissed" — worst case the banner reappears.
@@ -153,9 +154,9 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/UpgradeBanner.t
 +  }
 +}
 +
-+function persistDismissed() {
++function persistDismissed(userId: string) {
 +  try {
-+    window.localStorage.setItem(DISMISS_STORAGE_KEY, '1');
++    window.localStorage.setItem(`${DISMISS_STORAGE_PREFIX}:${userId}`, '1');
 +  } catch {
 +    // Non-fatal: the banner simply won't remember the dismissal this session.
 +  }
@@ -165,25 +166,30 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/UpgradeBanner.t
 + * Encapsulates all "should the banner show" logic:
 + * - only Free (starter) plan users
 + * - not while the profile is still loading (avoids a flash for paid users)
-+ * - not if previously dismissed on this device
++ * - not if this specific user previously dismissed it on this device
 + */
 +function useUpgradeBannerVisibility() {
-+  const { profile, profileLoading } = useAuth();
++  const { user, profile, profileLoading } = useAuth();
 +  const [dismissed, setDismissed] = useState<boolean>(true);
 +  const [hydrated, setHydrated] = useState(false);
 +
 +  useEffect(() => {
-+    setDismissed(readDismissed());
++    if (!user) {
++      setHydrated(false);
++      return;
++    }
++    setDismissed(readDismissed(user.id));
 +    setHydrated(true);
-+  }, []);
++  }, [user]);
 +
 +  const isFreePlan = profile?.plan === FREE_PLAN_ID;
 +  const visible = hydrated && !profileLoading && isFreePlan && !dismissed;
 +
 +  const dismiss = useCallback(() => {
-+    persistDismissed();
++    if (!user) return;
++    persistDismissed(user.id);
 +    setDismissed(true);
-+  }, []);
++  }, [user]);
 +
 +  return { visible, dismiss };
 +}
@@ -439,6 +445,45 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/components/sections/WhyVir
 +    </section>
 +  );
 +}
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/contexts/AuthContext.tsx b/src/contexts/AuthContext.tsx
+--- a/src/contexts/AuthContext.tsx	2026-08-30 17:34:42.000000000 +0000
++++ b/src/contexts/AuthContext.tsx	2026-08-31 04:29:46.308502784 +0000
+@@ -49,13 +49,28 @@
+   const fetchProfile = useCallback(async (userId: string) => {
+     setProfileLoading(true);
+     try {
+-      const { data, error } = await supabase
+-        .from('profiles')
+-        .select('*')
+-        .eq('id', userId)
+-        .maybeSingle();
+-      if (error) throw error;
+-      const prof = data as Profile | null;
++      // The `profiles` row is created by a database trigger right after
++      // auth signup (email or OAuth). That trigger can lag the client by a
++      // few hundred ms, so a query fired immediately after signup can race
++      // it and come back empty. Retry briefly instead of accepting a false
++      // "no profile" result — this is what previously caused things like
++      // the upgrade banner to silently stay hidden for freshly created
++      // (especially Google OAuth) accounts until a manual refresh.
++      let prof: Profile | null = null;
++      const maxAttempts = 4;
++      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
++        const { data, error } = await supabase
++          .from('profiles')
++          .select('*')
++          .eq('id', userId)
++          .maybeSingle();
++        if (error) throw error;
++        prof = data as Profile | null;
++        if (prof) break;
++        if (attempt < maxAttempts) {
++          await new Promise((resolve) => setTimeout(resolve, 400 * attempt));
++        }
++      }
+       setProfile(prof);
+ 
+       // If not an owner, fetch their team_members record for permissions
 diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/HomePage.tsx b/src/pages/HomePage.tsx
 --- a/src/pages/HomePage.tsx	2026-08-30 17:34:42.000000000 +0000
 +++ b/src/pages/HomePage.tsx	2026-08-30 19:03:19.581673895 +0000
@@ -472,3 +517,91 @@ diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/HomePage.tsx b/src/p
      </ThemeProvider>
    );
  }
+diff -ruN '--exclude=vite.config.ts.timestamp*' a/src/pages/SignupPage.tsx b/src/pages/SignupPage.tsx
+--- a/src/pages/SignupPage.tsx	2026-08-30 17:34:42.000000000 +0000
++++ b/src/pages/SignupPage.tsx	2026-08-30 19:15:20.346752473 +0000
+@@ -7,6 +7,7 @@
+   Loader as Loader2,
+   CircleAlert as AlertCircle,
+   X,
++  Check,
+   CircleCheck as CheckCircle2,
+   Mail,
+   Lock,
+@@ -104,6 +105,7 @@
+   const [nameTouched, setNameTouched] = useState(false);
+   const [emailTouched, setEmailTouched] = useState(false);
+   const [confirmTouched, setConfirmTouched] = useState(false);
++  const [passwordTouched, setPasswordTouched] = useState(false);
+ 
+   const [nameError, setNameError] = useState('');
+   const [emailError, setEmailError] = useState('');
+@@ -150,7 +152,10 @@
+   }, [confirmPassword, password]);
+ 
+   const strength = useMemo(() => getPasswordStrength(password), [password]);
+-  const passwordMeetsPolicy = password.length >= 8 && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password);
++  const hasMinLength = password.length >= 8;
++  const hasNumber = /[0-9]/.test(password);
++  const hasSymbol = /[^A-Za-z0-9]/.test(password);
++  const passwordMeetsPolicy = hasMinLength && hasNumber && hasSymbol;
+ 
+   const isFormValid =
+     fullName.trim().length >= 2 &&
+@@ -457,9 +462,15 @@
+                   autoComplete="new-password"
+                   value={password}
+                   onChange={(e) => setPassword(e.target.value)}
++                  onBlur={() => setPasswordTouched(true)}
+                   placeholder="Create a password"
+-                  aria-describedby="password-help"
+-                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-3 pl-11 pr-11 text-base text-text-primary placeholder:text-text-secondary/50 transition-colors focus-visible:border-accent"
++                  aria-invalid={passwordTouched && !passwordMeetsPolicy}
++                  aria-describedby="password-requirements"
++                  className={`focus-ring w-full rounded-xl border bg-bg-primary py-3 pl-11 pr-11 text-base text-text-primary placeholder:text-text-secondary/50 transition-colors ${
++                    passwordTouched && !passwordMeetsPolicy
++                      ? 'border-danger/50 focus-visible:border-danger'
++                      : 'border-border focus-visible:border-accent'
++                  }`}
+                 />
+                 <button
+                   type="button"
+@@ -490,9 +501,35 @@
+                   </span>
+                 </div>
+               )}
+-              <p id="password-help" className="mt-1.5 text-xs text-text-secondary/60">
+-                Min 8 characters with at least one number and one symbol.
+-              </p>
++              {/* Live requirement checklist — makes it obvious exactly why the
++                  submit button is disabled, instead of it silently staying grey. */}
++              <ul id="password-requirements" className="mt-2 space-y-1">
++                {[
++                  { met: hasMinLength, label: 'At least 8 characters' },
++                  { met: hasNumber, label: 'At least one number' },
++                  { met: hasSymbol, label: 'At least one symbol (e.g. ! @ # $ %)' },
++                ].map(({ met, label }) => (
++                  <li
++                    key={label}
++                    className={`flex items-center gap-1.5 text-xs transition-colors ${
++                      met
++                        ? 'text-success-500'
++                        : passwordTouched
++                          ? 'text-danger'
++                          : 'text-text-secondary/60'
++                    }`}
++                  >
++                    {met ? (
++                      <Check size={12} className="shrink-0" />
++                    ) : passwordTouched ? (
++                      <X size={12} className="shrink-0" />
++                    ) : (
++                      <span className="ml-[1px] h-1 w-1 shrink-0 rounded-full bg-current" />
++                    )}
++                    {label}
++                  </li>
++                ))}
++              </ul>
+             </div>
+ 
+             {/* Confirm Password */}
