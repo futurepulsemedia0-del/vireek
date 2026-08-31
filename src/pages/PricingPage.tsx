@@ -13,7 +13,7 @@ import {
 
 const CORE_PLANS = PRICING_PLANS.filter((plan) => plan.core);
 
-export function Pricing() {
+export function PricingPage() {
   const [billing, setBilling] = useState<BillingCycle>('annual');
 
   return (
