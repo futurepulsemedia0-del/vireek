@@ -1,6 +1,7 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/sections/Hero';
+import { LiveActivityStream } from '@/components/sections/LiveActivityStream';
 import { Problem } from '@/components/sections/Problem';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
 import { BeforeAfter } from '@/components/sections/BeforeAfter';
@@ -23,6 +24,7 @@ export function HomePage() {
       <Header />
       <main>
         <Hero />
+        <LiveActivityStream />
         <Problem />
         <MissedCallCalculator />
         <BeforeAfter />
