@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { CookieConsent } from '@/components/CookieConsent';
 import { BackButton } from '@/components/ui/BackButton';
 import { EASE, viewport } from '@/lib/motion';
+import { useSEO } from '@/lib/seo';
 
 const FAQ_CATEGORIES = [
   {
@@ -122,37 +123,18 @@ const faqSchema = {
 };
 
 function SEO() {
-  useEffect(() => {
-    const title = 'Frequently Asked Questions | Vireek AI Voice Receptionist';
-    const description = "Everything you need to know about Vireek's AI voice receptionist for 24/7 call answering, lead capture, setup, pricing, and security.";
-    const previousTitle = document.title;
-    const upsertMeta = (name: string, content: string) => {
-      let meta = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', name);
-        document.head.appendChild(meta);
-      }
-      const previous = meta.getAttribute('content');
-      meta.setAttribute('content', content);
-      return () => {
-        if (previous === null) meta?.remove();
-        else meta?.setAttribute('content', previous);
-      };
-    };
+  useSEO({
+    title: 'FAQ — Vireek AI Receptionist Questions Answered',
+    description: 'Get answers about Vireek, Sarah, setup, call handling, pricing, billing, security, and support.',
+    canonical: 'https://vireek.com/faq',
+  });
 
-    document.title = title;
-    const cleanupDescription = upsertMeta('description', description);
-    const cleanupRobots = upsertMeta('robots', 'index, follow');
+  useEffect(() => {
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.text = JSON.stringify(faqSchema);
     document.head.appendChild(script);
-
     return () => {
-      document.title = previousTitle;
-      cleanupDescription();
-      cleanupRobots();
       script.remove();
     };
   }, []);

@@ -1,5 +1,4 @@
 import { FormEvent, useState } from 'react';
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, AlertCircle, Mail, Phone, Linkedin, ArrowRight, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+import { useSEO } from '@/lib/seo';
 import { SARAH_PHONE } from '@/lib/site';
 
 const EMAIL = 'ali@vireek.com';
@@ -52,36 +52,11 @@ const FAQ_TEASERS = [
 ];
 
 function SEO() {
-  useEffect(() => {
-    const title = 'Contact Vireek | AI Voice Receptionist for Home Service Businesses';
-    const description = 'Questions about Vireek? Reach out — we typically respond within 24 hours. Email, phone, or send us a message.';
-    const previousTitle = document.title;
-    const upsertMeta = (name: string, content: string) => {
-      let meta = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', name);
-        document.head.appendChild(meta);
-      }
-      const previous = meta.getAttribute('content');
-      meta.setAttribute('content', content);
-      return () => {
-        if (previous === null) meta?.remove();
-        else meta?.setAttribute('content', previous);
-      };
-    };
-
-    document.title = title;
-    const cleanupDescription = upsertMeta('description', description);
-    const cleanupRobots = upsertMeta('robots', 'index, follow');
-
-    return () => {
-      document.title = previousTitle;
-      cleanupDescription();
-      cleanupRobots();
-    };
-  }, []);
-
+  useSEO({
+    title: 'Contact Vireek — We\'re Here to Help',
+    description: 'Have questions about Vireek? Contact the Vireek team by email, phone, or contact form.',
+    canonical: 'https://vireek.com/contact',
+  });
   return null;
 }
 

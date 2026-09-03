@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ShieldCheck, PhoneCall, Wrench, Siren, CalendarClock, MessageSquareText, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+import { useSEO } from '@/lib/seo';
 
 const CAPABILITIES = [
   {
@@ -57,36 +57,11 @@ const CAPABILITIES = [
 ];
 
 function SEO() {
-  useEffect(() => {
-    const title = 'Services | What Sarah Handles — Vireek AI Voice Receptionist';
-    const description = 'From 24/7 call answering to emergency detection, trade-specific language understanding, and appointment booking — see everything Sarah handles for home-service businesses.';
-    const previousTitle = document.title;
-    const upsertMeta = (name: string, content: string) => {
-      let meta = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', name);
-        document.head.appendChild(meta);
-      }
-      const previous = meta.getAttribute('content');
-      meta.setAttribute('content', content);
-      return () => {
-        if (previous === null) meta?.remove();
-        else meta?.setAttribute('content', previous);
-      };
-    };
-
-    document.title = title;
-    const cleanupDescription = upsertMeta('description', description);
-    const cleanupRobots = upsertMeta('robots', 'index, follow');
-
-    return () => {
-      document.title = previousTitle;
-      cleanupDescription();
-      cleanupRobots();
-    };
-  }, []);
-
+  useSEO({
+    title: 'Services — What Sarah Does for HVAC, Plumbing, Roofing & More | Vireek',
+    description: 'See how Sarah answers calls, understands trade-specific language, flags urgent requests, books appointments, and supports follow-up for home service businesses.',
+    canonical: 'https://vireek.com/services',
+  });
   return null;
 }
 

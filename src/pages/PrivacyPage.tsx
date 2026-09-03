@@ -1,14 +1,16 @@
-import { useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { PrivacyContent } from '@/components/sections/PrivacyContent';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
+import { useSEO } from '@/lib/seo';
 
 export function PrivacyPage() {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  useSEO({
+    title: 'Privacy Policy | Vireek',
+    description: 'How Vireek collects, uses, and protects customer and caller data, including data retention, security practices, and your privacy choices.',
+    canonical: 'https://vireek.com/privacy',
+  });
 
   return (
     <>

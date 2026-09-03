@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+import { useSEO } from '@/lib/seo';
 import {
   PRICING_PLANS,
   getPlanHref,
@@ -18,6 +19,12 @@ import {
 const CORE_PLANS = PRICING_PLANS.filter((plan) => plan.core);
 
 export function PricingPage() {
+  useSEO({
+    title: 'Pricing — Simple, Transparent Plans | Vireek',
+    description: "Compare Vireek's Free, Starter, Professional, Business, and Enterprise plans, including included minutes and transparent overage rates.",
+    canonical: 'https://vireek.com/pricing',
+  });
+
   const [billing, setBilling] = useState<BillingCycle>('annual');
 
   return (

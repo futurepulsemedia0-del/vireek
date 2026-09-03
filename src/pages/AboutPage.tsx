@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Wrench, BadgeDollarSign, PhoneCall, Eye, Target, TrendingUp, PhoneForwarded, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -9,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
+import { useSEO } from '@/lib/seo';
 
 const OUR_VALUES = [
   {
@@ -52,36 +52,11 @@ const WHY_VIREEK = [
 ];
 
 function SEO() {
-  useEffect(() => {
-    const title = 'About Vireek | AI Voice Receptionist for Home Service Businesses';
-    const description = 'Vireek is an AI voice receptionist built specifically for home-service businesses. Meet Sarah — she answers every call, 24/7, so contractors never lose a job to voicemail.';
-    const previousTitle = document.title;
-    const upsertMeta = (name: string, content: string) => {
-      let meta = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', name);
-        document.head.appendChild(meta);
-      }
-      const previous = meta.getAttribute('content');
-      meta.setAttribute('content', content);
-      return () => {
-        if (previous === null) meta?.remove();
-        else meta?.setAttribute('content', previous);
-      };
-    };
-
-    document.title = title;
-    const cleanupDescription = upsertMeta('description', description);
-    const cleanupRobots = upsertMeta('robots', 'index, follow');
-
-    return () => {
-      document.title = previousTitle;
-      cleanupDescription();
-      cleanupRobots();
-    };
-  }, []);
-
+  useSEO({
+    title: 'About Vireek — Built for Home Service Contractors',
+    description: 'Learn why Vireek was built specifically for home service businesses and how Sarah helps contractors handle more calls without adding a traditional receptionist.',
+    canonical: 'https://vireek.com/about',
+  });
   return null;
 }
 
