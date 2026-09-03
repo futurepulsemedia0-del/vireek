@@ -14,7 +14,7 @@ const BEFORE = [
 const AFTER = [
   '24/7 AI Answer',
   'Instant emergency flagging',
-  '$297/month AI',
+  '$199/month AI',
   'Auto CRM entry',
   'Jobs booked while you sleep',
 ];

@@ -269,7 +269,7 @@ export function TermsContent() {
                 <div className="rounded-xl border-2 border-accent/40 bg-accent/[0.04] p-5">
                   <h3 className="text-lg font-semibold text-text-primary">Professional</h3>
                   <ul className="mt-2 ml-1 space-y-1.5">
-                    <li>• $297/month</li>
+                    <li>• $199/month</li>
                     <li>• Includes 1,500 minutes</li>
                     <li>• Additional usage is billed at $0.15/minute</li>
                   </ul>
