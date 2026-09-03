@@ -6,7 +6,7 @@ import { EASE, viewport } from '@/lib/motion';
 
 export function FinalCTA() {
   return (
-    <section className="px-6 py-16 md:py-20">
+    <section id="contact" className="px-6 py-16 md:py-20">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}

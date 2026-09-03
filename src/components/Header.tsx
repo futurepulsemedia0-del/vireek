@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NAV_LINKS } from '@/lib/site';
@@ -33,14 +33,25 @@ function Logo({ mobile = false }: { mobile?: boolean }) {
 }
 
 function NavLink({ label, href, onClick }: { label: string; href: string; onClick?: () => void }) {
-  return (
-    <a
-      href={href}
-      onClick={onClick}
-      className="focus-ring group relative rounded-md px-1 py-1 text-sm font-medium text-text-secondary transition-colors duration-150 hover:text-text-primary"
-    >
+  const isRoute = href.startsWith('/') && !href.includes('#');
+  const className = 'focus-ring group relative rounded-md px-1 py-1 text-sm font-medium text-text-secondary transition-colors duration-150 hover:text-text-primary';
+  const children = (
+    <>
       {label}
       <span className="absolute -bottom-0.5 left-1/2 h-px w-0 -translate-x-1/2 bg-accent transition-all duration-200 ease-out group-hover:w-[calc(100%-0.25rem)]" />
+    </>
+  );
+
+  if (isRoute) {
+    return (
+      <Link to={href} onClick={onClick} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a href={href} onClick={onClick} className={className}>
+      {children}
     </a>
   );
 }
@@ -48,19 +59,12 @@ function NavLink({ label, href, onClick }: { label: string; href: string; onClic
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const location = useLocation();
-  const isHome = location.pathname === '/';
   const { scrollYProgress } = useScroll();
   const scrollProgress = useSpring(scrollYProgress, {
     stiffness: 280,
     damping: 40,
     mass: 0.3,
   });
-
-  const navHref = (href: string) => {
-    if (href.startsWith('/')) return href;
-    return isHome ? href : `/${href}`;
-  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -99,7 +103,7 @@ export function Header() {
 
           <nav className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((link) => (
-              <NavLink key={link.href} label={link.label} href={navHref(link.href)} />
+              <NavLink key={link.href} label={link.label} href={link.href} />
             ))}
           </nav>
 
@@ -155,16 +159,32 @@ export function Header() {
                 </button>
               </div>
               <nav className="mt-6 flex flex-col gap-1">
-                {NAV_LINKS.map((link) => (
-                  <a
-                    key={link.href}
-                    href={navHref(link.href)}
-                    onClick={() => setDrawerOpen(false)}
-                    className="focus-ring rounded-lg px-3 py-3 text-base font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {NAV_LINKS.map((link) => {
+                  const isRoute = link.href.startsWith('/') && !link.href.includes('#');
+                  const className = 'focus-ring rounded-lg px-3 py-3 text-base font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary';
+                  if (isRoute) {
+                    return (
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        onClick={() => setDrawerOpen(false)}
+                        className={className}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  }
+                  return (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setDrawerOpen(false)}
+                      className={className}
+                    >
+                      {link.label}
+                    </a>
+                  );
+                })}
               </nav>
               <Link to="/login" className="mt-auto">
                 <Button variant="primary" size="md" className="w-full">

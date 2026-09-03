@@ -2,16 +2,15 @@ import { Mail, Linkedin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SARAH_PHONE } from '@/lib/site';
 
-const EXPLORE_LINKS = [
-  { label: 'Features', href: '#features', type: 'hash' as const },
-  { label: 'Industries', href: '#industries', type: 'hash' as const },
-  { label: 'Pricing', href: '#pricing', type: 'hash' as const },
-  { label: 'Privacy', href: '/privacy', type: 'route' as const },
-  { label: 'Terms', href: '/terms', type: 'route' as const },
-];
-
-const SUPPORT_LINKS = [
+const NAV_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/#about' },
+  { label: 'Services', href: '/#features' },
+  { label: 'Pricing', href: '/pricing' },
   { label: 'FAQ', href: '/faq' },
+  { label: 'Contact', href: '/#contact' },
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Terms', href: '/terms' },
 ];
 
 const EMAIL = 'ali@vireek.com';
@@ -52,51 +51,34 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick links */}
-          <div>
+          {/* Navigation links */}
+          <div className="md:col-span-2">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
-              Explore
+              Navigate
             </h3>
-            <ul className="mt-4 flex flex-col gap-3">
-              {EXPLORE_LINKS.map((link) => (
-                <li key={link.href}>
-                  {link.type === 'route' ? (
-                    <Link
-                      to={link.href}
-                      className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-                    >
-                      {link.label}
-                    </Link>
-                  ) : (
-                    <a
-                      href={link.href}
-                      className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-                    >
-                      {link.label}
-                    </a>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-
-          {/* Support */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
-              Support
-            </h3>
-            <ul className="mt-4 flex flex-col gap-3">
-              {SUPPORT_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {NAV_LINKS.map((link) => {
+                const isRoute = link.href.startsWith('/') && !link.href.includes('#');
+                return (
+                  <li key={link.href}>
+                    {isRoute ? (
+                      <Link
+                        to={link.href}
+                        className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+                      >
+                        {link.label}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

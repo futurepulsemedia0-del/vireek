@@ -13,8 +13,8 @@ import { Features } from '@/components/sections/Features';
 import { AutomationEngines } from '@/components/sections/AutomationEngines';
 import { WhyVireek } from '@/components/sections/WhyVireek';
 import { SocialProof } from '@/components/sections/SocialProof';
-import { Pricing } from '@/components/sections/Pricing';
-import { SignupForm } from '@/components/sections/SignupForm';
+import { PricingTeaser } from '@/components/sections/PricingTeaser';
+import { FAQCallout } from '@/components/sections/FAQCallout';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 import { CookieConsent } from '@/components/CookieConsent';
 
@@ -36,8 +36,8 @@ export function HomePage() {
         <AutomationEngines />
         <WhyVireek />
         <SocialProof />
-        <Pricing />
-        <SignupForm />
+        <PricingTeaser />
+        <FAQCallout />
         <FinalCTA />
       </main>
       <Footer />

@@ -58,7 +58,7 @@ function Cell({ value }: { value: CellValue }) {
 
 export function WhyVireek() {
   return (
-    <section className="py-24 md:py-28">
+    <section id="about" className="py-24 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
