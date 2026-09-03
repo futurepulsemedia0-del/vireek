@@ -29,7 +29,7 @@ const NAV_LINKS = [
   { label: 'Services', href: '/#features' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'FAQ', href: '/faq' },
-  { label: 'Contact', href: '/#contact' },
+  { label: 'Contact', href: '/contact' },
   { label: 'Privacy', href: '/privacy' },
   { label: 'Terms', href: '/terms' },
 ];

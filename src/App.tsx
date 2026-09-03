@@ -18,6 +18,7 @@ import { PrivacyPage } from '@/pages/PrivacyPage';
 import { TermsPage } from '@/pages/TermsPage';
 import { FAQPage } from '@/pages/FAQPage';
 import { AboutPage } from '@/pages/AboutPage';
+import { ContactPage } from '@/pages/ContactPage';
 import { IndustryPage } from '@/pages/IndustryPage';
 import { DemoPage } from '@/pages/DemoPage';
 import { SecurityPage } from '@/pages/SecurityPage';
@@ -53,6 +54,7 @@ function App() {
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/faq" element={<FAQPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/industries/:slug" element={<IndustryPage />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/demo" element={<DemoPage />} />

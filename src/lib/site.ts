@@ -4,7 +4,7 @@ export const NAV_LINKS = [
   { label: 'Services', href: '/#features' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'FAQ', href: '/faq' },
-  { label: 'Contact', href: '/#contact' },
+  { label: 'Contact', href: '/contact' },
 ] as const;
 
 export const TRIAL_URL = 'https://adalberto68392.softr.app/';
