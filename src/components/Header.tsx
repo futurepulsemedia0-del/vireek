@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
-import { Menu, X, LogIn } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NAV_LINKS } from '@/lib/site';
@@ -20,6 +21,7 @@ function Logo({ mobile = false }: { mobile?: boolean }) {
           theme === 'light' ? 'opacity-100' : 'opacity-0'
         }`}
       />
+
       <img
         src="/assets/logos/logo-light.png.png"
         alt=""
@@ -32,9 +34,20 @@ function Logo({ mobile = false }: { mobile?: boolean }) {
   );
 }
 
-function NavLink({ label, href, onClick }: { label: string; href: string; onClick?: () => void }) {
+function NavLink({
+  label,
+  href,
+  onClick,
+}: {
+  label: string;
+  href: string;
+  onClick?: () => void;
+}) {
   const isRoute = href.startsWith('/') && !href.includes('#');
-  const className = 'focus-ring group relative rounded-md px-1 py-1 text-sm font-medium text-text-secondary transition-colors duration-150 hover:text-text-primary';
+
+  const className =
+    'focus-ring group relative rounded-md px-1 py-1 text-sm font-medium text-text-secondary transition-colors duration-150 hover:text-text-primary';
+
   const children = (
     <>
       {label}
@@ -49,6 +62,7 @@ function NavLink({ label, href, onClick }: { label: string; href: string; onClic
       </Link>
     );
   }
+
   return (
     <a href={href} onClick={onClick} className={className}>
       {children}
@@ -59,7 +73,9 @@ function NavLink({ label, href, onClick }: { label: string; href: string; onClic
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
   const { scrollYProgress } = useScroll();
+
   const scrollProgress = useSpring(scrollYProgress, {
     stiffness: 280,
     damping: 40,
@@ -68,14 +84,19 @@ export function Header() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
+
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+
+    window.addEventListener('scroll', onScroll, {
+      passive: true,
+    });
+
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useEffect(() => {
-    if (drawerOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
+    document.body.style.overflow = drawerOpen ? 'hidden' : '';
+
     return () => {
       document.body.style.overflow = '';
     };
@@ -88,6 +109,7 @@ export function Header() {
         style={{ scaleX: scrollProgress }}
         className="scroll-progress fixed inset-x-0 top-0 z-[60] h-0.5 bg-accent"
       />
+
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-200 ease-out ${
           scrolled
@@ -96,28 +118,70 @@ export function Header() {
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+
           <Link to="/" className="flex items-center gap-3">
             <Logo />
-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
+            <span className="text-lg font-bold tracking-tight text-text-primary">
+              Vireek
+            </span>
           </Link>
+
 
           <nav className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((link) => (
-              <NavLink key={link.href} label={link.label} href={link.href} />
+              <NavLink
+                key={link.href}
+                label={link.label}
+                href={link.href}
+              />
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-5">
+
             <ThemeToggle />
-            <Link to="/login" className="hidden items-center gap-1.5 text-sm font-semibold text-text-secondary transition-colors hover:text-text-primary sm:flex">
-              <LogIn size={16} />
+
+
+            <Link
+              to="/login"
+              className="
+                hidden
+                text-sm
+                font-semibold
+                text-text-secondary
+                transition-colors
+                duration-200
+                hover:text-text-primary
+                sm:block
+              "
+            >
               Log In
             </Link>
-            <Link to="/login" className="hidden sm:block">
-              <Button variant="primary" size="sm">
+
+
+            <Link
+              to="/login"
+              className="hidden sm:block"
+            >
+              <Button
+                variant="primary"
+                size="md"
+                className="
+                  rounded-xl
+                  px-5
+                  shadow-lg
+                  shadow-accent/20
+                  transition-all
+                  duration-200
+                  hover:-translate-y-0.5
+                "
+              >
                 Start Free Trial
               </Button>
             </Link>
+
+
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
@@ -126,9 +190,11 @@ export function Header() {
             >
               <Menu size={18} />
             </button>
+
           </div>
         </div>
       </header>
+
 
       <AnimatePresence>
         {drawerOpen && (
@@ -141,18 +207,29 @@ export function Header() {
               onClick={() => setDrawerOpen(false)}
               className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm md:hidden"
             />
+
+
             <motion.aside
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.25,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               className="fixed right-0 top-0 z-50 flex h-full w-80 max-w-[85vw] flex-col gap-2 border-l border-border bg-bg-secondary p-6 md:hidden"
             >
+
               <div className="flex items-center justify-between">
+
                 <div className="flex items-center gap-3">
                   <Logo mobile />
-                  <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
+                  <span className="text-lg font-bold tracking-tight text-text-primary">
+                    Vireek
+                  </span>
                 </div>
+
+
                 <button
                   type="button"
                   onClick={() => setDrawerOpen(false)}
@@ -161,11 +238,21 @@ export function Header() {
                 >
                   <X size={18} />
                 </button>
+
               </div>
+
+
               <nav className="mt-6 flex flex-col gap-1">
                 {NAV_LINKS.map((link) => {
-                  const isRoute = link.href.startsWith('/') && !link.href.includes('#');
-                  const className = 'focus-ring rounded-lg px-3 py-3 text-base font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary';
+
+                  const isRoute =
+                    link.href.startsWith('/') &&
+                    !link.href.includes('#');
+
+                  const className =
+                    'focus-ring rounded-lg px-3 py-3 text-base font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary';
+
+
                   if (isRoute) {
                     return (
                       <Link
@@ -178,6 +265,8 @@ export function Header() {
                       </Link>
                     );
                   }
+
+
                   return (
                     <a
                       key={link.href}
@@ -188,19 +277,32 @@ export function Header() {
                       {link.label}
                     </a>
                   );
+
                 })}
               </nav>
+
+
               <Link to="/login" className="mt-2">
-                <Button variant="secondary" size="md" className="w-full gap-2">
-                  <LogIn size={18} />
+                <Button
+                  variant="secondary"
+                  size="md"
+                  className="w-full rounded-xl"
+                >
                   Log In
                 </Button>
               </Link>
+
+
               <Link to="/login" className="mt-auto">
-                <Button variant="primary" size="md" className="w-full">
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="w-full rounded-xl"
+                >
                   Start Free Trial
                 </Button>
               </Link>
+
             </motion.aside>
           </>
         )}
