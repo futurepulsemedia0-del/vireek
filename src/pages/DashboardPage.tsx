@@ -8,6 +8,8 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { UsageAlertBanner } from '@/pages/BillingPage';
 import { supabase, Call, Job, Lead, AiInsight, Profile } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { useRealtimeSubscription } from '@/lib/realtime';
+import { LiveIndicator } from '@/components/LiveIndicator';
 
 // ============================================================
 // SHARED UI PRIMITIVES
@@ -362,7 +364,7 @@ function formatCurrency(amount: number | null): string {
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, isOwner, permissions } = useAuth();
+  const { user, profile, profileLoading, isOwner, permissions, teamMember } = useAuth();
   const { toast } = useToast();
 
   const [calls, setCalls] = useState<Call[]>([]);
@@ -408,6 +410,48 @@ export function DashboardPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // ------------------------------------------------------------
+  // Step 11: real-time updates. New calls/jobs land in the lists instantly
+  // instead of waiting for the next page load, and briefly flash so the
+  // change is noticeable without being jarring.
+  // ------------------------------------------------------------
+  const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
+  const [newlyArrivedId, setNewlyArrivedId] = useState<string | null>(null);
+
+  const callsLiveStatus = useRealtimeSubscription<Call>({
+    channelName: `overview-calls-${accountOwnerId ?? 'anon'}`,
+    table: 'calls',
+    event: 'INSERT',
+    filter: accountOwnerId ? `user_id=eq.${accountOwnerId}` : undefined,
+    enabled: !!accountOwnerId,
+    onChange: (payload) => {
+      const row = payload.new as Call;
+      setCalls((prev) => [row, ...prev].slice(0, 20));
+      setAllCalls((prev) => [row, ...prev]);
+      setNewlyArrivedId(row.id);
+      setTimeout(() => setNewlyArrivedId((cur) => (cur === row.id ? null : cur)), 2500);
+    },
+  });
+
+  useRealtimeSubscription<Job>({
+    channelName: `overview-jobs-${accountOwnerId ?? 'anon'}`,
+    table: 'jobs',
+    event: '*',
+    filter: accountOwnerId ? `user_id=eq.${accountOwnerId}` : undefined,
+    enabled: !!accountOwnerId,
+    onChange: (payload) => {
+      if (payload.eventType === 'INSERT') {
+        const row = payload.new as Job;
+        setJobs((prev) => [row, ...prev].slice(0, 20));
+        setAllJobs((prev) => [row, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        const row = payload.new as Job;
+        setJobs((prev) => prev.map((j) => (j.id === row.id ? row : j)));
+        setAllJobs((prev) => prev.map((j) => (j.id === row.id ? row : j)));
+      }
+    },
+  });
 
   useKeyboardShortcut({
     key: 'Escape',
@@ -647,9 +691,12 @@ export function DashboardPage() {
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
-                Welcome back, {profile?.company_name || profile?.full_name?.split(' ')[0] || 'there'}
-              </h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
+                  Welcome back, {profile?.company_name || profile?.full_name?.split(' ')[0] || 'there'}
+                </h1>
+                <LiveIndicator status={callsLiveStatus} />
+              </div>
               <p className="mt-1.5 text-sm text-text-secondary">{todayDate}</p>
               {dailyDigest && (
                 <div className="mt-3 flex items-center gap-2 rounded-xl border border-accent/20 bg-accent/5 px-4 py-2.5">

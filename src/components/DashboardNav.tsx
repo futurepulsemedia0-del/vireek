@@ -1,31 +1,69 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Phone, LogOut, Menu, X, LayoutDashboard, TrendingUp, PhoneCall, Users, Wrench, Settings, Lightbulb, ShieldCheck, CreditCard, Plug, CircleUser as UserCircle } from 'lucide-react';
+import {
+  Phone,
+  LogOut,
+  Menu,
+  X,
+  LayoutDashboard,
+  TrendingUp,
+  PhoneCall,
+  Users,
+  Wrench,
+  Settings,
+  Lightbulb,
+  ShieldCheck,
+  CreditCard,
+  Plug,
+  ChevronDown,
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
+import { NotificationBell } from '@/components/NotificationBell';
+import { AiAssistant } from '@/components/AiAssistant';
+import { CommandPalette } from '@/components/CommandPalette';
 
 interface NavItem {
   label: string;
   href: string;
   icon: typeof LayoutDashboard;
   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
+  ownerOnly?: boolean;
 }
 
-const ALL_NAV_ITEMS: NavItem[] = [
+// Primary, daily-use items stay immediately visible at the top level —
+// step 16's navigation-simplicity pass. Everything account-management-ish
+// (now including Settings/Security, added in steps 13/15) is grouped under
+// a single collapsible "Account" section instead of growing the flat list
+// further.
+const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
-  { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
-  { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
+];
+
+const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, requiresPermission: 'can_edit_business_profile' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
+  { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
+  { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
+  { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
+
+function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions) {
+  return items.filter((item) => {
+    if (item.ownerOnly && !isOwner) return false;
+    if (!item.requiresPermission) return true;
+    if (isOwner) return true;
+    return permissions[item.requiresPermission];
+  });
+}
 
 export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const navigate = useNavigate();
@@ -34,11 +72,15 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const { toast } = useToast();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const visibleItems = ALL_NAV_ITEMS.filter((item) => {
-    if (!item.requiresPermission) return true;
-    if (isOwner) return true;
-    return permissions[item.requiresPermission];
-  });
+  const isActive = (href: string) => {
+    if (href === '/dashboard') return location.pathname === '/dashboard';
+    return location.pathname.startsWith(href);
+  };
+
+  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions);
+  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions);
+  const accountActive = visibleAccount.some((item) => isActive(item.href));
+  const [accountOpen, setAccountOpen] = useState(accountActive);
 
   const handleSignOut = async () => {
     await signOut();
@@ -46,31 +88,60 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     navigate('/login', { replace: true });
   };
 
-  const isActive = (href: string) => {
-    if (href === '/dashboard') return location.pathname === '/dashboard';
-    return location.pathname.startsWith(href);
-  };
+  function NavLink({ item }: { item: NavItem }) {
+    const active = isActive(item.href);
+    return (
+      <Link
+        key={item.href}
+        to={item.href}
+        onClick={() => setDrawerOpen(false)}
+        className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+          active
+            ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/15'
+            : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+        }`}
+      >
+        <item.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
+        {item.label}
+      </Link>
+    );
+  }
 
   const navContent = (
     <nav className="flex flex-col gap-1">
-      {visibleItems.map((item) => {
-        const active = isActive(item.href);
-        return (
-          <Link
-            key={item.href}
-            to={item.href}
-            onClick={() => setDrawerOpen(false)}
-            className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-              active
-                ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/15'
-                : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
-            }`}
+      {visiblePrimary.map((item) => (
+        <NavLink key={item.href} item={item} />
+      ))}
+
+      {visibleAccount.length > 0 && (
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={() => setAccountOpen((v) => !v)}
+            className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
           >
-            <item.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
-            {item.label}
-          </Link>
-        );
-      })}
+            Account
+            <ChevronDown size={14} className={`transition-transform ${accountOpen ? 'rotate-180' : ''}`} />
+          </button>
+          <AnimatePresence initial={false}>
+            {accountOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-col gap-1 pt-1">
+                  {visibleAccount.map((item) => (
+                    <NavLink key={item.href} item={item} />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </nav>
   );
 
@@ -78,11 +149,14 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     <>
       {/* Desktop sidebar */}
       <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex">
-        <div className="flex items-center gap-2.5 px-6 py-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
-            <Phone size={16} strokeWidth={2.5} />
-          </span>
-          <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
+        <div className="flex items-center justify-between gap-2.5 px-5 py-5">
+          <Link to="/dashboard" className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+              <Phone size={16} strokeWidth={2.5} />
+            </span>
+            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
+          </Link>
+          <NotificationBell />
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-4">
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-secondary/60">
@@ -115,6 +189,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <ThemeToggle />
             <button
               type="button"
@@ -200,6 +275,8 @@ export function DashboardLayout({
           {children}
         </main>
       </div>
+      <CommandPalette />
+      <AiAssistant />
     </div>
   );
 }

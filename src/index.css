@@ -89,4 +89,35 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Slow, ambient glow for small "alive" accents (e.g. the pricing "Recommended" badge).
+     Deliberately subtle — a shadow/brightness breathe, not an opacity pulse. */
+  .animate-glow-slow {
+    animation: glow-slow 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+}
+
+@keyframes glow-slow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(var(--accent-primary) / 0.35);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 0 14px 2px rgb(var(--accent-primary) / 0.35);
+    filter: brightness(1.05);
+  }
+}
+
+/* Scroll progress indicator (top of viewport) */
+.scroll-progress {
+  transform-origin: 0% 50%;
+}
+
+/* Site-wide focus-visible easing consistency for native form controls */
+input,
+textarea,
+select {
+  transition: border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }

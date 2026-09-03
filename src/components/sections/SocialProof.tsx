@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { CountUp } from '@/components/ui/CountUp';
 import { EASE, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 
 const STATS = [
@@ -43,7 +44,10 @@ export function SocialProof() {
           {STATS.map(({ value, label }) => (
             <motion.div key={value} variants={fadeUpItem} transition={{ duration: 0.5, ease: EASE }}>
               <Card className="h-full">
-                <p className="text-4xl font-bold tracking-tight text-accent md:text-5xl">{value}</p>
+                <CountUp
+                  value={value}
+                  className="block text-4xl font-bold tracking-tight text-accent md:text-5xl"
+                />
                 <p className="mt-4 text-base leading-relaxed text-text-secondary">{label}</p>
               </Card>
             </motion.div>

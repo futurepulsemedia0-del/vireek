@@ -84,7 +84,7 @@ export function Pricing() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={viewport}
-                transition={{ duration: 0.5, delay: index * 0.08, ease: EASE }}
+                transition={{ duration: 0.5, delay: index * 0.06, ease: EASE }}
                 className={
                   plan.recommended
                     ? 'relative flex h-full flex-col rounded-2xl border-2 border-accent bg-bg-secondary p-8 shadow-glow-accent'
@@ -92,7 +92,7 @@ export function Pricing() {
                 }
               >
                 {plan.recommended && (
-                  <span className="absolute -top-3 right-6 inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-glow-accent animate-pulse">
+                  <span className="animate-glow-slow absolute -top-3 right-6 inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
                     Most popular
                   </span>
                 )}
@@ -153,7 +153,10 @@ export function Pricing() {
                     </Button>
                   </Link>
                 )}
-                <p className="mt-2 text-center text-xs text-text-secondary/70">{plan.ctaHint}</p>
+                <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-xs font-medium text-text-secondary/70">
+                  <ShieldCheck size={13} className="shrink-0 text-text-secondary/50" />
+                  {plan.ctaHint}
+                </p>
               </motion.div>
             );
           })}

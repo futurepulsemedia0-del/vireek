@@ -84,7 +84,7 @@ export function PricingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={viewport}
-                transition={{ duration: 0.5, delay: index * 0.08, ease: EASE }}
+                transition={{ duration: 0.5, delay: index * 0.06, ease: EASE }}
                 className={
                   plan.recommended
                     ? 'relative flex h-full flex-col rounded-2xl border-2 border-accent bg-bg-secondary p-8 shadow-glow-accent'

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
@@ -50,6 +50,12 @@ export function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const { scrollYProgress } = useScroll();
+  const scrollProgress = useSpring(scrollYProgress, {
+    stiffness: 280,
+    damping: 40,
+    mass: 0.3,
+  });
 
   const navHref = (href: string) => {
     if (href.startsWith('/')) return href;
@@ -73,6 +79,11 @@ export function Header() {
 
   return (
     <>
+      <motion.div
+        aria-hidden="true"
+        style={{ scaleX: scrollProgress }}
+        className="scroll-progress fixed inset-x-0 top-0 z-[60] h-0.5 bg-accent"
+      />
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-200 ease-out ${
           scrolled
@@ -103,7 +114,7 @@ export function Header() {
               type="button"
               onClick={() => setDrawerOpen(true)}
               aria-label="Open menu"
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-primary md:hidden"
+              className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-primary md:hidden"
             >
               <Menu size={18} />
             </button>
@@ -138,7 +149,7 @@ export function Header() {
                   type="button"
                   onClick={() => setDrawerOpen(false)}
                   aria-label="Close menu"
-                  className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border text-text-secondary hover:text-text-primary"
+                  className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl border border-border text-text-secondary hover:text-text-primary"
                 >
                   <X size={18} />
                 </button>

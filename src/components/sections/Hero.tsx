@@ -28,7 +28,7 @@ function Waveform() {
           style={{ height: `${h * 96}px` }}
           animate={{ scaleY: [0.55, 1, 0.7, 0.9, 0.55] }}
           transition={{
-            duration: 1.6,
+            duration: 1.6 + i * 0.11,
             repeat: Infinity,
             ease: 'easeInOut',
             delay: i * 0.18,
@@ -47,7 +47,7 @@ export function Hero() {
     >
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg-primary via-bg-primary to-bg-secondary" />
 
-      <div className="mx-auto w-full max-w-7xl px-6 py-32 text-center">
+      <div className="mx-auto w-full max-w-7xl px-6 py-36 text-center md:py-44">
         {/* Social proof badge */}
         <motion.div
           {...fadeUp}
@@ -80,7 +80,7 @@ export function Hero() {
         <motion.h1
           {...fadeUp}
           transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-          className="mx-auto mt-5 max-w-4xl text-5xl font-bold leading-[1.1] tracking-tight text-text-primary md:text-7xl"
+          className="mx-auto mt-5 max-w-5xl text-6xl font-bold leading-[1.02] tracking-tight text-text-primary md:text-8xl"
         >
           Never Miss Another Emergency Call
         </motion.h1>
@@ -88,10 +88,10 @@ export function Hero() {
         <motion.p
           {...fadeUp}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-text-secondary md:text-lg"
+          className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-text-secondary md:text-lg"
         >
-          Sarah answers your customer calls 24/7, qualifies leads, detects emergencies, and
-          books appointments — while you focus on the work, not the phone.
+          Sarah answers calls 24/7, detects emergencies, and books appointments — so you
+          focus on the job, not the phone.
         </motion.p>
 
         <motion.div

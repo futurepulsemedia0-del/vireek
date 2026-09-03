@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, viewport } from '@/lib/motion';
@@ -12,7 +12,7 @@ export function FinalCTA() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={viewport}
         transition={{ duration: 0.5, ease: EASE }}
-        className="bg-noise relative mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-3xl bg-gradient-to-br from-accent-800 via-accent-700 to-cta-800 px-6 py-16 text-center shadow-glow-accent md:px-16 md:py-20"
+        className="bg-noise relative mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-3xl bg-gradient-to-br from-accent-800 via-accent-700 to-cta-800 px-6 py-16 text-center shadow-glow-accent md:px-16 md:py-24"
       >
         <div
           aria-hidden="true"
@@ -38,6 +38,10 @@ export function FinalCTA() {
               </Button>
             </Link>
           </div>
+          <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-white/70">
+            <ShieldCheck size={13} className="shrink-0" />
+            Cancel anytime. No contracts.
+          </p>
         </div>
       </motion.div>
     </section>

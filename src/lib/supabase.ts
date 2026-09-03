@@ -27,6 +27,10 @@ export interface Profile {
   external_id: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  notify_emergency_call?: boolean;
+  notify_usage_alert?: boolean;
+  notify_ai_insight?: boolean;
+  notify_job_update?: boolean;
   created_at: string;
 }
 

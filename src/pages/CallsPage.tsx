@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRealtimeSubscription } from '@/lib/realtime';
+import { LiveIndicator } from '@/components/LiveIndicator';
 import {
   Phone,
   ArrowLeft,

@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/pages/LoginPage';
@@ -5,7 +6,6 @@ import { SignupPage } from '@/pages/SignupPage';
 import { OnboardingPage } from '@/pages/OnboardingPage';
 import { PricingPage } from '@/pages/PricingPage';
 import { DashboardPage } from '@/pages/DashboardPage';
-import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { CallsPage } from '@/pages/CallsPage';
 import { LeadsPage } from '@/pages/LeadsPage';
 import { JobsPage } from '@/pages/JobsPage';
@@ -21,8 +21,25 @@ import { IndustryPage } from '@/pages/IndustryPage';
 import { DemoPage } from '@/pages/DemoPage';
 import { SecurityPage } from '@/pages/SecurityPage';
 import { AccessibilityPage } from '@/pages/AccessibilityPage';
+import { NotificationsPage } from '@/pages/NotificationsPage';
+import { SettingsPage } from '@/pages/SettingsPage';
+import { SecuritySettingsPage } from '@/pages/SecuritySettingsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+
+// Step 14 (performance pass): Analytics pulls in the chart-rendering code
+// path, which is meaningfully heavier than the rest of the dashboard and is
+// only ever needed on this one route — code-split it out of the main
+// bundle instead of shipping it on every initial dashboard load.
+const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
+
+function RouteLoadingFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-bg-primary">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -51,7 +68,33 @@ function App() {
         path="/dashboard/analytics"
         element={
           <ProtectedRoute>
-            <AnalyticsPage />
+            <Suspense fallback={<RouteLoadingFallback />}>
+              <AnalyticsPage />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/notifications"
+        element={
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/settings"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/settings/security"
+        element={
+          <ProtectedRoute>
+            <SecuritySettingsPage />
           </ProtectedRoute>
         }
       />

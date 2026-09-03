@@ -16,7 +16,7 @@ export const viewport = { once: true, margin: '-80px' } as const;
 
 export const staggerContainer: Variants = {
   initial: {},
-  whileInView: { transition: { staggerChildren: 0.12 } },
+  whileInView: { transition: { staggerChildren: 0.05 } },
 };
 
 export function sectionHeadingClass() {
