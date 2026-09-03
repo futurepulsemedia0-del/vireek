@@ -170,72 +170,43 @@ export function Hero() {
 
 
 
-        {/* PREMIUM AI HERO VISUAL */}
+  {/* PREMIUM AI HERO VISUAL */}
 
 <motion.div
   {...fadeUp}
-  transition={{ duration: 0.8, delay: 0.15 }}
-  className="relative flex justify-center"
+  transition={{ duration: 1, delay: 0.2 }}
+  className="relative flex items-center justify-center"
 >
 
-  {/* Premium ambient AI glow */}
+  {/* Large atmospheric glow */}
   <div
     className="
       absolute
-      inset-0
+      -inset-20
       -z-10
-      scale-90
       rounded-full
-      bg-accent/25
-      blur-[120px]
+      bg-accent/20
+      blur-[140px]
     "
   />
 
 
   <motion.div
     animate={{
-      y: [0, -12, 0],
+      y: [0, -14, 0],
+      rotate: [0, 0.5, 0],
     }}
     transition={{
-      duration: 6,
+      duration: 7,
       repeat: Infinity,
-      ease: 'easeInOut',
+      ease: "easeInOut",
     }}
     className="
       relative
       w-full
-      max-w-[650px]
+      max-w-[680px]
     "
   >
-
-    {/* Corner light effect */}
-    <div
-      className="
-        absolute
-        -right-10
-        -top-10
-        h-48
-        w-48
-        rounded-full
-        bg-accent/20
-        blur-3xl
-      "
-    />
-
-
-    <div
-      className="
-        absolute
-        -bottom-10
-        -left-10
-        h-56
-        w-56
-        rounded-full
-        bg-accent/10
-        blur-3xl
-      "
-    />
-
 
     {/* Image */}
     <img
@@ -245,25 +216,66 @@ export function Hero() {
         relative
         z-10
         w-full
-        rounded-[48px]
         object-contain
-        drop-shadow-[0_35px_70px_rgba(0,0,0,0.30)]
+        drop-shadow-[0_45px_90px_rgba(0,0,0,0.35)]
       "
     />
 
 
-    {/* Soft edge blending */}
+    {/* Premium edge blending */}
     <div
       className="
         pointer-events-none
         absolute
         inset-0
         z-20
-        rounded-[48px]
-        bg-gradient-to-tr
-        from-accent/10
+        bg-gradient-to-r
+        from-bg-primary/40
         via-transparent
-        to-transparent
+        to-bg-primary/20
+      "
+    />
+
+    <div
+      className="
+        pointer-events-none
+        absolute
+        inset-0
+        z-20
+        bg-gradient-to-b
+        from-bg-primary/20
+        via-transparent
+        to-bg-secondary/40
+      "
+    />
+
+
+    {/* Corner ambient lights */}
+
+    <div
+      className="
+        absolute
+        -right-16
+        top-10
+        h-52
+        w-52
+        rounded-full
+        bg-accent/20
+        blur-[80px]
+      "
+    />
+
+
+    <div
+      className="
+        absolute
+        -left-20
+        bottom-0
+        h-64
+        w-64
+        rounded-full
+        bg-accent/10
+        blur-[100px]
       "
     />
 
