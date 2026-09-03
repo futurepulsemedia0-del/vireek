@@ -160,6 +160,14 @@ export function Footer() {
             >
               Contact
             </a>
+            <span className="text-text-secondary/30">|</span>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event('vireek:open-consent'))}
+              className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+            >
+              Cookie Preferences
+            </button>
           </div>
         </div>
       </div>
