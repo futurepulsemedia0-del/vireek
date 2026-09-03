@@ -6,6 +6,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
 import { CookieConsent } from '@/components/CookieConsent';
+import { BackButton } from '@/components/ui/BackButton';
 import { EASE, viewport } from '@/lib/motion';
 
 const FAQ_CATEGORIES = [
@@ -211,7 +212,11 @@ export function FAQPage() {
       <main className="min-h-screen overflow-hidden bg-bg-primary pt-24">
         <section className="relative bg-gradient-mesh bg-noise px-6 py-20 sm:py-24 lg:py-28">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-          <div className="mx-auto max-w-5xl text-center">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-8">
+              <BackButton />
+            </div>
+            <div className="text-center">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: EASE }}>
               <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-bg-secondary/80 px-4 py-2 text-sm font-semibold text-text-secondary shadow-sm backdrop-blur">
                 <Sparkles className="h-4 w-4 text-accent" />
@@ -226,6 +231,7 @@ export function FAQPage() {
                 <a href="/#pricing" className="focus-ring inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-text-primary transition-colors hover:text-accent">View pricing <ArrowRight className="h-4 w-4" /></a>
               </div>
             </motion.div>
+            </div>
           </div>
         </section>
 

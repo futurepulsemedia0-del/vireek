@@ -1,6 +1,27 @@
-import { Mail, Linkedin, Phone } from 'lucide-react';
+import { Mail, Linkedin, Phone, Facebook, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SARAH_PHONE } from '@/lib/site';
+
+function RedditIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm5.01 4.744c.688 0 1.25.561 1.25 1.252a1.25 1.25 0 0 1-2.498.015l-2.826-.6a.5.5 0 0 0-.598.348l-1.02 3.06c1.872.07 3.567.646 4.842 1.562.5-.4 1.146-.642 1.85-.642 1.657 0 3 1.343 3 3 0 1.194-.7 2.224-1.71 2.715-.04 3.06-3.42 5.523-7.5 5.523s-7.46-2.464-7.5-5.523C6.7 15.224 6 14.194 6 13c0-1.657 1.343-3 3-3 .704 0 1.35.242 1.85.642 1.275-.916 2.97-1.492 4.842-1.562l-1.02-3.06a.5.5 0 0 0-.598-.348l-2.826.6a1.25 1.25 0 1 1-.04-.348l3.116-.66a1 1 0 0 1 1.196-.696l3.05.646c.18-.46.63-.78 1.158-.78ZM9 13.25a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Zm6 0a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Zm-3.012 4.146c-.73 0-1.456.062-2.146.18a.375.375 0 1 0 .116.74c1.27-.2 2.79-.2 4.06 0a.375.375 0 1 0 .116-.74c-.69-.118-1.416-.18-2.146-.18Z" />
+    </svg>
+  );
+}
+
+const SOCIAL_LINKS = [
+  { label: 'Vireek on Facebook', href: 'https://www.facebook.com/profile.php?id=61591755299005', Icon: Facebook },
+  { label: 'Vireek on Instagram', href: 'https://www.instagram.com/vireek.ai/', Icon: Instagram },
+  { label: 'Vireek on Reddit', href: 'https://www.reddit.com/user/Livid_Upstairs5570/', Icon: RedditIcon },
+  { label: 'Vireek on LinkedIn', href: 'https://www.linkedin.com/in/ali-moradi-741346339', Icon: Linkedin },
+];
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -14,7 +35,6 @@ const NAV_LINKS = [
 ];
 
 const EMAIL = 'ali@vireek.com';
-const LINKEDIN_URL = 'https://www.linkedin.com/in/ali-moradi-741346339';
 const PHONE_DISPLAY = '+1 (650) 910-6703';
 
 export function Footer() {
@@ -35,19 +55,22 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Email ${EMAIL}`}
-                className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-colors hover:border-accent/40 hover:text-accent"
+                className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
               >
                 <Mail size={18} />
               </a>
-              <a
-                href={LINKEDIN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Vireek on LinkedIn"
-                className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-colors hover:border-accent/40 hover:text-accent"
-              >
-                <Linkedin size={18} />
-              </a>
+              {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+                <a
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
+                >
+                  <Icon size={18} />
+                </a>
+              ))}
             </div>
           </div>
 

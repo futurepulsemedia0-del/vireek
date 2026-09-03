@@ -6,6 +6,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 
@@ -16,7 +17,7 @@ const WHY_VIREEK = [
     body: 'Sarah understands HVAC, plumbing, roofing, electrical, and restoration workflows — not just a generic intake script. She asks the right questions for your trade.',
   },
   {
-    icon: TagDollarSign,
+    icon: BadgeDollarSign,
     title: 'Honest, Transparent Pricing',
     body: 'No hidden fees, no long contracts, no surprise overages. You see your plan, your included minutes, and your per-minute rate up front.',
   },
@@ -70,11 +71,15 @@ export function AboutPage() {
         {/* Hero */}
         <section className="relative bg-gradient-mesh bg-noise px-6 py-20 sm:py-24 lg:py-28">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-          <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-4xl">
+            <div className="mb-8">
+              <BackButton />
+            </div>
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: EASE }}
+              className="text-center"
             >
               <p className={eyebrowClass()}>About Vireek</p>
               <h1 className="mt-4 text-balance text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl lg:text-6xl">

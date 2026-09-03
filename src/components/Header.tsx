@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -109,6 +109,10 @@ export function Header() {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <Link to="/login" className="hidden items-center gap-1.5 text-sm font-semibold text-text-secondary transition-colors hover:text-text-primary sm:flex">
+              <LogIn size={16} />
+              Log In
+            </Link>
             <Link to="/login" className="hidden sm:block">
               <Button variant="primary" size="sm">
                 Start Free Trial
@@ -186,6 +190,12 @@ export function Header() {
                   );
                 })}
               </nav>
+              <Link to="/login" className="mt-2">
+                <Button variant="secondary" size="md" className="w-full gap-2">
+                  <LogIn size={18} />
+                  Log In
+                </Button>
+              </Link>
               <Link to="/login" className="mt-auto">
                 <Button variant="primary" size="md" className="w-full">
                   Start Free Trial

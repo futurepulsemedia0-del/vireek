@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
+import { BackButton } from '@/components/ui/BackButton';
+import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import {
   PRICING_PLANS,
@@ -17,8 +21,14 @@ export function PricingPage() {
   const [billing, setBilling] = useState<BillingCycle>('annual');
 
   return (
-    <section id="pricing" className="py-24 md:py-28">
-      <div className="mx-auto max-w-7xl px-6">
+    <>
+      <Header />
+      <main className="min-h-screen bg-bg-primary pt-24">
+        <section id="pricing" className="py-24 md:py-28">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-8">
+              <BackButton />
+            </div>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -191,5 +201,9 @@ export function PricingPage() {
         </motion.div>
       </div>
     </section>
+      </main>
+      <Footer />
+      <CookieConsent />
+    </>
   );
 }
