@@ -15,6 +15,10 @@ export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
       <img
         src="/assets/logos/logo-dark.png.png"
         alt="Vireek"
+        width={48}
+        height={48}
+        decoding="async"
+        loading="eager"
         className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
           theme === 'light' ? 'opacity-100' : 'opacity-0'
         }`}
@@ -23,6 +27,10 @@ export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
         src="/assets/logos/logo-light.png.png"
         alt=""
         aria-hidden="true"
+        width={48}
+        height={48}
+        decoding="async"
+        loading="eager"
         className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
           theme === 'dark' ? 'opacity-100' : 'opacity-0'
         }`}

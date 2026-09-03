@@ -18,6 +18,10 @@ function Logo({ size = 'h-9 w-9' }: { size?: string }) {
       <img
         src="/assets/logos/logo-dark.png.png"
         alt="Vireek"
+        width={36}
+        height={36}
+        decoding="async"
+        loading="eager"
         className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
           theme === 'light' ? 'opacity-100' : 'opacity-0'
         }`}
@@ -26,6 +30,10 @@ function Logo({ size = 'h-9 w-9' }: { size?: string }) {
         src="/assets/logos/logo-light.png.png"
         alt=""
         aria-hidden="true"
+        width={36}
+        height={36}
+        decoding="async"
+        loading="eager"
         className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
           theme === 'dark' ? 'opacity-100' : 'opacity-0'
         }`}
