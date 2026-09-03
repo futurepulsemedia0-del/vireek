@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Star, Zap, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
 import { Button } from '@/components/ui/Button';
 import { SARAH_PHONE } from '@/lib/site';
 
@@ -13,19 +11,16 @@ const TRUST_ITEMS = [
   { icon: Star, label: 'No Credit Card Required' },
 ];
 
-const HERO_IMAGES = [
-  "/vireek-hvac.png",
-  "/vireek-plumbing.png",
-  "/vireek-roofing.png",
-  "/vireek-electrical.png",
-  "/vireek-restoration.png",
-];
+const fadeUp = {
+  initial: { opacity: 0, y: 16 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+};
 
 function Waveform() {
   const bars = [0.45, 0.8, 1, 0.65, 0.35];
-
   return (
-    <div className="flex items-end gap-2.5" aria-hidden="true">
+    <div className="flex items-end justify-center gap-2.5" aria-hidden="true">
       {bars.map((h, i) => (
         <motion.span
           key={i}
@@ -45,16 +40,6 @@ function Waveform() {
 }
 
 export function Hero() {
-  const [currentImage, setCurrentImage] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section
       id="top"
@@ -62,242 +47,104 @@ export function Hero() {
     >
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg-primary via-bg-primary to-bg-secondary" />
 
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-14 px-6 py-28 md:grid-cols-2 md:py-36">
-
-
-        {/* LEFT CONTENT */}
-
-        <div>
-
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.4 }}
-            className="mb-6 flex w-fit items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-2"
-          >
-            <div className="flex -space-x-2">
-              {['J', 'M', 'S', 'R'].map((initial, i) => (
-                <span
-                  key={i}
-                  className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-bg-primary bg-accent/20 text-xs font-bold text-accent"
-                >
-                  {initial}
-                </span>
-              ))}
-            </div>
-
-            <span className="text-sm font-medium text-text-secondary">
-              Now onboarding early contractors
-            </span>
-          </motion.div>
-
-
-          <motion.p
-            {...fadeUp}
-            transition={{ duration: 0.5 }}
-            className="text-eyebrow font-semibold uppercase text-accent"
-          >
-            AI Voice Receptionist for Home Services
-          </motion.p>
-
-
-          <motion.h1
-            {...fadeUp}
-            transition={{ duration: 0.5, delay: 0.05 }}
-            className="mt-5 max-w-3xl text-6xl font-bold leading-[1.02] tracking-tight text-text-primary md:text-7xl"
-          >
-            Never Miss Another Emergency Call
-          </motion.h1>
-
-
-          <motion.p
-            {...fadeUp}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-7 max-w-xl text-base leading-relaxed text-text-secondary md:text-lg"
-          >
-            Sarah answers calls 24/7, detects emergencies, and books appointments —
-            so you focus on the job, not the phone.
-          </motion.p>
-
-
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="mt-10 flex flex-wrap items-center gap-4"
-          >
-
-            <Link to="/login">
-              <Button variant="primary" size="lg" className="gap-2">
-                Start Free Trial
-                <ArrowRight size={18} />
-              </Button>
-            </Link>
-
-
-            <a href={SARAH_PHONE}>
-              <Button variant="ghost" size="lg" className="gap-2">
-                <Phone size={18} />
-                Call Sarah Now
-              </Button>
-            </a>
-
-          </motion.div>
-
-
-          <motion.p
-            {...fadeUp}
-            transition={{ duration: 0.5, delay: 0.18 }}
-            className="mt-4 text-sm font-medium text-text-secondary/80"
-          >
-            14-day free trial · No credit card required · Cancel anytime
-          </motion.p>
-
-
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-text-secondary"
-          >
-            {TRUST_ITEMS.map((item) => (
-              <span key={item.label} className="flex items-center gap-2">
-                <item.icon size={16} className="text-accent" />
-                {item.label}
+      <div className="mx-auto w-full max-w-7xl px-6 py-36 text-center md:py-44">
+        {/* Social proof badge */}
+        <motion.div
+          {...fadeUp}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto mb-6 flex w-fit items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-2"
+        >
+          <div className="flex -space-x-2">
+            {['J', 'M', 'S', 'R'].map((initial, i) => (
+              <span
+                key={i}
+                className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-bg-primary bg-accent/20 text-xs font-bold text-accent"
+              >
+                {initial}
               </span>
             ))}
-          </motion.div>
+          </div>
+          <span className="text-sm font-medium text-text-secondary">
+            Now onboarding early contractors
+          </span>
+        </motion.div>
 
+        <motion.p
+          {...fadeUp}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="text-eyebrow font-semibold uppercase text-accent"
+        >
+          AI Voice Receptionist for Home Services
+        </motion.p>
 
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.6, delay: 0.25 }}
-            className="mt-14"
-          >
-            <Waveform />
+        <motion.h1
+          {...fadeUp}
+          transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto mt-5 max-w-5xl text-6xl font-bold leading-[1.02] tracking-tight text-text-primary md:text-8xl"
+        >
+          Never Miss Another Emergency Call
+        </motion.h1>
 
-            <p className="mt-5 text-xs font-medium uppercase tracking-[0.18em] text-text-secondary/70">
-              Now onboarding the first contractors on Vireek.
-            </p>
+        <motion.p
+          {...fadeUp}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-text-secondary md:text-lg"
+        >
+          Sarah answers calls 24/7, detects emergencies, and books appointments — so you
+          focus on the job, not the phone.
+        </motion.p>
 
-          </motion.div>
+        <motion.div
+          {...fadeUp}
+          transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-10 flex flex-wrap items-center justify-center gap-4"
+        >
+          <Link to="/login">
+            <Button variant="primary" size="lg" className="gap-2">
+              Start Free Trial
+              <ArrowRight size={18} />
+            </Button>
+          </Link>
+          <a href={SARAH_PHONE}>
+            <Button variant="ghost" size="lg" className="gap-2">
+              <Phone size={18} />
+              Call Sarah Now
+            </Button>
+          </a>
+        </motion.div>
 
-        </div>
+        <motion.p
+          {...fadeUp}
+          transition={{ duration: 0.5, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-4 text-sm font-medium text-text-secondary/80"
+        >
+          14-day free trial · No credit card required · Cancel anytime
+        </motion.p>
 
+        <motion.div
+          {...fadeUp}
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-text-secondary"
+        >
+          {TRUST_ITEMS.map((item) => (
+            <span key={item.label} className="flex items-center gap-2">
+              <item.icon size={16} className="text-accent" />
+              {item.label}
+            </span>
+          ))}
+        </motion.div>
 
-
-  {/* PREMIUM AI HERO VISUAL */}
-
-<motion.div
-  {...fadeUp}
-  transition={{ duration: 1, delay: 0.2 }}
-  className="relative flex items-center justify-center"
->
-
-  {/* Large atmospheric glow */}
-  <div
-    className="
-      absolute
-      -inset-20
-      -z-10
-      rounded-full
-      bg-accent/20
-      blur-[140px]
-    "
-  />
-
-
-  <motion.div
-    animate={{
-      y: [0, -14, 0],
-      rotate: [0, 0.5, 0],
-    }}
-    transition={{
-      duration: 7,
-      repeat: Infinity,
-      ease: "easeInOut",
-    }}
-    className="
-      relative
-      w-full
-      max-w-[680px]
-    "
-  >
-
-    <motion.img
-  key={currentImage}
-  src={HERO_IMAGES[currentImage]}
-  alt="Vireek AI Home Service Platform"
-  initial={{ opacity: 0, scale: 0.96 }}
-  animate={{ opacity: 1, scale: 1 }}
-  transition={{
-    duration: 0.8,
-    ease: "easeOut",
-  }}
-  className="
-    relative
-    z-10
-    w-full
-    object-contain
-    drop-shadow-[0_45px_90px_rgba(0,0,0,0.35)]
-  "
-/>
-
-
-    {/* Premium edge blending */}
-    <div
-      className="
-        pointer-events-none
-        absolute
-        inset-0
-        z-20
-        bg-gradient-to-r
-        from-bg-primary/40
-        via-transparent
-        to-bg-primary/20
-      "
-    />
-
-    <div
-      className="
-        pointer-events-none
-        absolute
-        inset-0
-        z-20
-        bg-gradient-to-b
-        from-bg-primary/20
-        via-transparent
-        to-bg-secondary/40
-      "
-    />
-
-
-    {/* Corner ambient lights */}
-
-    <div
-      className="
-        absolute
-        -right-16
-        top-10
-        h-52
-        w-52
-        rounded-full
-        bg-accent/20
-        blur-[80px]
-      "
-    />
-
-
-    <div
-      className="
-        absolute
-        -left-20
-        bottom-0
-        h-64
-        w-64
-        rounded-full
-        bg-accent/10
-        blur-[100px]
-      "
-    />
-
-  </motion.div>
-
-</motion.div>
+        <motion.div
+          {...fadeUp}
+          transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-20"
+        >
+          <Waveform />
+          <p className="mt-6 text-xs font-medium uppercase tracking-[0.18em] text-text-secondary/70">
+            Now onboarding the first contractors on Vireek.
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
