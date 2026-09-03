@@ -49,9 +49,10 @@ export function Hero() {
     >
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg-primary via-bg-primary to-bg-secondary" />
 
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-28 md:grid-cols-2 md:py-36">
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-14 px-6 py-28 md:grid-cols-2 md:py-36">
 
-        {/* LEFT SIDE */}
+
+        {/* LEFT CONTENT */}
 
         <div>
 
@@ -168,19 +169,56 @@ export function Hero() {
         </div>
 
 
-        {/* RIGHT SIDE IMAGE */}
+
+        {/* PREMIUM AI VISUAL */}
 
         <motion.div
           {...fadeUp}
-          transition={{ duration: 0.7 }}
-          className="flex justify-center"
+          transition={{ duration: 0.8, delay: 0.15 }}
+          className="relative flex justify-center"
         >
 
-          <img
-            src="/vireek-hero-ai.png"
-            alt="Vireek AI Voice Receptionist"
-            className="w-full max-w-[620px] object-contain"
-          />
+          {/* AI Glow */}
+          <div className="absolute inset-0 -z-10 rounded-full bg-accent/20 blur-[90px]" />
+
+
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="
+              relative
+              overflow-hidden
+              rounded-[36px]
+              border
+              border-white/10
+              bg-white/[0.04]
+              p-3
+              shadow-2xl
+              backdrop-blur-xl
+            "
+          >
+
+            <div className="absolute inset-0 rounded-[36px] bg-gradient-to-br from-white/10 via-transparent to-transparent" />
+
+
+            <img
+              src="/vireek-hero-ai.png"
+              alt="Vireek AI Voice Receptionist"
+              className="
+                relative
+                w-full
+                max-w-[620px]
+                rounded-[28px]
+                object-contain
+              "
+            />
+
+
+          </motion.div>
 
         </motion.div>
 
