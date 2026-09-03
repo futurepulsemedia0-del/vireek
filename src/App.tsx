@@ -20,6 +20,9 @@ import { FAQPage } from '@/pages/FAQPage';
 import { AboutPage } from '@/pages/AboutPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { ServicesPage } from '@/pages/ServicesPage';
+import { FeaturesPage } from '@/pages/FeaturesPage';
+import { PlatformPage } from '@/pages/PlatformPage';
+import { ComparePage } from '@/pages/ComparePage';
 import { IndustryPage } from '@/pages/IndustryPage';
 import { DemoPage } from '@/pages/DemoPage';
 import { SecurityPage } from '@/pages/SecurityPage';
@@ -58,6 +61,9 @@ function App() {
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/solutions" element={<ServicesPage />} />
+      <Route path="/features" element={<FeaturesPage />} />
+      <Route path="/platform" element={<PlatformPage />} />
+      <Route path="/compare" element={<ComparePage />} />
       <Route path="/industries/:slug" element={<IndustryPage />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/demo" element={<DemoPage />} />

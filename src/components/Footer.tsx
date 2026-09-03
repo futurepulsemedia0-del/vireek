@@ -24,11 +24,12 @@ const SOCIAL_LINKS = [
 ];
 
 const NAV_LINKS = [
-  { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
-  { label: 'Services', href: '/services' },
+  { label: 'Features', href: '/features' },
+  { label: 'Platform', href: '/platform' },
   { label: 'Pricing', href: '/pricing' },
+  { label: 'Compare', href: '/compare' },
   { label: 'FAQ', href: '/faq' },
+  { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
   { label: 'Privacy', href: '/privacy' },
   { label: 'Terms', href: '/terms' },

@@ -65,7 +65,7 @@ export function Hero() {
             ))}
           </div>
           <span className="text-sm font-medium text-text-secondary">
-            Join 200+ contractors never missing a call
+            Now onboarding early contractors
           </span>
         </motion.div>
 

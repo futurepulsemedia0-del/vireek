@@ -11,8 +11,6 @@ import { HowItWorks } from '@/components/sections/HowItWorks';
 import { Industries } from '@/components/sections/Industries';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { Features } from '@/components/sections/Features';
-import { AutomationEngines } from '@/components/sections/AutomationEngines';
-import { WhyVireek } from '@/components/sections/WhyVireek';
 import { SocialProof } from '@/components/sections/SocialProof';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
 import { FAQCallout } from '@/components/sections/FAQCallout';
@@ -40,8 +38,6 @@ export function HomePage() {
         <Industries />
         <LiveDemo />
         <Features />
-        <AutomationEngines />
-        <WhyVireek />
         <SocialProof />
         <PricingTeaser />
         <FAQCallout />
