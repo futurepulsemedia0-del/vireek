@@ -68,6 +68,18 @@ export default {
         'glow-accent': '0 18px 42px -20px rgb(var(--accent-primary) / 0.45)',
         'glow-cta': '0 18px 40px -18px rgb(var(--accent-secondary) / 0.45)',
       },
+      keyframes: {
+        // نوار حرکتی راست‌به‌چپ و بی‌درز برای Live AI Activity Stream.
+        // ترک، محتوا را دقیقاً دو بار پشت‌سرهم رندر می‌کند، پس ترنسلیت -50%
+        // بدون هیچ پرش/درزی حلقه می‌شود.
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
+      animation: {
+        marquee: 'marquee 48s linear infinite',
+      },
     },
   },
   plugins: [],
