@@ -121,3 +121,155 @@ select {
   transition: border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ================================================================ */
+/*  Accessibility system CSS variables + classes                     */
+/* ================================================================ */
+
+:root {
+  --a11y-font-scale: 1;
+  --a11y-content-scale: 1;
+  --a11y-line-height: 1.6;
+  --a11y-letter-spacing: 0em;
+  --a11y-word-spacing: 0em;
+  --a11y-filter: none;
+}
+
+/* Apply font scaling, line height, spacing globally */
+body {
+  font-size: calc(1rem * var(--a11y-font-scale));
+  line-height: var(--a11y-line-height);
+  letter-spacing: var(--a11y-letter-spacing);
+  word-spacing: var(--a11y-word-spacing);
+}
+
+/* Color/contrast filters applied to entire page */
+html {
+  filter: var(--a11y-filter);
+}
+
+/* Readable font — use system serif/sans for improved legibility */
+.a11y-readable-font body {
+  font-family: 'Georgia', 'Times New Roman', ui-serif, serif;
+}
+
+/* Dyslexia-friendly font — OpenDyslexic-like fallback to Comic Sans/Verdana */
+.a11y-dyslexia-font body {
+  font-family: 'Comic Sans MS', 'Verdana', 'Trebuchet MS', sans-serif;
+  letter-spacing: 0.06em;
+  word-spacing: 0.12em;
+}
+
+/* Large cursor */
+.a11y-large-cursor {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%234F46E5' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
+}
+.a11y-large-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%234F46E5' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
+}
+
+/* Highlight links */
+.a11y-highlight-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 3px !important;
+}
+
+/* Highlight headings */
+.a11y-highlight-headings h1,
+.a11y-highlight-headings h2,
+.a11y-highlight-headings h3,
+.a11y-highlight-headings h4,
+.a11y-highlight-headings h5,
+.a11y-highlight-headings h6 {
+  outline: 2px solid rgb(var(--accent-primary) / 0.4) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Strong focus indicators */
+.a11y-strong-focus *:focus-visible {
+  outline: 3px solid rgb(var(--accent-primary)) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgb(var(--accent-primary) / 0.2) !important;
+}
+
+/* High contrast */
+.a11y-high-contrast {
+  --text-primary: 0 0 0;
+  --text-secondary: 30 30 30;
+  --border-default: 60 60 60;
+  --bg-primary: 255 255 255;
+  --bg-secondary: 255 255 255;
+  --bg-tertiary: 240 240 240;
+}
+.a11y-high-contrast.dark {
+  --text-primary: 255 255 255;
+  --text-secondary: 220 220 220;
+  --border-default: 100 100 100;
+  --bg-primary: 0 0 0;
+  --bg-secondary: 10 10 10;
+  --bg-tertiary: 20 20 20;
+}
+
+/* Dark contrast (force dark background even in light mode) */
+.a11y-dark-contrast {
+  --bg-primary: 8 8 10;
+  --bg-secondary: 17 17 20;
+  --bg-tertiary: 24 24 28;
+  --text-primary: 245 245 247;
+  --text-secondary: 165 165 172;
+  --border-default: 40 40 46;
+  color-scheme: dark;
+}
+
+/* Light contrast (force light background even in dark mode) */
+.a11y-light-contrast {
+  --bg-primary: 251 251 253;
+  --bg-secondary: 255 255 255;
+  --bg-tertiary: 245 245 247;
+  --text-primary: 29 29 31;
+  --text-secondary: 110 110 115;
+  --border-default: 224 224 229;
+  color-scheme: light;
+}
+
+/* Reading mode — simplify layout, widen content */
+.a11y-reading-mode main {
+  max-width: 70ch !important;
+  margin: 0 auto;
+}
+.a11y-reading-mode img:not([role="img"]) {
+  opacity: 0.7;
+}
+
+/* Reduce motion / stop animations */
+.a11y-reduce-motion *,
+.a11y-reduce-motion *::before,
+.a11y-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Hide images */
+.a11y-hide-images img {
+  opacity: 0 !important;
+  background: rgb(var(--bg-tertiary)) !important;
+  border-radius: 8px;
+}
+.a11y-hide-images img::after {
+  content: 'Image hidden';
+}
+
+/* Screen reader mode — enhance semantic visibility */
+.a11y-screen-reader [aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Accessibility panel — exempt from page-level filters */
+.a11y-widget,
+.a11y-widget * {
+  filter: none !important;
+}

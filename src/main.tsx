@@ -5,17 +5,22 @@ import App from './App.tsx';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
+import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </ToastProvider>
+        <AccessibilityProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <App />
+              <AccessibilityWidget />
+            </AuthProvider>
+          </ToastProvider>
+        </AccessibilityProvider>
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>
