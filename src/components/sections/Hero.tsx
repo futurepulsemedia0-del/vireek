@@ -170,60 +170,103 @@ export function Hero() {
 
 
 
-        {/* PREMIUM AI VISUAL */}
+        {/* PREMIUM AI HERO VISUAL */}
 
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.8, delay: 0.15 }}
-          className="relative flex justify-center"
-        >
+<motion.div
+  {...fadeUp}
+  transition={{ duration: 0.8, delay: 0.15 }}
+  className="relative flex justify-center"
+>
 
-          {/* AI Glow */}
-          <div className="absolute inset-0 -z-10 rounded-full bg-accent/20 blur-[90px]" />
-
-
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="
-              relative
-              overflow-hidden
-              rounded-[36px]
-              border
-              border-white/10
-              bg-white/[0.04]
-              p-3
-              shadow-2xl
-              backdrop-blur-xl
-            "
-          >
-
-            <div className="absolute inset-0 rounded-[36px] bg-gradient-to-br from-white/10 via-transparent to-transparent" />
+  {/* Premium ambient AI glow */}
+  <div
+    className="
+      absolute
+      inset-0
+      -z-10
+      scale-90
+      rounded-full
+      bg-accent/25
+      blur-[120px]
+    "
+  />
 
 
-            <img
-              src="/vireek-hero-ai.png"
-              alt="Vireek AI Voice Receptionist"
-              className="
-                relative
-                w-full
-                max-w-[620px]
-                rounded-[28px]
-                object-contain
-              "
-            />
+  <motion.div
+    animate={{
+      y: [0, -12, 0],
+    }}
+    transition={{
+      duration: 6,
+      repeat: Infinity,
+      ease: 'easeInOut',
+    }}
+    className="
+      relative
+      w-full
+      max-w-[650px]
+    "
+  >
+
+    {/* Corner light effect */}
+    <div
+      className="
+        absolute
+        -right-10
+        -top-10
+        h-48
+        w-48
+        rounded-full
+        bg-accent/20
+        blur-3xl
+      "
+    />
 
 
-          </motion.div>
+    <div
+      className="
+        absolute
+        -bottom-10
+        -left-10
+        h-56
+        w-56
+        rounded-full
+        bg-accent/10
+        blur-3xl
+      "
+    />
 
-        </motion.div>
+
+    {/* Image */}
+    <img
+      src="/vireek-hero-ai.png"
+      alt="Vireek AI Voice Receptionist"
+      className="
+        relative
+        z-10
+        w-full
+        rounded-[48px]
+        object-contain
+        drop-shadow-[0_35px_70px_rgba(0,0,0,0.30)]
+      "
+    />
 
 
-      </div>
-    </section>
-  );
-}
+    {/* Soft edge blending */}
+    <div
+      className="
+        pointer-events-none
+        absolute
+        inset-0
+        z-20
+        rounded-[48px]
+        bg-gradient-to-tr
+        from-accent/10
+        via-transparent
+        to-transparent
+      "
+    />
+
+  </motion.div>
+
+</motion.div>
