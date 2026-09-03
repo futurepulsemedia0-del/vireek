@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Wrench, BadgeDollarSign, PhoneCall } from 'lucide-react';
+import { ArrowRight, Wrench, BadgeDollarSign, PhoneCall, Eye, Target, TrendingUp, PhoneForwarded, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -9,6 +9,29 @@ import { Card } from '@/components/ui/Card';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
+
+const OUR_VALUES = [
+  {
+    icon: Eye,
+    title: 'Radical Transparency',
+    body: 'No fake testimonials, invented customer counts, or hidden pricing claims. What you see is what you get.',
+  },
+  {
+    icon: Target,
+    title: 'Built for One Industry, Done Right',
+    body: 'Vireek focuses on home-service businesses rather than trying to be a generic receptionist for everyone.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Always Improving',
+    body: 'Vireek is continuously being improved through hands-on product development and direct attention to the customer experience.',
+  },
+  {
+    icon: PhoneForwarded,
+    title: 'Follow Through',
+    body: 'The product should not simply answer calls; it should help businesses capture information and move conversations toward the next step.',
+  },
+];
 
 const WHY_VIREEK = [
   {
@@ -207,32 +230,135 @@ export function AboutPage() {
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="px-6 pb-24">
-          <div className="mx-auto max-w-5xl rounded-[2rem] border border-border bg-bg-secondary p-8 text-center shadow-card dark:shadow-card-dark sm:p-12">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-              Ready when your customers call
-            </p>
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
-              Stop losing jobs to voicemail.
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-text-secondary">
-              Start your 14-day free trial and let Sarah answer every call — no credit card
-              required.
-            </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link to="/login">
-                <Button variant="primary" size="lg">Start Free Trial</Button>
-              </Link>
-              <Link
-                to="/faq"
-                className="focus-ring inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-text-primary transition-colors hover:text-accent"
-              >
-                Read the FAQ
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
+        {/* Our Values */}
+        <section className="px-6 py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="mx-auto max-w-2xl text-center"
+            >
+              <p className={`${eyebrowClass()} text-center`}>Our Values</p>
+              <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>
+                What we believe in
+              </h2>
+              <p className={`${bodyClass()} mx-auto text-center`}>
+                The principles that shape every decision we make.
+              </p>
+            </motion.div>
+
+            <motion.div
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="whileInView"
+              viewport={viewport}
+              className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            >
+              {OUR_VALUES.map(({ icon: Icon, title, body }) => (
+                <motion.div key={title} variants={fadeUpItem} transition={{ duration: 0.4, ease: EASE }}>
+                  <Card className="h-full">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
+                      <Icon size={24} />
+                    </span>
+                    <h3 className="mt-5 text-lg font-semibold text-text-primary">{title}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-text-secondary">{body}</p>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
+        </section>
+
+        {/* Where We're Headed */}
+        <section className="px-6 py-20 sm:py-24">
+          <div className="mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+            >
+              <p className={eyebrowClass()}>Where We're Headed</p>
+              <h2 className={`${sectionHeadingClass()} mt-3`}>
+                What comes next
+              </h2>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+              className="mt-8 space-y-6 text-lg leading-8 text-text-secondary"
+            >
+              <p>
+                Vireek is early, and we are building with intent. The roadmap is shaped by the
+                contractors who use the product and the realities of running a home-service
+                business. Our near-term focus is on deeper integrations with the field-service
+                software that contractors already rely on — so that a call answered by Sarah flows
+                directly into the tools that manage scheduling, dispatch, and customer records
+                without manual data entry.
+              </p>
+              <p>
+                We are also investing in stronger automated follow-up. A captured lead is only
+                valuable if the next step actually happens. We want every call to trigger a clear,
+                reliable follow-through — whether that is a confirmation text, a scheduled callback,
+                or a job created in the system — so nothing slips through the cracks between the
+                phone ringing and the work getting done.
+              </p>
+              <p>
+                Beyond that, we see a clear path toward better call intelligence and broader
+                operational automation: smarter call summaries, trend detection across call
+                volume, and workflows that reduce the busywork of running a trade business. These
+                are directions we are actively exploring, not features that exist today. We would
+                rather build them carefully with feedback from real contractors than ship
+                something half-finished.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="px-6 py-16 md:py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewport}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="bg-noise relative mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-3xl bg-gradient-to-br from-accent-800 via-accent-700 to-cta-800 px-6 py-16 text-center shadow-glow-accent md:px-16 md:py-24"
+          >
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage:
+                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+              }}
+            />
+            <div className="relative">
+              <h2 className="text-3xl font-bold leading-[1.15] tracking-tight text-white text-balance md:text-5xl">
+                Ready to stop missing calls?
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg text-pretty">
+                Every call Sarah answers is a customer who reached a real voice instead of a beep.
+                Start free and hear how she handles your calls.
+              </p>
+              <div className="mt-9 flex justify-center">
+                <Link to="/login">
+                  <Button variant="primary" size="lg" className="shadow-glow-cta">
+                    Start Free Trial
+                    <ArrowRight size={18} />
+                  </Button>
+                </Link>
+              </div>
+              <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-white/70">
+                <ShieldCheck size={13} className="shrink-0" />
+                Cancel anytime. No contracts.
+              </p>
+            </div>
+          </motion.div>
         </section>
       </main>
       <Footer />
