@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Star, Zap, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -12,11 +13,13 @@ const TRUST_ITEMS = [
   { icon: Star, label: 'No Credit Card Required' },
 ];
 
-const fadeUp = {
-  initial: { opacity: 0, y: 16 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-80px' },
-};
+const HERO_IMAGES = [
+  "/vireek-hvac.png",
+  "/vireek-plumbing.png",
+  "/vireek-roofing.png",
+  "/vireek-electrical.png",
+  "/vireek-restoration.png",
+];
 
 function Waveform() {
   const bars = [0.45, 0.8, 1, 0.65, 0.35];
@@ -42,6 +45,16 @@ function Waveform() {
 }
 
 export function Hero() {
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section
       id="top"
@@ -208,18 +221,24 @@ export function Hero() {
     "
   >
 
-    {/* Image */}
-    <img
-      src="/vireek-hero-ai.png"
-      alt="Vireek AI Voice Receptionist"
-      className="
-        relative
-        z-10
-        w-full
-        object-contain
-        drop-shadow-[0_45px_90px_rgba(0,0,0,0.35)]
-      "
-    />
+    <motion.img
+  key={currentImage}
+  src={HERO_IMAGES[currentImage]}
+  alt="Vireek AI Home Service Platform"
+  initial={{ opacity: 0, scale: 0.96 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{
+    duration: 0.8,
+    ease: "easeOut",
+  }}
+  className="
+    relative
+    z-10
+    w-full
+    object-contain
+    drop-shadow-[0_45px_90px_rgba(0,0,0,0.35)]
+  "
+/>
 
 
     {/* Premium edge blending */}
