@@ -32,13 +32,22 @@ export function Industries() {
         >
           {INDUSTRIES.map(({ icon: Icon, name, slug, terms }) => (
             <motion.div key={name} variants={fadeUpItem} transition={{ duration: 0.5, ease: EASE }}>
-              <Card className="flex h-full flex-col p-5 sm:p-6">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent sm:h-11 sm:w-11">
-                    <Icon size={18} className="sm:size-5" />
+              <Card className="flex h-full flex-col overflow-hidden p-0">
+                <div className="relative h-28 w-full overflow-hidden bg-bg-tertiary sm:h-32">
+                  <img
+                    src={`/industries-${slug}.png`}
+                    alt={`${name} technician using Vireek`}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-primary/70 via-bg-primary/10 to-transparent" />
+                  <span className="absolute bottom-2.5 left-3 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-bg-primary/70 text-accent backdrop-blur-sm sm:h-9 sm:w-9">
+                    <Icon size={16} className="sm:size-[18px]" />
                   </span>
-                  <h3 className="text-lg font-semibold text-text-primary sm:text-xl md:text-2xl">{name}</h3>
                 </div>
+                <div className="flex flex-1 flex-col p-5 sm:p-6">
+                <h3 className="text-lg font-semibold text-text-primary sm:text-xl md:text-2xl">{name}</h3>
                 <ul className="mt-4 flex flex-wrap gap-2 sm:mt-5">
                   {terms.map((term) => (
                     <li
@@ -56,6 +65,7 @@ export function Industries() {
                   {'See how Vireek helps '}{name.toLowerCase()}
                   <ArrowRight size={14} />
                 </Link>
+                </div>
               </Card>
             </motion.div>
           ))}
