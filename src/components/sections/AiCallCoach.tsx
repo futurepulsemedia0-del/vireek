@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { CountUp } from '@/components/ui/CountUp';
+import { RevealImage } from '@/components/ui/RevealImage';
 
 /**
  * AiCallCoach
@@ -229,6 +230,12 @@ export function AiCallCoach() {
             {'Every call is scored, coached, and turned into a better version of itself \u2014 automatically, and before you ever have to ask.'}
           </p>
         </motion.div>
+
+        <RevealImage
+          name="call-coach"
+          alt="AI call coach analysis showing sentiment, lead score, and conversion chance"
+          className="mx-auto mt-10 max-w-4xl sm:mt-14"
+        />
 
         {/* ============================================================ */}
         {/*  Call Intelligence Report                                     */}
