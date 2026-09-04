@@ -1,12 +1,12 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, Calendar, User, Settings, Lightbulb, Circle as XCircle, MapPin, Zap, Bell, Wrench, ShieldCheck, CreditCard, Plug, X } from 'lucide-react';
+import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, Calendar, User, Settings, Lightbulb, Circle as XCircle, Bell, Wrench, ShieldCheck, CreditCard, Plug, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { UsageAlertBanner } from '@/pages/BillingPage';
-import { supabase, Call, Job, Lead, AiInsight, Profile } from '@/lib/supabase';
+import { supabase, Call, Job, Lead, AiInsight } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
@@ -138,7 +138,6 @@ function MetricSkeleton() {
 function CallVolumeChart({ data }: { data: { date: string; count: number }[] }) {
   const maxCount = Math.max(...data.map((d) => d.count), 1);
   const chartHeight = 160;
-  const barWidth = 100 / data.length;
 
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
@@ -259,7 +258,7 @@ function NeedsAttention({ items, onInsightClick }: { items: AttentionItem[]; onI
                 }}
                 className={`flex items-start gap-3 rounded-xl border-l-4 ${config.color} px-4 py-3.5 ${item.type === 'insight' && onInsightClick ? 'cursor-pointer' : ''}`}
               >
-                <item.icon size={20} className={`mt-0.5 shrink-0 ${config.iconColor}`} />
+                                <item.icon size={20} className={`mt-0.5 shrink-0 ${config.iconColor}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-text-primary">{item.title}</p>
@@ -292,7 +291,7 @@ interface ActivityItem {
   statusColor: string;
 }
 
-function RecentActivity({ items }: { items: ActivityItem[] }) {
+function RecentActivity({ items, highlightId }: { items: ActivityItem[]; highlightId?: string | null }) {
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       <h3 className="text-base font-semibold text-text-primary">Recent Activity</h3>
@@ -306,26 +305,35 @@ function RecentActivity({ items }: { items: ActivityItem[] }) {
         </div>
       ) : (
         <div className="mt-4 space-y-1">
-          {items.map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-start gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-bg-tertiary/50"
-            >
-              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.statusColor}`}>
-                <item.icon size={18} />
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary">{item.title}</p>
-                <p className="mt-0.5 text-xs leading-relaxed text-text-secondary line-clamp-2">{item.description}</p>
-              </div>
-              <span className="shrink-0 text-xs text-text-secondary">
-                {formatTimeAgo(item.timestamp)}
-              </span>
-            </motion.div>
-          ))}
+          {items.map((item, i) => {
+            const isNew = !!highlightId && item.id === highlightId;
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  backgroundColor: isNew ? 'rgba(79, 70, 229, 0.08)' : 'rgba(0, 0, 0, 0)',
+                }}
+                transition={{ duration: 0.25, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                className={`flex items-start gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-bg-tertiary/50 ${
+                  isNew ? 'ring-1 ring-accent/30' : ''
+                }`}
+              >
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.statusColor}`}>
+                  <item.icon size={18} />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-text-primary">{item.title}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-text-secondary line-clamp-2">{item.description}</p>
+                </div>
+                <span className="shrink-0 text-xs text-text-secondary">
+                  {formatTimeAgo(item.timestamp)}
+                </span>
+              </motion.div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -344,13 +352,6 @@ function formatTimeAgo(dateStr: string): string {
   if (hours > 0) return `${hours}h ago`;
   const mins = Math.floor(diff / 60000);
   return mins > 0 ? `${mins}m ago` : 'just now';
-}
-
-function formatDuration(seconds: number | null): string {
-  if (!seconds) return '—';
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}m ${secs}s`;
 }
 
 function formatCurrency(amount: number | null): string {
@@ -517,6 +518,7 @@ export function DashboardPage() {
       date.setHours(0, 0, 0, 0);
       date.setDate(date.getDate() - i);
       const nextDate = new Date(date);
+            const nextDate = new Date(date);
       nextDate.setDate(nextDate.getDate() + 1);
       const count = allCalls.filter((c) => {
         const callDate = new Date(c.call_datetime);
@@ -777,6 +779,7 @@ export function DashboardPage() {
               <MetricCard
                 icon={Clock}
                 label="Minutes Used"
+                                label="Minutes Used"
                 value={`${metrics.minutesUsed} / ${metrics.minutesIncluded}`}
                 delay={0.2}
               >
@@ -1019,7 +1022,10 @@ export function DashboardPage() {
 
         {/* RECENT ACTIVITY */}
         <div className="mt-8">
-          <RecentActivity items={metrics.activityItems} />
+          <RecentActivity
+            items={metrics.activityItems}
+            highlightId={newlyArrivedId ? `call-${newlyArrivedId}` : null}
+          />
         </div>
     </DashboardLayout>
   );
