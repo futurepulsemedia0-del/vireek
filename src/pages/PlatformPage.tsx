@@ -7,9 +7,21 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { AutomationEngines } from '@/components/sections/AutomationEngines';
+import { OperationsCommandCenter } from '@/components/sections/OperationsCommandCenter';
+import { AIBrain } from '@/components/sections/AIBrain';
+import { AiBusinessMemory } from '@/components/sections/AiBusinessMemory';
+import { AiCallCoach } from '@/components/sections/AiCallCoach';
+import { RevenueIntelligence } from '@/components/sections/RevenueIntelligence';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 
+/**
+ * Platform page — the deep technical dive. These five sections (moved here
+ * from the homepage) each explain a different layer of the "AI operating
+ * system" pitch: orchestration, reasoning, memory, coaching, and the revenue
+ * math. That's exactly what someone lands on /platform to read; on the
+ * homepage the same five sections were repeating one message five times.
+ */
 export function PlatformPage() {
   useSEO({
     title: 'Platform — An AI Operating System for Home Services | Vireek',
@@ -111,6 +123,13 @@ export function PlatformPage() {
             </motion.div>
           </div>
         </section>
+
+        {/* Deep-dive sections (moved here from the homepage) */}
+        <OperationsCommandCenter />
+        <AIBrain />
+        <AiBusinessMemory />
+        <AiCallCoach />
+        <RevenueIntelligence />
 
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
