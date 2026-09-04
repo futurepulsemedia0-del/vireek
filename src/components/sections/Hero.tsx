@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Phone, Zap, Clock, ShieldCheck, ArrowRight, PhoneIncoming, Siren, CalendarCheck, BellRing, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
+import { RevealImage } from '@/components/ui/RevealImage';
 import { SARAH_PHONE } from '@/lib/site';
 
 const TRUST_ITEMS = [
@@ -228,6 +229,14 @@ export function Hero() {
             </span>
           ))}
         </motion.div>
+
+        <RevealImage
+          name="hero"
+          alt="Home service business owner using Vireek AI voice receptionist"
+          priority
+          parallax={30}
+          className="mx-auto mt-12 max-w-5xl sm:mt-16"
+        />
 
         <ProductVisual />
       </div>
