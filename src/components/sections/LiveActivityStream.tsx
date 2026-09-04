@@ -181,7 +181,7 @@ export function LiveActivityStream() {
           className="flex w-max gap-3 py-1"
           animate={prefersReducedMotion ? undefined : { x: ['0%', '-50%'] }}
           transition={{
-            duration: 40,
+            duration: 80,
             repeat: Infinity,
             ease: 'linear',
           }}
