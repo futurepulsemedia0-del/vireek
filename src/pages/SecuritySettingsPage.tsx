@@ -178,7 +178,7 @@ export function SecuritySettingsPage() {
 
   return (
     <DashboardLayout activeLabel="Security">
-      <BackButton variant="text" href="/dashboard/settings" label="Back to Settings" />
+      <BackButton fallback="/dashboard/settings" label="Back to Settings" />
       <div className="mb-6 mt-3 flex items-center gap-3">
         <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
           <ShieldCheck size={24} />
