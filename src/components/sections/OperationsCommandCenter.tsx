@@ -21,6 +21,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+import { RevealImage } from '@/components/ui/RevealImage';
 
 /**
  * OperationsCommandCenter
@@ -247,6 +248,12 @@ export function OperationsCommandCenter() {
             {'Every call, lead, job, and technician \u2014 orchestrated in real time by Sarah. This is what running your business on autopilot actually looks like.'}
           </p>
         </motion.div>
+
+        <RevealImage
+          name="command-center"
+          alt="Operations command center showing live calls, jobs, alerts, and team"
+          className="mx-auto mt-10 max-w-4xl sm:mt-14"
+        />
 
         {/* Dark command center panel */}
         <motion.div
