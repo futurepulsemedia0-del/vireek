@@ -302,7 +302,7 @@ export function SignupPage() {
                       backgroundColor:
                         i <= (strength === 'weak' ? 0 : strength === 'medium' ? 1 : 2)
                           ? 'rgb(var(--accent-primary))'
-                          : 'rgb(var(--border))',
+                          : 'rgb(var(--border-default))',
                     }}
                     className={`h-full flex-1 rounded-full transition-colors ${
                       i <= (strength === 'weak' ? 0 : strength === 'medium' ? 1 : 2)
