@@ -35,6 +35,7 @@ export interface Profile {
 }
 
 export interface Call {
+  [key: string]: unknown;
   id: string;
   user_id: string;
   external_id: string | null;
@@ -65,6 +66,7 @@ export interface Lead {
 }
 
 export interface Job {
+  [key: string]: unknown;
   id: string;
   user_id: string;
   lead_id: string | null;
