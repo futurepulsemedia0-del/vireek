@@ -5,6 +5,7 @@ import { Hero } from '@/components/sections/Hero';
 import { TrustBar } from '@/components/sections/TrustBar';
 import { LiveActivityStream } from '@/components/sections/LiveActivityStream';
 import { AICapability } from '@/components/sections/AICapability';
+import { AiBusinessMemory } from '@/components/sections/AiBusinessMemory';
 import { DashboardPreview } from '@/components/sections/DashboardPreview';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { AIBrain } from '@/components/sections/AIBrain';
@@ -34,6 +35,7 @@ export function HomePage() {
         <TrustBar />
         <LiveActivityStream />
         <AICapability />
+        <AiBusinessMemory />
         <DashboardPreview />
         <HowItWorks />
         <AIBrain />
