@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { type LanguageCode, type TranslationKey, TRANSLATIONS, getLanguage, isRTL } from '@/lib/i18n';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -196,12 +197,19 @@ interface AccessibilityContextValue {
   score: number;
   hasOnboarded: boolean;
   setHasOnboarded: (v: boolean) => void;
+  language: LanguageCode;
+  setLanguage: (code: LanguageCode) => void;
+  recentLanguages: LanguageCode[];
+  t: (key: TranslationKey) => string;
+  rtl: boolean;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextValue | undefined>(undefined);
 
 const STORAGE_KEY = 'vireek-a11y-settings';
 const ONBOARD_KEY = 'vireek-a11y-onboarded';
+const LANG_KEY = 'vireek-a11y-lang';
+const RECENT_LANG_KEY = 'vireek-a11y-recent-langs';
 
 function loadSettings(): AccessibilitySettings {
   try {
@@ -215,6 +223,27 @@ function loadSettings(): AccessibilitySettings {
 
 function loadOnboarded(): boolean {
   return localStorage.getItem(ONBOARD_KEY) === 'true';
+}
+
+function loadLanguage(): LanguageCode {
+  try {
+    const stored = localStorage.getItem(LANG_KEY) as LanguageCode | null;
+    if (stored) return stored;
+    const browser = navigator.language.slice(0, 2) as LanguageCode;
+    const valid: LanguageCode[] = ['en','es','zh','hi','fr','de','ar','fa','ja'];
+    if (valid.includes(browser)) return browser;
+  } catch { /* noop */ }
+  return 'en';
+}
+
+function loadRecentLanguages(): LanguageCode[] {
+  try {
+    const raw = localStorage.getItem(RECENT_LANG_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as LanguageCode[];
+  } catch {
+    return [];
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -294,6 +323,8 @@ function detectActiveProfile(s: AccessibilitySettings): string | null {
 export function AccessibilityProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AccessibilitySettings>(loadSettings);
   const [hasOnboarded, setHasOnboardedState] = useState<boolean>(loadOnboarded);
+  const [language, setLanguageState] = useState<LanguageCode>(loadLanguage);
+  const [recentLanguages, setRecentLanguages] = useState<LanguageCode[]>(loadRecentLanguages);
 
   const updateSetting = useCallback(
     <K extends keyof AccessibilitySettings>(key: K, value: AccessibilitySettings[K]) => {
@@ -315,6 +346,22 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(ONBOARD_KEY, String(v));
   }, []);
 
+  const setLanguage = useCallback((code: LanguageCode) => {
+    setLanguageState(code);
+    localStorage.setItem(LANG_KEY, code);
+    setRecentLanguages((prev) => {
+      const updated = [code, ...prev.filter((l) => l !== code)].slice(0, 3);
+      localStorage.setItem(RECENT_LANG_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const t = useCallback((key: TranslationKey) => {
+    return TRANSLATIONS[language]?.[key] ?? TRANSLATIONS.en[key] ?? key;
+  }, [language]);
+
+  const rtl = isRTL(language);
+
   // Persist + apply CSS
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -333,12 +380,21 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     }
   }, [settings]);
 
+  // Apply RTL/LTR direction
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+    root.setAttribute('lang', language);
+    if (rtl) root.classList.add('a11y-rtl');
+    else root.classList.remove('a11y-rtl');
+  }, [language, rtl]);
+
   const score = calculateScore(settings);
   const activeProfile = detectActiveProfile(settings);
 
   return (
     <AccessibilityContext.Provider
-      value={{ settings, updateSetting, applyProfile, resetAll, activeProfile, score, hasOnboarded, setHasOnboarded }}
+      value={{ settings, updateSetting, applyProfile, resetAll, activeProfile, score, hasOnboarded, setHasOnboarded, language, setLanguage, recentLanguages, t, rtl }}
     >
       {children}
     </AccessibilityContext.Provider>

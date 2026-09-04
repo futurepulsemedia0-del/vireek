@@ -321,3 +321,77 @@ html {
 .a11y-widget * {
   filter: none !important;
 }
+
+/* ------------------------------------------------------------------ */
+/*  RTL Language Support                                               */
+/* ------------------------------------------------------------------ */
+
+.a11y-rtl {
+  direction: rtl;
+}
+
+.a11y-rtl body {
+  text-align: right;
+}
+
+/* Mirror flexbox and grid layouts */
+.a11y-rtl .flex,
+.a11y-rtl .inline-flex {
+  flex-direction: row-reverse;
+}
+
+/* Mirror fixed positioning */
+.a11y-rtl .fixed.right-0,
+.a11y-rtl .fixed.right-5 {
+  right: auto;
+  left: 0;
+}
+
+.a11y-rtl .fixed.right-5 {
+  left: 1.25rem;
+}
+
+.a11y-rtl .fixed.left-0,
+.a11y-rtl .fixed.left-5 {
+  left: auto;
+  right: 0;
+}
+
+.a11y-rtl .fixed.left-5 {
+  right: 1.25rem;
+}
+
+/* Mirror margins */
+.a11y-rtl .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.a11y-rtl .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/* Mirror the mobile drawer */
+.a11y-rtl .fixed.right-0.top-0 {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid rgb(var(--border-default));
+}
+
+/* Mirror text alignment helpers */
+.a11y-rtl .text-left {
+  text-align: right;
+}
+
+.a11y-rtl .text-right {
+  text-align: left;
+}
+
+/* Preserve icon and number direction */
+.a11y-rtl [dir="ltr"],
+.a11y-rtl input[type="range"],
+.a11y-rtl .a11y-widget {
+  direction: ltr;
+}
