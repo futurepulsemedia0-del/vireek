@@ -15,6 +15,7 @@ import { Integrations } from '@/components/sections/Integrations';
 import { WhyVireekFeatures } from '@/components/sections/WhyVireekFeatures';
 import { CaseStudies } from '@/components/sections/CaseStudies';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
+import { RevenueIntelligence } from '@/components/sections/RevenueIntelligence';
 import { SecurityPrivacy } from '@/components/sections/SecurityPrivacy';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
 import { FinalCTA } from '@/components/sections/FinalCTA';
@@ -41,6 +42,7 @@ export function HomePage() {
         <AIBrain />
         <LiveDemo />
         <MissedCallCalculator />
+        <RevenueIntelligence />
         <Industries />
         <Integrations />
         <WhyVireekFeatures />
