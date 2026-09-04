@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, X, Minus, type LucideIcon } from 'lucide-react';
+import { Check, X, Minus } from 'lucide-react';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 
 type CellValue = 'yes' | 'no' | 'partial';
@@ -26,10 +26,10 @@ const ROWS: FeatureRow[] = [
 
 const COLUMNS = [
   { key: 'vireek', label: 'Vireek', highlight: true },
-  { key: 'receptionist', label: 'Human Receptionist' },
-  { key: 'genericAI', label: 'Generic AI Assistant' },
-  { key: 'missed', label: 'Missed Calls' },
-] as const;
+  { key: 'receptionist', label: 'Human Receptionist', highlight: false },
+  { key: 'genericAI', label: 'Generic AI Assistant', highlight: false },
+  { key: 'missed', label: 'Missed Calls', highlight: false },
+] as const satisfies { key: keyof FeatureRow; label: string; highlight: boolean }[];
 
 function CellIcon({ value, highlight }: { value: CellValue; highlight?: boolean }) {
   if (value === 'yes')
