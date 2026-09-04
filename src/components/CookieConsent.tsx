@@ -364,13 +364,16 @@ export function CookieConsent() {
 
   // Check existing consent on mount
   useEffect(() => {
-    const existing = readConsent();
-    if (!existing) {
+  const existing = readConsent();
+  if (!existing) {
+    const timer = setTimeout(() => {
       setBannerVisible(true);
-    } else {
-      applyConsent(existing);
-    }
-  }, []);
+    }, 1500); // اینجا میلی‌ثانیه رو تنظیم کن، 1500 = 1.5 ثانیه
+    return () => clearTimeout(timer);
+  } else {
+    applyConsent(existing);
+  }
+}, []);
 
   const acceptAll = useCallback(() => {
     const all = { ...DEFAULT_STATE, analytics: true, personalization: true, marketing: true, ai: true };
