@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   PhoneIncoming,
   ScanSearch,
@@ -10,21 +11,6 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { EASE, viewport } from '@/lib/motion';
-
-/**
- * Live AI Activity Stream
- * ------------------------------------------------------------------
- * A flagship, always-on product-visualization strip that makes Vireek's
- * core promise tangible right after the hero: a real AI system is
- * actively answering calls, triaging emergencies, booking jobs, and
- * syncing data — right now, for real businesses.
- *
- * Each "event" below is one caller's journey through the six-stage
- * pipeline. Multiple events flow in a calm, seamless right-to-left
- * marquee, separated by a hairline divider. The marquee is built from
- * two identical copies of the same track so translating -50% loops
- * perfectly (see the `marquee` keyframes in tailwind.config.js).
- */
 
 type StageTone = 'accent' | 'cta' | 'danger' | 'success' | 'neutral';
 
@@ -104,9 +90,7 @@ function StagePill({ stage }: { stage: Stage }) {
   const Icon = stage.icon;
   return (
     <div className="flex shrink-0 items-center gap-3 whitespace-nowrap rounded-2xl border border-border/70 bg-bg-secondary/90 px-4 py-3 shadow-sm backdrop-blur-sm dark:bg-bg-secondary/80">
-      <span
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${TONE_STYLES[stage.tone]}`}
-      >
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${TONE_STYLES[stage.tone]}`}>
         <Icon size={17} strokeWidth={2.25} aria-hidden="true" />
       </span>
       <span className="flex flex-col leading-tight">
@@ -128,12 +112,7 @@ function MarqueeTrack() {
             <div key={stage.label} className="flex items-center gap-3">
               <StagePill stage={stage} />
               {stageIndex < event.stages.length - 1 && (
-                <ChevronRight
-                  size={15}
-                  strokeWidth={2.5}
-                  className="shrink-0 text-text-secondary/25"
-                  aria-hidden="true"
-                />
+                <ChevronRight size={15} strokeWidth={2.5} className="shrink-0 text-text-secondary/25" aria-hidden="true" />
               )}
             </div>
           ))}
@@ -147,13 +126,16 @@ function MarqueeTrack() {
 }
 
 export function LiveActivityStream() {
+  const prefersReducedMotion = useReducedMotion();
+  const containerRef = useRef<HTMLDivElement>(null);
+
   return (
     <section
       id="live-activity"
       aria-label="Live AI activity stream"
       className="relative overflow-hidden border-y border-border/60 bg-bg-secondary/60 bg-noise py-12 sm:py-16 md:py-20"
     >
-      {/* Ambient brand glow — echoes the hero's mesh without repeating it */}
+      {/* Ambient brand glow */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-70"
         style={{
@@ -181,8 +163,7 @@ export function LiveActivityStream() {
             This Is Vireek, Working Right Now
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-secondary sm:mt-4 sm:text-base md:text-lg">
-            Every call flows through the same six steps — instantly, and without you lifting a
-            finger.
+            Every call flows through the same six steps — instantly, and without you lifting a finger.
           </p>
         </motion.div>
       </div>
@@ -195,13 +176,27 @@ export function LiveActivityStream() {
         className="relative mt-10 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:mt-12"
         aria-hidden="true"
       >
-        <div className="flex w-max gap-3 py-1 motion-safe:animate-marquee hover:[animation-play-state:paused]">
+        <motion.div
+          ref={containerRef}
+          className="flex w-max gap-3 py-1"
+          animate={prefersReducedMotion ? undefined : { x: ['0%', '-50%'] }}
+          transition={{
+            duration: 40,
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+          onMouseEnter={() => {
+            if (prefersReducedMotion) return;
+            const el = containerRef.current;
+            if (el) el.style.animationPlayState = 'paused';
+          }}
+        >
           <MarqueeTrack />
           <MarqueeTrack />
-        </div>
+        </motion.div>
       </motion.div>
 
-      {/* Accessible, non-decorative summary of what the marquee illustrates */}
+      {/* Accessible summary */}
       <p className="sr-only">
         Every call is answered instantly, the customer&rsquo;s issue is understood, emergencies
         are automatically prioritized, the job is booked on your calendar, the customer receives
