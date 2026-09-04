@@ -25,8 +25,8 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 md:py-28">
-      <div className="mx-auto max-w-7xl px-6">
+    <section id="how-it-works" className="py-16 sm:py-24 md:py-28">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -34,8 +34,8 @@ export function HowItWorks() {
           transition={{ duration: 0.5, ease: EASE }}
           className="max-w-3xl"
         >
-          <p className={eyebrowClass()}>How it works</p>
-          <h2 className={sectionHeadingClass()}>From Ring to Booked in 60 Seconds</h2>
+          <p className={eyebrowClass()}>{'How it works'}</p>
+          <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'From Ring to Booked in 60 Seconds'}</h2>
         </motion.div>
 
         <motion.div
@@ -43,8 +43,9 @@ export function HowItWorks() {
           initial="initial"
           whileInView="whileInView"
           viewport={viewport}
-          className="relative mt-16 grid gap-12 md:grid-cols-3 md:gap-8"
+          className="relative mt-10 grid gap-8 sm:mt-16 md:grid-cols-3 md:gap-8"
         >
+          {/* Connector line — desktop only */}
           <div
             className="absolute left-0 right-0 top-7 hidden h-px md:block"
             style={{
@@ -60,14 +61,14 @@ export function HowItWorks() {
               transition={{ duration: 0.5, ease: EASE }}
               className="relative flex flex-col items-center text-center"
             >
-              <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-bg-secondary shadow-card">
-                <Icon size={22} className="text-accent" />
+              <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-bg-secondary shadow-card sm:h-14 sm:w-14">
+                <Icon size={20} className="text-accent sm:size-[22px]" />
               </div>
-              <span className="mt-5 text-sm font-semibold uppercase tracking-[0.18em] text-accent">
+              <span className="mt-4 text-xs font-semibold uppercase tracking-[0.15em] text-accent sm:mt-5 sm:text-sm">
                 {num}
               </span>
-              <h3 className="mt-2 text-xl font-semibold text-text-primary md:text-2xl">{title}</h3>
-              <p className="mt-3 max-w-xs text-base leading-relaxed text-text-secondary">{body}</p>
+              <h3 className="mt-2 text-lg font-semibold text-text-primary sm:text-xl md:text-2xl">{title}</h3>
+              <p className="mt-2 max-w-xs text-sm leading-relaxed text-text-secondary sm:mt-3 sm:text-base">{body}</p>
             </motion.div>
           ))}
         </motion.div>

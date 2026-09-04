@@ -151,7 +151,7 @@ export function LiveActivityStream() {
     <section
       id="live-activity"
       aria-label="Live AI activity stream"
-      className="relative overflow-hidden border-y border-border/60 bg-bg-secondary/60 bg-noise py-16 md:py-20"
+      className="relative overflow-hidden border-y border-border/60 bg-bg-secondary/60 bg-noise py-12 sm:py-16 md:py-20"
     >
       {/* Ambient brand glow — echoes the hero's mesh without repeating it */}
       <div
@@ -162,7 +162,7 @@ export function LiveActivityStream() {
         }}
       />
 
-      <div className="mx-auto max-w-2xl px-6 text-center">
+      <div className="mx-auto max-w-2xl px-5 text-center sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -177,10 +177,10 @@ export function LiveActivityStream() {
             <span className="text-xs font-semibold uppercase tracking-[0.1em] text-success">Live</span>
           </div>
 
-          <h2 className="mt-4 text-3xl font-bold leading-[1.2] tracking-tight text-text-primary md:text-5xl">
+          <h2 className="mt-4 text-2xl font-bold leading-[1.2] tracking-tight text-text-primary sm:text-3xl md:text-5xl">
             This Is Vireek, Working Right Now
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-text-secondary md:text-lg">
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-secondary sm:mt-4 sm:text-base md:text-lg">
             Every call flows through the same six steps — instantly, and without you lifting a
             finger.
           </p>
@@ -192,7 +192,7 @@ export function LiveActivityStream() {
         whileInView={{ opacity: 1 }}
         viewport={viewport}
         transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-        className="relative mt-12 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]"
+        className="relative mt-10 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:mt-12"
         aria-hidden="true"
       >
         <div className="flex w-max gap-3 py-1 motion-safe:animate-marquee hover:[animation-play-state:paused]">
@@ -208,7 +208,7 @@ export function LiveActivityStream() {
         a confirmation, and the details sync to your CRM — automatically, for every call.
       </p>
 
-      <p className="mt-8 text-center text-xs font-medium uppercase tracking-[0.14em] text-text-secondary/60">
+      <p className="mt-6 text-center text-xs font-medium uppercase tracking-[0.12em] text-text-secondary/60 sm:mt-8 sm:tracking-[0.14em]">
         Six steps. Zero missed calls. Every time.
       </p>
     </section>

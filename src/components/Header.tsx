@@ -333,14 +333,14 @@ export function Header() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setDrawerOpen(false)}
-              className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md md:hidden"
             />
             <motion.aside
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed right-0 top-0 z-50 flex h-full w-80 max-w-[85vw] flex-col border-l border-border bg-bg-secondary md:hidden"
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed right-0 top-0 z-50 flex h-full w-[85vw] max-w-sm flex-col border-l border-border bg-bg-secondary shadow-2xl md:hidden"
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -352,19 +352,19 @@ export function Header() {
                   type="button"
                   onClick={() => setDrawerOpen(false)}
                   aria-label="Close menu"
-                  className="focus-ring flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-secondary transition-colors hover:text-text-primary"
+                  className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-tertiary text-text-secondary transition-colors hover:text-text-primary active:scale-95"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
                 </button>
               </div>
 
               {/* Nav links */}
-              <nav className="flex-1 overflow-y-auto px-3 py-4">
+              <nav className="flex-1 overflow-y-auto px-4 py-5">
                 {NAV_LINKS.map((link, i) => {
                   const isRoute = link.href.startsWith('/') && !link.href.includes('#');
                   const active = isActive(link.href);
                   const dropdown = DROPDOWN_MAP[link.label];
-                  const className = `focus-ring flex items-center justify-between rounded-xl px-3 py-3 text-base font-medium transition-colors ${
+                  const className = `focus-ring flex items-center justify-between rounded-2xl px-4 py-3.5 text-base font-medium transition-colors ${
                     active
                       ? 'bg-accent/10 text-accent'
                       : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
@@ -373,9 +373,9 @@ export function Header() {
                   return (
                     <motion.div
                       key={link.href}
-                      initial={{ opacity: 0, x: 20 }}
+                      initial={{ opacity: 0, x: 24 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 + i * 0.04, duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ delay: 0.08 + i * 0.05, duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                     >
                       {isRoute ? (
                         <Link to={link.href} onClick={() => setDrawerOpen(false)} className={className}>
@@ -390,7 +390,7 @@ export function Header() {
 
                       {/* Inline industry items in drawer */}
                       {dropdown && (
-                        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-3">
+                        <div className="ml-4 mt-1.5 space-y-0.5 border-l border-border pl-3">
                           {dropdown.map((item) => {
                             const Icon = item.icon;
                             return (
@@ -398,7 +398,7 @@ export function Header() {
                                 key={item.href}
                                 to={item.href}
                                 onClick={() => setDrawerOpen(false)}
-                                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+                                className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
                               >
                                 <Icon size={15} className="shrink-0 text-accent/70" />
                                 {item.label}
@@ -413,11 +413,11 @@ export function Header() {
               </nav>
 
               {/* Drawer footer */}
-              <div className="space-y-2 border-t border-border px-5 py-4">
+              <div className="space-y-3 border-t border-border px-5 py-5">
                 <Link
                   to="/login"
                   onClick={() => setDrawerOpen(false)}
-                  className="focus-ring flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border bg-bg-tertiary text-sm font-semibold text-text-primary transition-colors hover:bg-bg-tertiary/80"
+                  className="focus-ring flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border bg-bg-tertiary text-sm font-semibold text-text-primary transition-colors hover:bg-bg-tertiary/80 active:scale-[0.98]"
                 >
                   <LogIn size={16} />
                   Log In
@@ -425,7 +425,7 @@ export function Header() {
                 <Link
                   to="/login"
                   onClick={() => setDrawerOpen(false)}
-                  className="focus-ring group flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white shadow-sm transition-all hover:shadow-glow-accent active:scale-[0.98]"
+                  className="focus-ring group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white shadow-sm transition-all hover:shadow-glow-accent active:scale-[0.98]"
                 >
                   Start Free Trial
                   <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />

@@ -35,6 +35,54 @@
 html {
   scroll-behavior: smooth;
   background-color: rgb(var(--bg-primary));
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Mobile-first touch & scroll optimizations */
+@layer base {
+  /* Prevent iOS tap highlight */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Momentum scrolling on iOS */
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Safe-area insets for notched devices */
+  @media (max-width: 768px) {
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Minimum touch target size for interactive elements on mobile */
+  @media (max-width: 768px) {
+    button,
+    a[role="button"],
+    .touch-target {
+      min-height: 44px;
+    }
+  }
+
+  /* Larger text on mobile for readability */
+  @media (max-width: 640px) {
+    html {
+      font-size: 15px;
+    }
+  }
 }
 
 .dark {

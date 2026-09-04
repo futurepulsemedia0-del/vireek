@@ -14,14 +14,14 @@ const EASE = [0.16, 1, 0.0, 1] as const;
 
 export function TrustBar() {
   return (
-    <section className="border-y border-border/60 bg-bg-secondary/50 py-10">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="border-y border-border/60 bg-bg-secondary/50 py-8 sm:py-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.5, ease: EASE }}
-          className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-text-secondary/60"
+          className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-text-secondary/60 sm:text-xs sm:tracking-[0.18em]"
         >
           Enterprise-grade infrastructure, built for contractors
         </motion.p>
@@ -30,15 +30,15 @@ export function TrustBar() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.5, ease: EASE, delay: 0.1 }}
-          className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 sm:gap-x-12"
+          className="mt-5 grid grid-cols-3 gap-x-4 gap-y-4 sm:mt-6 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-8 sm:gap-y-4 lg:gap-x-12"
         >
           {TRUST_ITEMS.map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
+              className="flex items-center justify-center gap-2 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary sm:text-sm"
             >
-              <Icon size={18} className="text-accent" />
-              {label}
+              <Icon size={16} className="text-accent sm:size-[18px]" />
+              <span className="text-center leading-tight">{label}</span>
             </div>
           ))}
         </motion.div>

@@ -145,7 +145,7 @@ function NewsletterSection() {
       {/* Subtle top highlight line */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
-      <div className="relative p-7 sm:p-9 md:p-10">
+      <div className="relative p-5 sm:p-7 md:p-10">
         {/* Header */}
         <div className="flex items-start gap-4">
           <motion.div
@@ -305,7 +305,7 @@ export function Footer() {
         <NewsletterSection />
 
         {/* Main footer grid */}
-        <div className="mt-16 grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
+        <div className="mt-12 grid gap-10 sm:mt-16 sm:gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="max-w-sm">
             <span className="text-xl font-bold tracking-tight text-accent">Vireek</span>
@@ -379,7 +379,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:mt-12 sm:flex-row">
           <p className="text-sm text-text-secondary">© 2026 Vireek. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <Link
