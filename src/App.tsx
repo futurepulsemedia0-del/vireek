@@ -23,6 +23,7 @@ import { ServicesPage } from '@/pages/ServicesPage';
 import { FeaturesPage } from '@/pages/FeaturesPage';
 import { PlatformPage } from '@/pages/PlatformPage';
 import { ComparePage } from '@/pages/ComparePage';
+import { IndustriesPage } from '@/pages/IndustriesPage';
 import { IndustryPage } from '@/pages/IndustryPage';
 import { DemoPage } from '@/pages/DemoPage';
 import { SecurityPage } from '@/pages/SecurityPage';
@@ -64,6 +65,7 @@ function App() {
       <Route path="/features" element={<FeaturesPage />} />
       <Route path="/platform" element={<PlatformPage />} />
       <Route path="/compare" element={<ComparePage />} />
+      <Route path="/industries" element={<IndustriesPage />} />
       <Route path="/industries/:slug" element={<IndustryPage />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/demo" element={<DemoPage />} />

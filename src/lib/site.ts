@@ -1,7 +1,7 @@
 export const NAV_LINKS = [
   { label: 'Features', href: '/features' },
   { label: 'Platform', href: '/platform' },
-  { label: 'Industries', href: '/industries/hvac' },
+  { label: 'Industries', href: '/industries' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Compare', href: '/compare' },
   { label: 'FAQ', href: '/faq' },

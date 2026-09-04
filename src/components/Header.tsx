@@ -235,7 +235,7 @@ export function Header() {
 
   const isActive = useCallback(
     (href: string) => {
-      if (href === '/industries/hvac') {
+      if (href === '/industries') {
         return location.pathname.startsWith('/industries');
       }
       return location.pathname === href;

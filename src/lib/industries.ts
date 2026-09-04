@@ -1,4 +1,4 @@
-import { Flame, Droplets, Home, Zap, Wind, type LucideIcon } from 'lucide-react';
+import { Flame, Droplets, Home, Zap, Wind, KeyRound, type LucideIcon } from 'lucide-react';
 
 export interface IndustryFAQ {
   q: string;
@@ -151,6 +151,30 @@ export const INDUSTRIES: Industry[] = [
       {
         q: 'Can Vireek dispatch a crew immediately for active flooding?',
         a: 'Vireek captures the details and triggers your defined escalation path (SMS, call transfer, or team alert) so your on-call crew is notified right away.',
+      },
+    ],
+  },
+  {
+    slug: 'locksmith',
+    name: 'Locksmith',
+    audience: 'locksmith companies',
+    icon: KeyRound,
+    tagline: 'Lockouts and emergencies don\'t wait. Your receptionist shouldn\'t either.',
+    terms: ['Lockouts', 'rekeying', 'key replacement', 'safe opening', 'ignition', 'security upgrades'],
+    painPoints: [
+      'Lockout calls are urgent — customers need immediate reassurance and fast ETA, not voicemail.',
+      'After-hours emergencies are the highest-value jobs but the hardest to capture without 24/7 coverage.',
+      'Distinguishing a genuine emergency from a routine key copy wastes dispatcher time.',
+    ],
+    capabilities: [
+      'Answers instantly, 24/7, capturing the lock type, location, and urgency level.',
+      'Flags lockout and security emergencies for immediate dispatch.',
+      'Books non-emergency appointments like rekeying and security upgrades directly to your calendar.',
+    ],
+    faq: [
+      {
+        q: 'Can Vireek handle after-hours lockout emergencies?',
+        a: 'Yes. Vireek answers 24/7, captures the customer\'s location and situation, and triggers your escalation path so your on-call tech is notified immediately.',
       },
     ],
   },

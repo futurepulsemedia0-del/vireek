@@ -25,16 +25,42 @@ const SOCIAL_LINKS = [
   { label: 'Vireek on LinkedIn', href: 'https://www.linkedin.com/in/ali-moradi-741346339', Icon: Linkedin },
 ];
 
-const NAV_LINKS = [
-  { label: 'Features', href: '/features' },
-  { label: 'Platform', href: '/platform' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'Compare', href: '/compare' },
-  { label: 'FAQ', href: '/faq' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'Privacy', href: '/privacy' },
-  { label: 'Terms', href: '/terms' },
+const FOOTER_COLUMNS = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'Features', href: '/features' },
+      { label: 'Platform', href: '/platform' },
+      { label: 'Pricing', href: '/pricing' },
+      { label: 'Compare', href: '/compare' },
+    ],
+  },
+  {
+    title: 'Industries',
+    links: [
+      { label: 'HVAC', href: '/industries/hvac' },
+      { label: 'Plumbing', href: '/industries/plumbing' },
+      { label: 'Roofing', href: '/industries/roofing' },
+      { label: 'Electrical', href: '/industries/electrical' },
+      { label: 'Restoration', href: '/industries/restoration' },
+      { label: 'Locksmith', href: '/industries/locksmith' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'FAQ', href: '/faq' },
+      { label: 'About', href: '/about' },
+      { label: 'Contact', href: '/contact' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Privacy', href: '/privacy' },
+      { label: 'Terms', href: '/terms' },
+    ],
+  },
 ];
 
 const EMAIL = 'ali@vireek.com';
@@ -279,7 +305,7 @@ export function Footer() {
         <NewsletterSection />
 
         {/* Main footer grid */}
-        <div className="mt-16 grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
+        <div className="mt-16 grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="max-w-sm">
             <span className="text-xl font-bold tracking-tight text-accent">Vireek</span>
@@ -310,94 +336,70 @@ export function Footer() {
                 </a>
               ))}
             </div>
+            <div className="mt-5 flex flex-col gap-2">
+              <a
+                href={`mailto:${EMAIL}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="focus-ring inline-flex items-center gap-2 rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+              >
+                <Mail size={15} className="shrink-0 text-accent" />
+                {EMAIL}
+              </a>
+              <a
+                href={SARAH_PHONE}
+                className="focus-ring inline-flex items-center gap-2 rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+              >
+                <Phone size={15} className="shrink-0 text-accent" />
+                {PHONE_DISPLAY}
+              </a>
+            </div>
           </div>
 
-          {/* Navigation links */}
-          <div className="md:col-span-2">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
-              Navigate
-            </h3>
-            <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {NAV_LINKS.map((link) => {
-                const isRoute = link.href.startsWith('/') && !link.href.includes('#');
-                return (
+          {/* Navigation columns */}
+          {FOOTER_COLUMNS.map((col) => (
+            <div key={col.title}>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
+                {col.title}
+              </h3>
+              <ul className="mt-4 flex flex-col gap-3">
+                {col.links.map((link) => (
                   <li key={link.href}>
-                    {isRoute ? (
-                      <Link
-                        to={link.href}
-                        className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-                      >
-                        {link.label}
-                      </Link>
-                    ) : (
-                      <a
-                        href={link.href}
-                        className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-                      >
-                        {link.label}
-                      </a>
-                    )}
+                    <Link
+                      to={link.href}
+                      className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      {link.label}
+                    </Link>
                   </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
-              Contact
-            </h3>
-            <ul className="mt-4 flex flex-col gap-3">
-              <li>
-                <a
-                  href={`mailto:${EMAIL}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="focus-ring inline-flex items-center gap-2 rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  <Mail size={16} className="shrink-0 text-accent" />
-                  {EMAIL}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={SARAH_PHONE}
-                  className="focus-ring inline-flex items-center gap-2 rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  <Phone size={16} className="shrink-0 text-accent" />
-                  {PHONE_DISPLAY}
-                </a>
-              </li>
-            </ul>
-          </div>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-sm text-text-secondary">© 2026 Vireek. All rights reserved.</p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <Link
               to="/privacy"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
               Privacy Policy
             </Link>
-            <span className="text-text-secondary/30">|</span>
             <Link
               to="/terms"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
               Terms of Service
             </Link>
-            <span className="text-text-secondary/30">|</span>
             <a
               href={`mailto:${EMAIL}`}
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
               Contact
             </a>
-            <span className="text-text-secondary/30">|</span>
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event('vireek:open-consent'))}
