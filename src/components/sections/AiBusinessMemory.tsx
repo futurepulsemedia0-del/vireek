@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+import { RevealImage } from '@/components/ui/RevealImage';
 
 /**
  * AiBusinessMemory
@@ -123,6 +124,12 @@ export function AiBusinessMemory() {
             {'Other AI assistants read a script and answer questions. Vireek builds a living model of how your business actually runs \u2014 and checks every call against it, automatically.'}
           </p>
         </motion.div>
+
+        <RevealImage
+          name="ai-memory"
+          alt="AI business memory interface showing customer data, business rules, and service knowledge"
+          className="mx-auto mt-10 max-w-4xl sm:mt-14"
+        />
 
         {/* Diagram + cards, desktop */}
         <motion.div
