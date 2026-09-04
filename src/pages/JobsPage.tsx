@@ -25,6 +25,8 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { useRealtimeSubscription } from '@/lib/realtime';
+import { LiveIndicator } from '@/components/LiveIndicator';
 
 // ============================================================
 // TYPES & CONSTANTS
@@ -656,6 +658,43 @@ export function JobsPage() {
     loadData();
   }, [loadData]);
 
+  // Realtime: a status change from another session (or an automated
+  // process) reflects live for anyone else viewing the board. Filtered by
+  // account owner id (jobs rows are keyed by the owner's id, not the
+  // logged-in user's own id for team members), and a technician without
+  // can_view_all_jobs never receives a row that isn't assigned to them.
+  const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
+
+  const jobsLiveStatus = useRealtimeSubscription<Job>({
+    channelName: `jobs-page-${accountOwnerId ?? 'anon'}`,
+    table: 'jobs',
+    event: '*',
+    filter: accountOwnerId ? `user_id=eq.${accountOwnerId}` : undefined,
+    enabled: !!accountOwnerId,
+    onChange: (payload) => {
+      if (payload.eventType === 'INSERT') {
+        const row = payload.new as Job;
+        if (!canViewAll && teamMember && row.assigned_technician_id !== teamMember.id) return;
+        setAllJobs((prev) => (prev.some((j) => j.id === row.id) ? prev : [row, ...prev]));
+      } else if (payload.eventType === 'UPDATE') {
+        const row = payload.new as Job;
+        if (!canViewAll && teamMember && row.assigned_technician_id !== teamMember.id) {
+          setAllJobs((prev) => prev.filter((j) => j.id !== row.id));
+          return;
+        }
+        setAllJobs((prev) =>
+          prev.some((j) => j.id === row.id)
+            ? prev.map((j) => (j.id === row.id ? row : j))
+            : [row, ...prev]
+        );
+        setSelectedJob((prev) => (prev?.id === row.id ? row : prev));
+      } else if (payload.eventType === 'DELETE') {
+        const row = payload.old as Job;
+        setAllJobs((prev) => prev.filter((j) => j.id !== row.id));
+      }
+    },
+  });
+
   // Handle prefill from Leads page navigation
   useEffect(() => {
     const state = location.state as { prefill?: PrefillData } | null;
@@ -889,7 +928,10 @@ export function JobsPage() {
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
+                <LiveIndicator status={jobsLiveStatus} />
+              </div>
               <p className="mt-1 text-sm text-text-secondary">{canViewAll ? 'Track every job from scheduled to paid.' : 'Your assigned jobs, from scheduled to paid.'}</p>
             </div>
           </div>
