@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, CalendarCheck, ShieldCheck, Wrench, Zap } from 'lucide-react';
+import { ArrowRight, CalendarCheck, ShieldCheck, Sparkles, Wrench, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { WhyVireek } from '@/components/sections/WhyVireek';
+import { BeforeAfter } from '@/components/sections/BeforeAfter';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 
 export function ComparePage() {
   useSEO({
-    title: 'Compare Vireek vs Answering Services & Voicemail | Vireek',
-    description: 'See how Vireek compares to traditional answering services and voicemail. AI receptionist that answers every call, books appointments, captures leads, and syncs to your CRM.',
+    title: 'Compare Vireek vs Answering Services, Voicemail & AI Voice Bots | Vireek',
+    description: 'See how Vireek compares to traditional answering services, voicemail, and generic AI voice bots. A trade-trained AI receptionist that answers every call, books appointments, captures leads, and syncs to your CRM from day one.',
     canonical: 'https://vireek.com/compare',
   });
 
@@ -39,8 +40,8 @@ export function ComparePage() {
                 Why Home Service Teams Switch to Vireek
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-text-secondary sm:text-xl">
-                See how an always-on AI receptionist stacks up against the two ways most
-                businesses handle calls today.
+                See how an always-on, trade-trained AI receptionist stacks up against the
+                ways most businesses handle calls today — including other AI voice tools.
               </p>
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Link to="/login">
@@ -57,6 +58,9 @@ export function ComparePage() {
             </motion.div>
           </div>
         </section>
+
+        {/* Before / after */}
+        <BeforeAfter />
 
         {/* Comparison table */}
         <WhyVireek />
@@ -80,7 +84,7 @@ export function ComparePage() {
               </p>
             </motion.div>
 
-            <div className="mt-14 grid gap-6 md:grid-cols-3">
+            <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {[
                 {
                   icon: CalendarCheck,
@@ -90,12 +94,17 @@ export function ComparePage() {
                 {
                   icon: Wrench,
                   title: 'Understands the trades',
-                  body: 'Generic services cannot tell a tripped breaker from a tripped GFCI. Sarah is built for HVAC, plumbing, roofing, electrical, and restoration.',
+                  body: 'Generic services — and generic AI voice bots — cannot tell a tripped breaker from a tripped GFCI. Sarah is built for HVAC, plumbing, roofing, electrical, and restoration.',
                 },
                 {
                   icon: Zap,
                   title: 'Follows through automatically',
                   body: 'Voicemail sits there. Sarah sends SMS confirmations, logs call summaries to your dashboard, and syncs to your CRM — all without manual data entry.',
+                },
+                {
+                  icon: Sparkles,
+                  title: 'Ready on day one, not after weeks of setup',
+                  body: 'Most general-purpose AI voice bots need you to build the trade knowledge, booking logic, and dispatch rules yourself. Sarah already knows the home-service playbook.',
                 },
               ].map((item, index) => (
                 <motion.div

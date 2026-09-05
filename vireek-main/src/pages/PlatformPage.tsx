@@ -1,20 +1,32 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, CalendarCheck, ShieldCheck, Wrench, Zap } from 'lucide-react';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
-import { WhyVireek } from '@/components/sections/WhyVireek';
+import { AutomationEngines } from '@/components/sections/AutomationEngines';
+import { OperationsCommandCenter } from '@/components/sections/OperationsCommandCenter';
+import { AIBrain } from '@/components/sections/AIBrain';
+import { AiBusinessMemory } from '@/components/sections/AiBusinessMemory';
+import { AiCallCoach } from '@/components/sections/AiCallCoach';
+import { RevenueIntelligence } from '@/components/sections/RevenueIntelligence';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 
-export function ComparePage() {
+/**
+ * Platform page — the deep technical dive. These five sections (moved here
+ * from the homepage) each explain a different layer of the "AI operating
+ * system" pitch: orchestration, reasoning, memory, coaching, and the revenue
+ * math. That's exactly what someone lands on /platform to read; on the
+ * homepage the same five sections were repeating one message five times.
+ */
+export function PlatformPage() {
   useSEO({
-    title: 'Compare Vireek vs Answering Services & Voicemail | Vireek',
-    description: 'See how Vireek compares to traditional answering services and voicemail. AI receptionist that answers every call, books appointments, captures leads, and syncs to your CRM.',
-    canonical: 'https://vireek.com/compare',
+    title: 'Platform — An AI Operating System for Home Services | Vireek',
+    description: 'Vireek is an AI operating system for home-service businesses. See the full automation stack — call intelligence, booking, growth, operations, and compliance — working together behind every call.',
+    canonical: 'https://vireek.com/platform',
   });
 
   return (
@@ -34,13 +46,14 @@ export function ComparePage() {
               transition={{ duration: 0.55, ease: EASE }}
               className="text-center"
             >
-              <p className={eyebrowClass()}>The Comparison</p>
+              <p className={eyebrowClass()}>The Platform</p>
               <h1 className="mt-4 text-balance text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl lg:text-6xl">
-                Why Home Service Teams Switch to Vireek
+                An AI Operating System for Home-Service Businesses
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-text-secondary sm:text-xl">
-                See how an always-on AI receptionist stacks up against the two ways most
-                businesses handle calls today.
+                This isn&rsquo;t one chatbot bolted onto a phone line. It&rsquo;s a full automation stack —
+                intake, intelligence, booking, growth, operations, and compliance — working together
+                so nothing falls through the cracks.
               </p>
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Link to="/login">
@@ -58,10 +71,10 @@ export function ComparePage() {
           </div>
         </section>
 
-        {/* Comparison table */}
-        <WhyVireek />
+        {/* Automation engines (the full 31-engine tabbed section) */}
+        <AutomationEngines />
 
-        {/* Key differences */}
+        {/* Architecture diagram section */}
         <section className="px-6 py-20 sm:py-24">
           <div className="mx-auto max-w-5xl">
             <motion.div
@@ -71,52 +84,52 @@ export function ComparePage() {
               transition={{ duration: 0.5, ease: EASE }}
               className="mx-auto max-w-2xl text-center"
             >
-              <p className={`${eyebrowClass()} text-center`}>The Difference</p>
+              <p className={`${eyebrowClass()} text-center`}>System Architecture</p>
               <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>
-                What sets Vireek apart
+                How every call flows through Vireek
               </h2>
               <p className={`${bodyClass()} mx-auto text-center`}>
-                Three things that traditional options simply cannot do.
+                From the first ring to the booked job — every layer works together automatically.
               </p>
             </motion.div>
 
-            <div className="mt-14 grid gap-6 md:grid-cols-3">
-              {[
-                {
-                  icon: CalendarCheck,
-                  title: 'Books the job, not just a message',
-                  body: 'Answering services take a message. Sarah checks your calendar, proposes a slot, and confirms the booking before the caller hangs up.',
-                },
-                {
-                  icon: Wrench,
-                  title: 'Understands the trades',
-                  body: 'Generic services cannot tell a tripped breaker from a tripped GFCI. Sarah is built for HVAC, plumbing, roofing, electrical, and restoration.',
-                },
-                {
-                  icon: Zap,
-                  title: 'Follows through automatically',
-                  body: 'Voicemail sits there. Sarah sends SMS confirmations, logs call summaries to your dashboard, and syncs to your CRM — all without manual data entry.',
-                },
-              ].map((item, index) => (
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={viewport}
-                  transition={{ duration: 0.45, delay: index * 0.08, ease: EASE }}
-                  whileHover={{ y: -4 }}
-                  className="group rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-shadow duration-200 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-tertiary text-text-secondary transition-colors group-hover:border-accent/30 group-hover:bg-accent/10 group-hover:text-accent">
-                    <item.icon size={18} />
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
+              className="mt-14 rounded-2xl border border-border bg-bg-secondary p-8 shadow-card dark:shadow-card-dark md:p-12"
+            >
+              <div className="flex flex-col gap-4">
+                {[
+                  { step: '01', label: 'Call Ingestion', desc: 'Sarah answers, validates, filters spam, logs the call' },
+                  { step: '02', label: 'AI Intelligence', desc: 'Summarizes, detects intent, scores sentiment, rates the lead' },
+                  { step: '03', label: 'Lead Capture', desc: 'Deduplicates, builds profile, enriches automatically' },
+                  { step: '04', label: 'Booking & Dispatch', desc: 'Checks availability, books slot, syncs calendar, sends confirmation' },
+                  { step: '05', label: 'Follow-Through', desc: 'SMS confirmation, call summary to dashboard, CRM sync' },
+                ].map((layer) => (
+                  <div
+                    key={layer.step}
+                    className="flex items-center gap-4 rounded-xl border border-border bg-bg-tertiary px-5 py-4 transition-colors hover:border-accent/30"
+                  >
+                    <span className="text-sm font-bold text-accent">{layer.step}</span>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-text-primary">{layer.label}</p>
+                      <p className="text-xs text-text-secondary">{layer.desc}</p>
+                    </div>
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold text-text-primary">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-text-secondary">{item.body}</p>
-                </motion.div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </section>
+
+        {/* Deep-dive sections (moved here from the homepage) */}
+        <OperationsCommandCenter />
+        <AIBrain />
+        <AiBusinessMemory />
+        <AiCallCoach />
+        <RevenueIntelligence />
 
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
@@ -137,10 +150,10 @@ export function ComparePage() {
             />
             <div className="relative">
               <h2 className="text-3xl font-bold leading-[1.15] tracking-tight text-white text-balance md:text-5xl">
-                Stop losing jobs to voicemail
+                See it running on your business
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg text-pretty">
-                Every call Sarah answers is a customer who reached a real voice instead of a beep.
+                Start free and watch Sarah handle your calls — from the first ring to the booked job.
               </p>
               <div className="mt-9 flex justify-center">
                 <Link to="/login">
