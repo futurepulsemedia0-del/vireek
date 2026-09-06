@@ -16,15 +16,15 @@ export const viewport = { once: true, margin: '-80px' } as const;
 
 export const staggerContainer: Variants = {
   initial: {},
-  whileInView: { transition: { staggerChildren: 0.12 } },
+  whileInView: { transition: { staggerChildren: 0.05 } },
 };
 
 export function sectionHeadingClass() {
-  return 'mt-3 text-3xl font-bold leading-[1.2] tracking-tight text-text-primary md:text-5xl';
+  return 'mt-3 font-display text-3xl font-semibold leading-[1.15] tracking-tight text-text-primary md:text-5xl';
 }
 
 export function eyebrowClass() {
-  return 'text-eyebrow font-semibold uppercase text-accent';
+  return 'text-eyebrow font-semibold uppercase tracking-[0.16em] text-accent';
 }
 
 export function bodyClass() {

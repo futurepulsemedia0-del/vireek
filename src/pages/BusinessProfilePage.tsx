@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2 } from 'lucide-react';
+import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -86,6 +86,7 @@ export function BusinessProfilePage() {
   const [services, setServices] = useState<string[]>([]);
   const [newService, setNewService] = useState('');
   const [serviceArea, setServiceArea] = useState('');
+  const [googleReviewUrl, setGoogleReviewUrl] = useState('');
   const [greetingScript, setGreetingScript] = useState('');
   const [hours, setHours] = useState<HoursState>(defaultHours());
   const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>([]);
@@ -107,6 +108,7 @@ export function BusinessProfilePage() {
         setProfileId(bp.id);
         setServices(bp.services_offered ?? []);
         setServiceArea(bp.service_area ?? '');
+        setGoogleReviewUrl(bp.google_review_url ?? '');
         setGreetingScript(bp.greeting_script ?? '');
         setHours(hoursFromDb(bp.business_hours));
         setFaqs(bp.faqs ?? []);
@@ -176,6 +178,7 @@ export function BusinessProfilePage() {
         user_id: user.id,
         services_offered: services.length > 0 ? services : null,
         service_area: serviceArea.trim() || null,
+        google_review_url: googleReviewUrl.trim() || null,
         greeting_script: greetingScript.trim() || null,
         business_hours: hoursToDb(hours),
         faqs: cleanFaqs.length > 0 ? cleanFaqs : null,
@@ -320,6 +323,21 @@ export function BusinessProfilePage() {
                 value={serviceArea}
                 onChange={(e) => setServiceArea(e.target.value)}
                 placeholder="e.g. Greater Austin Metro, TX — within 30 miles of downtown"
+                className={inputClass}
+              />
+            </SectionCard>
+
+            {/* Google Review Link */}
+            <SectionCard
+              icon={Star}
+              title="Google Review Link"
+              description="Used to text customers a review request after a job is marked completed (see the Reviews page)."
+            >
+              <input
+                type="url"
+                value={googleReviewUrl}
+                onChange={(e) => setGoogleReviewUrl(e.target.value)}
+                placeholder="https://g.page/r/your-business/review"
                 className={inputClass}
               />
             </SectionCard>

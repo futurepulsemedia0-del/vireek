@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
+import { CountUp } from '@/components/ui/CountUp';
 
 const STATS = [
   {
@@ -21,7 +22,7 @@ const STATS = [
 
 const container = {
   initial: {},
-  whileInView: { transition: { staggerChildren: 0.12 } },
+  whileInView: { transition: { staggerChildren: 0.05 } },
   viewport: { once: true, margin: '-80px' },
 };
 
@@ -59,9 +60,10 @@ export function Problem() {
           {STATS.map((stat) => (
             <motion.div key={stat.title} {...item}>
               <Card>
-                <p className="text-4xl font-bold tracking-tight text-danger md:text-5xl">
-                  {stat.value}
-                </p>
+                <CountUp
+                  value={stat.value}
+                  className="block text-4xl font-bold tracking-tight text-danger md:text-5xl"
+                />
                 <h3 className="mt-5 text-xl font-semibold text-text-primary md:text-2xl">
                   {stat.title}
                 </h3>

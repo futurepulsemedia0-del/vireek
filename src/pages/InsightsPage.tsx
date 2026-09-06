@@ -36,9 +36,9 @@ const INSIGHT_CONFIG: Record<
   },
   suggestion: {
     icon: Lightbulb,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10',
-    borderColor: 'border-l-orange-500',
+    color: 'text-violet-500',
+    bgColor: 'bg-violet-500/10',
+    borderColor: 'border-l-violet-500',
     label: 'Suggestion',
   },
   alert: {

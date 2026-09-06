@@ -1,13 +1,16 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, Calendar, User, Settings, Lightbulb, Circle as XCircle, MapPin, Zap, Bell, Wrench, ShieldCheck, CreditCard, Plug, X } from 'lucide-react';
+import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, Calendar, User, Settings, Lightbulb, Circle as XCircle, Bell, Wrench, ShieldCheck, CreditCard, Plug, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { UsageAlertBanner } from '@/pages/BillingPage';
-import { supabase, Call, Job, Lead, AiInsight, Profile } from '@/lib/supabase';
+import { supabase, Call, Job, Lead, AiInsight, BusinessProfile } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { useRealtimeSubscription } from '@/lib/realtime';
+import { LiveIndicator } from '@/components/LiveIndicator';
+import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
 
 // ============================================================
 // SHARED UI PRIMITIVES
@@ -136,7 +139,6 @@ function MetricSkeleton() {
 function CallVolumeChart({ data }: { data: { date: string; count: number }[] }) {
   const maxCount = Math.max(...data.map((d) => d.count), 1);
   const chartHeight = 160;
-  const barWidth = 100 / data.length;
 
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
@@ -290,7 +292,7 @@ interface ActivityItem {
   statusColor: string;
 }
 
-function RecentActivity({ items }: { items: ActivityItem[] }) {
+function RecentActivity({ items, highlightId }: { items: ActivityItem[]; highlightId?: string | null }) {
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       <h3 className="text-base font-semibold text-text-primary">Recent Activity</h3>
@@ -304,26 +306,35 @@ function RecentActivity({ items }: { items: ActivityItem[] }) {
         </div>
       ) : (
         <div className="mt-4 space-y-1">
-          {items.map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-start gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-bg-tertiary/50"
-            >
-              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.statusColor}`}>
-                <item.icon size={18} />
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary">{item.title}</p>
-                <p className="mt-0.5 text-xs leading-relaxed text-text-secondary line-clamp-2">{item.description}</p>
-              </div>
-              <span className="shrink-0 text-xs text-text-secondary">
-                {formatTimeAgo(item.timestamp)}
-              </span>
-            </motion.div>
-          ))}
+          {items.map((item, i) => {
+            const isNew = !!highlightId && item.id === highlightId;
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  backgroundColor: isNew ? 'rgba(79, 70, 229, 0.08)' : 'rgba(0, 0, 0, 0)',
+                }}
+                transition={{ duration: 0.25, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                className={`flex items-start gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-bg-tertiary/50 ${
+                  isNew ? 'ring-1 ring-accent/30' : ''
+                }`}
+              >
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.statusColor}`}>
+                  <item.icon size={18} />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-text-primary">{item.title}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-text-secondary line-clamp-2">{item.description}</p>
+                </div>
+                <span className="shrink-0 text-xs text-text-secondary">
+                  {formatTimeAgo(item.timestamp)}
+                </span>
+              </motion.div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -344,13 +355,6 @@ function formatTimeAgo(dateStr: string): string {
   return mins > 0 ? `${mins}m ago` : 'just now';
 }
 
-function formatDuration(seconds: number | null): string {
-  if (!seconds) return '—';
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}m ${secs}s`;
-}
-
 function formatCurrency(amount: number | null): string {
   if (amount === null || amount === undefined) return '$0';
   return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -362,7 +366,7 @@ function formatCurrency(amount: number | null): string {
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, isOwner, permissions } = useAuth();
+  const { user, profile, profileLoading, isOwner, permissions, teamMember } = useAuth();
   const { toast } = useToast();
 
   const [calls, setCalls] = useState<Call[]>([]);
@@ -371,19 +375,21 @@ export function DashboardPage() {
   const [insights, setInsights] = useState<AiInsight[]>([]);
   const [allCalls, setAllCalls] = useState<Call[]>([]);
   const [allJobs, setAllJobs] = useState<Job[]>([]);
+  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     if (!user) return;
     setDataLoading(true);
     try {
-      const [callsRes, jobsRes, leadsRes, insightsRes, allCallsRes, allJobsRes] = await Promise.all([
+      const [callsRes, jobsRes, leadsRes, insightsRes, allCallsRes, allJobsRes, businessProfileRes] = await Promise.all([
         supabase.from('calls').select('*').order('call_datetime', { ascending: false }).limit(20),
         supabase.from('jobs').select('*').order('created_at', { ascending: false }).limit(20),
         supabase.from('leads').select('*').order('created_at', { ascending: false }),
         supabase.from('ai_insights').select('*').eq('is_dismissed', false).order('created_at', { ascending: false }),
         supabase.from('calls').select('*').order('call_datetime', { ascending: false }),
         supabase.from('jobs').select('*').order('created_at', { ascending: false }),
+        supabase.from('business_profile').select('*').maybeSingle(),
       ]);
 
       if (callsRes.data) setCalls(callsRes.data as Call[]);
@@ -392,6 +398,7 @@ export function DashboardPage() {
       if (insightsRes.data) setInsights(insightsRes.data as AiInsight[]);
       if (allCallsRes.data) setAllCalls(allCallsRes.data as Call[]);
       if (allJobsRes.data) setAllJobs(allJobsRes.data as Job[]);
+      if (businessProfileRes.data) setBusinessProfile(businessProfileRes.data as BusinessProfile);
     } catch {
       // Data will show as empty states
     } finally {
@@ -408,6 +415,48 @@ export function DashboardPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // ------------------------------------------------------------
+  // Step 11: real-time updates. New calls/jobs land in the lists instantly
+  // instead of waiting for the next page load, and briefly flash so the
+  // change is noticeable without being jarring.
+  // ------------------------------------------------------------
+  const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
+  const [newlyArrivedId, setNewlyArrivedId] = useState<string | null>(null);
+
+  const callsLiveStatus = useRealtimeSubscription<Call>({
+    channelName: `overview-calls-${accountOwnerId ?? 'anon'}`,
+    table: 'calls',
+    event: 'INSERT',
+    filter: accountOwnerId ? `user_id=eq.${accountOwnerId}` : undefined,
+    enabled: !!accountOwnerId,
+    onChange: (payload) => {
+      const row = payload.new as Call;
+      setCalls((prev) => [row, ...prev].slice(0, 20));
+      setAllCalls((prev) => [row, ...prev]);
+      setNewlyArrivedId(row.id);
+      setTimeout(() => setNewlyArrivedId((cur) => (cur === row.id ? null : cur)), 2500);
+    },
+  });
+
+  useRealtimeSubscription<Job>({
+    channelName: `overview-jobs-${accountOwnerId ?? 'anon'}`,
+    table: 'jobs',
+    event: '*',
+    filter: accountOwnerId ? `user_id=eq.${accountOwnerId}` : undefined,
+    enabled: !!accountOwnerId,
+    onChange: (payload) => {
+      if (payload.eventType === 'INSERT') {
+        const row = payload.new as Job;
+        setJobs((prev) => [row, ...prev].slice(0, 20));
+        setAllJobs((prev) => [row, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        const row = payload.new as Job;
+        setJobs((prev) => prev.map((j) => (j.id === row.id ? row : j)));
+        setAllJobs((prev) => prev.map((j) => (j.id === row.id ? row : j)));
+      }
+    },
+  });
 
   useKeyboardShortcut({
     key: 'Escape',
@@ -647,9 +696,12 @@ export function DashboardPage() {
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
-                Welcome back, {profile?.company_name || profile?.full_name?.split(' ')[0] || 'there'}
-              </h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
+                  Welcome back, {profile?.company_name || profile?.full_name?.split(' ')[0] || 'there'}
+                </h1>
+                <LiveIndicator status={callsLiveStatus} />
+              </div>
               <p className="mt-1.5 text-sm text-text-secondary">{todayDate}</p>
               {dailyDigest && (
                 <div className="mt-3 flex items-center gap-2 rounded-xl border border-accent/20 bg-accent/5 px-4 py-2.5">
@@ -668,6 +720,18 @@ export function DashboardPage() {
             </>
           )}
         </div>
+
+        {/* REVENUE RECOVERED — the number that actually proves Vireek's value */}
+        {!profileLoading && !dataLoading && (
+          <div className="mb-6">
+            <RevenueRecoveredCard
+              calls={allCalls}
+              jobs={allJobs}
+              businessHours={businessProfile?.business_hours ?? null}
+              planId={profile?.plan}
+            />
+          </div>
+        )}
 
         {/* PRIMARY KPI ROW */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -972,7 +1036,10 @@ export function DashboardPage() {
 
         {/* RECENT ACTIVITY */}
         <div className="mt-8">
-          <RecentActivity items={metrics.activityItems} />
+          <RecentActivity
+            items={metrics.activityItems}
+            highlightId={newlyArrivedId ? `call-${newlyArrivedId}` : null}
+          />
         </div>
     </DashboardLayout>
   );

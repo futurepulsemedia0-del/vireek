@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRealtimeSubscription } from '@/lib/realtime';
+import { LiveIndicator } from '@/components/LiveIndicator';
 import {
   Phone,
   ArrowLeft,
@@ -328,12 +330,13 @@ function CallDetailPanel({
 
 export function CallsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user, profile, profileLoading, isOwner, teamMember } = useAuth();
   const { toast } = useToast();
 
   const [allCalls, setAllCalls] = useState<Call[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<Call | null>(null);
+  const [newlyArrivedId, setNewlyArrivedId] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -374,6 +377,25 @@ export function CallsPage() {
       navigate('/onboarding', { replace: true });
     }
   }, [profile, profileLoading, navigate]);
+
+  // Realtime: new calls land in the list instantly instead of waiting for
+  // the next page load. Filtered by account owner id — for a team member
+  // `calls` rows are always keyed by the owner's id, not the member's own.
+  const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
+
+  const callsLiveStatus = useRealtimeSubscription<Call>({
+    channelName: `calls-page-${accountOwnerId ?? 'anon'}`,
+    table: 'calls',
+    event: 'INSERT',
+    filter: accountOwnerId ? `user_id=eq.${accountOwnerId}` : undefined,
+    enabled: !!accountOwnerId,
+    onChange: (payload) => {
+      const row = payload.new as Call;
+      setAllCalls((prev) => (prev.some((c) => c.id === row.id) ? prev : [row, ...prev]));
+      setNewlyArrivedId(row.id);
+      setTimeout(() => setNewlyArrivedId((cur) => (cur === row.id ? null : cur)), 2500);
+    },
+  });
 
   useKeyboardShortcut({
     key: '/',
@@ -554,7 +576,10 @@ export function CallsPage() {
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Call History</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Call History</h1>
+              <LiveIndicator status={callsLiveStatus} />
+            </div>
             <p className="mt-1 text-sm text-text-secondary">
               {filteredCalls.length} {filteredCalls.length === 1 ? 'call' : 'calls'}
               {hasActiveFilters && ' (filtered)'}
@@ -731,7 +756,9 @@ export function CallsPage() {
                       <tr
                         key={call.id}
                         onClick={() => setSelectedCall(call)}
-                        className="cursor-pointer border-b border-border transition-colors last:border-0 hover:bg-bg-tertiary/50"
+                        className={`cursor-pointer border-b border-border transition-colors last:border-0 hover:bg-bg-tertiary/50 ${
+                          newlyArrivedId === call.id ? 'bg-accent/5' : ''
+                        }`}
                       >
                         <td className="px-4 py-3 text-sm text-text-secondary whitespace-nowrap">
                           {formatDateTime(call.call_datetime)}
@@ -776,7 +803,9 @@ export function CallsPage() {
                     key={call.id}
                     type="button"
                     onClick={() => setSelectedCall(call)}
-                    className="focus-ring w-full rounded-2xl border border-border bg-bg-secondary p-4 text-left shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark"
+                    className={`focus-ring w-full rounded-2xl border border-border bg-bg-secondary p-4 text-left shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark ${
+                      newlyArrivedId === call.id ? 'border-accent/40 bg-accent/5' : ''
+                    }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold text-text-primary">{call.caller_name || 'Unknown'}</span>

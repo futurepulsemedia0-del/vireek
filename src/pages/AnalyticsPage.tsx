@@ -532,8 +532,8 @@ function Heatmap({ data }: { data: { day: number; hour: number; count: number }[
   function getColor(count: number): string {
     if (count === 0) return 'rgb(var(--bg-tertiary))';
     const intensity = count / maxCount;
-    if (intensity > 0.75) return 'rgb(249 115 22)';
-    if (intensity > 0.5) return 'rgb(249 115 22 / 0.7)';
+    if (intensity > 0.75) return 'rgb(var(--accent-secondary))';
+    if (intensity > 0.5) return 'rgb(var(--accent-secondary) / 0.7)';
     if (intensity > 0.25) return 'rgb(37 99 235 / 0.6)';
     return 'rgb(37 99 235 / 0.25)';
   }

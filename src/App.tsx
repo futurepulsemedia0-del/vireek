@@ -1,31 +1,92 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/pages/LoginPage';
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { SignupPage } from '@/pages/SignupPage';
 import { OnboardingPage } from '@/pages/OnboardingPage';
+import { PricingPage } from '@/pages/PricingPage';
 import { DashboardPage } from '@/pages/DashboardPage';
-import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { CallsPage } from '@/pages/CallsPage';
 import { LeadsPage } from '@/pages/LeadsPage';
 import { JobsPage } from '@/pages/JobsPage';
+import { CalendarPage } from '@/pages/CalendarPage';
 import { BusinessProfilePage } from '@/pages/BusinessProfilePage';
 import { InsightsPage } from '@/pages/InsightsPage';
+import { ReviewsPage } from '@/pages/ReviewsPage';
 import { TeamPage } from '@/pages/TeamPage';
 import { BillingPage } from '@/pages/BillingPage';
 import { IntegrationsPage } from '@/pages/IntegrationsPage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
 import { TermsPage } from '@/pages/TermsPage';
+import { FAQPage } from '@/pages/FAQPage';
+import { AboutPage } from '@/pages/AboutPage';
+import { ContactPage } from '@/pages/ContactPage';
+import { ServicesPage } from '@/pages/ServicesPage';
+import { FeaturesPage } from '@/pages/FeaturesPage';
+import { PlatformPage } from '@/pages/PlatformPage';
+import { ComparePage } from '@/pages/ComparePage';
+import { IndustriesPage } from '@/pages/IndustriesPage';
+import { IndustryPage } from '@/pages/IndustryPage';
+import { DemoPage } from '@/pages/DemoPage';
+import { CalculatorPage } from '@/pages/CalculatorPage';
+import { SecurityPage } from '@/pages/SecurityPage';
+import { AccessibilityPage } from '@/pages/AccessibilityPage';
+import { NotificationsPage } from '@/pages/NotificationsPage';
+import { SettingsPage } from '@/pages/SettingsPage';
+import { SecuritySettingsPage } from '@/pages/SecuritySettingsPage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+
+// Step 14 (performance pass): Analytics pulls in the chart-rendering code
+// path, which is meaningfully heavier than the rest of the dashboard and is
+// only ever needed on this one route — code-split it out of the main
+// bundle instead of shipping it on every initial dashboard load.
+const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
+
+function RouteLoadingFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-bg-primary">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+    </div>
+  );
+}
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      {/*
+        /forgot-password and /reset-password are intentionally plain,
+        unprotected routes — never wrapped in <ProtectedRoute>. In
+        particular /reset-password must render for visitors with no
+        session at all (that's the normal case for a password reset) and
+        must never bounce to /login or /dashboard. See
+        src/pages/ResetPasswordPage.tsx for the recovery-token handling.
+      */}
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+      <Route path="/faq" element={<FAQPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/services" element={<ServicesPage />} />
+      <Route path="/solutions" element={<ServicesPage />} />
+      <Route path="/features" element={<FeaturesPage />} />
+      <Route path="/platform" element={<PlatformPage />} />
+      <Route path="/compare" element={<ComparePage />} />
+      <Route path="/industries" element={<IndustriesPage />} />
+      <Route path="/industries/:slug" element={<IndustryPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/demo" element={<DemoPage />} />
+      <Route path="/calculator" element={<CalculatorPage />} />
+      <Route path="/security" element={<SecurityPage />} />
+      <Route path="/accessibility" element={<AccessibilityPage />} />
       <Route
         path="/dashboard"
         element={
@@ -38,7 +99,33 @@ function App() {
         path="/dashboard/analytics"
         element={
           <ProtectedRoute>
-            <AnalyticsPage />
+            <Suspense fallback={<RouteLoadingFallback />}>
+              <AnalyticsPage />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/notifications"
+        element={
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/settings"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/settings/security"
+        element={
+          <ProtectedRoute>
+            <SecuritySettingsPage />
           </ProtectedRoute>
         }
       />
@@ -67,6 +154,14 @@ function App() {
         }
       />
       <Route
+        path="/dashboard/calendar"
+        element={
+          <ProtectedRoute>
+            <CalendarPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/dashboard/business-profile"
         element={
           <ProtectedRoute>
@@ -79,6 +174,14 @@ function App() {
         element={
           <ProtectedRoute>
             <InsightsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/reviews"
+        element={
+          <ProtectedRoute>
+            <ReviewsPage />
           </ProtectedRoute>
         }
       />
@@ -106,7 +209,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<HomePage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
