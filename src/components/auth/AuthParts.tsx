@@ -11,7 +11,9 @@ import { Link } from 'react-router-dom';
 export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
   const { theme } = useTheme();
   return (
-    <span className={`relative block ${size}`}>
+    <span
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/15 bg-accent/10 p-2 ${size}`}
+    >
       <img
         src="/assets/logos/logo-dark.png"
         alt="Vireek"
@@ -19,7 +21,7 @@ export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
         height={48}
         decoding="async"
         loading="eager"
-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
+        className={`absolute inset-0 h-full w-full object-contain p-2 transition-opacity duration-200 ${
           theme === 'light' ? 'opacity-100' : 'opacity-0'
         }`}
       />
@@ -31,7 +33,7 @@ export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
         height={48}
         decoding="async"
         loading="eager"
-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
+        className={`absolute inset-0 h-full w-full object-contain p-2 transition-opacity duration-200 ${
           theme === 'dark' ? 'opacity-100' : 'opacity-0'
         }`}
       />
