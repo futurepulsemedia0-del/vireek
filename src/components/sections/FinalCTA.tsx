@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, ShieldCheck, Clock, Zap } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Clock, Zap, PhoneCall } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
 import { EASE, viewport } from '@/lib/motion';
+import { SARAH_PHONE } from '@/lib/site';
 
 const GUARANTEES = [
   { icon: Clock, label: 'Live in 15 minutes' },
@@ -10,69 +10,87 @@ const GUARANTEES = [
   { icon: Zap, label: 'Cancel anytime' },
 ];
 
+/**
+ * Rebuilt away from the "rounded gradient box with blurred orbs" pattern —
+ * that shape is the single most reused SaaS closer on the web. Instead this
+ * sits directly on the page background (so it doesn't compete with the
+ * hero's own gradient mesh), leads with a real action — an actual phone
+ * number to call, mirroring the hero's "call Sarah" moment — and separates
+ * the two calls to action by intent instead of stacking two identical
+ * buttons side by side.
+ */
 export function FinalCTA() {
   return (
-    <section id="contact" className="px-4 py-12 sm:px-6 sm:py-16 md:py-24">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={viewport}
-        transition={{ duration: 0.6, ease: EASE }}
-        className="bg-noise relative mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-2xl bg-gradient-to-br from-accent-800 via-accent-700 to-cta-800 px-5 py-12 text-center shadow-glow-accent sm:rounded-3xl sm:px-6 sm:py-16 md:px-16 md:py-24"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
-          }}
-        />
-        {/* Top highlight line */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-
-        <div className="relative">
-          <h2 className="text-2xl font-bold leading-[1.15] tracking-tight text-white text-balance sm:text-3xl md:text-5xl">
-            Stop Losing Jobs to Voicemail
+    <section id="contact" className="border-t border-border/70 py-16 sm:py-24 md:py-28">
+      <div className="mx-auto max-w-5xl px-5 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="text-center"
+        >
+          <h2 className="mx-auto max-w-2xl font-display text-3xl font-semibold leading-[1.1] tracking-tightest text-text-primary sm:text-5xl">
+            Stop losing jobs to voicemail.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/85 sm:mt-5 sm:text-base md:text-lg text-pretty">
+          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
             Every call Sarah answers is a customer who reached a real voice instead of a beep.
-            Start free today and hear how she handles your calls — no credit card, no contract, no risk.
           </p>
+        </motion.div>
 
-          <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-9 sm:flex-row sm:gap-4">
-            <Link to="/login" className="w-full sm:w-auto">
-              <Button
-                variant="primary"
-                size="lg"
-                className="w-full gap-2 shadow-glow-cta sm:w-auto"
-              >
-                Start Free Trial
-                <ArrowRight size={18} />
-              </Button>
-            </Link>
-            <Link to="/demo" className="w-full sm:w-auto">
-              <Button
-                variant="ghost"
-                size="lg"
-                className="w-full gap-2 border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white sm:w-auto"
-              >
-                Try the Live Demo
-                <ArrowRight size={18} />
-              </Button>
-            </Link>
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+          className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2"
+        >
+          <Link
+            to="/login"
+            className="group flex flex-col justify-between rounded-2xl border border-accent bg-accent p-6 text-left shadow-glow-accent transition-transform duration-200 hover:-translate-y-0.5"
+          >
+            <div>
+              <p className="text-sm font-medium text-white/75">Get started</p>
+              <p className="mt-1 text-xl font-semibold text-white">Start your free trial</p>
+              <p className="mt-1.5 text-sm text-white/75">14 days · no card · cancel anytime</p>
+            </div>
+            <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white">
+              Create account
+              <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+            </span>
+          </Link>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:mt-8 sm:gap-x-6 sm:gap-y-3">
-            {GUARANTEES.map(({ icon: Icon, label }) => (
-              <span key={label} className="flex items-center gap-1.5 text-xs font-medium text-white/70 sm:text-sm">
-                <Icon size={13} className="shrink-0 sm:size-[14px]" />
-                {label}
-              </span>
-            ))}
-          </div>
-        </div>
-      </motion.div>
+          <a
+            href={SARAH_PHONE}
+            className="group flex flex-col justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-transform duration-200 hover:-translate-y-0.5 dark:shadow-card-dark"
+          >
+            <div>
+              <p className="text-sm font-medium text-text-secondary">Hear it first</p>
+              <p className="mt-1 text-xl font-semibold text-text-primary">Call Sarah right now</p>
+              <p className="mt-1.5 text-sm text-text-secondary">A real, live call — no signup needed</p>
+            </div>
+            <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent">
+              <PhoneCall size={16} />
+              {SARAH_PHONE.replace('tel:', '')}
+            </span>
+          </a>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={viewport}
+          transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
+        >
+          {GUARANTEES.map(({ icon: Icon, label }) => (
+            <span key={label} className="flex items-center gap-1.5 text-sm font-medium text-text-secondary">
+              <Icon size={14} className="shrink-0 text-accent" />
+              {label}
+            </span>
+          ))}
+        </motion.div>
+      </div>
     </section>
   );
 }

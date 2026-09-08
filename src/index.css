@@ -1,35 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ================================================================ */
+/*  Vireek design tokens — "Signal" system                           */
+/*  Warm graphite neutrals + a single confident cobalt (trust,       */
+/*  always-on technology) with a copper signal accent reserved for   */
+/*  urgency/live moments (emergency detection, active-call states).  */
+/*  Two accents that compete for attention was the old system's      */
+/*  biggest tell; copper is now used sparingly, never as a primary   */
+/*  CTA color, so it reads as a deliberate signal, not decoration.   */
+/* ================================================================ */
 :root {
-  --bg-primary: 251 251 253;
+  --bg-primary: 253 252 250;
   --bg-secondary: 255 255 255;
-  --bg-tertiary: 245 245 247;
-  --text-primary: 29 29 31;
-  --text-secondary: 110 110 115;
-  --border-default: 224 224 229;
-  --accent-primary: 79 70 229;
-  --accent-secondary: 108 47 242;
-  --success: 5 150 105;
-  --danger: 220 38 38;
-  --warning: 217 119 6;
+  --bg-tertiary: 246 244 240;
+  --text-primary: 23 23 26;
+  --text-secondary: 103 103 112;
+  --border-default: 231 229 224;
+  --accent-primary: 32 58 216;
+  --accent-secondary: 214 88 42;
+  --success: 22 132 88;
+  --danger: 200 48 48;
+  --warning: 180 106 20;
 }
 
 .dark {
-  --bg-primary: 8 8 10;
-  --bg-secondary: 17 17 20;
-  --bg-tertiary: 24 24 28;
-  --text-primary: 245 245 247;
-  --text-secondary: 165 165 172;
-  --border-default: 40 40 46;
-  --accent-primary: 129 140 248;
-  --accent-secondary: 167 139 250;
-  --success: 52 211 153;
-  --danger: 248 113 113;
-  --warning: 251 191 36;
+  --bg-primary: 9 10 13;
+  --bg-secondary: 16 17 21;
+  --bg-tertiary: 23 24 29;
+  --text-primary: 242 241 238;
+  --text-secondary: 154 154 163;
+  --border-default: 36 37 44;
+  --accent-primary: 108 130 255;
+  --accent-secondary: 255 138 90;
+  --success: 74 199 140;
+  --danger: 240 100 100;
+  --warning: 235 170 70;
 }
 
 html {
@@ -91,6 +100,7 @@ html {
 
 body {
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-optical-sizing: auto;
   font-feature-settings: 'tnum' 1, 'liga' 1, 'kern' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -116,9 +126,8 @@ body {
 
   .bg-gradient-mesh {
     background-image:
-      radial-gradient(circle at 15% 20%, rgb(var(--accent-primary) / 0.14), transparent 45%),
-      radial-gradient(circle at 85% 15%, rgb(var(--accent-secondary) / 0.10), transparent 40%),
-      radial-gradient(circle at 50% 90%, rgb(var(--success) / 0.055), transparent 50%);
+      radial-gradient(ellipse 60% 50% at 12% 0%, rgb(var(--accent-primary) / 0.10), transparent 60%),
+      radial-gradient(ellipse 45% 40% at 100% 20%, rgb(var(--accent-secondary) / 0.05), transparent 55%);
   }
 
   .focus-ring {

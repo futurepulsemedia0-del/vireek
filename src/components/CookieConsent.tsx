@@ -333,7 +333,7 @@ function PrivacyCenter({
               <Link to="/privacy" className="focus-ring rounded font-medium text-accent hover:underline">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="focus-ring rounded font-medium text-accent hover:underline">
+              <Link to="/cookies" className="focus-ring rounded font-medium text-accent hover:underline">
                 Cookie Policy
               </Link>
             </div>
@@ -498,7 +498,7 @@ export function CookieConsent() {
                   <Link to="/privacy" className="focus-ring rounded font-medium text-accent hover:underline">
                     Privacy Policy
                   </Link>
-                  <Link to="/terms" className="focus-ring rounded font-medium text-accent hover:underline">
+                  <Link to="/cookies" className="focus-ring rounded font-medium text-accent hover:underline">
                     Cookie Policy
                   </Link>
                 </div>

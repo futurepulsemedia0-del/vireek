@@ -9,12 +9,9 @@ import { DashboardPreview } from '@/components/sections/DashboardPreview';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
-import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
 import { Industries } from '@/components/sections/Industries';
 import { Integrations } from '@/components/sections/Integrations';
-import { WhyVireekFeatures } from '@/components/sections/WhyVireekFeatures';
 import { CaseStudies } from '@/components/sections/CaseStudies';
-import { SecurityPrivacy } from '@/components/sections/SecurityPrivacy';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 import { CookieConsent } from '@/components/CookieConsent';
 
@@ -33,6 +30,11 @@ import { CookieConsent } from '@/components/CookieConsent';
  * first four sections (Hero, TrustBar, AICapability, HowItWorks) — most
  * visitors scroll and never reach a pricing block buried mid-page, even
  * though it's also one click away in the header nav.
+ *
+ * WhyVireekFeatures, SecurityPrivacy, and MissedCallCalculator were removed
+ * from here too — they were near-duplicates of the dedicated /features,
+ * /security, and /calculator pages (now linked from the footer), so keeping
+ * both copies just added length without adding a new reason to convert.
  */
 export function HomePage() {
   useSEO({
@@ -53,12 +55,9 @@ export function HomePage() {
         <LiveActivityStream />
         <DashboardPreview />
         <LiveDemo />
-        <MissedCallCalculator />
         <Industries />
         <Integrations />
-        <WhyVireekFeatures />
         <CaseStudies />
-        <SecurityPrivacy />
         <FinalCTA />
       </main>
       <Footer />

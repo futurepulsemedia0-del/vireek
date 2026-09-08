@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowRight, Check, PhoneCall, Sparkles, XCircle, CheckCircle2,
+  ArrowRight, PhoneCall, Sparkles, XCircle, CheckCircle2,
   PhoneIncoming, Brain, Siren, CalendarCheck, DatabaseZap,
   Clock, DollarSign, TrendingUp,
   type LucideIcon,

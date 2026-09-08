@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ShieldCheck, KeyRound, LogOut, ScrollText, CircleCheck as CheckCircle2, Trash2 } from 'lucide-react';
+import { ShieldCheck, KeyRound, LogOut, ScrollText, CircleCheck as CheckCircle2, Trash2, Laptop } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { BackButton } from '@/components/ui/BackButton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
+import { listTrustedDevices, revokeTrustedDevice, TrustedDeviceRow } from '@/lib/deviceTrust';
 
 interface AuditLogRow {
   id: string;
@@ -45,13 +46,17 @@ function AuditLogSkeleton() {
  * support exists, which it does as of supabase-js v2), a real
  * "sign out everywhere else" action, and a read-only view of the audit log.
  *
- * NOTE on "active sessions": supabase-js does not expose a client-side API
- * to list a user's other sessions/devices individually (that requires the
- * Auth Admin API with a service-role key, which must never run in the
- * browser). Rather than fake a device list we can't actually revoke
- * individually, this page is upfront about that limit and offers the one
- * real, supported action instead: signing out every session except this
- * one in a single click (`supabase.auth.signOut({ scope: 'others' })`).
+ * NOTE on "active sessions": supabase-js still doesn't expose a client-side
+ * API to list or revoke a user's *auth sessions* individually (that needs
+ * the Auth Admin API with a service-role key, which must never run in the
+ * browser) — so "sign out everywhere else" below remains the only lever
+ * over sessions themselves.
+ *
+ * "Trusted devices" further down is a separate, self-built mechanism (the
+ * `trusted_devices` table + the `trusted-device` edge function): it doesn't
+ * list Supabase sessions, it lists which browsers have completed the
+ * 6-digit-code step-up and can be individually revoked from here, which
+ * forces that specific browser back through OTP on its next login.
  */
 export function SecuritySettingsPage() {
   const { isOwner, profile, user } = useAuth();
@@ -71,6 +76,11 @@ export function SecuritySettingsPage() {
   const [auditLoading, setAuditLoading] = useState(true);
 
   const [signingOutOthers, setSigningOutOthers] = useState(false);
+
+  const [devices, setDevices] = useState<TrustedDeviceRow[]>([]);
+  const [devicesLoading, setDevicesLoading] = useState(true);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<TrustedDeviceRow | null>(null);
 
   const loadFactors = useCallback(async () => {
     setMfaLoading(true);
@@ -93,10 +103,23 @@ export function SecuritySettingsPage() {
     setAuditLoading(false);
   }, [isOwner, profile]);
 
+  const loadDevices = useCallback(async () => {
+    setDevicesLoading(true);
+    try {
+      const rows = await listTrustedDevices();
+      setDevices(rows);
+    } catch {
+      setDevices([]);
+    } finally {
+      setDevicesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadFactors();
     loadAuditLog();
-  }, [loadFactors, loadAuditLog]);
+    loadDevices();
+  }, [loadFactors, loadAuditLog, loadDevices]);
 
   if (!isOwner) {
     return (
@@ -172,6 +195,26 @@ export function SecuritySettingsPage() {
     setSigningOutOthers(false);
     if (error) toast(`Could not sign out other sessions: ${error.message}`, 'error');
     else toast('Every other session has been signed out.', 'success');
+  };
+
+  const handleRevokeDevice = async () => {
+    if (!revokeTarget) return;
+    setRevokingId(revokeTarget.id);
+    try {
+      await revokeTrustedDevice(revokeTarget.id);
+      toast(
+        revokeTarget.is_current
+          ? "That device is no longer trusted — you'll be asked for a code the next time you sign in from it."
+          : 'That device is no longer trusted.',
+        'success'
+      );
+      await loadDevices();
+    } catch {
+      toast('Could not remove that device. Please try again.', 'error');
+    } finally {
+      setRevokingId(null);
+      setRevokeTarget(null);
+    }
   };
 
   const verifiedFactor = factors.find((f) => f.status === 'verified');
@@ -305,6 +348,66 @@ export function SecuritySettingsPage() {
         </button>
       </div>
 
+      {/* Trusted devices */}
+      <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+            <Laptop size={18} />
+          </span>
+          <div>
+            <h2 className="text-base font-semibold text-text-primary">Trusted devices</h2>
+            <p className="text-xs text-text-secondary">
+              Devices that have completed a 6-digit code check and can sign in without one again.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {devicesLoading ? (
+            <div className="space-y-2">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="h-14 w-full animate-pulse rounded-xl bg-bg-tertiary" />
+              ))}
+            </div>
+          ) : devices.length === 0 ? (
+            <p className="text-sm text-text-secondary">
+              No trusted devices yet — you'll be asked for a code the next time you sign in anywhere.
+            </p>
+          ) : (
+            devices.map((d) => (
+              <div
+                key={d.id}
+                className="flex items-center justify-between rounded-xl border border-border px-4 py-3"
+              >
+                <div>
+                  <p className="text-sm font-medium text-text-primary">
+                    {d.device_name || 'Unknown device'}
+                    {d.is_current && (
+                      <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                        This device
+                      </span>
+                    )}
+                  </p>
+                  <p className="mt-0.5 text-xs text-text-secondary">
+                    Last used {new Date(d.last_used_at).toLocaleDateString()} · Expires{' '}
+                    {new Date(d.expires_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRevokeTarget(d)}
+                  disabled={revokingId === d.id}
+                  className="focus-ring flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger/10 disabled:opacity-50"
+                >
+                  <Trash2 size={13} />
+                  Remove
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
       {/* Audit log */}
       <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
         <div className="flex items-center gap-3">
@@ -353,6 +456,19 @@ export function SecuritySettingsPage() {
         confirmLabel="Yes, remove 2FA"
         onConfirm={handleUnenroll}
         onCancel={() => setUnenrollTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={!!revokeTarget}
+        title="Remove this trusted device?"
+        description={
+          revokeTarget?.is_current
+            ? "This is the device you're using right now. You'll need a fresh 6-digit code the next time you sign in from it."
+            : `The next sign-in from "${revokeTarget?.device_name ?? 'this device'}" will require a 6-digit code again.`
+        }
+        confirmLabel="Yes, remove device"
+        onConfirm={handleRevokeDevice}
+        onCancel={() => setRevokeTarget(null)}
       />
     </DashboardLayout>
   );

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Quote, Star } from 'lucide-react';
+import { ArrowRight, Sparkles, Quote, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { CountUp } from '@/components/ui/CountUp';
 import { EASE, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
@@ -145,6 +146,22 @@ export function SocialProof() {
               </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Link to the full testimonials page */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={{ duration: 0.5, ease: EASE }}
+          className="mt-8 flex justify-center"
+        >
+          <Link
+            to="/testimonials"
+            className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-accent transition-colors hover:text-accent/80"
+          >
+            Read more contractor stories <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </motion.div>
 
         {/* Founding Contractors CTA */}

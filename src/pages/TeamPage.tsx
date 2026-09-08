@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Plus, X, Trash2, ShieldCheck, Mail, User as UserIcon, Check, Lock, Eye, CreditCard, Users, Settings, Wrench, Loader as Loader2, CircleUser as UserCircle } from 'lucide-react';
+import { Plus, X, Trash2, ShieldCheck, Mail, Check, Lock, Eye, CreditCard, Users, Settings, Wrench, Loader as Loader2, CircleUser as UserCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -73,20 +73,35 @@ function InviteModal({
     e.preventDefault();
     if (!email.trim() || !user) return;
     setSubmitting(true);
+    const cleanEmail = email.trim().toLowerCase();
     try {
       const { error } = await supabase.from('team_members').insert({
         account_owner_id: user.id,
-        member_email: email.trim(),
+        member_email: cleanEmail,
         member_name: name.trim() || null,
         role,
         permissions: perms,
         invite_status: 'pending',
       });
       if (error) throw error;
-      toast(`Invitation sent to ${email.trim()}.`, 'success');
+
+      // The row is saved either way — the email is a courtesy on top of it,
+      // so a failed send should never block adding the team member.
+      const { error: emailError } = await supabase.functions.invoke('send-team-invite', {
+        body: { memberEmail: cleanEmail, memberName: name.trim() || null, role },
+      });
+
+      if (emailError) {
+        toast(
+          `${cleanEmail} was added, but the invite email failed to send. Use "Resend invite" to try again.`,
+          'info',
+        );
+      } else {
+        toast(`Invitation email sent to ${cleanEmail}.`, 'success');
+      }
       onInvited();
     } catch {
-      toast('Could not send invitation. Please try again.', 'error');
+      toast('Could not add team member. Please try again.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -265,8 +280,6 @@ function EditModal({
       setSaving(false);
     }
   };
-
-  const inputClass = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary';
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -492,6 +505,23 @@ export function TeamPage() {
     }
   };
 
+  const handleResendInvite = async (member: TeamMember) => {
+    try {
+      const { error } = await supabase.functions.invoke('send-team-invite', {
+        body: {
+          memberEmail: member.member_email,
+          memberName: member.member_name,
+          role: member.role,
+        },
+      });
+      if (error) throw error;
+      toast(`Invite resent to ${member.member_email}.`, 'success');
+      loadMembers();
+    } catch {
+      toast('Could not resend the invite. Please try again.', 'error');
+    }
+  };
+
   const handleInvited = () => {
     setShowInvite(false);
     loadMembers();
@@ -627,6 +657,15 @@ export function TeamPage() {
               </span>
               {isOwner && (
                 <div className="flex items-center gap-1">
+                  {member.invite_status === 'pending' && (
+                    <button
+                      type="button"
+                      onClick={() => handleResendInvite(member)}
+                      className="focus-ring flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      <Mail size={14} /> Resend invite
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => setEditingMember(member)}

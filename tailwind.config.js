@@ -4,37 +4,53 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        display: ['"Sora"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      letterSpacing: {
+        tightest: '-0.045em',
+      },
+      fontSize: {
+        // Was referenced sitewide via eyebrowClass()/sectionHeadingClass() but
+        // never defined, so every section-label kicker silently fell back to
+        // the browser default size instead of the intended small-caps label.
+        eyebrow: ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.02em' }],
+      },
       colors: {
-        // ایندیگو پریمیوم (سبک Linear/Stripe) — حالا به CSS variable وصله، پس دارک‌مود واقعی داره
+        // Signal cobalt — the one confident brand color. Wired to a CSS
+        // variable so dark mode gets a real, separately-tuned value
+        // instead of the same hex dimmed with opacity.
         accent: {
           DEFAULT: 'rgb(var(--accent-primary) / <alpha-value>)',
-          hover: '#4338CA',
-          light: '#EEF2FF',
-          50: '#EEF2FF',
-          100: '#E0E4FF',
-          200: '#C7CCFB',
-          300: '#A5ACF7',
-          400: '#7C82F0',
-          500: '#5B54EA',
-          600: '#4F46E5',
-          700: '#4338CA',
-          800: '#362FA3',
-          900: '#2A2483',
-          950: '#171344',
+          hover: '#1A2FAE',
+          light: '#EEF1FF',
+          50: '#EEF1FF',
+          100: '#DCE2FE',
+          200: '#B9C5FD',
+          300: '#8FA0FB',
+          400: '#5E72F5',
+          500: '#3448E8',
+          600: '#203AD8',
+          700: '#1A2FAE',
+          800: '#172887',
+          900: '#16256C',
+          950: '#0D1440',
         },
-        // بنفش الکتریکی (سبک Stripe)
+        // Signal copper — reserved for live/urgent moments (active calls,
+        // emergency detection). Deliberately never used as a CTA color so
+        // it keeps its meaning as "something is happening right now".
         cta: {
           DEFAULT: 'rgb(var(--accent-secondary) / <alpha-value>)',
-          50: '#F6F4FF',
-          100: '#ECE7FF',
-          200: '#D9CFFF',
-          300: '#BEA6FF',
-          400: '#9D75FF',
-          500: '#7C4DFF',
-          600: '#6C2FF2',
-          700: '#5A21C4',
-          800: '#481A9C',
-          900: '#38157A',
+          50: '#FDF3EE',
+          100: '#FBE3D7',
+          200: '#F5C3AB',
+          300: '#EE9C76',
+          400: '#E57849',
+          500: '#D6582A',
+          600: '#B8451E',
+          700: '#93361A',
+          800: '#742C19',
+          900: '#5E2417',
         },
         ai: 'rgb(var(--accent-secondary) / <alpha-value>)',
         'bg-primary': 'rgb(var(--bg-primary) / <alpha-value>)',
@@ -59,14 +75,14 @@ export default {
         md: '12px',
       },
       boxShadow: {
-        sm: '0 1px 2px rgba(0,0,0,0.04)',
-        md: '0 4px 12px rgba(0,0,0,0.08)',
-        card: '0 1px 2px rgb(15 23 42 / 0.04), 0 10px 30px -24px rgb(15 23 42 / 0.28)',
-        'card-hover': '0 18px 50px -28px rgb(15 23 42 / 0.32), 0 8px 18px -12px rgb(79 70 229 / 0.18)',
-        'card-dark': '0 1px 2px rgb(0 0 0 / 0.35), 0 18px 44px -28px rgb(0 0 0 / 0.75)',
-        'card-hover-dark': '0 22px 60px -30px rgb(0 0 0 / 0.85), 0 8px 22px -14px rgb(129 140 248 / 0.2)',
-        'glow-accent': '0 18px 42px -20px rgb(var(--accent-primary) / 0.45)',
-        'glow-cta': '0 18px 40px -18px rgb(var(--accent-secondary) / 0.45)',
+        sm: '0 1px 2px rgba(15,15,18,0.04)',
+        md: '0 2px 8px rgba(15,15,18,0.06)',
+        card: '0 1px 1px rgb(15 15 18 / 0.03), 0 6px 20px -14px rgb(15 15 18 / 0.22)',
+        'card-hover': '0 10px 32px -16px rgb(15 15 18 / 0.24), 0 4px 12px -8px rgb(32 58 216 / 0.14)',
+        'card-dark': '0 1px 1px rgb(0 0 0 / 0.4), 0 10px 28px -16px rgb(0 0 0 / 0.7)',
+        'card-hover-dark': '0 14px 38px -18px rgb(0 0 0 / 0.75), 0 4px 14px -8px rgb(108 130 255 / 0.18)',
+        'glow-accent': '0 12px 28px -14px rgb(var(--accent-primary) / 0.4)',
+        'glow-cta': '0 12px 26px -12px rgb(var(--accent-secondary) / 0.4)',
       },
       keyframes: {
         // نوار حرکتی راست‌به‌چپ و بی‌درز برای Live AI Activity Stream.

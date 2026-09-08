@@ -26,8 +26,8 @@ export function PricingTeaser() {
             {'14-Day Free Trial — No Credit Card Required'}
           </span>
           <p className={`${eyebrowClass()} mt-6 sm:mt-8`}>{'Pricing'}</p>
-          <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'Simple Pricing. No Surprises.'}</h2>
-          <p className={`${bodyClass()} text-sm sm:text-base md:text-lg`}>{'Pick a plan, cancel anytime.'}</p>
+          <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'Every Plan Is a Full-Time Receptionist.'}</h2>
+          <p className={`${bodyClass()} text-sm sm:text-base md:text-lg`}>{"Just one who never sleeps, never takes a sick day, and costs less than an hour of overtime."}</p>
         </motion.div>
 
         {/* Mobile: horizontal scroll cards */}
@@ -39,7 +39,7 @@ export function PricingTeaser() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
               transition={{ duration: 0.4, delay: index * 0.05, ease: EASE }}
-              className={`flex w-[75%] shrink-0 snap-center flex-col rounded-2xl p-5 ${
+              className={`relative flex w-[75%] shrink-0 snap-center flex-col rounded-2xl p-5 ${
                 plan.recommended
                   ? 'border-2 border-accent bg-bg-secondary shadow-glow-accent'
                   : 'border border-border bg-bg-secondary shadow-card dark:shadow-card-dark'

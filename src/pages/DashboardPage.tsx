@@ -6,10 +6,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { UsageAlertBanner } from '@/pages/BillingPage';
-import { supabase, Call, Job, Lead, AiInsight } from '@/lib/supabase';
+import { supabase, Call, Job, Lead, AiInsight, BusinessProfile } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
+import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
 
 // ============================================================
 // SHARED UI PRIMITIVES
@@ -258,7 +259,7 @@ function NeedsAttention({ items, onInsightClick }: { items: AttentionItem[]; onI
                 }}
                 className={`flex items-start gap-3 rounded-xl border-l-4 ${config.color} px-4 py-3.5 ${item.type === 'insight' && onInsightClick ? 'cursor-pointer' : ''}`}
               >
-                                <item.icon size={20} className={`mt-0.5 shrink-0 ${config.iconColor}`} />
+                <item.icon size={20} className={`mt-0.5 shrink-0 ${config.iconColor}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-text-primary">{item.title}</p>
@@ -374,19 +375,21 @@ export function DashboardPage() {
   const [insights, setInsights] = useState<AiInsight[]>([]);
   const [allCalls, setAllCalls] = useState<Call[]>([]);
   const [allJobs, setAllJobs] = useState<Job[]>([]);
+  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     if (!user) return;
     setDataLoading(true);
     try {
-      const [callsRes, jobsRes, leadsRes, insightsRes, allCallsRes, allJobsRes] = await Promise.all([
+      const [callsRes, jobsRes, leadsRes, insightsRes, allCallsRes, allJobsRes, businessProfileRes] = await Promise.all([
         supabase.from('calls').select('*').order('call_datetime', { ascending: false }).limit(20),
         supabase.from('jobs').select('*').order('created_at', { ascending: false }).limit(20),
         supabase.from('leads').select('*').order('created_at', { ascending: false }),
         supabase.from('ai_insights').select('*').eq('is_dismissed', false).order('created_at', { ascending: false }),
         supabase.from('calls').select('*').order('call_datetime', { ascending: false }),
         supabase.from('jobs').select('*').order('created_at', { ascending: false }),
+        supabase.from('business_profile').select('*').maybeSingle(),
       ]);
 
       if (callsRes.data) setCalls(callsRes.data as Call[]);
@@ -395,6 +398,7 @@ export function DashboardPage() {
       if (insightsRes.data) setInsights(insightsRes.data as AiInsight[]);
       if (allCallsRes.data) setAllCalls(allCallsRes.data as Call[]);
       if (allJobsRes.data) setAllJobs(allJobsRes.data as Job[]);
+      if (businessProfileRes.data) setBusinessProfile(businessProfileRes.data as BusinessProfile);
     } catch {
       // Data will show as empty states
     } finally {
@@ -518,7 +522,6 @@ export function DashboardPage() {
       date.setHours(0, 0, 0, 0);
       date.setDate(date.getDate() - i);
       const nextDate = new Date(date);
-            const nextDate = new Date(date);
       nextDate.setDate(nextDate.getDate() + 1);
       const count = allCalls.filter((c) => {
         const callDate = new Date(c.call_datetime);
@@ -718,6 +721,18 @@ export function DashboardPage() {
           )}
         </div>
 
+        {/* REVENUE RECOVERED — the number that actually proves Vireek's value */}
+        {!profileLoading && !dataLoading && (
+          <div className="mb-6">
+            <RevenueRecoveredCard
+              calls={allCalls}
+              jobs={allJobs}
+              businessHours={businessProfile?.business_hours ?? null}
+              planId={profile?.plan}
+            />
+          </div>
+        )}
+
         {/* PRIMARY KPI ROW */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {profileLoading || dataLoading ? (
@@ -779,7 +794,6 @@ export function DashboardPage() {
               <MetricCard
                 icon={Clock}
                 label="Minutes Used"
-                                label="Minutes Used"
                 value={`${metrics.minutesUsed} / ${metrics.minutesIncluded}`}
                 delay={0.2}
               >

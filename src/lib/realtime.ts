@@ -64,7 +64,6 @@ export function useRealtimeSubscription<T extends { [key: string]: unknown } = R
       cancelled = true;
       if (channel) supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.channelName, config.table, config.event, config.filter, config.enabled]);
 
   return status;

@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2 } from 'lucide-react';
+import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, BusinessProfile } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
 
 // ============================================================
 // CONSTANTS
@@ -86,6 +87,7 @@ export function BusinessProfilePage() {
   const [services, setServices] = useState<string[]>([]);
   const [newService, setNewService] = useState('');
   const [serviceArea, setServiceArea] = useState('');
+  const [googleReviewUrl, setGoogleReviewUrl] = useState('');
   const [greetingScript, setGreetingScript] = useState('');
   const [hours, setHours] = useState<HoursState>(defaultHours());
   const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>([]);
@@ -107,6 +109,7 @@ export function BusinessProfilePage() {
         setProfileId(bp.id);
         setServices(bp.services_offered ?? []);
         setServiceArea(bp.service_area ?? '');
+        setGoogleReviewUrl(bp.google_review_url ?? '');
         setGreetingScript(bp.greeting_script ?? '');
         setHours(hoursFromDb(bp.business_hours));
         setFaqs(bp.faqs ?? []);
@@ -176,6 +179,7 @@ export function BusinessProfilePage() {
         user_id: user.id,
         services_offered: services.length > 0 ? services : null,
         service_area: serviceArea.trim() || null,
+        google_review_url: googleReviewUrl.trim() || null,
         greeting_script: greetingScript.trim() || null,
         business_hours: hoursToDb(hours),
         faqs: cleanFaqs.length > 0 ? cleanFaqs : null,
@@ -324,6 +328,21 @@ export function BusinessProfilePage() {
               />
             </SectionCard>
 
+            {/* Google Review Link */}
+            <SectionCard
+              icon={Star}
+              title="Google Review Link"
+              description="Used to text customers a review request after a job is marked completed (see the Reviews page)."
+            >
+              <input
+                type="url"
+                value={googleReviewUrl}
+                onChange={(e) => setGoogleReviewUrl(e.target.value)}
+                placeholder="https://g.page/r/your-business/review"
+                className={inputClass}
+              />
+            </SectionCard>
+
             {/* Business Hours */}
             <SectionCard icon={Clock} title="Business Hours" description="When are you available to take calls and schedule jobs?">
               <div className="space-y-2">
@@ -431,6 +450,11 @@ export function BusinessProfilePage() {
                 <Plus size={16} /> Add FAQ
               </button>
             </SectionCard>
+
+            {/* Trust Badge — embeddable widget for the customer's own website */}
+            <div className="mt-6">
+              <EmbedWidgetCard />
+            </div>
 
             {/* Save bar */}
             <div className="sticky bottom-4 z-10 flex items-center justify-end gap-3 rounded-2xl border border-border bg-bg-secondary/95 p-4 shadow-card backdrop-blur-md dark:shadow-card-dark">

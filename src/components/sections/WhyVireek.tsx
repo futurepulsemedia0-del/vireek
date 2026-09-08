@@ -7,9 +7,13 @@ import { EASE, sectionHeadingClass, eyebrowClass, staggerContainer, fadeUpItem, 
 // ============================================================
 //
 // Deliberately compares against generic categories ("Traditional
-// Answering Service", "Voicemail / Missed Calls") rather than any
-// named competitor brand — every claim here is a factual, defensible
-// statement about how each category of solution typically behaves.
+// Answering Service", "Voicemail / Missed Calls", "Generic AI Voice Bot")
+// rather than any named competitor brand — every claim here is a factual,
+// defensible statement about how each category of solution typically
+// behaves. "Generic AI Voice Bot" covers the broad wave of general-purpose
+// AI phone agents that can hold a conversation but weren't built for the
+// trades — this is the comparison most buyers actually need in 2026, since
+// "why not just use voicemail" is no longer the real objection.
 
 type CellValue = 'yes' | 'no' | 'partial';
 
@@ -18,16 +22,18 @@ interface ComparisonRow {
   vireek: CellValue;
   answeringService: CellValue;
   voicemail: CellValue;
+  genericAI: CellValue;
 }
 
 const ROWS: ComparisonRow[] = [
-  { label: 'Answers every call, 24/7/365', vireek: 'yes', answeringService: 'partial', voicemail: 'no' },
-  { label: 'Books appointments automatically', vireek: 'yes', answeringService: 'no', voicemail: 'no' },
-  { label: 'Captures & qualifies leads instantly', vireek: 'yes', answeringService: 'partial', voicemail: 'no' },
-  { label: 'Syncs to your CRM in real time', vireek: 'yes', answeringService: 'no', voicemail: 'no' },
-  { label: 'Flags true emergencies for dispatch', vireek: 'yes', answeringService: 'partial', voicemail: 'no' },
-  { label: 'No hold times or hiring / training', vireek: 'yes', answeringService: 'no', voicemail: 'yes' },
-  { label: 'Live insights & call analytics', vireek: 'yes', answeringService: 'no', voicemail: 'no' },
+  { label: 'Answers every call, 24/7/365', vireek: 'yes', answeringService: 'partial', voicemail: 'no', genericAI: 'yes' },
+  { label: 'Trained for home-service trades (HVAC, electrical, plumbing…)', vireek: 'yes', answeringService: 'partial', voicemail: 'no', genericAI: 'no' },
+  { label: 'Books appointments automatically', vireek: 'yes', answeringService: 'no', voicemail: 'no', genericAI: 'partial' },
+  { label: 'Captures & qualifies leads instantly', vireek: 'yes', answeringService: 'partial', voicemail: 'no', genericAI: 'partial' },
+  { label: 'Syncs to your CRM in real time', vireek: 'yes', answeringService: 'no', voicemail: 'no', genericAI: 'partial' },
+  { label: 'Flags true emergencies for dispatch', vireek: 'yes', answeringService: 'partial', voicemail: 'no', genericAI: 'no' },
+  { label: 'No hold times or hiring / training', vireek: 'yes', answeringService: 'no', voicemail: 'yes', genericAI: 'yes' },
+  { label: 'Live insights & call analytics', vireek: 'yes', answeringService: 'no', voicemail: 'no', genericAI: 'partial' },
 ];
 
 function Cell({ value }: { value: CellValue }) {
@@ -72,8 +78,8 @@ export function WhyVireek() {
             Why home service teams are switching to Vireek
           </h2>
           <p className="mt-4 text-base leading-relaxed text-text-secondary">
-            See how an always-on AI receptionist stacks up against the two ways most
-            businesses handle calls today.
+            See how an always-on, trade-trained AI receptionist stacks up against the ways
+            most businesses handle calls today — including other AI voice tools.
           </p>
         </motion.div>
 
@@ -85,10 +91,10 @@ export function WhyVireek() {
           className="mt-14 overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark"
         >
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] border-collapse text-sm">
+            <table className="w-full min-w-[720px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="w-1/2 px-6 py-5 text-left text-sm font-semibold text-text-secondary">
+                  <th className="w-2/5 px-6 py-5 text-left text-sm font-semibold text-text-secondary">
                     Capability
                   </th>
                   <th className="px-4 py-5">
@@ -105,6 +111,11 @@ export function WhyVireek() {
                   <th className="px-4 py-5 text-center text-xs font-semibold text-text-secondary">
                     Voicemail /<br />
                     Missed Calls
+                  </th>
+                  <th className="px-4 py-5 text-center text-xs font-semibold text-text-secondary">
+                    Generic AI
+                    <br />
+                    Voice Bot
                   </th>
                 </tr>
               </thead>
@@ -126,6 +137,9 @@ export function WhyVireek() {
                     <td className="px-4 py-4 text-center">
                       <Cell value={row.voicemail} />
                     </td>
+                    <td className="px-4 py-4 text-center">
+                      <Cell value={row.genericAI} />
+                    </td>
                   </motion.tr>
                 ))}
               </motion.tbody>
@@ -140,7 +154,8 @@ export function WhyVireek() {
           transition={{ duration: 0.5, ease: EASE }}
           className="mt-5 text-center text-xs text-text-secondary/60"
         >
-          &ldquo;Partial&rdquo; reflects that outcome typically depending on staffing, hours, or manual follow-up.
+          &ldquo;Partial&rdquo; reflects that outcome typically depending on staffing, hours, manual
+          follow-up, or additional setup and integration work.
         </motion.p>
       </div>
     </section>

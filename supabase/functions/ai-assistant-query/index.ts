@@ -172,6 +172,53 @@ Deno.serve(async (req: Request) => {
     }
 
     // -------------------------------------------------------------
+    // Rate limit: authenticated users still get a cap (unlike the public
+    // demo chat, this is per-user rather than per-IP, and more generous
+    // since these are paying customers, not anonymous visitors). Same
+    // fixed-window pattern as `demo_chat_rate_limit` — see that table's
+    // migration for the reasoning. Uses the caller's own JWT-scoped
+    // client, so RLS (not a service-role bypass) enforces that a user can
+    // only ever touch their own counter row.
+    const RATE_LIMIT_MAX_PER_HOUR = 30;
+    const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+    const nowMs = Date.now();
+
+    const { data: existingLimit } = await supabase
+      .from("ai_assistant_rate_limit")
+      .select("window_start, request_count")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (existingLimit) {
+      const windowAgeMs = nowMs - new Date(existingLimit.window_start).getTime();
+      if (windowAgeMs < RATE_LIMIT_WINDOW_MS) {
+        if (existingLimit.request_count >= RATE_LIMIT_MAX_PER_HOUR) {
+          return new Response(
+            JSON.stringify({
+              error: "You've hit the AI Assistant's hourly question limit. Try again in a bit.",
+            }),
+            { status: 429, headers: jsonHeaders },
+          );
+        }
+        await supabase
+          .from("ai_assistant_rate_limit")
+          .update({ request_count: existingLimit.request_count + 1 })
+          .eq("user_id", user.id);
+      } else {
+        await supabase
+          .from("ai_assistant_rate_limit")
+          .update({ window_start: new Date(nowMs).toISOString(), request_count: 1 })
+          .eq("user_id", user.id);
+      }
+    } else {
+      await supabase.from("ai_assistant_rate_limit").insert({
+        user_id: user.id,
+        window_start: new Date(nowMs).toISOString(),
+        request_count: 1,
+      });
+    }
+
+    // -------------------------------------------------------------
     // Step 1: classify the question into a fixed intent (never SQL)
     // -------------------------------------------------------------
     const classifierSystem = `You turn a home-service business owner's question about their own call/lead/job data into ONE of a fixed set of intents. Respond with ONLY a JSON object shaped { "intent": "...", "period": "..." } (period only for "calls_count", optional otherwise) and nothing else — no prose, no markdown fences.

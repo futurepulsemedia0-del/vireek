@@ -1,6 +1,6 @@
-import { forwardRef, InputHTMLAttributes, useState } from 'react';
+import { forwardRef, InputHTMLAttributes, ReactNode, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Check, ArrowLeft } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Link } from 'react-router-dom';
 
@@ -13,7 +13,7 @@ export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
   return (
     <span className={`relative block ${size}`}>
       <img
-        src="/assets/logos/logo-dark.png.png"
+        src="/assets/logos/logo-dark.png"
         alt="Vireek"
         width={48}
         height={48}
@@ -24,7 +24,7 @@ export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
         }`}
       />
       <img
-        src="/assets/logos/logo-light.png.png"
+        src="/assets/logos/logo-light.png"
         alt=""
         aria-hidden="true"
         width={48}
@@ -474,5 +474,66 @@ export function AuthLegalLine() {
         .
       </span>
     </p>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Step transition — shared slide/fade wrapper for multi-step auth    */
+/*  flows (signup verification, forgot-password, etc.)                 */
+/* ------------------------------------------------------------------ */
+
+export function AuthStepTransition({
+  stepKey,
+  children,
+}: {
+  stepKey: string;
+  children: ReactNode;
+}) {
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={stepKey}
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -16 }}
+        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Back link — used to step back within a multi-step auth flow        */
+/* ------------------------------------------------------------------ */
+
+export function AuthBackLink({ onClick, label = 'Back' }: { onClick: () => void; label?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="focus-ring group mb-5 flex items-center gap-1.5 rounded text-sm font-medium text-text-secondary transition-colors hover:text-accent"
+    >
+      <ArrowLeft size={15} className="transition-transform duration-200 group-hover:-translate-x-0.5" />
+      {label}
+    </button>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Verification icon badge — used above the OTP step heading          */
+/* ------------------------------------------------------------------ */
+
+export function AuthIconBadge({ icon }: { icon: ReactNode }) {
+  return (
+    <motion.span
+      initial={{ scale: 0.6, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 340, damping: 22 }}
+      className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent"
+    >
+      {icon}
+    </motion.span>
   );
 }

@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Phone, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, sectionHeadingClass, viewport } from '@/lib/motion';
@@ -66,7 +66,7 @@ export function SignupForm() {
       } else {
         setError(true);
       }
-    } catch (err) {
+    } catch {
       setError(true);
     } finally {
       setLoading(false);

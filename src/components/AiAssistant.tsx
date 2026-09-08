@@ -64,12 +64,24 @@ function TypingIndicator() {
 }
 
 /**
- * Floating AI Assistant — step 12. Rendered once from DashboardLayout so it
- * appears consistently on every /dashboard/* page without every page needing
- * to know about it.
+ * Floating AI Assistant — rendered once from DashboardLayout so it appears
+ * consistently on every /dashboard/* page without every page needing to
+ * know about it.
+ *
+ * Positioning note: `AccessibilityWidget` (mounted globally in main.tsx) is
+ * also a fixed bottom-right button, at `bottom-5 right-5` (48px). This
+ * button used to sit at `bottom-6 right-6` (56px) — nearly the exact same
+ * spot — so on every dashboard page the two buttons rendered stacked
+ * directly on top of each other. This version sits higher up the same
+ * right-hand rail, aligned to the same right edge (`right-5`) with a clear
+ * ~24px gap above the accessibility button, and gets its own tooltip so
+ * it reads as a deliberate stack rather than a collision. If the
+ * accessibility button's offsets ever change, keep this one's `bottom`
+ * value at least (accessibility button height + gap) above it.
  */
 export function AiAssistant() {
   const [open, setOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
@@ -128,10 +140,13 @@ export function AiAssistant() {
       <motion.button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
         aria-label={open ? 'Close AI Assistant' : 'Open AI Assistant'}
+        aria-expanded={open}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent"
+        className="fixed bottom-[92px] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -144,6 +159,20 @@ export function AiAssistant() {
             {open ? <X size={22} /> : <MessageCircle size={22} />}
           </motion.span>
         </AnimatePresence>
+
+        <AnimatePresence>
+          {showTooltip && !open && (
+            <motion.span
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 8 }}
+              transition={{ duration: 0.15 }}
+              className="pointer-events-none absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-border bg-bg-secondary/95 px-3 py-1.5 text-xs font-medium text-text-primary shadow-lg backdrop-blur-xl"
+            >
+              Ask your data
+            </motion.span>
+          )}
+        </AnimatePresence>
       </motion.button>
 
       <AnimatePresence>
@@ -153,7 +182,10 @@ export function AiAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-24 right-6 z-40 flex h-[520px] w-[380px] max-w-[92vw] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
+            className="fixed bottom-[164px] right-5 z-40 flex h-[520px] w-[380px] max-w-[92vw] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
+            role="dialog"
+            aria-modal="true"
+            aria-label="AI Assistant"
           >
             <div className="flex items-center gap-2.5 border-b border-border px-4 py-3.5">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-ai/10 text-ai">

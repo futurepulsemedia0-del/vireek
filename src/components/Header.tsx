@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { LogIn, ArrowRight, ChevronDown, Wind, Droplets, Home, Zap, Flame } from 'lucide-react';
+import { LogIn, ArrowRight, ChevronDown } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NAV_LINKS } from '@/lib/site';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -16,7 +16,7 @@ function Logo({ size = 'h-9 w-9' }: { size?: string }) {
   return (
     <span className={`relative block shrink-0 ${size}`}>
       <img
-        src="/assets/logos/logo-dark.png.png"
+        src="/assets/logos/logo-dark.png"
         alt="Vireek"
         width={36}
         height={36}
@@ -27,7 +27,7 @@ function Logo({ size = 'h-9 w-9' }: { size?: string }) {
         }`}
       />
       <img
-        src="/assets/logos/logo-light.png.png"
+        src="/assets/logos/logo-light.png"
         alt=""
         aria-hidden="true"
         width={36}

@@ -23,7 +23,7 @@ export function TrustBar() {
           transition={{ duration: 0.5, ease: EASE }}
           className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-text-secondary/60 sm:text-xs sm:tracking-[0.18em]"
         >
-          Enterprise-grade infrastructure, built for contractors
+          Bank-grade infrastructure, priced for a contractor's truck
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 12 }}

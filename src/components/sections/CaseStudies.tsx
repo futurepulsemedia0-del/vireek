@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
-  XCircle, CheckCircle, TrendingUp, Clock, DollarSign,
-  PhoneMissed, PhoneCall, Quote,
+  XCircle, TrendingUp, Clock, DollarSign,
+  PhoneMissed, PhoneCall, Quote, ArrowRight,
 } from 'lucide-react';
 import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 
-interface CaseStudy {
+export interface CaseStudy {
+  slug: string;
   name: string;
   business: string;
   industry: string;
@@ -16,8 +18,9 @@ interface CaseStudy {
   result: string;
 }
 
-const CASE_STUDIES: CaseStudy[] = [
+export const CASE_STUDIES: CaseStudy[] = [
   {
+    slug: 'ramirez-plumbing',
     name: 'Marcus R.',
     business: 'Ramirez Plumbing',
     industry: 'Plumbing',
@@ -28,6 +31,7 @@ const CASE_STUDIES: CaseStudy[] = [
     result: 'Saved a $2,800 emergency job',
   },
   {
+    slug: 'apex-heating-air',
     name: 'Jenna T.',
     business: 'Apex Heating & Air',
     industry: 'HVAC',
@@ -38,6 +42,7 @@ const CASE_STUDIES: CaseStudy[] = [
     result: '6 jobs booked while on-site',
   },
   {
+    slug: 'volt-electric',
     name: 'Steve K.',
     business: 'Volt Electric',
     industry: 'Electrical',
@@ -93,9 +98,10 @@ export function CaseStudies() {
           {CASE_STUDIES.map((study) => (
             <motion.div
               key={study.name}
+              id={study.slug}
               variants={fadeUpItem}
               transition={{ duration: 0.5, ease: EASE }}
-              className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+              className="flex h-full scroll-mt-28 flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
             >
               {/* Profile header */}
               <div className="flex items-center gap-3 border-b border-border p-5">
@@ -148,6 +154,21 @@ export function CaseStudies() {
         >
           These are early-access partner stories. Want to be featured here? Join our founding contractor program.
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={viewport}
+          transition={{ duration: 0.5, delay: 0.28, ease: EASE }}
+          className="mt-4 text-center"
+        >
+          <Link
+            to="/case-studies"
+            className="focus-ring inline-flex items-center gap-1.5 rounded text-sm font-semibold text-accent transition-colors hover:text-cta"
+          >
+            View all case studies <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

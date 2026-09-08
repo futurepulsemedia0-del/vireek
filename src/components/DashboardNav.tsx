@@ -7,6 +7,7 @@ import {
   Menu,
   X,
   LayoutDashboard,
+  Calendar,
   TrendingUp,
   PhoneCall,
   Users,
@@ -17,6 +18,7 @@ import {
   CreditCard,
   Plug,
   ChevronDown,
+  Star,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -41,11 +43,13 @@ interface NavItem {
 // further.
 const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
+  { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
 ];
 
 const ACCOUNT_ITEMS: NavItem[] = [

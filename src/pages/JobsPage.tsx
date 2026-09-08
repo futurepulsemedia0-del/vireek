@@ -14,11 +14,11 @@ import {
   ChevronDown,
   GripVertical,
   Check,
-  Circle,
   FileText,
   Trash2,
   LayoutGrid,
   List,
+  Star,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -70,16 +70,6 @@ function formatDateTime(dateStr: string | null): string {
     hour: 'numeric',
     minute: '2-digit',
   });
-}
-
-function formatTimeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(hours / 24);
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  const mins = Math.floor(diff / 60000);
-  return mins > 0 ? `${mins}m ago` : 'just now';
 }
 
 function initials(name: string): string {
@@ -246,6 +236,7 @@ function JobDetailPanel({
   onUpdateTechnician,
   onUpdateInvoice,
   onDelete,
+  onRequestReview,
 }: {
   job: Job;
   technicians: TeamMember[];
@@ -254,6 +245,7 @@ function JobDetailPanel({
   onUpdateTechnician: (techId: string | null) => void;
   onUpdateInvoice: (amount: number | null, status: InvoiceStatus) => void;
   onDelete: () => void;
+  onRequestReview: (job: Job) => void;
 }) {
   const [invoiceAmount, setInvoiceAmount] = useState(job.invoice_amount?.toString() ?? '');
   const [invoiceStatus, setInvoiceStatus] = useState<InvoiceStatus>(job.invoice_status);
@@ -311,6 +303,10 @@ function JobDetailPanel({
           <div className="rounded-xl border border-border bg-bg-primary p-3">
             <p className="text-xs text-text-secondary">Address</p>
             <p className="mt-1 text-sm font-medium text-text-primary truncate">{job.address || '—'}</p>
+          </div>
+          <div className="col-span-2 rounded-xl border border-border bg-bg-primary p-3">
+            <p className="text-xs text-text-secondary">Customer Phone</p>
+            <p className="mt-1 text-sm font-medium text-text-primary">{job.customer_phone || '— not on file —'}</p>
           </div>
         </div>
 
@@ -430,6 +426,29 @@ function JobDetailPanel({
           )}
         </div>
 
+        {/* Request a review — only once the job is actually done */}
+        {job.job_status === 'completed' && (
+          <div className="rounded-xl border border-accent/20 bg-accent/5 p-4">
+            <p className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+              <Star size={12} /> Review Request
+            </p>
+            <p className="mt-1.5 text-sm text-text-primary">
+              Text {job.customer_name.split(' ')[0]} a link to leave a Google review while the job is fresh.
+            </p>
+            <button
+              type="button"
+              onClick={() => onRequestReview(job)}
+              disabled={!job.customer_phone}
+              className="focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Star size={16} /> Request a Review
+            </button>
+            {!job.customer_phone && (
+              <p className="mt-1.5 text-xs text-danger">Add a customer phone number to enable this.</p>
+            )}
+          </div>
+        )}
+
         {/* Delete */}
         <div className="border-t border-border pt-4">
           <button
@@ -469,6 +488,7 @@ function CreateJobModal({
   onCreated: () => void;
 }) {
   const [customerName, setCustomerName] = useState(prefill?.customer_name ?? '');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [serviceType, setServiceType] = useState(prefill?.service_type ?? '');
   const [address, setAddress] = useState('');
   const [scheduledDate, setScheduledDate] = useState('');
@@ -482,6 +502,7 @@ function CreateJobModal({
     try {
       const insert: Record<string, unknown> = {
         customer_name: customerName.trim(),
+        customer_phone: customerPhone.trim() || null,
         service_type: serviceType.trim() || null,
         address: address.trim() || null,
         job_status: 'scheduled',
@@ -532,6 +553,17 @@ function CreateJobModal({
               placeholder="e.g. John Smith"
               className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
             />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-text-primary">Customer Phone</label>
+            <input
+              type="tel"
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="e.g. +1 555 123 4567"
+              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
+            />
+            <p className="mt-1 text-xs text-text-secondary/70">Used to text the customer a review request once the job is done.</p>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text-primary">Service Type</label>
@@ -872,6 +904,45 @@ export function JobsPage() {
       toast('Invoice updated.', 'success');
     } catch {
       toast('Could not update invoice.', 'error');
+    }
+  };
+
+  const requestReview = async (job: Job) => {
+    if (!job.customer_phone) {
+      toast('Add a phone number for this job before requesting a review.', 'error');
+      return;
+    }
+    try {
+      const { data: bp } = await supabase
+        .from('business_profile')
+        .select('google_review_url')
+        .maybeSingle();
+      const reviewUrl = (bp as { google_review_url: string | null } | null)?.google_review_url;
+      if (!reviewUrl) {
+        toast('Add your Google review link on the Business Profile page first.', 'error');
+        navigate('/dashboard/business-profile');
+        return;
+      }
+
+      const businessName = profile?.company_name || 'us';
+      const firstName = job.customer_name.split(' ')[0];
+      const message = `Hi ${firstName}, thanks for choosing ${businessName}! Mind leaving us a quick review? ${reviewUrl}`;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const separator = isIOS ? '&' : '?';
+      const smsHref = `sms:${job.customer_phone}${separator}body=${encodeURIComponent(message)}`;
+
+      const { error } = await supabase.from('review_requests').insert({
+        job_id: job.id,
+        customer_name: job.customer_name,
+        customer_phone: job.customer_phone,
+        status: 'sent',
+      });
+      if (error) throw error;
+
+      window.open(smsHref, '_self');
+      toast('Review request text is ready to send.', 'success');
+    } catch {
+      toast('Could not create the review request. Please try again.', 'error');
     }
   };
 
@@ -1270,6 +1341,7 @@ export function JobsPage() {
               onUpdateTechnician={updateTechnician}
               onUpdateInvoice={updateInvoice}
               onDelete={handleDelete}
+              onRequestReview={requestReview}
             />
           </>
         )}

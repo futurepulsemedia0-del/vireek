@@ -72,9 +72,11 @@ export interface Job {
   lead_id: string | null;
   call_id: string | null;
   customer_name: string;
+  customer_phone: string | null;
   service_type: string | null;
   address: string | null;
   scheduled_datetime: string | null;
+  duration_minutes: number | null;
   assigned_technician_id: string | null;
   job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled';
   invoice_amount: number | null;
@@ -90,6 +92,7 @@ export interface BusinessProfile {
   greeting_script: string | null;
   faqs: { question: string; answer: string }[] | null;
   service_area: string | null;
+  google_review_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -107,6 +110,7 @@ export interface TeamMember {
     can_view_all_jobs: boolean;
   };
   invite_status: 'pending' | 'active';
+  last_invited_at: string | null;
   created_at: string;
 }
 
@@ -126,5 +130,18 @@ export interface AiInsight {
   title: string;
   description: string;
   is_dismissed: boolean;
+  created_at: string;
+}
+
+export interface ReviewRequest {
+  id: string;
+  user_id: string;
+  job_id: string | null;
+  customer_name: string;
+  customer_phone: string | null;
+  status: 'sent' | 'completed' | 'declined';
+  rating: number | null;
+  sent_at: string;
+  completed_at: string | null;
   created_at: string;
 }

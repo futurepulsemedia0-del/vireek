@@ -8,12 +8,9 @@ import {
   Zap,
   Plug,
   Check,
-  X,
   Loader as Loader2,
   Link2,
   Link2Off,
-  Copy,
-  ArrowLeft,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';

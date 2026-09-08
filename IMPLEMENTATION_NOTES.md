@@ -159,3 +159,46 @@ substitute for actually building it.
 - Per-user rate limiting on `ai-assistant-query` if usage costs warrant it.
 - A design QA pass specifically in dark mode across every page (I checked the *new*
   components carefully; I didn't re-review the ~11,000 lines of pre-existing pages).
+
+## 4. This pass (bug fix + cleanup + competitor gap check)
+
+- **Fixed a real deployment bug**: `supabase/functions/demo-chat-index.ts` was sitting
+  directly in `supabase/functions/` instead of its own `demo-chat/` folder. Supabase Edge
+  Functions require `supabase/functions/<name>/index.ts` — as it shipped, `supabase
+  functions deploy demo-chat` would not have found this file at all. Moved to
+  `supabase/functions/demo-chat/index.ts` (the file's own header comment already said this
+  was the intended path).
+- **Closed the "no rate limit on `ai-assistant-query`" gap** called out as open in section 3
+  above: added `ai_assistant_rate_limit` (migration
+  `20260904000000_ai_assistant_rate_limit.sql`) and wired a 30-questions/hour-per-user cap
+  into the function, using the same fixed-window approach as `demo_chat_rate_limit` but
+  RLS-scoped to the caller's own row instead of a service-role bypass (authenticated users,
+  not anonymous visitors).
+- **Repo cleanup**: the zip this was exported from had ~90 stale, unused duplicate files
+  sitting loose at the project root — older copies of nearly every file in `src/`
+  (confirmed by diff: e.g. the root `App.tsx`/`Footer.tsx` were missing routes and features
+  present in `src/App.tsx`/`src/components/Footer.tsx`), plus root copies of every SQL
+  migration, every public/ asset, and export artifacts (`download`, `download (1)`,
+  `config.json`, `.bolt/`, `*.timestamp-*.mjs`, `* - Copy.*`). None of it was reachable from
+  the build (`index.html` loads `/src/main.tsx`; the `@` alias in `vite.config.ts` points at
+  `/src`), so it was dead weight that only risked someone editing the wrong copy. Removed;
+  only the real project tree remains.
+- **Static review**: grepped the whole `src/` tree for the usual suspects — leftover
+  `console.log`, `@ts-ignore`, `dangerouslySetInnerHTML`, hardcoded API keys/secrets,
+  `window.confirm`/`alert` — none found. The codebase was already clean on these.
+- **Competitor check** (Podium, Birdeye/Weave-style tools, My AI Front Desk, Frontdesk —
+  all missed-call-text-back / AI-receptionist products as of 2026): Vireek's current page
+  set already matches or exceeds their public feature list — 24/7 AI call answering,
+  automatic missed-call text-back, lead capture + booking, CRM-style Leads/Jobs pipeline,
+  a public ROI/missed-call calculator (`CalculatorPage`), a head-to-head `ComparePage`,
+  industry-specific landing pages, and a live typed chat demo. Nothing found in this
+  research that's a clear, currently-missing must-have; the "what's left" list in section 3
+  above (full `AnalyticsPage.tsx` memoization/bundle audit, `pg_cron` decision, dark-mode QA
+  across older pages) remains the honest list of open items — this pass didn't attempt
+  those, to avoid shipping unverified changes to a 1,177-line file with no way to build or
+  run it in this environment (no network access here, so no `npm install`/`build`/
+  `typecheck` — same limitation the prior pass flagged; both edited edge functions were
+  transpile-checked for syntax, nothing more).
+
+**Before merging**: run `npm install && npm run typecheck && npm run build` locally, apply
+the new migration, and redeploy both `demo-chat` (path changed) and `ai-assistant-query`.

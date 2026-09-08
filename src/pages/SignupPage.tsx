@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Mail, Lock, User, Check, X } from 'lucide-react';
+import { Mail, Lock, User, Check, X, MailCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -15,7 +15,14 @@ import {
   GoogleButton,
   AuthSubmitButton,
   AuthLegalLine,
+  AuthStepTransition,
+  AuthBackLink,
+  AuthIconBadge,
 } from '@/components/auth/AuthParts';
+import { OtpEntry } from '@/components/auth/OtpEntry';
+import { registerTrustedDevice } from '@/lib/deviceTrust';
+
+type SignupStep = 'form' | 'verify';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -47,7 +54,6 @@ export function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showConfirm, setShowConfirm] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   const [nameTouched, setNameTouched] = useState(false);
@@ -64,9 +70,15 @@ export function SignupPage() {
   const [authError, setAuthError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [step, setStep] = useState<SignupStep>('form');
+  const [pendingEmail, setPendingEmail] = useState('');
+
+  // Only auto-redirect on an existing session while we're still on the plain
+  // form — once we're in the verify step we want to play the OTP success
+  // animation ourselves before navigating (see handleOtpSuccess below).
   useEffect(() => {
-    if (!loading && session) navigate('/dashboard', { replace: true });
-  }, [session, loading, navigate]);
+    if (!loading && session && step === 'form') navigate('/dashboard', { replace: true });
+  }, [session, loading, step, navigate]);
 
   const validateName = useCallback(() => {
     if (fullName.trim().length < 2) {
@@ -158,9 +170,21 @@ export function SignupPage() {
       if (error) throw error;
 
       if (data.user && !data.session) {
-        setShowSuccess(true);
-        toast('Account created! Check your email to verify.', 'success');
+        // Email confirmation is required. Supabase's "Confirm signup" email
+        // carries both a magic link (works instantly if opened on this same
+        // device/browser — session syncs across tabs automatically) and a
+        // 6-digit code (works anywhere, e.g. checking mail on your phone).
+        setPendingEmail(email.trim());
+        setStep('verify');
       } else if (data.session) {
+        // No email confirmation required (e.g. disabled in the Supabase
+        // dashboard) — the account is fully live immediately, so this
+        // browser is by definition the first verified device for it.
+        try {
+          await registerTrustedDevice();
+        } catch {
+          /* Non-fatal: worst case this device gets asked for OTP on next login. */
+        }
         setShowSuccess(true);
         toast('Welcome to Vireek!', 'success');
         setTimeout(() => navigate('/dashboard', { replace: true }), 600);
@@ -176,6 +200,49 @@ export function SignupPage() {
       setSubmitting(false);
     }
   };
+
+  const handleVerifyOtp = useCallback(
+    async (code: string): Promise<{ success: boolean; error?: string }> => {
+      try {
+        const { error } = await supabase.auth.verifyOtp({
+          email: pendingEmail,
+          token: code,
+          type: 'email',
+        });
+        if (error) {
+          const msg = error.message.toLowerCase();
+          if (msg.includes('expired')) {
+            return { success: false, error: 'This code has expired. Send a new one below.' };
+          }
+          return { success: false, error: "That code isn't right — try again." };
+        }
+        try {
+          await registerTrustedDevice();
+        } catch {
+          /* Non-fatal: worst case this device gets asked for OTP on next login. */
+        }
+        toast('Welcome to Vireek!', 'success');
+        return { success: true };
+      } catch {
+        return { success: false, error: 'Something went wrong verifying that code.' };
+      }
+    },
+    [pendingEmail, toast]
+  );
+
+  const handleResendOtp = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await supabase.auth.resend({ type: 'signup', email: pendingEmail });
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch {
+      return { success: false, error: "Couldn't resend the code. Try again shortly." };
+    }
+  }, [pendingEmail]);
+
+  const handleOtpSuccess = useCallback(() => {
+    navigate('/dashboard', { replace: true });
+  }, [navigate]);
 
   const handleGoogleSignUp = async () => {
     setAuthError('');
@@ -204,6 +271,34 @@ export function SignupPage() {
         <ThemeToggle />
       </div>
 
+      <AuthStepTransition stepKey={step}>
+      {step === 'verify' ? (
+        <div className="flex flex-col items-center text-center">
+          <AuthIconBadge icon={<MailCheck size={22} />} />
+          <h1 className="text-2xl font-bold tracking-tight text-text-primary">Verify your email</h1>
+          <p className="mx-auto mt-1.5 max-w-[320px] text-sm leading-relaxed text-text-secondary">
+            We sent a 6-digit code and a confirmation link to{' '}
+            <span className="font-semibold text-text-primary">{pendingEmail}</span>. Enter the
+            code below — or open the link on this device and we&rsquo;ll sign you in
+            automatically.
+          </p>
+
+          <div className="mt-8 w-full">
+            <OtpEntry
+              length={6}
+              onVerify={handleVerifyOtp}
+              onResend={handleResendOtp}
+              externalSuccess={!!session}
+              onSuccessSettled={handleOtpSuccess}
+            />
+          </div>
+
+          <div className="mt-8">
+            <AuthBackLink onClick={() => setStep('form')} label="Wrong email? Go back" />
+          </div>
+        </div>
+      ) : (
+        <>
       {/* Heading */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-text-primary">Create your account</h1>
@@ -418,6 +513,9 @@ export function SignupPage() {
       </div>
 
       <AuthLegalLine />
+        </>
+      )}
+      </AuthStepTransition>
     </AuthShell>
   );
 }

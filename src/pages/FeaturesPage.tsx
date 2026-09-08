@@ -27,6 +27,7 @@ type Feature = {
   icon: LucideIcon;
   title: string;
   body: string;
+  href?: string;
 };
 
 type Category = {
@@ -53,7 +54,7 @@ const CATEGORIES: Category[] = [
     tagline: 'From first call to qualified lead — automatically.',
     features: [
       { icon: UserPlus, title: 'Customer Capture', body: 'Every caller\u2019s name, number, and issue is logged the moment they reach out.' },
-      { icon: UserPlus, title: 'Lead Qualification', body: 'Sarah asks trade-relevant questions to separate routine service from urgent issues.' },
+      { icon: UserPlus, title: 'Lead Qualification', body: 'Sarah asks trade-relevant questions to separate routine service from urgent issues.', href: '/features/lead-qualification' },
       { icon: UserPlus, title: 'Deduplication', body: 'Repeat callers are recognized and their profile enriched — no manual data entry.' },
     ],
   },
@@ -195,17 +196,34 @@ export function FeaturesPage() {
                 viewport={viewport}
                 className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
               >
-                {cat.features.map((feature) => (
-                  <motion.div key={feature.title} variants={fadeUpItem} transition={{ duration: 0.4, ease: EASE }}>
-                    <Card className="h-full">
+                {cat.features.map((feature) => {
+                  const cardContent = (
+                    <Card className="h-full transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-accent/25">
                       <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 text-accent">
                         <feature.icon size={19} />
                       </span>
                       <h3 className="mt-4 text-base font-semibold text-text-primary">{feature.title}</h3>
                       <p className="mt-2 text-sm leading-relaxed text-text-secondary">{feature.body}</p>
+                      {feature.href && (
+                        <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-accent">
+                          Learn more <ArrowRight className="h-3.5 w-3.5" />
+                        </span>
+                      )}
                     </Card>
-                  </motion.div>
-                ))}
+                  );
+
+                  return (
+                    <motion.div key={feature.title} variants={fadeUpItem} transition={{ duration: 0.4, ease: EASE }}>
+                      {feature.href ? (
+                        <Link to={feature.href} className="focus-ring group block h-full rounded-2xl">
+                          {cardContent}
+                        </Link>
+                      ) : (
+                        cardContent
+                      )}
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             </div>
           </section>
