@@ -177,6 +177,22 @@ export function ComparePage() {
                 </motion.div>
               ))}
             </div>
+
+            <Link
+              to="/ai-receptionist-vs-human-receptionist"
+              className="focus-ring group mt-6 flex flex-col gap-2 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-all duration-200 hover:border-accent/30 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-accent">Related reading</p>
+                <p className="mt-1 text-base font-semibold text-text-primary">
+                  AI Receptionist vs Human Receptionist: Which Wins in 2026?
+                </p>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-accent">
+                Read the comparison
+                <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Link>
           </div>
         </section>
 
