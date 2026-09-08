@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
 import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -18,8 +19,10 @@ createRoot(document.getElementById('root')!).render(
         <AccessibilityProvider>
           <ToastProvider>
             <AuthProvider>
-              <App />
-              <AccessibilityWidget />
+              <ErrorBoundary>
+                <App />
+                <AccessibilityWidget />
+              </ErrorBoundary>
             </AuthProvider>
           </ToastProvider>
         </AccessibilityProvider>
