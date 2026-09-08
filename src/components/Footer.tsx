@@ -18,26 +18,11 @@ function RedditIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-function TikTokIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M16.6 5.82c-1.05-.9-1.69-2.15-1.75-3.53h-3.05v13.53c0 1.5-1.22 2.72-2.72 2.72a2.72 2.72 0 0 1-2.72-2.72 2.72 2.72 0 0 1 2.72-2.72c.26 0 .51.03.75.1V9.98a5.8 5.8 0 0 0-.75-.05A5.77 5.77 0 0 0 3.28 15.7 5.77 5.77 0 0 0 9.05 21.47a5.77 5.77 0 0 0 5.77-5.77V9.28a8.61 8.61 0 0 0 4.9 1.53V7.76c-1.09 0-2.1-.34-2.92-.94-.05-.03-.1-.06-.15-.1Z" />
-    </svg>
-  );
-}
-
 const SOCIAL_LINKS = [
   { label: 'Vireek on Facebook', href: 'https://www.facebook.com/profile.php?id=61591755299005', Icon: Facebook },
   { label: 'Vireek on Instagram', href: 'https://www.instagram.com/vireek.ai/', Icon: Instagram },
   { label: 'Vireek on Reddit', href: 'https://www.reddit.com/user/Livid_Upstairs5570/', Icon: RedditIcon },
   { label: 'Vireek on LinkedIn', href: 'https://www.linkedin.com/in/ali-moradi-741346339', Icon: Linkedin },
-  { label: 'Vireek on TikTok', href: 'https://www.tiktok.com/@ai_vireek?lang=en', Icon: TikTokIcon },
 ];
 
 const FOOTER_COLUMNS = [
@@ -45,29 +30,12 @@ const FOOTER_COLUMNS = [
     title: 'Product',
     links: [
       { label: 'Features', href: '/features' },
-      { label: 'AI Lead Qualification', href: '/features/lead-qualification' },
       { label: 'Platform', href: '/platform' },
       { label: 'Pricing', href: '/pricing' },
       { label: 'Compare', href: '/compare' },
-      { label: 'vs ServiceTitan', href: '/compare/servicetitan' },
-      { label: 'vs Housecall Pro', href: '/compare/housecall-pro' },
-      { label: 'vs Jobber', href: '/compare/jobber' },
-      { label: 'vs Answering Service', href: '/compare/answering-service' },
-      { label: 'vs Avoca AI', href: '/compare/avoca-ai' },
       { label: 'Revenue Calculator', href: '/calculator' },
       { label: 'Book a Demo', href: '/demo' },
       { label: 'Security', href: '/security' },
-    ],
-  },
-  {
-    title: 'Integrations',
-    links: [
-      { label: 'All Integrations', href: '/integrations' },
-      { label: 'QuickBooks', href: '/integrations/quickbooks' },
-      { label: 'Google Calendar', href: '/integrations/google-calendar' },
-      { label: 'Stripe', href: '/integrations/stripe' },
-      { label: 'Zapier', href: '/integrations/zapier' },
-      { label: 'Trust Center', href: '/trust' },
     ],
   },
   {
@@ -84,16 +52,10 @@ const FOOTER_COLUMNS = [
   {
     title: 'Resources',
     links: [
-      { label: 'Blog', href: '/blog' },
-      { label: 'Glossary', href: '/glossary' },
-      { label: 'Case Studies', href: '/case-studies' },
-      { label: 'Testimonials', href: '/testimonials' },
-      { label: 'Help Center', href: '/help' },
+      { label: 'AI vs Human Receptionist', href: '/ai-receptionist-vs-human-receptionist' },
       { label: 'FAQ', href: '/faq' },
       { label: 'About', href: '/about' },
       { label: 'Contact', href: '/contact' },
-      { label: 'Status', href: '/status' },
-      { label: 'Changelog', href: '/changelog' },
     ],
   },
   {
@@ -101,12 +63,12 @@ const FOOTER_COLUMNS = [
     links: [
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
-      { label: 'Cookie Policy', href: '/cookies' },
     ],
   },
 ];
 
 const EMAIL = 'ali@vireek.com';
+const PHONE_DISPLAY = '+1 (650) 910-6703';
 
 const EASE = [0.16, 1, 0.0, 1] as const;
 
@@ -347,7 +309,7 @@ export function Footer() {
         <NewsletterSection />
 
         {/* Main footer grid */}
-        <div className="mt-12 grid gap-10 sm:mt-16 sm:gap-12 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr_1fr]">
+        <div className="mt-12 grid gap-10 sm:mt-16 sm:gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="max-w-sm">
             <span className="text-xl font-bold tracking-tight text-accent">Vireek</span>
@@ -355,7 +317,7 @@ export function Footer() {
               An AI voice receptionist for home-service businesses. Sarah answers every call, 24/7,
               so you never lose a job to voicemail.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex items-center gap-3">
               <a
                 href={`mailto:${EMAIL}`}
                 target="_blank"
@@ -364,13 +326,6 @@ export function Footer() {
                 className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
               >
                 <Mail size={18} />
-              </a>
-              <a
-                href={SARAH_PHONE}
-                aria-label="Call Vireek"
-                className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
-              >
-                <Phone size={18} />
               </a>
               {SOCIAL_LINKS.map(({ label, href, Icon }) => (
                 <a
@@ -385,6 +340,24 @@ export function Footer() {
                 </a>
               ))}
             </div>
+            <div className="mt-5 flex flex-col gap-2">
+              <a
+                href={`mailto:${EMAIL}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="focus-ring inline-flex items-center gap-2 rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+              >
+                <Mail size={15} className="shrink-0 text-accent" />
+                {EMAIL}
+              </a>
+              <a
+                href={SARAH_PHONE}
+                className="focus-ring inline-flex items-center gap-2 rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+              >
+                <Phone size={15} className="shrink-0 text-accent" />
+                {PHONE_DISPLAY}
+              </a>
+            </div>
           </div>
 
           {/* Navigation columns */}
@@ -398,14 +371,8 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       to={link.href}
-                      className="focus-ring inline-flex items-center gap-2 rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+                      className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
                     >
-                      {link.label === 'Status' && (
-                        <span className="relative flex h-1.5 w-1.5 shrink-0">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success-500 opacity-75" />
-                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success-500" />
-                        </span>
-                      )}
                       {link.label}
                     </Link>
                   </li>
@@ -430,18 +397,6 @@ export function Footer() {
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
               Terms of Service
-            </Link>
-            <Link
-              to="/cookies"
-              className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-            >
-              Cookie Policy
-            </Link>
-            <Link
-              to="/trust"
-              className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-            >
-              Trust Center
             </Link>
             <a
               href={`mailto:${EMAIL}`}
