@@ -210,7 +210,7 @@ export function BusinessProfilePage() {
   };
 
   const inputClass =
-    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors sm:text-sm';
+    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
 
   return (
     <DashboardLayout activeLabel="Business Profile">

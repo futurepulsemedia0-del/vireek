@@ -7,7 +7,6 @@ import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { BackButton } from '@/components/ui/BackButton';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 
 // ============================================================
@@ -77,9 +76,6 @@ export function SecurityPage() {
         <section className="relative bg-gradient-mesh bg-noise px-6 py-20 sm:py-24">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 text-left">
-              <BackButton />
-            </div>
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: EASE }}>
               <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-bg-secondary/80 px-4 py-2 text-sm font-semibold text-text-secondary shadow-sm backdrop-blur">
                 <ShieldCheck className="h-4 w-4 text-accent" />
