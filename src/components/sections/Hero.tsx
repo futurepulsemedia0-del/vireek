@@ -99,6 +99,16 @@ function ProductVisual() {
       transition={{ duration: 0.7, delay: 0.25, ease: EASE }}
       className="relative w-full max-w-[440px]"
     >
+      {/* Soft color glow beneath the card — the "floating premium UI" look
+          without a hard drop shadow, built from our own accent tokens. */}
+      <div
+        className="pointer-events-none absolute -inset-6 -z-10 opacity-70 blur-2xl"
+        style={{
+          backgroundImage:
+            'radial-gradient(closest-side, rgb(var(--accent-primary) / 0.22), transparent), radial-gradient(closest-side at 85% 90%, rgb(var(--accent-secondary) / 0.16), transparent)',
+        }}
+        aria-hidden="true"
+      />
       <div className="relative overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
         <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10 text-accent">
