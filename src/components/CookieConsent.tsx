@@ -92,18 +92,18 @@ function Toggle({ checked, disabled, onChange, label, id }: ToggleProps) {
       tabIndex={disabled ? -1 : 0}
       onClick={() => !disabled && onChange(!checked)}
       onKeyDown={handleKey}
-      className={`focus-ring relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ease-out ${
+      className={`focus-ring relative inline-flex h-7 w-12 shrink-0 items-center rounded-full ring-1 ring-inset transition-colors duration-200 ease-out ${
         disabled
-          ? 'cursor-not-allowed bg-accent/30'
+          ? 'cursor-not-allowed bg-emerald-500/40 ring-emerald-500/40'
           : checked
-            ? 'bg-accent'
-            : 'bg-border hover:bg-border/70'
+            ? 'bg-accent shadow-glow-accent ring-accent/40'
+            : 'bg-text-secondary/25 ring-border hover:bg-text-secondary/35'
       }`}
     >
       <motion.span
         layout
         transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-        className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-sm ${
+        className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md ${
           checked ? 'ml-auto mr-1' : 'ml-1'
         }`}
       />
@@ -121,6 +121,11 @@ type CategoryDef = {
   title: string;
   description: string;
   alwaysActive?: boolean;
+  /** Tailwind color tokens used for this category's icon badge — gives each
+   *  row its own identity instead of everything blending into one flat tint. */
+  iconBg: string;
+  iconRing: string;
+  iconColor: string;
 };
 
 const CATEGORIES: CategoryDef[] = [
@@ -130,30 +135,45 @@ const CATEGORIES: CategoryDef[] = [
     title: 'Essential Cookies',
     description: 'Required for security, authentication, account access, and core functionality.',
     alwaysActive: true,
+    iconBg: 'bg-emerald-500/15',
+    iconRing: 'ring-1 ring-inset ring-emerald-500/30',
+    iconColor: 'text-emerald-500',
   },
   {
     key: 'analytics',
     icon: BarChart3,
     title: 'Analytics Intelligence',
     description: 'Helps us understand usage patterns and improve Vireek performance.',
+    iconBg: 'bg-sky-500/15',
+    iconRing: 'ring-1 ring-inset ring-sky-500/30',
+    iconColor: 'text-sky-500',
   },
   {
     key: 'personalization',
     icon: Sparkles,
     title: 'Experience Personalization',
     description: 'Allows personalized experiences and improved recommendations.',
+    iconBg: 'bg-violet-500/15',
+    iconRing: 'ring-1 ring-inset ring-violet-500/30',
+    iconColor: 'text-violet-500',
   },
   {
     key: 'marketing',
     icon: Megaphone,
     title: 'Marketing Optimization',
     description: 'Helps measure campaigns and provide relevant communication.',
+    iconBg: 'bg-amber-500/15',
+    iconRing: 'ring-1 ring-inset ring-amber-500/30',
+    iconColor: 'text-amber-500',
   },
   {
     key: 'ai',
     icon: BrainCircuit,
     title: 'AI Improvement Data',
     description: 'Helps improve AI experiences while respecting privacy preferences.',
+    iconBg: 'bg-rose-500/15',
+    iconRing: 'ring-1 ring-inset ring-rose-500/30',
+    iconColor: 'text-rose-500',
   },
 ];
 
@@ -174,17 +194,19 @@ function CategoryCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="group rounded-2xl border border-border bg-bg-secondary p-5 transition-colors duration-200 hover:border-accent/25"
+      className="group rounded-2xl border border-border bg-bg-secondary p-5 shadow-sm transition-all duration-200 hover:border-accent/30 hover:shadow-md"
     >
       <div className="flex items-start gap-4">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-accent/20 bg-accent/10 text-accent">
-          <Icon size={20} />
+        <span
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${def.iconBg} ${def.iconRing} ${def.iconColor}`}
+        >
+          <Icon size={20} strokeWidth={2.25} />
         </span>
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold text-text-primary">{def.title}</h4>
             {def.alwaysActive && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-success-500/15 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-success-500">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-emerald-500 ring-1 ring-inset ring-emerald-500/30">
                 <Lock size={10} />
                 Always Active
               </span>
@@ -293,23 +315,25 @@ function PrivacyCenter({
             }}
           />
           <div className="relative flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={20} className="text-accent" />
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white shadow-glow-accent">
+                <ShieldCheck size={20} strokeWidth={2.25} />
+              </span>
+              <div>
                 <h3 className="text-lg font-bold tracking-tight text-text-primary">Privacy Center</h3>
+                <p className="mt-1 text-sm text-text-secondary">
+                  Manage exactly how Vireek uses your data.
+                </p>
               </div>
-              <p className="mt-1 text-sm text-text-secondary">
-                Manage exactly how Vireek uses your data.
-              </p>
             </div>
             <button
               ref={closeBtnRef}
               type="button"
               onClick={onClose}
               aria-label="Close privacy center"
-              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-colors hover:text-text-primary"
+              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-2 border-border bg-bg-secondary text-text-secondary transition-colors hover:border-accent hover:text-accent"
             >
-              <X size={16} />
+              <X size={16} strokeWidth={2.5} />
             </button>
           </div>
         </div>
@@ -330,19 +354,19 @@ function PrivacyCenter({
         <div className="shrink-0 border-t border-border bg-bg-tertiary px-6 py-5 sm:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4 text-xs text-text-secondary">
-              <Link to="/privacy" className="focus-ring rounded font-medium text-accent hover:underline">
+              <Link to="/privacy" className="focus-ring rounded font-semibold text-accent hover:underline">
                 Privacy Policy
               </Link>
-              <Link to="/cookies" className="focus-ring rounded font-medium text-accent hover:underline">
+              <Link to="/terms" className="focus-ring rounded font-semibold text-accent hover:underline">
                 Cookie Policy
               </Link>
             </div>
             <button
               type="button"
               onClick={() => onSave(state)}
-              className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 ease-out hover:brightness-110 hover:shadow-glow-accent active:brightness-90"
+              className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-accent-secondary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-glow-accent transition-all duration-200 ease-out hover:shadow-glow-cta active:brightness-90"
             >
-              <Check size={16} />
+              <Check size={16} strokeWidth={2.5} />
               Save Preferences
             </button>
           </div>
@@ -435,9 +459,9 @@ export function CookieConsent() {
             transition={{ type: 'spring', stiffness: 280, damping: 28, mass: 0.6 }}
             className="fixed inset-x-0 bottom-0 z-[70] px-4 pb-4 sm:px-6 sm:pb-6"
           >
-            <div className="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-bg-secondary/90 shadow-2xl backdrop-blur-xl">
-              {/* Decorative top accent line */}
-              <div className="h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+            <div className="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-2xl ring-1 ring-black/5 backdrop-blur-xl dark:ring-white/10">
+              {/* Decorative top accent line — solid, not a faint gradient wisp */}
+              <div className="h-1 bg-gradient-to-r from-accent via-accent to-accent-secondary" />
 
               <div className="p-5 sm:p-6">
                 {/* Header row */}
@@ -446,15 +470,15 @@ export function CookieConsent() {
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.15, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/20 bg-accent/10 text-accent"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white shadow-glow-accent"
                   >
-                    <ShieldCheck size={20} />
+                    <ShieldCheck size={22} strokeWidth={2.25} />
                   </motion.span>
                   <div>
-                    <h3 className="text-base font-bold tracking-tight text-text-primary">
+                    <h3 className="text-base font-bold tracking-tight text-text-primary sm:text-lg">
                       Your Privacy, Your Control
                     </h3>
-                    <p className="text-xs font-medium text-text-secondary/70">
+                    <p className="text-xs font-semibold text-text-secondary">
                       Vireek takes a privacy-first approach to every interaction.
                     </p>
                   </div>
@@ -471,7 +495,7 @@ export function CookieConsent() {
                   <button
                     type="button"
                     onClick={acceptAll}
-                    className="focus-ring group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 ease-out hover:brightness-110 hover:shadow-glow-accent active:brightness-90"
+                    className="focus-ring group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-accent-secondary bg-[length:160%_100%] bg-left px-5 py-3 text-sm font-bold text-white shadow-lg shadow-glow-accent transition-all duration-200 ease-out hover:bg-right hover:shadow-glow-cta active:brightness-90"
                   >
                     Accept All
                     <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
@@ -479,14 +503,14 @@ export function CookieConsent() {
                   <button
                     type="button"
                     onClick={rejectNonEssential}
-                    className="focus-ring inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-bg-tertiary px-5 py-3 text-sm font-semibold text-text-primary transition-all duration-150 hover:border-accent/30 hover:bg-bg-tertiary/80 active:brightness-95 sm:flex-none"
+                    className="focus-ring inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-border bg-bg-tertiary px-5 py-3 text-sm font-bold text-text-primary transition-all duration-150 hover:border-accent hover:text-accent active:brightness-95 sm:flex-none"
                   >
                     Reject Non-Essential
                   </button>
                   <button
                     type="button"
                     onClick={openCenter}
-                    className="focus-ring inline-flex items-center justify-center gap-1 rounded-xl px-4 py-3 text-sm font-semibold text-text-secondary transition-colors hover:text-accent sm:flex-none"
+                    className="focus-ring inline-flex items-center justify-center gap-1 rounded-xl px-4 py-3 text-sm font-bold text-accent transition-colors hover:underline sm:flex-none"
                   >
                     Customize
                     <ChevronRight size={15} />
@@ -494,11 +518,11 @@ export function CookieConsent() {
                 </div>
 
                 {/* Policy links */}
-                <div className="mt-4 flex items-center gap-4 border-t border-border/60 pt-3 text-xs">
-                  <Link to="/privacy" className="focus-ring rounded font-medium text-accent hover:underline">
+                <div className="mt-4 flex items-center gap-4 border-t border-border pt-3 text-xs">
+                  <Link to="/privacy" className="focus-ring rounded font-semibold text-accent hover:underline">
                     Privacy Policy
                   </Link>
-                  <Link to="/cookies" className="focus-ring rounded font-medium text-accent hover:underline">
+                  <Link to="/terms" className="focus-ring rounded font-semibold text-accent hover:underline">
                     Cookie Policy
                   </Link>
                 </div>
