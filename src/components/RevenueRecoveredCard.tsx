@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, TrendingUp, PhoneCall, Info, X, Wrench } from 'lucide-react';
+import { DollarSign, Zap, TrendingUp, PhoneCall, Info, X, Wrench } from 'lucide-react';
 import type { Call, Job, BusinessProfile } from '@/lib/supabase';
 import { PRICING_PLANS } from '@/lib/pricing';
 

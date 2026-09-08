@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { LogIn, ArrowRight, ChevronDown } from 'lucide-react';
+import { LogIn, ArrowRight, ChevronDown, Wind, Droplets, Home, Zap, Flame } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NAV_LINKS } from '@/lib/site';
 import { useTheme } from '@/contexts/ThemeContext';

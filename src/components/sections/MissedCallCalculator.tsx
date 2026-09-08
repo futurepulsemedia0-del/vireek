@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
-import { ArrowRight, PhoneMissed, TrendingDown, TrendingUp, DollarSign, CalendarCheck } from 'lucide-react';
+import { ArrowRight, PhoneMissed, TrendingDown, TrendingUp, DollarSign, PhoneCall, CalendarCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';

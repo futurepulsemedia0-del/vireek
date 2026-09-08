@@ -39,7 +39,7 @@ export function PricingTeaser() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
               transition={{ duration: 0.4, delay: index * 0.05, ease: EASE }}
-              className={`relative flex w-[75%] shrink-0 snap-center flex-col rounded-2xl p-5 ${
+              className={`flex w-[75%] shrink-0 snap-center flex-col rounded-2xl p-5 ${
                 plan.recommended
                   ? 'border-2 border-accent bg-bg-secondary shadow-glow-accent'
                   : 'border border-border bg-bg-secondary shadow-card dark:shadow-card-dark'

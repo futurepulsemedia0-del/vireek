@@ -5,7 +5,7 @@ import { CreditCard, TrendingUp, TriangleAlert as AlertTriangle, ArrowUpRight, F
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
-import { supabase, Job } from '@/lib/supabase';
+import { supabase, Job, AiInsight } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 
 // ============================================================
@@ -262,6 +262,9 @@ export function BillingPage() {
   };
 
   if (!canAccess) return <NoAccess />;
+
+  const inputClass =
+    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary';
 
   return (
     <DashboardLayout activeLabel="Billing">

@@ -4,7 +4,7 @@ import {
   Accessibility, X, RotateCcw, Check, Zap, Eye, Brain, Book, Shield,
   Keyboard, Volume2, User, Type, Minimize, Target, Sparkles,
   Contrast, Palette, BookOpen, Wind, Navigation, Globe,
-  ChevronRight, Search, Mic, Languages,
+  ChevronRight, Info, Search, Mic, Languages,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -17,6 +17,7 @@ import {
 import {
   LANGUAGES,
   GLOBAL_PROFILES,
+  type LanguageCode,
   type Language,
   type TranslationKey,
 } from '@/lib/i18n';
@@ -323,6 +324,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
     const readingScore = settings.lineHeight >= 1.7 && settings.textSize > 1 ? 90 : settings.lineHeight >= 1.6 ? 75 : 55;
     const visualScore = settings.highContrast || settings.strongFocus ? 90 : settings.highlightLinks ? 70 : 55;
     const navScore = settings.strongFocus || settings.highlightKeyboardFocus ? 90 : 60;
+    const personalScore = score;
 
     return (
       <div className="space-y-4 px-3 py-2">

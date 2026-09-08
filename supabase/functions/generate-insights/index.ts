@@ -12,22 +12,6 @@ interface InsightRow {
   description: string;
 }
 
-interface CallRow {
-  is_emergency: boolean | null;
-  status: string | null;
-  call_datetime: string;
-  caller_name: string | null;
-}
-
-interface LeadRow {
-  stage: string;
-}
-
-interface JobRow {
-  job_status: string | null;
-  invoice_status: string | null;
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -61,9 +45,9 @@ Deno.serve(async (req: Request) => {
       supabase.from("profiles").select("minutes_used_this_month, minutes_included").eq("id", user_id).maybeSingle(),
     ]);
 
-    const calls = (callsRes.data ?? []) as CallRow[];
-    const leads = (leadsRes.data ?? []) as LeadRow[];
-    const jobs = (jobsRes.data ?? []) as JobRow[];
+    const calls = callsRes.data ?? [];
+    const leads = leadsRes.data ?? [];
+    const jobs = jobsRes.data ?? [];
     const profile = profileRes.data;
 
     const insights: InsightRow[] = [];
@@ -72,10 +56,10 @@ Deno.serve(async (req: Request) => {
     // 1. Emergency call spike on a specific day of week
     // -------------------------------------------------------
     if (calls.length >= 10) {
-      const emergencyCalls = calls.filter((c) => c.is_emergency);
+      const emergencyCalls = calls.filter((c: any) => c.is_emergency);
       if (emergencyCalls.length >= 3) {
         const dayCount: Record<string, number> = {};
-        emergencyCalls.forEach((c) => {
+        emergencyCalls.forEach((c: any) => {
           const day = new Date(c.call_datetime).toLocaleDateString("en-US", { weekday: "long" });
           dayCount[day] = (dayCount[day] ?? 0) + 1;
         });
@@ -96,12 +80,12 @@ Deno.serve(async (req: Request) => {
     // 2. High missed-call rate for a specific service type
     // -------------------------------------------------------
     if (calls.length >= 8) {
-      const missedCalls = calls.filter((c) => c.status === "missed");
+      const missedCalls = calls.filter((c: any) => c.status === "missed");
       if (missedCalls.length >= 2) {
         const overallMissedRate = missedCalls.length / calls.length;
         // Group by caller_name or summary keywords as a proxy for service type
         const serviceMissed: Record<string, { total: number; missed: number }> = {};
-        calls.forEach((c) => {
+        calls.forEach((c: any) => {
           const key = c.caller_name ?? "Unknown";
           if (!serviceMissed[key]) serviceMissed[key] = { total: 0, missed: 0 };
           serviceMissed[key].total++;
@@ -135,7 +119,7 @@ Deno.serve(async (req: Request) => {
     // -------------------------------------------------------
     if (leads.length >= 5) {
       const stageCounts: Record<string, number> = {};
-      leads.forEach((l) => {
+      leads.forEach((l: any) => {
         stageCounts[l.stage] = (stageCounts[l.stage] ?? 0) + 1;
       });
       const stages = ["new", "contacted", "quoted", "won", "lost"];
@@ -176,7 +160,7 @@ Deno.serve(async (req: Request) => {
     // -------------------------------------------------------
     if (jobs.length >= 3) {
       const completedNoInvoice = jobs.filter(
-        (j) => j.job_status === "completed" && j.invoice_status === "not_sent",
+        (j: any) => j.job_status === "completed" && j.invoice_status === "not_sent",
       );
       if (completedNoInvoice.length >= 2) {
         insights.push({
@@ -200,7 +184,7 @@ Deno.serve(async (req: Request) => {
         .order("created_at", { ascending: false })
         .limit(20);
 
-      const existingTitles = new Set((existing ?? []).map((r: { title: string }) => r.title));
+      const existingTitles = new Set((existing ?? []).map((r: any) => r.title));
       newInsights = insights.filter((i) => !existingTitles.has(i.title));
     }
 
@@ -221,9 +205,8 @@ Deno.serve(async (req: Request) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: err.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

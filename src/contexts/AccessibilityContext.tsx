@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { type LanguageCode, type TranslationKey, TRANSLATIONS, isRTL } from '@/lib/i18n';
+import { type LanguageCode, type TranslationKey, TRANSLATIONS, getLanguage, isRTL } from '@/lib/i18n';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */

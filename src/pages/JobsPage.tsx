@@ -14,6 +14,7 @@ import {
   ChevronDown,
   GripVertical,
   Check,
+  Circle,
   FileText,
   Trash2,
   LayoutGrid,
@@ -70,6 +71,16 @@ function formatDateTime(dateStr: string | null): string {
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+function formatTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(hours / 24);
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  const mins = Math.floor(diff / 60000);
+  return mins > 0 ? `${mins}m ago` : 'just now';
 }
 
 function initials(name: string): string {

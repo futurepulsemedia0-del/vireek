@@ -6,6 +6,7 @@ import {
   Download,
   Calendar,
   TrendingUp,
+  TriangleAlert as AlertTriangle,
   Lightbulb,
   ChevronDown,
 } from 'lucide-react';
@@ -768,6 +769,10 @@ export function AnalyticsPage() {
       const d = new Date(c.call_datetime);
       return d >= prevStart && d <= prevEnd;
     });
+    const jobsInRange = allJobs.filter((j) => {
+      const d = new Date(j.created_at);
+      return d >= start && d <= end;
+    });
     const leadsInRange = allLeads.filter((l) => {
       const d = new Date(l.created_at);
       return d >= start && d <= end;
@@ -850,6 +855,7 @@ export function AnalyticsPage() {
       .forEach((j) => {
         const d = new Date(j.created_at);
         const key = `${d.getFullYear()}-${d.getMonth()}`;
+        const label = d.toLocaleDateString('en-US', { month: 'short' });
         monthMap.set(key, (monthMap.get(key) ?? 0) + (j.invoice_amount ?? 0));
       });
     // Build last 6 months

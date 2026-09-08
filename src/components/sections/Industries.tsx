@@ -30,53 +30,41 @@ export function Industries() {
           viewport={viewport}
           className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
         >
-          {INDUSTRIES.map(({ icon: Icon, name, slug, tagline, terms }) => (
+          {INDUSTRIES.map(({ icon: Icon, name, slug, terms }) => (
             <motion.div key={name} variants={fadeUpItem} transition={{ duration: 0.5, ease: EASE }}>
               <Card className="flex h-full flex-col overflow-hidden p-0">
-                {/*
-                  An on-brand gradient + icon panel rather than a stock or
-                  placeholder photo — consistent with the rest of the page's
-                  "no generic illustration" rule, and it never breaks like a
-                  missing image asset would.
-                */}
-                <div className="relative flex h-28 w-full items-center overflow-hidden bg-bg-tertiary px-5 sm:h-32 sm:px-6">
-                  <div
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      backgroundImage:
-                        'radial-gradient(circle at 15% 30%, rgb(var(--accent-primary) / 0.16), transparent 60%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.12), transparent 55%)',
-                    }}
+                <div className="relative h-28 w-full overflow-hidden bg-bg-tertiary sm:h-32">
+                  <img
+                    src={`/industries-${slug}.png`}
+                    alt={`${name} technician using Vireek`}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
                   />
-                  <Icon
-                    size={96}
-                    strokeWidth={1}
-                    className="pointer-events-none absolute -right-3 -top-3 text-accent/10"
-                    aria-hidden="true"
-                  />
-                  <span className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-primary/80 text-accent shadow-sm backdrop-blur-sm sm:h-11 sm:w-11">
-                    <Icon size={18} className="sm:size-5" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-primary/70 via-bg-primary/10 to-transparent" />
+                  <span className="absolute bottom-2.5 left-3 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-bg-primary/70 text-accent backdrop-blur-sm sm:h-9 sm:w-9">
+                    <Icon size={16} className="sm:size-[18px]" />
                   </span>
                 </div>
                 <div className="flex flex-1 flex-col p-5 sm:p-6">
-                  <h3 className="text-lg font-semibold text-text-primary sm:text-xl md:text-2xl">{name}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">{tagline}</p>
-                  <ul className="mt-4 flex flex-wrap gap-2 sm:mt-5">
-                    {terms.map((term) => (
-                      <li
-                        key={term}
-                        className="rounded-lg border border-border bg-bg-tertiary px-2.5 py-1 text-xs text-text-secondary sm:px-3 sm:py-1.5 sm:text-sm"
-                      >
-                        {term}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    to={`/industries/${slug}`}
-                    className="focus-ring mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-cta sm:mt-6"
-                  >
-                    {'See how Vireek helps '}{name.toLowerCase()}
-                    <ArrowRight size={14} />
-                  </Link>
+                <h3 className="text-lg font-semibold text-text-primary sm:text-xl md:text-2xl">{name}</h3>
+                <ul className="mt-4 flex flex-wrap gap-2 sm:mt-5">
+                  {terms.map((term) => (
+                    <li
+                      key={term}
+                      className="rounded-lg border border-border bg-bg-tertiary px-2.5 py-1 text-xs text-text-secondary sm:px-3 sm:py-1.5 sm:text-sm"
+                    >
+                      {term}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to={`/industries/${slug}`}
+                  className="focus-ring mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-cta sm:mt-6"
+                >
+                  {'See how Vireek helps '}{name.toLowerCase()}
+                  <ArrowRight size={14} />
+                </Link>
                 </div>
               </Card>
             </motion.div>

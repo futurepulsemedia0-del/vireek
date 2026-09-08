@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, FormEvent, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -12,6 +12,7 @@ import {
   Building2,
   MapPin,
   Wrench,
+  Calendar,
   PartyPopper,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';

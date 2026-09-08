@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   Search,
   X,
+  Plus,
   Mail,
   User,
   Wrench,

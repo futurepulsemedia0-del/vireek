@@ -118,7 +118,7 @@ export function LiveDemo() {
               </p>
             </div>
 
-            <div ref={scrollRef} aria-live="polite" className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:space-y-4 sm:px-5 sm:py-5">
+            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:space-y-4 sm:px-5 sm:py-5">
               {messages.map((msg, i) => {
                 const isSarah = msg.role === 'assistant';
                 return (
@@ -180,11 +180,7 @@ export function LiveDemo() {
               }}
               className="flex items-center gap-2 border-t border-border bg-bg-secondary p-3"
             >
-              <label htmlFor="live-demo-input" className="sr-only">
-                Type a message to Sarah
-              </label>
               <input
-                id="live-demo-input"
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
