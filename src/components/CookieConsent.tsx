@@ -92,12 +92,12 @@ function Toggle({ checked, disabled, onChange, label, id }: ToggleProps) {
       tabIndex={disabled ? -1 : 0}
       onClick={() => !disabled && onChange(!checked)}
       onKeyDown={handleKey}
-      className={`focus-ring relative inline-flex h-7 w-12 shrink-0 items-center rounded-full ring-1 ring-inset transition-colors duration-200 ease-out ${
+      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full outline-none ring-offset-2 ring-offset-[#0B0F1A] transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-indigo-400 ${
         disabled
-          ? 'cursor-not-allowed bg-emerald-500/40 ring-emerald-500/40'
+          ? 'cursor-not-allowed bg-emerald-400/40'
           : checked
-            ? 'bg-accent shadow-glow-accent ring-accent/40'
-            : 'bg-text-secondary/25 ring-border hover:bg-text-secondary/35'
+            ? 'bg-gradient-to-r from-indigo-500 to-fuchsia-500 shadow-[0_0_14px_rgba(139,92,246,0.65)]'
+            : 'bg-white/15 hover:bg-white/25'
       }`}
     >
       <motion.span
@@ -121,11 +121,9 @@ type CategoryDef = {
   title: string;
   description: string;
   alwaysActive?: boolean;
-  /** Tailwind color tokens used for this category's icon badge — gives each
-   *  row its own identity instead of everything blending into one flat tint. */
-  iconBg: string;
-  iconRing: string;
-  iconColor: string;
+  /** Each category gets its own saturated, solid icon-badge color so the
+   *  list reads as distinct choices rather than one flat, low-contrast tint. */
+  badgeClass: string;
 };
 
 const CATEGORIES: CategoryDef[] = [
@@ -135,45 +133,35 @@ const CATEGORIES: CategoryDef[] = [
     title: 'Essential Cookies',
     description: 'Required for security, authentication, account access, and core functionality.',
     alwaysActive: true,
-    iconBg: 'bg-emerald-500/15',
-    iconRing: 'ring-1 ring-inset ring-emerald-500/30',
-    iconColor: 'text-emerald-500',
+    badgeClass: 'bg-emerald-500 shadow-[0_0_16px_rgba(16,185,129,0.55)]',
   },
   {
     key: 'analytics',
     icon: BarChart3,
     title: 'Analytics Intelligence',
     description: 'Helps us understand usage patterns and improve Vireek performance.',
-    iconBg: 'bg-sky-500/15',
-    iconRing: 'ring-1 ring-inset ring-sky-500/30',
-    iconColor: 'text-sky-500',
+    badgeClass: 'bg-sky-500 shadow-[0_0_16px_rgba(14,165,233,0.55)]',
   },
   {
     key: 'personalization',
     icon: Sparkles,
     title: 'Experience Personalization',
     description: 'Allows personalized experiences and improved recommendations.',
-    iconBg: 'bg-violet-500/15',
-    iconRing: 'ring-1 ring-inset ring-violet-500/30',
-    iconColor: 'text-violet-500',
+    badgeClass: 'bg-violet-500 shadow-[0_0_16px_rgba(139,92,246,0.55)]',
   },
   {
     key: 'marketing',
     icon: Megaphone,
     title: 'Marketing Optimization',
     description: 'Helps measure campaigns and provide relevant communication.',
-    iconBg: 'bg-amber-500/15',
-    iconRing: 'ring-1 ring-inset ring-amber-500/30',
-    iconColor: 'text-amber-500',
+    badgeClass: 'bg-amber-500 shadow-[0_0_16px_rgba(245,158,11,0.55)]',
   },
   {
     key: 'ai',
     icon: BrainCircuit,
     title: 'AI Improvement Data',
     description: 'Helps improve AI experiences while respecting privacy preferences.',
-    iconBg: 'bg-rose-500/15',
-    iconRing: 'ring-1 ring-inset ring-rose-500/30',
-    iconColor: 'text-rose-500',
+    badgeClass: 'bg-rose-500 shadow-[0_0_16px_rgba(244,63,94,0.55)]',
   },
 ];
 
@@ -194,25 +182,25 @@ function CategoryCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="group rounded-2xl border border-border bg-bg-secondary p-5 shadow-sm transition-all duration-200 hover:border-accent/30 hover:shadow-md"
+      className="group rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.07]"
     >
       <div className="flex items-start gap-4">
         <span
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${def.iconBg} ${def.iconRing} ${def.iconColor}`}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white ${def.badgeClass}`}
         >
           <Icon size={20} strokeWidth={2.25} />
         </span>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold text-text-primary">{def.title}</h4>
+            <h4 className="text-sm font-semibold text-white">{def.title}</h4>
             {def.alwaysActive && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-emerald-500 ring-1 ring-inset ring-emerald-500/30">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-emerald-300 ring-1 ring-inset ring-emerald-400/40">
                 <Lock size={10} />
                 Always Active
               </span>
             )}
           </div>
-          <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">{def.description}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-white/60">{def.description}</p>
         </div>
         <div className="shrink-0 pt-0.5">
           <Toggle
@@ -292,7 +280,7 @@ function PrivacyCenter({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/50 backdrop-blur-md sm:items-center sm:p-6"
+      className="fixed inset-0 z-[80] flex items-end justify-center bg-black/70 backdrop-blur-md sm:items-center sm:p-6"
       onClick={onClose}
     >
       <motion.div
@@ -302,26 +290,29 @@ function PrivacyCenter({
         exit={{ y: 30, opacity: 0, scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 320, damping: 30 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-border bg-bg-secondary shadow-2xl sm:max-w-lg sm:rounded-3xl"
+        className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-[#0B0F1A] shadow-[0_20px_70px_-15px_rgba(0,0,0,0.7)] ring-1 ring-white/[0.06] sm:max-w-lg sm:rounded-3xl"
       >
+        {/* Top glow bar */}
+        <div className="h-1 shrink-0 bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500" />
+
         {/* Header */}
-        <div className="relative shrink-0 border-b border-border bg-bg-tertiary px-6 py-5 sm:px-8">
+        <div className="relative shrink-0 border-b border-white/10 px-6 py-5 sm:px-8">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0"
             style={{
               backgroundImage:
-                'radial-gradient(circle at 80% 30%, rgb(var(--accent-primary) / 0.08), transparent 60%)',
+                'radial-gradient(circle at 85% 20%, rgba(139,92,246,0.18), transparent 60%)',
             }}
           />
           <div className="relative flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white shadow-glow-accent">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.55)]">
                 <ShieldCheck size={20} strokeWidth={2.25} />
               </span>
               <div>
-                <h3 className="text-lg font-bold tracking-tight text-text-primary">Privacy Center</h3>
-                <p className="mt-1 text-sm text-text-secondary">
+                <h3 className="text-lg font-bold tracking-tight text-white">Privacy Center</h3>
+                <p className="mt-1 text-sm text-white/60">
                   Manage exactly how Vireek uses your data.
                 </p>
               </div>
@@ -331,7 +322,7 @@ function PrivacyCenter({
               type="button"
               onClick={onClose}
               aria-label="Close privacy center"
-              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-2 border-border bg-bg-secondary text-text-secondary transition-colors hover:border-accent hover:text-accent"
+              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-white/70 transition-colors hover:border-white/30 hover:text-white"
             >
               <X size={16} strokeWidth={2.5} />
             </button>
@@ -351,20 +342,20 @@ function PrivacyCenter({
         </div>
 
         {/* Footer */}
-        <div className="shrink-0 border-t border-border bg-bg-tertiary px-6 py-5 sm:px-8">
+        <div className="shrink-0 border-t border-white/10 bg-white/[0.03] px-6 py-5 sm:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4 text-xs text-text-secondary">
-              <Link to="/privacy" className="focus-ring rounded font-semibold text-accent hover:underline">
+            <div className="flex items-center gap-4 text-xs text-white/60">
+              <Link to="/privacy" className="focus-ring rounded font-semibold text-indigo-300 hover:text-indigo-200 hover:underline">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="focus-ring rounded font-semibold text-accent hover:underline">
+              <Link to="/terms" className="focus-ring rounded font-semibold text-indigo-300 hover:text-indigo-200 hover:underline">
                 Cookie Policy
               </Link>
             </div>
             <button
               type="button"
               onClick={() => onSave(state)}
-              className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-accent-secondary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-glow-accent transition-all duration-200 ease-out hover:shadow-glow-cta active:brightness-90"
+              className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_-6px_rgba(139,92,246,0.65)] transition-all duration-200 ease-out hover:brightness-110 hover:shadow-[0_10px_30px_-4px_rgba(139,92,246,0.8)] active:brightness-90"
             >
               <Check size={16} strokeWidth={2.5} />
               Save Preferences
@@ -388,16 +379,16 @@ export function CookieConsent() {
 
   // Check existing consent on mount
   useEffect(() => {
-  const existing = readConsent();
-  if (!existing) {
-    const timer = setTimeout(() => {
-      setBannerVisible(true);
-    }, 1500); // اینجا میلی‌ثانیه رو تنظیم کن، 1500 = 1.5 ثانیه
-    return () => clearTimeout(timer);
-  } else {
-    applyConsent(existing);
-  }
-}, []);
+    const existing = readConsent();
+    if (!existing) {
+      const timer = setTimeout(() => {
+        setBannerVisible(true);
+      }, 1500); // اینجا میلی‌ثانیه رو تنظیم کن، 1500 = 1.5 ثانیه
+      return () => clearTimeout(timer);
+    } else {
+      applyConsent(existing);
+    }
+  }, []);
 
   const acceptAll = useCallback(() => {
     const all = { ...DEFAULT_STATE, analytics: true, personalization: true, marketing: true, ai: true };
@@ -449,7 +440,9 @@ export function CookieConsent() {
 
   return (
     <>
-      {/* Floating banner */}
+      {/* Floating banner — deliberately a fixed dark "glass" panel with a
+          vivid gradient glow frame, independent of the page's own light/dark
+          surface tokens, so it always pops instead of blending into the page. */}
       <AnimatePresence>
         {bannerVisible && !centerOpen && (
           <motion.div
@@ -459,72 +452,81 @@ export function CookieConsent() {
             transition={{ type: 'spring', stiffness: 280, damping: 28, mass: 0.6 }}
             className="fixed inset-x-0 bottom-0 z-[70] px-4 pb-4 sm:px-6 sm:pb-6"
           >
-            <div className="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-2xl ring-1 ring-black/5 backdrop-blur-xl dark:ring-white/10">
-              {/* Decorative top accent line — solid, not a faint gradient wisp */}
-              <div className="h-1 bg-gradient-to-r from-accent via-accent to-accent-secondary" />
+            <div className="mx-auto w-full max-w-2xl rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 p-[1.5px] shadow-[0_25px_60px_-15px_rgba(79,70,229,0.55)]">
+              <div className="overflow-hidden rounded-[15px] bg-[#0B0F1A]">
+                {/* Ambient glow */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 -top-24 h-48 opacity-40 blur-3xl"
+                  style={{
+                    backgroundImage:
+                      'radial-gradient(60% 100% at 20% 0%, rgba(99,102,241,0.55), transparent), radial-gradient(50% 100% at 90% 0%, rgba(217,70,239,0.45), transparent)',
+                  }}
+                />
 
-              <div className="p-5 sm:p-6">
-                {/* Header row */}
-                <div className="flex items-center gap-3">
-                  <motion.span
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.15, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white shadow-glow-accent"
-                  >
-                    <ShieldCheck size={22} strokeWidth={2.25} />
-                  </motion.span>
-                  <div>
-                    <h3 className="text-base font-bold tracking-tight text-text-primary sm:text-lg">
-                      Your Privacy, Your Control
-                    </h3>
-                    <p className="text-xs font-semibold text-text-secondary">
-                      Vireek takes a privacy-first approach to every interaction.
-                    </p>
+                <div className="relative p-5 sm:p-6">
+                  {/* Header row */}
+                  <div className="flex items-center gap-3">
+                    <motion.span
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.15, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-fuchsia-400 text-white shadow-[0_0_22px_rgba(139,92,246,0.65)]"
+                    >
+                      <ShieldCheck size={22} strokeWidth={2.25} />
+                    </motion.span>
+                    <div>
+                      <h3 className="text-base font-bold tracking-tight text-white sm:text-lg">
+                        Your Privacy, Your Control
+                      </h3>
+                      <p className="text-xs font-semibold text-indigo-200/80">
+                        Vireek takes a privacy-first approach to every interaction.
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Description */}
-                <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-                  We use privacy-friendly technologies to improve your experience, understand
-                  platform performance, and personalize your journey. You are always in control.
-                </p>
+                  {/* Description */}
+                  <p className="mt-4 text-sm leading-relaxed text-white/70">
+                    We use privacy-friendly technologies to improve your experience, understand
+                    platform performance, and personalize your journey. You are always in control.
+                  </p>
 
-                {/* Buttons */}
-                <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3">
-                  <button
-                    type="button"
-                    onClick={acceptAll}
-                    className="focus-ring group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-accent-secondary bg-[length:160%_100%] bg-left px-5 py-3 text-sm font-bold text-white shadow-lg shadow-glow-accent transition-all duration-200 ease-out hover:bg-right hover:shadow-glow-cta active:brightness-90"
-                  >
-                    Accept All
-                    <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={rejectNonEssential}
-                    className="focus-ring inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-border bg-bg-tertiary px-5 py-3 text-sm font-bold text-text-primary transition-all duration-150 hover:border-accent hover:text-accent active:brightness-95 sm:flex-none"
-                  >
-                    Reject Non-Essential
-                  </button>
-                  <button
-                    type="button"
-                    onClick={openCenter}
-                    className="focus-ring inline-flex items-center justify-center gap-1 rounded-xl px-4 py-3 text-sm font-bold text-accent transition-colors hover:underline sm:flex-none"
-                  >
-                    Customize
-                    <ChevronRight size={15} />
-                  </button>
-                </div>
+                  {/* Buttons */}
+                  <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3">
+                    <button
+                      type="button"
+                      onClick={acceptAll}
+                      className="focus-ring group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-5 py-3 text-sm font-bold text-white shadow-[0_10px_26px_-6px_rgba(139,92,246,0.7)] transition-all duration-200 ease-out hover:brightness-110 hover:shadow-[0_12px_32px_-4px_rgba(217,70,239,0.75)] active:brightness-90"
+                    >
+                      Accept All
+                      <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={rejectNonEssential}
+                      className="focus-ring inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-white/20 bg-white/[0.04] px-5 py-3 text-sm font-bold text-white transition-all duration-150 hover:border-white/40 hover:bg-white/[0.09] active:brightness-95 sm:flex-none"
+                    >
+                      Reject Non-Essential
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openCenter}
+                      className="focus-ring inline-flex items-center justify-center gap-1 rounded-xl px-4 py-3 text-sm font-bold text-indigo-300 transition-colors hover:text-indigo-200 hover:underline sm:flex-none"
+                    >
+                      Customize
+                      <ChevronRight size={15} />
+                    </button>
+                  </div>
 
-                {/* Policy links */}
-                <div className="mt-4 flex items-center gap-4 border-t border-border pt-3 text-xs">
-                  <Link to="/privacy" className="focus-ring rounded font-semibold text-accent hover:underline">
-                    Privacy Policy
-                  </Link>
-                  <Link to="/terms" className="focus-ring rounded font-semibold text-accent hover:underline">
-                    Cookie Policy
-                  </Link>
+                  {/* Policy links */}
+                  <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-3 text-xs">
+                    <Link to="/privacy" className="focus-ring rounded font-semibold text-indigo-300 hover:text-indigo-200 hover:underline">
+                      Privacy Policy
+                    </Link>
+                    <Link to="/terms" className="focus-ring rounded font-semibold text-indigo-300 hover:text-indigo-200 hover:underline">
+                      Cookie Policy
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
