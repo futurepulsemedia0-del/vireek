@@ -108,7 +108,7 @@ function InviteModal({
   };
 
   const inputClass =
-    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-base text-text-primary placeholder:text-text-secondary/60 sm:text-sm';
+    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60';
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
