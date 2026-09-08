@@ -10,7 +10,6 @@ import { WhyVireek } from '@/components/sections/WhyVireek';
 import { BeforeAfter } from '@/components/sections/BeforeAfter';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
-import { COMPETITORS } from '@/lib/competitors';
 
 export function ComparePage() {
   useSEO({
@@ -128,55 +127,24 @@ export function ComparePage() {
           </div>
         </section>
 
-        {/* Compare Vireek to specific tools */}
-        <section className="px-6 py-20 sm:py-24">
+        {/* Related reading */}
+        <section className="px-6 pb-4">
           <div className="mx-auto max-w-5xl">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={viewport}
-              transition={{ duration: 0.5, ease: EASE }}
-              className="mx-auto max-w-2xl text-center"
+            <Link
+              to="/ai-receptionist-vs-human-receptionist"
+              className="focus-ring group flex flex-col gap-2 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-all duration-200 hover:border-accent/30 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark sm:flex-row sm:items-center sm:justify-between"
             >
-              <p className={`${eyebrowClass()} text-center`}>Head to Head</p>
-              <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>
-                Compare Vireek to specific tools
-              </h2>
-              <p className={`${bodyClass()} mx-auto text-center`}>
-                A closer look at how Vireek stacks up against the platforms home-service businesses
-                consider most often.
-              </p>
-            </motion.div>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              {COMPETITORS.map((competitor, index) => (
-                <motion.div
-                  key={competitor.slug}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={viewport}
-                  transition={{ duration: 0.45, delay: index * 0.08, ease: EASE }}
-                >
-                  <Link
-                    to={`/compare/${competitor.slug}`}
-                    className="group flex items-center justify-between gap-4 rounded-2xl border border-border bg-bg-secondary p-5 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-bg-tertiary text-text-secondary transition-colors group-hover:border-accent/30 group-hover:bg-accent/10 group-hover:text-accent">
-                        <competitor.icon size={18} />
-                      </span>
-                      <span>
-                        <span className="block text-sm font-semibold text-text-primary">
-                          Vireek vs {competitor.name}
-                        </span>
-                        <span className="block text-xs text-text-secondary">{competitor.category}</span>
-                      </span>
-                    </span>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-text-secondary transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-accent" />
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-accent">Related reading</p>
+                <p className="mt-1 text-base font-semibold text-text-primary">
+                  AI Receptionist vs Human Receptionist: Which Wins in 2026?
+                </p>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-accent">
+                Read the comparison
+                <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Link>
           </div>
         </section>
 
