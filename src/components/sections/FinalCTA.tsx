@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, ShieldCheck, Clock, Zap, PhoneCall } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
 import { EASE, viewport } from '@/lib/motion';
 import { SARAH_PHONE } from '@/lib/site';
 
@@ -22,7 +21,18 @@ const GUARANTEES = [
  */
 export function FinalCTA() {
   return (
-    <section id="contact" className="border-t border-border/70 py-16 sm:py-24 md:py-28">
+    <section id="contact" className="relative overflow-hidden border-t border-border/70 bg-noise py-16 sm:py-24 md:py-28">
+      {/* Same signature ambient wash as the Hero, mirrored — bookends the
+          page with the one other moment it's allowed to feel a bit more
+          alive, without reviving the "boxed gradient card" cliché. */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 opacity-60"
+        style={{
+          backgroundImage:
+            'radial-gradient(ellipse 55% 60% at 90% 110%, rgb(var(--accent-primary) / 0.14), transparent 60%), radial-gradient(ellipse 50% 45% at 5% -10%, rgb(var(--accent-secondary) / 0.10), transparent 58%)',
+        }}
+        aria-hidden="true"
+      />
       <div className="mx-auto max-w-5xl px-5 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

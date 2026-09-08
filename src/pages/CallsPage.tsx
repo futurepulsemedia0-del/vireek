@@ -7,14 +7,12 @@ import {
   Phone,
   ArrowLeft,
   Search,
-  Clock,
   TriangleAlert as AlertTriangle,
   X,
   ChevronUp,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Plus,
   Ban,
   UserPlus,
   Wrench,
@@ -22,7 +20,6 @@ import {
   Play,
   Pause,
   MessageSquare,
-  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -57,16 +54,6 @@ function formatDateTime(dateStr: string): string {
     hour: 'numeric',
     minute: '2-digit',
   });
-}
-
-function formatTimeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(hours / 24);
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  const mins = Math.floor(diff / 60000);
-  return mins > 0 ? `${mins}m ago` : 'just now';
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {

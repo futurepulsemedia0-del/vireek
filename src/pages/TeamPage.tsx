@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Plus, X, Trash2, ShieldCheck, Mail, User as UserIcon, Check, Lock, Eye, CreditCard, Users, Settings, Wrench, Loader as Loader2, CircleUser as UserCircle } from 'lucide-react';
+import { Plus, X, Trash2, ShieldCheck, Mail, Check, Lock, Eye, CreditCard, Users, Settings, Wrench, Loader as Loader2, CircleUser as UserCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -280,8 +280,6 @@ function EditModal({
       setSaving(false);
     }
   };
-
-  const inputClass = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary';
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">

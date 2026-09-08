@@ -1,5 +1,4 @@
-import { useRef } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   PhoneIncoming,
   ScanSearch,
@@ -126,9 +125,6 @@ function MarqueeTrack() {
 }
 
 export function LiveActivityStream() {
-  const prefersReducedMotion = useReducedMotion();
-  const containerRef = useRef<HTMLDivElement>(null);
-
   return (
     <section
       id="live-activity"
@@ -173,27 +169,20 @@ export function LiveActivityStream() {
         whileInView={{ opacity: 1 }}
         viewport={viewport}
         transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-        className="relative mt-10 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:mt-12"
+        className="group relative mt-10 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:mt-12"
         aria-hidden="true"
       >
-        <motion.div
-          ref={containerRef}
-          className="flex w-max gap-3 py-1"
-          animate={prefersReducedMotion ? undefined : { x: ['0%', '-50%'] }}
-          transition={{
-            duration: 80,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-          onMouseEnter={() => {
-            if (prefersReducedMotion) return;
-            const el = containerRef.current;
-            if (el) el.style.animationPlayState = 'paused';
-          }}
-        >
+        {/*
+          Real CSS animation (Tailwind's `animate-marquee`, defined in
+          tailwind.config.js) instead of a Framer Motion `animate` loop —
+          this is what makes `animation-play-state: paused` on hover
+          actually work, and `motion-reduce:` lets Tailwind wire it to
+          prefers-reduced-motion automatically, no JS branching needed.
+        */}
+        <div className="flex w-max animate-marquee gap-3 py-1 group-hover:[animation-play-state:paused] motion-reduce:animate-none">
           <MarqueeTrack />
           <MarqueeTrack />
-        </motion.div>
+        </div>
       </motion.div>
 
       {/* Accessible summary */}
