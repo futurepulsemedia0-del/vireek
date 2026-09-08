@@ -1,0 +1,479 @@
+/* ==========================================================================
+   Vireek — OTP Verification Demo
+   Uses the same design tokens as the rest of the app (src/index.css):
+     --accent-primary / --accent-secondary / --success / --danger
+     --text-primary / --text-secondary / --bg-primary / --bg-secondary
+   so it automatically follows light/dark mode (.dark on <html>) and any
+   future palette change — no colors are hardcoded here.
+   ========================================================================== */
+
+.vrk-otp {
+  --votp-ease: cubic-bezier(0.2, 0.85, 0.25, 1);
+  direction: ltr;
+  box-sizing: border-box;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  color: rgb(var(--text-primary));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: min(400px, 92vw);
+  padding: 8px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.vrk-otp * {
+  box-sizing: border-box;
+}
+
+/* head */
+.vrk-otp-head {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.vrk-otp-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: rgb(var(--accent-primary));
+}
+.vrk-otp-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 640;
+  letter-spacing: -0.012em;
+  color: rgb(var(--text-primary));
+}
+.vrk-otp-sub {
+  margin: 0;
+  max-width: 300px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgb(var(--text-secondary));
+}
+
+/* form */
+.vrk-otp-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 0;
+}
+
+/* boxes row */
+.vrk-otp-boxes {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 4px;
+}
+.vrk-otp-divider {
+  width: 12px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgb(var(--text-primary) / 0.16);
+  flex: 0 0 auto;
+}
+
+.vrk-otp-box-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vrk-otp-box {
+  position: relative;
+  z-index: 1;
+  width: 50px;
+  height: 62px;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgb(var(--text-primary) / 0.045), rgb(var(--text-primary) / 0.014));
+  border: 1px solid rgb(var(--text-primary) / 0.1);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 10px 30px -24px rgb(15 23 42 / 0.28);
+  transition:
+    border-color 0.28s var(--votp-ease),
+    transform 0.34s var(--votp-ease),
+    box-shadow 0.32s var(--votp-ease),
+    background 0.32s var(--votp-ease);
+}
+.dark .vrk-otp-box {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.35),
+    0 18px 44px -28px rgb(0 0 0 / 0.75);
+}
+
+.vrk-otp-input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  text-align: center;
+  font-family: ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+  font-size: 26px;
+  font-weight: 600;
+  color: rgb(var(--text-primary));
+  caret-color: rgb(var(--accent-primary));
+  border-radius: 16px;
+  transition: color 0.22s var(--votp-ease);
+}
+.vrk-otp-input::selection {
+  background: rgb(var(--accent-primary) / 0.35);
+}
+
+/* custom caret (idle demo only; the real caret takes over on focus) */
+.vrk-otp-caret {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 26px;
+  margin: -13px 0 0 -1px;
+  border-radius: 2px;
+  background: rgb(var(--accent-primary));
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.vrk-otp-box--active:not(.vrk-otp-box--filled):not(:focus-within) .vrk-otp-caret {
+  opacity: 1;
+  animation: votp-blink 1.05s steps(1, end) infinite;
+}
+
+/* filled */
+.vrk-otp-box--filled {
+  border-color: rgb(var(--text-primary) / 0.18);
+  background: linear-gradient(180deg, rgb(var(--text-primary) / 0.075), rgb(var(--text-primary) / 0.025));
+}
+
+/* active + real focus */
+.vrk-otp-box--active,
+.vrk-otp-box:focus-within {
+  border-color: rgb(var(--accent-primary) / 0.8);
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, rgb(var(--accent-primary) / 0.16), rgb(var(--accent-primary) / 0.035));
+  box-shadow:
+    0 0 0 1px rgb(var(--accent-primary) / 0.5),
+    0 18px 32px -18px rgb(var(--accent-primary) / 0.5),
+    inset 0 1px 0 rgb(var(--text-primary) / 0.05);
+}
+.vrk-otp-box:has(.vrk-otp-input:focus-visible) {
+  box-shadow:
+    0 0 0 2px rgb(var(--accent-primary) / 0.95),
+    0 0 28px rgb(var(--accent-primary) / 0.4),
+    inset 0 1px 0 rgb(var(--text-primary) / 0.05);
+}
+
+/* check icon */
+.vrk-otp-check {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  transform: scale(0.4);
+  color: rgb(var(--success));
+  pointer-events: none;
+}
+.vrk-otp-check path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 22;
+  stroke-dashoffset: 22;
+}
+
+/* success state */
+.vrk-otp-success .vrk-otp-box {
+  border-color: rgb(var(--success) / 0.55);
+  background: linear-gradient(180deg, rgb(var(--success) / 0.14), rgb(var(--success) / 0.03));
+  box-shadow:
+    0 0 0 1px rgb(var(--success) / 0.3),
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 10px 30px -24px rgb(15 23 42 / 0.28);
+  transition-delay: calc(var(--votp-i, 0) * 70ms);
+}
+.dark .vrk-otp-success .vrk-otp-box {
+  box-shadow:
+    0 0 0 1px rgb(var(--success) / 0.3),
+    0 1px 2px rgb(0 0 0 / 0.35),
+    0 18px 44px -28px rgb(0 0 0 / 0.75);
+}
+.vrk-otp-success .vrk-otp-input {
+  color: transparent;
+}
+.vrk-otp-success .vrk-otp-check {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 0.3s var(--votp-ease),
+    transform 0.42s cubic-bezier(0.2, 1.35, 0.3, 1);
+  transition-delay: calc(var(--votp-i, 0) * 70ms);
+}
+.vrk-otp-success .vrk-otp-check path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.42s var(--votp-ease);
+  transition-delay: calc(var(--votp-i, 0) * 70ms + 60ms);
+}
+
+/* success halo — dual-tone glow (success + violet), matching the site's
+   bg-gradient-mesh treatment used elsewhere on the marketing pages */
+.vrk-otp-boxes::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 300px;
+  height: 150px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgb(var(--success) / 0.2), transparent 60%),
+    radial-gradient(closest-side, rgb(var(--accent-secondary) / 0.12), transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.55s var(--votp-ease);
+}
+.vrk-otp-success .vrk-otp-boxes::after {
+  opacity: 1;
+}
+
+/* ripples */
+.vrk-otp-ripple {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  border: 2px solid rgb(var(--success) / 0.55);
+  opacity: 0;
+  transform: scale(0.3);
+  pointer-events: none;
+  z-index: 0;
+}
+.vrk-otp-ripple--accent {
+  border-color: rgb(var(--accent-primary) / 0.42);
+}
+
+/* wrong / shake */
+.vrk-otp-shake .vrk-otp-box {
+  border-color: rgb(var(--danger) / 0.62);
+  background: linear-gradient(180deg, rgb(var(--danger) / 0.14), rgb(var(--danger) / 0.03));
+  box-shadow: 0 0 0 1px rgb(var(--danger) / 0.3), 0 1px 2px rgb(15 23 42 / 0.04);
+}
+.vrk-otp-shake .vrk-otp-input {
+  color: rgb(var(--danger));
+}
+
+/* status */
+.vrk-otp-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgb(var(--text-secondary));
+  transition: color 0.3s var(--votp-ease);
+}
+.vrk-otp-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgb(var(--text-secondary) / 0.5);
+  transition:
+    background 0.3s var(--votp-ease),
+    box-shadow 0.3s var(--votp-ease);
+}
+.vrk-otp-status--ok {
+  color: rgb(var(--success));
+}
+.vrk-otp-status--ok .vrk-otp-status-dot {
+  background: rgb(var(--success));
+  box-shadow: 0 0 10px rgb(var(--success) / 0.7);
+}
+.vrk-otp-status--err {
+  color: rgb(var(--danger));
+}
+.vrk-otp-status--err .vrk-otp-status-dot {
+  background: rgb(var(--danger));
+  box-shadow: 0 0 10px rgb(var(--danger) / 0.7);
+}
+
+.vrk-otp-hint {
+  margin: 0;
+  font-size: 11px;
+  color: rgb(var(--text-secondary) / 0.8);
+}
+
+@keyframes votp-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- motion (idle life, only when allowed) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .vrk-otp-box--active {
+    animation: votp-breathe 2.6s ease-in-out infinite;
+  }
+  @keyframes votp-breathe {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px rgb(var(--accent-primary) / 0.42),
+        0 0 20px rgb(var(--accent-primary) / 0.26),
+        inset 0 1px 0 rgb(var(--text-primary) / 0.05);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgb(var(--accent-primary) / 0.6),
+        0 0 34px rgb(var(--accent-primary) / 0.48),
+        inset 0 1px 0 rgb(var(--text-primary) / 0.05);
+    }
+  }
+
+  .vrk-otp-box--tap .vrk-otp-input {
+    animation: votp-digit 0.34s cubic-bezier(0.2, 1.3, 0.3, 1);
+  }
+  @keyframes votp-digit {
+    0% {
+      transform: scale(0.45);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.14);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .vrk-otp-success .vrk-otp-box {
+    animation: votp-pop 0.5s cubic-bezier(0.2, 1.25, 0.3, 1) both;
+    animation-delay: calc(var(--votp-i, 0) * 70ms);
+  }
+  @keyframes votp-pop {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    42% {
+      transform: translateY(-4px) scale(1.06);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .vrk-otp-success .vrk-otp-ripple {
+    animation: votp-ripple 1s cubic-bezier(0.2, 0.6, 0.15, 1) 0.18s forwards;
+  }
+  .vrk-otp-success .vrk-otp-ripple--accent {
+    animation: votp-ripple-accent 1.15s cubic-bezier(0.2, 0.6, 0.15, 1) 0.3s forwards;
+  }
+  @keyframes votp-ripple {
+    0% {
+      opacity: 0.6;
+      transform: scale(0.3);
+    }
+    70% {
+      opacity: 0.14;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(3.2);
+    }
+  }
+  @keyframes votp-ripple-accent {
+    0% {
+      opacity: 0.42;
+      transform: scale(0.4);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(5);
+    }
+  }
+
+  .vrk-otp-shake .vrk-otp-boxes {
+    animation: votp-shake 0.52s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  @keyframes votp-shake {
+    10% {
+      transform: translateX(-7px);
+    }
+    22% {
+      transform: translateX(6px);
+    }
+    34% {
+      transform: translateX(-6px);
+    }
+    46% {
+      transform: translateX(5px);
+    }
+    58% {
+      transform: translateX(-4px);
+    }
+    70% {
+      transform: translateX(3px);
+    }
+    82% {
+      transform: translateX(-2px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+}
+
+/* ---------- reduced motion (calm, still, premium) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .vrk-otp-box,
+  .vrk-otp-check,
+  .vrk-otp-check path,
+  .vrk-otp-input,
+  .vrk-otp-boxes::after,
+  .vrk-otp-caret {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    animation: none !important;
+  }
+  .vrk-otp-box--active:not(.vrk-otp-box--filled):not(:focus-within) .vrk-otp-caret {
+    opacity: 1;
+  }
+  .vrk-otp-success .vrk-otp-check {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .vrk-otp-success .vrk-otp-check path {
+    stroke-dashoffset: 0;
+  }
+}
