@@ -12,7 +12,9 @@ interface TranscriptLine {
   text: string;
 }
 
-const MAX_TRANSCRIPT_LINES = 6;
+// Raised from 6 → 50 now that the transcript panel actually scrolls inside
+// its own box instead of growing the whole card (see min-h-0 fix below).
+const MAX_TRANSCRIPT_LINES = 50;
 const GENERIC_ERROR =
   "Couldn't start the voice demo — check that your microphone is allowed for this site, then try again.";
 
@@ -159,14 +161,21 @@ export function VoiceDemoWidget() {
         Live voice
       </div>
 
-      <div className="flex items-center gap-2 border-b border-border bg-bg-tertiary/60 px-4 py-3.5 sm:px-5 sm:py-4">
+      <div className="flex shrink-0 items-center gap-2 border-b border-border bg-bg-tertiary/60 px-4 py-3.5 sm:px-5 sm:py-4">
         <Radio size={15} className="text-accent sm:size-4" />
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-secondary sm:text-sm sm:tracking-[0.18em]">
           Talk to Sarah — real voice, right now
         </p>
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 py-6 text-center">
+      {/*
+        min-h-0 is required here: without it, a flex child with flex-1 will
+        never shrink below its content's natural height (flexbox default is
+        min-height: auto). That was the original bug — once the transcript
+        got long, this panel grew past the card's fixed height instead of
+        scrolling, and pushed the mute/hang-up buttons out of view.
+      */}
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-5 px-6 py-6 text-center">
         <AnimatePresence mode="wait">
           {state === 'idle' && (
             <motion.div
@@ -216,9 +225,10 @@ export function VoiceDemoWidget() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex w-full flex-1 flex-col items-center gap-4"
+              className="flex min-h-0 w-full flex-1 flex-col items-center gap-4"
             >
-              <div className="flex items-center gap-3">
+              {/* Header row (waveform + timer) — fixed size, never shrinks */}
+              <div className="flex shrink-0 items-center gap-3">
                 <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent">
                   <LiveWaveform level={volume} />
                 </span>
@@ -228,10 +238,13 @@ export function VoiceDemoWidget() {
                 </div>
               </div>
 
+              {/* Transcript — the only part that scrolls. min-h-0 + overflow-y-auto
+                  keep it capped inside the available space no matter how long
+                  the conversation gets, so the buttons below stay put. */}
               <div
                 ref={scrollRef}
                 aria-live="polite"
-                className="w-full flex-1 space-y-2 overflow-y-auto rounded-xl border border-border bg-bg-primary px-3 py-3 text-left"
+                className="w-full min-h-0 flex-1 space-y-2 overflow-y-auto rounded-xl border border-border bg-bg-primary px-3 py-3 text-left [scrollbar-width:thin]"
               >
                 {transcript.length === 0 ? (
                   <p className="text-center text-xs text-text-secondary/70">
@@ -239,20 +252,33 @@ export function VoiceDemoWidget() {
                   </p>
                 ) : (
                   transcript.map((line, i) => (
-                    <p
+                    <div
                       key={i}
-                      className={`text-xs leading-relaxed ${
-                        line.role === 'assistant' ? 'text-accent' : 'text-text-primary'
-                      }`}
+                      className={`flex ${line.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
                     >
-                      <span className="font-semibold">{line.role === 'assistant' ? 'Sarah: ' : 'You: '}</span>
-                      {line.text}
-                    </p>
+                      <div
+                        className={`max-w-[85%] rounded-lg px-2.5 py-1.5 text-xs leading-relaxed break-words ${
+                          line.role === 'assistant'
+                            ? 'bg-accent/10 text-text-primary'
+                            : 'bg-bg-tertiary text-text-primary'
+                        }`}
+                      >
+                        <span
+                          className={`mb-0.5 block text-[0.6875rem] font-semibold ${
+                            line.role === 'assistant' ? 'text-accent' : 'text-text-secondary'
+                          }`}
+                        >
+                          {line.role === 'assistant' ? 'Sarah' : 'You'}
+                        </span>
+                        {line.text}
+                      </div>
+                    </div>
                   ))
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
+              {/* Controls — fixed size, always visible regardless of transcript length */}
+              <div className="flex shrink-0 items-center gap-3">
                 <button
                   type="button"
                   onClick={toggleMute}
