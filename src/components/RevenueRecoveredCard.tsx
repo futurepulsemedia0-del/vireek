@@ -34,9 +34,14 @@ function isOffHoursCall(call: Call, businessHours: BusinessHours): boolean {
 
   if (businessHours && Object.keys(businessHours).length > 0) {
     const entry = businessHours[dayKey];
-    if (!entry) return true; // day not listed = closed all day
+    if (!entry || typeof entry.open !== 'string' || typeof entry.close !== 'string') {
+      return true; // day not listed, or malformed entry = treat as closed
+    }
     const [openH, openM] = entry.open.split(':').map(Number);
     const [closeH, closeM] = entry.close.split(':').map(Number);
+    if ([openH, openM, closeH, closeM].some((n) => Number.isNaN(n))) {
+      return true; // unparsable time string = treat as closed rather than throw
+    }
     const openMinutes = openH * 60 + openM;
     const closeMinutes = closeH * 60 + closeM;
     return minutesOfDay < openMinutes || minutesOfDay >= closeMinutes;
