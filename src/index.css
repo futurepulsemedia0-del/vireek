@@ -111,6 +111,18 @@ body {
 }
 
 @layer utilities {
+  /* Hides the native scrollbar on the draggable HighlightBanner marquee
+     while keeping the element natively scrollable (mouse-wheel, touch,
+     and JS-driven scrollLeft all keep working). */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .bg-noise {
     position: relative;
   }
