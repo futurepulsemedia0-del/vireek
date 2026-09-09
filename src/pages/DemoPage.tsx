@@ -6,6 +6,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
+import { BackButton } from '@/components/ui/BackButton';
 import { EASE } from '@/lib/motion';
 
 type FormData = {
@@ -111,6 +112,9 @@ export function DemoPage() {
       <main className="min-h-screen overflow-hidden bg-bg-primary pt-24">
         <section className="relative bg-gradient-mesh bg-noise px-6 py-20 sm:py-24">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
+          <div className="mx-auto mb-8 max-w-6xl">
+            <BackButton />
+          </div>
           <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-start">
             {/* Left: pitch */}
             <motion.div
