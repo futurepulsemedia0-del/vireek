@@ -5,7 +5,6 @@ import { Accessibility, Mail, Sparkles, Eye, Brain, Book, Shield, Keyboard, Volu
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
-import { BackButton } from '@/components/ui/BackButton';
 import { useAccessibility, PROFILES } from '@/contexts/AccessibilityContext';
 import { EASE } from '@/lib/motion';
 
@@ -57,9 +56,6 @@ export function AccessibilityPage() {
           transition={{ duration: 0.5, ease: EASE }}
           className="mx-auto max-w-3xl"
         >
-          <div className="mb-6">
-            <BackButton />
-          </div>
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
             <Accessibility size={26} />
           </span>

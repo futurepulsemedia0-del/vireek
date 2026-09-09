@@ -162,7 +162,7 @@ export function CommandPalette() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Jump to a page, or search calls, leads, jobs…"
-                className="flex-1 bg-transparent text-base text-text-primary outline-none placeholder:text-text-secondary/60 sm:text-sm"
+                className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary/60"
               />
               <kbd className="rounded border border-border px-1.5 py-0.5 text-[10px] font-medium text-text-secondary">
                 Esc

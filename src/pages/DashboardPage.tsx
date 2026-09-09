@@ -578,7 +578,7 @@ export function DashboardPage() {
         type: 'call',
         priority: 'urgent',
         title: `Emergency call from ${c.caller_name || 'unknown'}`,
-        description: `Status: ${c.status.replace(/_/g, ' ')}. ${c.summary?.slice(0, 100) ?? ''}`,
+        description: `Status: ${(c.status ?? 'unknown').replace(/_/g, ' ')}. ${c.summary?.slice(0, 100) ?? ''}`,
         icon: AlertTriangle,
       });
     });
@@ -629,7 +629,7 @@ export function DashboardPage() {
         id: `job-${j.id}`,
         type: 'job',
         title: `Job: ${j.customer_name}`,
-        description: `${j.service_type || 'Service'} · ${j.job_status.replace(/_/g, ' ')}`,
+        description: `${j.service_type || 'Service'} · ${(j.job_status ?? 'unknown').replace(/_/g, ' ')}`,
         timestamp: j.created_at,
         icon: Calendar,
         statusColor: statusColors[j.job_status] || statusColors.scheduled,
