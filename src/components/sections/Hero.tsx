@@ -256,7 +256,7 @@ export function Hero() {
               <Button
                 variant="secondary"
                 size="lg"
-                className="w-full gap-2 border-cta/40 text-cta hover:border-cta hover:bg-cta/10 sm:w-auto"
+                className="w-full gap-2 border-accent/40 text-accent hover:border-accent hover:bg-accent/10 sm:w-auto"
               >
                 <Mic size={16} />
                 Talk to Sarah live
