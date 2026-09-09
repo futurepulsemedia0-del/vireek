@@ -276,7 +276,7 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationMap> = {
     voiceReady: 'वॉइस नेविगेशन तैयार',
     voiceNavReady: 'वॉइस कमांड आर्किटेक्चर तैयार',
     textToSpeechReady: 'टेक्स्ट-टू-स्पीच तैयार',
-    multiLanguageVoice: 'बहुभाषी वॉइस समर्थन योजन�बद्ध',
+    multiLanguageVoice: 'बहुभाषी वॉइस समर्थन योजनाबद्ध',
   },
   fr: {
     accessibilityCenter: "Centre d'Accessibilité",
@@ -450,7 +450,7 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationMap> = {
     personalizationLevel: 'سطح شخصی‌سازی',
     globalEasyMode: 'حالت آسان جهانی',
     seniorWorldwideMode: 'حالت سالمندان جهانی',
-    lowVisionMode: 'حاخت ضعف بینایی',
+    lowVisionMode: 'حالت ضعف بینایی',
     readingComfortMode: 'حالت راحتی مطالعه',
     focusMode: 'حالت تمرکز',
     distractionFreeMode: 'حالت بدون حواس‌پرتی',
@@ -573,3 +573,134 @@ export const GLOBAL_PROFILES: GlobalProfile[] = [
     settings: { lineHeight: 2.0, letterSpacing: 0.06, wordSpacing: 0.1, readableFont: true, textSize: 1.1 },
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/*  Translation helpers — safe lookup, interpolation, locale utils     */
+/* ------------------------------------------------------------------ */
+
+/** Language used whenever a requested language or key is unavailable. */
+export const DEFAULT_LANGUAGE: LanguageCode = 'en';
+
+/**
+ * Full BCP-47 locale tags for each supported language code, for use with
+ * the native `Intl` APIs (number/date formatting, collation, etc.).
+ */
+export const LOCALE_TAGS: Record<LanguageCode, string> = {
+  en: 'en-US',
+  es: 'es-ES',
+  zh: 'zh-CN',
+  hi: 'hi-IN',
+  fr: 'fr-FR',
+  de: 'de-DE',
+  ar: 'ar-SA',
+  fa: 'fa-IR',
+  ja: 'ja-JP',
+};
+
+/**
+ * Look up a translation for `key` in `language`.
+ *
+ * Falls back to `DEFAULT_LANGUAGE` if the requested language is missing the
+ * key (should not happen given `TRANSLATIONS` is fully typed, but this
+ * keeps the function safe against partially-filled dictionaries added by
+ * mistake later), and finally falls back to the raw key itself so the UI
+ * never renders `undefined` — it renders something visibly wrong instead,
+ * which is easier to spot and fix than a silent crash.
+ */
+export function t(key: TranslationKey, language: LanguageCode): string {
+  return (
+    TRANSLATIONS[language]?.[key] ??
+    TRANSLATIONS[DEFAULT_LANGUAGE]?.[key] ??
+    key
+  );
+}
+
+/**
+ * Replace `{{token}}` placeholders in `template` with values from `vars`.
+ * Unmatched placeholders are left as-is rather than throwing, so a missing
+ * variable degrades gracefully instead of breaking the render.
+ *
+ *   interpolate('Hello {{name}}', { name: 'Sam' }) // "Hello Sam"
+ */
+export function interpolate(
+  template: string,
+  vars?: Record<string, string | number>
+): string {
+  if (!vars) return template;
+  return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, token: string) =>
+    token in vars ? String(vars[token]) : match
+  );
+}
+
+/** `t()` + `interpolate()` in one call. */
+export function tv(
+  key: TranslationKey,
+  language: LanguageCode,
+  vars?: Record<string, string | number>
+): string {
+  return interpolate(t(key, language), vars);
+}
+
+/**
+ * Locale-aware number formatting (e.g. thousands separators, digit shapes)
+ * using each language's real BCP-47 tag instead of the raw two-letter code.
+ */
+export function formatNumber(
+  value: number,
+  language: LanguageCode,
+  options?: Intl.NumberFormatOptions
+): string {
+  try {
+    return new Intl.NumberFormat(LOCALE_TAGS[language] ?? LOCALE_TAGS[DEFAULT_LANGUAGE], options).format(value);
+  } catch {
+    return String(value);
+  }
+}
+
+/** Locale-aware date formatting, same fallback behavior as `formatNumber`. */
+export function formatDate(
+  value: Date | number | string,
+  language: LanguageCode,
+  options?: Intl.DateTimeFormatOptions
+): string {
+  const date = value instanceof Date ? value : new Date(value);
+  try {
+    return new Intl.DateTimeFormat(LOCALE_TAGS[language] ?? LOCALE_TAGS[DEFAULT_LANGUAGE], options).format(date);
+  } catch {
+    return date.toISOString();
+  }
+}
+
+/**
+ * Match a raw `navigator.language` (or any BCP-47-ish string) against the
+ * languages we actually support, falling back to `fallback` (default:
+ * `DEFAULT_LANGUAGE`) when there's no match. Matches on the base subtag
+ * first ("fa-IR" -> "fa"), so region variants resolve correctly.
+ */
+export function detectBrowserLanguage(fallback: LanguageCode = DEFAULT_LANGUAGE): LanguageCode {
+  if (typeof navigator === 'undefined') return fallback;
+  const raw = navigator.language || (navigator.languages && navigator.languages[0]) || '';
+  const base = raw.slice(0, 2).toLowerCase();
+  const match = LANGUAGES.find((l) => l.code === base);
+  return match ? match.code : fallback;
+}
+
+/**
+ * Dev-time completeness check: compares every language's key set against
+ * `DEFAULT_LANGUAGE` and reports anything missing. `TRANSLATIONS` is fully
+ * typed so this should always return an empty array — call it from a dev
+ * script or a one-off console check after editing translations, rather
+ * than on every app load, to catch a partially-filled language dictionary
+ * before it ships.
+ */
+export function validateTranslations(): { language: LanguageCode; missingKeys: TranslationKey[] }[] {
+  const sourceKeys = Object.keys(TRANSLATIONS[DEFAULT_LANGUAGE]) as TranslationKey[];
+  const results: { language: LanguageCode; missingKeys: TranslationKey[] }[] = [];
+  for (const lang of LANGUAGES.map((l) => l.code)) {
+    if (lang === DEFAULT_LANGUAGE) continue;
+    const dict = TRANSLATIONS[lang];
+    const missingKeys = sourceKeys.filter((k) => !dict || !(k in dict) || dict[k].trim() === '');
+    if (missingKeys.length > 0) results.push({ language: lang, missingKeys });
+  }
+  return results;
+}
