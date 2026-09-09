@@ -3,38 +3,23 @@ import { Footer } from '@/components/Footer';
 import { useSEO } from '@/lib/seo';
 import { Hero } from '@/components/sections/Hero';
 import { TrustBar } from '@/components/sections/TrustBar';
-import { LiveActivityStream } from '@/components/sections/LiveActivityStream';
-import { AICapability } from '@/components/sections/AICapability';
-import { DashboardPreview } from '@/components/sections/DashboardPreview';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
-import { Industries } from '@/components/sections/Industries';
-import { Integrations } from '@/components/sections/Integrations';
-import { CaseStudies } from '@/components/sections/CaseStudies';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 import { CookieConsent } from '@/components/CookieConsent';
 
 /**
- * Homepage — kept intentionally tight. It only needs to do one job: convince
- * a first-time visitor Vireek is worth a trial, then hand them to /platform
- * (deep technical dive), /pricing (full plan comparison), or /industries.
- *
- * The five "Sarah is smart, not a chatbot" deep-dive sections that used to
- * live here (AiBusinessMemory, AIBrain, RevenueIntelligence,
- * OperationsCommandCenter, AiCallCoach) were repeating the same pitch in
- * different words and pushing Pricing to the very bottom of the page. They
- * now live on /platform, which is the natural home for that level of detail.
- *
- * Pricing itself was also pulled up from position 8 of 15 to right after the
- * first four sections (Hero, TrustBar, AICapability, HowItWorks) — most
- * visitors scroll and never reach a pricing block buried mid-page, even
- * though it's also one click away in the header nav.
- *
- * WhyVireekFeatures, SecurityPrivacy, and MissedCallCalculator were removed
- * from here too — they were near-duplicates of the dedicated /features,
- * /security, and /calculator pages (now linked from the footer), so keeping
- * both copies just added length without adding a new reason to convert.
+ * Homepage — cut down to a single, six-section path: prove it works (Hero),
+ * prove it's trusted (TrustBar), explain it (HowItWorks), let the visitor
+ * try it themselves (LiveDemo), show the price (PricingTeaser), close
+ * (FinalCTA). Everything else that used to live here — AICapability,
+ * LiveActivityStream, DashboardPreview, Industries, Integrations,
+ * CaseStudies — was saying the same "Sarah is smart" pitch a second or
+ * third time and pushing the live demo and pricing further down the page
+ * than a first-time visitor actually scrolls. That content isn't gone: it
+ * lives on /platform, /industries, /integrations and /case-studies, all one
+ * click away from the header and footer nav.
  */
 export function HomePage() {
   useSEO({
@@ -49,15 +34,9 @@ export function HomePage() {
       <main>
         <Hero />
         <TrustBar />
-        <AICapability />
         <HowItWorks />
-        <PricingTeaser />
-        <LiveActivityStream />
-        <DashboardPreview />
         <LiveDemo />
-        <Industries />
-        <Integrations />
-        <CaseStudies />
+        <PricingTeaser />
         <FinalCTA />
       </main>
       <Footer />
