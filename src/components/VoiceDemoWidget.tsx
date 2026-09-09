@@ -152,15 +152,15 @@ export function VoiceDemoWidget() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.5, ease: EASE }}
-      className="relative flex h-[440px] flex-col overflow-hidden rounded-2xl border border-cta/40 bg-bg-secondary shadow-card dark:shadow-card-dark sm:h-[520px]"
+      className="relative flex h-[440px] flex-col overflow-hidden rounded-2xl border border-accent/30 bg-bg-secondary shadow-card dark:shadow-card-dark sm:h-[520px]"
     >
       {/* Featured ribbon — this is the flagship demo experience */}
-      <div className="absolute right-4 top-4 z-10 rounded-full bg-cta px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-white">
+      <div className="absolute right-4 top-4 z-10 rounded-full bg-accent px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-white">
         Live voice
       </div>
 
       <div className="flex items-center gap-2 border-b border-border bg-bg-tertiary/60 px-4 py-3.5 sm:px-5 sm:py-4">
-        <Radio size={15} className="text-cta sm:size-4" />
+        <Radio size={15} className="text-accent sm:size-4" />
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-secondary sm:text-sm sm:tracking-[0.18em]">
           Talk to Sarah — real voice, right now
         </p>
@@ -176,7 +176,7 @@ export function VoiceDemoWidget() {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center gap-4"
             >
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-cta/10 text-cta">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 text-accent">
                 <Mic size={26} />
               </span>
               <p className="max-w-[260px] text-sm text-text-secondary">
@@ -186,7 +186,7 @@ export function VoiceDemoWidget() {
               <button
                 type="button"
                 onClick={startCall}
-                className="focus-ring inline-flex items-center gap-2 rounded-xl bg-cta px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta active:scale-[0.97]"
+                className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:shadow-glow-accent active:scale-[0.97]"
               >
                 <Mic size={18} />
                 Talk to Sarah live
@@ -205,7 +205,7 @@ export function VoiceDemoWidget() {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center gap-3"
             >
-              <Loader2 size={28} className="animate-spin text-cta" />
+              <Loader2 size={28} className="animate-spin text-accent" />
               <p className="text-sm text-text-secondary">Connecting you to Sarah…</p>
             </motion.div>
           )}
@@ -219,7 +219,7 @@ export function VoiceDemoWidget() {
               className="flex w-full flex-1 flex-col items-center gap-4"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-cta">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent">
                   <LiveWaveform level={volume} />
                 </span>
                 <div className="text-left">
@@ -289,8 +289,8 @@ export function VoiceDemoWidget() {
               </p>
               <div className="flex flex-col items-center gap-2 sm:flex-row">
                 <Link
-                  to="/login"
-                  className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:brightness-110"
+                  to="/signup"
+                  className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-glow-accent hover:brightness-110"
                 >
                   Start free trial
                   <ArrowRight size={15} />
