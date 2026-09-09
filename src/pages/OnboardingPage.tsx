@@ -47,6 +47,44 @@ const SERVICE_SUGGESTIONS = [
   'Pest Control',
 ];
 
+const INDUSTRY_OPTIONS = [
+  { value: 'hvac', label: 'HVAC' },
+  { value: 'plumbing', label: 'Plumbing' },
+  { value: 'electrical', label: 'Electrical' },
+  { value: 'roofing', label: 'Roofing' },
+  { value: 'general_home_services', label: 'General Home Services' },
+  { value: 'other', label: 'Other' },
+];
+
+const TEAM_SIZE_OPTIONS = [
+  { value: 'solo', label: "It's just me" },
+  { value: '2-5', label: '2–5 people' },
+  { value: '6-15', label: '6–15 people' },
+  { value: '16+', label: '16+ people' },
+];
+
+const CALL_HANDLING_OPTIONS = [
+  { value: 'in_house', label: 'In-house staff answers' },
+  { value: 'answering_service', label: 'Outsourced answering service' },
+  { value: 'voicemail', label: 'Calls go to voicemail' },
+  { value: 'another_ai_tool', label: 'Another AI receptionist tool' },
+  { value: 'none', label: "We're missing calls today" },
+];
+
+const SCHEDULING_TOOL_OPTIONS = [
+  { value: 'service_titan', label: 'ServiceTitan' },
+  { value: 'housecall_pro', label: 'Housecall Pro' },
+  { value: 'jobber', label: 'Jobber' },
+  { value: 'other', label: 'Something else' },
+  { value: 'none', label: "Don't use one yet" },
+];
+
+const EMERGENCY_HANDLING_OPTIONS = [
+  { value: 'yes_premium', label: 'Yes — we charge an emergency/premium rate' },
+  { value: 'yes_same_rate', label: 'Yes — same rate any time' },
+  { value: 'business_hours_only', label: 'No — business hours only' },
+];
+
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
 
@@ -78,7 +116,17 @@ export function OnboardingPage() {
   const [services, setServices] = useState<string[]>([]);
   const [customService, setCustomService] = useState('');
 
-  // Step 2: Business hours
+  // Step 2: Your operations — home-services-specific questions that shape
+  // how Sarah handles calls (industry vocabulary, dispatch capacity,
+  // emergency triage) and sharpen the dashboard's ROI numbers.
+  const [primaryIndustry, setPrimaryIndustry] = useState('');
+  const [teamSize, setTeamSize] = useState('');
+  const [currentCallHandling, setCurrentCallHandling] = useState('');
+  const [schedulingTool, setSchedulingTool] = useState('');
+  const [avgJobValue, setAvgJobValue] = useState('');
+  const [handlesEmergencyCalls, setHandlesEmergencyCalls] = useState('');
+
+  // Step 3: Business hours
   const [hours, setHours] = useState<Record<string, { open: string; close: string }>>({});
 
   useEffect(() => {
@@ -106,6 +154,12 @@ export function OnboardingPage() {
       if (bp.services_offered) setServices(bp.services_offered);
       if (bp.service_area) setServiceArea(bp.service_area);
       if (bp.business_hours) setHours(bp.business_hours as Record<string, { open: string; close: string }>);
+      if (bp.primary_industry) setPrimaryIndustry(bp.primary_industry);
+      if (bp.team_size) setTeamSize(bp.team_size);
+      if (bp.current_call_handling) setCurrentCallHandling(bp.current_call_handling);
+      if (bp.scheduling_tool) setSchedulingTool(bp.scheduling_tool);
+      if (bp.avg_job_value != null) setAvgJobValue(String(bp.avg_job_value));
+      if (bp.handles_emergency_calls) setHandlesEmergencyCalls(bp.handles_emergency_calls);
     }
   }, [user]);
 
@@ -148,11 +202,18 @@ export function OnboardingPage() {
 
   const saveBusinessProfile = async () => {
     if (!user) return;
+    const parsedAvgJobValue = avgJobValue.trim() ? Number(avgJobValue.trim()) : null;
     const payload = {
       user_id: user.id,
       services_offered: services.length > 0 ? services : null,
       service_area: serviceArea.trim() || null,
       business_hours: Object.keys(hours).length > 0 ? hours : null,
+      primary_industry: primaryIndustry || null,
+      team_size: teamSize || null,
+      current_call_handling: currentCallHandling || null,
+      scheduling_tool: schedulingTool || null,
+      avg_job_value: parsedAvgJobValue != null && !Number.isNaN(parsedAvgJobValue) ? parsedAvgJobValue : null,
+      handles_emergency_calls: handlesEmergencyCalls || null,
     };
     const { error } = await supabase.from('business_profile').upsert(payload, {
       onConflict: 'user_id',
@@ -196,13 +257,14 @@ export function OnboardingPage() {
   };
 
   const handleSkipToFinish = () => {
-    setStep(2);
+    setStep(3);
   };
 
   const canProceedStep1 = fullName.trim() && companyName.trim();
 
   const steps = [
     { label: 'Business Info', icon: Building2 },
+    { label: 'Operations', icon: Wrench },
     { label: 'Hours', icon: Clock },
     { label: 'Confirm', icon: Check },
   ];
@@ -413,8 +475,173 @@ export function OnboardingPage() {
               </motion.div>
             )}
 
-            {/* STEP 2: Business Hours */}
+            {/* STEP 2: Your Operations — home-services-specific questions */}
             {step === 1 && (
+              <motion.div
+                key="step-ops"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="text-center">
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                    <Wrench size={24} />
+                  </span>
+                  <h1 className="mt-4 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+                    A bit about how you run things
+                  </h1>
+                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                    This tunes Sarah's dispatch logic and sharpens your revenue numbers. All optional.
+                  </p>
+                </div>
+
+                <div className="mt-6 grid gap-5">
+                  {/* Primary industry */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-text-primary">
+                      Primary industry
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {INDUSTRY_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setPrimaryIndustry(opt.value)}
+                          className={chipClass(primaryIndustry === opt.value)}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Team size */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-text-primary">
+                      Team size
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {TEAM_SIZE_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setTeamSize(opt.value)}
+                          className={chipClass(teamSize === opt.value)}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Current call handling */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-text-primary">
+                      How are calls handled today?
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {CALL_HANDLING_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setCurrentCallHandling(opt.value)}
+                          className={chipClass(currentCallHandling === opt.value)}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Scheduling tool */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-text-primary">
+                      Scheduling / CRM tool you use
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {SCHEDULING_TOOL_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setSchedulingTool(opt.value)}
+                          className={chipClass(schedulingTool === opt.value)}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Average job value */}
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-text-primary">
+                      Average job value ($)
+                    </label>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      placeholder="e.g. 350"
+                      value={avgJobValue}
+                      onChange={(e) => setAvgJobValue(e.target.value)}
+                      className={inputClass}
+                    />
+                    <p className="mt-1.5 text-xs text-text-secondary">
+                      Helps us show accurate revenue-recovered numbers on your dashboard from day one.
+                    </p>
+                  </div>
+
+                  {/* Emergency call handling */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-text-primary">
+                      Do you take emergency / after-hours calls?
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {EMERGENCY_HANDLING_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setHandlesEmergencyCalls(opt.value)}
+                          className={chipClass(handlesEmergencyCalls === opt.value)}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep(0)}
+                    className="focus-ring flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
+                  >
+                    <ArrowLeft size={16} /> Back
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSkipToFinish}
+                      className="focus-ring rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      Skip
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+                    >
+                      Continue <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 3: Business Hours */}
+            {step === 2 && (
               <motion.div
                 key="step2"
                 initial={{ opacity: 0, x: 20 }}
@@ -487,7 +714,7 @@ export function OnboardingPage() {
                 <div className="mt-6 flex items-center justify-between gap-3">
                   <button
                     type="button"
-                    onClick={() => setStep(0)}
+                    onClick={() => setStep(1)}
                     className="focus-ring flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
                   >
                     <ArrowLeft size={16} /> Back
@@ -502,7 +729,7 @@ export function OnboardingPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setStep(2)}
+                      onClick={() => setStep(3)}
                       className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
                     >
                       Continue <ArrowRight size={16} />
@@ -512,8 +739,8 @@ export function OnboardingPage() {
               </motion.div>
             )}
 
-            {/* STEP 3: Confirmation */}
-            {step === 2 && (
+            {/* STEP 4: Confirmation */}
+            {step === 3 && (
               <motion.div
                 key="step3"
                 initial={{ opacity: 0, x: 20 }}
@@ -553,6 +780,25 @@ export function OnboardingPage() {
                     )}
                   </div>
 
+                  {(primaryIndustry || teamSize || currentCallHandling || schedulingTool || avgJobValue || handlesEmergencyCalls) && (
+                    <div className="rounded-xl border border-border bg-bg-primary p-4">
+                      <div className="flex items-center gap-2">
+                        <Wrench size={14} className="text-accent" />
+                        <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Operations</span>
+                      </div>
+                      <div className="mt-1.5 space-y-0.5 text-xs text-text-secondary">
+                        {primaryIndustry && (
+                          <p>Industry: {INDUSTRY_OPTIONS.find((o) => o.value === primaryIndustry)?.label}</p>
+                        )}
+                        {teamSize && <p>Team size: {TEAM_SIZE_OPTIONS.find((o) => o.value === teamSize)?.label}</p>}
+                        {avgJobValue && <p>Average job value: ${avgJobValue}</p>}
+                        {handlesEmergencyCalls && (
+                          <p>Emergency calls: {EMERGENCY_HANDLING_OPTIONS.find((o) => o.value === handlesEmergencyCalls)?.label}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="rounded-xl border border-border bg-bg-primary p-4">
                     <div className="flex items-center gap-2">
                       <Clock size={14} className="text-accent" />
@@ -575,7 +821,7 @@ export function OnboardingPage() {
                 <div className="mt-6 flex items-center justify-between gap-3">
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={() => setStep(2)}
                     className="focus-ring flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
                   >
                     <ArrowLeft size={16} /> Back
