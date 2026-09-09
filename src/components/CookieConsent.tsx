@@ -435,33 +435,49 @@ export function CookieConsent() {
             transition={{ type: 'spring', stiffness: 280, damping: 28, mass: 0.6 }}
             className="fixed inset-x-0 bottom-0 z-[70] px-4 pb-4 sm:px-6 sm:pb-6"
           >
-            <div className="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-bg-secondary/90 shadow-2xl backdrop-blur-xl">
-              {/* Decorative top accent line */}
-              <div className="h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+            <div
+              className="relative mx-auto w-full max-w-2xl overflow-hidden rounded-[28px] border border-white/10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.65)] ring-1 ring-black/5"
+              style={{
+                background:
+                  'linear-gradient(155deg, #0B0F1E 0%, #10142A 45%, #0B0F1E 100%)',
+              }}
+            >
+              {/* Ambient accent glow */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  backgroundImage:
+                    'radial-gradient(circle at 12% -10%, rgb(var(--accent-primary) / 0.35), transparent 55%), radial-gradient(circle at 105% 120%, rgb(var(--accent-secondary) / 0.22), transparent 55%)',
+                }}
+              />
 
-              <div className="p-5 sm:p-6">
+              {/* Vivid top accent bar */}
+              <div className="relative h-[3px] w-full bg-gradient-to-r from-accent via-[#7C8CFF] to-cta" />
+
+              <div className="relative p-5 sm:p-7">
                 {/* Header row */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3.5">
                   <motion.span
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.15, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/20 bg-accent/10 text-accent"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white shadow-glow-accent"
                   >
-                    <ShieldCheck size={20} />
+                    <ShieldCheck size={21} />
                   </motion.span>
                   <div>
-                    <h3 className="text-base font-bold tracking-tight text-text-primary">
+                    <h3 className="text-base font-bold tracking-tight text-white sm:text-lg">
                       Your Privacy, Your Control
                     </h3>
-                    <p className="text-xs font-medium text-text-secondary/70">
+                    <p className="text-xs font-medium text-white/55">
                       Vireek takes a privacy-first approach to every interaction.
                     </p>
                   </div>
                 </div>
 
                 {/* Description */}
-                <p className="mt-4 text-sm leading-relaxed text-text-secondary">
+                <p className="mt-4 text-sm leading-relaxed text-white/70">
                   We use privacy-friendly technologies to improve your experience, understand
                   platform performance, and personalize your journey. You are always in control.
                 </p>
@@ -471,7 +487,7 @@ export function CookieConsent() {
                   <button
                     type="button"
                     onClick={acceptAll}
-                    className="focus-ring group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 ease-out hover:brightness-110 hover:shadow-glow-accent active:brightness-90"
+                    className="focus-ring group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-glow-accent transition-all duration-150 ease-out hover:brightness-110 active:brightness-90"
                   >
                     Accept All
                     <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
@@ -479,14 +495,14 @@ export function CookieConsent() {
                   <button
                     type="button"
                     onClick={rejectNonEssential}
-                    className="focus-ring inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-bg-tertiary px-5 py-3 text-sm font-semibold text-text-primary transition-all duration-150 hover:border-accent/30 hover:bg-bg-tertiary/80 active:brightness-95 sm:flex-none"
+                    className="focus-ring inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white transition-all duration-150 hover:border-white/35 hover:bg-white/[0.1] active:brightness-95 sm:flex-none"
                   >
                     Reject Non-Essential
                   </button>
                   <button
                     type="button"
                     onClick={openCenter}
-                    className="focus-ring inline-flex items-center justify-center gap-1 rounded-xl px-4 py-3 text-sm font-semibold text-text-secondary transition-colors hover:text-accent sm:flex-none"
+                    className="focus-ring inline-flex items-center justify-center gap-1 rounded-xl px-4 py-3 text-sm font-semibold text-white/60 transition-colors hover:text-white sm:flex-none"
                   >
                     Customize
                     <ChevronRight size={15} />
@@ -494,11 +510,11 @@ export function CookieConsent() {
                 </div>
 
                 {/* Policy links */}
-                <div className="mt-4 flex items-center gap-4 border-t border-border/60 pt-3 text-xs">
-                  <Link to="/privacy" className="focus-ring rounded font-medium text-accent hover:underline">
+                <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-3 text-xs">
+                  <Link to="/privacy" className="focus-ring rounded font-medium text-white/55 transition-colors hover:text-accent-300">
                     Privacy Policy
                   </Link>
-                  <Link to="/cookies" className="focus-ring rounded font-medium text-accent hover:underline">
+                  <Link to="/cookies" className="focus-ring rounded font-medium text-white/55 transition-colors hover:text-accent-300">
                     Cookie Policy
                   </Link>
                 </div>
