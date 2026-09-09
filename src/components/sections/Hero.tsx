@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Phone, Zap, Clock, ShieldCheck, ArrowRight, PhoneIncoming, Siren, CalendarCheck, BellRing } from 'lucide-react';
+import { Phone, Zap, Clock, ShieldCheck, ArrowRight, PhoneIncoming, Siren, CalendarCheck, BellRing, Mic } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-import { SARAH_PHONE } from '@/lib/site';
+import { SARAH_PHONE, LIVE_DEMO_SECTION_ID } from '@/lib/site';
 
 const TRUST_ITEMS = [
   { icon: Clock, label: '24/7 answering' },
@@ -234,7 +234,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.2, ease: EASE }}
-            className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start"
+            className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start"
           >
             <Link to="/login" className="w-full sm:w-auto">
               <Button variant="primary" size="lg" className="w-full gap-2 sm:w-auto">
@@ -246,6 +246,20 @@ export function Hero() {
               <Button variant="secondary" size="lg" className="w-full gap-2 sm:w-auto">
                 <Phone size={16} />
                 Call Sarah now
+              </Button>
+            </a>
+            {/* Scrolls to the live in-browser voice widget in the
+                "Talk to Sarah Right Now" section (LiveDemo.tsx) — no
+                phone call needed, mic access only. Uses the "cta" accent
+                so it visually stands out as the flagship demo action. */}
+            <a href={`#${LIVE_DEMO_SECTION_ID}`} className="w-full sm:w-auto">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="w-full gap-2 border-cta/40 text-cta hover:border-cta hover:bg-cta/10 sm:w-auto"
+              >
+                <Mic size={16} />
+                Talk to Sarah live
               </Button>
             </a>
           </motion.div>
