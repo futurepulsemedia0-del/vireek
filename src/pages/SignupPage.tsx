@@ -241,7 +241,13 @@ export function SignupPage() {
   }, [pendingEmail]);
 
   const handleOtpSuccess = useCallback(() => {
-    navigate('/dashboard', { replace: true });
+    // Send fresh signups through onboarding first (industry, team size,
+    // hours, etc.) instead of dropping them straight on the dashboard —
+    // the dashboard used to bounce them to /onboarding itself via a
+    // useEffect once the profile loaded, which meant an extra render/
+    // navigation hop right after auth state changed. Going there directly
+    // removes that hop entirely.
+    navigate('/onboarding', { replace: true });
   }, [navigate]);
 
   const handleGoogleSignUp = async () => {
