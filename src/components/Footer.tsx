@@ -85,6 +85,7 @@ const FOOTER_COLUMNS = [
     title: 'Resources',
     links: [
       { label: 'Blog', href: '/blog' },
+      { label: 'Onboarding Guide', href: '/onboarding-guide' },
       { label: 'Glossary', href: '/glossary' },
       { label: 'Case Studies', href: '/case-studies' },
       { label: 'Testimonials', href: '/testimonials' },
