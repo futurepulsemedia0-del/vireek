@@ -2,6 +2,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useSEO } from '@/lib/seo';
 import { Hero } from '@/components/sections/Hero';
+import { HighlightBanner } from '@/components/sections/HighlightBanner';
 import { TrustBar } from '@/components/sections/TrustBar';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { LiveDemo } from '@/components/sections/LiveDemo';
@@ -33,6 +34,7 @@ export function HomePage() {
       <Header />
       <main>
         <Hero />
+        <HighlightBanner />
         <TrustBar />
         <HowItWorks />
         <LiveDemo />
