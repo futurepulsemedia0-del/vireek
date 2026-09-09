@@ -93,6 +93,12 @@ export interface BusinessProfile {
   faqs: { question: string; answer: string }[] | null;
   service_area: string | null;
   google_review_url: string | null;
+  primary_industry: string | null;
+  team_size: string | null;
+  current_call_handling: string | null;
+  scheduling_tool: string | null;
+  avg_job_value: number | null;
+  handles_emergency_calls: string | null;
   created_at: string;
   updated_at: string;
 }
