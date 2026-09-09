@@ -4,6 +4,7 @@ import { Loader2, Phone, Send, Sparkles } from 'lucide-react';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { SARAH_PHONE } from '@/lib/site';
 import { supabase } from '@/lib/supabase';
+import { VoiceDemoWidget } from '@/components/VoiceDemoWidget';
 
 const PHONE_DISPLAY = '+1 (650) 910-6703';
 
@@ -79,7 +80,10 @@ export function LiveDemo() {
           <h2 className={sectionHeadingClass()}>Talk to Sarah Right Now</h2>
         </motion.div>
 
-        <div className="mt-10 grid gap-4 sm:mt-14 sm:gap-6 lg:grid-cols-2">
+        <div className="mt-10 grid gap-4 sm:mt-14 sm:gap-6 lg:grid-cols-3">
+          {/* Live in-browser voice demo — the flagship option, click and talk */}
+          <VoiceDemoWidget />
+
           {/* Phone demo */}
           <motion.a
             href={SARAH_PHONE}
