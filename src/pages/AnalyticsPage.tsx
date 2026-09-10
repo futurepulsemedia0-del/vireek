@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Lightbulb,
   ChevronDown,
+  Printer,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -1015,11 +1016,23 @@ export function AnalyticsPage() {
               className="focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 disabled:opacity-50"
             >
               <Download size={16} className="text-text-secondary" />
-              <span className="hidden sm:inline">Export Report</span>
-            </button>
+<span className="hidden sm:inline">Export Report</span>
+</button>
+
+<button
+  type="button"
+  onClick={() => window.print()}
+  disabled={dataLoading}
+  className="focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 disabled:opacity-50"
+>
+  <Printer size={16} className="text-text-secondary" />
+  <span className="hidden sm:inline">Print</span>
+</button>
+
           </div>
         </div>
 
+        <div className="printable-report" id="report-print-area">
         {/* Summary KPIs */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {dataLoading ? (
@@ -1165,7 +1178,11 @@ export function AnalyticsPage() {
               )}
             </ChartCard>
           )}
-        </div>
-    </DashboardLayout>
-  );
+        )}
+</div>
+
+</div>
+
+</DashboardLayout>
+);
 }
