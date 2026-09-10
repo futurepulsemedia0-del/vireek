@@ -1,13 +1,8 @@
 // supabase/functions/_shared/ai-core/providers/openai-compatible.ts
 //
-// Factory for every provider that speaks the OpenAI chat-completions
-// wire format (POST {baseUrl}/chat/completions with Bearer auth). This
-// covers Groq, Mistral, OpenAI, OpenRouter, Together, DeepSeek, Fireworks,
-// and Cerebras — so adding one more of these later is a 5-line config
-// entry below, NOT a new file.
-//
-// Cloudflare Workers AI and Cohere have different wire formats and get
-// their own adapter files (cloudflare.ts, cohere.ts).
+// Factory for every provider that speaks the OpenAI chat-completions wire
+// format. Covers Groq, Cerebras, and OpenRouter — adding another provider
+// of this kind later is a 5-line config entry, not a new file.
 
 import type {
   ProviderId,
@@ -19,11 +14,10 @@ import { AiCoreError } from "../types.ts";
 
 interface OpenAiCompatConfig {
   id: ProviderId;
-  baseUrl: string;          // e.g. "https://api.groq.com/openai/v1"
-  apiKeyEnvVar: string;     // e.g. "GROQ_API_KEY"
-  modelEnvVar: string;      // e.g. "GROQ_MODEL"
+  baseUrl: string;
+  apiKeyEnvVar: string;
+  modelEnvVar: string;
   defaultModel: string;
-  /** Some providers (OpenRouter) want extra required headers. */
   extraHeaders?: Record<string, string>;
 }
 
@@ -107,12 +101,6 @@ function makeOpenAiCompatAdapter(cfg: OpenAiCompatConfig): ProviderAdapter {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Every OpenAI-compatible provider is just a config entry. To add a new one
-// that speaks this same protocol: add one object here + register it in
-// registry.ts. No other file changes.
-// ---------------------------------------------------------------------------
-
 export const groqAdapter = makeOpenAiCompatAdapter({
   id: "groq",
   baseUrl: "https://api.groq.com/openai/v1",
@@ -129,22 +117,6 @@ export const cerebrasAdapter = makeOpenAiCompatAdapter({
   defaultModel: "llama-3.3-70b",
 });
 
-export const mistralAdapter = makeOpenAiCompatAdapter({
-  id: "mistral",
-  baseUrl: "https://api.mistral.ai/v1",
-  apiKeyEnvVar: "MISTRAL_API_KEY",
-  modelEnvVar: "MISTRAL_MODEL",
-  defaultModel: "mistral-large-latest",
-});
-
-export const openaiAdapter = makeOpenAiCompatAdapter({
-  id: "openai",
-  baseUrl: "https://api.openai.com/v1",
-  apiKeyEnvVar: "OPENAI_API_KEY",
-  modelEnvVar: "OPENAI_MODEL",
-  defaultModel: "gpt-4o-mini",
-});
-
 export const openrouterAdapter = makeOpenAiCompatAdapter({
   id: "openrouter",
   baseUrl: "https://openrouter.ai/api/v1",
@@ -152,28 +124,4 @@ export const openrouterAdapter = makeOpenAiCompatAdapter({
   modelEnvVar: "OPENROUTER_MODEL",
   defaultModel: "openrouter/auto",
   extraHeaders: { "HTTP-Referer": "https://vireek.com", "X-Title": "Vireek AI Core" },
-});
-
-export const togetherAdapter = makeOpenAiCompatAdapter({
-  id: "together",
-  baseUrl: "https://api.together.xyz/v1",
-  apiKeyEnvVar: "TOGETHER_API_KEY",
-  modelEnvVar: "TOGETHER_MODEL",
-  defaultModel: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-});
-
-export const deepseekAdapter = makeOpenAiCompatAdapter({
-  id: "deepseek",
-  baseUrl: "https://api.deepseek.com/v1",
-  apiKeyEnvVar: "DEEPSEEK_API_KEY",
-  modelEnvVar: "DEEPSEEK_MODEL",
-  defaultModel: "deepseek-chat",
-});
-
-export const fireworksAdapter = makeOpenAiCompatAdapter({
-  id: "fireworks",
-  baseUrl: "https://api.fireworks.ai/inference/v1",
-  apiKeyEnvVar: "FIREWORKS_API_KEY",
-  modelEnvVar: "FIREWORKS_MODEL",
-  defaultModel: "accounts/fireworks/models/llama-v3p3-70b-instruct",
 });
