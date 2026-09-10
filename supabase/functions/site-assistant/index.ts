@@ -13,15 +13,34 @@
 // endpoint is purpose-built for the "Sarah" receptionist roleplay and
 // throttled separately on purpose, so a burst of real product questions
 // never eats into (or gets eaten by) someone testing the phone demo.
+//
+// STREAMING: same treatment as demo-chat — the reply streams back as
+// Server-Sent Events instead of one JSON blob at the end, so the widget
+// can render tokens as they're generated. Wire format, one JSON object
+// per SSE "data:" line:
+//   {"delta": "..."}                       - a chunk of reply text
+//   {"done": true, "provider": "...", "model": "..."}  - stream finished
+//   {"error": "..."}                       - something failed; stream ends
+// Validation and rate-limit checks still happen up front and return a
+// plain (non-streamed) JSON error response with the appropriate status,
+// exactly like before — only the actual model answer streams.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { askVireekAi, safeFallbackMessage } from "../_shared/ai-core/index.ts";
+import { askVireekAiStream, safeFallbackMessage } from "../_shared/ai-core/index.ts";
 import type { ChatMessage } from "../_shared/ai-core/types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+};
+
+const sseHeaders = {
+  ...corsHeaders,
+  "Content-Type": "text/event-stream; charset=utf-8",
+  "Cache-Control": "no-cache, no-transform",
+  Connection: "keep-alive",
+  "X-Accel-Buffering": "no", // disable any intermediary proxy buffering
 };
 
 const MAX_REQUESTS_PER_HOUR = 20;
@@ -32,6 +51,10 @@ async function hashIp(ip: string): Promise<string> {
   const data = new TextEncoder().encode(ip);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function sseLine(payload: Record<string, unknown>): Uint8Array {
+  return new TextEncoder().encode(`data: ${JSON.stringify(payload)}\n\n`);
 }
 
 Deno.serve(async (req: Request) => {
@@ -106,31 +129,47 @@ Deno.serve(async (req: Request) => {
       content: String(m.content).slice(0, MAX_MESSAGE_LENGTH),
     }));
 
-    try {
-      const result = await askVireekAi({
-        task: "general",
-        messages: [...trimmedHistory, { role: "user", content: message }],
-        maxTokens: 320,
-        extraInstructions:
-          "You are the 'Ask Vireek' help widget shown on every public marketing page — a visitor may be stuck, confused, or just curious, about anything from pricing to how a specific feature works to which page covers a topic. Answer directly and completely using the reference knowledge below when relevant. Keep replies conversational (short paragraphs or a tight list, not a wall of text). If something genuinely isn't covered in your reference knowledge (an exact number, a legal specifics, account-specific detail), say so plainly and point them to the right page (Pricing, Contact, Help Center) rather than guessing.",
-      });
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        let receivedAny = false;
+        try {
+          const result = await askVireekAiStream(
+            {
+              task: "general",
+              messages: [...trimmedHistory, { role: "user", content: message }],
+              maxTokens: 320,
+              extraInstructions:
+                "You are the 'Ask Vireek' help widget shown on every public marketing page — a visitor may be stuck, confused, or just curious, about anything from pricing to how a specific feature works to which page covers a topic. Answer directly and completely using the reference knowledge below when relevant. Keep replies conversational (short paragraphs or a tight list, not a wall of text). If something genuinely isn't covered in your reference knowledge (an exact number, a legal specifics, account-specific detail), say so plainly and point them to the right page (Pricing, Contact, Help Center) rather than guessing.",
+            },
+            (delta) => {
+              if (delta) receivedAny = true;
+              controller.enqueue(sseLine({ delta }));
+            },
+          );
 
-      console.log(
-        `[site-assistant] provider=${result.meta.provider} model=${result.meta.model} ` +
-          `latencyMs=${result.meta.latencyMs} fallback=${result.meta.wasFallback} ` +
-          `attempts=${JSON.stringify(result.meta.attempts)}`,
-      );
+          console.log(
+            `[site-assistant] provider=${result.meta.provider} model=${result.meta.model} ` +
+              `latencyMs=${result.meta.latencyMs} fallback=${result.meta.wasFallback} ` +
+              `attempts=${JSON.stringify(result.meta.attempts)}`,
+          );
 
-      return new Response(JSON.stringify({ reply: result.text || "Sorry, could you rephrase that?" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    } catch (err) {
-      console.error("[site-assistant] AI Core error (all providers failed):", err);
-      return new Response(JSON.stringify({ error: safeFallbackMessage(err) }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+          // Only inject the generic fallback line if the provider chain
+          // genuinely produced nothing — never append it after a partial
+          // reply already reached the user, which would read as a glitch.
+          if (!receivedAny) {
+            controller.enqueue(sseLine({ delta: "Sorry, could you rephrase that?" }));
+          }
+          controller.enqueue(sseLine({ done: true, provider: result.meta.provider, model: result.meta.model }));
+        } catch (err) {
+          console.error("[site-assistant] AI Core error (all providers failed):", err);
+          controller.enqueue(sseLine({ error: safeFallbackMessage(err) }));
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, { headers: sseHeaders });
   } catch (err) {
     console.error("site-assistant error:", err);
     return new Response(JSON.stringify({ error: "Something went wrong. Please try again." }), {
