@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { HelpCircle, X, Send, Sparkles } from 'lucide-react';
+import { HelpCircle, X, Send } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { ChatAvatar, MessageBubble, OnlineDot, StarterPromptChip, TypingIndicator } from '@/components/chat/ChatVisuals';
 
 interface ChatMessage {
   id: string;
@@ -18,20 +19,6 @@ const STARTER_PROMPTS = [
   'Is my business data secure?',
 ];
 
-function TypingIndicator() {
-  return (
-    <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-bg-tertiary px-4 py-3">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="h-1.5 w-1.5 animate-bounce rounded-full bg-text-secondary/60"
-          style={{ animationDelay: `${i * 0.12}s` }}
-        />
-      ))}
-    </div>
-  );
-}
-
 /**
  * Floating, site-wide "Ask Vireek" help widget — for any visitor stuck or
  * curious on a marketing page (pricing, features, industries, FAQ, etc.),
@@ -39,6 +26,11 @@ function TypingIndicator() {
  * required; calls the public `site-assistant` Edge Function, which routes
  * through the Vireek AI Core (task: "general") grounded in
  * supabase/functions/_shared/ai-core/knowledge.ts.
+ *
+ * Visuals come from `@/components/chat/ChatVisuals` — the same avatar,
+ * bubble, and typing-indicator language used by `AiAssistant` (dashboard)
+ * and the "Talk to Sarah" demo, so every chat surface on the site reads
+ * as one considered system instead of three different widgets.
  *
  * Mounted once, globally, in main.tsx (same pattern as
  * `AccessibilityWidget`) and hides itself on `/dashboard/*` routes, since
@@ -59,10 +51,15 @@ export function SiteAssistant() {
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, thinking]);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
 
   if (location.pathname.startsWith('/dashboard')) return null;
 
@@ -122,21 +119,28 @@ export function SiteAssistant() {
         onMouseLeave={() => setShowTooltip(false)}
         aria-label={open ? 'Close help assistant' : 'Ask Vireek a question'}
         aria-expanded={open}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
         className="fixed bottom-[92px] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
             key={open ? 'close' : 'open'}
-            initial={{ opacity: 0, rotate: -45 }}
-            animate={{ opacity: 1, rotate: 0 }}
-            exit={{ opacity: 0, rotate: 45 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
             {open ? <X size={22} /> : <HelpCircle size={22} />}
           </motion.span>
         </AnimatePresence>
+
+        {!open && (
+          <span className="absolute right-0 top-0 flex h-3 w-3">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cta opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-bg-primary bg-cta" />
+          </span>
+        )}
 
         <AnimatePresence>
           {showTooltip && !open && (
@@ -160,57 +164,49 @@ export function SiteAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[164px] right-5 z-40 flex h-[520px] w-[380px] max-w-[92vw] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
+            className="fixed bottom-[164px] right-5 z-40 flex h-[560px] w-[384px] max-w-[92vw] flex-col overflow-hidden rounded-3xl border border-border bg-bg-secondary/95 shadow-card-hover backdrop-blur-xl dark:shadow-card-hover-dark"
             role="dialog"
             aria-modal="true"
             aria-label="Ask Vireek"
           >
-            <div className="flex items-center gap-2.5 border-b border-border px-4 py-3.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-ai/10 text-ai">
-                <Sparkles size={16} />
+            <div className="flex items-center gap-3 border-b border-border/80 bg-gradient-to-b from-bg-secondary to-bg-secondary/60 px-5 py-4">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white shadow-sm">
+                <HelpCircle size={17} strokeWidth={2.25} />
               </span>
-              <div>
-                <p className="text-sm font-semibold text-text-primary">Ask Vireek</p>
-                <p className="text-xs text-text-secondary">Pricing, features, industries — anything about the product</p>
+              <div className="min-w-0">
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
+                  Ask Vireek
+                  <OnlineDot />
+                </p>
+                <p className="truncate text-xs text-text-secondary">Pricing, features, industries — anything</p>
               </div>
             </div>
 
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+            <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
               {messages.length === 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-text-secondary">Stuck on something? Try asking:</p>
-                  {STARTER_PROMPTS.map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => ask(p)}
-                      className="focus-ring block w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-left text-sm text-text-primary transition-colors hover:border-accent/30 hover:bg-accent/5"
-                    >
-                      {p}
-                    </button>
-                  ))}
+                <div className="space-y-2.5">
+                  <div className="flex items-end gap-2.5">
+                    <ChatAvatar role="assistant" />
+                    <div className="max-w-[78%] rounded-2xl rounded-bl-sm border border-border/70 bg-bg-tertiary px-4 py-2.5 text-sm leading-relaxed text-text-primary">
+                      Hi! I'm the Vireek help assistant — ask me anything about pricing, features, or how it works.
+                    </div>
+                  </div>
+                  <p className="pl-11 text-xs font-medium text-text-secondary">Try asking:</p>
+                  <div className="space-y-2 pl-11">
+                    {STARTER_PROMPTS.map((p) => (
+                      <StarterPromptChip key={p} label={p} onClick={() => ask(p)} />
+                    ))}
+                  </div>
                 </div>
               )}
 
               {messages.map((m) => (
-                <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                      m.role === 'user'
-                        ? 'rounded-br-sm bg-accent text-white'
-                        : `rounded-bl-sm ${m.isError ? 'bg-danger/10 text-danger' : 'bg-bg-tertiary text-text-primary'}`
-                    }`}
-                  >
-                    {m.text}
-                  </div>
-                </div>
+                <MessageBubble key={m.id} role={m.role} isError={m.isError}>
+                  {m.text}
+                </MessageBubble>
               ))}
 
-              {thinking && (
-                <div className="flex justify-start">
-                  <TypingIndicator />
-                </div>
-              )}
+              {thinking && <TypingIndicator />}
             </div>
 
             <form
@@ -218,22 +214,25 @@ export function SiteAssistant() {
                 e.preventDefault();
                 ask(input);
               }}
-              className="flex items-center gap-2 border-t border-border p-3"
+              className="flex items-center gap-2 border-t border-border/80 p-3"
             >
               <input
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask anything about Vireek…"
                 className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary"
               />
-              <button
+              <motion.button
                 type="submit"
                 disabled={!input.trim() || thinking}
                 aria-label="Send"
-                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white transition-opacity disabled:opacity-40"
+                whileHover={input.trim() && !thinking ? { scale: 1.06 } : undefined}
+                whileTap={input.trim() && !thinking ? { scale: 0.94 } : undefined}
+                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white transition-opacity disabled:opacity-40"
               >
                 <Send size={16} />
-              </button>
+              </motion.button>
             </form>
           </motion.div>
         )}
