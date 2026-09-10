@@ -20,18 +20,20 @@
 // There is no service-role client and no client-supplied user_id anywhere
 // in this file.
 //
-// LLM provider: Google Gemini (generateContent). Required secret:
-//   supabase secrets set GEMINI_API_KEY=...
+// LLM provider: routed through the Vireek AI Core (_shared/ai-core). If
+// Gemini fails (invalid key, quota, outage) it falls back automatically
+// to Groq, then Cerebras, then OpenRouter — see registry.ts for the exact
+// chain. Both LLM calls below (classify + answer) go through the SAME
+// router, so a provider outage never breaks the dashboard assistant.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { askVireekAi } from "../_shared/ai-core/index.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
-
-const GEMINI_MODEL = "gemini-2.5-flash";
 
 type Intent =
   | "calls_count"
@@ -88,46 +90,6 @@ function periodStart(period: IntentPlan["period"]): string {
   return d.toISOString();
 }
 
-/**
- * Calls Gemini's generateContent endpoint. `system` is sent via
- * `systemInstruction` (Gemini has no separate system role in `contents`).
- * `jsonMode` requests native JSON output via responseMimeType, which
- * Gemini honors for the intent-classification step.
- */
-async function callGemini(
-  apiKey: string,
-  system: string,
-  userText: string,
-  maxOutputTokens: number,
-  jsonMode = false,
-): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: system }] },
-      contents: [{ role: "user", parts: [{ text: userText }] }],
-      generationConfig: {
-        maxOutputTokens,
-        temperature: 0.3,
-        ...(jsonMode ? { responseMimeType: "application/json" } : {}),
-      },
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Gemini API error (${res.status}): ${text}`);
-  }
-
-  const data = await res.json();
-  const parts = data.candidates?.[0]?.content?.parts ?? [];
-  const text = parts.map((p: { text?: string }) => p.text ?? "").join("\n").trim();
-  return text;
-}
-
 function extractJson(raw: string): unknown {
   const cleaned = raw.replace(/```json|```/g, "").trim();
   const start = cleaned.indexOf("{");
@@ -160,17 +122,6 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const geminiKey = Deno.env.get("GEMINI_API_KEY");
-    if (!geminiKey) {
-      return new Response(
-        JSON.stringify({
-          error:
-            "The AI Assistant isn't configured yet — a GEMINI_API_KEY secret needs to be set for this Supabase project's edge functions.",
-        }),
-        { status: 500, headers: jsonHeaders },
-      );
-    }
-
     // Client scoped to the CALLER's own session (their JWT), never the
     // service role — RLS does all the account-boundary enforcement below.
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
@@ -194,10 +145,10 @@ Deno.serve(async (req: Request) => {
     // Rate limit: authenticated users still get a cap (unlike the public
     // demo chat, this is per-user rather than per-IP, and more generous
     // since these are paying customers, not anonymous visitors). Same
-    // fixed-window pattern as `demo_chat_rate_limit` — see that table's
-    // migration for the reasoning. Uses the caller's own JWT-scoped
-    // client, so RLS (not a service-role bypass) enforces that a user can
-    // only ever touch their own counter row.
+    // fixed-window pattern as `demo_chat_rate_limit`. Uses the caller's
+    // own JWT-scoped client, so RLS (not a service-role bypass) enforces
+    // that a user can only ever touch their own counter row.
+    // -------------------------------------------------------------
     const RATE_LIMIT_MAX_PER_HOUR = 30;
     const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
     const nowMs = Date.now();
@@ -238,21 +189,25 @@ Deno.serve(async (req: Request) => {
     }
 
     // -------------------------------------------------------------
-    // Step 1: classify the question into a fixed intent (never SQL)
+    // Step 1: classify the question into a fixed intent (never SQL).
+    // Routed through the AI Core — automatic fallback across providers.
     // -------------------------------------------------------------
-    const classifierSystem = `You turn a home-service business owner's question about their own call/lead/job data into ONE of a fixed set of intents. Respond with ONLY a JSON object shaped { "intent": "...", "period": "..." } (period only for "calls_count", optional otherwise) and nothing else — no prose, no markdown fences.
-
-Available intents:
-${INTENT_DESCRIPTIONS}
-
-If the question asks to change/delete/create anything, or isn't about this data at all, respond with { "intent": "unsupported" }.`;
-
     let plan: IntentPlan;
     try {
-      const raw = await callGemini(geminiKey, classifierSystem, question, 150, true);
-      plan = extractJson(raw) as IntentPlan;
+      const result = await askVireekAi({
+        task: "intent_classify",
+        messages: [{ role: "user", content: question }],
+        maxTokens: 150,
+        jsonMode: true,
+        extraInstructions: `Available intents:\n${INTENT_DESCRIPTIONS}\n\nRespond with ONLY a JSON object shaped { "intent": "...", "period": "..." } (period only for "calls_count", optional otherwise) and nothing else — no prose, no markdown fences.`,
+      });
+      plan = extractJson(result.text) as IntentPlan;
+      console.log(
+        `[ai-assistant-query] classify provider=${result.meta.provider} model=${result.meta.model} ` +
+          `fallback=${result.meta.wasFallback} latencyMs=${result.meta.latencyMs}`,
+      );
     } catch (err) {
-      console.error("Gemini classify call failed:", err);
+      console.error("[ai-assistant-query] classify failed on ALL providers:", err);
       plan = { intent: "unsupported" };
     }
 
@@ -282,8 +237,7 @@ If the question asks to change/delete/create anything, or isn't about this data 
 
     // -------------------------------------------------------------
     // Step 2: run the ONE hardcoded, read-only query for that intent.
-    // Every branch below is a fixed .select() — nothing here is built
-    // from user or model text.
+    // UNCHANGED — no model input reaches this switch at all.
     // -------------------------------------------------------------
     let rows: Record<string, unknown>[] = [];
     let columns: string[] = [];
@@ -403,22 +357,30 @@ If the question asks to change/delete/create anything, or isn't about this data 
     }
 
     // -------------------------------------------------------------
-    // Step 3: turn the (already-fetched, already-scoped) facts into a
-    // natural-language answer. The model only sees aggregate facts, not
-    // raw table access, and cannot request more data.
+    // Step 3: facts -> natural language, via the AI Core (same
+    // fallback chain). The model only sees aggregate facts, not raw
+    // table access, and cannot request more data.
     // -------------------------------------------------------------
-    const answerSystem = `You are Vireek's dashboard assistant. Answer the business owner's question in 1-3 short, friendly sentences using ONLY the facts provided — never invent numbers. If the facts show zero results, say so plainly and encouragingly. Do not mention "intents", "queries", or how the data was fetched.`;
-    const answerUserText = `Question: "${question}"\n\nFacts: ${factsForModel || "No matching data was found."}`;
-
     let answer: string;
     try {
-      answer = await callGemini(geminiKey, answerSystem, answerUserText, 300, false);
+      const result = await askVireekAi({
+        task: "dashboard_answer",
+        messages: [
+          { role: "user", content: `Question: "${question}"\n\nFacts: ${factsForModel || "No matching data was found."}` },
+        ],
+        maxTokens: 300,
+      });
+      answer = result.text.trim();
+      console.log(
+        `[ai-assistant-query] answer provider=${result.meta.provider} model=${result.meta.model} ` +
+          `fallback=${result.meta.wasFallback} latencyMs=${result.meta.latencyMs}`,
+      );
     } catch (err) {
-      console.error("Gemini answer call failed:", err);
+      console.error("[ai-assistant-query] answer step failed on ALL providers:", err);
       answer = factsForModel || "I couldn't find an answer to that — try rephrasing.";
     }
 
-    return new Response(JSON.stringify({ answer: answer.trim() || factsForModel, rows, columns }), { headers: jsonHeaders });
+    return new Response(JSON.stringify({ answer: answer || factsForModel, rows, columns }), { headers: jsonHeaders });
   } catch (err) {
     return new Response(
       JSON.stringify({
