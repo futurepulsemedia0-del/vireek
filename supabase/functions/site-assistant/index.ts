@@ -1,243 +1,141 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { HelpCircle, X, Send, Sparkles } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+// supabase/functions/site-assistant/index.ts
+//
+// Public, unauthenticated endpoint powering the site-wide "Ask Vireek"
+// help widget (every marketing page, not just the /pricing or homepage
+// "Talk to Sarah" demo). Routed through the Vireek AI Core with task
+// "general": no receptionist roleplay, just a real answer about the
+// product — grounded in supabase/functions/_shared/ai-core/knowledge.ts
+// — with the same Gemini -> Groq -> Cerebras -> Cloudflare -> OpenRouter
+// automatic fallback as every other AI feature on the site.
+//
+// Deliberately its own function + its own rate-limit table
+// (site_assistant_rate_limit) rather than reusing demo-chat: that
+// endpoint is purpose-built for the "Sarah" receptionist roleplay and
+// throttled separately on purpose, so a burst of real product questions
+// never eats into (or gets eaten by) someone testing the phone demo.
 
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  text: string;
-  isError?: boolean;
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { askVireekAi, safeFallbackMessage } from "../_shared/ai-core/index.ts";
+import type { ChatMessage } from "../_shared/ai-core/types.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+};
+
+const MAX_REQUESTS_PER_HOUR = 20;
+const MAX_MESSAGE_LENGTH = 500;
+const MAX_HISTORY_TURNS = 6;
+
+async function hashIp(ip: string): Promise<string> {
+  const data = new TextEncoder().encode(ip);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-const STARTER_PROMPTS = [
-  'How much does Vireek cost?',
-  'Which trades/industries do you support?',
-  'How does emergency detection work?',
-  'Is my business data secure?',
-];
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
-function TypingIndicator() {
-  return (
-    <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-bg-tertiary px-4 py-3">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="h-1.5 w-1.5 animate-bounce rounded-full bg-text-secondary/60"
-          style={{ animationDelay: `${i * 0.12}s` }}
-        />
-      ))}
-    </div>
-  );
-}
+  try {
+    const body = await req.json().catch(() => null);
+    const message = typeof body?.message === "string" ? body.message.trim() : "";
+    const history: ChatMessage[] = Array.isArray(body?.history) ? body.history : [];
 
-/**
- * Floating, site-wide "Ask Vireek" help widget — for any visitor stuck or
- * curious on a marketing page (pricing, features, industries, FAQ, etc.),
- * not just the homepage "Talk to Sarah" receptionist demo. No login
- * required; calls the public `site-assistant` Edge Function, which routes
- * through the Vireek AI Core (task: "general") grounded in
- * supabase/functions/_shared/ai-core/knowledge.ts.
- *
- * Mounted once, globally, in main.tsx (same pattern as
- * `AccessibilityWidget`) and hides itself on `/dashboard/*` routes, since
- * logged-in users already have the account-aware `AiAssistant` there —
- * this one only ever answers from public product knowledge, never
- * account data.
- *
- * Positioning: same bottom-right rail as `AiAssistant` (which never
- * renders here, since dashboard routes are excluded) — `bottom-[92px]`
- * for the button keeps a clear gap above `AccessibilityWidget`
- * (`bottom-5`, ~48px), matching that widget's own spacing convention.
- */
-export function SiteAssistant() {
-  const location = useLocation();
-  const [open, setOpen] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
-  const [thinking, setThinking] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+    if (!message) {
+      return new Response(JSON.stringify({ error: "Message is required." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Message is too long (max ${MAX_MESSAGE_LENGTH} characters).` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, thinking]);
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
-  if (location.pathname.startsWith('/dashboard')) return null;
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      req.headers.get("cf-connecting-ip") ??
+      "unknown";
+    const ipHash = await hashIp(ip);
 
-  const ask = async (question: string) => {
-    const trimmed = question.trim();
-    if (!trimmed || thinking) return;
+    const { data: existing } = await supabase
+      .from("site_assistant_rate_limit")
+      .select("window_start, request_count")
+      .eq("ip_hash", ipHash)
+      .maybeSingle();
 
-    const nextMessages: ChatMessage[] = [
-      ...messages,
-      { id: crypto.randomUUID(), role: 'user', text: trimmed },
-    ];
-    setMessages(nextMessages);
-    setInput('');
-    setThinking(true);
+    const now = Date.now();
+    const windowMs = 60 * 60 * 1000;
+    const windowStart = existing ? new Date(existing.window_start).getTime() : now;
+    const windowExpired = now - windowStart > windowMs;
+    const currentCount = windowExpired ? 0 : existing?.request_count ?? 0;
+
+    if (currentCount >= MAX_REQUESTS_PER_HOUR) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "You've hit the question limit for now — please try again in a bit, or reach out through the Contact page.",
+        }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    await supabase.from("site_assistant_rate_limit").upsert({
+      ip_hash: ipHash,
+      window_start: windowExpired ? new Date(now).toISOString() : existing?.window_start ?? new Date(now).toISOString(),
+      request_count: currentCount + 1,
+    });
+
+    const trimmedHistory: ChatMessage[] = history.slice(-MAX_HISTORY_TURNS * 2).map((m) => ({
+      role: m.role === "assistant" ? "assistant" : "user",
+      content: String(m.content).slice(0, MAX_MESSAGE_LENGTH),
+    }));
 
     try {
-      const { data, error } = await supabase.functions.invoke('site-assistant', {
-        body: {
-          message: trimmed,
-          history: nextMessages.slice(0, -1).map((m) => ({ role: m.role, content: m.text })),
-        },
+      const result = await askVireekAi({
+        task: "general",
+        messages: [...trimmedHistory, { role: "user", content: message }],
+        maxTokens: 320,
+        extraInstructions:
+          "You are the 'Ask Vireek' help widget shown on every public marketing page — a visitor may be stuck, confused, or just curious, about anything from pricing to how a specific feature works to which page covers a topic. Answer directly and completely using the reference knowledge below when relevant. Keep replies conversational (short paragraphs or a tight list, not a wall of text). If something genuinely isn't covered in your reference knowledge (an exact number, a legal specifics, account-specific detail), say so plainly and point them to the right page (Pricing, Contact, Help Center) rather than guessing.",
       });
 
-      if (error) throw error;
-      if (data?.error) {
-        setMessages((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), role: 'assistant', text: data.error, isError: true },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), role: 'assistant', text: data?.reply ?? "Sorry, could you rephrase that?" },
-        ]);
-      }
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          text: "I'm having trouble responding right now — please try again in a moment, or use the Contact page.",
-          isError: true,
-        },
-      ]);
-    } finally {
-      setThinking(false);
+      console.log(
+        `[site-assistant] provider=${result.meta.provider} model=${result.meta.model} ` +
+          `latencyMs=${result.meta.latencyMs} fallback=${result.meta.wasFallback} ` +
+          `attempts=${JSON.stringify(result.meta.attempts)}`,
+      );
+
+      return new Response(JSON.stringify({ reply: result.text || "Sorry, could you rephrase that?" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    } catch (err) {
+      console.error("[site-assistant] AI Core error (all providers failed):", err);
+      return new Response(JSON.stringify({ error: safeFallbackMessage(err) }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
-  };
-
-  return (
-    <>
-      <motion.button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        aria-label={open ? 'Close help assistant' : 'Ask Vireek a question'}
-        aria-expanded={open}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed bottom-[92px] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent print:hidden"
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={open ? 'close' : 'open'}
-            initial={{ opacity: 0, rotate: -45 }}
-            animate={{ opacity: 1, rotate: 0 }}
-            exit={{ opacity: 0, rotate: 45 }}
-            transition={{ duration: 0.15 }}
-          >
-            {open ? <X size={22} /> : <HelpCircle size={22} />}
-          </motion.span>
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {showTooltip && !open && (
-            <motion.span
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 8 }}
-              transition={{ duration: 0.15 }}
-              className="pointer-events-none absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-border bg-bg-secondary/95 px-3 py-1.5 text-xs font-medium text-text-primary shadow-lg backdrop-blur-xl"
-            >
-              Ask Vireek
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.97 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[164px] right-5 z-40 flex h-[520px] w-[380px] max-w-[92vw] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Ask Vireek"
-          >
-            <div className="flex items-center gap-2.5 border-b border-border px-4 py-3.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-ai/10 text-ai">
-                <Sparkles size={16} />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-text-primary">Ask Vireek</p>
-                <p className="text-xs text-text-secondary">Pricing, features, industries — anything about the product</p>
-              </div>
-            </div>
-
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-              {messages.length === 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-text-secondary">Stuck on something? Try asking:</p>
-                  {STARTER_PROMPTS.map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => ask(p)}
-                      className="focus-ring block w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-left text-sm text-text-primary transition-colors hover:border-accent/30 hover:bg-accent/5"
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {messages.map((m) => (
-                <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                      m.role === 'user'
-                        ? 'rounded-br-sm bg-accent text-white'
-                        : `rounded-bl-sm ${m.isError ? 'bg-danger/10 text-danger' : 'bg-bg-tertiary text-text-primary'}`
-                    }`}
-                  >
-                    {m.text}
-                  </div>
-                </div>
-              ))}
-
-              {thinking && (
-                <div className="flex justify-start">
-                  <TypingIndicator />
-                </div>
-              )}
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                ask(input);
-              }}
-              className="flex items-center gap-2 border-t border-border p-3"
-            >
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask anything about Vireek…"
-                className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary"
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || thinking}
-                aria-label="Send"
-                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white transition-opacity disabled:opacity-40"
-              >
-                <Send size={16} />
-              </button>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
+  } catch (err) {
+    console.error("site-assistant error:", err);
+    return new Response(JSON.stringify({ error: "Something went wrong. Please try again." }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
