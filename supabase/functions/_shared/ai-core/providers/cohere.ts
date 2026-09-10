@@ -1,11 +1,8 @@
 // supabase/functions/_shared/ai-core/providers/cohere.ts
 //
-// Cohere adapter. Registered with "embedding" and "rerank" capabilities
-// ONLY — per the architecture spec, Cohere is used for semantic search /
-// retrieval / reranking, not treated as a generic chat provider. It DOES
-// also implement `chat()` (Cohere supports it) purely as a capability-
-// gated last-resort fallback; the router will never pick it first for a
-// "chat" task because of its capability list below.
+// Cohere adapter — registered with "embedding" and "rerank" capabilities
+// ONLY. It also implements chat() as a technical capability, but the
+// registry never routes chat tasks to it.
 //
 // Required secret: COHERE_API_KEY
 
