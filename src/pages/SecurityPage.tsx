@@ -156,6 +156,28 @@ export function SecurityPage() {
           </div>
         </section>
 
+        <section className="px-6 pb-4">
+          <div className="mx-auto max-w-4xl rounded-2xl border border-border bg-bg-secondary/90 p-6 text-center shadow-card dark:shadow-card-dark">
+            <h3 className="text-base font-semibold text-text-primary">Found a security vulnerability?</h3>
+            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+              We take reports seriously and welcome responsible disclosure. Email{' '}
+              <a href="mailto:ali@vireek.com" className="font-semibold text-accent hover:text-cta">
+                ali@vireek.com
+              </a>{' '}
+              with details, or check our machine-readable{' '}
+              <a
+                href="/.well-known/security.txt"
+                className="font-semibold text-accent hover:text-cta"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                security.txt
+              </a>{' '}
+              (RFC 9116) for the current contact and disclosure info.
+            </p>
+          </div>
+        </section>
+
         <section className="px-6 pb-24">
           <div className="mx-auto max-w-4xl rounded-[2rem] border border-border bg-bg-secondary p-8 text-center shadow-card dark:shadow-card-dark sm:p-12">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Questions about security?</p>
