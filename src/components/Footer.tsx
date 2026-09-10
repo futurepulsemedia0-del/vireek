@@ -46,6 +46,7 @@ const FOOTER_COLUMNS = [
     links: [
       { label: 'Features', href: '/features' },
       { label: 'AI Lead Qualification', href: '/features/lead-qualification' },
+      { label: 'SMS Text-Back', href: '/features/sms-text-back' },
       { label: 'Platform', href: '/platform' },
       { label: 'Pricing', href: '/pricing' },
       { label: 'Compare', href: '/compare' },
