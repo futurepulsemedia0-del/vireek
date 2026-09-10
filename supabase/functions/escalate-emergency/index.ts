@@ -1,5 +1,29 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// supabase/functions/escalate-emergency/index.ts
+//
+// Records that an emergency call is being escalated to a technician/contact
+// (sets calls.escalated_at + calls.escalated_to) and logs the event so a
+// future step can plug in a real Twilio SMS / voice call or a Vapi outbound
+// call. Intended to be called from your emergency-call workflow (Vapi tool
+// call, Zapier step, or the dashboard) right after a call is flagged
+// is_emergency = true — see src/pages/CallsPage.tsx.
+//
+// Optional secret (recommended — locks the endpoint down so only your own
+// automations can trigger an escalation):
+//   supabase secrets set ESCALATION_WEBHOOK_SECRET=some-long-random-string
+// If set, callers must send it back as: X-Webhook-Secret: some-long-random-string
+// If not set, the check is skipped (endpoint stays open, as it is today) so
+// this won't break anything already wired up in Vapi/Zapier.
+//
+// Deploy:
+//   supabase functions deploy escalate-emergency
+
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, X-Webhook-Secret",
+};
 
 interface EmergencyPayload {
   call_id?: string;
@@ -12,148 +36,102 @@ interface EmergencyPayload {
   issue_description?: string;
 }
 
-function jsonResponse(
-  data: unknown,
-  status = 200
-) {
-  return new Response(
-    JSON.stringify(data),
-    {
-      status,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+function jsonResponse(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 }
 
-
-serve(async (req) => {
-
+Deno.serve(async (req: Request) => {
   const requestId = crypto.randomUUID();
 
-  try {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
 
-    if (req.method !== "POST") {
-      return jsonResponse(
-        {
-          success: false,
-          error: "Method not allowed",
-          requestId
-        },
-        405
-      );
+  if (req.method !== "POST") {
+    return jsonResponse({ success: false, error: "Method not allowed", requestId }, 405);
+  }
+
+  try {
+    // Optional shared-secret check. Only enforced if you've set
+    // ESCALATION_WEBHOOK_SECRET, so existing no-code setups keep working
+    // until you choose to lock it down.
+    const expectedSecret = Deno.env.get("ESCALATION_WEBHOOK_SECRET");
+    if (expectedSecret) {
+      const providedSecret = req.headers.get("X-Webhook-Secret");
+      if (providedSecret !== expectedSecret) {
+        console.error(JSON.stringify({ event: "emergency_escalation_unauthorized", requestId }));
+        return jsonResponse({ success: false, error: "Unauthorized", requestId }, 401);
+      }
     }
 
+    let payload: EmergencyPayload;
+    try {
+      payload = (await req.json()) as EmergencyPayload;
+    } catch {
+      return jsonResponse({ success: false, error: "Invalid JSON body", requestId }, 400);
+    }
 
-    const payload =
-      await req.json() as EmergencyPayload;
-
-
-    console.log(
-      JSON.stringify({
-        event: "emergency_escalation_received",
-        requestId,
-        payload
-      })
-    );
-
+    console.log(JSON.stringify({ event: "emergency_escalation_received", requestId, payload }));
 
     if (!payload.call_id) {
-
-      return jsonResponse(
-        {
-          success:false,
-          error:"Missing call_id",
-          requestId
-        },
-        400
-      );
+      return jsonResponse({ success: false, error: "Missing call_id", requestId }, 400);
     }
 
-
-
-    const supabaseUrl =
-      Deno.env.get("SUPABASE_URL");
-
-    const serviceKey =
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!supabaseUrl || !serviceKey) {
-
-      console.error(
-        "Missing Supabase environment variables"
-      );
-
-      return jsonResponse(
-        {
-          success:false,
-          error:"Server configuration error",
-          requestId
-        },
-        500
-      );
+      console.error("Missing Supabase environment variables");
+      return jsonResponse({ success: false, error: "Server configuration error", requestId }, 500);
     }
 
-
-
-    const supabase =
-      createClient(
-        supabaseUrl,
-        serviceKey,
-        {
-          auth:{
-            autoRefreshToken:false,
-            persistSession:false
-          }
-        }
-      );
-
-
+    const supabase = createClient(supabaseUrl, serviceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
 
     /*
       Update escalation tracking.
-      This does NOT touch emergency logic.
-      It only records that escalation process started.
+      This does NOT touch emergency logic — it only records that the
+      escalation process started, and confirms a row actually matched.
     */
+    const { data: updatedCall, error: updateError } = await supabase
+      .from("calls")
+      .update({
+        escalated_at: new Date().toISOString(),
+        escalated_to: payload.contact_phone ?? null,
+      })
+      .eq("id", payload.call_id)
+      .select("id, user_id")
+      .maybeSingle();
 
-    const { error:updateError } =
-      await supabase
-        .from("calls")
-        .update({
-          escalated_at:
-            new Date().toISOString(),
-
-          escalated_to:
-            payload.contact_phone ?? null
-        })
-        .eq(
-          "id",
-          payload.call_id
-        );
-
-
-
-    if(updateError){
-
-      console.error(
-        "Database update failed",
-        updateError
-      );
-
-      return jsonResponse(
-        {
-          success:false,
-          error:"Failed updating call escalation",
-          requestId
-        },
-        500
-      );
+    if (updateError) {
+      console.error("Database update failed", updateError);
+      return jsonResponse({ success: false, error: "Failed updating call escalation", requestId }, 500);
     }
 
+    if (!updatedCall) {
+      // .update().eq() matches zero rows silently instead of throwing, so
+      // this check is what actually catches a bad/unknown call_id.
+      return jsonResponse({ success: false, error: "Call not found", requestId }, 404);
+    }
 
-
+    if (payload.user_id && updatedCall.user_id !== payload.user_id) {
+      // Defensive check only — the row is already updated at this point
+      // since service-role writes bypass RLS. Surfacing a mismatch here
+      // just makes a wrong call_id/user_id pairing visible in the logs.
+      console.error(
+        JSON.stringify({
+          event: "emergency_escalation_user_mismatch",
+          requestId,
+          call_id: payload.call_id,
+          expected_user_id: payload.user_id,
+          actual_user_id: updatedCall.user_id,
+        }),
+      );
+    }
 
     /*
       Future production integration:
@@ -162,92 +140,36 @@ serve(async (req) => {
       2. Twilio Voice call
       3. Vapi outbound emergency call
 
-      This section intentionally stays isolated
-      so external providers cannot break
-      emergency database workflow.
+      This section intentionally stays isolated so external providers
+      cannot break the emergency database workflow above.
     */
-
-
     console.log(
       JSON.stringify({
-
-        event:
-          "emergency_ready_for_provider",
-
+        event: "emergency_ready_for_provider",
         requestId,
-
-        technician:
-          payload.contact_phone,
-
-        customer:
-          payload.caller_phone,
-
-        issue:
-          payload.issue_description ??
-          payload.summary
-
-      })
+        technician: payload.contact_phone,
+        customer: payload.caller_phone,
+        issue: payload.issue_description ?? payload.summary,
+      }),
     );
-
-
-
 
     return jsonResponse({
-
-      success:true,
-
+      success: true,
       requestId,
-
-      message:
-        "Emergency escalation processed",
-
-      escalation:{
-        call_id:
-          payload.call_id,
-
-        technician:
-          payload.contact_phone ?? null
-      }
-
+      message: "Emergency escalation processed",
+      escalation: {
+        call_id: payload.call_id,
+        technician: payload.contact_phone ?? null,
+      },
     });
-
-
-
-  } catch(error){
-
+  } catch (error) {
     console.error(
       JSON.stringify({
-
-        event:
-          "emergency_function_error",
-
+        event: "emergency_function_error",
         requestId,
-
-        error:
-          error instanceof Error
-            ? error.message
-            : String(error)
-
-      })
+        error: error instanceof Error ? error.message : String(error),
+      }),
     );
-
-
-    return jsonResponse(
-
-      {
-        success:false,
-
-        error:
-          "Internal server error",
-
-        requestId
-
-      },
-
-      500
-
-    );
-
+    return jsonResponse({ success: false, error: "Internal server error", requestId }, 500);
   }
-
 });
