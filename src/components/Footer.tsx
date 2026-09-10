@@ -446,6 +446,12 @@ export function Footer() {
             >
               Trust Center
             </Link>
+            <Link
+              to="/sitemap"
+              className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+            >
+              Sitemap
+            </Link>
             <a
               href={`mailto:${EMAIL}`}
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
