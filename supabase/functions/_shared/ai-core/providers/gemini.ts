@@ -1,14 +1,10 @@
 // supabase/functions/_shared/ai-core/providers/gemini.ts
 //
 // Google Gemini adapter — primary provider.
-// Required secret: GEMINI_API_KEY
+// Required secret: GEMINI_API_KEY (existing Supabase secret, not created here)
 // Optional secret: GEMINI_MODEL
 
-import type {
-  ProviderAdapter,
-  NormalizedChatRequest,
-  NormalizedChatResponse,
-} from "../types.ts";
+import type { ProviderAdapter, NormalizedChatRequest, NormalizedChatResponse } from "../types.ts";
 import { AiCoreError } from "../types.ts";
 
 const DEFAULT_MODEL = "gemini-2.5-flash";
@@ -22,7 +18,6 @@ function getModel(): string {
 
 export const geminiAdapter: ProviderAdapter = {
   id: "gemini",
-  capabilities: ["chat", "json"],
 
   isConfigured(): boolean {
     return !!getApiKey();
@@ -79,6 +74,9 @@ export const geminiAdapter: ProviderAdapter = {
       throw new AiCoreError("RATE_LIMIT", "Gemini rate limit hit.", "gemini");
     }
     if (!res.ok) {
+      // Covers 400 (bad request/invalid model) and any other non-2xx —
+      // treated as a transient/provider error so the router falls through
+      // to the next provider instead of surfacing it to the user.
       const text = await res.text().catch(() => "");
       throw new AiCoreError("PROVIDER_ERROR", `Gemini ${res.status}: ${text.slice(0, 300)}`, "gemini");
     }
@@ -93,12 +91,6 @@ export const geminiAdapter: ProviderAdapter = {
       throw new AiCoreError("INVALID_RESPONSE", "Gemini returned no text content.", "gemini");
     }
 
-    return {
-      text,
-      provider: "gemini",
-      model,
-      latencyMs: Date.now() - start,
-      wasFallback: false,
-    };
+    return { text, provider: "gemini", model, latencyMs: Date.now() - start, wasFallback: false };
   },
 };
