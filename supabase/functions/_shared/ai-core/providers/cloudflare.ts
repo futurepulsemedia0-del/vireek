@@ -9,8 +9,14 @@
 // Required secrets: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN (existing
 // Supabase secrets, not created here)
 
-import type { ProviderAdapter, NormalizedChatRequest, NormalizedChatResponse } from "../types.ts";
+import type {
+  ProviderAdapter,
+  NormalizedChatRequest,
+  NormalizedChatResponse,
+  ChatStreamHandler,
+} from "../types.ts";
 import { AiCoreError } from "../types.ts";
+import { readSseEvents } from "../sse.ts";
 
 const DEFAULT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 
@@ -87,6 +93,97 @@ export const cloudflareAdapter: ProviderAdapter = {
     const data = await res.json();
     const text = (data?.result?.response ?? "").trim();
 
+    if (!text) {
+      throw new AiCoreError("INVALID_RESPONSE", "Cloudflare returned no text content.", "cloudflare");
+    }
+
+    return { text, provider: "cloudflare", model, latencyMs: Date.now() - start, wasFallback: false };
+  },
+
+  async chatStream(req: NormalizedChatRequest, onDelta: ChatStreamHandler): Promise<NormalizedChatResponse> {
+    const accountId = getAccountId();
+    const apiToken = getApiToken();
+    if (!accountId || !apiToken) {
+      throw new AiCoreError(
+        "NOT_CONFIGURED",
+        "CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN not set.",
+        "cloudflare",
+      );
+    }
+
+    const model = getModel();
+    const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
+    const start = Date.now();
+    const controller = new AbortController();
+    const timeoutMs = req.timeoutMs ?? 20_000;
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${apiToken}`,
+        },
+        body: JSON.stringify({
+          max_tokens: req.maxTokens,
+          temperature: req.temperature ?? 0.7,
+          messages: [{ role: "system", content: req.system }, ...req.messages],
+          stream: true,
+        }),
+      });
+    } catch (err) {
+      clearTimeout(timer);
+      if (err instanceof DOMException && err.name === "AbortError") {
+        throw new AiCoreError("TIMEOUT", `Cloudflare timed out after ${timeoutMs}ms.`, "cloudflare");
+      }
+      throw new AiCoreError("PROVIDER_ERROR", `Cloudflare network error: ${err}`, "cloudflare");
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      clearTimeout(timer);
+      throw new AiCoreError("AUTH", "Cloudflare rejected the API token.", "cloudflare");
+    }
+    if (res.status === 429) {
+      clearTimeout(timer);
+      throw new AiCoreError("RATE_LIMIT", "Cloudflare rate limit hit.", "cloudflare");
+    }
+    if (!res.ok) {
+      clearTimeout(timer);
+      const text = await res.text().catch(() => "");
+      throw new AiCoreError("PROVIDER_ERROR", `Cloudflare ${res.status}: ${text.slice(0, 300)}`, "cloudflare");
+    }
+
+    let full = "";
+    try {
+      for await (const payload of readSseEvents(res)) {
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(payload);
+        } catch {
+          continue;
+        }
+        const delta = (parsed as { response?: string })?.response ?? "";
+        if (delta) {
+          full += delta;
+          onDelta(delta);
+        }
+      }
+    } catch (err) {
+      clearTimeout(timer);
+      if (full) {
+        return { text: full.trim(), provider: "cloudflare", model, latencyMs: Date.now() - start, wasFallback: false };
+      }
+      if (err instanceof DOMException && err.name === "AbortError") {
+        throw new AiCoreError("TIMEOUT", `Cloudflare stream timed out after ${timeoutMs}ms.`, "cloudflare");
+      }
+      throw new AiCoreError("PROVIDER_ERROR", `Cloudflare stream error: ${err}`, "cloudflare");
+    }
+    clearTimeout(timer);
+
+    const text = full.trim();
     if (!text) {
       throw new AiCoreError("INVALID_RESPONSE", "Cloudflare returned no text content.", "cloudflare");
     }
