@@ -36,7 +36,7 @@ function buildRequestBody(req: NormalizedChatRequest) {
     generationConfig: {
       maxOutputTokens: req.maxTokens,
       temperature: req.temperature ?? 0.7,
-      ...(req.jsonMode ? { responseMimeType: "application/json" } : {}),
+      ...(req.jsonMode ? { response_mime_type: "application/json" } : {}),
     },
   };
 }
@@ -148,11 +148,10 @@ export const geminiAdapter: ProviderAdapter = {
       throw new AiCoreError("RATE_LIMIT", "Gemini rate limit hit.", "gemini");
     }
     if (!res.ok) {
-      clearTimeout(timer);
-      const text = await res.text().catch(() => "");
-      throw new AiCoreError("PROVIDER_ERROR", `Gemini ${res.status}: ${text.slice(0, 300)}`, "gemini");
-    }
-
+  const text = await res.text().catch(() => "");
+  console.error("[GEMINI ERROR]", res.status, text.slice(0, 500));
+  throw new AiCoreError("PROVIDER_ERROR", `Gemini ${res.status}: ${text.slice(0, 300)}`, "gemini");
+}
     let full = "";
     try {
       for await (const payload of readSseEvents(res)) {
