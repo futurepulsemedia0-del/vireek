@@ -1,26 +1,12 @@
 // supabase/functions/_shared/ai-core/types.ts
 //
 // Vireek AI Core — shared type contracts. Zero runtime logic, zero
-// provider-specific code. Everything else imports ONLY from here for
-// cross-module types.
+// provider-specific code. Every other ai-core file imports ONLY from
+// this file for cross-module types.
 
-export type ProviderId =
-  | "gemini"
-  | "groq"
-  | "cerebras"
-  | "cloudflare"
-  | "openrouter"
-  | "cohere";
+export type ProviderId = "gemini" | "groq" | "cerebras" | "cloudflare" | "openrouter";
 
-export type ProviderCapability = "chat" | "json" | "embedding" | "rerank";
-
-export type TaskType =
-  | "demo_chat"
-  | "intent_classify"
-  | "dashboard_answer"
-  | "embedding"
-  | "rerank"
-  | "general";
+export type TaskType = "demo_chat" | "intent_classify" | "dashboard_answer" | "general";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -42,18 +28,6 @@ export interface NormalizedChatResponse {
   model: string;
   latencyMs: number;
   wasFallback: boolean;
-}
-
-export interface EmbeddingRequest {
-  input: string[];
-  timeoutMs?: number;
-}
-
-export interface EmbeddingResponse {
-  vectors: number[][];
-  provider: ProviderId;
-  model: string;
-  latencyMs: number;
 }
 
 export type AiCoreErrorCode =
@@ -79,10 +53,8 @@ export class AiCoreError extends Error {
 
 export interface ProviderAdapter {
   readonly id: ProviderId;
-  readonly capabilities: ProviderCapability[];
   isConfigured(): boolean;
   chat(req: NormalizedChatRequest): Promise<NormalizedChatResponse>;
-  embed?(req: EmbeddingRequest): Promise<EmbeddingResponse>;
 }
 
 export interface RouteEntry {
