@@ -75,7 +75,7 @@ const CATEGORIES: Category[] = [
     features: [
       { icon: MessageSquareText, title: 'SMS Confirmations', body: 'Customers get an instant text confirming the time, address, and details.' },
       { icon: MessageSquareText, title: 'Appointment Reminders', body: '24-hour and 1-hour heads-up texts reduce no-shows automatically.' },
-      { icon: MessageSquareText, title: 'Missed-Call Text-Back', body: 'A missed call gets an instant "sorry we missed you" text with a booking link.' },
+      { icon: MessageSquareText, title: 'Missed-Call Text-Back', body: 'A missed call gets an instant "sorry we missed you" text with a booking link.', href: '/features/sms-text-back' },
     ],
   },
   {
