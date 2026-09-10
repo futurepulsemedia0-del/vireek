@@ -13,7 +13,7 @@ import type {
 import { AiCoreError } from "../types.ts";
 import { readSseEvents } from "../sse.ts";
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+const DEFAULT_MODEL = "gemini-1.5-flash";
 
 function getApiKey(): string | undefined {
   return Deno.env.get("GEMINI_API_KEY");
