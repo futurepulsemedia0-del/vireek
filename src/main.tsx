@@ -10,12 +10,14 @@ import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { SiteAssistant } from '@/components/SiteAssistant';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AnalyticsListener } from '@/components/AnalyticsListener';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <ScrollToTop />
+      <AnalyticsListener />
       <ThemeProvider>
         <AccessibilityProvider>
           <ToastProvider>
