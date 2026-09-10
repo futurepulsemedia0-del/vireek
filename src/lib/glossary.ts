@@ -182,6 +182,14 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
       'An inbound call that goes unanswered, whether it rings out, hits voicemail, or is declined. For home service businesses, a missed call is rarely a callback opportunity — most callers move straight to the next business on their list.',
     relatedLinks: [{ label: 'Why every missed call is a lost job', href: '/blog/cost-of-a-missed-call' }],
   },
+    {
+    slug: 'sms-text-back',
+    term: 'SMS Text-Back',
+    category: 'telephony',
+    definition:
+      'An automatic text message sent to a caller within seconds of a missed or unanswered call, apologizing for missing them and including a link to book — so a lead isn\u2019t lost just because nobody picked up in time.',
+    relatedLinks: [{ label: 'See SMS Text-Back', href: '/features/sms-text-back' }],
+  },
   {
     slug: 'call-forwarding',
     term: 'Call Forwarding',
