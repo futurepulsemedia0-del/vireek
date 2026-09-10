@@ -9,8 +9,10 @@ import type {
   ProviderAdapter,
   NormalizedChatRequest,
   NormalizedChatResponse,
+  ChatStreamHandler,
 } from "../types.ts";
 import { AiCoreError } from "../types.ts";
+import { readSseEvents } from "../sse.ts";
 
 interface OpenAiCompatConfig {
   id: ProviderId;
@@ -25,9 +27,19 @@ function makeOpenAiCompatAdapter(cfg: OpenAiCompatConfig): ProviderAdapter {
   const getApiKey = () => Deno.env.get(cfg.apiKeyEnvVar);
   const getModel = () => Deno.env.get(cfg.modelEnvVar) || cfg.defaultModel;
 
+  function buildBody(req: NormalizedChatRequest, stream: boolean) {
+    return {
+      model: getModel(),
+      max_tokens: req.maxTokens,
+      temperature: req.temperature ?? 0.7,
+      messages: [{ role: "system", content: req.system }, ...req.messages],
+      ...(req.jsonMode ? { response_format: { type: "json_object" } } : {}),
+      ...(stream ? { stream: true } : {}),
+    };
+  }
+
   return {
     id: cfg.id,
-    capabilities: ["chat", "json"],
 
     isConfigured(): boolean {
       return !!getApiKey();
@@ -55,13 +67,7 @@ function makeOpenAiCompatAdapter(cfg: OpenAiCompatConfig): ProviderAdapter {
             authorization: `Bearer ${apiKey}`,
             ...(cfg.extraHeaders ?? {}),
           },
-          body: JSON.stringify({
-            model,
-            max_tokens: req.maxTokens,
-            temperature: req.temperature ?? 0.7,
-            messages: [{ role: "system", content: req.system }, ...req.messages],
-            ...(req.jsonMode ? { response_format: { type: "json_object" } } : {}),
-          }),
+          body: JSON.stringify(buildBody(req, false)),
         });
       } catch (err) {
         clearTimeout(timer);
@@ -97,6 +103,87 @@ function makeOpenAiCompatAdapter(cfg: OpenAiCompatConfig): ProviderAdapter {
         latencyMs: Date.now() - start,
         wasFallback: false,
       };
+    },
+
+    async chatStream(req: NormalizedChatRequest, onDelta: ChatStreamHandler): Promise<NormalizedChatResponse> {
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        throw new AiCoreError("NOT_CONFIGURED", `${cfg.apiKeyEnvVar} is not set.`, cfg.id);
+      }
+
+      const model = getModel();
+      const start = Date.now();
+      const controller = new AbortController();
+      const timeoutMs = req.timeoutMs ?? 20_000;
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      let res: Response;
+      try {
+        res = await fetch(`${cfg.baseUrl}/chat/completions`, {
+          method: "POST",
+          signal: controller.signal,
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${apiKey}`,
+            ...(cfg.extraHeaders ?? {}),
+          },
+          body: JSON.stringify(buildBody(req, true)),
+        });
+      } catch (err) {
+        clearTimeout(timer);
+        if (err instanceof DOMException && err.name === "AbortError") {
+          throw new AiCoreError("TIMEOUT", `${cfg.id} timed out after ${timeoutMs}ms.`, cfg.id);
+        }
+        throw new AiCoreError("PROVIDER_ERROR", `${cfg.id} network error: ${err}`, cfg.id);
+      }
+
+      if (res.status === 401 || res.status === 403) {
+        clearTimeout(timer);
+        throw new AiCoreError("AUTH", `${cfg.id} rejected the API key.`, cfg.id);
+      }
+      if (res.status === 429) {
+        clearTimeout(timer);
+        throw new AiCoreError("RATE_LIMIT", `${cfg.id} rate limit hit.`, cfg.id);
+      }
+      if (!res.ok) {
+        clearTimeout(timer);
+        const text = await res.text().catch(() => "");
+        throw new AiCoreError("PROVIDER_ERROR", `${cfg.id} ${res.status}: ${text.slice(0, 300)}`, cfg.id);
+      }
+
+      let full = "";
+      try {
+        for await (const payload of readSseEvents(res)) {
+          let parsed: unknown;
+          try {
+            parsed = JSON.parse(payload);
+          } catch {
+            continue;
+          }
+          const delta = (parsed as { choices?: { delta?: { content?: string } }[] })?.choices?.[0]?.delta?.content;
+          if (delta) {
+            full += delta;
+            onDelta(delta);
+          }
+        }
+      } catch (err) {
+        clearTimeout(timer);
+        if (full) {
+          return { text: full.trim(), provider: cfg.id, model, latencyMs: Date.now() - start, wasFallback: false };
+        }
+        if (err instanceof DOMException && err.name === "AbortError") {
+          throw new AiCoreError("TIMEOUT", `${cfg.id} stream timed out after ${timeoutMs}ms.`, cfg.id);
+        }
+        throw new AiCoreError("PROVIDER_ERROR", `${cfg.id} stream error: ${err}`, cfg.id);
+      }
+      clearTimeout(timer);
+
+      const text = full.trim();
+      if (!text) {
+        throw new AiCoreError("INVALID_RESPONSE", `${cfg.id} returned no text content.`, cfg.id);
+      }
+
+      return { text, provider: cfg.id, model, latencyMs: Date.now() - start, wasFallback: false };
     },
   };
 }
