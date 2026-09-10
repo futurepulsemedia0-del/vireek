@@ -7,6 +7,7 @@ import { ToastProvider } from '@/contexts/ToastContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
 import { AccessibilityWidget } from '@/components/AccessibilityWidget';
+import { SiteAssistant } from '@/components/SiteAssistant';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import './index.css';
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
               <ErrorBoundary>
                 <App />
                 <AccessibilityWidget />
+                <SiteAssistant />
               </ErrorBoundary>
             </AuthProvider>
           </ToastProvider>
