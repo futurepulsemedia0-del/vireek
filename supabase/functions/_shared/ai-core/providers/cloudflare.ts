@@ -1,11 +1,10 @@
 // supabase/functions/_shared/ai-core/providers/cloudflare.ts
 //
 // Cloudflare Workers AI adapter. Different wire format from the OpenAI-
-// compatible group: auth via account ID in the URL path + bearer token,
-// and the response shape is { result: { response: "..." } }.
+// compatible group: account ID in the URL path + bearer token, response
+// shape is { result: { response: "..." } }.
 //
 // Required secrets: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
-// Optional secret: CLOUDFLARE_MODEL
 
 import type {
   ProviderAdapter,
