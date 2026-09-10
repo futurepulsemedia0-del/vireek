@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Phone, Send, Sparkles } from 'lucide-react';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { SARAH_PHONE } from '@/lib/site';
-import { supabase } from '@/lib/supabase';
+import { streamAiChat } from '@/lib/aiStream';
 import { VoiceDemoWidget } from '@/components/VoiceDemoWidget';
 import { MessageBubble, OnlineDot, TypingIndicator } from '@/components/chat/ChatVisuals';
 
@@ -16,11 +16,14 @@ const STARTER_PROMPTS = [
 ];
 
 interface ChatMessage {
+  id: string;
   role: 'user' | 'assistant';
   content: string;
+  streaming?: boolean;
 }
 
 const OPENING_MESSAGE: ChatMessage = {
+  id: 'opening',
   role: 'assistant',
   content: "Hi, this is Sarah! Type what you'd say if you were calling in — I'll answer just like I would on a real call.",
 };
@@ -31,40 +34,58 @@ export function LiveDemo() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, loading]);
 
+  useEffect(() => () => abortRef.current?.abort(), []);
+
   async function sendMessage(text: string) {
     const trimmed = text.trim();
     if (!trimmed || loading) return;
 
-    const nextMessages: ChatMessage[] = [...messages, { role: 'user', content: trimmed }];
-    setMessages(nextMessages);
+    const history = messages.map((m) => ({ role: m.role, content: m.content }));
+
+    setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', content: trimmed }]);
     setInput('');
     setError(null);
     setLoading(true);
 
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke('demo-chat', {
-        body: {
-          message: trimmed,
-          history: nextMessages.slice(0, -1),
-        },
-      });
+    const assistantId = crypto.randomUUID();
+    let started = false;
+    const controller = new AbortController();
+    abortRef.current = controller;
 
-      if (fnError) throw fnError;
-      if (data?.error) {
-        setError(data.error);
-      } else {
-        setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
-      }
-    } catch {
-      setError("Sarah is having trouble responding right now — please try again in a moment.");
-    } finally {
-      setLoading(false);
-    }
+    await streamAiChat({
+      functionName: 'demo-chat',
+      message: trimmed,
+      history,
+      signal: controller.signal,
+      onDelta: (delta) => {
+        if (!started) {
+          started = true;
+          setLoading(false);
+          setMessages((prev) => [...prev, { id: assistantId, role: 'assistant', content: delta, streaming: true }]);
+        } else {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + delta } : m)),
+          );
+        }
+      },
+      onDone: () => {
+        setLoading(false);
+        setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, streaming: false } : m)));
+      },
+      onError: (message) => {
+        setLoading(false);
+        if (started) {
+          setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, streaming: false } : m)));
+        }
+        setError(message);
+      },
+    });
   }
 
   return (
@@ -108,82 +129,85 @@ export function LiveDemo() {
             </span>
           </motion.a>
 
-          {/* Live typed chat with the real AI */}
+          {/* Live typed chat with the real AI — streams token-by-token */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewport}
             transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
-            className="flex h-[440px] flex-col overflow-hidden rounded-2xl border border-border bg-bg-tertiary shadow-card dark:shadow-card-dark sm:h-[520px]"
+            className="group/card relative rounded-[27px] bg-gradient-to-br from-accent/50 via-border to-cta/50 p-px shadow-card dark:shadow-card-dark"
           >
-            <div className="flex items-center gap-2.5 border-b border-border bg-bg-secondary px-4 py-3.5 sm:px-5 sm:py-4">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white sm:h-8 sm:w-8">
-                <Sparkles size={13} strokeWidth={2.25} className="sm:size-[15px]" />
-              </span>
-              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-text-secondary sm:text-sm sm:tracking-[0.18em]">
-                No account, no phone call — just type
-                <OnlineDot />
-              </p>
-            </div>
-
-            <div ref={scrollRef} aria-live="polite" className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:space-y-4 sm:px-5 sm:py-5">
-              {messages.map((msg, i) => (
-                <MessageBubble key={i} role={msg.role}>
-                  {msg.content}
-                </MessageBubble>
-              ))}
-              {loading && <TypingIndicator />}
-              {error && <p className="text-center text-xs font-medium text-danger">{error}</p>}
-            </div>
-
-            {messages.length <= 1 && (
-              <div className="flex flex-wrap gap-2 border-t border-border px-4 py-3 sm:px-5">
-                {STARTER_PROMPTS.map((p) => (
-                  <motion.button
-                    key={p}
-                    type="button"
-                    onClick={() => sendMessage(p)}
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="focus-ring rounded-full border border-border bg-bg-secondary px-3 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-text-primary sm:py-1.5"
-                  >
-                    {p}
-                  </motion.button>
-                ))}
+            <div className="flex h-[440px] flex-col overflow-hidden rounded-[26px] bg-bg-tertiary sm:h-[520px]">
+              <div className="relative flex items-center gap-2.5 overflow-hidden border-b border-border bg-bg-secondary px-4 py-3.5 sm:px-5 sm:py-4">
+                <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
+                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-sm sm:h-8 sm:w-8">
+                  <Sparkles size={13} strokeWidth={2.25} className="sm:size-[15px]" />
+                </span>
+                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-text-secondary sm:text-sm sm:tracking-[0.18em]">
+                  No account, no phone call — just type
+                  <OnlineDot />
+                </p>
               </div>
-            )}
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                sendMessage(input);
-              }}
-              className="flex items-center gap-2 border-t border-border bg-bg-secondary p-3"
-            >
-              <label htmlFor="live-demo-input" className="sr-only">
-                Type a message to Sarah
-              </label>
-              <input
-                id="live-demo-input"
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type what you'd say to a receptionist…"
-                maxLength={400}
-                disabled={loading}
-                className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3.5 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 sm:px-4 sm:py-2.5"
-              />
-              <motion.button
-                type="submit"
-                disabled={loading || !input.trim()}
-                aria-label="Send message"
-                whileHover={!loading && input.trim() ? { scale: 1.06 } : undefined}
-                whileTap={!loading && input.trim() ? { scale: 0.94 } : undefined}
-                className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white transition-opacity disabled:opacity-40"
+              <div ref={scrollRef} aria-live="polite" className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:space-y-4 sm:px-5 sm:py-5">
+                {messages.map((msg) => (
+                  <MessageBubble key={msg.id} role={msg.role} streaming={msg.streaming}>
+                    {msg.content}
+                  </MessageBubble>
+                ))}
+                {loading && <TypingIndicator />}
+                {error && <p className="text-center text-xs font-medium text-danger">{error}</p>}
+              </div>
+
+              {messages.length <= 1 && (
+                <div className="flex flex-wrap gap-2 border-t border-border px-4 py-3 sm:px-5">
+                  {STARTER_PROMPTS.map((p) => (
+                    <motion.button
+                      key={p}
+                      type="button"
+                      onClick={() => sendMessage(p)}
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="focus-ring rounded-full border border-border bg-bg-secondary px-3 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-text-primary sm:py-1.5"
+                    >
+                      {p}
+                    </motion.button>
+                  ))}
+                </div>
+              )}
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendMessage(input);
+                }}
+                className="flex items-center gap-2 border-t border-border bg-bg-secondary p-3"
               >
-                <Send size={16} />
-              </motion.button>
-            </form>
+                <label htmlFor="live-demo-input" className="sr-only">
+                  Type a message to Sarah
+                </label>
+                <input
+                  id="live-demo-input"
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type what you'd say to a receptionist…"
+                  maxLength={400}
+                  disabled={loading}
+                  className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3.5 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 transition-shadow focus:shadow-glow-accent sm:px-4 sm:py-2.5"
+                />
+                <motion.button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  aria-label="Send message"
+                  whileHover={!loading && input.trim() ? { scale: 1.06 } : undefined}
+                  whileTap={!loading && input.trim() ? { scale: 0.94 } : undefined}
+                  className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white transition-opacity disabled:opacity-40"
+                >
+                  <Send size={16} />
+                </motion.button>
+              </form>
+            </div>
           </motion.div>
         </div>
 
