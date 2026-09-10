@@ -9,7 +9,7 @@
 // provider fails, throws ONE normalized AiCoreError — callers turn that
 // into a clean user-facing message, never a raw stack trace.
 
-import type { NormalizedChatRequest, NormalizedChatResponse, TaskType } from "./types.ts";
+import type { NormalizedChatRequest, NormalizedChatResponse, ProviderId, TaskType } from "./types.ts";
 import { AiCoreError } from "./types.ts";
 import { ALL_ADAPTERS, getRouteForTask } from "./registry.ts";
 
@@ -31,11 +31,12 @@ export interface RouteChatResult {
 const RETRYABLE_CODES = new Set(["TIMEOUT", "RATE_LIMIT", "PROVIDER_ERROR"]);
 
 async function attemptOnce(
-  providerId: keyof typeof ALL_ADAPTERS,
+  providerId: ProviderId,
   model: string,
   req: NormalizedChatRequest,
 ): Promise<{ ok: true; response: NormalizedChatResponse } | { ok: false; code: string }> {
   const adapter = ALL_ADAPTERS[providerId];
+  if (!adapter) return { ok: false, code: "NOT_CONFIGURED" };
   try {
     const response = await adapter.chat({ ...req, timeoutMs: req.timeoutMs });
     // The adapter doesn't know its own configured model override from the
@@ -64,7 +65,7 @@ export async function routeChat(
 
   for (const entry of route) {
     const adapter = ALL_ADAPTERS[entry.provider];
-    if (!adapter) continue; // defensive: unknown id in registry, skip
+    if (!adapter) continue; // provider not registered/available at all — skip silently
 
     if (!adapter.isConfigured()) {
       // Not logged as an "attempt" — no network call was made, no point
