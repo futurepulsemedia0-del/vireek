@@ -1,16 +1,15 @@
 // supabase/functions/_shared/ai-core/providers/cloudflare.ts
 //
 // Cloudflare Workers AI adapter. Different wire format from the OpenAI-
-// compatible group: account ID in the URL path + bearer token, response
-// shape is { result: { response: "..." } }.
+// compatible providers: account ID in the URL path + bearer token,
+// response shape is { result: { response: "..." } }. No JSON-mode
+// support, so this provider is excluded from the intent_classify chain
+// in registry.ts.
 //
-// Required secrets: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
+// Required secrets: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN (existing
+// Supabase secrets, not created here)
 
-import type {
-  ProviderAdapter,
-  NormalizedChatRequest,
-  NormalizedChatResponse,
-} from "../types.ts";
+import type { ProviderAdapter, NormalizedChatRequest, NormalizedChatResponse } from "../types.ts";
 import { AiCoreError } from "../types.ts";
 
 const DEFAULT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
@@ -27,7 +26,6 @@ function getModel(): string {
 
 export const cloudflareAdapter: ProviderAdapter = {
   id: "cloudflare",
-  capabilities: ["chat"],
 
   isConfigured(): boolean {
     return !!getAccountId() && !!getApiToken();
@@ -93,12 +91,6 @@ export const cloudflareAdapter: ProviderAdapter = {
       throw new AiCoreError("INVALID_RESPONSE", "Cloudflare returned no text content.", "cloudflare");
     }
 
-    return {
-      text,
-      provider: "cloudflare",
-      model,
-      latencyMs: Date.now() - start,
-      wasFallback: false,
-    };
+    return { text, provider: "cloudflare", model, latencyMs: Date.now() - start, wasFallback: false };
   },
 };
