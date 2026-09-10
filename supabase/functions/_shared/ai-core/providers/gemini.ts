@@ -1,10 +1,8 @@
 // supabase/functions/_shared/ai-core/providers/gemini.ts
 //
-// Google Gemini adapter. Uses the generateContent REST endpoint directly
-// (no SDK dependency, keeps the edge function bundle small).
-//
+// Google Gemini adapter — primary provider.
 // Required secret: GEMINI_API_KEY
-// Optional secret: GEMINI_MODEL (defaults below)
+// Optional secret: GEMINI_MODEL
 
 import type {
   ProviderAdapter,
@@ -18,7 +16,6 @@ const DEFAULT_MODEL = "gemini-2.5-flash";
 function getApiKey(): string | undefined {
   return Deno.env.get("GEMINI_API_KEY");
 }
-
 function getModel(): string {
   return Deno.env.get("GEMINI_MODEL") || DEFAULT_MODEL;
 }
@@ -40,9 +37,6 @@ export const geminiAdapter: ProviderAdapter = {
     const model = getModel();
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-    // Gemini has no separate "system" role in the basic contents array —
-    // it's passed via systemInstruction. History maps role "assistant" ->
-    // "model", "user" stays "user".
     const contents = req.messages.map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
