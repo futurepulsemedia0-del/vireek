@@ -11,7 +11,10 @@ import { SiteAssistant } from '@/components/SiteAssistant';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
+import { initSentry } from '@/lib/sentry';
 import './index.css';
+
+initSentry();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
