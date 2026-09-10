@@ -7,6 +7,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { CreditCard, TrendingUp, TriangleAlert as AlertTriangle, ArrowUpRight, FileText, Loader as Loader2, Check, Clock, X, Lock, Receipt, Printer } from 'lucide-react';
 
 // ============================================================
 // CONSTANTS
@@ -396,15 +397,25 @@ export function BillingPage() {
       </div>
 
       {/* SECTION 2: Customer Invoices */}
-      <div className="mb-8">
-        <div className="mb-3 flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-text-primary">Customer Invoices</h2>
-          <span className="rounded-full bg-bg-tertiary px-2.5 py-0.5 text-xs font-medium text-text-secondary">
-            From your jobs
-          </span>
-        </div>
+<div className="mb-8 printable-invoice" id="invoice-print-area">
+  <div className="mb-3 flex items-center justify-between gap-2">
+    <div className="flex items-center gap-2">
+      <h2 className="text-lg font-semibold text-text-primary">Customer Invoices</h2>
+      <span className="rounded-full bg-bg-tertiary px-2.5 py-0.5 text-xs font-medium text-text-secondary no-print">
+        From your jobs
+      </span>
+    </div>
+    <button
+      type="button"
+      onClick={() => window.print()}
+      className="no-print focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-accent/40"
+    >
+      <Printer size={16} className="text-text-secondary" />
+      <span>Print</span>
+    </button>
+  </div>
 
-        {/* Summary cards */}
+  {/* Summary cards */}
         <div className="mb-4 grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
             <div className="flex items-center gap-2">
