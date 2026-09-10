@@ -56,6 +56,12 @@ function formatDateTime(dateStr: string): string {
   });
 }
 
+function escalationLabel(call: Call): string | null {
+  if (!call.escalated_to && !call.escalated_at) return null;
+  const who = call.escalated_to ? `${call.escalated_to} notified` : 'Technician notified';
+  return call.escalated_at ? `${who} · ${formatDateTime(call.escalated_at)}` : who;
+}
+
 const statusConfig: Record<string, { label: string; color: string }> = {
   new_lead: { label: 'New Lead', color: 'bg-accent/10 text-accent' },
   booked: { label: 'Booked', color: 'bg-success-500/10 text-success-500' },
@@ -239,9 +245,14 @@ function CallDetailPanel({
 
         {/* Emergency badge */}
         {call.is_emergency && (
-          <div className="flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/5 px-4 py-3">
-            <AlertTriangle size={18} className="text-danger" />
-            <span className="text-sm font-medium text-danger">Emergency call</span>
+          <div className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={18} className="text-danger" />
+              <span className="text-sm font-medium text-danger">🚨 Emergency call</span>
+            </div>
+            {escalationLabel(call) && (
+              <p className="mt-1.5 pl-[26px] text-xs text-text-secondary">{escalationLabel(call)}</p>
+            )}
           </div>
         )}
 
@@ -614,15 +625,28 @@ export function CallsPage() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-text-secondary">
-              <input
-                type="checkbox"
-                checked={emergencyOnly}
-                onChange={(e) => setEmergencyOnly(e.target.checked)}
-                className="accent-danger"
-              />
-              Emergency only
-            </label>
+            <div className="inline-flex rounded-xl border border-border bg-bg-secondary p-1 text-sm">
+              <button
+                type="button"
+                onClick={() => setEmergencyOnly(false)}
+                aria-pressed={!emergencyOnly}
+                className={`focus-ring rounded-lg px-3 py-1.5 font-medium transition-colors ${
+                  !emergencyOnly ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                All Calls
+              </button>
+              <button
+                type="button"
+                onClick={() => setEmergencyOnly(true)}
+                aria-pressed={emergencyOnly}
+                className={`focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 font-medium transition-colors ${
+                  emergencyOnly ? 'bg-danger text-white' : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                🚨 Emergency Only
+              </button>
+            </div>
             <div className="flex items-center gap-2">
               <input
                 type="date"
@@ -769,7 +793,16 @@ export function CallsPage() {
                         <td className="px-4 py-3"><StatusBadge status={call.status} /></td>
                         <td className="px-4 py-3 text-center">
                           {call.is_emergency ? (
-                            <AlertTriangle size={16} className="mx-auto text-danger" />
+                            <div className="flex flex-col items-center gap-1">
+                              <span className="inline-flex w-fit items-center gap-1 whitespace-nowrap rounded-full bg-danger/10 px-2.5 py-1 text-xs font-semibold text-danger">
+                                🚨 Emergency
+                              </span>
+                              {escalationLabel(call) && (
+                                <span className="whitespace-nowrap text-[11px] text-text-secondary">
+                                  {escalationLabel(call)}
+                                </span>
+                              )}
+                            </div>
                           ) : (
                             <span className="text-text-secondary/30">—</span>
                           )}
@@ -802,15 +835,18 @@ export function CallsPage() {
                     {call.summary && (
                       <p className="mt-2 text-sm text-text-secondary line-clamp-2">{call.summary}</p>
                     )}
-                    <div className="mt-2 flex items-center gap-3 text-xs">
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
                       <span className="text-text-secondary">{formatDuration(call.duration_seconds)}</span>
                       {sentimentCfg && <span className={sentimentCfg.color}>{sentimentCfg.label}</span>}
                       {call.is_emergency && (
-                        <span className="flex items-center gap-1 text-danger">
-                          <AlertTriangle size={12} /> Emergency
+                        <span className="inline-flex items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 font-semibold text-danger">
+                          🚨 Emergency
                         </span>
                       )}
                     </div>
+                    {call.is_emergency && escalationLabel(call) && (
+                      <p className="mt-1 text-[11px] text-text-secondary">{escalationLabel(call)}</p>
+                    )}
                   </button>
                 );
               })}
