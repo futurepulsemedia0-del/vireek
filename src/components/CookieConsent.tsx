@@ -13,6 +13,7 @@ import {
   ArrowRight,
   ChevronRight,
 } from 'lucide-react';
+import { setAnalyticsConsent } from '@/lib/analytics';
 
 /* ------------------------------------------------------------------ */
 /*  Consent engine                                                     */
@@ -54,10 +55,10 @@ function writeConsent(state: Omit<ConsentState, 'version' | 'timestamp'>) {
 }
 
 function applyConsent(state: Omit<ConsentState, 'version' | 'timestamp'>) {
-  // Gate non-essential tracking here when analytics are wired in.
-  // For now this is a no-op stub that respects the user's choices.
-  if (!state.analytics) { /* disable analytics */ }
-  if (!state.marketing) { /* disable marketing pixels */ }
+  setAnalyticsConsent(state.analytics);
+  // Marketing pixels (Meta Pixel, LinkedIn Insight, etc.) can be gated the
+  // same way once they're added — call their init function here behind
+  // `state.marketing`.
 }
 
 /* ------------------------------------------------------------------ */
@@ -364,16 +365,16 @@ export function CookieConsent() {
 
   // Check existing consent on mount
   useEffect(() => {
-  const existing = readConsent();
-  if (!existing) {
-    const timer = setTimeout(() => {
-      setBannerVisible(true);
-    }, 1500); // اینجا میلی‌ثانیه رو تنظیم کن، 1500 = 1.5 ثانیه
-    return () => clearTimeout(timer);
-  } else {
-    applyConsent(existing);
-  }
-}, []);
+    const existing = readConsent();
+    if (!existing) {
+      const timer = setTimeout(() => {
+        setBannerVisible(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    } else {
+      applyConsent(existing);
+    }
+  }, []);
 
   const acceptAll = useCallback(() => {
     const all = { ...DEFAULT_STATE, analytics: true, personalization: true, marketing: true, ai: true };
