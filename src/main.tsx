@@ -13,6 +13,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
 import { initSentry } from '@/lib/sentry';
 import './index.css';
+import './styles/print.css';
 
 initSentry();
 
