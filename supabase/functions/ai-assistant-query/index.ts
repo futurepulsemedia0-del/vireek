@@ -3,28 +3,24 @@
 // ============================================================
 // SECURITY MODEL (read this before changing anything below)
 // ============================================================
-// The LLM is NEVER allowed to generate or run SQL, and it never sees a
-// database connection. Its only job is to map the user's question onto one
-// of the fixed `INTENTS` below (a strict enum) plus a few whitelisted
-// parameters. The actual data fetch for each intent is a hardcoded
-// supabase-js query written by us, not by the model — so even a fully
-// "jailbroken" model response can only ever select one of these prewritten,
-// read-only queries. There is no code path from user input to a write
-// (insert/update/delete) operation anywhere in this function.
+// The LLM is NEVER allowed to generate or run SQL, and never sees a
+// database connection. Its only job is to map the user's question onto
+// one of the fixed `INTENTS` below (a strict enum) plus whitelisted
+// params. The actual data fetch for each intent is a hardcoded,
+// read-only supabase-js query written here — not by the model — so even
+// a fully "jailbroken" model response can only ever select one of these
+// prewritten queries. No write (insert/update/delete) path exists here.
 //
 // Row scoping is enforced by Postgres RLS, not by this function: the
-// Supabase client below is created with the *caller's own JWT* (forwarded
-// from the Authorization header), so every query runs as that user and is
-// automatically restricted to their account by the same RLS policies that
-// protect every other page in the app (via `get_account_owner_id()`).
-// There is no service-role client and no client-supplied user_id anywhere
-// in this file.
+// Supabase client is created with the CALLER's own JWT, so every query
+// runs as that user and is restricted to their account by the same RLS
+// policies that protect every other page. No service-role client, no
+// client-supplied user_id.
 //
-// LLM provider: routed through the Vireek AI Core (_shared/ai-core). If
-// Gemini fails (invalid key, quota, outage) it falls back automatically
-// to Groq, then Cerebras, then OpenRouter — see registry.ts for the exact
-// chain. Both LLM calls below (classify + answer) go through the SAME
-// router, so a provider outage never breaks the dashboard assistant.
+// LLM provider: routed through the Vireek AI Core (_shared/ai-core).
+// Gemini -> Groq -> Cerebras -> Cloudflare -> OpenRouter (Cloudflare
+// skipped for the JSON classify step — see registry.ts). Both LLM calls
+// below (classify + answer) go through the SAME router.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { askVireekAi } from "../_shared/ai-core/index.ts";
@@ -70,7 +66,7 @@ function periodStart(period: IntentPlan["period"]): string {
       break;
     case "this_week": {
       const day = d.getDay();
-      const diff = (day + 6) % 7; // Monday as start of week
+      const diff = (day + 6) % 7;
       d.setDate(d.getDate() - diff);
       d.setHours(0, 0, 0, 0);
       break;
@@ -122,8 +118,6 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Client scoped to the CALLER's own session (their JWT), never the
-    // service role — RLS does all the account-boundary enforcement below.
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     const supabase = createClient(supabaseUrl, anonKey, {
@@ -135,20 +129,9 @@ Deno.serve(async (req: Request) => {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return new Response(JSON.stringify({ error: "Not authenticated." }), {
-        status: 401,
-        headers: jsonHeaders,
-      });
+      return new Response(JSON.stringify({ error: "Not authenticated." }), { status: 401, headers: jsonHeaders });
     }
 
-    // -------------------------------------------------------------
-    // Rate limit: authenticated users still get a cap (unlike the public
-    // demo chat, this is per-user rather than per-IP, and more generous
-    // since these are paying customers, not anonymous visitors). Same
-    // fixed-window pattern as `demo_chat_rate_limit`. Uses the caller's
-    // own JWT-scoped client, so RLS (not a service-role bypass) enforces
-    // that a user can only ever touch their own counter row.
-    // -------------------------------------------------------------
     const RATE_LIMIT_MAX_PER_HOUR = 30;
     const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
     const nowMs = Date.now();
@@ -164,9 +147,7 @@ Deno.serve(async (req: Request) => {
       if (windowAgeMs < RATE_LIMIT_WINDOW_MS) {
         if (existingLimit.request_count >= RATE_LIMIT_MAX_PER_HOUR) {
           return new Response(
-            JSON.stringify({
-              error: "You've hit the AI Assistant's hourly question limit. Try again in a bit.",
-            }),
+            JSON.stringify({ error: "You've hit the AI Assistant's hourly question limit. Try again in a bit." }),
             { status: 429, headers: jsonHeaders },
           );
         }
@@ -190,7 +171,6 @@ Deno.serve(async (req: Request) => {
 
     // -------------------------------------------------------------
     // Step 1: classify the question into a fixed intent (never SQL).
-    // Routed through the AI Core — automatic fallback across providers.
     // -------------------------------------------------------------
     let plan: IntentPlan;
     try {
@@ -236,7 +216,7 @@ Deno.serve(async (req: Request) => {
     }
 
     // -------------------------------------------------------------
-    // Step 2: run the ONE hardcoded, read-only query for that intent.
+    // Step 2: the ONE hardcoded, read-only query for that intent.
     // UNCHANGED — no model input reaches this switch at all.
     // -------------------------------------------------------------
     let rows: Record<string, unknown>[] = [];
@@ -357,9 +337,8 @@ Deno.serve(async (req: Request) => {
     }
 
     // -------------------------------------------------------------
-    // Step 3: facts -> natural language, via the AI Core (same
-    // fallback chain). The model only sees aggregate facts, not raw
-    // table access, and cannot request more data.
+    // Step 3: facts -> natural language, via the AI Core (same chain).
+    // The model only sees aggregate facts, never raw table access.
     // -------------------------------------------------------------
     let answer: string;
     try {
