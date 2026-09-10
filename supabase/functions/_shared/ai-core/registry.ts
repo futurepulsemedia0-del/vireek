@@ -1,134 +1,54 @@
-// supabase/functions/demo-chat/index.ts
+// supabase/functions/_shared/ai-core/registry.ts
 //
-// Public, unauthenticated endpoint powering the "Talk to Sarah" widget.
-// Routed through the Vireek AI Core: if Gemini fails (quota, invalid key,
-// outage), it automatically falls back to Groq, then Cerebras, then
-// Cloudflare, then OpenRouter — with no code change needed to add/remove
-// a provider later. Rate limiting, CORS, and input validation unchanged.
+// Vireek AI Core — Provider Registry. Task -> ordered provider list.
+// Add/remove/reorder a provider by editing this file only.
 
-import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { askVireekAi, safeFallbackMessage } from "../_shared/ai-core/index.ts";
-import type { ChatMessage } from "../_shared/ai-core/types.ts";
+import type { ProviderAdapter, ProviderId, RouteEntry, TaskType } from "./types.ts";
+import { geminiAdapter } from "./providers/gemini.ts";
+import { cloudflareAdapter } from "./providers/cloudflare.ts";
+import { cohereAdapter } from "./providers/cohere.ts";
+import { groqAdapter, cerebrasAdapter, openrouterAdapter } from "./providers/openai-compatible.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+export const ALL_ADAPTERS: Partial<Record<ProviderId, ProviderAdapter>> = {
+  gemini: geminiAdapter,
+  groq: groqAdapter,
+  cerebras: cerebrasAdapter,
+  cloudflare: cloudflareAdapter,
+  openrouter: openrouterAdapter,
+  cohere: cohereAdapter,
 };
 
-const MAX_REQUESTS_PER_HOUR = 20;
-const MAX_MESSAGE_LENGTH = 400;
-const MAX_HISTORY_TURNS = 6;
+export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
+  demo_chat: [
+    { provider: "gemini", priority: 10, model: "gemini-2.5-flash" },
+    { provider: "groq", priority: 20, model: "llama-3.3-70b-versatile" },
+    { provider: "cerebras", priority: 30, model: "llama-3.3-70b" },
+    { provider: "cloudflare", priority: 40, model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast" },
+    { provider: "openrouter", priority: 50, model: "openrouter/auto" },
+  ],
+  intent_classify: [
+    { provider: "gemini", priority: 10, model: "gemini-2.5-flash" },
+    { provider: "groq", priority: 20, model: "llama-3.3-70b-versatile" },
+    { provider: "cerebras", priority: 30, model: "llama-3.3-70b" },
+    { provider: "openrouter", priority: 40, model: "openrouter/auto" },
+  ],
+  dashboard_answer: [
+    { provider: "gemini", priority: 10, model: "gemini-2.5-flash" },
+    { provider: "groq", priority: 20, model: "llama-3.3-70b-versatile" },
+    { provider: "cerebras", priority: 30, model: "llama-3.3-70b" },
+    { provider: "cloudflare", priority: 40, model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast" },
+  ],
+  general: [
+    { provider: "gemini", priority: 10, model: "gemini-2.5-flash" },
+    { provider: "groq", priority: 20, model: "llama-3.3-70b-versatile" },
+    { provider: "cerebras", priority: 30, model: "llama-3.3-70b" },
+    { provider: "cloudflare", priority: 40, model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast" },
+    { provider: "openrouter", priority: 50, model: "openrouter/auto" },
+  ],
+  embedding: [{ provider: "cohere", priority: 10, model: "embed-english-v3.0" }],
+  rerank: [{ provider: "cohere", priority: 10, model: "" }],
+};
 
-async function hashIp(ip: string): Promise<string> {
-  const data = new TextEncoder().encode(ip);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+export function getRouteForTask(task: TaskType): RouteEntry[] {
+  return [...(TASK_ROUTES[task] ?? [])].sort((a, b) => a.priority - b.priority);
 }
-
-Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 200, headers: corsHeaders });
-  }
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
-  try {
-    const body = await req.json().catch(() => null);
-    const message = typeof body?.message === "string" ? body.message.trim() : "";
-    const history: ChatMessage[] = Array.isArray(body?.history) ? body.history : [];
-
-    if (!message) {
-      return new Response(JSON.stringify({ error: "Message is required." }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (message.length > MAX_MESSAGE_LENGTH) {
-      return new Response(
-        JSON.stringify({ error: `Message is too long (max ${MAX_MESSAGE_LENGTH} characters).` }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
-
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      req.headers.get("cf-connecting-ip") ??
-      "unknown";
-    const ipHash = await hashIp(ip);
-
-    const { data: existing } = await supabase
-      .from("demo_chat_rate_limit")
-      .select("window_start, request_count")
-      .eq("ip_hash", ipHash)
-      .maybeSingle();
-
-    const now = Date.now();
-    const windowMs = 60 * 60 * 1000;
-    const windowStart = existing ? new Date(existing.window_start).getTime() : now;
-    const windowExpired = now - windowStart > windowMs;
-    const currentCount = windowExpired ? 0 : existing?.request_count ?? 0;
-
-    if (currentCount >= MAX_REQUESTS_PER_HOUR) {
-      return new Response(
-        JSON.stringify({
-          error:
-            "You've hit the demo message limit for now — please try again in a bit, or start your free trial to keep chatting with the real thing.",
-        }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    await supabase.from("demo_chat_rate_limit").upsert({
-      ip_hash: ipHash,
-      window_start: windowExpired ? new Date(now).toISOString() : existing?.window_start ?? new Date(now).toISOString(),
-      request_count: currentCount + 1,
-    });
-
-    const trimmedHistory: ChatMessage[] = history.slice(-MAX_HISTORY_TURNS * 2).map((m) => ({
-      role: m.role === "assistant" ? "assistant" : "user",
-      content: String(m.content).slice(0, MAX_MESSAGE_LENGTH),
-    }));
-
-    try {
-      const result = await askVireekAi({
-        task: "demo_chat",
-        messages: [...trimmedHistory, { role: "user", content: message }],
-        maxTokens: 220,
-        useFullKnowledgeBrief: true,
-      });
-
-      console.log(
-        `[demo-chat] provider=${result.meta.provider} model=${result.meta.model} ` +
-          `latencyMs=${result.meta.latencyMs} fallback=${result.meta.wasFallback} ` +
-          `attempts=${JSON.stringify(result.meta.attempts)}`,
-      );
-
-      return new Response(JSON.stringify({ reply: result.text || "Sorry, could you say that again?" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    } catch (err) {
-      console.error("[demo-chat] AI Core error (all providers failed):", err);
-      return new Response(JSON.stringify({ error: safeFallbackMessage(err) }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-  } catch (err) {
-    console.error("demo-chat error:", err);
-    return new Response(JSON.stringify({ error: "Something went wrong. Please try again." }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-});
