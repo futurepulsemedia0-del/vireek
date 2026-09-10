@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HelpCircle, X, Send } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { streamAiChat } from '@/lib/aiStream';
 import { ChatAvatar, MessageBubble, OnlineDot, StarterPromptChip, TypingIndicator } from '@/components/chat/ChatVisuals';
 
 interface ChatMessage {
@@ -10,6 +10,7 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   text: string;
   isError?: boolean;
+  streaming?: boolean;
 }
 
 const STARTER_PROMPTS = [
@@ -27,8 +28,12 @@ const STARTER_PROMPTS = [
  * through the Vireek AI Core (task: "general") grounded in
  * supabase/functions/_shared/ai-core/knowledge.ts.
  *
+ * The reply streams in live (see `@/lib/aiStream`) — tokens land in the
+ * bubble as the model produces them, with a blinking caret at the end,
+ * instead of the widget sitting idle until a full answer is ready.
+ *
  * Visuals come from `@/components/chat/ChatVisuals` — the same avatar,
- * bubble, and typing-indicator language used by `AiAssistant` (dashboard)
+ * bubble, and thinking/streaming language used by `AiAssistant` (dashboard)
  * and the "Talk to Sarah" demo, so every chat surface on the site reads
  * as one considered system instead of three different widgets.
  *
@@ -38,10 +43,13 @@ const STARTER_PROMPTS = [
  * this one only ever answers from public product knowledge, never
  * account data.
  *
- * Positioning: same bottom-right rail as `AiAssistant` (which never
- * renders here, since dashboard routes are excluded) — `bottom-[92px]`
- * for the button keeps a clear gap above `AccessibilityWidget`
- * (`bottom-5`, ~48px), matching that widget's own spacing convention.
+ * Positioning + sizing: same bottom-right rail as `AccessibilityWidget`
+ * and `AiAssistant` — the 48px / rounded-2xl launcher below matches
+ * `AccessibilityWidget`'s own button exactly (h-12 w-12, rounded-2xl,
+ * 20px icon) instead of the old oversized 56px circular one, so the two
+ * stacked buttons read as one deliberate size system rather than two
+ * different components. `bottom-[84px]` keeps a clean ~16px gap above
+ * `AccessibilityWidget` (`bottom-5`, 48px tall → top edge at 68px).
  */
 export function SiteAssistant() {
   const location = useLocation();
@@ -52,6 +60,7 @@ export function SiteAssistant() {
   const [thinking, setThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -61,53 +70,55 @@ export function SiteAssistant() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
+  useEffect(() => () => abortRef.current?.abort(), []);
+
   if (location.pathname.startsWith('/dashboard')) return null;
 
   const ask = async (question: string) => {
     const trimmed = question.trim();
     if (!trimmed || thinking) return;
 
-    const nextMessages: ChatMessage[] = [
-      ...messages,
-      { id: crypto.randomUUID(), role: 'user', text: trimmed },
-    ];
-    setMessages(nextMessages);
+    const history = messages.map((m) => ({ role: m.role, content: m.text }));
+
+    setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', text: trimmed }]);
     setInput('');
     setThinking(true);
 
-    try {
-      const { data, error } = await supabase.functions.invoke('site-assistant', {
-        body: {
-          message: trimmed,
-          history: nextMessages.slice(0, -1).map((m) => ({ role: m.role, content: m.text })),
-        },
-      });
+    const assistantId = crypto.randomUUID();
+    let started = false;
+    const controller = new AbortController();
+    abortRef.current = controller;
 
-      if (error) throw error;
-      if (data?.error) {
-        setMessages((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), role: 'assistant', text: data.error, isError: true },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), role: 'assistant', text: data?.reply ?? "Sorry, could you rephrase that?" },
-        ]);
-      }
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          text: "I'm having trouble responding right now — please try again in a moment, or use the Contact page.",
-          isError: true,
-        },
-      ]);
-    } finally {
-      setThinking(false);
-    }
+    await streamAiChat({
+      functionName: 'site-assistant',
+      message: trimmed,
+      history,
+      signal: controller.signal,
+      onDelta: (delta) => {
+        if (!started) {
+          started = true;
+          setThinking(false);
+          setMessages((prev) => [...prev, { id: assistantId, role: 'assistant', text: delta, streaming: true }]);
+        } else {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? { ...m, text: m.text + delta } : m)),
+          );
+        }
+      },
+      onDone: () => {
+        setThinking(false);
+        setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, streaming: false } : m)));
+      },
+      onError: (message) => {
+        setThinking(false);
+        setMessages((prev) => {
+          if (started) {
+            return prev.map((m) => (m.id === assistantId ? { ...m, text: message, isError: true, streaming: false } : m));
+          }
+          return [...prev, { id: assistantId, role: 'assistant', text: message, isError: true }];
+        });
+      },
+    });
   };
 
   return (
@@ -119,9 +130,9 @@ export function SiteAssistant() {
         onMouseLeave={() => setShowTooltip(false)}
         aria-label={open ? 'Close help assistant' : 'Ask Vireek a question'}
         aria-expanded={open}
-        whileHover={{ scale: 1.06 }}
-        whileTap={{ scale: 0.94 }}
-        className="fixed bottom-[92px] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent print:hidden"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-[84px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/20 bg-bg-secondary/80 text-accent shadow-glow-accent backdrop-blur-xl transition-colors duration-200 hover:border-accent/40 print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -130,15 +141,16 @@ export function SiteAssistant() {
             animate={{ opacity: 1, rotate: 0, scale: 1 }}
             exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-center justify-center"
           >
-            {open ? <X size={22} /> : <HelpCircle size={22} />}
+            {open ? <X size={20} /> : <HelpCircle size={20} />}
           </motion.span>
         </AnimatePresence>
 
         {!open && (
-          <span className="absolute right-0 top-0 flex h-3 w-3">
+          <span className="absolute right-0.5 top-0.5 flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cta opacity-75" />
-            <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-bg-primary bg-cta" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full border-2 border-bg-primary bg-cta" />
           </span>
         )}
 
@@ -149,7 +161,7 @@ export function SiteAssistant() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 8 }}
               transition={{ duration: 0.15 }}
-              className="pointer-events-none absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-border bg-bg-secondary/95 px-3 py-1.5 text-xs font-medium text-text-primary shadow-lg backdrop-blur-xl"
+              className="pointer-events-none absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-border bg-bg-secondary/95 px-3 py-1.5 text-xs font-medium text-text-primary shadow-lg backdrop-blur-xl"
             >
               Ask Vireek
             </motion.span>
@@ -164,7 +176,7 @@ export function SiteAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[164px] right-5 z-40 flex h-[560px] w-[384px] max-w-[92vw] flex-col overflow-hidden rounded-3xl border border-border bg-bg-secondary/95 shadow-card-hover backdrop-blur-xl dark:shadow-card-hover-dark"
+            className="fixed bottom-[144px] right-5 z-40 flex h-[560px] w-[384px] max-w-[92vw] flex-col overflow-hidden rounded-3xl border border-border bg-bg-secondary/95 shadow-card-hover backdrop-blur-xl dark:shadow-card-hover-dark"
             role="dialog"
             aria-modal="true"
             aria-label="Ask Vireek"
@@ -201,7 +213,7 @@ export function SiteAssistant() {
               )}
 
               {messages.map((m) => (
-                <MessageBubble key={m.id} role={m.role} isError={m.isError}>
+                <MessageBubble key={m.id} role={m.role} isError={m.isError} streaming={m.streaming}>
                   {m.text}
                 </MessageBubble>
               ))}
