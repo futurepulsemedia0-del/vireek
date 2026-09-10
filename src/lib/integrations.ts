@@ -1,4 +1,4 @@
-import { Calculator, Calendar, CreditCard, Zap, type LucideIcon } from 'lucide-react';
+import { Calculator, Calendar, CreditCard, Zap, Users, Cloud, MessageSquare, Mail, PhoneCall, type LucideIcon } from 'lucide-react';
 
 export interface IntegrationFAQ {
   q: string;
@@ -144,6 +144,151 @@ export const INTEGRATIONS: Integration[] = [
       {
         q: 'What events can trigger a Zap?',
         a: 'New calls, new leads, booked appointments, and flagged emergencies are all available as triggers from your Integrations settings.',
+      },
+    ],
+  },
+  {
+    slug: 'hubspot',
+    name: 'HubSpot',
+    category: 'CRM',
+    icon: Users,
+    tagline: 'Every call becomes a contact, a deal, and a timeline entry in HubSpot.',
+    summary:
+      'Connect HubSpot so callers Sarah talks to are captured as contacts, with call details, timeline activity, and job status kept in sync — instead of your team re-entering the same lead by hand.',
+    capabilities: [
+      'New callers are matched to an existing HubSpot contact or created automatically, with no duplicate records.',
+      'Call summaries and outcomes are logged to the contact timeline so your sales and support history stays in one place.',
+      'Booked jobs and lead status changes update the matching HubSpot deal automatically.',
+    ],
+    steps: [
+      { title: 'Open Integrations', detail: 'From your Vireek dashboard, go to Settings → Integrations.' },
+      { title: 'Connect HubSpot', detail: 'Sign in with your HubSpot account and approve access to contacts and deals.' },
+      { title: 'Map your pipeline', detail: 'Choose which HubSpot pipeline and stage new Vireek leads should land in.' },
+    ],
+    faq: [
+      {
+        q: 'Which HubSpot plan do I need?',
+        a: 'The Contacts and Deals objects used by this integration are available on HubSpot\u2019s free CRM tier; certain custom properties may require a paid Marketing or Sales Hub plan.',
+      },
+      {
+        q: 'Does this create duplicate contacts?',
+        a: 'No — Vireek matches on phone number first, updating an existing HubSpot contact instead of creating a new one whenever possible.',
+      },
+    ],
+  },
+  {
+    slug: 'salesforce',
+    name: 'Salesforce',
+    category: 'CRM',
+    icon: Cloud,
+    tagline: 'Enterprise-grade CRM sync, with field mapping built for how your team already works.',
+    summary:
+      'Connect Salesforce so leads and bookings captured by Sarah flow directly into the Leads or Accounts objects your team already reports from — with field mapping configured to match your existing setup.',
+    capabilities: [
+      'Leads captured on a call are created or matched in Salesforce, with call notes attached.',
+      'Custom field mapping lets Vireek write into the same fields your team already uses for reporting.',
+      'Booked appointments and job status changes are reflected on the matching Salesforce record.',
+    ],
+    steps: [
+      { title: 'Open Integrations', detail: 'From your Vireek dashboard, go to Settings → Integrations.' },
+      { title: 'Connect Salesforce', detail: 'Authorize the Vireek connected app inside your Salesforce org.' },
+      { title: 'Configure field mapping', detail: 'Work with your account manager to map Vireek fields to your existing Salesforce objects.' },
+    ],
+    faq: [
+      {
+        q: 'Does this work with Salesforce Sales Cloud and Service Cloud?',
+        a: 'Yes — the integration connects to standard Lead, Contact, and Account objects available in both.',
+      },
+      {
+        q: 'Can we use our existing custom fields?',
+        a: 'Yes. Field mapping is configured with your account manager so data lands exactly where your team already looks for it.',
+      },
+    ],
+  },
+  {
+    slug: 'slack',
+    name: 'Slack',
+    category: 'Team Communication',
+    icon: MessageSquare,
+    tagline: 'Your team hears about a hot lead or emergency call the moment it happens.',
+    summary:
+      'Connect Slack so your team gets a real-time message the moment Sarah books a job, flags an emergency, or qualifies a lead — right in the channel your team already watches.',
+    capabilities: [
+      'Instant Slack notifications for new bookings, qualified leads, and flagged emergencies.',
+      'Choose which channel each event type posts to, so urgent calls don\u2019t get lost in general chatter.',
+      'Each notification links back to the full call record in your Vireek dashboard.',
+    ],
+    steps: [
+      { title: 'Open Integrations', detail: 'From your Vireek dashboard, go to Settings → Integrations.' },
+      { title: 'Connect Slack', detail: 'Authorize the Vireek app for your Slack workspace.' },
+      { title: 'Choose your channels', detail: 'Pick which channel receives bookings, leads, and emergency alerts.' },
+    ],
+    faq: [
+      {
+        q: 'Can different alert types go to different channels?',
+        a: 'Yes — for example, emergencies can post to a dedicated #urgent-calls channel while routine bookings go to #leads.',
+      },
+      {
+        q: 'Will this notify my whole team on every call?',
+        a: 'No. You choose which event types trigger a notification and which channel receives it, so routine calls don\u2019t flood the workspace.',
+      },
+    ],
+  },
+  {
+    slug: 'microsoft-365',
+    name: 'Microsoft 365 / Outlook',
+    category: 'Calendar & Email',
+    icon: Mail,
+    tagline: 'Sarah books straight onto your Outlook calendar and confirms by email.',
+    summary:
+      'Connect Microsoft 365 so Vireek checks real availability on your Outlook calendar before offering an appointment time, and sends booking confirmations from the email your customers already recognize.',
+    capabilities: [
+      'Appointment offers are checked against your real Outlook calendar — no double-booking with existing meetings.',
+      'Confirmed jobs are written to Outlook automatically, with the caller\u2019s details attached.',
+      'Booking confirmation emails are sent from your connected Microsoft 365 mailbox.',
+    ],
+    steps: [
+      { title: 'Open Integrations', detail: 'From your Vireek dashboard, go to Settings → Integrations.' },
+      { title: 'Connect Microsoft 365', detail: 'Sign in with your Microsoft work account and approve calendar and mail access.' },
+      { title: 'Set your availability', detail: 'Vireek respects existing Outlook events and working hours when offering appointment times.' },
+    ],
+    faq: [
+      {
+        q: 'Does this work with a shared team calendar?',
+        a: 'Team and shared-calendar routing is configured with your account manager based on how your crew is scheduled.',
+      },
+      {
+        q: 'Can I still edit appointments manually in Outlook?',
+        a: 'Yes — Vireek reads your calendar before offering new times, so manual changes are reflected the next time a slot is checked.',
+      },
+    ],
+  },
+  {
+    slug: 'twilio',
+    name: 'Twilio',
+    category: 'Voice & SMS',
+    icon: PhoneCall,
+    tagline: 'The telephony backbone behind Sarah\u2019s calls and text-back messages.',
+    summary:
+      'Vireek uses Twilio to route inbound calls to Sarah and to send SMS messages like text-back and appointment reminders — you can also connect your own existing Twilio number if you already have one.',
+    capabilities: [
+      'Inbound calls to your business number are routed to Sarah through Twilio\u2019s telephony network.',
+      'SMS text-back, confirmations, and reminders are all sent through the same connected number.',
+      'Bring your own existing Twilio number, or provision a new one directly from your Vireek dashboard.',
+    ],
+    steps: [
+      { title: 'Open Integrations', detail: 'From your Vireek dashboard, go to Settings → Integrations.' },
+      { title: 'Connect or provision a number', detail: 'Link an existing Twilio number or provision a new SMS-enabled number through Vireek.' },
+      { title: 'Confirm call and text routing', detail: 'Test that inbound calls reach Sarah and outbound texts send correctly.' },
+    ],
+    faq: [
+      {
+        q: 'Do I need my own Twilio account?',
+        a: 'No — most businesses use a number provisioned directly through Vireek. Bringing your own Twilio account is supported for teams with existing telephony infrastructure.',
+      },
+      {
+        q: 'Does this affect my existing business number?',
+        a: 'Your existing number can be forwarded to Vireek without changing what customers dial — see Call Forwarding in the glossary for how that works.',
       },
     ],
   },
