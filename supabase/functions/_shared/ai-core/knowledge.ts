@@ -1,22 +1,8 @@
 // supabase/functions/_shared/ai-core/knowledge.ts
 //
-// Vireek AI Core — Knowledge Layer.
-//
-// Separates BUSINESS FACTS (what Vireek is, what it costs, what it does)
-// from BRAND BEHAVIOR (tone, rules — see identity.ts). No provider ever
-// gets business facts baked into its own prompt; everything flows through
-// here so there is exactly one place to correct a claim.
-//
-// DESIGN NOTE (future RAG migration): today this is a static in-memory
-// object because the fact set is small and rarely changes. Every consumer
-// below calls `getKnowledgeSnippet(topic)` rather than importing the raw
-// object directly — so when this grows into a real vector-search/RAG
-// lookup, only THIS file changes; the AI Core, router, and edge functions
-// never need to know the difference.
-//
-// RULE: never invent a fact here that isn't actually true of the product.
-// If something isn't known, leave it out — the identity layer instructs
-// every provider to say "I don't know" rather than fill gaps.
+// Vireek AI Core — Knowledge Layer. Separates business facts from brand
+// behavior (identity.ts). Static object today; swap for real RAG later
+// without touching any caller — everyone goes through the functions below.
 
 export type KnowledgeTopic =
   | "company"
@@ -29,16 +15,9 @@ export type KnowledgeTopic =
 
 interface KnowledgeEntry {
   topic: KnowledgeTopic;
-  /** Plain-text facts, safe to paste directly into a system prompt. Keep
-   *  each entry short — this is a prompt budget, not a knowledge base. */
   facts: string;
 }
 
-// ---------------------------------------------------------------------------
-// EDIT THESE to match Vireek's actual, approved facts. Nothing here should
-// be marketing copy or unapproved claims — this is what every AI provider
-// is allowed to state as fact.
-// ---------------------------------------------------------------------------
 const KNOWLEDGE_BASE: KnowledgeEntry[] = [
   {
     topic: "company",
@@ -53,7 +32,7 @@ const KNOWLEDGE_BASE: KnowledgeEntry[] = [
   {
     topic: "pricing",
     facts:
-      "Exact current plan names and prices are managed in the product's own pricing page/config and change over time — the assistant must point the user to the live Pricing page rather than quoting a number from memory, unless that number is explicitly supplied to it in the same request.",
+      "Exact current plan names and prices are managed in the product's own pricing page/config and change over time — point the user to the live Pricing page rather than quoting a number from memory, unless that number is explicitly supplied in the same request.",
   },
   {
     topic: "industries",
@@ -79,30 +58,14 @@ const KNOWLEDGE_BASE: KnowledgeEntry[] = [
 
 const byTopic = new Map(KNOWLEDGE_BASE.map((e) => [e.topic, e]));
 
-/**
- * Returns the approved fact block for one topic, or "" if nothing is on
- * file — callers must treat an empty string as "no authoritative info",
- * never fall back to guessing.
- */
 export function getKnowledgeSnippet(topic: KnowledgeTopic): string {
   return byTopic.get(topic)?.facts ?? "";
 }
 
-/**
- * Returns every topic's facts concatenated, for tasks (like the public
- * demo chat) that need general brand grounding rather than one narrow
- * topic. Kept deliberately short — this is injected into every request.
- */
 export function getFullKnowledgeBrief(): string {
   return KNOWLEDGE_BASE.map((e) => `[${e.topic}]\n${e.facts}`).join("\n\n");
 }
 
-/**
- * Lightweight keyword router from a free-text question to the most
- * relevant topic(s). Intentionally dumb (no embeddings) — this is the
- * seam that gets replaced by real semantic retrieval later without
- * changing anything that calls it.
- */
 export function findRelevantTopics(question: string): KnowledgeTopic[] {
   const q = question.toLowerCase();
   const hits: KnowledgeTopic[] = [];
