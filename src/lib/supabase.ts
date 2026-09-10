@@ -47,6 +47,8 @@ export interface Call {
   transcript: string | null;
   recording_url: string | null;
   is_emergency: boolean;
+  escalated_at?: string | null;
+  escalated_to?: string | null;
   sentiment: 'positive' | 'neutral' | 'negative' | null;
   status: 'new_lead' | 'booked' | 'missed' | 'callback_requested' | 'spam';
   created_at: string;
