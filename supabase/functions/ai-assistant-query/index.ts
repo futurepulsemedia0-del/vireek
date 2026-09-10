@@ -1,34 +1,26 @@
+// supabase/functions/ai-assistant-query/index.ts
+//
+// SECURITY MODEL (unchanged from the original — read before editing):
+// The LLM never generates or runs SQL and never sees a DB connection. It
+// only maps a question onto one of the fixed INTENTS below, plus a few
+// whitelisted params. Every data fetch is a hardcoded supabase-js query
+// written by us, scoped by the CALLER's own JWT so Postgres RLS enforces
+// the account boundary independent of anything the model decides. There is
+// no service-role client and no client-supplied user_id anywhere here.
+//
+// The only change from the original: both LLM calls (intent classification
+// and final natural-language answer) now go through the Vireek AI Core
+// instead of calling Anthropic directly, so they get provider fallback and
+// the centralized Vireek identity/policy layer for free.
+
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { askVireekAi } from "../_shared/ai-core/index.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
-
-const ANTHROPIC_MODEL = "claude-sonnet-5";
-
-/**
- * ============================================================
- * SECURITY MODEL (read this before changing anything below)
- * ============================================================
- * The LLM is NEVER allowed to generate or run SQL, and it never sees a
- * database connection. Its only job is to map the user's question onto one
- * of the fixed `INTENTS` below (a strict enum) plus a few whitelisted
- * parameters. The actual data fetch for each intent is a hardcoded
- * supabase-js query written by us, not by the model — so even a fully
- * "jailbroken" model response can only ever select one of these prewritten,
- * read-only queries. There is no code path from user input to a write
- * (insert/update/delete) operation anywhere in this function.
- *
- * Row scoping is enforced by Postgres RLS, not by this function: the
- * Supabase client below is created with the *caller's own JWT* (forwarded
- * from the Authorization header), so every query runs as that user and is
- * automatically restricted to their account by the same RLS policies that
- * protect every other page in the app (via `get_account_owner_id()`).
- * There is no service-role client and no client-supplied user_id anywhere
- * in this file.
- */
 
 type Intent =
   | "calls_count"
@@ -65,7 +57,7 @@ function periodStart(period: IntentPlan["period"]): string {
       break;
     case "this_week": {
       const day = d.getDay();
-      const diff = (day + 6) % 7; // Monday as start of week
+      const diff = (day + 6) % 7;
       d.setDate(d.getDate() - diff);
       d.setHours(0, 0, 0, 0);
       break;
@@ -85,30 +77,6 @@ function periodStart(period: IntentPlan["period"]): string {
   return d.toISOString();
 }
 
-async function callAnthropic(apiKey: string, system: string, userText: string, maxTokens = 500) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: ANTHROPIC_MODEL,
-      max_tokens: maxTokens,
-      system,
-      messages: [{ role: "user", content: userText }],
-    }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Anthropic API error (${res.status}): ${text}`);
-  }
-  const data = await res.json();
-  const textBlock = (data.content ?? []).find((b: { type: string }) => b.type === "text");
-  return textBlock?.text ?? "";
-}
-
 function extractJson(raw: string): unknown {
   const cleaned = raw.replace(/```json|```/g, "").trim();
   const start = cleaned.indexOf("{");
@@ -121,7 +89,6 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
-
   const jsonHeaders = { ...corsHeaders, "Content-Type": "application/json" };
 
   try {
@@ -141,19 +108,8 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!anthropicKey) {
-      return new Response(
-        JSON.stringify({
-          error:
-            "The AI Assistant isn't configured yet — an ANTHROPIC_API_KEY secret needs to be set for this Supabase project's edge functions.",
-        }),
-        { status: 500, headers: jsonHeaders },
-      );
-    }
-
-    // Client scoped to the CALLER's own session (their JWT), never the
-    // service role — RLS does all the account-boundary enforcement below.
+    // Client scoped to the CALLER's own session — RLS does all the
+    // account-boundary enforcement below. Unchanged from original.
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     const supabase = createClient(supabaseUrl, anonKey, {
@@ -165,20 +121,10 @@ Deno.serve(async (req: Request) => {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return new Response(JSON.stringify({ error: "Not authenticated." }), {
-        status: 401,
-        headers: jsonHeaders,
-      });
+      return new Response(JSON.stringify({ error: "Not authenticated." }), { status: 401, headers: jsonHeaders });
     }
 
-    // -------------------------------------------------------------
-    // Rate limit: authenticated users still get a cap (unlike the public
-    // demo chat, this is per-user rather than per-IP, and more generous
-    // since these are paying customers, not anonymous visitors). Same
-    // fixed-window pattern as `demo_chat_rate_limit` — see that table's
-    // migration for the reasoning. Uses the caller's own JWT-scoped
-    // client, so RLS (not a service-role bypass) enforces that a user can
-    // only ever touch their own counter row.
+    // --- Per-user rate limit — unchanged ------------------------------------
     const RATE_LIMIT_MAX_PER_HOUR = 30;
     const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
     const nowMs = Date.now();
@@ -194,9 +140,7 @@ Deno.serve(async (req: Request) => {
       if (windowAgeMs < RATE_LIMIT_WINDOW_MS) {
         if (existingLimit.request_count >= RATE_LIMIT_MAX_PER_HOUR) {
           return new Response(
-            JSON.stringify({
-              error: "You've hit the AI Assistant's hourly question limit. Try again in a bit.",
-            }),
+            JSON.stringify({ error: "You've hit the AI Assistant's hourly question limit. Try again in a bit." }),
             { status: 429, headers: jsonHeaders },
           );
         }
@@ -219,19 +163,19 @@ Deno.serve(async (req: Request) => {
     }
 
     // -------------------------------------------------------------
-    // Step 1: classify the question into a fixed intent (never SQL)
+    // Step 1: classify into a fixed intent — now via the AI Core.
     // -------------------------------------------------------------
-    const classifierSystem = `You turn a home-service business owner's question about their own call/lead/job data into ONE of a fixed set of intents. Respond with ONLY a JSON object shaped { "intent": "...", "period": "..." } (period only for "calls_count", optional otherwise) and nothing else — no prose, no markdown fences.
-
-Available intents:
-${INTENT_DESCRIPTIONS}
-
-If the question asks to change/delete/create anything, or isn't about this data at all, respond with { "intent": "unsupported" }.`;
-
     let plan: IntentPlan;
     try {
-      const raw = await callAnthropic(anthropicKey, classifierSystem, question, 150);
-      plan = extractJson(raw) as IntentPlan;
+      const result = await askVireekAi({
+        task: "intent_classify",
+        messages: [{ role: "user", content: question }],
+        maxTokens: 150,
+        jsonMode: true,
+        extraInstructions: `Available intents:\n${INTENT_DESCRIPTIONS}\n\nRespond with ONLY a JSON object shaped { "intent": "...", "period": "..." } (period only for "calls_count", optional otherwise) and nothing else.`,
+      });
+      plan = extractJson(result.text) as IntentPlan;
+      console.log(`[ai-assistant-query] classify provider=${result.meta.provider} fallback=${result.meta.wasFallback}`);
     } catch {
       plan = { intent: "unsupported" };
     }
@@ -262,8 +206,7 @@ If the question asks to change/delete/create anything, or isn't about this data 
 
     // -------------------------------------------------------------
     // Step 2: run the ONE hardcoded, read-only query for that intent.
-    // Every branch below is a fixed .select() — nothing here is built
-    // from user or model text.
+    // UNCHANGED — no model input reaches this switch at all.
     // -------------------------------------------------------------
     let rows: Record<string, unknown>[] = [];
     let columns: string[] = [];
@@ -383,21 +326,24 @@ If the question asks to change/delete/create anything, or isn't about this data 
     }
 
     // -------------------------------------------------------------
-    // Step 3: turn the (already-fetched, already-scoped) facts into a
-    // natural-language answer. The model only sees aggregate facts, not
-    // raw table access, and cannot request more data.
+    // Step 3: facts -> natural language, via the AI Core.
     // -------------------------------------------------------------
-    const answerSystem = `You are Vireek's dashboard assistant. Answer the business owner's question in 1-3 short, friendly sentences using ONLY the facts provided — never invent numbers. If the facts show zero results, say so plainly and encouragingly. Do not mention "intents", "queries", or how the data was fetched.`;
-    const answerUserText = `Question: "${question}"\n\nFacts: ${factsForModel || "No matching data was found."}`;
-
     let answer: string;
     try {
-      answer = await callAnthropic(anthropicKey, answerSystem, answerUserText, 300);
+      const result = await askVireekAi({
+        task: "dashboard_answer",
+        messages: [
+          { role: "user", content: `Question: "${question}"\n\nFacts: ${factsForModel || "No matching data was found."}` },
+        ],
+        maxTokens: 300,
+      });
+      answer = result.text.trim();
+      console.log(`[ai-assistant-query] answer provider=${result.meta.provider} fallback=${result.meta.wasFallback}`);
     } catch {
       answer = factsForModel || "I couldn't find an answer to that — try rephrasing.";
     }
 
-    return new Response(JSON.stringify({ answer: answer.trim(), rows, columns }), { headers: jsonHeaders });
+    return new Response(JSON.stringify({ answer, rows, columns }), { headers: jsonHeaders });
   } catch (err) {
     return new Response(
       JSON.stringify({
