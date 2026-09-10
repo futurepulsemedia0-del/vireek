@@ -2,9 +2,9 @@
 //
 // Public, unauthenticated endpoint powering the "Talk to Sarah" widget.
 // Routed through the Vireek AI Core: if Gemini fails (quota, invalid key,
-// outage), it automatically falls back to Groq, then Cerebras, then
-// Cloudflare, then OpenRouter — with no code change needed to add/remove
-// a provider later. Rate limiting, CORS, and input validation unchanged.
+// 400, outage) it automatically falls back to Groq, then Cerebras, then
+// Cloudflare, then OpenRouter. No direct callGemini() left in this file.
+// Rate limiting, CORS, input validation, and response shape unchanged.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { askVireekAi, safeFallbackMessage } from "../_shared/ai-core/index.ts";
@@ -23,9 +23,7 @@ const MAX_HISTORY_TURNS = 6;
 async function hashIp(ip: string): Promise<string> {
   const data = new TextEncoder().encode(ip);
   const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 Deno.serve(async (req: Request) => {
@@ -105,7 +103,6 @@ Deno.serve(async (req: Request) => {
         task: "demo_chat",
         messages: [...trimmedHistory, { role: "user", content: message }],
         maxTokens: 220,
-        useFullKnowledgeBrief: true,
       });
 
       console.log(
