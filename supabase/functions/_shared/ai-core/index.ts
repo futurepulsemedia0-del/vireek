@@ -1,12 +1,13 @@
 // supabase/functions/_shared/ai-core/index.ts
 //
 // Vireek AI Core — public entry point. Every edge function talks to the
-// AI system ONLY through askVireekAi(). Nothing downstream (demo-chat,
+// AI system ONLY through askVireekAi() (or its streaming twin,
+// askVireekAiStream()). Nothing downstream (demo-chat, site-assistant,
 // ai-assistant-query) should import a provider or the router directly.
 
-import type { ChatMessage, TaskType } from "./types.ts";
+import type { ChatMessage, ChatStreamHandler, TaskType } from "./types.ts";
 import { AiCoreError } from "./types.ts";
-import { routeChat, type RouteChatResult } from "./router.ts";
+import { routeChat, routeChatStream, type RouteChatResult } from "./router.ts";
 import { getFullKnowledgeBrief, findRelevantTopics, getKnowledgeSnippet } from "./knowledge.ts";
 
 // ---------------------------------------------------------------------
@@ -135,6 +136,47 @@ export async function askVireekAi(opts: AskVireekAiOptions): Promise<AskVireekAi
   };
 }
 
+/**
+ * Streaming counterpart to `askVireekAi`. Identical grounding/system-prompt
+ * behavior, but calls `onDelta` with each piece of text as it's generated
+ * instead of returning only once the full reply is ready. Resolves once
+ * the reply is complete, with the same metadata shape as `askVireekAi`.
+ */
+export async function askVireekAiStream(
+  opts: AskVireekAiOptions,
+  onDelta: ChatStreamHandler,
+): Promise<AskVireekAiResult> {
+  if (!opts.messages.length) {
+    throw new AiCoreError("INVALID_RESPONSE", "No messages provided to askVireekAiStream.");
+  }
+
+  const system = buildSystemPrompt(opts.task, opts.messages, opts.extraInstructions);
+
+  const result = await routeChatStream(
+    opts.task,
+    {
+      system,
+      messages: opts.messages,
+      maxTokens: opts.maxTokens,
+      temperature: opts.temperature,
+      jsonMode: opts.jsonMode,
+      timeoutMs: opts.timeoutMs,
+    },
+    onDelta,
+  );
+
+  return {
+    text: result.response.text,
+    meta: {
+      provider: result.response.provider,
+      model: result.response.model,
+      latencyMs: result.response.latencyMs,
+      wasFallback: result.response.wasFallback,
+      attempts: result.attempts,
+    },
+  };
+}
+
 export function safeFallbackMessage(err: unknown): string {
   if (err instanceof AiCoreError && err.code === "ALL_PROVIDERS_FAILED") {
     return "I'm having trouble responding right now — please try again in a moment.";
@@ -142,5 +184,5 @@ export function safeFallbackMessage(err: unknown): string {
   return "Something went wrong. Please try again.";
 }
 
-export type { TaskType, ChatMessage } from "./types.ts";
+export type { TaskType, ChatMessage, ChatStreamHandler } from "./types.ts";
 export { AiCoreError } from "./types.ts";
