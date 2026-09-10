@@ -1,4 +1,5 @@
 import { Component, ReactNode, ErrorInfo } from 'react';
+import { captureError } from '@/lib/sentry';
 
 interface Props {
   children: ReactNode;
@@ -36,6 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({ componentStack: info.componentStack ?? null });
     // eslint-disable-next-line no-console
     console.error('Unhandled error caught by ErrorBoundary:', error, info);
+    captureError(error, { componentStack: info.componentStack ?? undefined });
   }
 
   handleReload = () => {
