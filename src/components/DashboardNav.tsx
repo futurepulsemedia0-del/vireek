@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { NotificationsProvider } from '@/contexts/NotificationsContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -271,16 +272,24 @@ export function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-bg-primary">
-      <DashboardNav activeLabel={activeLabel} />
-      <div className="lg:pl-60">
-        <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
-          <UpgradeBanner />
-          {children}
-        </main>
+    // NotificationsProvider wraps everything here (not just <DashboardNav>)
+    // because DashboardNav itself renders TWO <NotificationBell /> instances
+    // at once (desktop sidebar + mobile header — CSS just hides one of
+    // them, both stay mounted). One provider = one realtime subscription
+    // shared by both bells, instead of each opening its own and colliding.
+    // See NotificationsContext.tsx for the full story on the bug this fixes.
+    <NotificationsProvider>
+      <div className="min-h-screen bg-bg-primary">
+        <DashboardNav activeLabel={activeLabel} />
+        <div className="lg:pl-60">
+          <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
+            <UpgradeBanner />
+            {children}
+          </main>
+        </div>
+        <CommandPalette />
+        <AiAssistant />
       </div>
-      <CommandPalette />
-      <AiAssistant />
-    </div>
+    </NotificationsProvider>
   );
 }
