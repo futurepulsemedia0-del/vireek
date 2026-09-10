@@ -153,7 +153,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex">
+            <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
         <div className="flex items-center justify-between gap-2.5 px-5 py-5">
           <Link to="/dashboard" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
@@ -185,7 +185,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       </aside>
 
       {/* Mobile header */}
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden">
+            <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden print:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <Link to="/dashboard" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
@@ -278,17 +278,21 @@ export function DashboardLayout({
     // them, both stay mounted). One provider = one realtime subscription
     // shared by both bells, instead of each opening its own and colliding.
     // See NotificationsContext.tsx for the full story on the bug this fixes.
-    <NotificationsProvider>
+        <NotificationsProvider>
       <div className="min-h-screen bg-bg-primary">
         <DashboardNav activeLabel={activeLabel} />
-        <div className="lg:pl-60">
-          <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
-            <UpgradeBanner />
+        <div className="lg:pl-60 print:pl-0">
+          <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8 print:max-w-none print:p-0">
+            <div className="no-print">
+              <UpgradeBanner />
+            </div>
             {children}
           </main>
         </div>
-        <CommandPalette />
-        <AiAssistant />
+        <div className="no-print">
+          <CommandPalette />
+          <AiAssistant />
+        </div>
       </div>
     </NotificationsProvider>
   );
