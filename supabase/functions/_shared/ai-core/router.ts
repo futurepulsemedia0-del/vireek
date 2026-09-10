@@ -1,13 +1,8 @@
 // supabase/functions/_shared/ai-core/router.ts
 //
-// Vireek AI Core — AI Router.
-//
-// Walks a task's provider chain (from registry.ts) in priority order,
-// skips unconfigured providers without spending a network call, retries
-// each configured provider once on a transient error, and falls through
-// to the next provider on any failure. Never retries infinitely. If every
-// provider fails, throws ONE normalized AiCoreError — callers turn that
-// into a clean user-facing message, never a raw stack trace.
+// Vireek AI Core — AI Router. Walks a task's provider chain in priority
+// order, skips unconfigured providers, retries once on transient errors,
+// falls through to the next provider. Never infinite loops.
 
 import type { NormalizedChatRequest, NormalizedChatResponse, ProviderId, TaskType } from "./types.ts";
 import { AiCoreError } from "./types.ts";
@@ -23,8 +18,6 @@ interface RouteAttemptLog {
 
 export interface RouteChatResult {
   response: NormalizedChatResponse;
-  /** Observability trail — every provider tried, in order, with outcome.
-   *  Safe to log: contains no user content, no secrets. */
   attempts: RouteAttemptLog[];
 }
 
@@ -39,9 +32,6 @@ async function attemptOnce(
   if (!adapter) return { ok: false, code: "NOT_CONFIGURED" };
   try {
     const response = await adapter.chat({ ...req, timeoutMs: req.timeoutMs });
-    // The adapter doesn't know its own configured model override from the
-    // route table (it only knows its own env default) — stamp it here so
-    // observability reflects what the ROUTE actually asked for.
     return { ok: true, response: { ...response, model: response.model || model } };
   } catch (err) {
     if (err instanceof AiCoreError) return { ok: false, code: err.code };
@@ -49,36 +39,22 @@ async function attemptOnce(
   }
 }
 
-/**
- * Route a chat request for a given task through its configured provider
- * chain. This is the single entry point every edge function should call —
- * never call an adapter directly.
- */
 export async function routeChat(
   task: TaskType,
   req: NormalizedChatRequest,
 ): Promise<RouteChatResult> {
   const route = getRouteForTask(task);
   const attempts: RouteAttemptLog[] = [];
-
   let isFirstAttempt = true;
 
   for (const entry of route) {
     const adapter = ALL_ADAPTERS[entry.provider];
-    if (!adapter) continue; // provider not registered/available at all — skip silently
-
-    if (!adapter.isConfigured()) {
-      // Not logged as an "attempt" — no network call was made, no point
-      // cluttering observability with providers that were never set up.
-      continue;
-    }
+    if (!adapter) continue;
+    if (!adapter.isConfigured()) continue;
 
     const start = Date.now();
     let result = await attemptOnce(entry.provider, entry.model, req);
 
-    // One controlled retry, only for transient-looking failures, only
-    // once — never an infinite loop, never for AUTH/NOT_CONFIGURED/
-    // INVALID_RESPONSE (retrying those just wastes the timeout budget).
     if (!result.ok && RETRYABLE_CODES.has(result.code)) {
       result = await attemptOnce(entry.provider, entry.model, req);
     }
@@ -87,19 +63,10 @@ export async function routeChat(
 
     if (result.ok) {
       attempts.push({ provider: entry.provider, model: entry.model, ok: true, latencyMs });
-      return {
-        response: { ...result.response, wasFallback: !isFirstAttempt },
-        attempts,
-      };
+      return { response: { ...result.response, wasFallback: !isFirstAttempt }, attempts };
     }
 
-    attempts.push({
-      provider: entry.provider,
-      model: entry.model,
-      ok: false,
-      errorCode: result.code,
-      latencyMs,
-    });
+    attempts.push({ provider: entry.provider, model: entry.model, ok: false, errorCode: result.code, latencyMs });
     isFirstAttempt = false;
   }
 
