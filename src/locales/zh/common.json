@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "features": "功能",
+    "platform": "平台",
+    "industries": "行业",
+    "pricing": "价格",
+    "compare": "对比",
+    "blog": "博客",
+    "faq": "常见问题"
+  },
+  "cta": {
+    "login": "登录",
+    "getStarted": "开始使用",
+    "startFreeTrial": "开始免费试用",
+    "bookDemo": "预约演示",
+    "talkToSarah": "与 Sarah 对话"
+  },
+  "footer": {
+    "product": "产品",
+    "integrations": "集成",
+    "industries": "行业",
+    "resources": "资源",
+    "company": "公司",
+    "legal": "法律",
+    "newsletterTitle": "保持关注",
+    "newsletterSubtitle": "获取 Vireek 的最新动态。",
+    "newsletterPlaceholder": "您的电子邮箱",
+    "newsletterButton": "订阅",
+    "newsletterSuccess": "订阅成功！请查收确认邮件。",
+    "rightsReserved": "保留所有权利。"
+  },
+  "language": {
+    "switchLanguage": "切换语言"
+  },
+  "menu": {
+    "open": "打开菜单",
+    "close": "关闭菜单"
+  }
+}
