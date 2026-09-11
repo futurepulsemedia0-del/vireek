@@ -2,7 +2,9 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { LogIn, ArrowRight, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { NAV_LINKS } from '@/lib/site';
 import { useTheme } from '@/contexts/ThemeContext';
 import { INDUSTRIES } from '@/lib/industries';
@@ -53,8 +55,26 @@ const INDUSTRY_ITEMS = INDUSTRIES.map((ind) => ({
   tagline: ind.tagline,
 }));
 
+// Keyed by the (English, source-of-truth) NAV_LINKS label from @/lib/site —
+// this key is internal lookup plumbing only, never shown in the UI, so it
+// does NOT need translating. The visible label is translated separately
+// via NAV_LABEL_TO_KEY below.
 const DROPDOWN_MAP: Record<string, typeof INDUSTRY_ITEMS> = {
   Industries: INDUSTRY_ITEMS,
+};
+
+// Maps a NAV_LINKS English label (from @/lib/site) to its `common.json`
+// translation key. NAV_LINKS itself stays in English since it's also used
+// as an internal lookup key (see DROPDOWN_MAP) — only the rendered text
+// is translated.
+const NAV_LABEL_TO_KEY: Record<string, string> = {
+  Features: 'nav.features',
+  Platform: 'nav.platform',
+  Industries: 'nav.industries',
+  Pricing: 'nav.pricing',
+  Compare: 'nav.compare',
+  Blog: 'nav.blog',
+  FAQ: 'nav.faq',
 };
 
 /* ------------------------------------------------------------------ */
@@ -62,10 +82,12 @@ const DROPDOWN_MAP: Record<string, typeof INDUSTRY_ITEMS> = {
 /* ------------------------------------------------------------------ */
 
 function DesktopNavLink({ link, isActive }: { link: { label: string; href: string }; isActive: boolean }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const isRoute = link.href.startsWith('/') && !link.href.includes('#');
   const dropdown = DROPDOWN_MAP[link.label];
+  const label = NAV_LABEL_TO_KEY[link.label] ? t(NAV_LABEL_TO_KEY[link.label]) : link.label;
 
   const onEnter = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -83,7 +105,7 @@ function DesktopNavLink({ link, isActive }: { link: { label: string; href: strin
 
   const inner = (
     <span className="relative flex items-center gap-0.5">
-      {link.label}
+      {label}
       {dropdown && (
         <ChevronDown
           size={13}
@@ -162,11 +184,12 @@ function DesktopNavLink({ link, isActive }: { link: { label: string; href: strin
 /* ------------------------------------------------------------------ */
 
 function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={open ? 'Close menu' : 'Open menu'}
+      aria-label={open ? t('menu.close') : t('menu.open')}
       aria-expanded={open}
       className="focus-ring relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary/80 text-text-primary transition-colors hover:bg-bg-tertiary md:hidden"
     >
@@ -196,6 +219,7 @@ function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void
 /* ------------------------------------------------------------------ */
 
 export function Header() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
@@ -287,6 +311,9 @@ export function Header() {
             {/* Right side */}
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="hidden sm:block">
+                <LanguageSwitcher variant="header" />
+              </div>
+              <div className="hidden sm:block">
                 <ThemeToggle />
               </div>
               <Link
@@ -294,14 +321,14 @@ export function Header() {
                 className="focus-ring hidden items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-text-secondary transition-all duration-150 hover:bg-bg-tertiary hover:text-text-primary md:flex"
               >
                 <LogIn size={15} />
-                Log In
+                {t('cta.login')}
               </Link>
               <Link to="/login" className="hidden md:block">
                 <button
                   type="button"
                   className="focus-ring group relative flex h-9 items-center gap-1.5 overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-glow-accent active:scale-[0.97]"
                 >
-                  <span className="relative z-10">Start Free Trial</span>
+                  <span className="relative z-10">{t('cta.startFreeTrial')}</span>
                   <ArrowRight
                     size={15}
                     className="relative z-10 transition-transform duration-200 group-hover:translate-x-0.5"
@@ -351,7 +378,7 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => setDrawerOpen(false)}
-                  aria-label="Close menu"
+                  aria-label={t('menu.close')}
                   className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-tertiary text-text-secondary transition-colors hover:text-text-primary active:scale-95"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -364,6 +391,7 @@ export function Header() {
                   const isRoute = link.href.startsWith('/') && !link.href.includes('#');
                   const active = isActive(link.href);
                   const dropdown = DROPDOWN_MAP[link.label];
+                  const label = NAV_LABEL_TO_KEY[link.label] ? t(NAV_LABEL_TO_KEY[link.label]) : link.label;
                   const className = `focus-ring flex items-center justify-between rounded-2xl px-4 py-3.5 text-base font-medium transition-colors ${
                     active
                       ? 'bg-accent/10 text-accent'
@@ -379,12 +407,12 @@ export function Header() {
                     >
                       {isRoute ? (
                         <Link to={link.href} onClick={() => setDrawerOpen(false)} className={className}>
-                          {link.label}
+                          {label}
                           {dropdown && <ChevronDown size={16} className="rotate-0" />}
                         </Link>
                       ) : (
                         <a href={link.href} onClick={() => setDrawerOpen(false)} className={className}>
-                          {link.label}
+                          {label}
                         </a>
                       )}
 
@@ -410,6 +438,11 @@ export function Header() {
                     </motion.div>
                   );
                 })}
+
+                {/* Language switcher (mobile drawer) */}
+                <div className="mt-2 border-t border-border pt-4">
+                  <LanguageSwitcher variant="header" />
+                </div>
               </nav>
 
               {/* Drawer footer */}
@@ -420,14 +453,14 @@ export function Header() {
                   className="focus-ring flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border bg-bg-tertiary text-sm font-semibold text-text-primary transition-colors hover:bg-bg-tertiary/80 active:scale-[0.98]"
                 >
                   <LogIn size={16} />
-                  Log In
+                  {t('cta.login')}
                 </Link>
                 <Link
                   to="/login"
                   onClick={() => setDrawerOpen(false)}
                   className="focus-ring group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white shadow-sm transition-all hover:shadow-glow-accent active:scale-[0.98]"
                 >
-                  Start Free Trial
+                  {t('cta.startFreeTrial')}
                   <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>
