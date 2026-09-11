@@ -4,6 +4,7 @@ import { useSEO } from '@/lib/seo';
 import { Hero } from '@/components/sections/Hero';
 import { HighlightBanner } from '@/components/sections/HighlightBanner';
 import { TrustBar } from '@/components/sections/TrustBar';
+import { ReviewBadges } from '@/components/sections/ReviewBadges';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
@@ -38,6 +39,7 @@ export function HomePage() {
         <Hero />
         <HighlightBanner />
         <TrustBar />
+        <ReviewBadges />
         <HowItWorks />
         <LiveDemo />
         <MissedCallCalculator />
