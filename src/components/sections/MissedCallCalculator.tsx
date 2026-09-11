@@ -117,9 +117,13 @@ export function MissedCallCalculator() {
   const [jobValue, setJobValue] = useState(350);
   const [closeRate, setCloseRate] = useState(30);
 
-  const monthlyLoss = (missedPerWeek * 52) / 12 * (closeRate / 100) * jobValue;
+  // One shared "missed calls per month" figure feeds every result below,
+  // so the hero dollar amount and the recovered-jobs/opportunity cards
+  // always agree with each other (a 4.33-week month, not a flat "x4").
+  const missedPerMonth = (missedPerWeek * 52) / 12;
+  const recoveredJobs = Math.round(missedPerMonth * (closeRate / 100));
+  const monthlyLoss = missedPerMonth * (closeRate / 100) * jobValue;
   const annualLoss = monthlyLoss * 12;
-  const recoveredJobs = Math.round(missedPerWeek * 4 * (closeRate / 100));
   const monthlyOpportunity = recoveredJobs * jobValue;
 
   const handleDownloadPdf = () => {
@@ -139,10 +143,19 @@ export function MissedCallCalculator() {
           transition={{ duration: 0.5, ease: EASE }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-danger/30 bg-danger/10 px-3 py-1.5 text-xs font-semibold text-danger sm:px-4 sm:text-sm">
-            <PhoneMissed size={14} className="sm:size-4" />
-            The average service business misses 6 in 10 calls
-          </span>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-danger/30 bg-danger/10 px-3 py-1.5 text-xs font-semibold text-danger sm:px-4 sm:text-sm">
+              <PhoneMissed size={14} className="sm:size-4" />
+              The average service business misses 6 in 10 calls
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
+              </span>
+              Live calculator — updates instantly
+            </span>
+          </div>
           <p className={`${eyebrowClass()} mt-6 sm:mt-8`}>{'Revenue Calculator'}</p>
           <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'How Much Revenue Could Vireek Recover?'}</h2>
           <p className={`${bodyClass()} mx-auto text-sm sm:text-base md:text-lg`}>
