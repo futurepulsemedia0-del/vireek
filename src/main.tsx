@@ -14,6 +14,7 @@ import { ScrollToTop } from '@/components/ScrollToTop';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
 import { initSentry } from '@/lib/sentry';
+import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
 import './styles/print.css';
 
