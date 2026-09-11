@@ -161,7 +161,7 @@ export function SiteAssistant() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 8 }}
               transition={{ duration: 0.15 }}
-              className="pointer-events-none absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-border bg-bg-secondary/95 px-3 py-1.5 text-xs font-medium text-text-primary shadow-lg backdrop-blur-xl"
+              className="pointer-events-none absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-black/10 bg-[#15161c] px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-black/30 dark:border-white/10 dark:bg-[#0a0a0d]"
             >
               Ask Vireek
             </motion.span>
