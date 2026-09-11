@@ -13,6 +13,7 @@ import {
   Wind,
   Zap,
   Info,
+  Download,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -20,6 +21,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { CASE_STUDIES, type CaseStudy } from '@/components/sections/CaseStudies';
+import { downloadCaseStudyPdf } from '@/lib/pdf';
 
 // ============================================================
 // CONTENT
@@ -197,11 +199,22 @@ function StoryCard({ study, index }: { study: CaseStudy; index: number }) {
             </div>
           </div>
           <div className="border-t border-border p-5">
-            <Link to="/demo">
-              <Button variant="secondary" size="sm" className="w-full">
-                Get results like {study.business.split(' ')[0]}\u2019s <ArrowRight className="h-3.5 w-3.5" />
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link to="/demo" className="flex-1">
+                <Button variant="secondary" size="sm" className="w-full">
+                  Get results like {study.business.split(' ')[0]}\u2019s <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => downloadCaseStudyPdf(study)}
+                aria-label={`Download ${study.business} case study as PDF`}
+              >
+                <Download className="h-3.5 w-3.5" /> PDF
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
       </div>
