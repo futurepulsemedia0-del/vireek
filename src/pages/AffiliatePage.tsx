@@ -98,7 +98,7 @@ export function AffiliatePage() {
                     <ArrowRight size={18} />
                   </Button>
                 </a>
-                
+                <a
                   href="#how-it-works"
                   className="focus-ring inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-text-primary transition-colors hover:text-accent"
                 >
