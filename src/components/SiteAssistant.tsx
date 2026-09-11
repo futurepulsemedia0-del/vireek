@@ -132,7 +132,7 @@ export function SiteAssistant() {
         aria-expanded={open}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-[84px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/20 bg-bg-secondary/80 text-accent shadow-glow-accent backdrop-blur-xl transition-colors duration-200 hover:border-accent/40 print:hidden"
+        className="fixed bottom-[84px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-accent to-cta text-white shadow-lg shadow-accent/30 transition-all duration-200 hover:shadow-xl hover:shadow-accent/40 hover:brightness-110 print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -150,7 +150,7 @@ export function SiteAssistant() {
         {!open && (
           <span className="absolute right-0.5 top-0.5 flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cta opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full border-2 border-bg-primary bg-cta" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full border-2 border-white bg-cta" />
           </span>
         )}
 
