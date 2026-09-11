@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { type LanguageCode, type TranslationKey, TRANSLATIONS, isRTL } from '@/lib/i18n';
+import i18n from '@/i18n';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -380,13 +381,18 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     }
   }, [settings]);
 
-  // Apply RTL/LTR direction
+  // Apply RTL/LTR direction, and keep react-i18next (site-wide content)
+  // in sync with the same language state used by the Accessibility widget.
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('dir', rtl ? 'rtl' : 'ltr');
     root.setAttribute('lang', language);
     if (rtl) root.classList.add('a11y-rtl');
     else root.classList.remove('a11y-rtl');
+
+    if (i18n.language !== language) {
+      void i18n.changeLanguage(language);
+    }
   }, [language, rtl]);
 
   const score = calculateScore(settings);
