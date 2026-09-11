@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "features": "امکانات",
+    "platform": "پلتفرم",
+    "industries": "صنایع",
+    "pricing": "قیمت‌گذاری",
+    "compare": "مقایسه",
+    "blog": "بلاگ",
+    "faq": "سوالات متداول"
+  },
+  "cta": {
+    "login": "ورود",
+    "getStarted": "شروع کنید",
+    "startFreeTrial": "شروع دوره آزمایشی رایگان",
+    "bookDemo": "رزرو دمو",
+    "talkToSarah": "صحبت با سارا"
+  },
+  "footer": {
+    "product": "محصول",
+    "integrations": "یکپارچه‌سازی‌ها",
+    "industries": "صنایع",
+    "resources": "منابع",
+    "company": "شرکت",
+    "legal": "حقوقی",
+    "newsletterTitle": "در جریان بمانید",
+    "newsletterSubtitle": "آخرین به‌روزرسانی‌های Vireek را دریافت کنید.",
+    "newsletterPlaceholder": "آدرس ایمیل شما",
+    "newsletterButton": "عضویت",
+    "newsletterSuccess": "عضویت شما انجام شد! ایمیل خود را برای تأیید بررسی کنید.",
+    "rightsReserved": "تمامی حقوق محفوظ است."
+  },
+  "language": {
+    "switchLanguage": "تغییر زبان"
+  },
+  "menu": {
+    "open": "باز کردن منو",
+    "close": "بستن منو"
+  }
+}
