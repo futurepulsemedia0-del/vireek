@@ -263,8 +263,22 @@ export function Hero() {
             {/* Scrolls to the live in-browser voice widget in the
                 "Talk to Sarah Right Now" section (LiveDemo.tsx) — no
                 phone call needed, mic access only. Uses the "cta" accent
-                so it visually stands out as the flagship demo action. */}
-            <a href={`#${LIVE_DEMO_SECTION_ID}`} className="w-full sm:w-auto">
+                so it visually stands out as the flagship demo action.
+                The small pulsing "Live" badge in the corner is purely
+                presentational (this is a marketing page, not a realtime
+                data view) — it signals "this actually works right now,
+                try it" rather than tracking a real connection state. */}
+            <a href={`#${LIVE_DEMO_SECTION_ID}`} className="relative w-full sm:w-auto">
+              <span
+                className="absolute -right-2 -top-2 z-10 flex items-center gap-1 rounded-full border border-success/30 bg-bg-primary px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-success shadow-sm"
+                aria-hidden="true"
+              >
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
+                </span>
+                Live
+              </span>
               <Button
                 variant="secondary"
                 size="lg"
@@ -272,6 +286,7 @@ export function Hero() {
               >
                 <Mic size={16} />
                 Talk to Sarah live
+                <span className="sr-only">— voice demo available right now</span>
               </Button>
             </a>
           </motion.div>
