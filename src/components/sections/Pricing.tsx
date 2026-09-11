@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Check, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
+import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatPrice } from '@/lib/currency';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import {
   PRICING_PLANS,
@@ -15,6 +18,7 @@ const CORE_PLANS = PRICING_PLANS.filter((plan) => plan.core);
 
 export function Pricing() {
   const [billing, setBilling] = useState<BillingCycle>('annual');
+  const { currency } = useCurrency();
 
   return (
     <section id="pricing" className="py-24 md:py-28">
@@ -35,8 +39,9 @@ export function Pricing() {
           <p className={`${bodyClass()} mx-auto`}>Pick a plan, cancel anytime.</p>
         </motion.div>
 
-        {/* Billing toggle */}
-        <div className="mt-10 flex justify-center">
+        {/* Billing toggle + currency switcher */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <CurrencySwitcher />
           <div
             role="group"
             aria-label="Billing period"
@@ -100,12 +105,12 @@ export function Pricing() {
                 <h3 className="text-lg font-semibold text-text-primary">{plan.name}</h3>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-4xl font-bold tracking-tight text-text-primary">
-                    ${displayPrice}
+                    {formatPrice(displayPrice, currency)}
                   </span>
                   <span className="text-text-secondary">/month</span>
                 </div>
                 <p className="mt-1 text-xs font-medium text-text-secondary/70">
-                  {billing === 'annual' ? `billed $${price}/year` : 'billed monthly'}
+                  {billing === 'annual' ? `billed ${formatPrice(price, currency)}/year` : 'billed monthly'}
                 </p>
 
                 {plan.recommended && (
