@@ -47,6 +47,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
+{ label: 'Voicemails', href: '/dashboard/voicemails', icon: Voicemail },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
