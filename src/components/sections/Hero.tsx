@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Phone, Zap, Clock, ShieldCheck, ArrowRight, PhoneIncoming, Siren, CalendarCheck, BellRing, Mic } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
+import { useExperiment } from '@/contexts/ExperimentContext';
 import { SARAH_PHONE, LIVE_DEMO_SECTION_ID } from '@/lib/site';
 
 const TRUST_ITEMS = [
@@ -173,6 +174,7 @@ function ProductVisual() {
 }
 
 export function Hero() {
+  const headlineVariant = useExperiment('hero_headline');
   return (
     <section id="top" className="relative overflow-hidden bg-noise bg-gradient-mesh">
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg-primary via-bg-primary to-bg-secondary" />
@@ -208,15 +210,25 @@ export function Hero() {
             AI voice receptionist for home services
           </motion.p>
 
-          <motion.h1
+                    <motion.h1
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.1, ease: EASE }}
             className="mx-auto mt-4 max-w-xl font-display text-[2.75rem] font-semibold leading-[1.04] tracking-tightest text-text-primary sm:text-6xl lg:mx-0 lg:text-[3.75rem]"
           >
-            Every call answered.
-            <br />
-            Every job booked.
+            {headlineVariant === 'variant_b' ? (
+              <>
+                Never miss another job.
+                <br />
+                Sarah answers instead.
+              </>
+            ) : (
+              <>
+                Every call answered.
+                <br />
+                Every job booked.
+              </>
+            )}
           </motion.h1>
 
           <motion.p
