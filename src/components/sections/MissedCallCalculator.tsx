@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
-import { ArrowRight, PhoneMissed, TrendingDown, TrendingUp, DollarSign, CalendarCheck } from 'lucide-react';
+import { ArrowRight, Download, PhoneMissed, TrendingDown, TrendingUp, DollarSign, CalendarCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+import { downloadRoiCalculatorPdf } from '@/lib/pdf';
 
 /* ------------------------------------------------------------------ */
 /*  Animated number                                                     */
@@ -120,6 +121,13 @@ export function MissedCallCalculator() {
   const annualLoss = monthlyLoss * 12;
   const recoveredJobs = Math.round(missedPerWeek * 4 * (closeRate / 100));
   const monthlyOpportunity = recoveredJobs * jobValue;
+
+  const handleDownloadPdf = () => {
+    downloadRoiCalculatorPdf(
+      { callsPerWeek, missedPerWeek, jobValue, closeRate },
+      { monthlyLoss, annualLoss, recoveredJobs, monthlyOpportunity }
+    );
+  };
 
   return (
     <section id="calculator" className="py-16 sm:py-24 md:py-28">
@@ -238,6 +246,9 @@ export function MissedCallCalculator() {
                 <ArrowRight size={18} />
               </Button>
             </Link>
+            <Button type="button" variant="ghost" size="sm" className="w-full" onClick={handleDownloadPdf}>
+              <Download size={16} /> Download PDF report
+            </Button>
           </div>
         </motion.div>
       </div>
