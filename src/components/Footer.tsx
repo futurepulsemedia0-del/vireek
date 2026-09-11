@@ -349,50 +349,57 @@ export function Footer() {
         {/* Newsletter */}
         <NewsletterSection />
 
-        {/* Main footer grid */}
-        <div className="mt-12 grid gap-10 sm:mt-16 sm:gap-12 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr_1fr]">
-          {/* Brand */}
-          <div className="max-w-sm">
-            <span className="text-xl font-bold tracking-tight text-accent">Vireek</span>
-            <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-              An AI voice receptionist for home-service businesses. Sarah answers every call, 24/7,
-              so you never lose a job to voicemail.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+        {/* Brand band — full width, sits above the nav links as its own row
+            instead of squeezed into the first grid track, so it reads
+            cleanly at every breakpoint including mobile. */}
+        <div className="mt-12 max-w-sm sm:mt-16">
+          <span className="text-xl font-bold tracking-tight text-accent">Vireek</span>
+          <p className="mt-4 text-sm leading-relaxed text-text-secondary">
+            An AI voice receptionist for home-service businesses. Sarah answers every call, 24/7,
+            so you never lose a job to voicemail.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <a
+              href={`mailto:${EMAIL}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Email ${EMAIL}`}
+              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
+            >
+              <Mail size={18} />
+            </a>
+            <a
+              href={SARAH_PHONE}
+              aria-label="Call Vireek"
+              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
+            >
+              <Phone size={18} />
+            </a>
+            {SOCIAL_LINKS.map(({ label, href, Icon }) => (
               <a
-                href={`mailto:${EMAIL}`}
+                key={href}
+                href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Email ${EMAIL}`}
+                aria-label={label}
                 className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
               >
-                <Mail size={18} />
+                <Icon size={18} />
               </a>
-              <a
-                href={SARAH_PHONE}
-                aria-label="Call Vireek"
-                className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
-              >
-                <Phone size={18} />
-              </a>
-              {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-                <a
-                  key={href}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
-                >
-                  <Icon size={18} />
-                </a>
-              ))}
-            </div>
+            ))}
           </div>
+        </div>
 
-          {/* Navigation columns */}
+        {/* Navigation columns — a balanced CSS multi-column flow (2 columns
+            on mobile, 3 on tablet, 5 from desktop up) instead of a rigid
+            grid. Columns vary a lot in link count (Product has 14, Legal
+            has 3), and with a plain grid the tallest column forces empty
+            space next to every shorter one in its row — this flows each
+            titled block independently so the layout stays even and never
+            looks lopsided or "jumbled" on narrow screens. */}
+        <div className="mt-12 columns-2 gap-x-8 sm:mt-14 sm:columns-3 lg:columns-5 lg:gap-x-10">
           {FOOTER_COLUMNS.map((col) => (
-            <div key={col.title}>
+            <div key={col.title} className="mb-9 break-inside-avoid last:mb-0">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
                 {col.title}
               </h3>
@@ -419,9 +426,9 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:mt-12 sm:flex-row">
-          <p className="text-sm text-text-secondary">© 2026 Vireek. All rights reserved.</p>
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+        <div className="mt-10 flex flex-col items-center gap-5 border-t border-border pt-8 sm:mt-12 sm:flex-row sm:justify-between sm:gap-4">
+          <p className="order-2 text-sm text-text-secondary sm:order-1">© 2026 Vireek. All rights reserved.</p>
+          <div className="order-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:order-2 sm:justify-end sm:gap-6">
             <Link
               to="/privacy"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
