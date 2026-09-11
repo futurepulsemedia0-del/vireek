@@ -116,7 +116,7 @@ const FOOTER_COLUMNS = [
       { label: 'Careers', href: '/careers' },
       { label: 'Press', href: '/press' },
       { label: 'Partners', href: '/partners' },
-      { label: 'Affiliate Program', href: '/affiliate' },{ label: 'Affiliate Program', href: '/affiliate' },
+      { label: 'Affiliate Program', href: '/affiliate' },
       { label: 'Contact', href: '/contact' },
     ],
   },
