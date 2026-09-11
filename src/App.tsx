@@ -19,6 +19,7 @@ const OnboardingGuidePage = lazy(() => import('@/pages/OnboardingGuidePage').the
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
+const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
@@ -193,6 +194,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CallsPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/voicemails"
+          element={
+            <ProtectedRoute>
+              <VoicemailsPage />
             </ProtectedRoute>
           }
         />
