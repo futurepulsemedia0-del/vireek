@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "features": "機能",
+    "platform": "プラットフォーム",
+    "industries": "業界",
+    "pricing": "料金",
+    "compare": "比較",
+    "blog": "ブログ",
+    "faq": "よくある質問"
+  },
+  "cta": {
+    "login": "ログイン",
+    "getStarted": "始める",
+    "startFreeTrial": "無料トライアルを開始",
+    "bookDemo": "デモを予約",
+    "talkToSarah": "Sarah と話す"
+  },
+  "footer": {
+    "product": "製品",
+    "integrations": "連携機能",
+    "industries": "業界",
+    "resources": "リソース",
+    "company": "会社概要",
+    "legal": "法的情報",
+    "newsletterTitle": "最新情報を受け取る",
+    "newsletterSubtitle": "Vireek の最新情報をお届けします。",
+    "newsletterPlaceholder": "メールアドレス",
+    "newsletterButton": "登録する",
+    "newsletterSuccess": "登録が完了しました！受信箱をご確認ください。",
+    "rightsReserved": "全著作権所有。"
+  },
+  "language": {
+    "switchLanguage": "言語を切り替える"
+  },
+  "menu": {
+    "open": "メニューを開く",
+    "close": "メニューを閉じる"
+  }
+}
