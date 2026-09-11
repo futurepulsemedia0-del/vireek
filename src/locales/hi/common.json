@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "features": "सुविधाएँ",
+    "platform": "प्लेटफ़ॉर्म",
+    "industries": "उद्योग",
+    "pricing": "मूल्य निर्धारण",
+    "compare": "तुलना करें",
+    "blog": "ब्लॉग",
+    "faq": "सामान्य प्रश्न"
+  },
+  "cta": {
+    "login": "लॉग इन करें",
+    "getStarted": "शुरू करें",
+    "startFreeTrial": "निःशुल्क ट्रायल शुरू करें",
+    "bookDemo": "डेमो बुक करें",
+    "talkToSarah": "Sarah से बात करें"
+  },
+  "footer": {
+    "product": "उत्पाद",
+    "integrations": "इंटीग्रेशन",
+    "industries": "उद्योग",
+    "resources": "संसाधन",
+    "company": "कंपनी",
+    "legal": "कानूनी",
+    "newsletterTitle": "अपडेट रहें",
+    "newsletterSubtitle": "Vireek की नवीनतम जानकारी पाएं।",
+    "newsletterPlaceholder": "आपका ईमेल",
+    "newsletterButton": "सब्सक्राइब करें",
+    "newsletterSuccess": "सब्सक्राइब हो गया! पुष्टि के लिए अपना इनबॉक्स देखें।",
+    "rightsReserved": "सर्वाधिकार सुरक्षित।"
+  },
+  "language": {
+    "switchLanguage": "भाषा बदलें"
+  },
+  "menu": {
+    "open": "मेनू खोलें",
+    "close": "मेनू बंद करें"
+  }
+}
