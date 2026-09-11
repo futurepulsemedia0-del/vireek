@@ -55,6 +55,9 @@ const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ defaul
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
 const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
+const CareersPage = lazy(() => import('@/pages/CareersPage').then((m) => ({ default: m.CareersPage })));
+const PressPage = lazy(() => import('@/pages/PressPage').then((m) => ({ default: m.PressPage })));
+const PartnersPage = lazy(() => import('@/pages/PartnersPage').then((m) => ({ default: m.PartnersPage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const SecuritySettingsPage = lazy(() => import('@/pages/SecuritySettingsPage').then((m) => ({ default: m.SecuritySettingsPage })));
@@ -127,6 +130,9 @@ function App() {
         <Route path="/case-studies" element={<CaseStudiesPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />
+        <Route path="/careers" element={<CareersPage />} />
+        <Route path="/press" element={<PressPage />} />
+        <Route path="/partners" element={<PartnersPage />} />
         <Route path="/badge" element={<BadgePage />} />
         <Route path="/sitemap" element={<SitemapPage />} />
         <Route
