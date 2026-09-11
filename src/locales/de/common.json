@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "features": "Funktionen",
+    "platform": "Plattform",
+    "industries": "Branchen",
+    "pricing": "Preise",
+    "compare": "Vergleichen",
+    "blog": "Blog",
+    "faq": "FAQ"
+  },
+  "cta": {
+    "login": "Anmelden",
+    "getStarted": "Loslegen",
+    "startFreeTrial": "Kostenlos testen",
+    "bookDemo": "Demo buchen",
+    "talkToSarah": "Mit Sarah sprechen"
+  },
+  "footer": {
+    "product": "Produkt",
+    "integrations": "Integrationen",
+    "industries": "Branchen",
+    "resources": "Ressourcen",
+    "company": "Unternehmen",
+    "legal": "Rechtliches",
+    "newsletterTitle": "Bleiben Sie informiert",
+    "newsletterSubtitle": "Erhalten Sie die neuesten Updates von Vireek.",
+    "newsletterPlaceholder": "Ihre E-Mail-Adresse",
+    "newsletterButton": "Abonnieren",
+    "newsletterSuccess": "Angemeldet! Bitte bestätigen Sie per E-Mail.",
+    "rightsReserved": "Alle Rechte vorbehalten."
+  },
+  "language": {
+    "switchLanguage": "Sprache wechseln"
+  },
+  "menu": {
+    "open": "Menü öffnen",
+    "close": "Menü schließen"
+  }
+}
