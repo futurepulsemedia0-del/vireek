@@ -108,7 +108,7 @@ interface TenantContext {
 
 interface EscalationRule {
   id?: string;
-  trigger?: "emergency" | "after_hours" | "no_answer";
+  trigger?: "emergency" | "after_hours" | "no_answer" | "human_request";
   action?: "transfer" | "sms" | "email";
   target?: string;
   note?: string;
@@ -360,10 +360,12 @@ async function handleTransferDestinationRequest(
   const vapiCallId = message.call?.id;
   let emergencyTarget: string | null = null;
 
+    let humanTransferTarget: string | null = null;
+
   if (vapiCallId) {
     const { data: callRow } = await admin
       .from("calls")
-      .select("is_emergency")
+      .select("is_emergency, human_transfer_requested")
       .eq("vapi_call_id", vapiCallId)
       .eq("user_id", tenant.userId)
       .maybeSingle();
@@ -371,9 +373,12 @@ async function handleTransferDestinationRequest(
     if (callRow?.is_emergency) {
       emergencyTarget = findEscalationTarget(tenant.escalationRules, "emergency");
     }
+    if (callRow?.human_transfer_requested) {
+      humanTransferTarget = findEscalationTarget(tenant.escalationRules, "human_request");
+    }
   }
 
-  const destinationNumber = emergencyTarget ?? tenant.forwardingNumber;
+  const destinationNumber = emergencyTarget ?? humanTransferTarget ?? tenant.forwardingNumber;
 
   if (!isValidE164(destinationNumber)) {
     logEvent("transfer_no_valid_number", requestId, { user_id: tenant.userId });
@@ -383,15 +388,21 @@ async function handleTransferDestinationRequest(
     );
   }
 
-  logEvent("transfer_resolved", requestId, { user_id: tenant.userId, used_emergency_target: Boolean(emergencyTarget) });
+    logEvent("transfer_resolved", requestId, {
+    user_id: tenant.userId,
+    used_emergency_target: Boolean(emergencyTarget),
+    used_human_transfer_target: Boolean(humanTransferTarget),
+  });
 
-  return jsonResponse({
+    return jsonResponse({
     destination: {
       type: "number",
       number: destinationNumber,
       message: emergencyTarget
         ? "This is an emergency — connecting you now, please hold."
-        : "One moment, connecting you now.",
+        : humanTransferTarget
+          ? "Connecting you with a team member now, please hold."
+          : "One moment, connecting you now.",
     },
   });
 }
@@ -593,7 +604,46 @@ async function toolFlagEmergencyCall(
     ? "Emergency flagged and the on-call contact will be notified. Please transfer the caller now."
     : "Emergency flagged. This business has no dedicated emergency contact configured, so please transfer to the main forwarding number now.";
 }
+// ---------------------------------------------------------------------------
+// request_human_transfer — caller explicitly asks for a live person,
+// independent of flag_emergency_call (no emergency implied). Mirrors the
+// is_emergency pattern: sets a flag on the calls row, which
+// handleTransferDestinationRequest then checks to pick the right
+// escalation target (falls back to the general forwarding number if no
+// "human_request" rule is configured).
+// ---------------------------------------------------------------------------
 
+async function toolRequestHumanTransfer(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  args: Record<string, unknown>,
+  vapiCallId: string | undefined,
+  callerNumber: string | null,
+  callerName: string | null,
+): Promise<string> {
+  const reason = typeof args.reason === "string" ? args.reason : null;
+
+  const escalationTarget = findEscalationTarget(tenant.escalationRules, "human_request");
+
+  const patch: Record<string, unknown> = {
+    human_transfer_requested: true,
+    caller_phone: callerNumber,
+    caller_name: callerName,
+  };
+  if (reason) {
+    patch.summary = reason;
+  }
+
+  const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, "tool-request-human-transfer");
+
+  if (!callRow) {
+    return "Understood — please connect the caller to a live person now regardless of system status.";
+  }
+
+  return escalationTarget
+    ? "Got it — connecting the caller to a live team member now."
+    : "Got it — this business has no dedicated live-transfer number configured, so please connect the caller to the main forwarding number now.";
+}
 async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   const tenant = await resolveTenant(admin, message, requestId);
   const toolCalls = message.toolCalls ?? message.toolCallList ?? [];
@@ -631,8 +681,11 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
           case "check_weather":
             result = await toolCheckWeather(args);
             break;
-          case "flag_emergency_call":
+                    case "flag_emergency_call":
             result = await toolFlagEmergencyCall(admin, tenant, args, vapiCallId, callerNumber, callerName);
+            break;
+          case "request_human_transfer":
+            result = await toolRequestHumanTransfer(admin, tenant, args, vapiCallId, callerNumber, callerName);
             break;
           default:
             logEvent("tool_call_unknown", requestId, { tool: name });
