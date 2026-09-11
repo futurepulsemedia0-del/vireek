@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Check, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatPrice } from '@/lib/currency';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { PRICING_PLANS } from '@/lib/pricing';
 
@@ -11,6 +13,7 @@ const TEASER_PLANS = TEASER_PLAN_IDS
   .filter((p): p is NonNullable<typeof p> => p !== undefined);
 
 export function PricingTeaser() {
+  const { currency } = useCurrency();
   return (
     <section id="pricing" className="py-16 sm:py-24 md:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-6">
@@ -58,7 +61,7 @@ export function PricingTeaser() {
                   <span className="text-3xl font-bold tracking-tight text-text-primary">Custom</span>
                 ) : (
                   <>
-                    <span className="text-3xl font-bold tracking-tight text-text-primary">${plan.monthly}</span>
+                    <span className="text-3xl font-bold tracking-tight text-text-primary">{formatPrice(plan.monthly, currency)}</span>
                     <span className="text-sm text-text-secondary">/mo</span>
                   </>
                 )}
@@ -67,8 +70,8 @@ export function PricingTeaser() {
                 {plan.monthly === 0
                   ? 'No card required'
                   : plan.monthly === null
-                    ? `from $${plan.startingAt}/mo`
-                    : `or $${plan.annual}/yr`}
+                    ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
+                    : `or ${formatPrice(plan.annual!, currency)}/yr`}
               </p>
               <p className="mt-3 text-xs font-medium text-accent">{plan.minutes} included</p>
               <ul className="mt-4 flex flex-1 flex-col gap-2">
@@ -116,7 +119,7 @@ export function PricingTeaser() {
                   <span className="text-3xl font-bold tracking-tight text-text-primary">Custom</span>
                 ) : (
                   <>
-                    <span className="text-3xl font-bold tracking-tight text-text-primary">${plan.monthly}</span>
+                    <span className="text-3xl font-bold tracking-tight text-text-primary">{formatPrice(plan.monthly, currency)}</span>
                     <span className="text-sm text-text-secondary">/mo</span>
                   </>
                 )}
@@ -125,8 +128,8 @@ export function PricingTeaser() {
                 {plan.monthly === 0
                   ? 'No card required'
                   : plan.monthly === null
-                    ? `from $${plan.startingAt}/mo`
-                    : `or $${plan.annual}/yr`}
+                    ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
+                    : `or ${formatPrice(plan.annual!, currency)}/yr`}
               </p>
               <p className="mt-3 text-xs font-medium text-accent">{plan.minutes} included</p>
               <ul className="mt-4 flex flex-1 flex-col gap-2">
