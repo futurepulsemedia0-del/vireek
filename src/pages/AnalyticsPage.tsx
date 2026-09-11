@@ -1178,7 +1178,6 @@ export function AnalyticsPage() {
               )}
             </ChartCard>
           )}
-        )}
 </div>
 
 </div>
@@ -1186,3 +1185,4 @@ export function AnalyticsPage() {
 </DashboardLayout>
 );
 }
+
