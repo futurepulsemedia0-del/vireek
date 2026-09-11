@@ -19,7 +19,14 @@ import './index.css';
 import './styles/print.css';
 
 initSentry();
-
+// Register the push-notification service worker eagerly.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Non-fatal — push notifications just won't be available this session.
+    });
+  });
+}
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
