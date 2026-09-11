@@ -1,0 +1,55 @@
+/* src/styles/print.css
+ *
+ * Baseline print stylesheet, imported once in src/main.tsx.
+ *
+ * Most per-component print behavior in this app already uses Tailwind's
+ * built-in `print:` variant directly in JSX (see AccessibilityWidget,
+ * SiteAssistant, AiAssistant, DashboardNav — all use print:hidden /
+ * print:p-0 etc.). This file only adds the handful of things a utility
+ * class can't express cleanly: page setup, a manual `.no-print` escape
+ * hatch for anything that doesn't have a Tailwind print: variant applied
+ * yet, and stripping visual chrome (shadows/gradients/backdrop blur) that
+ * looks wrong once translated to paper.
+ */
+
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Manual escape hatch for anything not already using Tailwind's print:
+     variant — add className="no-print" to hide an element only on print. */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Floating chrome that should never appear on a printed page, even if a
+     future addition forgets the Tailwind print:hidden utility. */
+  [class*='fixed'] {
+    position: static !important;
+  }
+
+  /* Decorative effects that render poorly (or not at all) in print. */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  a[href]::after {
+    content: '';
+  }
+
+  table,
+  tr,
+  td,
+  th {
+    break-inside: avoid;
+  }
+}
