@@ -6,6 +6,7 @@ import { HighlightBanner } from '@/components/sections/HighlightBanner';
 import { TrustBar } from '@/components/sections/TrustBar';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { LiveDemo } from '@/components/sections/LiveDemo';
+import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 import { CookieConsent } from '@/components/CookieConsent';
@@ -13,7 +14,8 @@ import { CookieConsent } from '@/components/CookieConsent';
 /**
  * Homepage — cut down to a single, six-section path: prove it works (Hero),
  * prove it's trusted (TrustBar), explain it (HowItWorks), let the visitor
- * try it themselves (LiveDemo), show the price (PricingTeaser), close
+ * try it themselves (LiveDemo), make the cost of missed calls concrete
+ * (MissedCallCalculator), show the price (PricingTeaser), close
  * (FinalCTA). Everything else that used to live here — AICapability,
  * LiveActivityStream, DashboardPreview, Industries, Integrations,
  * CaseStudies — was saying the same "Sarah is smart" pitch a second or
@@ -38,6 +40,7 @@ export function HomePage() {
         <TrustBar />
         <HowItWorks />
         <LiveDemo />
+        <MissedCallCalculator />
         <PricingTeaser />
         <FinalCTA />
       </main>
