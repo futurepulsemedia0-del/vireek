@@ -26,6 +26,9 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
+import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatPrice } from '@/lib/currency';
 import { EASE, eyebrowClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import {
@@ -102,6 +105,7 @@ function PlanCard({
   billing: BillingCycle;
   index: number;
 }) {
+  const { currency } = useCurrency();
   const Icon = PLAN_ICONS[plan.id];
   const isCustomPrice = plan.monthly === null;
   const price = billing === 'annual' ? plan.annual : plan.monthly;
@@ -153,16 +157,16 @@ function PlanCard({
           <span className="text-4xl font-bold tracking-tight text-text-primary">Custom</span>
         ) : (
           <>
-            <span className="text-4xl font-bold tracking-tight text-text-primary">${displayPrice}</span>
+            <span className="text-4xl font-bold tracking-tight text-text-primary">{formatPrice(displayPrice!, currency)}</span>
             <span className="text-sm text-text-secondary">/month</span>
           </>
         )}
       </div>
       <p className="mt-1 text-xs font-medium text-text-secondary/70">
         {isCustomPrice
-          ? `Starting from $${plan.startingAt}/mo`
+          ? `Starting from ${formatPrice(plan.startingAt!, currency)}/mo`
           : billing === 'annual'
-            ? `billed $${price}/year`
+            ? `billed ${formatPrice(price!, currency)}/year`
             : plan.monthly === 0
               ? 'Free forever'
               : 'billed monthly'}
