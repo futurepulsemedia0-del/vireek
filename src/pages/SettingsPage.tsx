@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings as SettingsIcon, ShieldCheck, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic } from 'lucide-react';
+import { Settings as SettingsIcon, ShieldCheck, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
+import { getPushState, subscribeToPush, unsubscribeFromPush, isPushSupported, type PushSupportState } from '@/lib/push';
 
 interface ToggleRowProps {
   icon: typeof PhoneCall;
@@ -46,31 +47,123 @@ function ToggleRow({ icon: Icon, label, description, checked, onChange, disabled
     </div>
   );
 }
+function PushNotificationsCard() {
+  const { toast } = useToast();
+  const [state, setState] = useState<PushSupportState>('not-subscribed');
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (!isPushSupported()) {
+      setState('unsupported');
+      setLoading(false);
+      return;
+    }
+    getPushState().then((s) => {
+      if (!cancelled) {
+        setState(s);
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleToggle = async (enable: boolean) => {
+    setBusy(true);
+    const result = enable ? await subscribeToPush() : await unsubscribeFromPush();
+    if (result.success) {
+      setState(enable ? 'subscribed' : 'not-subscribed');
+      toast(enable ? 'Push notifications enabled on this device.' : 'Push notifications disabled on this device.', 'success');
+    } else {
+      toast(result.error || 'Something went wrong. Please try again.', 'error');
+      if (enable) setState(await getPushState());
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+      <h2 className="text-base font-semibold text-text-primary">Push notifications</h2>
+      <p className="mt-1 text-sm text-text-secondary">
+        Get a real notification on this device the moment a new lead or missed call comes in —
+        even with the dashboard closed. No app install required.
+      </p>
+
+      <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-bg-primary px-4 py-3.5">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+            {state === 'subscribed' ? <Bell size={16} /> : <BellOff size={16} />}
+          </span>
+          <div>
+            <p className="text-sm font-medium text-text-primary">
+              {state === 'unsupported' && 'Not supported in this browser'}
+              {state === 'denied' && 'Blocked in browser settings'}
+              {(state === 'not-subscribed' || loading) && 'Enable on this device'}
+              {state === 'subscribed' && 'Enabled on this device'}
+            </p>
+            <p className="mt-0.5 text-xs text-text-secondary">
+              {state === 'denied'
+                ? 'You previously blocked notifications for this site — allow them in your browser settings to turn this back on.'
+                : 'Applies only to the device and browser you enable it on.'}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={state === 'subscribed'}
+          disabled={loading || busy || state === 'unsupported' || state === 'denied'}
+          onClick={() => handleToggle(state !== 'subscribed')}
+          className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
+            state === 'subscribed' ? 'bg-accent' : 'bg-bg-tertiary'
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+              state === 'subscribed' ? 'translate-x-[22px]' : 'translate-x-0.5'
+            }`}
+          />
+        </button>
+      </div>
+    </div>
+  );
+}
 export function SettingsPage() {
   const navigate = useNavigate();
   const { profile, isOwner, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [saving, setSaving] = useState<string | null>(null);
 
-  const prefs = {
-    notify_emergency_call: profile?.notify_emergency_call ?? true,
-    notify_usage_alert: profile?.notify_usage_alert ?? true,
-    notify_ai_insight: profile?.notify_ai_insight ?? true,
-    notify_job_update: profile?.notify_job_update ?? true,
-  };
+  ```tsx
+const prefs = {
+  notify_emergency_call: profile?.notify_emergency_call ?? true,
+  notify_usage_alert: profile?.notify_usage_alert ?? true,
+  notify_ai_insight: profile?.notify_ai_insight ?? true,
+  notify_job_update: profile?.notify_job_update ?? true,
+  notify_new_lead: profile?.notify_new_lead ?? true,
+  notify_missed_call: profile?.notify_missed_call ?? true,
+};
 
-  const updatePref = async (key: keyof typeof prefs, value: boolean) => {
-    if (!profile) return;
-    setSaving(key);
-    const { error } = await supabase.from('profiles').update({ [key]: value }).eq('id', profile.id);
-    if (error) {
-      toast('Could not save that preference. Please try again.', 'error');
-    } else {
-      await refreshProfile();
-    }
-    setSaving(null);
-  };
+const updatePref = async (key: keyof typeof prefs, value: boolean) => {
+  if (!profile) return;
+  setSaving(key);
+  const { error } = await supabase
+    .from('profiles')
+    .update({ [key]: value })
+    .eq('id', profile.id);
+
+  if (error) {
+    toast('Could not save that preference. Please try again.', 'error');
+  } else {
+    await refreshProfile();
+  }
+
+  setSaving(null);
+};
+```
 
   return (
     <DashboardLayout activeLabel="Settings">
@@ -91,6 +184,22 @@ export function SettingsPage() {
           just from being shown.
         </p>
         <div className="mt-2 divide-y divide-border/60">
+                      <ToggleRow
+            icon={UserPlus}
+            label="New leads"
+            description="Notify me the moment a new lead comes in."
+            checked={prefs.notify_new_lead}
+            disabled={saving === 'notify_new_lead'}
+            onChange={(v) => updatePref('notify_new_lead', v)}
+          />
+          <ToggleRow
+            icon={PhoneMissed}
+            label="Missed calls"
+            description="Notify me when a call to my business goes unanswered."
+            checked={prefs.notify_missed_call}
+            disabled={saving === 'notify_missed_call'}
+            onChange={(v) => updatePref('notify_missed_call', v)}
+          />
           <ToggleRow
             icon={PhoneCall}
             label="Emergency calls"
@@ -125,7 +234,7 @@ export function SettingsPage() {
           />
         </div>
       </div>
-
+      <PushNotificationsCard />
       <button
         type="button"
         onClick={() => navigate('/dashboard/settings/assistant')}
