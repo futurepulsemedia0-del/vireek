@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "features": "الميزات",
+    "platform": "المنصة",
+    "industries": "القطاعات",
+    "pricing": "التسعير",
+    "compare": "مقارنة",
+    "blog": "المدونة",
+    "faq": "الأسئلة الشائعة"
+  },
+  "cta": {
+    "login": "تسجيل الدخول",
+    "getStarted": "ابدأ الآن",
+    "startFreeTrial": "ابدأ التجربة المجانية",
+    "bookDemo": "احجز عرضًا توضيحيًا",
+    "talkToSarah": "تحدث مع سارة"
+  },
+  "footer": {
+    "product": "المنتج",
+    "integrations": "عمليات الدمج",
+    "industries": "القطاعات",
+    "resources": "الموارد",
+    "company": "الشركة",
+    "legal": "القانونية",
+    "newsletterTitle": "ابقَ على اطلاع",
+    "newsletterSubtitle": "احصل على آخر مستجدات Vireek.",
+    "newsletterPlaceholder": "بريدك الإلكتروني",
+    "newsletterButton": "اشتراك",
+    "newsletterSuccess": "تم الاشتراك! تحقق من بريدك الوارد للتأكيد.",
+    "rightsReserved": "جميع الحقوق محفوظة."
+  },
+  "language": {
+    "switchLanguage": "تغيير اللغة"
+  },
+  "menu": {
+    "open": "فتح القائمة",
+    "close": "إغلاق القائمة"
+  }
+}
