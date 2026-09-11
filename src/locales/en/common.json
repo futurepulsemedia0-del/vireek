@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "features": "Features",
+    "platform": "Platform",
+    "industries": "Industries",
+    "pricing": "Pricing",
+    "compare": "Compare",
+    "blog": "Blog",
+    "faq": "FAQ"
+  },
+  "cta": {
+    "login": "Log in",
+    "getStarted": "Get Started",
+    "startFreeTrial": "Start Free Trial",
+    "bookDemo": "Book a Demo",
+    "talkToSarah": "Talk to Sarah"
+  },
+  "footer": {
+    "product": "Product",
+    "integrations": "Integrations",
+    "industries": "Industries",
+    "resources": "Resources",
+    "company": "Company",
+    "legal": "Legal",
+    "newsletterTitle": "Stay in the loop",
+    "newsletterSubtitle": "Get the latest updates from Vireek.",
+    "newsletterPlaceholder": "Your email address",
+    "newsletterButton": "Subscribe",
+    "newsletterSuccess": "You're subscribed! Check your inbox for a confirmation.",
+    "rightsReserved": "All rights reserved."
+  },
+  "language": {
+    "switchLanguage": "Change language"
+  },
+  "menu": {
+    "open": "Open menu",
+    "close": "Close menu"
+  }
+}
