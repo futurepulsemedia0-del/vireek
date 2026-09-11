@@ -31,6 +31,8 @@ export interface Profile {
   notify_usage_alert?: boolean;
   notify_ai_insight?: boolean;
   notify_job_update?: boolean;
+  notify_new_lead?: boolean;
+  notify_missed_call?: boolean;
   created_at: string;
 }
 
