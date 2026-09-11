@@ -28,6 +28,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useExperiment } from '@/contexts/ExperimentContext';
 import { formatPrice } from '@/lib/currency';
 import { EASE, eyebrowClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
@@ -281,7 +282,8 @@ export function PricingPage() {
     canonical: 'https://vireek.com/pricing',
   });
 
-  const [billing, setBilling] = useState<BillingCycle>('annual');
+  const defaultBillingVariant = useExperiment('pricing_default_billing');
+const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as BillingCycle);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
