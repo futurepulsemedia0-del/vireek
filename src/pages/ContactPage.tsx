@@ -7,6 +7,7 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
+import { EnterpriseDemoBookingCalendar } from '@/components/EnterpriseDemoBookingCalendar';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { SARAH_PHONE } from '@/lib/site';
@@ -157,6 +158,38 @@ export function ContactPage() {
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-text-secondary sm:text-xl">
                 Questions about Vireek? Reach out — we typically respond within 24 hours.
               </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Enterprise demo — real calendar */}
+        <section className="px-6 pb-4">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="text-center"
+            >
+              <p className={eyebrowClass()}>Enterprise</p>
+              <h2 className={sectionHeadingClass()}>Prefer to see it live?</h2>
+              <p className={bodyClass()}>
+                If you run a larger team, skip the form below and book a live walkthrough instead —
+                pick a time on our real calendar and it's confirmed instantly.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+              className="mt-10"
+            >
+              <EnterpriseDemoBookingCalendar
+                heading="Book an enterprise demo"
+                description="30 minutes with our team — pick whatever works for you and it's confirmed instantly."
+              />
             </motion.div>
           </div>
         </section>
