@@ -132,7 +132,7 @@ export function SiteAssistant() {
         aria-expanded={open}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-[84px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-accent to-cta text-white shadow-lg shadow-accent/30 transition-all duration-200 hover:shadow-xl hover:shadow-accent/40 hover:brightness-110 print:hidden"
+        className="fixed bottom-[84px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-white dark:border-white/90 bg-gradient-to-br from-[#3448E8] to-[#D6582A] text-white shadow-lg shadow-black/40 ring-1 ring-black/10 transition-all duration-200 hover:shadow-xl hover:brightness-110 print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -182,7 +182,7 @@ export function SiteAssistant() {
             aria-label="Ask Vireek"
           >
             <div className="flex items-center gap-3 border-b border-border/80 bg-gradient-to-b from-bg-secondary to-bg-secondary/60 px-5 py-4">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white shadow-sm">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-[#3448E8] to-[#D6582A] text-white shadow-sm">
                 <HelpCircle size={17} strokeWidth={2.25} />
               </span>
               <div className="min-w-0">
@@ -241,7 +241,7 @@ export function SiteAssistant() {
                 aria-label="Send"
                 whileHover={input.trim() && !thinking ? { scale: 1.06 } : undefined}
                 whileTap={input.trim() && !thinking ? { scale: 0.94 } : undefined}
-                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white transition-opacity disabled:opacity-40"
+                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-[#3448E8] to-[#D6582A] text-white transition-opacity disabled:opacity-40"
               >
                 <Send size={16} />
               </motion.button>
