@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { CurrencyProvider } from '@/contexts/CurrencyContext';
+import { ExperimentProvider } from '@/contexts/ExperimentContext';
 import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
 import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { SiteAssistant } from '@/components/SiteAssistant';
@@ -25,17 +26,19 @@ createRoot(document.getElementById('root')!).render(
       <AnalyticsListener />
       <ThemeProvider>
         <AccessibilityProvider>
-          <CurrencyProvider>
-            <ToastProvider>
-              <AuthProvider>
-                <ErrorBoundary>
-                  <App />
-                  <AccessibilityWidget />
-                  <SiteAssistant />
-                </ErrorBoundary>
-              </AuthProvider>
-            </ToastProvider>
-          </CurrencyProvider>
+          <ExperimentProvider>
+            <CurrencyProvider>
+              <ToastProvider>
+                <AuthProvider>
+                  <ErrorBoundary>
+                    <App />
+                    <AccessibilityWidget />
+                    <SiteAssistant />
+                  </ErrorBoundary>
+                </AuthProvider>
+              </ToastProvider>
+            </CurrencyProvider>
+          </ExperimentProvider>
         </AccessibilityProvider>
       </ThemeProvider>
     </BrowserRouter>
