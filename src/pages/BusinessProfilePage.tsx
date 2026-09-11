@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star } from 'lucide-react';
+import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
-import { supabase, BusinessProfile } from '@/lib/supabase';
+import { supabase, BusinessProfile, BusinessProfileHoliday, BusinessProfileEscalationRule } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
 
@@ -71,6 +71,28 @@ function hoursToDb(hours: HoursState): Record<string, { open: string; close: str
   return result;
 }
 
+const TRIGGER_LABELS: Record<BusinessProfileEscalationRule['trigger'], string> = {
+  emergency: 'Emergency call detected',
+  after_hours: 'Call comes in after hours',
+  no_answer: 'No one answers / picks up',
+};
+
+const ACTION_LABELS: Record<BusinessProfileEscalationRule['action'], string> = {
+  transfer: 'Warm-transfer the call',
+  sms: 'Send an SMS alert',
+  email: 'Send an email alert',
+};
+
+const ACTION_TARGET_PLACEHOLDER: Record<BusinessProfileEscalationRule['action'], string> = {
+  transfer: '(555) 555-5555',
+  sms: '(555) 555-5555',
+  email: 'oncall@yourbusiness.com',
+};
+
+function newId() {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+}
+
 // ============================================================
 // MAIN PAGE
 // ============================================================
@@ -91,6 +113,8 @@ export function BusinessProfilePage() {
   const [greetingScript, setGreetingScript] = useState('');
   const [hours, setHours] = useState<HoursState>(defaultHours());
   const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>([]);
+  const [holidays, setHolidays] = useState<BusinessProfileHoliday[]>([]);
+  const [escalationRules, setEscalationRules] = useState<BusinessProfileEscalationRule[]>([]);
 
   const loadProfile = useCallback(async () => {
     if (!user) return;
@@ -113,6 +137,8 @@ export function BusinessProfilePage() {
         setGreetingScript(bp.greeting_script ?? '');
         setHours(hoursFromDb(bp.business_hours));
         setFaqs(bp.faqs ?? []);
+        setHolidays(bp.holidays ?? []);
+        setEscalationRules(bp.escalation_rules ?? []);
       }
     } catch {
       // empty state — user will create on save
@@ -170,11 +196,48 @@ export function BusinessProfilePage() {
     }));
   };
 
+  const addHoliday = () => {
+    setHolidays((prev) => [...prev, { id: newId(), date: '', label: '', message: '' }]);
+  };
+
+  const updateHoliday = (id: string, field: keyof BusinessProfileHoliday, value: string) => {
+    setHolidays((prev) => prev.map((h) => (h.id === id ? { ...h, [field]: value } : h)));
+  };
+
+  const removeHoliday = (id: string) => {
+    setHolidays((prev) => prev.filter((h) => h.id !== id));
+  };
+
+  const addEscalationRule = () => {
+    setEscalationRules((prev) => [
+      ...prev,
+      { id: newId(), trigger: 'emergency', action: 'transfer', target: '', note: '' },
+    ]);
+  };
+
+  const updateEscalationRule = (
+    id: string,
+    field: keyof BusinessProfileEscalationRule,
+    value: string
+  ) => {
+    setEscalationRules((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
+  };
+
+  const removeEscalationRule = (id: string) => {
+    setEscalationRules((prev) => prev.filter((r) => r.id !== id));
+  };
+
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
     try {
       const cleanFaqs = faqs.filter((f) => f.question.trim() && f.answer.trim());
+      const cleanHolidays = holidays
+        .filter((h) => h.date.trim() && h.label.trim())
+        .map((h) => ({ id: h.id, date: h.date, label: h.label.trim(), message: h.message?.trim() || undefined }));
+      const cleanEscalationRules = escalationRules
+        .filter((r) => r.target.trim())
+        .map((r) => ({ id: r.id, trigger: r.trigger, action: r.action, target: r.target.trim(), note: r.note?.trim() || undefined }));
       const payload = {
         user_id: user.id,
         services_offered: services.length > 0 ? services : null,
@@ -183,6 +246,8 @@ export function BusinessProfilePage() {
         greeting_script: greetingScript.trim() || null,
         business_hours: hoursToDb(hours),
         faqs: cleanFaqs.length > 0 ? cleanFaqs : null,
+        holidays: cleanHolidays.length > 0 ? cleanHolidays : null,
+        escalation_rules: cleanEscalationRules.length > 0 ? cleanEscalationRules : null,
       };
 
       if (profileId) {
@@ -388,6 +453,142 @@ export function BusinessProfilePage() {
                   );
                 })}
               </div>
+            </SectionCard>
+
+            {/* Holidays / Closures */}
+            <SectionCard
+              icon={Calendar}
+              title="Holidays & Closures"
+              description="One-off dates that override your regular business hours above — Sarah lets callers know you're closed and won't schedule jobs for that day."
+            >
+              {holidays.length > 0 && (
+                <div className="space-y-3">
+                  {holidays.map((h) => (
+                    <div key={h.id} className="rounded-xl border border-border bg-bg-primary p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="grid flex-1 gap-2 sm:grid-cols-2">
+                          <input
+                            type="date"
+                            value={h.date}
+                            onChange={(e) => updateHoliday(h.id, 'date', e.target.value)}
+                            className={inputClass}
+                          />
+                          <input
+                            type="text"
+                            value={h.label}
+                            onChange={(e) => updateHoliday(h.id, 'label', e.target.value)}
+                            placeholder="e.g. Christmas Day"
+                            className={inputClass}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeHoliday(h.id)}
+                          className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger"
+                          aria-label="Remove holiday"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={h.message ?? ''}
+                        onChange={(e) => updateHoliday(h.id, 'message', e.target.value)}
+                        placeholder="Optional: what Sarah should tell callers, e.g. “We're closed for the holiday, back Monday at 8am.”"
+                        className={`${inputClass} mt-2`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={addHoliday}
+                className="focus-ring mt-3 flex items-center gap-1.5 rounded-xl border border-dashed border-border px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-accent"
+              >
+                <Plus size={16} /> Add Holiday
+              </button>
+              {holidays.length === 0 && (
+                <p className="mt-3 text-xs text-text-secondary/60">No holidays added yet.</p>
+              )}
+            </SectionCard>
+
+            {/* Call Routing & Escalation Rules */}
+            <SectionCard
+              icon={PhoneForwarded}
+              title="Call Routing & Escalation Rules"
+              description="What should Sarah actually do in each situation? These are real settings Sarah follows, not just a description of the feature."
+            >
+              {escalationRules.length > 0 && (
+                <div className="space-y-3">
+                  {escalationRules.map((rule) => (
+                    <div key={rule.id} className="rounded-xl border border-border bg-bg-primary p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="grid flex-1 gap-2 sm:grid-cols-2">
+                          <select
+                            value={rule.trigger}
+                            onChange={(e) => updateEscalationRule(rule.id, 'trigger', e.target.value)}
+                            className={inputClass}
+                          >
+                            {(Object.keys(TRIGGER_LABELS) as BusinessProfileEscalationRule['trigger'][]).map((t) => (
+                              <option key={t} value={t}>
+                                {TRIGGER_LABELS[t]}
+                              </option>
+                            ))}
+                          </select>
+                          <select
+                            value={rule.action}
+                            onChange={(e) => updateEscalationRule(rule.id, 'action', e.target.value)}
+                            className={inputClass}
+                          >
+                            {(Object.keys(ACTION_LABELS) as BusinessProfileEscalationRule['action'][]).map((a) => (
+                              <option key={a} value={a}>
+                                {ACTION_LABELS[a]}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeEscalationRule(rule.id)}
+                          className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger"
+                          aria-label="Remove rule"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        <input
+                          type="text"
+                          value={rule.target}
+                          onChange={(e) => updateEscalationRule(rule.id, 'target', e.target.value)}
+                          placeholder={ACTION_TARGET_PLACEHOLDER[rule.action]}
+                          className={inputClass}
+                        />
+                        <input
+                          type="text"
+                          value={rule.note ?? ''}
+                          onChange={(e) => updateEscalationRule(rule.id, 'note', e.target.value)}
+                          placeholder="Optional note, e.g. “on-call tech”"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={addEscalationRule}
+                className="focus-ring mt-3 flex items-center gap-1.5 rounded-xl border border-dashed border-border px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-accent"
+              >
+                <Plus size={16} /> Add Rule
+              </button>
+              {escalationRules.length === 0 && (
+                <p className="mt-3 text-xs text-text-secondary/60">
+                  No routing rules yet — calls follow default handling.
+                </p>
+              )}
             </SectionCard>
 
             {/* Greeting Script */}
