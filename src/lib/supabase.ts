@@ -118,9 +118,9 @@ export interface BusinessProfile {
   scheduling_tool: string | null;
   avg_job_value: number | null;
   handles_emergency_calls: string | null;
-  assistant_name: string;
-  assistant_voice: string;
-  assistant_tone: 'friendly' | 'professional' | 'warm' | 'direct';
+  assistant_name?: string | null;
+  assistant_voice?: string | null;
+  assistant_tone?: string | null;
   created_at: string;
   updated_at: string;
 }
