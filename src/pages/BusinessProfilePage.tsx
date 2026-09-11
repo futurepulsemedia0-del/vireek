@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded } from 'lucide-react';
+import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded, Mic } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -94,6 +94,45 @@ function newId() {
 }
 
 // ============================================================
+// ASSISTANT PERSONA PRESETS
+// ============================================================
+
+const TONE_PRESETS = [
+  {
+    key: 'friendly_professional',
+    label: 'Friendly & Professional',
+    description: 'Warm but businesslike — the default. Fits most home-service calls.',
+  },
+  {
+    key: 'warm_casual',
+    label: 'Warm & Casual',
+    description: 'Relaxed and conversational, like talking to a helpful neighbor.',
+  },
+  {
+    key: 'direct_efficient',
+    label: 'Direct & Efficient',
+    description: 'Short, to-the-point answers. Good for high call volume.',
+  },
+  {
+    key: 'upbeat_energetic',
+    label: 'Upbeat & Energetic',
+    description: 'Enthusiastic and high-energy. Good for sales-driven teams.',
+  },
+] as const;
+
+const VOICE_PRESETS = [
+  { key: 'sarah_warm_us_f', name: 'Sarah', label: 'Warm — US, Female' },
+  { key: 'olivia_bright_us_f', name: 'Olivia', label: 'Bright — US, Female' },
+  { key: 'grace_calm_uk_f', name: 'Grace', label: 'Calm — UK, Female' },
+  { key: 'ethan_confident_us_m', name: 'Ethan', label: 'Confident — US, Male' },
+  { key: 'marcus_friendly_us_m', name: 'Marcus', label: 'Friendly — US, Male' },
+] as const;
+
+const DEFAULT_ASSISTANT_NAME = 'Sarah';
+const DEFAULT_ASSISTANT_TONE = 'friendly_professional';
+const DEFAULT_ASSISTANT_VOICE = 'sarah_warm_us_f';
+
+// ============================================================
 // MAIN PAGE
 // ============================================================
 
@@ -113,6 +152,9 @@ export function BusinessProfilePage() {
   const [greetingScript, setGreetingScript] = useState('');
   const [hours, setHours] = useState<HoursState>(defaultHours());
   const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>([]);
+  const [assistantName, setAssistantName] = useState(DEFAULT_ASSISTANT_NAME);
+  const [assistantTone, setAssistantTone] = useState<string>(DEFAULT_ASSISTANT_TONE);
+  const [assistantVoice, setAssistantVoice] = useState<string>(DEFAULT_ASSISTANT_VOICE);
   const [holidays, setHolidays] = useState<BusinessProfileHoliday[]>([]);
   const [escalationRules, setEscalationRules] = useState<BusinessProfileEscalationRule[]>([]);
 
@@ -137,6 +179,9 @@ export function BusinessProfilePage() {
         setGreetingScript(bp.greeting_script ?? '');
         setHours(hoursFromDb(bp.business_hours));
         setFaqs(bp.faqs ?? []);
+        setAssistantName(bp.assistant_name || DEFAULT_ASSISTANT_NAME);
+        setAssistantTone(bp.assistant_tone || DEFAULT_ASSISTANT_TONE);
+        setAssistantVoice(bp.assistant_voice || DEFAULT_ASSISTANT_VOICE);
         setHolidays(bp.holidays ?? []);
         setEscalationRules(bp.escalation_rules ?? []);
       }
@@ -246,6 +291,9 @@ export function BusinessProfilePage() {
         greeting_script: greetingScript.trim() || null,
         business_hours: hoursToDb(hours),
         faqs: cleanFaqs.length > 0 ? cleanFaqs : null,
+        assistant_name: assistantName.trim() || DEFAULT_ASSISTANT_NAME,
+        assistant_tone: assistantTone,
+        assistant_voice: assistantVoice,
         holidays: cleanHolidays.length > 0 ? cleanHolidays : null,
         escalation_rules: cleanEscalationRules.length > 0 ? cleanEscalationRules : null,
       };
@@ -266,7 +314,7 @@ export function BusinessProfilePage() {
         if (data) setProfileId(data.id);
       }
 
-      toast('Business profile saved. Sarah is updated.', 'success');
+      toast(`Business profile saved. ${assistantName.trim() || DEFAULT_ASSISTANT_NAME} is updated.`, 'success');
     } catch {
       toast('Could not save business profile. Please try again.', 'error');
     } finally {
@@ -294,7 +342,8 @@ export function BusinessProfilePage() {
             Business Profile
           </h1>
           <p className="mt-1 text-sm text-text-secondary">
-            This is what Sarah knows about your business. Keep it accurate so she answers calls correctly.
+            This is what {assistantName || DEFAULT_ASSISTANT_NAME} knows about your business. Keep it accurate so
+            she answers calls correctly.
           </p>
         </div>
 
@@ -310,12 +359,12 @@ export function BusinessProfilePage() {
           </span>
           <div>
             <h3 className="text-sm font-semibold text-text-primary">
-              The more detail you add, the smarter Sarah gets
+              The more detail you add, the smarter {assistantName || DEFAULT_ASSISTANT_NAME} gets
             </h3>
             <p className="mt-1 text-sm leading-relaxed text-text-secondary">
-              Sarah uses your services, hours, service area, greeting script, and FAQs to answer
-              caller questions accurately and book the right jobs. Take a few minutes to fill this
-              out — it's the single most impactful setting in your account.
+              {assistantName || DEFAULT_ASSISTANT_NAME} uses your services, hours, service area, greeting script,
+              and FAQs to answer caller questions accurately and book the right jobs. Take a few minutes to fill
+              this out — it's the single most impactful setting in your account.
             </p>
           </div>
         </motion.div>
@@ -332,6 +381,83 @@ export function BusinessProfilePage() {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Assistant Persona */}
+            <SectionCard
+              icon={Mic}
+              title="Assistant Persona"
+              description="Your AI receptionist's name, voice, and conversational tone on every call."
+            >
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-text-secondary">Assistant name</label>
+                  <input
+                    type="text"
+                    value={assistantName}
+                    onChange={(e) => setAssistantName(e.target.value)}
+                    placeholder="e.g. Sarah"
+                    maxLength={40}
+                    className={inputClass}
+                  />
+                  <p className="mt-1.5 text-xs text-text-secondary/60">
+                    What your assistant calls itself when it answers a call — e.g. "Thanks for calling Bright
+                    Plumbing, this is {assistantName.trim() || 'Sarah'}."
+                  </p>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-text-secondary">Voice</label>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {VOICE_PRESETS.map((voice) => (
+                      <button
+                        key={voice.key}
+                        type="button"
+                        onClick={() => setAssistantVoice(voice.key)}
+                        className={`focus-ring flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                          assistantVoice === voice.key
+                            ? 'border-accent bg-accent/5'
+                            : 'border-border bg-bg-primary hover:border-accent/40'
+                        }`}
+                      >
+                        <span
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                            assistantVoice === voice.key ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-text-secondary'
+                          }`}
+                        >
+                          <Mic size={16} />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-text-primary">{voice.name}</span>
+                          <span className="block truncate text-xs text-text-secondary">{voice.label}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-1.5 text-xs text-text-secondary/60">
+                    The voice callers hear. Voice previews aren't available in this dashboard yet — this selects
+                    which voice profile is used on live calls.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-text-secondary">Conversational tone</label>
+                  <select
+                    value={assistantTone}
+                    onChange={(e) => setAssistantTone(e.target.value)}
+                    className={`${inputClass} cursor-pointer`}
+                  >
+                    {TONE_PRESETS.map((tone) => (
+                      <option key={tone.key} value={tone.key}>
+                        {tone.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1.5 text-xs text-text-secondary/60">
+                    {TONE_PRESETS.find((t) => t.key === assistantTone)?.description}
+                  </p>
+                </div>
+              </div>
+            </SectionCard>
+
             {/* Services Offered */}
             <SectionCard icon={Briefcase} title="Services Offered" description="What services does your business provide? Add one per line.">
               <div className="flex gap-2">
@@ -592,7 +718,11 @@ export function BusinessProfilePage() {
             </SectionCard>
 
             {/* Greeting Script */}
-            <SectionCard icon={MessageSquare} title="Greeting Script" description="What should Sarah say when she answers a call? This sets the tone for every interaction.">
+            <SectionCard
+              icon={MessageSquare}
+              title="Greeting Script"
+              description={`What should ${assistantName.trim() || DEFAULT_ASSISTANT_NAME} say when she answers a call? This sets the tone for every interaction.`}
+            >
               <textarea
                 value={greetingScript}
                 onChange={(e) => setGreetingScript(e.target.value)}
@@ -606,7 +736,11 @@ export function BusinessProfilePage() {
             </SectionCard>
 
             {/* FAQs */}
-            <SectionCard icon={HelpCircle} title="Frequently Asked Questions" description="Common questions callers ask. Sarah uses these to answer directly without transferring to you.">
+            <SectionCard
+              icon={HelpCircle}
+              title="Frequently Asked Questions"
+              description={`Common questions callers ask. ${assistantName.trim() || DEFAULT_ASSISTANT_NAME} uses these to answer directly without transferring to you.`}
+            >
               {faqs.length > 0 && (
                 <div className="space-y-3">
                   {faqs.map((faq, i) => (
