@@ -5,6 +5,7 @@ import App from './App.tsx';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { CurrencyProvider } from '@/contexts/CurrencyContext';
 import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
 import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { SiteAssistant } from '@/components/SiteAssistant';
@@ -24,15 +25,17 @@ createRoot(document.getElementById('root')!).render(
       <AnalyticsListener />
       <ThemeProvider>
         <AccessibilityProvider>
-          <ToastProvider>
-            <AuthProvider>
-              <ErrorBoundary>
-                <App />
-                <AccessibilityWidget />
-                <SiteAssistant />
-              </ErrorBoundary>
-            </AuthProvider>
-          </ToastProvider>
+          <CurrencyProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <ErrorBoundary>
+                  <App />
+                  <AccessibilityWidget />
+                  <SiteAssistant />
+                </ErrorBoundary>
+              </AuthProvider>
+            </ToastProvider>
+          </CurrencyProvider>
         </AccessibilityProvider>
       </ThemeProvider>
     </BrowserRouter>
