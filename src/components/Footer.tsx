@@ -1,8 +1,13 @@
 import { useState, useRef, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, Loader2, ShieldCheck, Sparkles, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SARAH_PHONE } from '@/lib/site';
+import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+
+// Sarah's number, formatted for display next to the tel: link.
+// (Same number as SARAH_PHONE — already public elsewhere on the site.)
+const SARAH_PHONE_DISPLAY = '+1 (650) 910-6703';
 
 function RedditIcon({ size = 18 }: { size?: number }) {
   return (
@@ -93,10 +98,24 @@ const FOOTER_COLUMNS = [
       { label: 'Help Center', href: '/help' },
       { label: 'FAQ', href: '/faq' },
       { label: 'AI vs Human Receptionist', href: '/ai-receptionist-vs-human-receptionist' },
-      { label: 'About', href: '/about' },
-      { label: 'Contact', href: '/contact' },
       { label: 'Status', href: '/status' },
       { label: 'Changelog', href: '/changelog' },
+    ],
+  },
+  {
+    // New column. "About" and "Contact" moved here from Resources (not
+    // removed) since they're company info, not product resources — this
+    // also gives Careers/Press/Partners a proper home. Those three pages
+    // already exist in src/pages/ (fully built) but had no <Route> and no
+    // footer link, so they were unreachable; wire them up in App.tsx
+    // alongside this file (see chat) to make these links live.
+    title: 'Company',
+    links: [
+      { label: 'About', href: '/about' },
+      { label: 'Careers', href: '/careers' },
+      { label: 'Press', href: '/press' },
+      { label: 'Partners', href: '/partners' },
+      { label: 'Contact', href: '/contact' },
     ],
   },
   {
@@ -105,6 +124,7 @@ const FOOTER_COLUMNS = [
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
       { label: 'Cookie Policy', href: '/cookies' },
+      { label: 'Accessibility', href: '/accessibility' },
     ],
   },
 ];
@@ -370,10 +390,11 @@ export function Footer() {
             </a>
             <a
               href={SARAH_PHONE}
-              aria-label="Call Vireek"
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
+              aria-label={`Call Vireek at ${SARAH_PHONE_DISPLAY}`}
+              className="focus-ring flex h-10 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3.5 text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent"
             >
-              <Phone size={18} />
+              <Phone size={16} />
+              <span className="text-sm font-medium">{SARAH_PHONE_DISPLAY}</span>
             </a>
             {SOCIAL_LINKS.map(({ label, href, Icon }) => (
               <a
@@ -425,8 +446,20 @@ export function Footer() {
           ))}
         </div>
 
+        {/* Trust + utility row — real, working features only: Stripe is an
+            actual payment integration (see src/lib/integrations.ts /
+            BillingPage.tsx), and CurrencySwitcher is the same live control
+            already used on the Pricing page (backed by CurrencyContext). */}
+        <div className="mt-10 flex flex-col items-center gap-4 sm:mt-12 sm:flex-row sm:justify-between">
+          <span className="flex items-center gap-2 text-xs font-medium text-text-secondary/70">
+            <CreditCard className="h-4 w-4 text-text-secondary/50" />
+            Secure payments powered by Stripe
+          </span>
+          <CurrencySwitcher className="!px-3 !py-1.5 !text-xs" />
+        </div>
+
         {/* Bottom bar */}
-        <div className="mt-10 flex flex-col items-center gap-5 border-t border-border pt-8 sm:mt-12 sm:flex-row sm:justify-between sm:gap-4">
+        <div className="mt-6 flex flex-col items-center gap-5 border-t border-border pt-8 sm:mt-8 sm:flex-row sm:justify-between sm:gap-4">
           <p className="order-2 text-sm text-text-secondary sm:order-1">© 2026 Vireek. All rights reserved.</p>
           <div className="order-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:order-2 sm:justify-end sm:gap-6">
             <Link
