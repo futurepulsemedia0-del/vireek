@@ -137,33 +137,31 @@ export function SettingsPage() {
   const { toast } = useToast();
   const [saving, setSaving] = useState<string | null>(null);
 
-  ```tsx
-const prefs = {
-  notify_emergency_call: profile?.notify_emergency_call ?? true,
-  notify_usage_alert: profile?.notify_usage_alert ?? true,
-  notify_ai_insight: profile?.notify_ai_insight ?? true,
-  notify_job_update: profile?.notify_job_update ?? true,
-  notify_new_lead: profile?.notify_new_lead ?? true,
-  notify_missed_call: profile?.notify_missed_call ?? true,
-};
+  const prefs = {
+    notify_emergency_call: profile?.notify_emergency_call ?? true,
+    notify_usage_alert: profile?.notify_usage_alert ?? true,
+    notify_ai_insight: profile?.notify_ai_insight ?? true,
+    notify_job_update: profile?.notify_job_update ?? true,
+    notify_new_lead: profile?.notify_new_lead ?? true,
+    notify_missed_call: profile?.notify_missed_call ?? true,
+  };
 
-const updatePref = async (key: keyof typeof prefs, value: boolean) => {
-  if (!profile) return;
-  setSaving(key);
-  const { error } = await supabase
-    .from('profiles')
-    .update({ [key]: value })
-    .eq('id', profile.id);
+  const updatePref = async (key: keyof typeof prefs, value: boolean) => {
+    if (!profile) return;
+    setSaving(key);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ [key]: value })
+      .eq('id', profile.id);
 
-  if (error) {
-    toast('Could not save that preference. Please try again.', 'error');
-  } else {
-    await refreshProfile();
-  }
+    if (error) {
+      toast('Could not save that preference. Please try again.', 'error');
+    } else {
+      await refreshProfile();
+    }
 
-  setSaving(null);
-};
-```
+    setSaving(null);
+  };
 
   return (
     <DashboardLayout activeLabel="Settings">
@@ -184,7 +182,7 @@ const updatePref = async (key: keyof typeof prefs, value: boolean) => {
           just from being shown.
         </p>
         <div className="mt-2 divide-y divide-border/60">
-                      <ToggleRow
+          <ToggleRow
             icon={UserPlus}
             label="New leads"
             description="Notify me the moment a new lead comes in."
