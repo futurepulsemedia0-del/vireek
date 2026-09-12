@@ -9,6 +9,7 @@ import { groqAdapter } from "./providers/groq.ts";
 import { cerebrasAdapter } from "./providers/cerebras.ts";
 import { cloudflareAdapter } from "./providers/cloudflare.ts";
 import { openrouterAdapter } from "./providers/openrouter.ts";
+import { anthropicAdapter } from "./providers/anthropic.ts";
 
 export const ALL_ADAPTERS: Record<ProviderId, ProviderAdapter> = {
   gemini: geminiAdapter,
@@ -16,6 +17,7 @@ export const ALL_ADAPTERS: Record<ProviderId, ProviderAdapter> = {
   cerebras: cerebrasAdapter,
   cloudflare: cloudflareAdapter,
   openrouter: openrouterAdapter,
+  anthropic: anthropicAdapter,
 };
 
 // Gemini -> Groq -> Cerebras -> Cloudflare -> OpenRouter, exactly as required.
