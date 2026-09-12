@@ -1,8 +1,14 @@
 // supabase/functions/_shared/ai-core/providers/anthropic.ts
 //
-// Anthropic adapter — wraps the exact same API call your edge functions
-// already made directly, just behind the common ProviderAdapter interface.
-// No behavior change versus the original demo-chat/ai-assistant-query code.
+// Anthropic adapter — same shape and conventions as the other providers
+// in this folder (gemini.ts, groq.ts, cerebras.ts, openrouter.ts).
+// Required secret: ANTHROPIC_API_KEY
+// Optional secret: ANTHROPIC_MODEL
+//
+// Not wired into any TASK_ROUTES chain by default (see registry.ts) — it
+// is registered in ALL_ADAPTERS so it type-checks and can be called
+// directly or added to a chain, but it won't change existing routing
+// behavior until it's explicitly added to a route.
 
 import type {
   ProviderAdapter,
@@ -22,19 +28,8 @@ function getModel(): string {
   return Deno.env.get("ANTHROPIC_MODEL") || DEFAULT_MODEL;
 }
 
-async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ms);
-  try {
-    return await promise;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 export const anthropicAdapter: ProviderAdapter = {
   id: "anthropic",
-  capabilities: ["chat", "json"],
 
   isConfigured(): boolean {
     return !!getApiKey();
@@ -52,6 +47,13 @@ export const anthropicAdapter: ProviderAdapter = {
     const timeoutMs = req.timeoutMs ?? 12_000;
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+    // The Messages API has no `response_format` knob like the OpenAI-style
+    // providers. The closest equivalent is instructing it in the system
+    // prompt and nudging the model with a strict rule.
+    const system = req.jsonMode
+      ? `${req.system}\n\nRespond with ONLY a single valid JSON object. No prose, no markdown code fences, no explanation before or after it.`
+      : req.system;
+
     let res: Response;
     try {
       res = await fetch(API_URL, {
@@ -65,7 +67,8 @@ export const anthropicAdapter: ProviderAdapter = {
         body: JSON.stringify({
           model,
           max_tokens: req.maxTokens,
-          system: req.system,
+          temperature: req.temperature ?? 0.7,
+          system,
           messages: req.messages,
         }),
       });
@@ -84,6 +87,11 @@ export const anthropicAdapter: ProviderAdapter = {
     if (res.status === 429) {
       throw new AiCoreError("RATE_LIMIT", "Anthropic rate limit hit.", "anthropic");
     }
+    if (res.status === 529) {
+      // Anthropic-specific "overloaded_error" — transient, same treatment
+      // as a rate limit so the router's retry/fallback logic kicks in.
+      throw new AiCoreError("RATE_LIMIT", "Anthropic is temporarily overloaded.", "anthropic");
+    }
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw new AiCoreError("PROVIDER_ERROR", `Anthropic ${res.status}: ${text.slice(0, 300)}`, "anthropic");
@@ -97,7 +105,8 @@ export const anthropicAdapter: ProviderAdapter = {
       .trim();
 
     if (!text) {
-      throw new AiCoreError("INVALID_RESPONSE", "Anthropic returned no text content.", "anthropic");
+      const stopReason = data?.stop_reason ? ` (stop_reason: ${data.stop_reason})` : "";
+      throw new AiCoreError("INVALID_RESPONSE", `Anthropic returned no text content${stopReason}.`, "anthropic");
     }
 
     return {
