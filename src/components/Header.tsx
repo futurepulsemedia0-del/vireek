@@ -77,7 +77,7 @@ const NAV_LABEL_TO_KEY: Record<string, string> = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Desktop nav link with dropdown                                     */
+/*  Desktop nav link with dropdown + shared sliding active indicator   */
 /* ------------------------------------------------------------------ */
 
 function DesktopNavLink({ link, isActive }: { link: { label: string; href: string }; isActive: boolean }) {
@@ -111,20 +111,24 @@ function DesktopNavLink({ link, isActive }: { link: { label: string; href: strin
           className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       )}
-      <span
-        className={`absolute -bottom-0.5 left-0 h-px bg-accent transition-all duration-200 ease-out ${
-          isActive || open
-            ? 'w-full'
-            : 'w-0 group-hover:w-full'
-        }`}
-      />
+      {/* Active route: a single shared indicator that slides between links via layoutId.
+          Non-active: instant hover underline, no shared layout animation. */}
+      {isActive ? (
+        <motion.span
+          layoutId="header-active-underline"
+          transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+          className="absolute -bottom-0.5 left-0 h-px w-full bg-accent"
+        />
+      ) : (
+        <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-accent transition-all duration-200 ease-out group-hover:w-full" />
+      )}
     </span>
   );
 
   return (
     <div className="relative" onMouseEnter={onEnter} onMouseLeave={onLeave}>
       {isRoute ? (
-        <Link to={link.href} className={linkClass}>
+        <Link to={link.href} className={linkClass} aria-current={isActive ? 'page' : undefined}>
           {inner}
         </Link>
       ) : (
@@ -291,7 +295,11 @@ export function Header() {
             }`}
           >
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5" aria-label="Vireek home">
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 transition-transform duration-200 ease-out hover:scale-[1.02]"
+              aria-label="Vireek home"
+            >
               <Logo />
               <span className="text-base font-bold tracking-tight text-text-primary">Vireek</span>
             </Link>
@@ -317,19 +325,17 @@ export function Header() {
                 <LogIn size={15} />
                 {t('cta.login')}
               </Link>
-              <Link to="/login" className="hidden md:block">
-                <button
-                  type="button"
-                  className="focus-ring group relative flex h-9 items-center gap-1.5 overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-glow-accent active:scale-[0.97]"
-                >
-                  <span className="relative z-10">{t('cta.startFreeTrial')}</span>
-                  <ArrowRight
-                    size={15}
-                    className="relative z-10 transition-transform duration-200 group-hover:translate-x-0.5"
-                  />
-                  {/* Shimmer on hover */}
-                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
-                </button>
+              <Link
+                to="/login"
+                className="focus-ring group relative hidden h-9 items-center gap-1.5 overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-glow-accent active:scale-[0.97] md:flex"
+              >
+                <span className="relative z-10">{t('cta.startFreeTrial')}</span>
+                <ArrowRight
+                  size={15}
+                  className="relative z-10 transition-transform duration-200 group-hover:translate-x-0.5"
+                />
+                {/* Shimmer on hover */}
+                <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
               </Link>
 
               {/* Hamburger */}
@@ -395,7 +401,12 @@ export function Header() {
                       transition={{ delay: 0.08 + i * 0.05, duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                     >
                       {isRoute ? (
-                        <Link to={link.href} onClick={() => setDrawerOpen(false)} className={className}>
+                        <Link
+                          to={link.href}
+                          onClick={() => setDrawerOpen(false)}
+                          className={className}
+                          aria-current={active ? 'page' : undefined}
+                        >
                           {label}
                           {dropdown && <ChevronDown size={16} className="rotate-0" />}
                         </Link>
