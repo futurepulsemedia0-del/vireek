@@ -58,6 +58,7 @@ const FOOTER_COLUMNS = [
       { label: 'Platform', href: '/platform' },
       { label: 'Pricing', href: '/pricing' },
       { label: 'Compare', href: '/compare' },
+      { label: 'Full Feature Matrix', href: '/compare/matrix' },
       { label: 'vs ServiceTitan', href: '/compare/servicetitan' },
       { label: 'vs Housecall Pro', href: '/compare/housecall-pro' },
       { label: 'vs Jobber', href: '/compare/jobber' },
