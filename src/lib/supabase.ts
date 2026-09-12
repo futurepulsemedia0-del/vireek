@@ -118,6 +118,31 @@ export interface OutboundCall {
   outcome_notes: string | null;
   created_at: string;
 }
+export interface MembershipPlan {
+  id: string;
+  user_id: string;
+  name: string;
+  price_cents: number;
+  billing_interval: 'monthly' | 'yearly';
+  benefits: string[];
+  active: boolean;
+  created_at: string;
+}
+
+export interface Membership {
+  id: string;
+  user_id: string;
+  plan_id: string | null;
+  lead_id: string | null;
+  job_id: string | null;
+  customer_name: string;
+  customer_phone: string | null;
+  status: 'offered' | 'active' | 'cancelled';
+  offered_at: string;
+  started_at: string | null;
+  cancelled_at: string | null;
+  created_at: string;
+}
 export interface BusinessProfileHoliday {
   id: string;
   date: string;
