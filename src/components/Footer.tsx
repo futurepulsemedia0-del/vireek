@@ -4,6 +4,7 @@ import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, L
 import { Link } from 'react-router-dom';
 import { SARAH_PHONE } from '@/lib/site';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 // Sarah's number, formatted for display next to the tel: link.
 // (Same number as SARAH_PHONE — already public elsewhere on the site.)
@@ -452,14 +453,19 @@ export function Footer() {
 
         {/* Trust + utility row — real, working features only: Stripe is an
             actual payment integration (see src/lib/integrations.ts /
-            BillingPage.tsx), and CurrencySwitcher is the same live control
-            already used on the Pricing page (backed by CurrencyContext). */}
+            BillingPage.tsx), CurrencySwitcher is the same live control
+            already used on the Pricing page (backed by CurrencyContext),
+            and LanguageSwitcher (moved here from Header.tsx) is the same
+            live control already used site-wide (backed by i18next). */}
         <div className="mt-10 flex flex-col items-center gap-4 sm:mt-12 sm:flex-row sm:justify-between">
           <span className="flex items-center gap-2 text-xs font-medium text-text-secondary/70">
             <CreditCard className="h-4 w-4 text-text-secondary/50" />
             Secure payments powered by Stripe
           </span>
-          <CurrencySwitcher className="!px-3 !py-1.5 !text-xs" />
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher className="!px-3 !py-1.5 !text-xs" />
+            <CurrencySwitcher className="!px-3 !py-1.5 !text-xs" />
+          </div>
         </div>
 
         {/* Bottom bar */}
