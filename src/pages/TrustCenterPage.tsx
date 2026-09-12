@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-  ShieldCheck, Lock, Database, UserCog, FileText, Activity,
+  ShieldCheck, Lock, Database, UserCog, FileText, Activity, Globe,
   ArrowRight, ExternalLink, type LucideIcon,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -169,7 +169,35 @@ export function TrustCenterPage() {
             </div>
           </div>
         </section>
-
+                {/* Data location */}
+        <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark sm:p-8"
+            >
+              <div className="flex items-start gap-3">
+                <Globe className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+                <div>
+                  <h3 className="text-base font-semibold text-text-primary">Where your data is stored</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                    Vireek runs on cloud infrastructure hosted in the United States today &mdash; see our{' '}
+                    <Link to="/subprocessors" className="font-semibold text-accent hover:underline">
+                      sub-processor list
+                    </Link>{' '}
+                    for the specific providers behind that. We don&rsquo;t currently offer EU-region data
+                    residency. If that&rsquo;s a hard requirement for your business, tell us on a call and
+                    we&rsquo;ll give you a straight answer on timeline and options rather than a vague
+                    &ldquo;coming soon.&rdquo;
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
         {/* Compliance status */}
         <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-4xl">
