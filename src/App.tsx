@@ -75,6 +75,7 @@ const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ 
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
 const AccessibilityConformancePage = lazy(() => import('@/pages/AccessibilityConformancePage').then((m) => ({ default: m.AccessibilityConformancePage })));
 const CareersPage = lazy(() => import('@/pages/CareersPage').then((m) => ({ default: m.CareersPage })));
+const CulturePage = lazy(() => import('@/pages/CulturePage').then((m) => ({ default: m.CulturePage })));
 const PressPage = lazy(() => import('@/pages/PressPage').then((m) => ({ default: m.PressPage })));
 const BrandGuidelinesPage = lazy(() => import('@/pages/BrandGuidelinesPage').then((m) => ({ default: m.BrandGuidelinesPage })));
 const PartnersPage = lazy(() => import('@/pages/PartnersPage').then((m) => ({ default: m.PartnersPage })));
@@ -171,6 +172,7 @@ function App() {
         <Route path="/accessibility" element={<AccessibilityPage />} />
         <Route path="/accessibility/conformance" element={<AccessibilityConformancePage />} />
         <Route path="/careers" element={<CareersPage />} />
+        <Route path="/culture" element={<CulturePage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/brand" element={<BrandGuidelinesPage />} />
         <Route path="/partners" element={<PartnersPage />} />
