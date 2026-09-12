@@ -125,7 +125,7 @@ function VoicemailCard({
   call: Call;
   onMarkListened: (call: Call) => void;
 }) {
-  const listened = Boolean((call as any).voicemail_listened_at);
+  const listened = Boolean(call.voicemail_listened_at);
 
   return (
     <div
@@ -198,7 +198,7 @@ function VoicemailCard({
 
 export function VoicemailsPage() {
   const { user } = useAuth();
-  const { showToast } = useToast();
+  const { toast } = useToast();
   const [voicemails, setVoicemails] = useState<Call[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unheard'>('all');
@@ -212,12 +212,12 @@ export function VoicemailsPage() {
       .order('call_datetime', { ascending: false });
 
     if (error) {
-      showToast('Failed to load voicemails', 'error');
+      toast('Failed to load voicemails', 'error');
     } else {
       setVoicemails((data as Call[]) || []);
     }
     setLoading(false);
-  }, [showToast]);
+  }, [toast]);
 
   useEffect(() => {
     if (user) fetchVoicemails();
@@ -230,7 +230,7 @@ export function VoicemailsPage() {
       .eq('id', call.id);
 
     if (error) {
-      showToast('Could not update voicemail', 'error');
+      toast('Could not update voicemail', 'error');
       return;
     }
     setVoicemails((prev) =>
@@ -241,9 +241,9 @@ export function VoicemailsPage() {
   };
 
   const filtered = voicemails.filter((v) =>
-    filter === 'unheard' ? !(v as any).voicemail_listened_at : true
+    filter === 'unheard' ? !v.voicemail_listened_at : true
   );
-  const unheardCount = voicemails.filter((v) => !(v as any).voicemail_listened_at).length;
+  const unheardCount = voicemails.filter((v) => !v.voicemail_listened_at).length;
 
   return (
     <DashboardLayout>
