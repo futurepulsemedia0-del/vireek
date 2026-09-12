@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, Calendar, Clock, Search, Sparkles } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, Rss, Search, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -137,6 +136,14 @@ export function BlogPage() {
                   Practical guides on missed-call revenue, call scripts, dispatch, and security — written for
                   contractors, not marketers.
                 </p>
+                                
+                  href="/blog-rss.xml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="focus-ring mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-accent"
+                >
+                  <Rss className="h-3.5 w-3.5" /> RSS feed
+                </a>
 
                 {/* Search */}
                 <div className="mx-auto mt-10 max-w-2xl">
