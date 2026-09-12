@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowRight, Calendar, Clock, Rss, Search, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
@@ -136,7 +137,7 @@ export function BlogPage() {
                   Practical guides on missed-call revenue, call scripts, dispatch, and security — written for
                   contractors, not marketers.
                 </p>
-                                
+                <a
                   href="/blog-rss.xml"
                   target="_blank"
                   rel="noopener noreferrer"
