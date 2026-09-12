@@ -178,7 +178,7 @@ function buildEnterpriseMailto(): string {
 
 export function getPlanHref(planId: PlanId, billing: BillingCycle): string {
   if (planId === 'free') return '/login';
-  if (planId === 'enterprise') return buildEnterpriseMailto();
+    if (planId === 'enterprise') return '/enterprise';
   return STRIPE_CHECKOUT_LINKS[planId]?.[billing] ?? '/login';
 }
 
@@ -187,7 +187,7 @@ export function getPlanHref(planId: PlanId, billing: BillingCycle): string {
  * so it must render as a plain <a>, not React Router's <Link>.
  */
 export function isExternalLink(planId: PlanId): boolean {
-  return planId !== 'free';
+  return planId !== 'free' && planId !== 'enterprise';
 }
 
 export interface CompareRow {
