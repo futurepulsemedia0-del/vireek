@@ -306,6 +306,18 @@
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
+    <url>
+    <loc>https://vireek.com/dpa</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://vireek.com/subprocessors</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
   <url>
     <loc>https://vireek.com/ai-receptionist-vs-human-receptionist</loc>
     <lastmod>2026-09-08</lastmod>
