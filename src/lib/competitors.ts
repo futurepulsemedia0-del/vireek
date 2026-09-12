@@ -1,4 +1,4 @@
-import { Building2, Wrench, ClipboardList, Bot, Headset, Zap, UserCheck, MessageSquare, Car, PhoneCall, Sparkles, type LucideIcon } from 'lucide-react';
+import { Building2, Wrench, ClipboardList, Bot, Headset, Zap, UserCheck, MessageSquare, Car, PhoneCall, Sparkles, Bug, Settings, Mic, type LucideIcon } from 'lucide-react';
 
 export interface CompetitorFAQ {
   q: string;
@@ -512,9 +512,126 @@ export const COMPETITORS: Competitor[] = [
         q: 'How do I know which AI answering service actually fits my trade?',
         a: 'The most reliable way is testing on your own calls. Start a free trial and let Vireek answer your real calls for a week — you’ll see exactly how many get answered, triaged, and booked for your specific trade before committing to anything.',
       },
+        {
+    slug: 'fieldroutes',
+    name: 'FieldRoutes',
+    icon: Bug,
+    category: 'Route-based field service software built for pest control companies',
+    seoTitle: 'Vireek vs FieldRoutes: AI Phone Receptionist vs Pest Control Route Software | Vireek',
+    seoDescription:
+      'FieldRoutes is route and billing software built for pest control companies. Vireek is an AI voice receptionist that answers and books every call, 24/7. See how they compare — and how they work together.',
+    summary:
+      'FieldRoutes (formerly PestRoutes), part of the ServiceTitan family of companies, is cloud-based field service software built specifically for pest control, lawn, and pool service businesses — focused on route optimization, recurring service scheduling, billing, and CRM for office and field teams.',
+    builtFor:
+      'Pest control and other recurring-service businesses that need route optimization, recurring billing, and office/field coordination at scale.',
+    isVoiceAICompetitor: false,
+    featureRows: [
+      { feature: 'Answers and holds a live phone conversation, 24/7', vireek: 'yes', competitor: 'no' },
+      { feature: 'Books appointments directly from the call itself', vireek: 'yes', competitor: 'no' },
+      { feature: 'Flags pest-related emergencies (bed bugs, wasp nests, rodents) from what the caller says', vireek: 'yes', competitor: 'no' },
+      { feature: 'Route optimization for recurring pest control visits', vireek: 'no', competitor: 'yes' },
+      { feature: 'Recurring billing and service-agreement management', vireek: 'no', competitor: 'yes' },
+      { feature: 'Built around a single trade’s specific call vocabulary and triage', vireek: 'yes', competitor: 'no' },
+    ],
+    worksWellTogether:
+      'FieldRoutes is purpose-built for routing and billing recurring pest control visits — it isn’t built to answer the phone. Vireek is built to make sure every inbound call gets answered and booked, then that job can flow into whatever route and billing system, FieldRoutes included, the business already runs.',
+    faq: [
+      {
+        q: 'Is Vireek a replacement for FieldRoutes?',
+        a: 'No. FieldRoutes handles route optimization, recurring billing, and service agreements once a pest control job exists. Vireek focuses on the call itself — answering it, understanding what the caller needs, and booking the appointment. Most pest control businesses would use Vireek to catch calls and FieldRoutes to run routes and billing.',
+      },
+      {
+        q: 'Does FieldRoutes already answer calls with AI?',
+        a: 'FieldRoutes is built around managing routes, billing, and customer records for pest control companies. It doesn’t include a built-in AI voice receptionist that answers and holds a live conversation with a caller the way Vireek does.',
+      },
+      {
+        q: 'Why would a pest control business look at Vireek instead of FieldRoutes?',
+        a: 'They usually aren’t choosing one over the other — FieldRoutes solves routing and billing, Vireek solves the phone call. Businesses typically add Vireek because calls are going to voicemail nights, weekends, or when techs are on-site, not because they want to replace their route and billing software.',
+      },
+    ],
+  },
+  {
+    slug: 'service-fusion',
+    name: 'Service Fusion',
+    icon: Settings,
+    category: 'All-in-one field service management software for HVAC, plumbing, electrical & more',
+    seoTitle: 'Vireek vs Service Fusion: AI Voice Receptionist vs Field Service Software | Vireek',
+    seoDescription:
+      'Service Fusion is field service management software for scheduling, dispatch, invoicing, and GPS fleet tracking. Vireek is an AI voice receptionist that answers and books every call, 24/7. Compare what each one actually does.',
+    summary:
+      'Service Fusion is all-in-one field service management software covering scheduling, dispatch, invoicing, and GPS fleet tracking for trades like HVAC, plumbing, electrical, garage door, and appliance repair — typically priced per company rather than per technician.',
+    builtFor:
+      'Small-to-mid-size trade businesses that want one system for scheduling, dispatch, invoicing, and fleet tracking without per-technician licensing.',
+    isVoiceAICompetitor: false,
+    featureRows: [
+      { feature: 'Answers and holds a live phone conversation, 24/7', vireek: 'yes', competitor: 'no' },
+      { feature: 'Books appointments directly from the call itself', vireek: 'yes', competitor: 'no' },
+      { feature: 'Flags emergencies from what the caller says', vireek: 'yes', competitor: 'no' },
+      { feature: 'Scheduling, dispatch, invoicing, and GPS fleet tracking', vireek: 'partial', competitor: 'yes' },
+      { feature: 'Pricing scales per company rather than per technician', vireek: 'yes', competitor: 'yes' },
+      { feature: 'Built specifically around handling the trades’ phone calls', vireek: 'yes', competitor: 'no' },
+    ],
+    worksWellTogether:
+      'Service Fusion runs the back office — dispatch, invoicing, fleet tracking. Vireek covers what happens before any of that: making sure the phone actually gets answered and the job gets booked, then feeding that straight into whatever system, Service Fusion included, handles the job afterward.',
+    faq: [
+      {
+        q: 'Is Vireek a replacement for Service Fusion?',
+        a: 'No. Service Fusion manages dispatch, invoicing, and fleet tracking once a job exists. Vireek is focused on the phone call itself — answering it, triaging it, and booking it. Many businesses use both together.',
+      },
+      {
+        q: 'Does Service Fusion already answer calls automatically?',
+        a: 'Service Fusion is built around managing jobs, dispatch, and invoicing once a call has already turned into a lead or booking. It does not include a built-in AI voice receptionist that answers and holds a live conversation with a caller the way Vireek does.',
+      },
+      {
+        q: 'Why would a business look at Vireek instead of Service Fusion?',
+        a: 'They usually aren’t mutually exclusive — Service Fusion runs day-to-day operations, Vireek makes sure the phone gets answered and the job gets booked in the first place, especially after hours or when the crew is on-site.',
+      },
+    ],
+  },
+  {
+    slug: 'workiz',
+    name: 'Workiz',
+    icon: Mic,
+    category: 'Field service management platform with a built-in AI answering add-on',
+    seoTitle: 'Vireek vs Workiz: Dedicated AI Receptionist vs FSM Platform with an AI Add-On | Vireek',
+    seoDescription:
+      'Workiz is field service management software that also offers an AI call-answering add-on called Genius Answering. Vireek is a dedicated AI voice receptionist built around home-service trades. See how the two actually compare.',
+    summary:
+      'Workiz is a field service management platform — scheduling, dispatch, invoicing, and communications — that also sells an AI call-answering add-on called Genius Answering (voiced by an assistant named "Jessica") on top of its FSM suite.',
+    builtFor:
+      'Field service businesses that want one bundled platform for jobs, billing, and communications, with AI answering as an add-on inside that same system.',
+    isVoiceAICompetitor: true,
+    positioning: [
+      {
+        title: 'Focus',
+        body: 'Workiz’s Genius Answering is an add-on feature inside a broader FSM platform — it lives alongside dispatch, invoicing, and messaging tools. Vireek is a dedicated AI voice receptionist first: answering, triaging, and booking the call is the entire product, built specifically around home-service trade language and emergencies.',
+      },
+      {
+        title: 'Adoption model',
+        body: 'Workiz’s AI answering is one module inside a full field-service suite, so trying it typically means adopting (or already running) the wider Workiz platform. Vireek is built to answer calls and sync into whatever field-service or CRM tool a business already runs, without requiring a platform switch.',
+      },
+      {
+        title: 'Who each one fits best',
+        body: 'A business that wants to run its entire operation — jobs, invoicing, communications, and call answering — inside one Workiz account may prefer having it bundled. A business that wants a focused AI receptionist purpose-built for trade calls, that plugs into whatever tools it already uses, is what Vireek is built to be.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Does Workiz already have an AI phone receptionist?',
+        a: 'Yes — Workiz offers an AI call-answering add-on called Genius Answering (branded as an assistant named "Jessica") inside its field service management platform. It’s a genuine AI voice answering feature, not just scheduling software, so this comparison is between two AI receptionists rather than an AI receptionist versus plain FSM software.',
+      },
+      {
+        q: 'What’s the real difference between Vireek and Workiz’s Genius Answering?',
+        a: 'The core difference is scope. Genius Answering is a module inside Workiz’s broader FSM platform. Vireek is a standalone AI receptionist built specifically to answer, triage, and book home-service calls, designed to sync into whatever field-service or CRM system a business already runs rather than requiring that business to run its entire operation on one platform.',
+      },
+      {
+        q: 'Do I need to switch my whole field-service system to use Vireek?',
+        a: 'No. Vireek is built to plug into the scheduling and CRM tools a business already uses. If a business is already fully on Workiz and wants everything in one account, Genius Answering may be the simpler add-on. If a business wants a dedicated receptionist without changing its existing field-service software, Vireek is built for that.',
+      },
     ],
   },
 ];
+
 
 export function getCompetitorBySlug(slug?: string): Competitor | undefined {
   if (!slug) return undefined;
