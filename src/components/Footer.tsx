@@ -1,3 +1,5 @@
+
+
 import { useState, useRef, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, Loader2, ShieldCheck, Sparkles, CreditCard } from 'lucide-react';
@@ -110,6 +112,8 @@ const FOOTER_COLUMNS = [
       { label: 'AI vs Human Receptionist', href: '/ai-receptionist-vs-human-receptionist' },
       { label: 'Status', href: '/status' },
       { label: 'Changelog', href: '/changelog' },
+      { label: 'Webinars & Events', href: '/webinars' },
+      { label: 'Customer ROI', href: '/roi' },
     ],
   },
   {
@@ -127,6 +131,7 @@ const FOOTER_COLUMNS = [
       { label: 'Press', href: '/press' },
       { label: 'Partners', href: '/partners' },
       { label: 'Affiliate Program', href: '/affiliate' },
+      { label: 'Referral Program', href: '/referral' },
       { label: 'Contact', href: '/contact' },
     ],
   },
