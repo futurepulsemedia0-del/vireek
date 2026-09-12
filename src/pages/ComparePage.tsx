@@ -128,7 +128,7 @@ export function ComparePage() {
           </div>
         </section>
 
-        {/* Compare Vireek to specific tools */}
+                {/* Compare Vireek to specific tools */}
         <section className="px-6 py-20 sm:py-24">
           <div className="mx-auto max-w-5xl">
             <motion.div
@@ -138,13 +138,17 @@ export function ComparePage() {
               transition={{ duration: 0.5, ease: EASE }}
               className="mx-auto max-w-2xl text-center"
             >
-              <p className={`${eyebrowClass()} text-center`}>Head to Head</p>
+              <p className={eyebrowClass()}>Head to Head</p>
               <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>
                 Compare Vireek to specific tools
               </h2>
               <p className={`${bodyClass()} mx-auto text-center`}>
                 A closer look at how Vireek stacks up against the platforms home-service businesses
-                consider most often.
+                consider most often &mdash; or see{' '}
+                <Link to="/compare/matrix" className="font-semibold text-accent hover:underline">
+                  every option in one full feature matrix
+                </Link>
+                .
               </p>
             </motion.div>
 
