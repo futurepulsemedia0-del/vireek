@@ -239,7 +239,7 @@ export const COMPETITORS: Competitor[] = [
     positioning: [
       {
         title: 'Focus',
-        body: 'Avoca spans inbound calls, outbound campaigns, and CSR coaching in one enterprise platform. Vireek focuses specifically on answering, triaging, and booking the inbound call well, with less to configure to get started.',
+        body: 'Avoca spans inbound calls, large-scale outbound campaigns, and CSR coaching in one enterprise platform. Vireek answers, triages, and books the inbound call — and can also call back on unconverted quotes, appointment reminders, and review requests — with far less to configure to get started.'
       },
       {
         title: 'Setup and footprint',
@@ -247,7 +247,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         title: 'Who each one fits best',
-        body: 'If you need outbound campaigns and CSR performance coaching across many locations, Avoca is built for that scale. If you mainly need every inbound call answered, triaged, and booked well — without a large platform commitment — that\u2019s the problem Vireek is built to solve first.',
+        body: 'If you need CSR performance coaching and outbound campaigns at large, multi-location scale, Avoca is built for that. If you want every inbound call answered, triaged, and booked — plus simple outbound follow-up on quotes, reminders, and reviews — without a large platform commitment, that\u2019s what Vireek is built to solve first.'
       },
     ],
     faq: [
