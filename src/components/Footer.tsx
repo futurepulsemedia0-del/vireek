@@ -130,7 +130,13 @@ const FOOTER_COLUMNS = [
       { label: 'Terms', href: '/terms' },
       { label: 'Cookie Policy', href: '/cookies' },
       { label: 'DPA', href: '/dpa' },
+      { label: 'GDPR Addendum', href: '/gdpr-dpa' },
       { label: 'Sub-processors', href: '/subprocessors' },
+      { label: 'Refund Policy', href: '/refund-policy' },
+      { label: 'SLA', href: '/sla' },
+      { label: 'Acceptable Use', href: '/acceptable-use-policy' },
+      { label: 'Vulnerability Disclosure', href: '/vulnerability-disclosure' },
+      { label: 'CCPA Rights', href: '/ccpa' },
     ],
   },
 ];
