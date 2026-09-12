@@ -53,6 +53,7 @@ const FOOTER_COLUMNS = [
       { label: 'Features', href: '/features' },
       { label: 'AI Lead Qualification', href: '/features/lead-qualification' },
       { label: 'SMS Text-Back', href: '/features/sms-text-back' },
+      { label: 'WhatsApp & Instagram DMs', href: '/features/whatsapp-instagram-dm' },
       { label: 'Live Escalation', href: '/features/live-escalation' },
       { label: 'Platform', href: '/platform' },
       { label: 'Pricing', href: '/pricing' },
