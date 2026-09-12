@@ -73,6 +73,10 @@ const RESOURCES = [
   { label: 'Data Processing Agreement', description: 'Our standard DPA for enterprise procurement.', href: '/dpa' },
   { label: 'Sub-processor List', description: 'Every third party that touches your data.', href: '/subprocessors' },
   { label: 'System Status', description: 'Live uptime and incident history.', href: '/status' },
+  { label: 'Service Level Agreement', description: 'Our uptime commitment and service credits.', href: '/sla' },
+  { label: 'Acceptable Use Policy', description: 'Rules for lawful use of the platform.', href: '/acceptable-use-policy' },
+  { label: 'Vulnerability Disclosure', description: 'How to report a security issue.', href: '/vulnerability-disclosure' },
+  { label: 'Refund & Cancellation Policy', description: 'How billing and cancellation work.', href: '/refund-policy' },
 ];
 
 export function TrustCenterPage() {
