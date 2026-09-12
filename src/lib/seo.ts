@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { useAccessibility } from '@/contexts/AccessibilityContext';
+import type { LanguageCode } from '@/lib/i18n';
 
 export interface SEOConfig {
   title: string;
@@ -11,6 +13,26 @@ export interface SEOConfig {
 
 const SITE_NAME = 'Vireek';
 const DEFAULT_OG_IMAGE = 'https://vireek.com/og-image.png';
+
+/**
+ * Open Graph locale codes for each of the 9 UI languages Vireek supports.
+ * og:locale tells crawlers, social platforms, and link-preview bots which
+ * language the current render is in; og:locale:alternate advertises that
+ * the same URL is also available in the other supported languages. This
+ * matters even though language-switching is client-side (no separate
+ * URL per locale) — without it, every share/crawl defaults to en_US.
+ */
+const OG_LOCALE_MAP: Record<LanguageCode, string> = {
+  en: 'en_US',
+  es: 'es_ES',
+  zh: 'zh_CN',
+  hi: 'hi_IN',
+  fr: 'fr_FR',
+  de: 'de_DE',
+  ar: 'ar_AR',
+  fa: 'fa_IR',
+  ja: 'ja_JP',
+};
 
 function upsertMeta(selector: string, attr: 'name' | 'property', key: string, content: string): () => void {
   let el = document.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
@@ -44,8 +66,11 @@ function upsertLink(rel: string, href: string): () => void {
 
 /** Page-specific SEO metadata for the SPA. Restores previous values on unmount. */
 export function useSEO({ title, description, canonical, type = 'website' }: SEOConfig) {
+  const { language } = useAccessibility();
+
   useEffect(() => {
     const previousTitle = document.title;
+    const currentLocale = OG_LOCALE_MAP[language] ?? 'en_US';
 
     document.title = title;
 
@@ -59,15 +84,30 @@ export function useSEO({ title, description, canonical, type = 'website' }: SEOC
       upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonical),
       upsertMeta('meta[property="og:site_name"]', 'property', 'og:site_name', SITE_NAME),
       upsertMeta('meta[property="og:image"]', 'property', 'og:image', DEFAULT_OG_IMAGE),
+      upsertMeta('meta[property="og:locale"]', 'property', 'og:locale', currentLocale),
       upsertMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image'),
       upsertMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title),
       upsertMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description),
       upsertMeta('meta[name="twitter:image"]', 'name', 'twitter:image', DEFAULT_OG_IMAGE),
     ];
 
+    // og:locale:alternate needs one <meta> tag PER other language, so it
+    // can't reuse upsertMeta (which assumes one tag per property). Create
+    // them directly and remove them on cleanup/re-run.
+    const alternateEls = (Object.values(OG_LOCALE_MAP) as string[])
+      .filter((loc) => loc !== currentLocale)
+      .map((loc) => {
+        const el = document.createElement('meta');
+        el.setAttribute('property', 'og:locale:alternate');
+        el.setAttribute('content', loc);
+        document.head.appendChild(el);
+        return el;
+      });
+
     return () => {
       document.title = previousTitle;
       cleanups.forEach((fn) => fn());
+      alternateEls.forEach((el) => el.remove());
     };
-  }, [title, description, canonical, type]);
+  }, [title, description, canonical, type, language]);
 }
