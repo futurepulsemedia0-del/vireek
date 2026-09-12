@@ -20,6 +20,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
+import { useLiveStatus } from '@/hooks/useLiveStatus';
 
 // ============================================================
 // CONTENT — edit this file directly to update the status page
@@ -188,13 +189,28 @@ const OVERALL_BANNER_COPY: Record<SystemStatus, string> = {
 };
 
 export function StatusPage() {
-  const overall = useMemo(() => overallStatus(SYSTEMS), []);
+  const live = useLiveStatus();
+
+  const effectiveSystems = useMemo(
+    () =>
+      SYSTEMS.map((s) => ({
+        ...s,
+        status: live.isLive && live.componentStatus[s.name] ? live.componentStatus[s.name] : s.status,
+      })),
+    [live.isLive, live.componentStatus]
+  );
+
+  const overall = useMemo(() => overallStatus(effectiveSystems), [effectiveSystems]);
   const overallMeta = STATUS_META[overall];
 
   const uptimePercent = useMemo(() => {
+    if (live.isLive && live.uptimePercent !== null) return live.uptimePercent.toFixed(2);
     const operationalDays = UPTIME_HISTORY.filter((d) => d === 'operational').length;
     return ((operationalDays / UPTIME_HISTORY.length) * 100).toFixed(2);
-  }, []);
+  }, [live.isLive, live.uptimePercent]);
+
+  const effectiveIncidents = live.isLive && live.incidents.length > 0 ? live.incidents : INCIDENTS;
+  const effectiveLastUpdated = live.isLive && live.lastUpdated ? live.lastUpdated : LAST_UPDATED;
 
   return (
     <>
