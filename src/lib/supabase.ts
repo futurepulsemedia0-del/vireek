@@ -196,6 +196,10 @@ export interface TeamMember {
   };
   invite_status: 'pending' | 'active';
   last_invited_at: string | null;
+  skills: string[];
+  service_area: string | null;
+  max_jobs_per_day: number;
+  dispatch_enabled: boolean;
   created_at: string;
 }
 
