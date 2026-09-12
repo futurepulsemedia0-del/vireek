@@ -4,7 +4,7 @@
 // provider-specific code. Every other ai-core file imports ONLY from
 // this file for cross-module types.
 
-export type ProviderId = "gemini" | "groq" | "cerebras" | "cloudflare" | "openrouter";
+export type ProviderId = "gemini" | "groq" | "cerebras" | "cloudflare" | "openrouter" | "anthropic";
 
 export type TaskType = "demo_chat" | "intent_classify" | "dashboard_answer" | "general";
 
