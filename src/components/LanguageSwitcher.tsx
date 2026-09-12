@@ -17,9 +17,10 @@ import { LANGUAGES, type LanguageCode } from '@/lib/i18n';
 
 interface LanguageSwitcherProps {
   variant?: 'header' | 'footer';
+  className?: string;
 }
 
-export function LanguageSwitcher({ variant = 'header' }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ variant = 'header', className = '' }: LanguageSwitcherProps) {
   const { t } = useTranslation();
   const { language, setLanguage } = useAccessibility();
   const [open, setOpen] = useState(false);
@@ -48,7 +49,7 @@ export function LanguageSwitcher({ variant = 'header' }: LanguageSwitcherProps) 
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t('language.switchLanguage')}
-        className="focus-ring flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[0.8125rem] font-medium text-text-secondary transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary"
+        className={`focus-ring flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[0.8125rem] font-medium text-text-secondary transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary ${className}`}
         data-variant={variant}
       >
         <Globe className="h-4 w-4" aria-hidden="true" />
