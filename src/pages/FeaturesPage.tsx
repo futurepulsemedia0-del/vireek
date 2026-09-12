@@ -4,6 +4,7 @@ import {
   ShieldCheck,
   PhoneCall,
   Brain,
+PhoneForwarded,
   UserPlus,
   CalendarClock,
   MessageSquareText,
@@ -48,6 +49,7 @@ const CATEGORIES: Category[] = [
       { icon: Brain, title: 'Intent Detection', body: 'Sarah detects what the caller needs and routes the conversation accordingly.' },
     ],
   },
+        { icon: PhoneForwarded, title: 'Live Escalation', body: 'Sarah brings a real team member into a call — warm transfer with full context, or live barge-in.', href: '/features/live-escalation' },
   {
     icon: UserPlus,
     label: 'Lead Management',
