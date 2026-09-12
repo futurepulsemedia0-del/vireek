@@ -70,6 +70,8 @@ const RESOURCES = [
   { label: 'Privacy Policy', description: 'What we collect and why.', href: '/privacy' },
   { label: 'Terms of Service', description: 'The legal terms of using Vireek.', href: '/terms' },
   { label: 'Cookie Policy', description: 'How cookies are used on this site.', href: '/cookies' },
+  { label: 'Data Processing Agreement', description: 'Our standard DPA for enterprise procurement.', href: '/dpa' },
+  { label: 'Sub-processor List', description: 'Every third party that touches your data.', href: '/subprocessors' },
   { label: 'System Status', description: 'Live uptime and incident history.', href: '/status' },
 ];
 
