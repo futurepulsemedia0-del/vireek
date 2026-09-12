@@ -75,7 +75,8 @@ function useSiteSections(): SiteSection[] {
         description: 'How Vireek stacks up against other tools and options.',
         icon: GitCompare,
         links: [
-          { label: 'Compare Overview', href: '/compare' },
+            { label: 'Compare Overview', href: '/compare' },
+          { label: 'Full Feature Matrix', href: '/compare/matrix' },
           { label: 'AI Receptionist vs. Human Receptionist', href: '/ai-receptionist-vs-human-receptionist' },
           ...COMPETITORS.map((c) => ({ label: `Vireek vs. ${c.name}`, href: `/compare/${c.slug}` })),
         ],
