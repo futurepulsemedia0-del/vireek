@@ -374,12 +374,20 @@ export function DpaContent() {
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-text-secondary">
                 Related
               </p>
-              <Link
-                to="/privacy"
-                className="mt-3 flex items-center gap-2 text-base font-semibold text-accent hover:underline"
-              >
-                Privacy Policy &rarr;
-              </Link>
+                            <div className="mt-3 flex flex-col gap-2">
+                <Link
+                  to="/privacy"
+                  className="flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+                >
+                  Privacy Policy &rarr;
+                </Link>
+                <Link
+                  to="/gdpr-dpa"
+                  className="flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+                >
+                  EU/UK GDPR Addendum &rarr;
+                </Link>
+              </div>
             </div>
           </div>
         </div>
