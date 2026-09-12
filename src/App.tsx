@@ -2,7 +2,6 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { GlossaryPage } from '@/pages/GlossaryPage';
 
 // Performance pass: only the landing page (the route almost every first-time
 // visitor lands on) ships eagerly in the main bundle. Every other route —
@@ -208,7 +207,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-                <Route
+        <Route
           path="/dashboard/voicemails"
           element={
             <ProtectedRoute>
@@ -288,7 +287,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-                <Route
+        <Route
           path="/dashboard/webhook-logs"
           element={
             <ProtectedRoute>
