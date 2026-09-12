@@ -55,8 +55,10 @@ export interface Call {
   is_emergency: boolean;
   sentiment: 'positive' | 'neutral' | 'negative' | null;
   status: 'new_lead' | 'booked' | 'missed' | 'callback_requested' | 'spam';
-    is_voicemail: boolean;
+  is_voicemail: boolean;
   voicemail_listened_at: string | null;
+  escalated_to: string | null;
+  escalated_at: string | null;
   created_at: string;
 }
 
