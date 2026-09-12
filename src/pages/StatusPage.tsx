@@ -254,7 +254,7 @@ export function StatusPage() {
             </motion.div>
             <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-secondary/70">
               <Clock className="h-3.5 w-3.5" />
-              Last updated {LAST_UPDATED}
+              Last updated {effectiveLastUpdated}
             </p>
           </div>
         </section>
@@ -265,7 +265,7 @@ export function StatusPage() {
             <p className={`${eyebrowClass()} text-center`}>Component Status</p>
             <h2 className={`${sectionHeadingClass()} text-center`}>Every part of the platform, at a glance</h2>
             <div className="mt-12 grid gap-6 sm:grid-cols-2">
-              {SYSTEMS.map(({ id, name, description, status, icon: Icon }, i) => {
+              {effectiveSystems.map(({ id, name, description, status, icon: Icon }, i) => {
                 const meta = STATUS_META[status];
                 return (
                   <motion.div
@@ -336,7 +336,7 @@ export function StatusPage() {
             <p className={`${eyebrowClass()} text-center`}>Incident History</p>
             <h2 className={`${sectionHeadingClass()} text-center`}>Past incidents & maintenance</h2>
 
-            {INCIDENTS.length === 0 ? (
+            {effectiveIncidents.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -355,7 +355,7 @@ export function StatusPage() {
               </motion.div>
             ) : (
               <div className="mt-10 space-y-4">
-                {INCIDENTS.map((incident, i) => (
+                {effectiveIncidents.map((incident, i) => (
                   <motion.div
                     key={`${incident.date}-${i}`}
                     initial={{ opacity: 0, y: 16 }}
