@@ -175,6 +175,11 @@ export function SecurityPage() {
               </a>{' '}
               (RFC 9116) for the current contact and disclosure info.
             </p>
+            <p className="mt-3 text-sm">
+              <Link to="/vulnerability-disclosure" className="font-semibold text-accent hover:text-cta">
+                Read our full Vulnerability Disclosure Policy &rarr;
+              </Link>
+            </p>
           </div>
         </section>
 
