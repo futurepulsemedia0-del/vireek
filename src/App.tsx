@@ -91,6 +91,7 @@ const IntegrationDetailPage = lazy(() => import('@/pages/IntegrationDetailPage')
 const TrustCenterPage = lazy(() => import('@/pages/TrustCenterPage').then((m) => ({ default: m.TrustCenterPage })));
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
 const SitemapPage = lazy(() => import('@/pages/SitemapPage').then((m) => ({ default: m.SitemapPage })));
+const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => ({ default: m.EnterprisePage })));
 
 function RouteLoadingFallback() {
   return (
@@ -154,6 +155,7 @@ function App() {
         <Route path="/industries" element={<IndustriesPage />} />
         <Route path="/industries/:slug" element={<IndustryPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/enterprise" element={<EnterprisePage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
