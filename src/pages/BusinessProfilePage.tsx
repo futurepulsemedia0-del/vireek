@@ -75,6 +75,7 @@ const TRIGGER_LABELS: Record<BusinessProfileEscalationRule['trigger'], string> =
   emergency: 'Emergency call detected',
   after_hours: 'Call comes in after hours',
   no_answer: 'No one answers / picks up',
+  human_request: 'Caller asks for a live person',
 };
 
 const ACTION_LABELS: Record<BusinessProfileEscalationRule['action'], string> = {
