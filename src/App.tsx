@@ -33,6 +33,12 @@ const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage').then((m) 
 const TermsPage = lazy(() => import('@/pages/TermsPage').then((m) => ({ default: m.TermsPage })));
 const DpaPage = lazy(() => import('@/pages/DpaPage').then((m) => ({ default: m.DpaPage })));
 const SubprocessorsPage = lazy(() => import('@/pages/SubprocessorsPage').then((m) => ({ default: m.SubprocessorsPage })));
+const RefundPolicyPage = lazy(() => import('@/pages/RefundPolicyPage').then((m) => ({ default: m.RefundPolicyPage })));
+const SlaPage = lazy(() => import('@/pages/SlaPage').then((m) => ({ default: m.SlaPage })));
+const AcceptableUsePage = lazy(() => import('@/pages/AcceptableUsePage').then((m) => ({ default: m.AcceptableUsePage })));
+const VulnerabilityDisclosurePage = lazy(() => import('@/pages/VulnerabilityDisclosurePage').then((m) => ({ default: m.VulnerabilityDisclosurePage })));
+const CcpaPage = lazy(() => import('@/pages/CcpaPage').then((m) => ({ default: m.CcpaPage })));
+const GdprDpaPage = lazy(() => import('@/pages/GdprDpaPage').then((m) => ({ default: m.GdprDpaPage })));
 const FAQPage = lazy(() => import('@/pages/FAQPage').then((m) => ({ default: m.FAQPage })));
 const HelpCenterPage = lazy(() => import('@/pages/HelpCenterPage').then((m) => ({ default: m.HelpCenterPage })));
 const AboutPage = lazy(() => import('@/pages/AboutPage').then((m) => ({ default: m.AboutPage })));
@@ -111,6 +117,12 @@ function App() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/dpa" element={<DpaPage />} />
         <Route path="/subprocessors" element={<SubprocessorsPage />} />
+        <Route path="/refund-policy" element={<RefundPolicyPage />} />
+        <Route path="/sla" element={<SlaPage />} />
+        <Route path="/acceptable-use-policy" element={<AcceptableUsePage />} />
+        <Route path="/vulnerability-disclosure" element={<VulnerabilityDisclosurePage />} />
+        <Route path="/ccpa" element={<CcpaPage />} />
+        <Route path="/gdpr-dpa" element={<GdprDpaPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
         <Route path="/about" element={<AboutPage />} />
