@@ -32,6 +32,8 @@ const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) 
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage').then((m) => ({ default: m.CookiePolicyPage })));
 const TermsPage = lazy(() => import('@/pages/TermsPage').then((m) => ({ default: m.TermsPage })));
+const DpaPage = lazy(() => import('@/pages/DpaPage').then((m) => ({ default: m.DpaPage })));
+const SubprocessorsPage = lazy(() => import('@/pages/SubprocessorsPage').then((m) => ({ default: m.SubprocessorsPage })));
 const FAQPage = lazy(() => import('@/pages/FAQPage').then((m) => ({ default: m.FAQPage })));
 const HelpCenterPage = lazy(() => import('@/pages/HelpCenterPage').then((m) => ({ default: m.HelpCenterPage })));
 const AboutPage = lazy(() => import('@/pages/AboutPage').then((m) => ({ default: m.AboutPage })));
@@ -105,6 +107,8 @@ function App() {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/cookies" element={<CookiePolicyPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        <Route path="/dpa" element={<DpaPage />} />
+        <Route path="/subprocessors" element={<SubprocessorsPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
         <Route path="/about" element={<AboutPage />} />
