@@ -66,6 +66,8 @@ function useSiteSections(): SiteSection[] {
           { label: 'Revenue Calculator', href: '/calculator' },
           { label: 'Book a Demo', href: '/demo' },
           { label: 'Security', href: '/security' },
+          { label: 'Brand Guidelines', href: '/brand' },
+          { label: 'Trademark Policy', href: '/trademark-policy' },
           { label: 'Enterprise', href: '/enterprise' },
           { label: 'Trust Center', href: '/trust' },
         ],
