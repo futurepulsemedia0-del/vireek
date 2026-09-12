@@ -78,6 +78,7 @@ const FOOTER_COLUMNS = [
       { label: 'Revenue Calculator', href: '/calculator' },
       { label: 'Book a Demo', href: '/demo' },
       { label: 'Security', href: '/security' },
+      { label: 'Enterprise', href: '/enterprise' },
     ],
   },
   {
