@@ -382,8 +382,11 @@ export function PrivacyContent() {
               <ul className="ml-1 space-y-1.5">
                 <li>• Requests to access, correct, or delete personal information</li>
                 <li>
-                  • California residents' CCPA rights, including the right to know, delete, and opt
-                  out of sale
+                  • California residents have additional rights under the CCPA/CPRA &mdash; see our{' '}
+                  <Link to="/ccpa" className="font-semibold text-accent hover:underline">
+                    California Privacy Rights
+                  </Link>{' '}
+                  page for full details
                 </li>
                 <li>
                   • Vireek does not sell personal data — so there is nothing to opt out of in that
@@ -457,12 +460,20 @@ export function PrivacyContent() {
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-text-secondary">
                 Related
               </p>
-              <Link
-                to="/terms"
-                className="mt-3 flex items-center gap-2 text-base font-semibold text-accent hover:underline"
-              >
-                Terms of Service &rarr;
-              </Link>
+                            <div className="mt-3 flex flex-col gap-2">
+                <Link
+                  to="/terms"
+                  className="flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+                >
+                  Terms of Service &rarr;
+                </Link>
+                <Link
+                  to="/ccpa"
+                  className="flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+                >
+                  California Privacy Rights &rarr;
+                </Link>
+              </div>
             </div>
           </div>
         </div>
