@@ -581,7 +581,6 @@ const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as Bi
                     <ArrowRight size={18} />
                   </Button>
                 </Link>
-                <a
                                   <Link
                   to="/enterprise"
                   className="focus-ring inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white/90 transition-colors hover:text-white"
