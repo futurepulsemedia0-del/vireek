@@ -26,6 +26,7 @@ const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ de
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
 const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ default: m.InsightsPage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
+const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const TeamPage = lazy(() => import('@/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
 const BillingPage = lazy(() => import('@/pages/BillingPage').then((m) => ({ default: m.BillingPage })));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })));
@@ -283,6 +284,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ReviewsPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/memberships"
+          element={
+            <ProtectedRoute>
+              <MembershipsPage />
             </ProtectedRoute>
           }
         />
