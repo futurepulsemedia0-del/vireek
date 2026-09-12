@@ -132,6 +132,7 @@ const FOOTER_COLUMNS = [
       { label: 'About', href: '/about' },
       { label: 'Docs', href: '/docs' },
       { label: 'Careers', href: '/careers' },
+      { label: 'Culture & Values', href: '/culture' },
       { label: 'Press', href: '/press' },
       { label: 'Brand Guidelines', href: '/brand' },
       { label: 'Partners', href: '/partners' },
