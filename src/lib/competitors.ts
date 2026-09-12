@@ -1,4 +1,4 @@
-import { Building2, Wrench, ClipboardList, Bot, Headset, type LucideIcon } from 'lucide-react';
+import { Building2, Wrench, ClipboardList, Bot, Headset, Zap, UserCheck, MessageSquare, Car, PhoneCall, Sparkles, type LucideIcon } from 'lucide-react';
 
 export interface CompetitorFAQ {
   q: string;
@@ -265,6 +265,11 @@ export const COMPETITORS: Competitor[] = [
       },
     ],
   },
+ ],
+  },
+];
+
+export function getCompetitorBySlug(slug?: string): Competitor | undefined {
 ];
 
 export function getCompetitorBySlug(slug?: string): Competitor | undefined {
