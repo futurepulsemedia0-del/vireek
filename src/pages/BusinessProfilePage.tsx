@@ -7,7 +7,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, BusinessProfile, BusinessProfileHoliday, BusinessProfileEscalationRule } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
-import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
+import { EscalationSettings } from '@/components/settings/EscalationSettings';
 
 // ============================================================
 // CONSTANTS
@@ -789,6 +789,9 @@ export function BusinessProfilePage() {
             {/* Trust Badge — embeddable widget for the customer's own website */}
             <div className="mt-6">
               <EmbedWidgetCard />
+            </div>
+            <div className="mt-6">
+            <EscalationSettings />
             </div>
 
             {/* Save bar */}
