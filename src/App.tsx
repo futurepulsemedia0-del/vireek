@@ -47,6 +47,7 @@ const ServicesPage = lazy(() => import('@/pages/ServicesPage').then((m) => ({ de
 const FeaturesPage = lazy(() => import('@/pages/FeaturesPage').then((m) => ({ default: m.FeaturesPage })));
 const LeadQualificationPage = lazy(() => import('@/pages/LeadQualificationPage').then((m) => ({ default: m.LeadQualificationPage })));
 const SmsTextBackPage = lazy(() => import('@/pages/SmsTextBackPage').then((m) => ({ default: m.SmsTextBackPage })));
+const WhatsAppInstagramDMPage = lazy(() => import('@/pages/WhatsAppInstagramDMPage').then((m) => ({ default: m.WhatsAppInstagramDMPage })));
 const LiveEscalationPage = lazy(() => import('@/pages/LiveEscalationPage').then((m) => ({ default: m.LiveEscalationPage })));
 const PlatformPage = lazy(() => import('@/pages/PlatformPage').then((m) => ({ default: m.PlatformPage })));
 const ComparePage = lazy(() => import('@/pages/ComparePage').then((m) => ({ default: m.ComparePage })));
@@ -124,6 +125,7 @@ function App() {
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/features/lead-qualification" element={<LeadQualificationPage />} />
         <Route path="/features/sms-text-back" element={<SmsTextBackPage />} />
+        <Route path="/features/whatsapp-instagram-dm" element={<WhatsAppInstagramDMPage />} />
         <Route path="/features/live-escalation" element={<LiveEscalationPage />} />
         <Route path="/platform" element={<PlatformPage />} />
         <Route path="/compare" element={<ComparePage />} />
