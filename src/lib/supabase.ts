@@ -94,6 +94,30 @@ export interface Job {
   created_at: string;
 }
 
+export interface OutboundCampaign {
+  id: string;
+  user_id: string;
+  campaign_type: 'quote_followup' | 'appointment_reminder' | 'review_request_call';
+  enabled: boolean;
+  trigger_after_hours: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OutboundCall {
+  id: string;
+  user_id: string;
+  campaign_type: 'quote_followup' | 'appointment_reminder' | 'review_request_call';
+  lead_id: string | null;
+  job_id: string | null;
+  customer_name: string;
+  customer_phone: string | null;
+  status: 'queued' | 'calling' | 'connected' | 'no_answer' | 'voicemail_left' | 'converted' | 'opted_out' | 'failed';
+  scheduled_for: string;
+  called_at: string | null;
+  outcome_notes: string | null;
+  created_at: string;
+}
 export interface BusinessProfileHoliday {
   id: string;
   date: string;
