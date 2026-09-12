@@ -84,7 +84,7 @@ const MATRIX_ROWS: MatrixRow[] = [
   },
   {
     feature: 'Outbound calling / follow-up campaigns',
-    vireek: 'na', servicetitan: 'na', housecallPro: 'na', jobber: 'na',
+    vireek: 'yes', servicetitan: 'na', housecallPro: 'na', jobber: 'na',
     answeringService: 'na', avocaAi: 'yes',
   },
   {
