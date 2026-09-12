@@ -100,7 +100,7 @@ export interface BusinessProfileHoliday {
 
 export interface BusinessProfileEscalationRule {
   id: string;
-  trigger: 'emergency' | 'after_hours' | 'no_answer';
+  trigger: 'emergency' | 'after_hours' | 'no_answer' | 'human_request';
   action: 'transfer' | 'sms' | 'email';
   target: string;
   note?: string;
