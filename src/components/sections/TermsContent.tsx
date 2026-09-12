@@ -284,7 +284,14 @@ export function TermsContent() {
                   • Customers may cancel anytime, effective at the end of the current billing period.
                 </li>
                 <li>• There are no long-term contracts.</li>
-                <li>• No refunds are provided for partial months except where required by law.</li>
+                                <li>
+                  • No refunds are provided for partial months except where required by law. See
+                  our{' '}
+                  <Link to="/refund-policy" className="font-semibold text-accent hover:underline">
+                    Refund & Cancellation Policy
+                  </Link>{' '}
+                  for full details.
+                </li>
                 <li>• Pricing may change with 30 days notice to active subscribers.</li>
               </ul>
             </SectionBody>
@@ -530,12 +537,26 @@ export function TermsContent() {
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-text-secondary">
                 Related
               </p>
-              <Link
-                to="/privacy"
-                className="mt-3 flex items-center gap-2 text-base font-semibold text-accent hover:underline"
-              >
-                Privacy Policy &rarr;
-              </Link>
+                            <div className="mt-3 flex flex-col gap-2">
+                <Link
+                  to="/privacy"
+                  className="flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+                >
+                  Privacy Policy &rarr;
+                </Link>
+                <Link
+                  to="/acceptable-use-policy"
+                  className="flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+                >
+                  Acceptable Use Policy &rarr;
+                </Link>
+                <Link
+                  to="/refund-policy"
+                  className="flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+                >
+                  Refund & Cancellation Policy &rarr;
+                </Link>
+              </div>
             </div>
           </div>
         </div>
