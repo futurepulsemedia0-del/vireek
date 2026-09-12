@@ -24,6 +24,9 @@ export interface Profile {
   role: 'owner' | 'admin' | 'member';
   onboarding_completed: boolean;
   forwarding_number: string | null;
+    escalation_enabled: boolean;
+  escalation_phone: string | null;
+  escalation_mode: 'warm_transfer' | 'barge_in';
   external_id: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
