@@ -251,10 +251,13 @@ function EditModal({
   onSaved: () => void;
 }) {
   const { toast } = useToast();
-  const [role, setRole] = useState<Role>(member.role === 'owner' ? 'admin' : member.role);
+    const [role, setRole] = useState<Role>(member.role === 'owner' ? 'admin' : member.role);
   const [perms, setPerms] = useState(member.permissions);
   const [saving, setSaving] = useState(false);
-
+  const [skills, setSkills] = useState(member.skills?.join(', ') ?? '');
+  const [serviceArea, setServiceArea] = useState(member.service_area ?? '');
+  const [maxJobsPerDay, setMaxJobsPerDay] = useState(member.max_jobs_per_day ?? 6);
+  const [dispatchEnabled, setDispatchEnabled] = useState(member.dispatch_enabled ?? true);
   const handleRoleChange = (newRole: Role) => {
     setRole(newRole);
     setPerms(ROLE_DEFAULTS[newRole]);
@@ -267,9 +270,16 @@ function EditModal({
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
+       const { error } = await supabase
         .from('team_members')
-        .update({ role, permissions: perms })
+        .update({
+          role,
+          permissions: perms,
+          skills: skills.split(',').map((s) => s.trim()).filter(Boolean),
+          service_area: serviceArea.trim() || null,
+          max_jobs_per_day: maxJobsPerDay,
+          dispatch_enabled: dispatchEnabled,
+        })
         .eq('id', member.id);
       if (error) throw error;
       toast('Team member updated.', 'success');
@@ -361,6 +371,60 @@ function EditModal({
             </div>
           </div>
 
+                     {role === 'technician' && (
+            <div className="space-y-3 border-t border-border/60 pt-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">
+                  Skills (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={skills}
+                  onChange={(e) => setSkills(e.target.value)}
+                  placeholder="e.g. HVAC, Plumbing & Drain"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">Service area</label>
+                <input
+                  type="text"
+                  value={serviceArea}
+                  onChange={(e) => setServiceArea(e.target.value)}
+                  placeholder="e.g. North Dallas"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                />
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <label className="text-sm font-medium text-text-primary">Max jobs per day</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={maxJobsPerDay}
+                  onChange={(e) => setMaxJobsPerDay(Number(e.target.value))}
+                  className="focus-ring w-20 rounded-xl border border-border bg-bg-primary px-3 py-2 text-center text-sm text-text-primary"
+                />
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <label className="text-sm font-medium text-text-primary">Include in auto-dispatch</label>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={dispatchEnabled}
+                  onClick={() => setDispatchEnabled((v) => !v)}
+                  className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                    dispatchEnabled ? 'bg-accent' : 'bg-bg-tertiary'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                      dispatchEnabled ? 'translate-x-[22px]' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          )}  
           <div className="flex items-center gap-3 pt-2">
             <button
               type="button"
