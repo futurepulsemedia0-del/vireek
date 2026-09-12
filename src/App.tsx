@@ -61,6 +61,7 @@ const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ defaul
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
 const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
+const AccessibilityConformancePage = lazy(() => import('@/pages/AccessibilityConformancePage').then((m) => ({ default: m.AccessibilityConformancePage })));
 const CareersPage = lazy(() => import('@/pages/CareersPage').then((m) => ({ default: m.CareersPage })));
 const PressPage = lazy(() => import('@/pages/PressPage').then((m) => ({ default: m.PressPage })));
 const PartnersPage = lazy(() => import('@/pages/PartnersPage').then((m) => ({ default: m.PartnersPage })));
@@ -141,6 +142,7 @@ function App() {
         <Route path="/case-studies" element={<CaseStudiesPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />
+        <Route path="/accessibility/conformance" element={<AccessibilityConformancePage />} />
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/partners" element={<PartnersPage />} />
