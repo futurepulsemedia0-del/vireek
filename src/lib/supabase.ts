@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { PlanId } from '@/lib/pricing';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -17,7 +18,7 @@ export interface Profile {
   full_name: string | null;
   company_name: string | null;
   phone: string | null;
-  plan: 'starter' | 'professional';
+  plan: PlanId;
   minutes_used_this_month: number;
   minutes_included: number;
   status: 'active' | 'suspended' | 'canceled';
