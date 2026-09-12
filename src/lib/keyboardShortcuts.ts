@@ -3,26 +3,22 @@
 // Central registry + hook for dashboard-wide keyboard shortcuts.
 // Two shortcut styles are supported:
 //
-//   1. "combo"    — a single keypress with modifiers, e.g. "mod+k", "?", "mod+s"
+//   1. "combo"    — a single keypress with modifiers, e.g. "?", "mod+s"
 //                   ("mod" = Cmd on Mac, Ctrl on Windows/Linux)
 //   2. "sequence" — a short chord typed one key at a time, e.g. ["g", "d"]
 //                   (press g, then d, within ~800ms) — the "Gmail/Linear/
 //                   GitHub" style power-user navigation pattern.
 //
+// NOTE: Cmd/Ctrl+K is intentionally NOT defined here — this project already
+// has a <CommandPalette /> component mounted in DashboardLayout, which very
+// likely owns that shortcut internally. Defining it again here would risk
+// a double-handler conflict. If CommandPalette does NOT already listen for
+// mod+k, add it back here once confirmed.
+//
 // This file has ZERO dependency on any specific page — it only needs
-// `useNavigate` from react-router-dom for nav-type shortcuts. Wire it up
-// ONCE in your dashboard layout component (e.g. DashboardNav.tsx) so it
-// applies across every dashboard page automatically.
-//
-// Usage in your layout:
-//
-//   import { useKeyboardShortcuts, DEFAULT_SHORTCUTS } from '@/lib/keyboardShortcuts';
-//
-//   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
-//   useKeyboardShortcuts(DEFAULT_SHORTCUTS(navigate, () => setShortcutsHelpOpen(true)));
-//
-// Then render <KeyboardShortcutsModal open={shortcutsHelpOpen} onClose={...} />
-// (see src/components/KeyboardShortcutsModal.tsx) somewhere in the layout.
+// `useNavigate` from react-router-dom for nav-type shortcuts. It's wired up
+// ONCE inside DashboardNav.tsx so it applies across every dashboard page
+// automatically (see that file for the integration).
 
 import { useEffect, useRef } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
@@ -33,7 +29,7 @@ import type { NavigateFunction } from 'react-router-dom';
 
 export interface ComboShortcut {
   type: 'combo';
-  /** e.g. "mod+k", "mod+shift+k", "?", "/" */
+  /** e.g. "mod+shift+k", "?", "/" */
   combo: string;
   description: string;
   category: string;
@@ -84,7 +80,7 @@ function isTypingContext(target: EventTarget | null): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// The hook — attach once per app (in the dashboard layout)
+// The hook — attach once per app (inside DashboardNav.tsx)
 // ---------------------------------------------------------------------------
 
 const SEQUENCE_TIMEOUT_MS = 800;
@@ -152,65 +148,25 @@ export function useKeyboardShortcuts(shortcuts: Shortcut[], enabled = true) {
 
 // ---------------------------------------------------------------------------
 // Default shortcut set for the dashboard.
-//
-// IMPORTANT: edit the `path` values below to match your actual routes
-// before wiring this in — these are reasonable guesses based on the
-// pages you've described (Dashboard, Calls, Jobs, Leads, Business Profile).
+// Routes matched exactly against PRIMARY_ITEMS / ACCOUNT_ITEMS in
+// DashboardNav.tsx as of this integration.
 // ---------------------------------------------------------------------------
 
 export function DEFAULT_SHORTCUTS(navigate: NavigateFunction, openHelp: () => void): Shortcut[] {
   return [
-    {
-      type: 'sequence',
-      keys: ['g', 'd'],
-      description: 'Go to Dashboard',
-      category: 'Navigation',
-      action: () => navigate('/dashboard'),
-    },
-    {
-      type: 'sequence',
-      keys: ['g', 'c'],
-      description: 'Go to Calls',
-      category: 'Navigation',
-      action: () => navigate('/calls'),
-    },
-    {
-      type: 'sequence',
-      keys: ['g', 'j'],
-      description: 'Go to Jobs',
-      category: 'Navigation',
-      action: () => navigate('/jobs'),
-    },
-    {
-      type: 'sequence',
-      keys: ['g', 'l'],
-      description: 'Go to Leads',
-      category: 'Navigation',
-      action: () => navigate('/leads'),
-    },
-    {
-      type: 'sequence',
-      keys: ['g', 'p'],
-      description: 'Go to Business Profile',
-      category: 'Navigation',
-      action: () => navigate('/business-profile'),
-    },
-    {
-      type: 'combo',
-      combo: '?',
-      description: 'Show keyboard shortcuts',
-      category: 'General',
-      action: openHelp,
-    },
-    {
-      type: 'combo',
-      combo: 'mod+k',
-      description: 'Open quick search',
-      category: 'General',
-      action: () => {
-        // Wire this to your search/command-palette trigger once it exists.
-        // Left as a no-op placeholder so this file has zero unresolved deps.
-      },
-    },
+    { type: 'sequence', keys: ['g', 'o'], description: 'Go to Overview', category: 'Navigation', action: () => navigate('/dashboard') },
+    { type: 'sequence', keys: ['g', 'c'], description: 'Go to Calendar', category: 'Navigation', action: () => navigate('/dashboard/calendar') },
+    { type: 'sequence', keys: ['g', 'j'], description: 'Go to My Jobs', category: 'Navigation', action: () => navigate('/dashboard/jobs') },
+    { type: 'sequence', keys: ['g', 'h'], description: 'Go to Call History', category: 'Navigation', action: () => navigate('/dashboard/calls') },
+    { type: 'sequence', keys: ['g', 'v'], description: 'Go to Voicemails', category: 'Navigation', action: () => navigate('/dashboard/voicemails') },
+    { type: 'sequence', keys: ['g', 'l'], description: 'Go to Leads', category: 'Navigation', action: () => navigate('/dashboard/leads') },
+    { type: 'sequence', keys: ['g', 'a'], description: 'Go to Analytics', category: 'Navigation', action: () => navigate('/dashboard/analytics') },
+    { type: 'sequence', keys: ['g', 'i'], description: 'Go to Insights', category: 'Navigation', action: () => navigate('/dashboard/insights') },
+    { type: 'sequence', keys: ['g', 'r'], description: 'Go to Reviews', category: 'Navigation', action: () => navigate('/dashboard/reviews') },
+    { type: 'sequence', keys: ['g', 'p'], description: 'Go to Business Profile', category: 'Navigation', action: () => navigate('/dashboard/business-profile') },
+    { type: 'sequence', keys: ['g', 't'], description: 'Go to Team', category: 'Navigation', action: () => navigate('/dashboard/team') },
+    { type: 'sequence', keys: ['g', 'b'], description: 'Go to Billing', category: 'Navigation', action: () => navigate('/dashboard/billing') },
+    { type: 'sequence', keys: ['g', 's'], description: 'Go to Settings', category: 'Navigation', action: () => navigate('/dashboard/settings') },
+    { type: 'combo', combo: '?', description: 'Show keyboard shortcuts', category: 'General', action: openHelp },
   ];
 }
