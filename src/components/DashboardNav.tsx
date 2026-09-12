@@ -29,6 +29,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
+import { SurgeModeBanner } from '@/components/SurgeModeBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AiAssistant } from '@/components/AiAssistant';
 import { CommandPalette } from '@/components/CommandPalette';
@@ -312,7 +313,8 @@ export function DashboardLayout({
         <div className="lg:pl-60 print:pl-0">
           <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8 print:max-w-none print:p-0">
             <div className="no-print">
-              <UpgradeBanner />
+                            <UpgradeBanner />
+              <SurgeModeBanner />
             </div>
             {children}
           </main>
