@@ -61,6 +61,18 @@
     <priority>0.9</priority>
   </url>
     <url>
+    <loc>https://vireek.com/brand</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vireek.com/trademark-policy</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+    <url>
     <loc>https://vireek.com/enterprise</loc>
     <lastmod>2026-09-12</lastmod>
     <changefreq>monthly</changefreq>
