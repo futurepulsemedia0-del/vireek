@@ -38,6 +38,9 @@ export interface LiveStatusResult {
   lastUpdated: string | null;
 }
 
+const FETCH_TIMEOUT_MS = 10_000;
+const REFRESH_INTERVAL_MS = 60_000;
+
 // Instatus component status strings -> our internal union
 function mapInstatusStatus(raw: string): LiveSystemStatus {
   switch (raw) {
@@ -77,10 +80,20 @@ export function useLiveStatus(): LiveStatusResult {
     }
 
     let cancelled = false;
+    // Tracks whether we've ever successfully loaded live data in this
+    // mount. A later refresh failure (network blip, provider hiccup)
+    // should not discard a previously-good live snapshot and flicker the
+    // page back to the static fallback — that snapshot is still real
+    // data, just briefly stale. Only the very first failed load falls
+    // back to static data, per the file's own honesty rule above.
+    let hasLoadedOnce = false;
 
     async function load() {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
       try {
-        const res = await fetch(endpoint, { cache: 'no-store' });
+        const res = await fetch(endpoint, { cache: 'no-store', signal: controller.signal });
         if (!res.ok) throw new Error(`Status provider returned ${res.status}`);
         const data = await res.json();
 
@@ -109,6 +122,7 @@ export function useLiveStatus(): LiveStatusResult {
         const uptimePercent = typeof data.uptime === 'number' ? data.uptime : null;
 
         if (!cancelled) {
+          hasLoadedOnce = true;
           setResult({
             isLive: true,
             loading: false,
@@ -125,18 +139,28 @@ export function useLiveStatus(): LiveStatusResult {
         }
       } catch (err) {
         if (!cancelled) {
+          const isTimeout = err instanceof DOMException && err.name === 'AbortError';
           setResult((prev) => ({
             ...prev,
             loading: false,
-            isLive: false,
-            error: err instanceof Error ? err.message : 'Failed to load live status',
+            // Keep the last good live snapshot alive through a transient
+            // refresh failure; only drop to the static fallback if we
+            // never successfully loaded live data at all.
+            isLive: hasLoadedOnce ? prev.isLive : false,
+            error: isTimeout
+              ? `Status provider timed out after ${FETCH_TIMEOUT_MS}ms.`
+              : err instanceof Error
+                ? err.message
+                : 'Failed to load live status',
           }));
         }
+      } finally {
+        clearTimeout(timer);
       }
     }
 
     load();
-    const interval = setInterval(load, 60_000); // refresh every 60s
+    const interval = setInterval(load, REFRESH_INTERVAL_MS);
     return () => {
       cancelled = true;
       clearInterval(interval);
