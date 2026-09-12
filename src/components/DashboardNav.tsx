@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -19,6 +19,7 @@ import {
   Plug,
   ChevronDown,
   Star,
+  Voicemail,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -28,6 +29,8 @@ import { UpgradeBanner } from '@/components/UpgradeBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AiAssistant } from '@/components/AiAssistant';
 import { CommandPalette } from '@/components/CommandPalette';
+import { useKeyboardShortcuts, DEFAULT_SHORTCUTS } from '@/lib/keyboardShortcuts';
+import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 
 interface NavItem {
   label: string;
@@ -47,7 +50,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
-{ label: 'Voicemails', href: '/dashboard/voicemails', icon: Voicemail },
+  { label: 'Voicemails', href: '/dashboard/voicemails', icon: Voicemail },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
@@ -77,6 +80,17 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const { isOwner, permissions, signOut } = useAuth();
   const { toast } = useToast();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
+
+  // Power-user keyboard shortcuts (e.g. "g" then "o" for Overview, "?" for
+  // this help panel) — wired once here so they work from anywhere in the
+  // dashboard, since DashboardNav is mounted by every dashboard page via
+  // DashboardLayout below.
+  const shortcuts = useMemo(
+    () => DEFAULT_SHORTCUTS(navigate, () => setShortcutsHelpOpen(true)),
+    [navigate],
+  );
+  useKeyboardShortcuts(shortcuts);
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return location.pathname === '/dashboard';
@@ -261,6 +275,13 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           </>
         )}
       </AnimatePresence>
+
+      {/* Keyboard shortcuts help panel — opened via "?" from anywhere */}
+      <KeyboardShortcutsModal
+        open={shortcutsHelpOpen}
+        onClose={() => setShortcutsHelpOpen(false)}
+        shortcuts={shortcuts}
+      />
     </>
   );
 }
