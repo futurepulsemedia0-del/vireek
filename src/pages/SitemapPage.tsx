@@ -127,6 +127,7 @@ function useSiteSections(): SiteSection[] {
         icon: Building,
         links: [
           { label: 'About', href: '/about' },
+          { label: 'Culture & Values', href: '/culture' },
           { label: 'Contact', href: '/contact' },
           { label: 'Status', href: '/status' },
           { label: 'Changelog', href: '/changelog' },
