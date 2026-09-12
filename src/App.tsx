@@ -39,6 +39,7 @@ const SubprocessorsPage = lazy(() => import('@/pages/SubprocessorsPage').then((m
 const RefundPolicyPage = lazy(() => import('@/pages/RefundPolicyPage').then((m) => ({ default: m.RefundPolicyPage })));
 const SlaPage = lazy(() => import('@/pages/SlaPage').then((m) => ({ default: m.SlaPage })));
 const AcceptableUsePage = lazy(() => import('@/pages/AcceptableUsePage').then((m) => ({ default: m.AcceptableUsePage })));
+const TrademarkPolicyPage = lazy(() => import('@/pages/TrademarkPolicyPage').then((m) => ({ default: m.TrademarkPolicyPage })));
 const VulnerabilityDisclosurePage = lazy(() => import('@/pages/VulnerabilityDisclosurePage').then((m) => ({ default: m.VulnerabilityDisclosurePage })));
 const CcpaPage = lazy(() => import('@/pages/CcpaPage').then((m) => ({ default: m.CcpaPage })));
 const GdprDpaPage = lazy(() => import('@/pages/GdprDpaPage').then((m) => ({ default: m.GdprDpaPage })));
@@ -75,6 +76,7 @@ const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m
 const AccessibilityConformancePage = lazy(() => import('@/pages/AccessibilityConformancePage').then((m) => ({ default: m.AccessibilityConformancePage })));
 const CareersPage = lazy(() => import('@/pages/CareersPage').then((m) => ({ default: m.CareersPage })));
 const PressPage = lazy(() => import('@/pages/PressPage').then((m) => ({ default: m.PressPage })));
+const BrandGuidelinesPage = lazy(() => import('@/pages/BrandGuidelinesPage').then((m) => ({ default: m.BrandGuidelinesPage })));
 const PartnersPage = lazy(() => import('@/pages/PartnersPage').then((m) => ({ default: m.PartnersPage })));
 const AffiliatePage = lazy(() => import('@/pages/AffiliatePage').then((m) => ({ default: m.AffiliatePage })));
 const ReferralPage = lazy(() => import('@/pages/ReferralPage').then((m) => ({ default: m.ReferralPage })));
@@ -128,6 +130,7 @@ function App() {
         <Route path="/refund-policy" element={<RefundPolicyPage />} />
         <Route path="/sla" element={<SlaPage />} />
         <Route path="/acceptable-use-policy" element={<AcceptableUsePage />} />
+        <Route path="/trademark-policy" element={<TrademarkPolicyPage />} />
         <Route path="/vulnerability-disclosure" element={<VulnerabilityDisclosurePage />} />
         <Route path="/ccpa" element={<CcpaPage />} />
         <Route path="/gdpr-dpa" element={<GdprDpaPage />} />
@@ -169,6 +172,7 @@ function App() {
         <Route path="/accessibility/conformance" element={<AccessibilityConformancePage />} />
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/press" element={<PressPage />} />
+        <Route path="/brand" element={<BrandGuidelinesPage />} />
         <Route path="/partners" element={<PartnersPage />} />
         <Route path="/affiliate" element={<AffiliatePage />} />
         <Route path="/referral" element={<ReferralPage />} />
