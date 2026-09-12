@@ -83,7 +83,7 @@ export const COMPETITORS: Competitor[] = [
       { feature: 'Transparent, published pricing', vireek: 'yes', competitor: 'no' },
     ],
     worksWellTogether:
-      'Many ServiceTitan customers still lose after-hours and overflow calls to voicemail. Vireek is built to answer those calls, triage them, and log everything back into your workflow — it doesn\u2019t require you to replace ServiceTitan to do it.',
+      'Many ServiceTitan customers still lose after-hours and overflow calls to voicemail. Vireek is built to answer those calls, triage them, and log everything back into your workflow — it doesn’t require you to replace ServiceTitan to do it.',
     faq: [
       {
         q: 'Is Vireek a replacement for ServiceTitan?',
@@ -121,19 +121,19 @@ export const COMPETITORS: Competitor[] = [
       { feature: 'CRM and calendar sync without manual entry', vireek: 'yes', competitor: 'partial' },
     ],
     worksWellTogether:
-      'Vireek is built to sit in front of the phone — answering, triaging, and booking the call — while Housecall Pro (or whatever you already run) handles the job once it\u2019s on the calendar.',
+      'Vireek is built to sit in front of the phone — answering, triaging, and booking the call — while Housecall Pro (or whatever you already run) handles the job once it’s on the calendar.',
     faq: [
       {
         q: 'Does Housecall Pro answer my phone for me?',
-        a: 'Housecall Pro focuses on scheduling, invoicing, and payments once a job is in the system — it tracks calls but doesn\u2019t include an AI voice agent that actually answers and converses with a caller the way Vireek does.',
+        a: 'Housecall Pro focuses on scheduling, invoicing, and payments once a job is in the system — it tracks calls but doesn’t include an AI voice agent that actually answers and converses with a caller the way Vireek does.',
       },
       {
         q: 'Can I use Vireek and Housecall Pro together?',
-        a: 'Yes. Vireek answers and books the call, then syncs the lead or job details so they show up wherever you\u2019re already tracking work — including Housecall Pro.',
+        a: 'Yes. Vireek answers and books the call, then syncs the lead or job details so they show up wherever you’re already tracking work — including Housecall Pro.',
       },
       {
         q: 'Which one should I start with?',
-        a: 'If your main problem is missed or unanswered calls, start with Vireek — that\u2019s the specific gap it closes. If you need scheduling, quoting, and invoicing and already answer your phone reliably, Housecall Pro solves a different problem.',
+        a: 'If your main problem is missed or unanswered calls, start with Vireek — that’s the specific gap it closes. If you need scheduling, quoting, and invoicing and already answer your phone reliably, Housecall Pro solves a different problem.',
       },
     ],
   },
@@ -154,16 +154,16 @@ export const COMPETITORS: Competitor[] = [
       { feature: 'Answers and holds a live phone conversation, 24/7', vireek: 'yes', competitor: 'no' },
       { feature: 'Detects emergencies from caller language', vireek: 'yes', competitor: 'no' },
       { feature: 'Quoting, scheduling, and client management', vireek: 'partial', competitor: 'yes' },
-      { feature: 'Built specifically around handling the trades\u2019 phone calls', vireek: 'yes', competitor: 'no' },
+      { feature: 'Built specifically around handling the trades’ phone calls', vireek: 'yes', competitor: 'no' },
       { feature: 'Sends automated SMS confirmations after booking', vireek: 'yes', competitor: 'partial' },
       { feature: 'Simple, published pricing', vireek: 'yes', competitor: 'yes' },
     ],
     worksWellTogether:
-      'Jobber is a favorite for small crews that want simple scheduling. Vireek pairs well with it by making sure calls get answered and booked in the first place — especially nights, weekends, and busy job-site hours when nobody\u2019s free to pick up.',
+      'Jobber is a favorite for small crews that want simple scheduling. Vireek pairs well with it by making sure calls get answered and booked in the first place — especially nights, weekends, and busy job-site hours when nobody’s free to pick up.',
     faq: [
       {
         q: 'Is Jobber an AI phone receptionist?',
-        a: 'No. Jobber is scheduling, quoting, and invoicing software. It helps you manage jobs once they\u2019re booked, but it doesn\u2019t answer the phone or hold a conversation with a caller — that\u2019s the part Vireek is built for.',
+        a: 'No. Jobber is scheduling, quoting, and invoicing software. It helps you manage jobs once they’re booked, but it doesn’t answer the phone or hold a conversation with a caller — that’s the part Vireek is built for.',
       },
       {
         q: 'I already use Jobber — do I still need Vireek?',
@@ -184,9 +184,9 @@ export const COMPETITORS: Competitor[] = [
     seoDescription:
       'Traditional answering services route your calls to a live operator reading from a script, usually billed per minute or per call. Vireek is an AI voice receptionist trained on the trades that answers instantly, books the job, and syncs everything to your dashboard. See how they compare.',
     summary:
-      'A traditional answering service routes your business calls to a live, off-site operator (or a call center) who answers using a generic script, takes down a message or basic details, and forwards it to you \u2014 typically billed per minute or per call handled.',
+      'A traditional answering service routes your business calls to a live, off-site operator (or a call center) who answers using a generic script, takes down a message or basic details, and forwards it to you — typically billed per minute or per call handled.',
     builtFor:
-      'Businesses that want a human voice picking up the phone when staff can\u2019t, without needing the call itself to result in a booked job.',
+      'Businesses that want a human voice picking up the phone when staff can’t, without needing the call itself to result in a booked job.',
     isVoiceAICompetitor: false,
     featureRows: [
       { feature: 'Answers every call instantly, 24/7/365', vireek: 'yes', competitor: 'partial' },
@@ -202,24 +202,24 @@ export const COMPETITORS: Competitor[] = [
       'Some businesses transitioning off an answering service keep it as an emergency overflow line for the rare edge case, while Vireek handles the bulk of inbound calls, triage, and booking day to day.',
     faq: [
       {
-        q: 'What\u2019s the actual difference between an AI receptionist and an answering service?',
-        a: 'An answering service routes your call to a live human operator, usually reading from a general script, who takes a message or basic details and passes it along \u2014 the booking still has to happen after the call. Vireek is an AI voice receptionist that has a live conversation with the caller, understands the trade-specific problem they\u2019re describing, and books the appointment directly onto your calendar before the call even ends.',
+        q: 'What’s the actual difference between an AI receptionist and an answering service?',
+        a: 'An answering service routes your call to a live human operator, usually reading from a general script, who takes a message or basic details and passes it along — the booking still has to happen after the call. Vireek is an AI voice receptionist that has a live conversation with the caller, understands the trade-specific problem they’re describing, and books the appointment directly onto your calendar before the call even ends.',
       },
       {
         q: 'Is a live human always better than an AI voice receptionist?',
-        a: 'Not necessarily for this use case. Answering-service operators typically handle calls for many different businesses and follow a generic script, so they can\u2019t triage a trade-specific emergency or book directly into your calendar. Vireek is trained specifically on HVAC, plumbing, electrical, and similar trades, and connects directly to your scheduling system \u2014 so callers get a more specific, more useful conversation, not just a human voice.',
+        a: 'Not necessarily for this use case. Answering-service operators typically handle calls for many different businesses and follow a generic script, so they can’t triage a trade-specific emergency or book directly into your calendar. Vireek is trained specifically on HVAC, plumbing, electrical, and similar trades, and connects directly to your scheduling system — so callers get a more specific, more useful conversation, not just a human voice.',
       },
       {
         q: 'How does pricing typically compare?',
-        a: 'Traditional answering services commonly bill per minute or per call handled, so costs rise directly with call volume. Vireek is built to answer unlimited calls without that per-call math. Exact pricing for any answering service varies by provider \u2014 check their current rates directly \u2014 but the billing model itself is worth comparing before you commit.',
+        a: 'Traditional answering services commonly bill per minute or per call handled, so costs rise directly with call volume. Vireek is built to answer unlimited calls without that per-call math. Exact pricing for any answering service varies by provider — check their current rates directly — but the billing model itself is worth comparing before you commit.',
       },
       {
         q: 'Can Vireek handle a true emergency call the way a person would?',
-        a: 'Vireek is built to recognize emergency language \u2014 things like a burst pipe, no heat in winter, or a gas smell \u2014 and route or flag those calls immediately, the same job a live answering-service operator is trained to do. The difference is Vireek can also move straight into booking the emergency appointment on the spot, without a separate callback.',
+        a: 'Vireek is built to recognize emergency language — things like a burst pipe, no heat in winter, or a gas smell — and route or flag those calls immediately, the same job a live answering-service operator is trained to do. The difference is Vireek can also move straight into booking the emergency appointment on the spot, without a separate callback.',
       },
       {
         q: 'Do I need to switch everything over at once?',
-        a: 'No. Many businesses start Vireek on overflow or after-hours calls \u2014 the ones an answering service usually charges the most to cover \u2014 and expand from there once they see how many get booked automatically.',
+        a: 'No. Many businesses start Vireek on overflow or after-hours calls — the ones an answering service usually charges the most to cover — and expand from there once they see how many get booked automatically.',
       },
     ],
   },
@@ -247,7 +247,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         title: 'Who each one fits best',
-        body: 'If you need CSR performance coaching and outbound campaigns at large, multi-location scale, Avoca is built for that. If you want every inbound call answered, triaged, and booked — plus simple outbound follow-up on quotes, reminders, and reviews — without a large platform commitment, that\u2019s what Vireek is built to solve first.'
+        body: 'If you need CSR performance coaching and outbound campaigns at large, multi-location scale, Avoca is built for that. If you want every inbound call answered, triaged, and booked — plus simple outbound follow-up on quotes, reminders, and reviews — without a large platform commitment, that’s what Vireek is built to solve first.'
       },
     ],
     faq: [
@@ -257,19 +257,263 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         q: 'Does Vireek integrate with the CRM or field-service tool I already use?',
-        a: 'Vireek syncs call, lead, and job data to your dashboard so nothing needs manual entry. If you have a specific integration in mind, reach out and we\u2019ll confirm compatibility before you switch anything.',
+        a: 'Vireek syncs call, lead, and job data to your dashboard so nothing needs manual entry. If you have a specific integration in mind, reach out and we’ll confirm compatibility before you switch anything.',
       },
       {
         q: 'Can I see how Vireek handles my real calls before deciding?',
-        a: 'Yes — start a free trial and let Sarah answer your calls for a week. You\u2019ll see exactly how many get answered, triaged, and booked before committing to anything.',
+        a: 'Yes — start a free trial and let Sarah answer your calls for a week. You’ll see exactly how many get answered, triaged, and booked before committing to anything.',
       },
     ],
   },
- ],
+  {
+    slug: 'sameday-ai',
+    name: 'Sameday AI',
+    icon: Zap,
+    category: 'AI phone answering & scheduling platform for home services',
+    seoTitle: 'Vireek vs Sameday AI: Two AI Answering Services for Home Services Compared | Vireek',
+    seoDescription:
+      'Vireek and Sameday AI are both AI-powered phone answering platforms built for home-service contractors. See how they differ in focus, setup, and who each is built for.',
+    summary:
+      'Sameday AI is an AI-powered phone answering and scheduling platform built specifically for home-service contractors — plumbing, HVAC, electrical, roofing, and similar trades — with integrations into field-service platforms like ServiceTitan, Jobber, and Housecall Pro.',
+    builtFor:
+      'Home-service contractors, often already running a field-service platform, who want an AI agent to answer overflow and after-hours calls and book jobs directly onto the schedule.',
+    isVoiceAICompetitor: true,
+    positioning: [
+      {
+        title: 'Focus',
+        body: 'Both Vireek and Sameday AI are built around the same core job: answering the phone and booking the appointment for home-service businesses. Sameday also layers in texting, a shared inbox, and CSR call-coaching tools. Vireek keeps the workflow centered on answering, triaging, and booking the call itself — plus simple outbound follow-up on quotes, reminders, and reviews — with less to configure to get started.',
+      },
+      {
+        title: 'Setup and integrations',
+        body: 'Both platforms connect to common field-service tools such as ServiceTitan, Jobber, and Housecall Pro. Vireek is built to get a single-location or growing home-service business live quickly, independent of which CRM or field-service tool you already use.',
+      },
+      {
+        title: 'Who each one fits best',
+        body: 'Both are aimed at the same core buyer — a home-service business tired of losing calls to voicemail. The right fit usually comes down to which one’s onboarding, pricing model, and extra features (CSR coaching, texting, outbound campaigns) match how your team actually works. Trying both on your real call volume is the most reliable way to compare them.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Is Vireek basically the same product as Sameday AI?',
+        a: 'They solve the same core problem — an AI voice agent that answers and books calls for home-service businesses — so they’re direct competitors in that sense. The differences come down to setup, pricing model, and which extra features (CSR coaching, texting, outbound campaigns) each platform bundles in.',
+      },
+      {
+        q: 'Does Vireek integrate with the same tools Sameday AI does?',
+        a: 'Vireek syncs call, lead, and job data to your dashboard, and can connect to common field-service and CRM tools. If you have a specific platform in mind, reach out and we’ll confirm compatibility before you switch anything.',
+      },
+      {
+        q: 'How do I know which one actually works better for my business?',
+        a: 'The most reliable test is your own call volume, not marketing claims from either company. Start a free trial and let Vireek answer your real calls for a week — you’ll see exactly how many get answered, triaged, and booked before deciding.',
+      },
+    ],
   },
-];
-
-export function getCompetitorBySlug(slug?: string): Competitor | undefined {
+  {
+    slug: 'smith-ai',
+    name: 'Smith.ai',
+    icon: UserCheck,
+    category: 'AI + live-human hybrid virtual receptionist for professional services',
+    seoTitle: 'Vireek vs Smith.ai: AI Voice Receptionist vs AI + Human Hybrid Answering | Vireek',
+    seoDescription:
+      'Smith.ai blends AI with live North America-based receptionists for law firms, agencies, and professional services. Vireek is a pure-AI voice receptionist built specifically for home-service trades. See how they compare.',
+    summary:
+      'Smith.ai offers virtual receptionist services that combine AI call handling with live, North America-based human agents, serving a broad range of professional-service businesses — law firms, agencies, consultants, real estate, and more — rather than one specific industry.',
+    builtFor:
+      'Professional-service businesses across many industries that want a receptionist blending AI with live human backup, priced per call handled.',
+    isVoiceAICompetitor: true,
+    positioning: [
+      {
+        title: 'Focus',
+        body: 'Smith.ai is built as a general-purpose virtual receptionist for professional services broadly — law firms, agencies, consultants — combining an AI layer with live human agents for calls that need it. Vireek is purpose-built for home-service trades specifically, trained on plumbing, HVAC, and electrical terminology, and books appointments directly into the trade tools you already use.',
+      },
+      {
+        title: 'Pricing model',
+        body: 'Smith.ai’s virtual receptionist plans are commonly billed per call handled, so cost scales with call volume. Vireek is built to answer high call volumes without that per-call math — worth comparing directly against your own expected volume before committing to either.',
+      },
+      {
+        title: 'Who each one fits best',
+        body: 'If your business is a law firm, agency, or professional-services company that wants a human voice available as backup on complex calls, Smith.ai’s hybrid model is built for that. If you’re a home-service contractor that wants an AI agent trained specifically on trade-specific emergencies and booking, that’s the problem Vireek is built to solve first.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Is Smith.ai an AI receptionist or a human answering service?',
+        a: 'Both — Smith.ai’s core offering blends an AI layer with live, North America-based human receptionists who can step in on calls that need a human touch. Vireek is a pure-AI voice receptionist purpose-built for home-service trades, with no live-agent layer to configure or pay for.',
+      },
+      {
+        q: 'Is Vireek trained on the trades the way Smith.ai is trained on legal intake?',
+        a: 'Yes — Vireek is built specifically around HVAC, plumbing, electrical, and similar trade-specific language and emergencies, rather than general-purpose professional-services intake. That focus is the main reason home-service businesses often start with Vireek over a broader, multi-industry receptionist platform.',
+      },
+      {
+        q: 'Can I try Vireek before switching from an existing answering service?',
+        a: 'Yes — start a free trial and let Vireek answer your real calls for a week. You’ll see exactly how many get answered, triaged, and booked before committing to anything.',
+      },
+    ],
+  },
+  {
+    slug: 'podium',
+    name: 'Podium',
+    icon: MessageSquare,
+    category: 'Customer communication, reviews & payments platform with an AI add-on',
+    seoTitle: 'Vireek vs Podium: AI Phone Receptionist vs Messaging & Reviews Platform | Vireek',
+    seoDescription:
+      'Podium is a customer-communication platform for texting, reviews, and payments, with an AI Employee add-on. Vireek is an AI voice receptionist built specifically to answer and book every call. See how they compare.',
+    summary:
+      'Podium is a customer-communication and reputation-management platform built for local businesses — a unified inbox for texts, webchat, reviews, and payments across channels — with an “AI Employee” add-on that can also handle calls and messages.',
+    builtFor:
+      'Local businesses across many verticals (auto, home services, retail) that want one inbox for messaging, review requests, and payments, with AI call and text handling available as an add-on.',
+    isVoiceAICompetitor: false,
+    featureRows: [
+      { feature: 'Answers and holds a live phone conversation, 24/7', vireek: 'yes', competitor: 'partial' },
+      { feature: 'Books appointments directly from the call itself', vireek: 'yes', competitor: 'partial' },
+      { feature: 'Built specifically around the trades’ phone calls', vireek: 'yes', competitor: 'no' },
+      { feature: 'Unified inbox for texts, webchat & social messages', vireek: 'no', competitor: 'yes' },
+      { feature: 'Automated review-request campaigns', vireek: 'no', competitor: 'yes' },
+      { feature: 'Text-to-pay / in-app payments', vireek: 'no', competitor: 'yes' },
+      { feature: 'Transparent, published pricing', vireek: 'yes', competitor: 'no' },
+    ],
+    worksWellTogether:
+      'Many businesses run Podium for reviews, texting, and payments while using Vireek specifically to make sure every inbound call gets answered and booked — the two solve different halves of the same front-office problem.',
+    faq: [
+      {
+        q: 'Is Podium an AI phone receptionist?',
+        a: 'Podium’s core product is a communication and reputation-management platform — texting, reviews, webchat, and payments in one inbox. It offers an “AI Employee” as an add-on that can also handle calls and messages. Vireek is focused specifically on the phone call: answering it, triaging it, and booking it, trained on trade-specific language.',
+      },
+      {
+        q: 'I already use Podium — do I still need Vireek?',
+        a: 'If Podium’s AI Employee is already answering and booking every call reliably, maybe not. If calls are still going to voicemail after hours or during busy periods, Vireek is built to catch exactly those calls and book them directly onto your calendar — while you keep Podium for reviews, texting, and payments.',
+      },
+      {
+        q: 'Does Vireek replace Podium?',
+        a: 'No — they cover different parts of the front office. Vireek focuses on the phone call itself; Podium focuses on messaging, reputation, and payments across channels. Most businesses that use Vireek keep whatever review or texting platform they already run.',
+      },
+    ],
+  },
+  {
+    slug: 'numa',
+    name: 'Numa',
+    icon: Car,
+    category: 'AI voice & customer-operations platform for auto dealerships',
+    seoTitle: 'Vireek vs Numa: AI Receptionist for Home Services vs Auto Dealership AI | Vireek',
+    seoDescription:
+      'Numa is an AI voice and customer-operations platform built primarily for car dealership service departments. Vireek is an AI voice receptionist built specifically for home-service trades. See how they compare.',
+    summary:
+      'Numa is a full-stack AI customer-operations platform built primarily for car dealership service departments — voice AI call answering paired with repair-order tracking, proactive status updates, and dealer-group dashboards, integrated directly into dealership DMS systems.',
+    builtFor:
+      'Car dealerships and dealer groups, particularly fixed-ops and service departments, rather than independent home-service trade businesses.',
+    isVoiceAICompetitor: true,
+    positioning: [
+      {
+        title: 'Focus',
+        body: 'Numa is built around the automotive dealership service lane specifically — repair-order status, DMS integration, and dealer-group reporting alongside its voice AI. Vireek is built around home-service trades specifically — HVAC, plumbing, electrical — with the call, the booking, and trade-specific emergency triage as the core focus.',
+      },
+      {
+        title: 'Industry fit',
+        body: 'If your business is a car dealership managing a service lane and repair orders through a DMS, Numa’s dealership-specific workflows are built for that context. If your business is an independent home-service contractor, Vireek’s trade-specific training and field-service integrations are the closer fit.',
+      },
+      {
+        title: 'Who each one fits best',
+        body: 'These two rarely compete head-to-head for the same buyer — Numa is aimed at dealership fixed-ops teams, while Vireek is aimed at HVAC, plumbing, electrical, and similar trade businesses. Choosing between them usually comes down to which industry your business is actually in.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Is Numa built for home-service businesses like Vireek is?',
+        a: 'Not primarily. Numa’s core product and integrations are built around car dealership service departments — repair orders, DMS systems, and fixed-ops reporting. Vireek is built specifically for HVAC, plumbing, electrical, and similar home-service trades.',
+      },
+      {
+        q: 'Could a home-service business use Numa instead of Vireek?',
+        a: 'It’s possible in theory, but Numa’s workflows, integrations, and terminology are optimized for automotive dealerships rather than trade-specific emergencies like a burst pipe or a gas smell — the kind of calls Vireek is trained to triage and book directly.',
+      },
+      {
+        q: 'Can I see how Vireek handles calls for my specific trade before switching?',
+        a: 'Yes — start a free trial and let Vireek answer your real calls for a week. You’ll see exactly how many get answered, triaged, and booked for your specific trade before committing to anything.',
+      },
+    ],
+  },
+  {
+    slug: 'goodcall',
+    name: 'Goodcall',
+    icon: PhoneCall,
+    category: 'General-purpose AI phone agent for small businesses',
+    seoTitle: 'Vireek vs Goodcall: Trade-Specific AI Receptionist vs General AI Phone Agent | Vireek',
+    seoDescription:
+      'Goodcall is a general-purpose AI phone agent built to serve small businesses across many industries. Vireek is an AI voice receptionist trained specifically on the trades. See how they compare.',
+    summary:
+      'Goodcall (originally incubated at Google as “CallJoy”) is a general-purpose AI phone agent built to serve small businesses across many industries — not trade-specific — using configurable conversation flows for FAQs, booking, and lead capture, priced per agent based on call volume.',
+    builtFor:
+      'Solo owners and small businesses across many verticals (salons, restaurants, retail, home services, and more) who want a flat-rate, easy-to-set-up AI phone agent without deep industry-specific customization.',
+    isVoiceAICompetitor: true,
+    positioning: [
+      {
+        title: 'Focus',
+        body: 'Goodcall is designed as a general-purpose AI phone agent that works reasonably well across many industries using configurable, pre-defined conversation flows. Vireek is purpose-built for home-service trades specifically — trained on plumbing, HVAC, and electrical language and emergencies — rather than a one-size-fits-all script.',
+      },
+      {
+        title: 'Setup and pricing',
+        body: 'Goodcall is commonly priced per agent based on unique callers, with self-service, no-code setup. Vireek is built to get a home-service business live quickly with a workflow already tuned to trade-specific calls, rather than a flow you configure from a blank template.',
+      },
+      {
+        title: 'Who each one fits best',
+        body: 'If you run a small business in a non-trade industry and want a flat-rate, general-purpose AI phone agent, Goodcall’s broad approach can be a fit. If you’re a home-service contractor that needs trade-specific emergency triage and direct booking into field-service tools, that’s what Vireek is built to solve first.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Is Goodcall trained specifically on home-service trades?',
+        a: 'No — Goodcall is a general-purpose AI phone agent designed to work across many industries using configurable conversation flows. Vireek is trained specifically on HVAC, plumbing, electrical, and similar trade-specific language and emergencies.',
+      },
+      {
+        q: 'Why would a home-service business pick Vireek over a general AI phone agent like Goodcall?',
+        a: 'Trade-specific businesses often need the AI to recognize real emergencies (a burst pipe, no heat in winter, a gas smell) and book directly into the scheduling tools they already run. A general-purpose platform can be configured to approximate this, but Vireek is built around it from the start.',
+      },
+      {
+        q: 'Can I test Vireek on my own calls before switching from Goodcall?',
+        a: 'Yes — start a free trial and let Vireek answer your real calls for a week. You’ll see exactly how many get answered, triaged, and booked before committing to anything.',
+      },
+    ],
+  },
+  {
+    slug: 'rosie-my-ai-front-desk',
+    name: 'Rosie & My AI Front Desk',
+    icon: Sparkles,
+    category: 'Budget AI phone-answering services for small businesses & trades',
+    seoTitle: 'Vireek vs Rosie & My AI Front Desk: Budget AI Answering vs Trade-Built Receptionist | Vireek',
+    seoDescription:
+      'Rosie and My AI Front Desk are budget-oriented AI answering services for small businesses. Vireek is an AI voice receptionist built specifically for home-service trades. See how they compare.',
+    summary:
+      'Rosie and My AI Front Desk are two budget-oriented, pure-AI answering services aimed at small businesses and trades. Rosie focuses tightly on call answering, booking, and summaries with a mobile app; My AI Front Desk bundles a broader front-office suite — CRM, chatbot, SMS agent, and outbound calling — into one platform.',
+    builtFor:
+      'Cost-conscious solo owners and small trade businesses looking for a low entry-price way to stop missing calls, with fewer built-in integrations than a dedicated field-service AI platform.',
+    isVoiceAICompetitor: true,
+    positioning: [
+      {
+        title: 'Focus',
+        body: 'Rosie keeps its scope narrow — answer the call, book the appointment, send a summary. My AI Front Desk goes broader with a bundled CRM, chatbot, and outbound calling. Vireek sits between the two in scope: focused on answering, triaging, and booking the call — plus simple outbound follow-up on quotes, reminders, and reviews — while staying built specifically around home-service trade language and emergencies.',
+      },
+      {
+        title: 'Pricing model',
+        body: 'Both Rosie and My AI Front Desk commonly bill by the minute or by plan tier, with entry-level plans priced for very low call volume. Vireek is built to answer higher call volumes without that per-minute math becoming the deciding factor — worth comparing directly against your own expected call volume.',
+      },
+      {
+        title: 'Who each one fits best',
+        body: 'If you’re a very low-call-volume solo operator wanting the cheapest possible entry point, Rosie’s narrow focus or My AI Front Desk’s bundle can make sense. If you already run a field-service tool and want an AI receptionist trained specifically on trade emergencies that syncs directly into your existing workflow, that’s what Vireek is built to solve first.',
+      },
+    ],
+    faq: [
+      {
+        q: 'What’s the difference between Rosie and My AI Front Desk?',
+        a: 'Rosie is a focused AI answering service — it answers calls, books appointments, and sends summaries, with a mobile app. My AI Front Desk bundles a broader suite (CRM, chatbot, SMS agent, outbound calling, and more voice options) into one platform. Vireek is built specifically around home-service trade calls and integrates directly with the field-service tools contractors already use.',
+      },
+      {
+        q: 'Are these good options if I already use a CRM or field-service platform?',
+        a: 'If you already run a tool like Jobber, ServiceTitan, or Housecall Pro, a bundled platform can mean duplicate data entry between two systems. Vireek is built to sync call, lead, and job data into your existing dashboard and field-service tool rather than replacing it.',
+      },
+      {
+        q: 'How do I know which AI answering service actually fits my trade?',
+        a: 'The most reliable way is testing on your own calls. Start a free trial and let Vireek answer your real calls for a week — you’ll see exactly how many get answered, triaged, and booked for your specific trade before committing to anything.',
+      },
+    ],
+  },
 ];
 
 export function getCompetitorBySlug(slug?: string): Competitor | undefined {
