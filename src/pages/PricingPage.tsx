@@ -582,12 +582,13 @@ const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as Bi
                   </Button>
                 </Link>
                 <a
-                  href="mailto:ali@vireek.com?subject=Enterprise%20plan%20inquiry"
+                                  <Link
+                  to="/enterprise"
                   className="focus-ring inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white/90 transition-colors hover:text-white"
                 >
                   Talk to sales
                   <ArrowRight size={16} />
-                </a>
+                </Link>
               </div>
               <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-white/70">
                 <ShieldCheck size={13} className="shrink-0" />
