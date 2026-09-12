@@ -103,7 +103,7 @@ export function AcceptableUseContent() {
               </p>
               <nav className="flex flex-col gap-1 border-l border-border">
                 {SECTIONS.map((s) => (
-                  
+                  <a
                     key={s.id}
                     href={`#${s.id}`}
                     className={`-ml-px border-l-2 py-1.5 pl-4 text-sm transition-colors ${
@@ -136,7 +136,7 @@ export function AcceptableUseContent() {
               {mobileTocOpen && (
                 <nav className="mt-2 flex flex-col gap-1 rounded-xl border border-border bg-bg-secondary p-3">
                   {SECTIONS.map((s) => (
-                    
+                    <a
                       key={s.id}
                       href={`#${s.id}`}
                       onClick={() => setMobileTocOpen(false)}
@@ -269,7 +269,7 @@ export function AcceptableUseContent() {
               <p>Questions about this policy, or want to report misuse? Email us.</p>
               <div className="mt-2 flex items-center gap-3">
                 <Mail size={18} className="text-accent" />
-                
+                <a
                   href={`mailto:${CONTACT_EMAIL}`}
                   className="text-lg font-semibold text-accent hover:underline"
                 >
