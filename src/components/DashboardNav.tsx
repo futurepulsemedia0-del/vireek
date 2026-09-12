@@ -22,6 +22,7 @@ import {
   Voicemail,
   PhoneOutgoing,
  Award,
+   Route,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -57,6 +58,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Outbound Campaigns', href: '/dashboard/outbound-campaigns', icon: PhoneOutgoing },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
+  { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
 ];
