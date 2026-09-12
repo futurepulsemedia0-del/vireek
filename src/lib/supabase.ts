@@ -164,6 +164,9 @@ export interface BusinessProfile {
   business_hours: Record<string, { open: string; close: string }> | null;
   holidays: BusinessProfileHoliday[] | null;
   escalation_rules: BusinessProfileEscalationRule[] | null;
+  surge_mode_active: boolean;
+  surge_mode_note: string | null;
+  surge_mode_activated_at: string | null;
   services_offered: string[] | null;
   greeting_script: string | null;
   faqs: { question: string; answer: string }[] | null;
