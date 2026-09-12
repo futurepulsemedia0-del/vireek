@@ -45,6 +45,7 @@ const ServicesPage = lazy(() => import('@/pages/ServicesPage').then((m) => ({ de
 const FeaturesPage = lazy(() => import('@/pages/FeaturesPage').then((m) => ({ default: m.FeaturesPage })));
 const LeadQualificationPage = lazy(() => import('@/pages/LeadQualificationPage').then((m) => ({ default: m.LeadQualificationPage })));
 const SmsTextBackPage = lazy(() => import('@/pages/SmsTextBackPage').then((m) => ({ default: m.SmsTextBackPage })));
+const LiveEscalationPage = lazy(() => import('@/pages/LiveEscalationPage').then((m) => ({ default: m.LiveEscalationPage })));
 const PlatformPage = lazy(() => import('@/pages/PlatformPage').then((m) => ({ default: m.PlatformPage })));
 const ComparePage = lazy(() => import('@/pages/ComparePage').then((m) => ({ default: m.ComparePage })));
 const CompetitorPage = lazy(() => import('@/pages/CompetitorPage').then((m) => ({ default: m.CompetitorPage })));
@@ -118,6 +119,7 @@ function App() {
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/features/lead-qualification" element={<LeadQualificationPage />} />
         <Route path="/features/sms-text-back" element={<SmsTextBackPage />} />
+        <Route path="/features/live-escalation" element={<LiveEscalationPage />} />
         <Route path="/platform" element={<PlatformPage />} />
         <Route path="/compare" element={<ComparePage />} />
         <Route path="/compare/:slug" element={<CompetitorPage />} />
