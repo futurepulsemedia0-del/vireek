@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HelpCircle, X, Send } from 'lucide-react';
 import { streamAiChat } from '@/lib/aiStream';
+import { getSupportStatus, SUPPORT_HOURS_LABEL } from '@/lib/supportHours';
 import { ChatAvatar, MessageBubble, OnlineDot, StarterPromptChip, TypingIndicator } from '@/components/chat/ChatVisuals';
 
 interface ChatMessage {
@@ -53,6 +54,7 @@ const STARTER_PROMPTS = [
  */
 export function SiteAssistant() {
   const location = useLocation();
+  const [status, setStatus] = useState(() => getSupportStatus());
   const [open, setOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -70,7 +72,12 @@ export function SiteAssistant() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
-  useEffect(() => () => abortRef.current?.abort(), []);
+    useEffect(() => () => abortRef.current?.abort(), []);
+
+  useEffect(() => {
+    const id = setInterval(() => setStatus(getSupportStatus()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   if (location.pathname.startsWith('/dashboard')) return null;
 
@@ -185,12 +192,14 @@ export function SiteAssistant() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-[#3448E8] to-[#D6582A] text-white shadow-sm">
                 <HelpCircle size={17} strokeWidth={2.25} />
               </span>
-              <div className="min-w-0">
+                            <div className="min-w-0">
                 <p className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
                   Ask Vireek
-                  <OnlineDot />
+                  <OnlineDot online={status.online} />
                 </p>
-                <p className="truncate text-xs text-text-secondary">Pricing, features, industries — anything</p>
+                <p className="truncate text-xs text-text-secondary">
+                  {status.online ? 'AI + our team, online now' : `AI available 24/7 · team back ${SUPPORT_HOURS_LABEL}`}
+                </p>
               </div>
             </div>
 
@@ -245,7 +254,27 @@ export function SiteAssistant() {
               >
                 <Send size={16} />
               </motion.button>
-            </form>
+                        </form>
+
+            <p className="border-t border-border/60 px-4 py-2 text-center text-[11px] text-text-secondary">
+              {status.online ? (
+                <>
+                  Prefer a human?{' '}
+                  <Link to="/contact" className="font-semibold text-accent hover:underline">
+                    Email the team
+                  </Link>{' '}
+                  — {SUPPORT_HOURS_LABEL}
+                </>
+              ) : (
+                <>
+                  Our team is offline right now.{' '}
+                  <Link to="/contact" className="font-semibold text-accent hover:underline">
+                    Leave a message
+                  </Link>{' '}
+                  and we'll reply within 24 hours.
+                </>
+              )}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
