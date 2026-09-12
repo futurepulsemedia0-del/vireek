@@ -18,8 +18,9 @@ import {
   CreditCard,
   Plug,
   ChevronDown,
-  Star,
+    Star,
   Voicemail,
+  PhoneOutgoing,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -52,6 +53,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Voicemails', href: '/dashboard/voicemails', icon: Voicemail },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
+  { label: 'Outbound Campaigns', href: '/dashboard/outbound-campaigns', icon: PhoneOutgoing },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
