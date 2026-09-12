@@ -122,12 +122,13 @@ const FOOTER_COLUMNS = [
     ],
   },
   {
-    title: 'Legal',
+        title: 'Legal',
     links: [
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
       { label: 'Cookie Policy', href: '/cookies' },
-      { label: 'Accessibility', href: '/accessibility' },
+      { label: 'DPA', href: '/dpa' },
+      { label: 'Sub-processors', href: '/subprocessors' },
     ],
   },
 ];
