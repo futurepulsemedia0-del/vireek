@@ -1,13 +1,12 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CreditCard, TrendingUp, TriangleAlert as AlertTriangle, ArrowUpRight, FileText, Loader as Loader2, Check, Clock, X, Lock, Receipt } from 'lucide-react';
+import { CreditCard, TrendingUp, TriangleAlert as AlertTriangle, ArrowUpRight, FileText, Loader as Loader2, Check, Clock, X, Lock, Receipt, Printer } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
-import { CreditCard, TrendingUp, TriangleAlert as AlertTriangle, ArrowUpRight, FileText, Loader as Loader2, Check, Clock, X, Lock, Receipt, Printer } from 'lucide-react';
 
 // ============================================================
 // CONSTANTS
@@ -29,6 +28,14 @@ const PLANS = [
     minutes: 1500,
     overage: 0.15,
     features: ['1,500 included minutes/mo', 'Everything in Starter', 'Team management', 'Advanced analytics', 'Priority support'],
+  },
+  {
+    id: 'business',
+    name: 'Business',
+    price: 399,
+    minutes: 4000,
+    overage: 0.12,
+    features: ['4,000 included minutes/mo', 'Everything in Professional', 'Up to 3 business locations', 'Role-based team access', 'Dedicated Slack channel support'],
   },
 ] as const;
 
@@ -359,7 +366,7 @@ export function BillingPage() {
               className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
             >
               <TrendingUp size={16} />
-              {profile?.plan === 'professional' ? 'Change Plan' : 'Upgrade'}
+              {profile?.plan && profile.plan !== PLANS[0].id ? 'Change Plan' : 'Upgrade'}
             </button>
           </div>
         </motion.div>
