@@ -21,6 +21,7 @@ import {
     Star,
   Voicemail,
   PhoneOutgoing,
+ Award,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -57,6 +58,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
+  { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
 ];
 
 const ACCOUNT_ITEMS: NavItem[] = [
