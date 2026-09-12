@@ -4,7 +4,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { LogIn, ArrowRight, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { NAV_LINKS } from '@/lib/site';
 import { useTheme } from '@/contexts/ThemeContext';
 import { INDUSTRIES } from '@/lib/industries';
@@ -310,12 +309,7 @@ export function Header() {
 
             {/* Right side */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden sm:block">
-                <LanguageSwitcher variant="header" />
-              </div>
-              <div className="hidden sm:block">
-                <ThemeToggle />
-              </div>
+              <ThemeToggle />
               <Link
                 to="/login"
                 className="focus-ring hidden items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-text-secondary transition-all duration-150 hover:bg-bg-tertiary hover:text-text-primary md:flex"
@@ -337,11 +331,6 @@ export function Header() {
                   <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
                 </button>
               </Link>
-
-              {/* Mobile theme toggle */}
-              <div className="sm:hidden">
-                <ThemeToggle />
-              </div>
 
               {/* Hamburger */}
               <HamburgerButton open={drawerOpen} onClick={() => setDrawerOpen((v) => !v)} />
@@ -438,11 +427,6 @@ export function Header() {
                     </motion.div>
                   );
                 })}
-
-                {/* Language switcher (mobile drawer) */}
-                <div className="mt-2 border-t border-border pt-4">
-                  <LanguageSwitcher variant="header" />
-                </div>
               </nav>
 
               {/* Drawer footer */}
