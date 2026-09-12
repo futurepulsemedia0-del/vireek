@@ -146,6 +146,33 @@ function logError(event: string, requestId: string, error: unknown, extra: Recor
     }),
   );
 }
+// Persists an incoming-webhook event to `webhook_logs` so it's visible in
+// the dashboard's Webhook Logs page. Fire-and-forget: never let a logging
+// failure break the actual webhook response.
+async function logToDb(
+  admin: SupabaseClient,
+  opts: {
+    userId?: string | null;
+    eventType: string;
+    status: 'success' | 'error';
+    requestId: string;
+    errorMessage?: string;
+  },
+) {
+  try {
+    await admin.from('webhook_logs').insert({
+      user_id: opts.userId ?? null,
+      direction: 'incoming',
+      event_type: opts.eventType,
+      status: opts.status,
+      request_id: opts.requestId,
+      error_message: opts.errorMessage ?? null,
+    });
+  } catch {
+    // Table may not exist yet if the migration hasn't been applied —
+    // never let this break the real webhook handling.
+  }
+}
 
 const SENSITIVE_KEYS = new Set([
   "transcript",
@@ -777,12 +804,11 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Server not configured" }, 500);
   }
 
-  const providedSecret = req.headers.get("x-vapi-secret");
+ const providedSecret = req.headers.get("x-vapi-secret");
   if (providedSecret !== expectedSecret) {
     logEvent("unauthorized_request", requestId, {});
     return jsonResponse({ error: "Unauthorized" }, 401);
   }
-
   // ---- Parse body ----------------------------------------------------------
   let body: VapiWebhookBody;
   try {
@@ -811,6 +837,7 @@ Deno.serve(async (req: Request) => {
   });
 
   logEvent("webhook_received", requestId, { type: message.type });
+  await logToDb(admin, { eventType: message.type, status: "success", requestId });
 
   try {
     switch (message.type) {
@@ -832,6 +859,12 @@ Deno.serve(async (req: Request) => {
     }
   } catch (error) {
     logError("unhandled_exception", requestId, error, { type: message.type });
+    await logToDb(admin, {
+      eventType: message.type,
+      status: "error",
+      requestId,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return jsonResponse({ error: "Internal server error" }, 500);
   }
 });
