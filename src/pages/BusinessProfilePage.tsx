@@ -8,6 +8,9 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, BusinessProfile, BusinessProfileHoliday, BusinessProfileEscalationRule } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { EscalationSettings } from '@/components/settings/EscalationSettings';
+import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
+import { SkeletonCardList } from '@/components/Skeleton';
+import { EmptyState } from '@/components/EmptyState';
 
 // ============================================================
 // CONSTANTS
@@ -371,15 +374,7 @@ export function BusinessProfilePage() {
         </motion.div>
 
         {loading ? (
-          <div className="space-y-6">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
-                <div className="h-5 w-40 animate-pulse rounded bg-bg-tertiary" />
-                <div className="mt-4 h-10 w-full animate-pulse rounded bg-bg-tertiary" />
-                <div className="mt-3 h-10 w-full animate-pulse rounded bg-bg-tertiary" />
-              </div>
-            ))}
-          </div>
+          <SkeletonCardList count={5} rows={2} />
         ) : (
           <div className="space-y-6">
             {/* Assistant Persona */}
@@ -778,6 +773,14 @@ export function BusinessProfilePage() {
                   ))}
                 </div>
               )}
+              {faqs.length === 0 && (
+                <EmptyState
+                  icon={HelpCircle}
+                  title="No FAQs yet"
+                  description="Add common questions so your assistant can answer callers instantly instead of transferring them."
+                  className="mt-3"
+                />
+              )}
               <button
                 type="button"
                 onClick={addFaq}
@@ -792,7 +795,7 @@ export function BusinessProfilePage() {
               <EmbedWidgetCard />
             </div>
             <div className="mt-6">
-            <EscalationSettings />
+              <EscalationSettings />
             </div>
 
             {/* Save bar */}
