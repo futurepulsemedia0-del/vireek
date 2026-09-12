@@ -178,3 +178,15 @@ export interface ReviewRequest {
   completed_at: string | null;
   created_at: string;
 }
+export interface WebhookLog {
+  id: string;
+  user_id: string | null;
+  direction: 'incoming' | 'outgoing';
+  event_type: string;
+  status: 'success' | 'error';
+  status_code: number | null;
+  target_url: string | null;
+  error_message: string | null;
+  request_id: string | null;
+  created_at: string;
+}
