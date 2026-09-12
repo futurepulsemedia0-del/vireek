@@ -144,11 +144,14 @@ export function StarterPromptChip({ label, onClick }: { label: string; onClick: 
 /** Tiny pulsing "online" dot for a chat panel header — reuses the same
  * ping+dot language as `LiveIndicator`, scaled down for inline use next
  * to a title instead of as a standalone badge. */
-export function OnlineDot() {
+export function OnlineDot({ online = true }: { online?: boolean }) {
+  const color = online ? 'bg-success-500' : 'bg-text-secondary/40';
   return (
     <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
-      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success-500 opacity-75" />
-      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success-500" />
+      {online && (
+        <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${color} opacity-75`} />
+      )}
+      <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${color}`} />
     </span>
   );
 }
