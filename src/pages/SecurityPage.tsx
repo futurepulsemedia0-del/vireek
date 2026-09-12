@@ -142,6 +142,13 @@ export function SecurityPage() {
                 </p>
               </div>
             </div>
+                        <p className="mt-6 text-center text-sm text-text-secondary">
+              This infrastructure runs in the United States today. See the{' '}
+              <Link to="/trust" className="font-semibold text-accent hover:text-cta">
+                Trust Center
+              </Link>{' '}
+              for data location and our full sub-processor list.
+            </p>
             <p className="mt-6 text-center text-sm text-text-secondary">
               For the full legal terms, see our{' '}
               <Link to="/privacy" className="font-semibold text-accent hover:text-cta">
