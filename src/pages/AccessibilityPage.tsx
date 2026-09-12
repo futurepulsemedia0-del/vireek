@@ -183,7 +183,13 @@ export function AccessibilityPage() {
                 <ArrowRight size={14} className="ml-1" />
               </a>
             </div>
-
+                         <p className="text-sm text-text-secondary/70">
+              Looking for the formal document?{' '}
+              <Link to="/accessibility/conformance" className="font-semibold text-accent hover:underline">
+                Read our WCAG Conformance Statement
+              </Link>
+              .
+            </p>
             <p className="text-sm text-text-secondary/70">
               See also our{' '}
               <Link to="/privacy" className="font-semibold text-accent hover:underline">
