@@ -28,6 +28,7 @@ const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ de
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
+const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const TeamPage = lazy(() => import('@/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
 const BillingPage = lazy(() => import('@/pages/BillingPage').then((m) => ({ default: m.BillingPage })));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })));
@@ -315,6 +316,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MembershipsPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/price-book"
+          element={
+            <ProtectedRoute>
+              <PriceBookPage />
             </ProtectedRoute>
           }
         />
