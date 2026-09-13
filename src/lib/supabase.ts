@@ -55,6 +55,8 @@ export interface Call {
   is_emergency: boolean;
   sentiment: 'positive' | 'neutral' | 'negative' | null;
   status: 'new_lead' | 'booked' | 'missed' | 'callback_requested' | 'spam';
+    tags: string[];
+  lead_source: string | null;
   is_voicemail: boolean;
   voicemail_listened_at: string | null;
   escalated_to: string | null;
@@ -73,6 +75,7 @@ export interface Lead {
   service_interested: string | null;
   notes: string | null;
   stage: 'new' | 'contacted' | 'quoted' | 'won' | 'lost';
+    tags: string[];
   quote_amount: number | null;
   quote_sent_at: string | null;
   follow_up_count: number;
@@ -94,6 +97,7 @@ export interface Job {
   duration_minutes: number | null;
   assigned_technician_id: string | null;
   job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled';
+    tags: string[];
   invoice_amount: number | null;
   invoice_status: 'not_sent' | 'sent' | 'paid';
   dispatch_note: string | null;
