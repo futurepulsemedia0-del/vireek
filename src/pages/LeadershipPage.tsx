@@ -18,10 +18,10 @@ import { useSEO } from '@/lib/seo';
 // linking nowhere. If you leave FOUNDER_PHOTO_URL empty, a monogram
 // avatar is shown instead of a broken image.
 
-const FOUNDER_NAME = 'Your Name Here'; // TODO: replace with the real name
+const FOUNDER_NAME = 'Ali Moradi'; // TODO: replace with the real name
 const FOUNDER_TITLE = 'Founder & CEO';
-const FOUNDER_PHOTO_URL = ''; // TODO: e.g. '/images/founder.jpg' — leave blank until you have a real photo
-const FOUNDER_LINKEDIN_URL = ''; // TODO: e.g. 'https://linkedin.com/in/yourhandle' — leave blank to hide the button
+const FOUNDER_PHOTO_URL = '/founder.jpg';
+const FOUNDER_LINKEDIN_URL = 'https://www.linkedin.com/in/ali-moradi-741346339'; 
 const FOUNDER_EMAIL = 'ali@vireek.com';
 
 // Adapted directly from the real "Why we started Vireek" story already
