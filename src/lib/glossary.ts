@@ -282,7 +282,22 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     term: 'Toll-Free Number',
     category: 'telephony',
     definition:
-      'A phone number, such as one starting with 800 or 888, that costs the caller nothing to dial. Some home service businesses use a toll-free number for marketing while keeping a local number for their main line.',
+      'A phone number, such as one starting with 800 or 888, that costs the caller nothing to dial. Some home service businesses use a toll-free number for marketing while keeping a local number for their main line. Using one to send SMS requires Toll-Free Verification with the carrier first, or messages get filtered.',
+    relatedLinks: [{ label: 'Toll-Free Verification', href: '/glossary/toll-free-verification' }],
+  },
+  {
+    slug: 'toll-free-verification',
+    term: 'Toll-Free Verification (TFV)',
+    category: 'telephony',
+    definition:
+      'A one-time review carriers require before a toll-free number (800, 833, 844, 855, 866, 877, or 888) can send SMS reliably. You submit your business identity and how you plan to use the number; until it\u2019s approved, texts from that number can be filtered or blocked outright. It is a separate process from 10DLC, which covers local numbers instead.',
+  },
+  {
+    slug: '10dlc',
+    term: '10DLC',
+    category: 'telephony',
+    definition:
+      '"10-Digit Long Code" \u2014 the registration system carriers require before a standard local phone number (not toll-free) can send SMS at scale. Like Toll-Free Verification, it exists to cut down on spam; unregistered numbers get their messages throttled or filtered.',
   },
   {
     slug: 'local-number',
