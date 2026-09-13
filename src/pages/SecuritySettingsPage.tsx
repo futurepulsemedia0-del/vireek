@@ -85,6 +85,11 @@ export function SecuritySettingsPage() {
   const [revokingSessionId, setRevokingSessionId] = useState<string | null>(null);
   const [sessionRevokeTarget, setSessionRevokeTarget] = useState<OwnSessionRow | null>(null);
 
+  const [devices, setDevices] = useState<TrustedDeviceRow[]>([]);
+  const [devicesLoading, setDevicesLoading] = useState(true);
+  const [revokeTarget, setRevokeTarget] = useState<TrustedDeviceRow | null>(null);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
+
   const [exporting, setExporting] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -217,7 +222,8 @@ export function SecuritySettingsPage() {
     if (error) toast(`Could not sign out other sessions: ${error.message}`, 'error');
     else toast('Every other session has been signed out.', 'success');
   };
-   const handleRevokeSession = async () => {
+
+  const handleRevokeSession = async () => {
     if (!sessionRevokeTarget) return;
     setRevokingSessionId(sessionRevokeTarget.id);
     try {
@@ -260,8 +266,6 @@ export function SecuritySettingsPage() {
     }
   };
 
-  const handleRevokeDevice = async () => {
-    if (!revokeTarget) return; 
   const handleRevokeDevice = async () => {
     if (!revokeTarget) return;
     setRevokingId(revokeTarget.id);
@@ -412,7 +416,8 @@ export function SecuritySettingsPage() {
           {signingOutOthers ? 'Signing out…' : 'Sign out of all other sessions'}
         </button>
       </div>
-              {/* Active sessions (real per-session list, distinct from "sign out others" above) */}
+
+      {/* Active sessions (real per-session list, distinct from "sign out others" above) */}
       <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
@@ -464,8 +469,6 @@ export function SecuritySettingsPage() {
         </div>
       </div>
 
-      {/* Trusted devices */}
-      <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       {/* Trusted devices */}
       <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
         <div className="flex items-center gap-3">
@@ -566,7 +569,8 @@ export function SecuritySettingsPage() {
           )}
         </div>
       </div>
-            {/* Data export + account deletion */}
+
+      {/* Data export + account deletion */}
       <div className="mt-4 rounded-2xl border border-danger/30 bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-danger/10 text-danger">
@@ -602,8 +606,6 @@ export function SecuritySettingsPage() {
         </p>
       </div>
 
-      <ConfirmDialog
-        open={!!unenrollTarget}
       <ConfirmDialog
         open={!!unenrollTarget}
         title="Remove two-factor authentication?"
