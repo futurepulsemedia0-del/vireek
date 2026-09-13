@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { HelpCircle, X, Send } from 'lucide-react';
 import { streamAiChat } from '@/lib/aiStream';
 import { getSupportStatus, SUPPORT_HOURS_LABEL } from '@/lib/supportHours';
@@ -53,6 +54,7 @@ const STARTER_PROMPTS = [
  * `AccessibilityWidget` (`bottom-5`, 48px tall → top edge at 68px).
  */
 export function SiteAssistant() {
+  const { t } = useTranslation('common');
   const location = useLocation();
   const [status, setStatus] = useState(() => getSupportStatus());
   const [open, setOpen] = useState(false);
@@ -203,6 +205,9 @@ export function SiteAssistant() {
               </div>
             </div>
 
+            <p className="border-b border-border/60 bg-bg-tertiary/50 px-4 py-1.5 text-center text-[10px] font-medium text-text-secondary">
+              {t('aiDisclosure.chatNotice')}
+            </p>
             <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
               {messages.length === 0 && (
                 <div className="space-y-2.5">
