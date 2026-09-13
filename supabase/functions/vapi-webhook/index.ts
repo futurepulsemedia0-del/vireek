@@ -1284,6 +1284,98 @@ async function toolRecordMembershipDecision(
 
   return "Recorded that the caller wasn't ready to sign up today. The offer stays on file in case they change their mind.";
 }
+async function toolCheckBillingStatus(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  callerNumber: string | null,
+): Promise<string> {
+  if (!callerNumber) {
+    return "I don't have a phone number for this caller, so I can't look up billing.";
+  }
+
+  const { data: jobs, error } = await admin
+    .from("jobs")
+    .select("service_type, invoice_amount, invoice_status, scheduled_datetime")
+    .eq("user_id", tenant.userId)
+    .eq("customer_phone", callerNumber)
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  if (error) {
+    return "I couldn't reach the billing system right now — let the caller know a team member will follow up.";
+  }
+  if (!jobs || jobs.length === 0) {
+    return "No jobs or invoices are on file for this phone number.";
+  }
+
+  const unpaid = jobs.filter((j) => j.invoice_status !== "paid" && j.invoice_amount != null);
+  if (unpaid.length === 0) {
+    return "Every invoice on file for this caller is already marked paid — nothing outstanding.";
+  }
+
+  const lines = unpaid.map(
+    (j) =>
+      `${j.service_type ?? "Service"}: $${Number(j.invoice_amount).toFixed(2)} (${j.invoice_status === "sent" ? "invoice sent, unpaid" : "not yet invoiced"})`,
+  );
+  return `Here's what's outstanding: ${lines.join("; ")}.`;
+}
+
+// ---------------------------------------------------------------------------
+// reschedule_appointment — lets the caller move their own upcoming job
+// without a human. Clears assigned_technician_id rather than trying to
+// re-assign automatically — there's no AI Dispatcher yet (separate
+// feature), so an unassigned job after a reschedule is meant to surface
+// on the Dispatch Board for a human to re-assign.
+// ---------------------------------------------------------------------------
+
+async function toolRescheduleAppointment(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  args: Record<string, unknown>,
+  callerNumber: string | null,
+): Promise<string> {
+  if (!callerNumber) {
+    return "I don't have a phone number for this caller, so I can't find their appointment.";
+  }
+
+  const newDatetimeRaw = typeof args.new_datetime === "string" ? args.new_datetime : "";
+  const newDatetime = newDatetimeRaw ? new Date(newDatetimeRaw) : null;
+  if (!newDatetime || Number.isNaN(newDatetime.getTime())) {
+    return "That doesn't look like a valid date/time — ask the caller for a specific day and time and try again.";
+  }
+  if (newDatetime.getTime() < Date.now()) {
+    return "That time is in the past — ask the caller for a future date and time.";
+  }
+
+  const { data: job, error: findError } = await admin
+    .from("jobs")
+    .select("id, service_type")
+    .eq("user_id", tenant.userId)
+    .eq("customer_phone", callerNumber)
+    .eq("job_status", "scheduled")
+    .gte("scheduled_datetime", new Date().toISOString())
+    .order("scheduled_datetime", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (findError) {
+    return "I couldn't reach the scheduling system right now — let the caller know a team member will follow up.";
+  }
+  if (!job) {
+    return "No upcoming appointment was found for this phone number to reschedule.";
+  }
+
+  const { error: updateError } = await admin
+    .from("jobs")
+    .update({ scheduled_datetime: newDatetime.toISOString(), assigned_technician_id: null })
+    .eq("id", job.id);
+
+  if (updateError) {
+    return "Something went wrong moving the appointment — let the caller know a team member will confirm manually.";
+  }
+
+  return `Done — the ${job.service_type ?? "appointment"} is now scheduled for ${newDatetime.toLocaleString()}. Let the caller know the technician assignment will be confirmed before then.`;
+}
 async function toolRequestHumanTransfer(
   admin: SupabaseClient,
   tenant: TenantContext,
@@ -1366,6 +1458,12 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "record_membership_decision":
             result = await toolRecordMembershipDecision(admin, tenant, args, callerNumber);
+            break;
+                      case "check_billing_status":
+            result = await toolCheckBillingStatus(admin, tenant, callerNumber);
+            break;
+          case "reschedule_appointment":
+            result = await toolRescheduleAppointment(admin, tenant, args, callerNumber);
             break;
           case "capture_insurance_claim":
             result = await toolCaptureInsuranceClaim(admin, tenant, args, vapiCallId, callerNumber, callerName);
