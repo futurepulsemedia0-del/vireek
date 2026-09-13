@@ -10,6 +10,7 @@ import { ExperimentProvider } from '@/contexts/ExperimentContext';
 import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
 import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { SiteAssistant } from '@/components/SiteAssistant';
+import { LiveChatWidget } from '@/components/LiveChatWidget';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
@@ -42,6 +43,7 @@ createRoot(document.getElementById('root')!).render(
                     <App />
                     <AccessibilityWidget />
                     <SiteAssistant />
+                    <LiveChatWidget />
                   </ErrorBoundary>
                 </AuthProvider>
               </ToastProvider>
