@@ -100,6 +100,7 @@ const BrandGuidelinesPage = lazy(() => import('@/pages/BrandGuidelinesPage').the
 const PartnersPage = lazy(() => import('@/pages/PartnersPage').then((m) => ({ default: m.PartnersPage })));
 const AffiliatePage = lazy(() => import('@/pages/AffiliatePage').then((m) => ({ default: m.AffiliatePage })));
 const ReferralPage = lazy(() => import('@/pages/ReferralPage').then((m) => ({ default: m.ReferralPage })));
+const BetaProgramPage = lazy(() => import('@/pages/BetaProgramPage').then((m) => ({ default: m.BetaProgramPage })));
 const WebinarsPage = lazy(() => import('@/pages/WebinarsPage').then((m) => ({ default: m.WebinarsPage })));
 const CustomerRoiPage = lazy(() => import('@/pages/CustomerRoiPage').then((m) => ({ default: m.CustomerRoiPage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
@@ -225,6 +226,7 @@ function App() {
         <Route path="/partners" element={<PartnersPage />} />
         <Route path="/affiliate" element={<AffiliatePage />} />
         <Route path="/referral" element={<ReferralPage />} />
+        <Route path="/beta" element={<BetaProgramPage />} />
         <Route path="/webinars" element={<WebinarsPage />} />
         <Route path="/roi" element={<CustomerRoiPage />} />
         <Route path="/badge" element={<BadgePage />} />
