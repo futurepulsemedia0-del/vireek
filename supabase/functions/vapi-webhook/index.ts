@@ -1207,7 +1207,83 @@ async function toolFlagEmergencyCall(
 // escalation target (falls back to the general forwarding number if no
 // "human_request" rule is configured).
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// pitch_membership / record_membership_decision — AI upsell during the
+// call. membership_plans / memberships already existed (dashboard CRUD +
+// funnel tracking with status offered/active/cancelled) — this is the
+// only piece that was missing: something that actually offers it live.
+// ---------------------------------------------------------------------------
 
+async function toolPitchMembership(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  callerNumber: string | null,
+  callerName: string | null,
+): Promise<string> {
+  const { data: plans, error } = await admin
+    .from("membership_plans")
+    .select("id, name, price_cents, billing_interval, benefits")
+    .eq("user_id", tenant.userId)
+    .eq("active", true)
+    .limit(2);
+
+  if (error) {
+    return "I couldn't reach the membership plan details right now — don't pitch a plan on this call.";
+  }
+  if (!plans || plans.length === 0) {
+    return "This business doesn't have a membership plan configured — nothing to offer.";
+  }
+
+  const plan = plans[0];
+  const dollars = (plan.price_cents / 100).toFixed(plan.price_cents % 100 === 0 ? 0 : 2);
+  const interval = plan.billing_interval === "yearly" ? "year" : "month";
+  const benefitsLine = plan.benefits?.length ? ` Includes: ${plan.benefits.join(", ")}.` : "";
+
+  if (callerNumber) {
+    await admin.from("memberships").insert({
+      user_id: tenant.userId,
+      plan_id: plan.id,
+      customer_name: callerName || "Caller",
+      customer_phone: callerNumber,
+      status: "offered",
+    });
+  }
+
+  return `Pitch this to the caller: the ${plan.name} is $${dollars}/${interval}.${benefitsLine} Ask if they'd like to sign up right now.`;
+}
+
+async function toolRecordMembershipDecision(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  args: Record<string, unknown>,
+  callerNumber: string | null,
+): Promise<string> {
+  const accepted = args.accepted === true || args.accepted === "true";
+  if (!callerNumber) {
+    return "No caller phone number on this call, so I can't record a membership decision.";
+  }
+
+  const { data: offer } = await admin
+    .from("memberships")
+    .select("id")
+    .eq("user_id", tenant.userId)
+    .eq("customer_phone", callerNumber)
+    .eq("status", "offered")
+    .order("offered_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!offer) {
+    return "No pending membership offer found for this caller to update.";
+  }
+
+  if (accepted) {
+    await admin.from("memberships").update({ status: "active", started_at: new Date().toISOString() }).eq("id", offer.id);
+    return "Recorded — the caller signed up for the membership. Thank them and let them know a confirmation will follow.";
+  }
+
+  return "Recorded that the caller wasn't ready to sign up today. The offer stays on file in case they change their mind.";
+}
 async function toolRequestHumanTransfer(
   admin: SupabaseClient,
   tenant: TenantContext,
@@ -1284,6 +1360,12 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "request_human_transfer":
             result = await toolRequestHumanTransfer(admin, tenant, args, vapiCallId, callerNumber, callerName);
+            break;
+                      case "pitch_membership":
+            result = await toolPitchMembership(admin, tenant, callerNumber, callerName);
+            break;
+          case "record_membership_decision":
+            result = await toolRecordMembershipDecision(admin, tenant, args, callerNumber);
             break;
           case "capture_insurance_claim":
             result = await toolCaptureInsuranceClaim(admin, tenant, args, vapiCallId, callerNumber, callerName);
