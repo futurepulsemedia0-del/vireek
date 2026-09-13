@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { getRescheduleLink } from '@/lib/reschedule';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
@@ -247,6 +248,7 @@ function JobDetailPanel({
   onDelete: () => void;
   onRequestReview: (job: Job) => void;
 }) {
+  const { toast } = useToast();
   const [invoiceAmount, setInvoiceAmount] = useState(job.invoice_amount?.toString() ?? '');
   const [invoiceStatus, setInvoiceStatus] = useState<InvoiceStatus>(job.invoice_status);
   const [editingInvoice, setEditingInvoice] = useState(false);
@@ -347,6 +349,18 @@ function JobDetailPanel({
               className="focus-ring mt-3 w-full rounded-lg border border-danger/30 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/5"
             >
               Cancel Job
+            </button>
+          )}
+          {job.job_status === 'scheduled' && (
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(getRescheduleLink(job.reschedule_token));
+                toast('Reschedule link copied', 'success');
+              }}
+              className="focus-ring mt-2 w-full rounded-lg border border-border py-2 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+            >
+              Copy self-reschedule link
             </button>
           )}
         </div>
