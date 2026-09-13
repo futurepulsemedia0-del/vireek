@@ -1386,6 +1386,34 @@ async function toolCaptureInsuranceClaim(
 
   return "Got it — I've logged this as an insurance claim for our claims team to follow up on.";
 }
+function mapEndedReasonToOutboundStatus(endedReason: string | undefined, durationSeconds: number | null): string {
+  const r = (endedReason ?? "").toLowerCase();
+  if (r.includes("voicemail")) return "voicemail_left";
+  if (r.includes("no-answer") || r.includes("did-not-answer") || r.includes("busy")) return "no_answer";
+  if (durationSeconds && durationSeconds > 5) return "connected";
+  return "no_answer";
+}
+
+async function updateOutboundCallStatus(admin: SupabaseClient, outboundCallId: string, message: VapiMessage) {
+  if (message.type !== "end-of-call-report") return; // ignore intermediate status-update events for outbound rows
+
+  let durationSeconds = message.durationSeconds ?? null;
+  if (durationSeconds == null && message.call?.startedAt && message.call?.endedAt) {
+    const started = Date.parse(message.call.startedAt);
+    const ended = Date.parse(message.call.endedAt);
+    if (!Number.isNaN(started) && !Number.isNaN(ended) && ended >= started) {
+      durationSeconds = Math.round((ended - started) / 1000);
+    }
+  }
+
+  await admin
+    .from("outbound_calls")
+    .update({
+      status: mapEndedReasonToOutboundStatus(message.endedReason, durationSeconds),
+      outcome_notes: message.summary ?? message.analysis?.summary ?? message.endedReason ?? null,
+    })
+    .eq("id", outboundCallId);
+}
 async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   const tenant = await resolveTenant(admin, message, requestId);
   if (!tenant) {
@@ -1396,7 +1424,16 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
   }
 
   const vapiCallId = message.call?.id;
+async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMessage, requestId: string) {
+  const tenant = await resolveTenant(admin, message, requestId);
+  if (!tenant) {
+    logEvent("lifecycle_event_no_tenant", requestId, { type: message.type });
+    // 200, not an error: Vapi doesn't need to retry an event we simply
+    // can't attribute to a tenant (e.g. a stale/demo assistant id).
+    return jsonResponse({ received: true });
+  }
 
+  const vapiCallId = message.call?.id;
 const trackingSource = await resolveCallSource(
   admin,
   message.phoneNumber?.id
