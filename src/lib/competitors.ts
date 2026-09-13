@@ -1,4 +1,4 @@
-import { Building2, Wrench, ClipboardList, Bot, Headset, Zap, UserCheck, MessageSquare, Car, PhoneCall, Sparkles, Bug, Settings, Mic, type LucideIcon } from 'lucide-react';
+import { Building2, Wrench, ClipboardList, Bot, Headset, Zap, UserCheck, MessageSquare, Car, PhoneCall, Sparkles, Bug, Settings, Mic, Users, Waves, type LucideIcon } from 'lucide-react';
 
 export interface CompetitorFAQ {
   q: string;
@@ -630,10 +630,96 @@ export const COMPETITORS: Competitor[] = [
       },
     ],
   },
+  {
+    slug: 'ruby-receptionists',
+    name: 'Ruby Receptionists',
+    icon: Users,
+    category: 'Live human virtual receptionist service, billed by the minute',
+    seoTitle: 'Vireek vs Ruby Receptionists: AI Voice Receptionist vs Live Human Answering | Vireek',
+    seoDescription:
+      'Ruby Receptionists is a live, human virtual receptionist service billed in minute bundles, built for small businesses broadly. Vireek is an AI voice receptionist trained specifically on home-service trades. See how they compare.',
+    summary:
+      'Ruby Receptionists is a live, human virtual receptionist and chat service used by small businesses across many industries — professional, friendly agents answer calls, screen them, take messages, and can schedule appointments, typically billed in minute bundles rather than a flat monthly rate.',
+    builtFor:
+      'Small businesses across many industries — not trade-specific — that want a live human voice answering on their behalf, with pricing that scales with call minutes.',
+    isVoiceAICompetitor: false,
+    featureRows: [
+      { feature: 'Answers instantly, every time, with zero wait for an available agent', vireek: 'yes', competitor: 'partial' },
+      { feature: 'Books appointments directly from the call itself', vireek: 'yes', competitor: 'partial' },
+      { feature: 'Trained on HVAC, plumbing, electrical & trade-specific emergencies', vireek: 'yes', competitor: 'no' },
+      { feature: 'Live human voice on every call', vireek: 'no', competitor: 'yes' },
+      { feature: 'Cost scales with call minutes used', vireek: 'no', competitor: 'yes' },
+      { feature: 'Syncs call summaries and leads to your CRM automatically', vireek: 'yes', competitor: 'partial' },
+      { feature: 'Transparent, published pricing', vireek: 'yes', competitor: 'partial' },
+    ],
+    worksWellTogether:
+      'Some businesses keep a live-human service like Ruby for calls where a human touch genuinely matters most, while Vireek handles the bulk of day-to-day, after-hours, and overflow calls so nothing sits in a queue waiting on agent availability.',
+    faq: [
+      {
+        q: 'Is Ruby Receptionists an AI product?',
+        a: 'No — Ruby is built around live, human receptionists answering on your behalf, not an AI voice agent. Vireek is a pure-AI voice receptionist, which means no wait for an available agent and no per-minute cost that climbs with call volume.',
+      },
+      {
+        q: 'Is a live human always going to sound more natural than Vireek?',
+        a: 'A live agent is a real person, so that’s a fair consideration. What Vireek offers instead is consistency and trade-specific depth on every single call — the same accurate handling of a "no heat" emergency at 2am as at 2pm, with no agent availability to wait on and no per-minute billing as call volume grows.',
+      },
+      {
+        q: 'How does pricing typically compare?',
+        a: 'Ruby and similar live-answering services commonly sell minute bundles, so cost rises with call volume and overage minutes cost more. Vireek is built to answer high call volumes without that per-minute math. Confirm current rates directly with any provider before comparing, since pricing changes.',
+      },
+      {
+        q: 'Can I try Vireek before switching from a live answering service?',
+        a: 'Yes — start a free trial and let Sarah answer your real calls for a week. You’ll see exactly how many get answered, triaged, and booked before committing to anything.',
+      },
+    ],
+  },
+  {
+    slug: 'dialzara',
+    name: 'Dialzara',
+    icon: Waves,
+    category: 'General-purpose AI voice receptionist for small businesses across many industries',
+    seoTitle: 'Vireek vs Dialzara: Trade-Specific AI Receptionist vs General-Purpose AI Answering | Vireek',
+    seoDescription:
+      'Dialzara is a general-purpose AI voice receptionist used across legal, real estate, retail, and other industries, billed by the minute. Vireek is an AI voice receptionist built and trained specifically for home-service trades. See how they compare.',
+    summary:
+      'Dialzara is a general-purpose AI voice receptionist that answers calls, captures leads, and books appointments for small businesses across many different industries — legal, real estate, retail, and more — connecting to other tools primarily through Zapier, typically billed in minute-based tiers.',
+    builtFor:
+      'Small businesses and solo operators across a wide range of industries that want an affordable, general-purpose AI phone answering setup, not specifically home-service trades.',
+    isVoiceAICompetitor: true,
+    positioning: [
+      {
+        title: 'Focus',
+        body: 'Dialzara is built as a horizontal, general-purpose AI receptionist — the same underlying product configured for law firms, retailers, real estate agents, and home-service businesses alike. Vireek is built specifically for home-service trades from the ground up, with trade vocabulary, emergency triage, and booking flows native to HVAC, plumbing, electrical, and similar work.',
+      },
+      {
+        title: 'Integrations',
+        body: 'Dialzara connects to other business tools primarily through Zapier, an extra integration layer to configure. Vireek is built to sync directly with the scheduling and CRM tools home-service businesses already run, without needing a separate automation platform in between.',
+      },
+      {
+        title: 'Who each one fits best',
+        body: 'A solo operator or small business in almost any industry that wants a low-cost, general-purpose AI answering setup may find Dialzara’s broad, minute-based plans appealing. A home-service contractor that wants an AI receptionist that already understands the difference between a routine maintenance call and a gas-leak emergency, without custom-training a generic tool, is what Vireek is built for.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Is Dialzara built specifically for home-service businesses like Vireek is?',
+        a: 'No — Dialzara is a general-purpose AI receptionist configured for many different industries (legal, retail, real estate, and more), not trained specifically on home-service trade language and emergencies the way Vireek is from the ground up.',
+      },
+      {
+        q: 'How does pricing typically compare?',
+        a: 'Dialzara is commonly sold in minute-based tiers, so cost scales with call volume and usage. Vireek is built to answer high call volumes without that per-minute math. Confirm current rates directly with any provider before comparing, since pricing changes.',
+      },
+      {
+        q: 'Does Dialzara integrate with the scheduling tools home-service businesses use?',
+        a: 'Dialzara connects to other apps primarily through Zapier, which can reach many tools but adds a setup layer. Vireek is built to sync directly with common home-service scheduling and CRM tools without needing Zapier in between — reach out if you want a specific integration confirmed before switching anything.',
+      },
+      {
+        q: 'Can I see how Vireek handles my trade-specific calls before deciding?',
+        a: 'Yes — start a free trial and let Sarah answer your real calls for a week. You’ll see exactly how she handles your specific trade’s calls, emergencies included, before committing to anything.',
+      },
+    ],
+  },
 ];
-
-
-export function getCompetitorBySlug(slug?: string): Competitor | undefined {
   if (!slug) return undefined;
   return COMPETITORS.find((c) => c.slug === slug);
 }
