@@ -30,6 +30,11 @@ interface IntegrationDef {
   color: string;
   bgColor: string;
   hasWebhook: boolean;
+  /** True = no real connection exists behind this yet (no OAuth, nothing
+   *  actually talks to the vendor's API). Renders a disabled "Coming soon"
+   *  state instead of a Connect button that would silently do nothing. See
+   *  NATIVE_INTEGRATIONS_PLAYBOOK.md for what it'd take to make this real. */
+  comingSoon?: boolean;
 }
 
 const INTEGRATION_DEFS: IntegrationDef[] = [
@@ -41,6 +46,7 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10',
     hasWebhook: false,
+    comingSoon: true,
   },
   {
     type: 'hubspot',
@@ -50,20 +56,22 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     color: 'text-violet-500',
     bgColor: 'bg-violet-500/10',
     hasWebhook: false,
+    comingSoon: true,
   },
   {
     type: 'zapier',
     name: 'Zapier',
-    description: 'Connect Vireek to 5,000+ apps through Zapier workflows.',
+    description: 'Works today via the Webhook connection below — paste a Zapier "Catch Hook" URL there to use it.',
     icon: Zap,
     color: 'text-accent',
     bgColor: 'bg-accent/10',
     hasWebhook: false,
+    comingSoon: true,
   },
   {
     type: 'webhook',
     name: 'Webhook',
-    description: 'Receive real-time event notifications at your own endpoint.',
+    description: 'Receive real-time event notifications at your own endpoint. Also works with Zapier, Make.com, or any tool that accepts an incoming webhook.',
     icon: Webhook,
     color: 'text-indigo-500',
     bgColor: 'bg-indigo-500/10',
@@ -223,7 +231,9 @@ export function IntegrationsPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           {INTEGRATION_DEFS.map((def, i) => {
             const integration = getIntegration(def.type);
-            const isConnected = integration?.status === 'connected';
+            // comingSoon integrations never show as connected, even if an old
+            // "connected" row exists from before this had a real distinction.
+            const isConnected = !def.comingSoon && integration?.status === 'connected';
             return (
               <motion.div
                 key={def.type}
@@ -279,29 +289,38 @@ export function IntegrationsPage() {
                   </div>
                 )}
 
-                {/* Connect/Disconnect button */}
-                <button
-                  type="button"
-                  onClick={() => handleToggle(def)}
-                  disabled={toggling === def.type}
-                  className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:opacity-50 ${
-                    isConnected
-                      ? 'border-border text-text-secondary hover:border-danger/40 hover:text-danger'
-                      : 'border-accent/30 bg-accent/5 text-accent hover:bg-accent/10'
-                  }`}
-                >
-                  {toggling === def.type ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : isConnected ? (
-                    <>
-                      <Link2Off size={16} /> Disconnect
-                    </>
-                  ) : (
-                    <>
-                      <Link2 size={16} /> Connect
-                    </>
-                  )}
-                </button>
+                {/* Connect/Disconnect button, or an honest "Coming soon" state */}
+                {def.comingSoon ? (
+                  <div
+                    className="mt-4 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-dashed border-border px-4 py-2.5 text-sm font-medium text-text-secondary"
+                    title="Not connected to anything yet — no live integration exists for this one."
+                  >
+                    Coming soon
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleToggle(def)}
+                    disabled={toggling === def.type}
+                    className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:opacity-50 ${
+                      isConnected
+                        ? 'border-border text-text-secondary hover:border-danger/40 hover:text-danger'
+                        : 'border-accent/30 bg-accent/5 text-accent hover:bg-accent/10'
+                    }`}
+                  >
+                    {toggling === def.type ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : isConnected ? (
+                      <>
+                        <Link2Off size={16} /> Disconnect
+                      </>
+                    ) : (
+                      <>
+                        <Link2 size={16} /> Connect
+                      </>
+                    )}
+                  </button>
+                )}
               </motion.div>
             );
           })}
