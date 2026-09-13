@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import type { CaseStudy } from '@/components/sections/CaseStudies';
+import type { InsuranceClaim } from '@/lib/supabase';
 
 // ============================================================
 // SHARED LAYOUT HELPERS
@@ -307,4 +308,61 @@ export function downloadRoiCalculatorPdf(inputs: RoiCalculatorInputs, results: R
   );
 
   doc.save('vireek-roi-report.pdf');
+}
+
+// ============================================================
+// INSURANCE CLAIM SUMMARY PDF
+// ============================================================
+//
+// A clean, one-page handoff document for the file — customer, loss, and
+// carrier/adjuster details in one place. Meant for internal use (or to
+// attach when emailing an adjuster), not a customer-facing accept/decline
+// flow like the quote PDF equivalent would be.
+
+export function downloadInsuranceClaimPdf(claim: InsuranceClaim): void {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  let y = drawHeader(doc, 'Insurance Claim Summary', claim.customer_name);
+
+  y = drawSectionLabel(doc, 'Loss details', y);
+  y = drawParagraph(
+    doc,
+    `Property: ${claim.property_address || 'Not on file'}\n` +
+      `Date of loss: ${claim.date_of_loss || 'Not recorded'}\n` +
+      `Loss type: ${claim.loss_type.replace(/_/g, ' ')}`,
+    y
+  );
+
+  y += 10;
+  y = drawSectionLabel(doc, 'Insurance details', y);
+  y = drawParagraph(
+    doc,
+    `Carrier: ${claim.insurance_carrier || 'Not on file'}\n` +
+      `Policy #: ${claim.policy_number || 'Not on file'}\n` +
+      `Claim #: ${claim.claim_number || 'Not on file'}\n` +
+      `Deductible: ${claim.deductible_cents != null ? currency(claim.deductible_cents / 100) : 'Not on file'}\n` +
+      `Estimated damage: ${
+        claim.estimated_damage_cents != null ? currency(claim.estimated_damage_cents / 100) : 'Not on file'
+      }`,
+    y
+  );
+
+  y += 10;
+  y = drawSectionLabel(doc, 'Adjuster', y);
+  y = drawParagraph(
+    doc,
+    `${claim.adjuster_name || 'Not yet assigned'}\n` +
+      `${claim.adjuster_phone || ''}${claim.adjuster_phone && claim.adjuster_email ? ' · ' : ''}${
+        claim.adjuster_email || ''
+      }`,
+    y
+  );
+
+  if (claim.notes) {
+    y += 10;
+    y = drawSectionLabel(doc, 'Notes', y);
+    y = drawParagraph(doc, claim.notes, y, { color: MUTED });
+  }
+
+  drawFooter(doc, `Claim status: ${claim.status.replace(/_/g, ' ')}. Generated for internal and adjuster reference.`);
+  doc.save(`insurance-claim-${claim.customer_name.trim().replace(/\s+/g, '-').toLowerCase() || 'summary'}.pdf`);
 }
