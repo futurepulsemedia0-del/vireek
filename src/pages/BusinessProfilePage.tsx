@@ -8,6 +8,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, BusinessProfile, BusinessProfileHoliday, BusinessProfileEscalationRule } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { EscalationSettings } from '@/components/settings/EscalationSettings';
+import { VoiceCloningCard } from '@/components/settings/VoiceCloningCard';
 import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
 import { SkeletonCardList } from '@/components/Skeleton';
 import { EmptyState } from '@/components/EmptyState';
@@ -455,6 +456,10 @@ export function BusinessProfilePage() {
                 </div>
               </div>
             </SectionCard>
+
+            <div className="mt-6">
+              <VoiceCloningCard />
+            </div>
 
             {/* Services Offered */}
             <SectionCard icon={Briefcase} title="Services Offered" description="What services does your business provide? Add one per line.">
