@@ -53,6 +53,10 @@ const TONE_OPTIONS: { id: ToneId; label: string; detail: string }[] = [
 
 const NAME_MAX_LENGTH = 40;
 
+// Default wording for the mandatory AI-voice disclosure. Editable per
+// account (tone, language, wording) — what's NOT editable is whether it
+// exists at all; see the CHECK constraints on business_profile in
+// 20260913070000_mandatory_ai_disclosure.sql.
 const DEFAULT_DISCLOSURE_SCRIPT =
   'This call is answered by an AI voice assistant, not a live person.';
 
@@ -123,6 +127,8 @@ export function AssistantPersonaPage() {
 
     const trimmedDisclosure = disclosureScript.trim();
     if (!trimmedDisclosure) {
+      // Mirrors the database CHECK constraint — this can never be saved
+      // blank, since a blank script is a silent way of disabling it.
       toast('The AI disclosure line can\u2019t be empty — it\u2019s required, not optional.', 'error');
       return;
     }
@@ -167,7 +173,10 @@ export function AssistantPersonaPage() {
     ? greetingScript.trim().replace(/\bSarah\b/g, assistantName.trim() || 'Sarah')
     : `Thanks for calling! This is ${assistantName.trim() || 'Sarah'}, how can I help you today?`;
 
+  // The disclosure always comes first — it's not an optional add-on to
+  // the greeting, it's the first thing said, every call.
   const previewGreeting = `${disclosureScript.trim() || DEFAULT_DISCLOSURE_SCRIPT} ${previewGreetingBody}`;
+
   return (
     <DashboardLayout activeLabel="Settings">
       <button
@@ -286,7 +295,10 @@ export function AssistantPersonaPage() {
             </div>
           </SectionCard>
 
-          {/* AI Disclosure — mandatory, not a toggle */}
+          {/* AI Disclosure — mandatory, not a toggle. There is deliberately
+              no on/off control here: see the CHECK constraint on
+              business_profile.ai_disclosure_enabled. The only thing an
+              account owner can do is edit the wording. */}
           <SectionCard
             icon={ShieldCheck}
             title="AI disclosure"
