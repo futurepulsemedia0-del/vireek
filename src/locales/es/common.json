@@ -35,5 +35,9 @@
   "menu": {
     "open": "Abrir menú",
     "close": "Cerrar menú"
+  },
+  "aiDisclosure": {
+    "chatBadge": "AI",
+    "chatNotice": "Estás chateando con un asistente de IA, no con un humano."
   }
 }
