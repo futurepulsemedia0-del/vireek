@@ -148,6 +148,10 @@ export function ComparePage() {
                 <Link to="/compare/matrix" className="font-semibold text-accent hover:underline">
                   every option in one full feature matrix
                 </Link>
+                                . Already decided and just need the steps?{' '}
+                <Link to="/switch" className="font-semibold text-accent hover:underline">
+                  See our switching guides
+                </Link>
                 .
               </p>
             </motion.div>
