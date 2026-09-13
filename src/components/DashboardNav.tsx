@@ -22,6 +22,7 @@ import {
   Voicemail,
   PhoneOutgoing,
  Award,
+   DollarSign,
    Route,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -62,6 +63,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
+  { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
 ];
 
 const ACCOUNT_ITEMS: NavItem[] = [
