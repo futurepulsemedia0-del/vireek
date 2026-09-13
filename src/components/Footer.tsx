@@ -144,6 +144,7 @@ const FOOTER_COLUMNS = [
     title: 'Company',
     links: [
       { label: 'About', href: '/about' },
+      { label: 'Leadership', href: '/leadership' },
       { label: 'Docs', href: '/docs' },
       { label: 'Careers', href: '/careers' },
       { label: 'Culture & Values', href: '/culture' },
