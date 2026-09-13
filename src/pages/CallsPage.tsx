@@ -26,6 +26,9 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { TagEditor } from '@/components/TagEditor';
+import { SavedViewsBar } from '@/components/SavedViewsBar';
+import { exportToCsv } from '@/lib/csvExport';
 
 // ============================================================
 // TYPES
@@ -180,10 +183,14 @@ function CallDetailPanel({
   call,
   onClose,
   onAction,
+  onUpdate,
+  tagSuggestions,
 }: {
   call: Call;
   onClose: () => void;
   onAction: (action: string, call: Call) => void;
+  onUpdate: (patch: Partial<Call>) => void;
+  tagSuggestions: string[];
 }) {
   const sentimentCfg = call.sentiment ? sentimentConfig[call.sentiment] : null;
 
@@ -242,7 +249,29 @@ function CallDetailPanel({
             </p>
           </div>
         </div>
+                {/* Tags */}
+        <div>
+          <p className="mb-2 text-xs font-medium text-text-secondary">Tags</p>
+          <TagEditor tags={call.tags ?? []} suggestions={tagSuggestions} onChange={(tags) => onUpdate({ tags })} />
+        </div>
 
+        {/* Lead source */}
+        <div>
+          <p className="mb-2 text-xs font-medium text-text-secondary">Source</p>
+          <select
+            value={call.lead_source ?? ''}
+            onChange={(e) => onUpdate({ lead_source: e.target.value || null })}
+            className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
+          >
+            <option value="">Unknown</option>
+            <option value="google_ads">Google Ads</option>
+            <option value="facebook_ads">Facebook/Instagram Ads</option>
+            <option value="referral">Referral</option>
+            <option value="organic">Organic / Website</option>
+            <option value="direct">Direct Call</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
         {/* Emergency badge */}
         {call.is_emergency && (
           <div className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-3">
@@ -342,6 +371,8 @@ export function CallsPage() {
   const [emergencyOnly, setEmergencyOnly] = useState(false);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [tagFilter, setTagFilter] = useState<string>('all');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('call_datetime');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -365,6 +396,23 @@ export function CallsPage() {
       setDataLoading(false);
     }
   }, [user]);
+  const tagSuggestions = useMemo(
+  () => Array.from(new Set(allCalls.flatMap((c) => c.tags ?? []))).sort(),
+  [allCalls]
+);
+
+const updateCall = useCallback(
+  async (id: string, patch: Partial<Call>) => {
+    const { error } = await supabase.from('calls').update(patch).eq('id', id);
+    if (error) {
+      toast('Could not save changes.', 'error');
+      return;
+    }
+    setAllCalls((prev) => prev.map((c) => (c.id === id ? { ...c, ...patch } : c)));
+    setSelectedCall((prev) => (prev && prev.id === id ? { ...prev, ...patch } : prev));
+  },
+  [toast]
+);
 
   useEffect(() => {
     loadData();
@@ -417,13 +465,24 @@ export function CallsPage() {
 
     // Search
     if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (c) =>
-          (c.caller_name?.toLowerCase().includes(q) ?? false) ||
-          (c.caller_phone?.toLowerCase().includes(q) ?? false) ||
-          (c.summary?.toLowerCase().includes(q) ?? false)
-      );
+      const tokens = search.toLowerCase().split(/\s+/).filter(Boolean);
+      result = result.filter((c) => {
+        const haystack = [c.caller_name, c.caller_phone, c.summary, c.transcript]
+          .filter(Boolean)
+          .join(' \n ')
+          .toLowerCase();
+        return tokens.every((t) => haystack.includes(t));
+      });
+    }
+
+    // Tag filter
+    if (tagFilter !== 'all') {
+      result = result.filter((c) => (c.tags ?? []).includes(tagFilter));
+    }
+
+    // Source filter
+    if (sourceFilter !== 'all') {
+      result = result.filter((c) => (c.lead_source ?? '') === sourceFilter);
     }
 
     // Status filter
@@ -471,7 +530,7 @@ export function CallsPage() {
     });
 
     return result;
-  }, [allCalls, search, statusFilter, sentimentFilter, emergencyOnly, dateFrom, dateTo, sortKey, sortDir]);
+    }, [allCalls, search, statusFilter, sentimentFilter, emergencyOnly, dateFrom, dateTo, tagFilter, sourceFilter, sortKey, sortDir]);
 
   const totalPages = Math.ceil(filteredCalls.length / pageSize);
   const paginatedCalls = filteredCalls.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -559,7 +618,36 @@ export function CallsPage() {
     setDateTo('');
   };
 
-  const hasActiveFilters = search || statusFilter !== 'all' || sentimentFilter !== 'all' || emergencyOnly || dateFrom || dateTo;
+    const hasActiveFilters = search || statusFilter !== 'all' || sentimentFilter !== 'all' || emergencyOnly || dateFrom || dateTo || tagFilter !== 'all' || sourceFilter !== 'all';
+      const currentFilters = { search, statusFilter, sentimentFilter, emergencyOnly, dateFrom, dateTo, tagFilter, sourceFilter };
+  const applyFilters = (f: Record<string, unknown>) => {
+    setSearch((f.search as string) ?? '');
+    setStatusFilter((f.statusFilter as StatusFilter) ?? 'all');
+    setSentimentFilter((f.sentimentFilter as SentimentFilter) ?? 'all');
+    setEmergencyOnly(!!f.emergencyOnly);
+    setDateFrom((f.dateFrom as string) ?? '');
+    setDateTo((f.dateTo as string) ?? '');
+    setTagFilter((f.tagFilter as string) ?? 'all');
+    setSourceFilter((f.sourceFilter as string) ?? 'all');
+  };
+  const handleExportCsv = () => {
+    exportToCsv(
+      filteredCalls,
+      [
+        { header: 'Date', accessor: (c) => formatDateTime(c.call_datetime) },
+        { header: 'Caller Name', accessor: (c) => c.caller_name ?? '' },
+        { header: 'Phone', accessor: (c) => c.caller_phone ?? '' },
+        { header: 'Status', accessor: (c) => c.status },
+        { header: 'Sentiment', accessor: (c) => c.sentiment ?? '' },
+        { header: 'Duration (s)', accessor: (c) => c.duration_seconds ?? '' },
+        { header: 'Emergency', accessor: (c) => (c.is_emergency ? 'Yes' : 'No') },
+        { header: 'Source', accessor: (c) => c.lead_source ?? '' },
+        { header: 'Tags', accessor: (c) => (c.tags ?? []).join('; ') },
+        { header: 'Summary', accessor: (c) => c.summary ?? '' },
+      ],
+      `calls-${new Date().toISOString().slice(0, 10)}.csv`
+    );
+  };
 
   return (
     <DashboardLayout activeLabel="Call History">
@@ -595,7 +683,7 @@ export function CallsPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by caller, phone, or summary…  (press /)"
+                placeholder="Search by caller, phone, summary, or transcript…  (press /)"
                 className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60"
               />
             </div>
@@ -622,6 +710,37 @@ export function CallsPage() {
                 <option value="neutral">Neutral</option>
                 <option value="negative">Negative</option>
               </select>
+                            <select
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+                className="focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm text-text-primary"
+              >
+                <option value="all">All tags</option>
+                {tagSuggestions.map((tag) => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+              <select
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value)}
+                className="focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm text-text-primary"
+              >
+                <option value="all">All sources</option>
+                <option value="google_ads">Google Ads</option>
+                <option value="facebook_ads">Facebook/Instagram Ads</option>
+                <option value="referral">Referral</option>
+                <option value="organic">Organic / Website</option>
+                <option value="direct">Direct Call</option>
+                <option value="other">Other</option>
+              </select>
+              <SavedViewsBar page="calls" currentFilters={currentFilters} onApply={applyFilters} />
+              <button
+                type="button"
+                onClick={handleExportCsv}
+                className="focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
+              >
+                <Download size={15} /> Export CSV
+              </button>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -889,10 +1008,12 @@ export function CallsPage() {
               onClick={() => setSelectedCall(null)}
             />
             <CallDetailPanel
-              call={selectedCall}
-              onClose={() => setSelectedCall(null)}
-              onAction={handleAction}
-            />
+  call={selectedCall}
+  onClose={() => setSelectedCall(null)}
+  onAction={handleAction}
+  tagSuggestions={tagSuggestions}
+  onUpdate={(patch) => updateCall(selectedCall.id, patch)}
+/>
           </>
         )}
       </AnimatePresence>
