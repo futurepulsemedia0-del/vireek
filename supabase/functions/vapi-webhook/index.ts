@@ -1216,6 +1216,9 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
           case "request_human_transfer":
             result = await toolRequestHumanTransfer(admin, tenant, args, vapiCallId, callerNumber, callerName);
             break;
+          case "capture_insurance_claim":
+            result = await toolCaptureInsuranceClaim(admin, tenant, args, vapiCallId, callerNumber, callerName);
+            break;
           default:
             logEvent("tool_call_unknown", requestId, { tool: name });
             result = `Tool "${name}" is not implemented by this webhook.`;
@@ -1235,7 +1238,85 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
 // ---------------------------------------------------------------------------
 // call lifecycle events (status-update, end-of-call-report, hang, etc.)
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Call source attribution — looks up which tracking number was dialed (see
+// call_tracking_numbers / calls.source_channel in
+// 20260913040000_call_attribution.sql), so a call from a Google Business
+// Profile listing can be told apart from one dialed off the website, a
+// print ad, etc. Multiple tracking numbers can all route to the SAME Vapi
+// assistant (that's the point — one AI, several numbers), so this is
+// intentionally separate from resolveTenant's assistant/business lookup.
+// Returns null for any number that isn't registered — existing
+// single-number accounts see no behavior change.
+// ---------------------------------------------------------------------------
 
+async function resolveCallSource(admin: SupabaseClient, phoneNumberId: string | undefined): Promise<string | null> {
+  if (!phoneNumberId) return null;
+  const { data } = await admin
+    .from("call_tracking_numbers")
+    .select("source")
+    .eq("vapi_phone_number_id", phoneNumberId)
+    .maybeSingle();
+  return data?.source ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// capture_insurance_claim — for restoration businesses (water/fire/storm
+// damage), most jobs run through the customer's insurance rather than
+// out-of-pocket. Lets Sarah collect the claim basics during the call and
+// hand them to the office's claims workflow. Inserts into
+// `insurance_claims`, which fires the SAME dispatch_customer_webhook()
+// trigger already used for calls/leads/jobs (see
+// 20260913050000_insurance_claims.sql) — this function does not send
+// email/SMS itself, it relies entirely on that existing delivery path.
+// ---------------------------------------------------------------------------
+
+async function toolCaptureInsuranceClaim(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  args: Record<string, unknown>,
+  vapiCallId: string | undefined,
+  callerNumber: string | null,
+  callerName: string | null,
+): Promise<string> {
+  const customerName =
+    (typeof args.customer_name === "string" && args.customer_name.trim()) || callerName || null;
+
+  let callId: string | null = null;
+  if (vapiCallId) {
+    const { data: existingCall } = await admin
+      .from("calls")
+      .select("id")
+      .eq("vapi_call_id", vapiCallId)
+      .eq("user_id", tenant.userId)
+      .maybeSingle();
+    callId = existingCall?.id ?? null;
+  }
+
+  const claimPayload = {
+    user_id: tenant.userId,
+    call_id: callId,
+    customer_name: customerName,
+    customer_phone: (typeof args.phone === "string" && args.phone.trim()) || callerNumber || null,
+    insurance_company: typeof args.insurance_company === "string" ? args.insurance_company : null,
+    policy_number: typeof args.policy_number === "string" ? args.policy_number : null,
+    claim_number: typeof args.claim_number === "string" ? args.claim_number : null,
+    date_of_loss: typeof args.date_of_loss === "string" ? args.date_of_loss : null,
+    damage_type: typeof args.damage_type === "string" ? args.damage_type : null,
+    adjuster_name: typeof args.adjuster_name === "string" ? args.adjuster_name : null,
+    adjuster_phone: typeof args.adjuster_phone === "string" ? args.adjuster_phone : null,
+    notes: typeof args.notes === "string" ? args.notes : null,
+    status: "new",
+  };
+
+  const { error } = await admin.from("insurance_claims").insert(claimPayload);
+
+  if (error) {
+    return "I wasn't able to save the insurance details right now — please let the office know this is an insurance claim so they can follow up manually.";
+  }
+
+  return "Got it — I've logged this as an insurance claim for our claims team to follow up on.";
+}
 async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   const tenant = await resolveTenant(admin, message, requestId);
   if (!tenant) {
@@ -1246,9 +1327,11 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
   }
 
   const vapiCallId = message.call?.id;
+  const trackingSource = await resolveCallSource(admin, message.phoneNumber?.id);
   const patch: Record<string, unknown> = {
     caller_phone: message.call?.customer?.number ?? null,
     caller_name: message.call?.customer?.name ?? null,
+    source_channel: trackingSource,
   };
 
   if (message.type === "end-of-call-report") {
