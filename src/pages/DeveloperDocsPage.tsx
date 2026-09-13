@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import {
+import { Link } from 'react-router-dom';
   ArrowRight,
   ShieldCheck,
   Code2,
@@ -283,7 +284,33 @@ export function DeveloperDocsPage() {
             </motion.div>
           </div>
         </section>
-
+         {/* Developer Ecosystem cross-links */}
+<section className="px-6 py-20 sm:py-24">
+  <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-2xl text-center">
+      <p className={`${eyebrowClass()} text-center`}>Developer Ecosystem</p>
+      <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>Beyond the raw API</h2>
+    </div>
+    <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {[
+        { href: '/marketplace', title: 'Marketplace', body: 'Browse apps built on Vireek, or list your own.' },
+        { href: '/sdks', title: 'SDKs', body: 'Official Node.js and Python client libraries.' },
+        { href: '/sandbox', title: 'Sandbox', body: 'Test against synthetic calls before going live.' },
+        { href: '/developers/changelog', title: 'Developer Changelog', body: 'Track every API, SDK, and webhook change.' },
+      ].map(({ href, title, body }) => (
+        <Link key={href} to={href} className="block h-full">
+          <Card className="h-full">
+            <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-text-secondary">{body}</p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+              Explore <ArrowRight className="h-4 w-4" />
+            </span>
+          </Card>
+        </Link>
+      ))}
+    </div>
+  </div>
+</section>
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
           <motion.div
