@@ -155,6 +155,23 @@ export interface Membership {
   cancelled_at: string | null;
   created_at: string;
 }
+export interface Quote {
+  id: string;
+  user_id: string;
+  lead_id: string | null;
+  customer_name: string;
+  customer_phone: string | null;
+  customer_email: string | null;
+  line_items: { description: string; quantity: number; unit_price_cents: number }[];
+  tax_percent: number;
+  status: 'draft' | 'sent' | 'accepted' | 'declined' | 'expired';
+  quote_token: string;
+  valid_until: string | null;
+  sent_at: string | null;
+  responded_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
 export interface BusinessProfileHoliday {
   id: string;
   date: string;
