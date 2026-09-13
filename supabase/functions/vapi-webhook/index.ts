@@ -110,6 +110,11 @@ interface TenantContext {
   escalationRules: EscalationRule[] | null;
   assistantName: string | null;
   assistantId: string | null;
+  onCallSchedule: OnCallEntry[] | null;
+  surgeModeEnabled: boolean;
+  surgeModeMessage: string | null;
+  surgeModePriority: string | null;
+  surgeMaxBookingsPerDay: number | null;
 }
 
 interface EscalationRule {
@@ -242,7 +247,7 @@ async function resolveTenant(
 
   let query = admin
     .from("business_profile")
-    .select("user_id, escalation_rules, assistant_name, vapi_assistant_id")
+.select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day")
     .limit(1);
 
   if (assistantId) {
@@ -297,6 +302,11 @@ async function resolveTenant(
     escalationRules: (resolvedBusiness.escalation_rules as EscalationRule[] | null) ?? null,
     assistantName: resolvedBusiness.assistant_name ?? null,
     assistantId: resolvedBusiness.vapi_assistant_id ?? null,
+    onCallSchedule: (resolvedBusiness.on_call_schedule as OnCallEntry[] | null) ?? null,
+    surgeModeEnabled: Boolean(resolvedBusiness.surge_mode_enabled),
+    surgeModeMessage: resolvedBusiness.surge_mode_message ?? null,
+    surgeModePriority: resolvedBusiness.surge_mode_priority ?? null,
+    surgeMaxBookingsPerDay: resolvedBusiness.surge_max_bookings_per_day ?? null,
   };
 }
 
@@ -471,10 +481,12 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
 
   const callerNumber = message.call?.customer?.number ?? null;
   const callerContext = await buildCallerContextVariable(admin, tenant, callerNumber);
+  const surgeContext = buildSurgeContextVariable(tenant);
 
   logEvent("assistant_request_resolved", requestId, {
     user_id: tenant.userId,
     caller_known: callerContext.startsWith("Returning caller"),
+    surge_mode_active: tenant.surgeModeEnabled,
   });
 
   return jsonResponse({
@@ -482,9 +494,87 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     assistantOverrides: {
       variableValues: {
         caller_context: callerContext,
+        surge_context: surgeContext,
       },
     },
   });
+}
+// ---------------------------------------------------------------------------
+// Surge Mode — when a business owner flips this on (storm/heat-wave call
+// spikes), inject guidance into the assistant's system prompt via the
+// `surge_context` template variable (see handleAssistantRequest below).
+// Returns "" when surge mode is off, so {{surge_context}} in the prompt
+// just renders empty and changes nothing.
+// ---------------------------------------------------------------------------
+
+function buildSurgeContextVariable(tenant: TenantContext): string {
+  if (!tenant.surgeModeEnabled) {
+    return "";
+  }
+  const parts: string[] = ["SURGE MODE IS ACTIVE."];
+  if (tenant.surgeModePriority) {
+    parts.push(`Prioritize calls about: ${tenant.surgeModePriority}.`);
+  }
+  if (tenant.surgeModeMessage) {
+    parts.push(`Mention to callers: "${tenant.surgeModeMessage}"`);
+  }
+  if (tenant.surgeMaxBookingsPerDay) {
+    parts.push(
+      `Today's booking capacity is limited to ${tenant.surgeMaxBookingsPerDay} jobs — if a caller can't be booked today because capacity is full, offer the next available day instead.`,
+    );
+  }
+  return parts.join(" ");
+}
+
+// ---------------------------------------------------------------------------
+// On-call schedule resolution — picks whoever is on duty right now from
+// business_profile.on_call_schedule, so emergency calls route to a rotating
+// on-call person (or a different weekend number) instead of one fixed
+// technician. See the migration comment for the exact jsonb shape.
+//
+// All matching below runs in the Edge Function runtime's local time
+// (typically UTC). If a business operates in a different timezone, the
+// weekday/day-of-month boundaries will be off by the UTC offset — worth
+// adding a per-business timezone column if that turns out to matter.
+// ---------------------------------------------------------------------------
+
+interface OnCallRule {
+  type: "weekday" | "even_odd" | "date_range";
+  days?: number[];
+  parity?: "even" | "odd";
+  start?: string;
+  end?: string;
+}
+
+interface OnCallEntry {
+  id?: string;
+  label?: string;
+  phone?: string;
+  rule?: OnCallRule;
+}
+
+function resolveOnCallTarget(schedule: OnCallEntry[] | null, now: Date): string | null {
+  if (!schedule || schedule.length === 0) return null;
+
+  for (const entry of schedule) {
+    if (!isValidE164(entry.phone)) continue;
+    const rule = entry.rule;
+    if (!rule) continue;
+
+    if (rule.type === "weekday" && Array.isArray(rule.days) && rule.days.includes(now.getUTCDay())) {
+      return entry.phone;
+    }
+    if (rule.type === "even_odd" && rule.parity) {
+      const isEven = now.getUTCDate() % 2 === 0;
+      if ((rule.parity === "even") === isEven) return entry.phone;
+    }
+    if (rule.type === "date_range" && rule.start && rule.end) {
+      const todayStr = now.toISOString().slice(0, 10);
+      if (todayStr >= rule.start && todayStr <= rule.end) return entry.phone;
+    }
+  }
+
+  return null;
 }
 async function handleTransferDestinationRequest(
   admin: SupabaseClient,
@@ -519,7 +609,9 @@ async function handleTransferDestinationRequest(
       .maybeSingle();
 
     if (callRow?.is_emergency) {
-      emergencyTarget = findEscalationTarget(tenant.escalationRules, "emergency");
+      emergencyTarget =
+        resolveOnCallTarget(tenant.onCallSchedule, new Date()) ??
+        findEscalationTarget(tenant.escalationRules, "emergency");
     }
     if (callRow?.human_transfer_requested) {
       humanTransferTarget = findEscalationTarget(tenant.escalationRules, "human_request");
@@ -655,6 +747,24 @@ async function toolBookAppointment(
   const scheduledDatetime = typeof args.scheduled_datetime === "string" ? args.scheduled_datetime : null;
   if (scheduledDatetime && Number.isNaN(Date.parse(scheduledDatetime))) {
     return "That appointment date/time isn't valid — please confirm the date and time with the customer.";
+  }
+
+  if (tenant.surgeModeEnabled && tenant.surgeMaxBookingsPerDay && scheduledDatetime) {
+    const dayStart = new Date(scheduledDatetime);
+    dayStart.setUTCHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+
+    const { count } = await admin
+      .from("jobs")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", tenant.userId)
+      .gte("scheduled_datetime", dayStart.toISOString())
+      .lt("scheduled_datetime", dayEnd.toISOString());
+
+    if ((count ?? 0) >= tenant.surgeMaxBookingsPerDay) {
+      return `Surge mode is active and today's booking capacity (${tenant.surgeMaxBookingsPerDay}) is already full — offer the customer the next available day instead of booking this one.`;
+    }
   }
 
   let callId: string | null = null;
