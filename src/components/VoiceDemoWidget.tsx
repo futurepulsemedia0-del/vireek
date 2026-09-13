@@ -120,6 +120,13 @@ export function VoiceDemoWidget() {
     });
 
     try {
+      // متن نوشتاری disclosure پایین (حالت idle) از قبل توی همین فایله.
+      // ولی جمله‌ی *گفتاری* که Sarah باید بگه، از اینجا قابل‌کنترل نیست —
+      // VAPI_DEMO_ASSISTANT_ID فقط یه ID هست که به یه assistant توی
+      // داشبورد Vapi اشاره می‌کنه. هر کی اون assistant رو مدیریت می‌کنه
+      // باید first message‌ش رو با همون جمله‌ای شروع کنه که توی
+      // business_profile.ai_disclosure_script ست شده (نگاه کن به
+      // AssistantPersonaPage و 20260913070000_mandatory_ai_disclosure.sql).
       await vapi.start(VAPI_DEMO_ASSISTANT_ID);
     } catch (err) {
       console.error(err);
