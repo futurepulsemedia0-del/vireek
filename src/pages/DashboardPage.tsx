@@ -11,6 +11,7 @@ import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
+import { AttributionReport, AttributionRow } from '@/components/AttributionReport';
 
 // ============================================================
 // SHARED UI PRIMITIVES
@@ -514,6 +515,19 @@ export function DashboardPage() {
     const missedCallRate = allCalls.length > 0
       ? `${Math.round((missedCalls / allCalls.length) * 100)}%`
       : '—';
+      const attributionRows: AttributionRow[] = useMemo(() => {
+    const map = new Map<string, { total: number; booked: number }>();
+    allCalls.forEach((c) => {
+      const key = c.lead_source || 'unknown';
+      const cur = map.get(key) ?? { total: 0, booked: 0 };
+      cur.total += 1;
+      if (c.status === 'booked') cur.booked += 1;
+      map.set(key, cur);
+    });
+    return Array.from(map.entries())
+      .map(([source, v]) => ({ source, ...v, rate: v.total ? Math.round((v.booked / v.total) * 100) : 0 }))
+      .sort((a, b) => b.booked - a.booked);
+  }, [allCalls]);
 
     // 14-day chart data
     const chartData: { date: string; count: number }[] = [];
