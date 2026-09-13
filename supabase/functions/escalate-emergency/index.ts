@@ -32,6 +32,7 @@ interface EmergencyPayload {
   caller_name?: string;
   summary?: string;
   contact_phone?: string;
+  caller_language?: string;
   address?: string;
   issue_description?: string;
 }
@@ -93,15 +94,63 @@ Deno.serve(async (req: Request) => {
     });
 
     /*
-      Update escalation tracking.
-      This does NOT touch emergency logic — it only records that the
-      escalation process started, and confirms a row actually matched.
+      Resolve which phone number this escalation should actually go to.
+      If the caller's language was detected and an active technician
+      lists that language, route straight to that technician's own
+      number instead of the generic contact_phone the caller sent — this
+      is what lets a Spanish call go directly to a Spanish-speaking
+      technician instead of just being answered in Spanish. Falls back
+      to payload.contact_phone (today's behavior) whenever there's no
+      language match, so nothing changes for accounts that haven't set
+      languages on their technicians yet.
     */
+    const { data: existingCall, error: fetchError } = await supabase
+      .from("calls")
+      .select("id, user_id")
+      .eq("id", payload.call_id)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error("Database lookup failed", fetchError);
+      return jsonResponse({ success: false, error: "Failed looking up call", requestId }, 500);
+    }
+
+    if (!existingCall) {
+      return jsonResponse({ success: false, error: "Call not found", requestId }, 404);
+    }
+
+    let resolvedContactPhone = payload.contact_phone ?? null;
+    let routedTechnician: { name: string | null; phone: string } | null = null;
+
+    if (payload.caller_language) {
+      const normalizedLanguage = payload.caller_language.trim().toLowerCase();
+      const { data: technicians, error: techError } = await supabase
+        .from("team_members")
+        .select("member_name, member_phone, languages")
+        .eq("account_owner_id", existingCall.user_id)
+        .eq("role", "technician")
+        .eq("dispatch_enabled", true)
+        .not("member_phone", "is", null);
+
+      if (techError) {
+        console.error("Technician lookup failed", techError);
+      } else {
+        const match = (technicians ?? []).find((t) =>
+          (t.languages ?? []).some((lang: string) => lang.trim().toLowerCase() === normalizedLanguage)
+        );
+        if (match?.member_phone) {
+          resolvedContactPhone = match.member_phone;
+          routedTechnician = { name: match.member_name, phone: match.member_phone };
+        }
+      }
+    }
+
     const { data: updatedCall, error: updateError } = await supabase
       .from("calls")
       .update({
         escalated_at: new Date().toISOString(),
-        escalated_to: payload.contact_phone ?? null,
+        escalated_to: resolvedContactPhone,
+        detected_language: payload.caller_language ?? null,
       })
       .eq("id", payload.call_id)
       .select("id, user_id")
@@ -147,7 +196,8 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({
         event: "emergency_ready_for_provider",
         requestId,
-        technician: payload.contact_phone,
+        technician: resolvedContactPhone,
+        routed_by_language: routedTechnician ? payload.caller_language : null,
         customer: payload.caller_phone,
         issue: payload.issue_description ?? payload.summary,
       }),
@@ -159,7 +209,9 @@ Deno.serve(async (req: Request) => {
       message: "Emergency escalation processed",
       escalation: {
         call_id: payload.call_id,
-        technician: payload.contact_phone ?? null,
+        technician: resolvedContactPhone,
+        routed_technician_name: routedTechnician?.name ?? null,
+        matched_by_language: routedTechnician ? payload.caller_language ?? null : null,
       },
     });
   } catch (error) {
