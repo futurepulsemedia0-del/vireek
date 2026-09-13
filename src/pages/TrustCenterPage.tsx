@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-  ShieldCheck, Lock, Database, UserCog, FileText, Activity, Globe,
+  ShieldCheck, Lock, Database, UserCog, FileText, Activity, Globe, Search,
   ArrowRight, ExternalLink, type LucideIcon,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -200,7 +200,7 @@ export function TrustCenterPage() {
         </section>
         {/* Compliance status */}
         <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-4xl space-y-6">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -219,6 +219,29 @@ export function TrustCenterPage() {
                     SOC 2 report) here as soon as they&rsquo;re formally completed &mdash; if your business
                     needs a specific certification before signing up, tell us on a call and we&rsquo;ll
                     give you a straight answer.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE, delay: 0.05 }}
+              className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark sm:p-8"
+            >
+              <div className="flex items-start gap-3">
+                <Search className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+                <div>
+                  <h3 className="text-base font-semibold text-text-primary">Penetration testing</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                    We commit to a third-party penetration test at least once a year, covering the
+                    call-handling API, the customer dashboard, and authentication. We have not yet
+                    published a completed report &mdash; once one is finished, a summary (scope, date,
+                    and remediation status) will be posted here rather than the raw findings, which
+                    stay internal for security reasons. If an enterprise customer needs to review the
+                    full report or a signed attestation under NDA before signing up, tell us on a call.
                   </p>
                 </div>
               </div>
