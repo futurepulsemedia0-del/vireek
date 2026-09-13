@@ -105,6 +105,9 @@ export interface Job {
   dispatch_note: string | null;
   reschedule_token: string;
   rescheduled_by_customer_at: string | null;
+  customer_type: 'residential' | 'commercial';
+  sla_response_hours: number | null;
+  contract_reference: string | null;
   created_at: string;
 }
 
@@ -250,6 +253,7 @@ export interface BusinessProfile {
   custom_voice_status?: 'none' | 'processing' | 'ready' | 'failed';
   custom_voice_error?: string | null;
   allow_customer_self_reschedule: boolean;
+  commercial_sla_policy: string | null;
   created_at: string;
   updated_at: string;
 }
