@@ -5,7 +5,8 @@
 //
 //   - transfer-destination-request  -> live call transfer to profiles.forwarding_number
 //   - tool-calls                    -> book_appointment / lookup_customer /
-//                                       check_weather / flag_emergency_call
+//                                       check_weather / flag_emergency_call /
+//                                       request_human_transfer / lookup_price
 //   - status-update / end-of-call-report / hang / other lifecycle events
 //                                    -> upsert the `calls` row (drives the
 //                                       existing emergency-notification DB
@@ -589,6 +590,75 @@ async function toolCheckWeather(args: Record<string, unknown>): Promise<string> 
     return "I couldn't reach the weather service right now — I'll continue without that information.";
   }
 }
+// ---------------------------------------------------------------------------
+// lookup_price — feature 45, "Live Price Book". Lets the assistant quote a
+// real, tenant-configured price during the call instead of guessing or
+// promising to "have someone call back with pricing."
+// ---------------------------------------------------------------------------
+
+async function toolLookupPrice(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  const query = typeof args.service === "string" ? args.service.trim() : "";
+  if (!query) {
+    return "I need to know which service they're asking about before I can quote a price.";
+  }
+
+  const { data: items, error } = await admin
+    .from("price_book_items")
+    .select("service_name, category, pricing_model, price_cents, price_max_cents, unit_label, keywords")
+    .eq("user_id", tenant.userId)
+    .eq("active", true);
+
+  if (error) {
+    return "I couldn't reach the price list right now — let the caller know a team member will confirm pricing.";
+  }
+  if (!items || items.length === 0) {
+    return "No price list has been set up for this business yet — let the caller know a team member will follow up with pricing.";
+  }
+
+  const needle = query.toLowerCase();
+  const scored = items
+    .map((item) => {
+      const haystacks = [item.service_name, item.category ?? "", ...(item.keywords ?? [])].map((s: string) => s.toLowerCase());
+      const exact = haystacks.some((h) => h === needle);
+      const partial = haystacks.some((h) => h.includes(needle) || needle.includes(h));
+      return { item, score: exact ? 2 : partial ? 1 : 0 };
+    })
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (scored.length === 0) {
+    return `Nothing on the price list matches "${query}" — let the caller know a team member will confirm that price.`;
+  }
+
+  const matches = scored.slice(0, 3).map(({ item }) => formatPriceLine(item));
+  return matches.length === 1 ? matches[0] : `A few things matched "${query}": ${matches.join(" ")}`;
+}
+
+function formatPriceLine(item: {
+  service_name: string;
+  pricing_model: string;
+  price_cents: number;
+  price_max_cents: number | null;
+  unit_label: string | null;
+}): string {
+  const money = (cents: number) => `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
+  const unit = item.unit_label ? ` ${item.unit_label}` : "";
+
+  switch (item.pricing_model) {
+    case "starting_at":
+      return `${item.service_name}: starting at ${money(item.price_cents)}${unit}.`;
+    case "range":
+      return `${item.service_name}: ${money(item.price_cents)}–${money(item.price_max_cents ?? item.price_cents)}${unit}.`;
+    case "hourly":
+      return `${item.service_name}: ${money(item.price_cents)}${unit || "/hour"}.`;
+    default:
+      return `${item.service_name}: ${money(item.price_cents)}${unit}.`;
+  }
+}
 
 async function toolFlagEmergencyCall(
   admin: SupabaseClient,
@@ -707,6 +777,9 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "check_weather":
             result = await toolCheckWeather(args);
+            break;
+                      case "lookup_price":
+            result = await toolLookupPrice(admin, tenant, args);
             break;
                     case "flag_emergency_call":
             result = await toolFlagEmergencyCall(admin, tenant, args, vapiCallId, callerNumber, callerName);
