@@ -21,7 +21,7 @@ import { useSEO } from '@/lib/seo';
 
 const EMAIL = 'ali@vireek.com';
 // Swap for a dedicated form endpoint before launch.
-const FORM_ENDPOINT = 'https://submit-form.com/REPLACE_WITH_NEW_FORM_ID';
+const FORM_ENDPOINT = 'https://formspree.io/f/xppzgqap';
 
 const FORMAT_POINTS = [
   {
