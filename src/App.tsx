@@ -54,6 +54,7 @@ const GdprDpaPage = lazy(() => import('@/pages/GdprDpaPage').then((m) => ({ defa
 const FAQPage = lazy(() => import('@/pages/FAQPage').then((m) => ({ default: m.FAQPage })));
 const HelpCenterPage = lazy(() => import('@/pages/HelpCenterPage').then((m) => ({ default: m.HelpCenterPage })));
 const AboutPage = lazy(() => import('@/pages/AboutPage').then((m) => ({ default: m.AboutPage })));
+const LeadershipPage = lazy(() => import('@/pages/LeadershipPage').then((m) => ({ default: m.LeadershipPage })));
 const DeveloperDocsPage = lazy(() => import('@/pages/DeveloperDocsPage').then((m) => ({ default: m.DeveloperDocsPage })));
 const BlogPage = lazy(() => import('@/pages/BlogPage').then((m) => ({ default: m.BlogPage })));
 const BlogPostPage = lazy(() => import('@/pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
@@ -168,6 +169,7 @@ function App() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/leadership" element={<LeadershipPage />} />
         <Route path="/docs" element={<DeveloperDocsPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
