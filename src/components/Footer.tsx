@@ -153,6 +153,7 @@ const FOOTER_COLUMNS = [
       { label: 'Partners', href: '/partners' },
       { label: 'Affiliate Program', href: '/affiliate' },
       { label: 'Referral Program', href: '/referral' },
+      { label: 'Beta Program', href: '/beta' },
       { label: 'Contact', href: '/contact' },
     ],
   },
