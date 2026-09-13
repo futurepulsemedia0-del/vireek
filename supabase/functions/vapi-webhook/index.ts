@@ -119,6 +119,7 @@ interface TenantContext {
   holidays: HolidayEntry[] | null;
   afterHoursFee: number | null;
   afterHoursFeeNote: string | null;
+  commercialSlaPolicy: string | null;
 }
 interface EscalationRule {
   id?: string;
@@ -250,7 +251,7 @@ async function resolveTenant(
 
   let query = admin
     .from("business_profile")
-.select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note")
+.select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
     .limit(1);
 
   if (assistantId) {
@@ -314,6 +315,7 @@ async function resolveTenant(
     holidays: (resolvedBusiness.holidays as HolidayEntry[] | null) ?? null,
     afterHoursFee: resolvedBusiness.after_hours_fee ?? null,
     afterHoursFeeNote: resolvedBusiness.after_hours_fee_note ?? null,
+    commercialSlaPolicy: resolvedBusiness.commercial_sla_policy ?? null,
   };
 }
 
@@ -452,6 +454,57 @@ async function buildCallerContextVariable(
 
   return parts.join(" ");
 }
+// ---------------------------------------------------------------------------
+// Commercial vs Residential — Sameday advertises "adapts to residential
+// priorities and commercial SLAs" as a differentiator. Looks up the
+// caller's most recent job for customer_type/SLA fields (see
+// 20260913080000_commercial_residential_customer_type.sql) and combines it
+// with the business's own free-text commercial_sla_policy, so the AI can
+// treat a commercial, SLA-bound account differently — with no policy
+// specifics hardcoded here.
+// ---------------------------------------------------------------------------
+
+async function buildCustomerTypeContextVariable(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  callerNumber: string | null,
+): Promise<string> {
+  if (!callerNumber) {
+    return "";
+  }
+
+  const { data: pastJobs } = await admin
+    .from("jobs")
+    .select("customer_type, sla_response_hours, contract_reference")
+    .eq("user_id", tenant.userId)
+    .eq("customer_phone", callerNumber)
+    .order("scheduled_datetime", { ascending: false })
+    .limit(1);
+
+  const latestJob = pastJobs?.[0];
+  const parts: string[] = [];
+
+  if (latestJob?.customer_type === "commercial") {
+    parts.push(
+      `This caller is a COMMERCIAL account${
+        latestJob.contract_reference ? ` (contract/reference: ${latestJob.contract_reference})` : ""
+      }.`,
+    );
+    if (latestJob.sla_response_hours) {
+      parts.push(
+        `They have a contracted ${latestJob.sla_response_hours}-hour response SLA — treat scheduling for this call as priority and don't offer a slower timeline than that without flagging it.`,
+      );
+    }
+  } else if (latestJob?.customer_type === "residential") {
+    parts.push("This caller is a residential customer — standard scheduling and pricing applies.");
+  }
+
+  if (tenant.commercialSlaPolicy) {
+    parts.push(`Business policy for commercial/SLA accounts: ${tenant.commercialSlaPolicy}`);
+  }
+
+  return parts.join(" ");
+}
 
 // ---------------------------------------------------------------------------
 // assistant-request — Vapi calls this right as the call starts, BEFORE the
@@ -488,6 +541,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
 
   const callerNumber = message.call?.customer?.number ?? null;
   const callerContext = await buildCallerContextVariable(admin, tenant, callerNumber);
+  const customerTypeContext = await buildCustomerTypeContextVariable(admin, tenant, callerNumber);
   const surgeContext = buildSurgeContextVariable(tenant);
   const afterHoursContext = buildAfterHoursContextVariable(tenant, new Date());
 
@@ -503,6 +557,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     assistantOverrides: {
       variableValues: {
         caller_context: callerContext,
+        customer_type_context: customerTypeContext,
         surge_context: surgeContext,
         after_hours_context: afterHoursContext,
       },
@@ -757,7 +812,7 @@ async function toolLookupCustomer(
 
   const { data: pastJobs, error: jobsError } = await admin
     .from("jobs")
-    .select("customer_name, service_type, job_status, scheduled_datetime, warranty_expires_at, warranty_notes")
+    .select("customer_name, service_type, job_status, scheduled_datetime, warranty_expires_at, warranty_notes, customer_type, sla_response_hours, contract_reference")
     .eq("user_id", tenant.userId)
     .eq("customer_phone", phone)
     .order("scheduled_datetime", { ascending: false })
@@ -798,6 +853,20 @@ async function toolLookupCustomer(
             } — check with the caller whether the new issue is related before quoting a repair charge.`
           : `That job's warranty expired ${warrantyDate.toDateString()}, so a new visit for it would not be covered.`,
       );
+    }
+        if (latestJob.customer_type === "commercial") {
+      parts.push(
+        `This is a COMMERCIAL account${
+          latestJob.contract_reference ? ` (contract/reference: ${latestJob.contract_reference})` : ""
+        }.`,
+      );
+      if (latestJob.sla_response_hours) {
+        parts.push(
+          `Contracted SLA: respond within ${latestJob.sla_response_hours} hours — treat this as priority.`,
+        );
+      }
+    } else if (latestJob.customer_type === "residential") {
+      parts.push("This is a residential customer — standard scheduling and pricing applies.");
     }
   }
 
