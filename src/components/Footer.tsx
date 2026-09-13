@@ -93,6 +93,16 @@ const FOOTER_COLUMNS = [
     ],
   },
   {
+    title: 'Developers',
+    links: [
+      { label: 'Developer Docs', href: '/docs' },
+      { label: 'Marketplace', href: '/marketplace' },
+      { label: 'SDKs (Node.js & Python)', href: '/sdks' },
+      { label: 'Sandbox', href: '/sandbox' },
+      { label: 'Developer Changelog', href: '/developers/changelog' },
+    ],
+  },
+  {
     title: 'Industries',
     links: [
       { label: 'HVAC', href: '/industries/hvac' },
