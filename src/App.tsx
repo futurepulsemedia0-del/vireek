@@ -109,6 +109,10 @@ const TrustCenterPage = lazy(() => import('@/pages/TrustCenterPage').then((m) =>
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
 const SitemapPage = lazy(() => import('@/pages/SitemapPage').then((m) => ({ default: m.SitemapPage })));
 const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => ({ default: m.EnterprisePage })));
+const MarketplacePage = lazy(() => import('@/pages/MarketplacePage').then((m) => ({ default: m.MarketplacePage })));
+const SdksPage = lazy(() => import('@/pages/SdksPage').then((m) => ({ default: m.SdksPage })));
+const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ default: m.SandboxPage })));
+const DeveloperChangelogPage = lazy(() => import('@/pages/DeveloperChangelogPage').then((m) => ({ default: m.DeveloperChangelogPage })));
 
 function RouteLoadingFallback() {
   return (
@@ -191,6 +195,10 @@ function App() {
         <Route path="/:comboSlug/:citySlug" element={<IndustryLocationPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/enterprise" element={<EnterprisePage />} />
+        <Route path="/marketplace" element={<MarketplacePage />} />
+        <Route path="/sdks" element={<SdksPage />} />
+        <Route path="/sandbox" element={<SandboxPage />} />
+        <Route path="/developers/changelog" element={<DeveloperChangelogPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
