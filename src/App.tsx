@@ -88,6 +88,7 @@ const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => (
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
+const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
 const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
@@ -212,6 +213,7 @@ function App() {
         <Route path="/integrations" element={<IntegrationsHubPage />} />
         <Route path="/integrations/:slug" element={<IntegrationDetailPage />} />
         <Route path="/status" element={<StatusPage />} />
+        <Route path="/status/unsubscribe" element={<StatusUnsubscribePage />} />
         <Route path="/case-studies" element={<CaseStudiesPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />
