@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { CallSourcesManager } from '@/components/CallSourcesManager';
 import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded, Mic, CalendarClock, CreditCard, ShieldCheck, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -830,6 +831,15 @@ export function BusinessProfilePage() {
                   className={inputClass}
                 />
               </div>
+            </SectionCard>
+
+            {/* Call Sources (Lead Attribution) */}
+            <SectionCard
+              icon={Target}
+              title="Call Sources"
+              description="Track which channel each call came from — Google, a specific ad, a referral partner — by mapping additional Vapi phone numbers to a channel name."
+            >
+              <CallSourcesManager />
             </SectionCard>
 
             {/* Call Routing & Escalation Rules */}
