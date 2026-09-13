@@ -110,6 +110,7 @@ const FOOTER_COLUMNS = [
       { label: 'State of Home Service Calls Report', href: '/report' },
       { label: 'Podcast', href: '/podcast' },
       { label: 'Onboarding Guide', href: '/onboarding-guide' },
+      { label: 'Academy', href: '/academy' },
       { label: 'Glossary', href: '/glossary' },
       { label: 'Case Studies', href: '/case-studies' },
       { label: 'Testimonials', href: '/testimonials' },
