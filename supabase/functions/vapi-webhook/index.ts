@@ -52,6 +52,7 @@
 // gate must be disabled for this function specifically.)
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 
 // ---------------------------------------------------------------------------
 // Types (only the fields we actually read — Vapi payloads carry much more)
@@ -1032,23 +1033,39 @@ async function toolBookAppointment(
     dispatch_note: dispatchNote,
   };
 
-  const { data: job, error: jobError } = await admin.from("jobs").insert(jobPayload).select("id, scheduled_datetime").maybeSingle();
+  const { data: job, error: jobError } = await admin
+  .from("jobs")
+  .insert(jobPayload)
+  .select("id, scheduled_datetime, service_type, address")
+  .maybeSingle();
 
-  if (jobError || !job) {
-    return "I wasn't able to save this appointment due to a system error — please have the office confirm it manually.";
-  }
-
-  let afterHoursFeeNote = "";
-  if (tenant.afterHoursFee && scheduledDatetime && isAfterHoursAt(tenant.businessHours, tenant.holidays, new Date(scheduledDatetime))) {
-    afterHoursFeeNote = ` Note: a $${tenant.afterHoursFee} after-hours fee applies for this time — make sure the customer was told before confirming.`;
-  }
-
-  return (
-    job.scheduled_datetime
-      ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
-      : `Booked for ${customerName}. Exact time still needs to be confirmed.`
-  ) + afterHoursFeeNote;
+if (jobError || !job) {
+  return "I wasn't able to save this appointment due to a system error — please have the office confirm it manually.";
 }
+
+const baseMessage = job.scheduled_datetime
+  ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
+  : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
+
+const { data: profile } = await admin
+  .from("business_profile")
+  .select("ai_dispatch_enabled")
+  .eq("user_id", tenant.userId)
+  .maybeSingle();
+
+if (profile?.ai_dispatch_enabled) {
+  const assignment = await assignBestTechnician(
+    admin,
+    tenant.userId,
+    job
+  );
+
+  if (assignment.technicianName) {
+    return `${baseMessage} Assigned to ${assignment.technicianName}.`;
+  }
+}
+
+return baseMessage;
 
 async function toolCheckWeather(args: Record<string, unknown>): Promise<string> {
   const location = typeof args.location === "string" ? args.location.trim() : "";
