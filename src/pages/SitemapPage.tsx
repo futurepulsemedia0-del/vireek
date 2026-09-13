@@ -112,6 +112,8 @@ function useSiteSections(): SiteSection[] {
         links: [
           { label: 'Blog Home', href: '/blog' },
           ...BLOG_POSTS.map((p) => ({ label: p.title, href: `/blog/${p.slug}` })),
+          { label: 'State of Home Service Calls Report', href: '/report' },
+          { label: 'Podcast', href: '/podcast' },
           { label: 'Glossary', href: '/glossary' },
           { label: 'Case Studies', href: '/case-studies' },
           { label: 'Testimonials', href: '/testimonials' },
