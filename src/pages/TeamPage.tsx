@@ -255,7 +255,9 @@ function EditModal({
   const [perms, setPerms] = useState(member.permissions);
   const [saving, setSaving] = useState(false);
   const [skills, setSkills] = useState(member.skills?.join(', ') ?? '');
+  const [languages, setLanguages] = useState(member.languages?.join(', ') ?? '');
   const [serviceArea, setServiceArea] = useState(member.service_area ?? '');
+  const [memberPhone, setMemberPhone] = useState(member.member_phone ?? '');
   const [maxJobsPerDay, setMaxJobsPerDay] = useState(member.max_jobs_per_day ?? 6);
   const [dispatchEnabled, setDispatchEnabled] = useState(member.dispatch_enabled ?? true);
   const handleRoleChange = (newRole: Role) => {
@@ -276,7 +278,9 @@ function EditModal({
           role,
           permissions: perms,
           skills: skills.split(',').map((s) => s.trim()).filter(Boolean),
+          languages: languages.split(',').map((s) => s.trim()).filter(Boolean),
           service_area: serviceArea.trim() || null,
+          member_phone: memberPhone.trim() || null,
           max_jobs_per_day: maxJobsPerDay,
           dispatch_enabled: dispatchEnabled,
         })
@@ -386,6 +390,18 @@ function EditModal({
                 />
               </div>
               <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">
+                  Languages spoken (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={languages}
+                  onChange={(e) => setLanguages(e.target.value)}
+                  placeholder="e.g. English, Spanish"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                />
+              </div>
+              <div>
                 <label className="mb-1.5 block text-sm font-medium text-text-primary">Service area</label>
                 <input
                   type="text"
@@ -393,6 +409,19 @@ function EditModal({
                   onChange={(e) => setServiceArea(e.target.value)}
                   placeholder="e.g. North Dallas"
                   className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">Direct phone</label>
+                <p className="mt-0.5 text-xs text-text-secondary">
+                  Needed so Sarah can actually transfer a call to this technician.
+                </p>
+                <input
+                  type="tel"
+                  value={memberPhone}
+                  onChange={(e) => setMemberPhone(e.target.value)}
+                  placeholder="+1 (555) 123-4567"
+                  className="focus-ring mt-2 w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
                 />
               </div>
               <div className="flex items-center justify-between gap-4">
