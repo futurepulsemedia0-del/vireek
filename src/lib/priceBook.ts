@@ -13,9 +13,27 @@ export interface PriceBookItem {
   description: string | null;
   active: boolean;
   sort_order: number;
+  /** 'manual' for dashboard-entered rows; set by the sync job for CRM-pulled ones. */
+  source: 'manual' | 'service_titan' | 'jobber';
+  external_id: string | null;
+  synced_at: string | null;
   created_at: string;
   updated_at: string;
 }
+
+export type CrmProvider = 'service_titan' | 'jobber';
+
+export interface PriceBookConnection {
+  provider: CrmProvider;
+  status: 'connected' | 'error' | 'disconnected';
+  last_synced_at: string | null;
+  last_sync_error: string | null;
+}
+
+export const CRM_PROVIDER_LABELS: Record<CrmProvider, string> = {
+  service_titan: 'ServiceTitan',
+  jobber: 'Jobber',
+};
 
 export const PRICING_MODEL_LABELS: Record<PricingModel, string> = {
   flat: 'Flat rate',
@@ -99,7 +117,10 @@ export function formToPayload(form: PriceBookFormState, userId: string) {
     price_cents: priceCents,
     price_max_cents: priceMaxCents,
     unit_label: form.unit_label.trim() || null,
-    keywords: form.keywords.split(',').map((k) => k.trim()).filter(Boolean),
+    keywords: form.keywords
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean),
     description: form.description.trim() || null,
   };
 }
