@@ -2,7 +2,11 @@
 //
 // Server URL for the Vapi "Vireek Receptionist" production assistant(s).
 // One Edge Function, routed internally by `message.type`:
-//
+//   - assistant-request             -> BEFORE the call connects: inject a
+//                                       `caller_context` template variable
+//                                       (returning-caller name + warranty
+//                                       status) so the assistant's system
+//                                       prompt can reference {{caller_context}}
 //   - transfer-destination-request  -> live call transfer to profiles.forwarding_number
 //   - tool-calls                    -> book_appointment / lookup_customer /
 //                                       check_weather / flag_emergency_call /
@@ -105,6 +109,7 @@ interface TenantContext {
   forwardingNumber: string | null;
   escalationRules: EscalationRule[] | null;
   assistantName: string | null;
+  assistantId: string | null;
 }
 
 interface EscalationRule {
@@ -237,7 +242,7 @@ async function resolveTenant(
 
   let query = admin
     .from("business_profile")
-    .select("user_id, escalation_rules, assistant_name")
+    .select("user_id, escalation_rules, assistant_name, vapi_assistant_id")
     .limit(1);
 
   if (assistantId) {
@@ -261,7 +266,7 @@ async function resolveTenant(
   if (!resolvedBusiness && assistantId && phoneNumberId) {
     const { data: fallbackRows, error: fallbackError } = await admin
       .from("business_profile")
-      .select("user_id, escalation_rules, assistant_name")
+      .select("user_id, escalation_rules, assistant_name, vapi_assistant_id")
       .eq("vapi_phone_number_id", phoneNumberId)
       .limit(1);
     if (fallbackError) {
@@ -291,6 +296,7 @@ async function resolveTenant(
     forwardingNumber: profile?.forwarding_number ?? null,
     escalationRules: (resolvedBusiness.escalation_rules as EscalationRule[] | null) ?? null,
     assistantName: resolvedBusiness.assistant_name ?? null,
+    assistantId: resolvedBusiness.vapi_assistant_id ?? null,
   };
 }
 
@@ -365,7 +371,121 @@ async function upsertCallRow(
 // ---------------------------------------------------------------------------
 // transfer-destination-request
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Caller intelligence — used by assistant-request (below) to let the AI
+// greet a returning caller by name and know their last job/warranty status
+// BEFORE the conversation starts, instead of waiting for it to decide to
+// call the lookup_customer tool mid-call.
+// ---------------------------------------------------------------------------
 
+async function buildCallerContextVariable(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  callerNumber: string | null,
+): Promise<string> {
+  if (!callerNumber) {
+    return "No caller ID was available for this call — treat this as a new caller.";
+  }
+
+  const { data: pastCalls } = await admin
+    .from("calls")
+    .select("caller_name")
+    .eq("user_id", tenant.userId)
+    .eq("caller_phone", callerNumber)
+    .order("call_datetime", { ascending: false })
+    .limit(1);
+
+  const { data: pastJobs } = await admin
+    .from("jobs")
+    .select("customer_name, service_type, job_status, scheduled_datetime, warranty_expires_at")
+    .eq("user_id", tenant.userId)
+    .eq("customer_phone", callerNumber)
+    .order("scheduled_datetime", { ascending: false })
+    .limit(1);
+
+  const knownName = pastJobs?.[0]?.customer_name || pastCalls?.[0]?.caller_name || null;
+  const latestJob = pastJobs?.[0];
+
+  if (!knownName && !latestJob) {
+    return "This is a new caller with no prior history on file — greet them normally and do not imply you already know them.";
+  }
+
+  const parts: string[] = [
+    `Returning caller${knownName ? ` named ${knownName}` : ""}. You may greet them by name naturally.`,
+  ];
+
+  if (latestJob) {
+    parts.push(
+      `Last service: ${latestJob.service_type ?? "a service call"} (${latestJob.job_status})${
+        latestJob.scheduled_datetime ? ` on ${new Date(latestJob.scheduled_datetime).toDateString()}` : ""
+      }.`,
+    );
+
+    if (latestJob.warranty_expires_at) {
+      const stillCovered = new Date(latestJob.warranty_expires_at).getTime() >= Date.now();
+      parts.push(
+        stillCovered
+          ? `That job is still under warranty until ${new Date(latestJob.warranty_expires_at).toDateString()} — if this call is about the same issue, say so and don't quote a repair charge before the office confirms.`
+          : `That job's warranty has expired, so treat any related issue as a new billable visit.`,
+      );
+    }
+  }
+
+  parts.push("Only state facts given here — never invent details about the caller or their history.");
+
+  return parts.join(" ");
+}
+
+// ---------------------------------------------------------------------------
+// assistant-request — Vapi calls this right as the call starts, BEFORE the
+// assistant says anything, letting the server return per-call overrides.
+//
+// We do NOT reconstruct the whole assistant config here — voice, tone, and
+// the base system prompt still live on the assistant itself in the Vapi
+// dashboard. We only inject one template variable, `caller_context`, which
+// the business's system prompt should reference (e.g. include the line
+// "Caller info: {{caller_context}}" in the prompt). That keeps the blast
+// radius small: if this lookup is slow or fails, the call still proceeds.
+//
+// Note: assistant-request events typically won't carry call.assistantId yet
+// (that's literally what we're being asked to supply) — resolveTenant
+// already falls back to phoneNumberId in that case, so no change needed
+// there.
+//
+// NOT LIVE-VERIFIED — same caveat as the file header: re-check the current
+// `assistant-request` response shape (`assistantId` + `assistantOverrides.
+// variableValues`) against Vapi's docs before relying on this in
+// production, and specifically confirm what an empty `{}` response does
+// when no tenant matches — it should fall back to a default assistant on
+// the phone number, but that must be verified, since a wrong shape here
+// could drop the call instead of just skipping personalization.
+// ---------------------------------------------------------------------------
+
+async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessage, requestId: string) {
+  const tenant = await resolveTenant(admin, message, requestId);
+
+  if (!tenant || !tenant.assistantId) {
+    logEvent("assistant_request_no_tenant", requestId, {});
+    return jsonResponse({});
+  }
+
+  const callerNumber = message.call?.customer?.number ?? null;
+  const callerContext = await buildCallerContextVariable(admin, tenant, callerNumber);
+
+  logEvent("assistant_request_resolved", requestId, {
+    user_id: tenant.userId,
+    caller_known: callerContext.startsWith("Returning caller"),
+  });
+
+  return jsonResponse({
+    assistantId: tenant.assistantId,
+    assistantOverrides: {
+      variableValues: {
+        caller_context: callerContext,
+      },
+    },
+  });
+}
 async function handleTransferDestinationRequest(
   admin: SupabaseClient,
   message: VapiMessage,
@@ -473,7 +593,7 @@ async function toolLookupCustomer(
 
   const { data: pastJobs, error: jobsError } = await admin
     .from("jobs")
-    .select("customer_name, service_type, job_status, scheduled_datetime")
+    .select("customer_name, service_type, job_status, scheduled_datetime, warranty_expires_at, warranty_notes")
     .eq("user_id", tenant.userId)
     .eq("customer_phone", phone)
     .order("scheduled_datetime", { ascending: false })
@@ -503,9 +623,22 @@ async function toolLookupCustomer(
         latestJob.scheduled_datetime ? ` on ${new Date(latestJob.scheduled_datetime).toDateString()}` : ""
       }.`,
     );
+
+    if (latestJob.warranty_expires_at) {
+      const warrantyDate = new Date(latestJob.warranty_expires_at);
+      const stillCovered = warrantyDate.getTime() >= Date.now();
+      parts.push(
+        stillCovered
+          ? `This job is still under warranty until ${warrantyDate.toDateString()}${
+              latestJob.warranty_notes ? ` (${latestJob.warranty_notes})` : ""
+            } — check with the caller whether the new issue is related before quoting a repair charge.`
+          : `That job's warranty expired ${warrantyDate.toDateString()}, so a new visit for it would not be covered.`,
+      );
+    }
   }
   return parts.join(" ");
 }
+
 
 async function toolBookAppointment(
   admin: SupabaseClient,
@@ -914,6 +1047,9 @@ Deno.serve(async (req: Request) => {
 
   try {
     switch (message.type) {
+      case "assistant-request":
+        return await handleAssistantRequest(admin, message, requestId);
+
       case "transfer-destination-request":
         return await handleTransferDestinationRequest(admin, message, requestId);
 
