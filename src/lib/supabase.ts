@@ -73,6 +73,10 @@ export interface Lead {
   service_interested: string | null;
   notes: string | null;
   stage: 'new' | 'contacted' | 'quoted' | 'won' | 'lost';
+  quote_amount: number | null;
+  quote_sent_at: string | null;
+  follow_up_count: number;
+  last_follow_up_at: string | null;
   created_at: string;
 }
 
@@ -171,6 +175,8 @@ export interface BusinessProfile {
   surge_mode_active: boolean;
   surge_mode_note: string | null;
   surge_mode_activated_at: string | null;
+  financing_partner_name: string | null;
+  financing_note: string | null;
   services_offered: string[] | null;
   greeting_script: string | null;
   faqs: { question: string; answer: string }[] | null;
