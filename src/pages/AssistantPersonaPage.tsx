@@ -10,6 +10,8 @@ import {
   Loader as Loader2,
   Check,
   MessageCircle,
+  ShieldCheck,
+  Lock,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -51,6 +53,9 @@ const TONE_OPTIONS: { id: ToneId; label: string; detail: string }[] = [
 
 const NAME_MAX_LENGTH = 40;
 
+const DEFAULT_DISCLOSURE_SCRIPT =
+  'This call is answered by an AI voice assistant, not a live person.';
+
 // ============================================================
 // MAIN PAGE
 // ============================================================
@@ -68,6 +73,7 @@ export function AssistantPersonaPage() {
   const [assistantName, setAssistantName] = useState('Sarah');
   const [assistantVoice, setAssistantVoice] = useState<string>(VOICE_OPTIONS[0].id);
   const [assistantTone, setAssistantTone] = useState<ToneId>('friendly');
+  const [disclosureScript, setDisclosureScript] = useState(DEFAULT_DISCLOSURE_SCRIPT);
 
   const loadProfile = useCallback(async () => {
     if (!user) return;
@@ -88,6 +94,7 @@ export function AssistantPersonaPage() {
         setAssistantName(bp.assistant_name || 'Sarah');
         setAssistantVoice(bp.assistant_voice || VOICE_OPTIONS[0].id);
         setAssistantTone(bp.assistant_tone || 'friendly');
+        setDisclosureScript(bp.ai_disclosure_script || DEFAULT_DISCLOSURE_SCRIPT);
       }
     } catch {
       // empty state — user will create a business profile on save
@@ -114,6 +121,12 @@ export function AssistantPersonaPage() {
       return;
     }
 
+    const trimmedDisclosure = disclosureScript.trim();
+    if (!trimmedDisclosure) {
+      toast('The AI disclosure line can\u2019t be empty — it\u2019s required, not optional.', 'error');
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = {
@@ -121,6 +134,8 @@ export function AssistantPersonaPage() {
         assistant_name: trimmedName.slice(0, NAME_MAX_LENGTH),
         assistant_voice: assistantVoice,
         assistant_tone: assistantTone,
+        ai_disclosure_script: trimmedDisclosure,
+        ai_disclosure_enabled: true as const,
       };
 
       if (profileId) {
@@ -148,10 +163,11 @@ export function AssistantPersonaPage() {
     }
   };
 
-  const previewGreeting = greetingScript.trim()
+  const previewGreetingBody = greetingScript.trim()
     ? greetingScript.trim().replace(/\bSarah\b/g, assistantName.trim() || 'Sarah')
     : `Thanks for calling! This is ${assistantName.trim() || 'Sarah'}, how can I help you today?`;
 
+  const previewGreeting = `${disclosureScript.trim() || DEFAULT_DISCLOSURE_SCRIPT} ${previewGreetingBody}`;
   return (
     <DashboardLayout activeLabel="Settings">
       <button
@@ -270,6 +286,33 @@ export function AssistantPersonaPage() {
             </div>
           </SectionCard>
 
+          {/* AI Disclosure — mandatory, not a toggle */}
+          <SectionCard
+            icon={ShieldCheck}
+            title="AI disclosure"
+            description="Sarah always states upfront that she's an AI before anything else — required in some jurisdictions (e.g. California's AB 2905) for calls using an AI-generated voice, and a safe default everywhere else."
+          >
+            <div className="mb-3 flex items-center gap-2 rounded-lg bg-bg-tertiary px-3 py-2 text-xs font-medium text-text-secondary">
+              <Lock size={13} className="shrink-0 text-text-secondary/70" />
+              Always on — this can&rsquo;t be disabled. You can edit the wording below.
+            </div>
+            <label htmlFor="disclosure-script" className="sr-only">
+              AI disclosure sentence
+            </label>
+            <textarea
+              id="disclosure-script"
+              value={disclosureScript}
+              onChange={(e) => setDisclosureScript(e.target.value)}
+              rows={2}
+              maxLength={280}
+              placeholder={DEFAULT_DISCLOSURE_SCRIPT}
+              className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors"
+            />
+            <p className="mt-2 text-xs text-text-secondary/60">
+              Spoken first, before your greeting script — on every inbound and outbound call.
+            </p>
+          </SectionCard>
+
           {/* Preview */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -286,7 +329,8 @@ export function AssistantPersonaPage() {
                 &ldquo;{previewGreeting}&rdquo;
               </p>
               <p className="mt-2 text-xs text-text-secondary/60">
-                Based on your greeting script in Business Profile, with the name above swapped in.
+                The disclosure sentence above, followed by your greeting script from Business
+                Profile, with the name above swapped in.
               </p>
             </div>
           </motion.div>
