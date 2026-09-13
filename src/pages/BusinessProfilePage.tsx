@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded, Mic, CalendarClock, CreditCard } from 'lucide-react';
+import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded, Mic, CalendarClock, CreditCard, ShieldCheck, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -12,6 +12,7 @@ import { VoiceCloningCard } from '@/components/settings/VoiceCloningCard';
 import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
 import { SkeletonCardList } from '@/components/Skeleton';
 import { EmptyState } from '@/components/EmptyState';
+import { isTollFreeNumber, TOLL_FREE_STATUS_LABELS, TOLL_FREE_STATUS_STYLES, TollFreeVerificationStatus } from '@/lib/telephony';
 
 // ============================================================
 // CONSTANTS
@@ -143,7 +144,7 @@ const DEFAULT_ASSISTANT_VOICE = 'sarah_warm_us_f';
 
 export function BusinessProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user, profile, profileLoading, refreshProfile } = useAuth();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -165,6 +166,20 @@ export function BusinessProfilePage() {
   const [financingPartnerName, setFinancingPartnerName] = useState('');
   const [financingNote, setFinancingNote] = useState('');
   const [allowSelfReschedule, setAllowSelfReschedule] = useState(false);
+
+  // Phone Number & Compliance (Step 58 — lives on `profiles`, not
+  // `business_profile`, since forwarding_number always has)
+  const [forwardingNumber, setForwardingNumber] = useState('');
+  const [tollFreeStatus, setTollFreeStatus] = useState<TollFreeVerificationStatus>('not_applicable');
+  const [savingNumber, setSavingNumber] = useState(false);
+  const [showTfvInfo, setShowTfvInfo] = useState(false);
+
+  useEffect(() => {
+    if (!profile) return;
+    setForwardingNumber(profile.forwarding_number ?? '');
+    setTollFreeStatus(profile.toll_free_verification_status ?? 'not_applicable');
+  }, [profile]);
+
   const loadProfile = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -189,7 +204,7 @@ export function BusinessProfilePage() {
         setAssistantName(bp.assistant_name || DEFAULT_ASSISTANT_NAME);
         setAssistantTone(bp.assistant_tone || DEFAULT_ASSISTANT_TONE);
         setAssistantVoice(bp.assistant_voice || DEFAULT_ASSISTANT_VOICE);
-                setHolidays(bp.holidays ?? []);
+        setHolidays(bp.holidays ?? []);
         setEscalationRules(bp.escalation_rules ?? []);
         setFinancingPartnerName(bp.financing_partner_name ?? '');
         setFinancingNote(bp.financing_note ?? '');
@@ -335,6 +350,60 @@ export function BusinessProfilePage() {
     }
   };
 
+  const numberIsTollFree = isTollFreeNumber(forwardingNumber);
+
+  const handleSaveNumber = async () => {
+    if (!user) return;
+    setSavingNumber(true);
+    try {
+      // If the number just changed and is now toll-free but was never
+      // reviewed, reset status to "not_started" rather than silently
+      // keeping a stale "verified" carried over from a different number.
+      const nextStatus: TollFreeVerificationStatus = numberIsTollFree
+        ? tollFreeStatus === 'not_applicable'
+          ? 'not_started'
+          : tollFreeStatus
+        : 'not_applicable';
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ forwarding_number: forwardingNumber.trim() || null, toll_free_verification_status: nextStatus })
+        .eq('id', user.id);
+      if (error) throw error;
+
+      setTollFreeStatus(nextStatus);
+      await refreshProfile();
+      toast('Forwarding number updated.', 'success');
+    } catch {
+      toast('Could not save your number. Please try again.', 'error');
+    } finally {
+      setSavingNumber(false);
+    }
+  };
+
+  const handleStartVerification = async () => {
+    if (!user) return;
+    setSavingNumber(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ toll_free_verification_status: 'pending', toll_free_verification_requested_at: new Date().toISOString() })
+        .eq('id', user.id);
+      if (error) throw error;
+
+      setTollFreeStatus('pending');
+      await refreshProfile();
+      toast('Verification requested — our team will follow up by email.', 'success');
+      window.location.href = `mailto:ali@vireek.com?subject=Toll-Free%20Verification%20Request&body=Please%20start%20Toll-Free%20Verification%20for%3A%0ABusiness%3A%20${encodeURIComponent(
+        profile?.company_name ?? ''
+      )}%0ANumber%3A%20${encodeURIComponent(forwardingNumber)}%0AAccount%20email%3A%20${encodeURIComponent(user.email ?? '')}`;
+    } catch {
+      toast('Could not start verification. Please try again.', 'error');
+    } finally {
+      setSavingNumber(false);
+    }
+  };
+
   const inputClass =
     'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
 
@@ -466,6 +535,97 @@ export function BusinessProfilePage() {
             <div className="mt-6">
               <VoiceCloningCard />
             </div>
+
+            {/* Phone Number & Compliance */}
+            <SectionCard
+              icon={PhoneForwarded}
+              title="Phone Number & Compliance"
+              description="The number calls forward from, and whether it's clear to send SMS."
+            >
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-text-secondary">Forwarding number</label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      type="tel"
+                      value={forwardingNumber}
+                      onChange={(e) => setForwardingNumber(e.target.value)}
+                      placeholder="+1 (555) 123-4567"
+                      className={inputClass}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveNumber}
+                      disabled={savingNumber || forwardingNumber.trim() === (profile?.forwarding_number ?? '')}
+                      className="focus-ring flex shrink-0 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary disabled:opacity-50"
+                    >
+                      {savingNumber ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                      Save
+                    </button>
+                  </div>
+                  <p className="mt-1.5 text-xs text-text-secondary/60">
+                    The existing business number calls get forwarded from before reaching {assistantName || DEFAULT_ASSISTANT_NAME}.
+                  </p>
+                </div>
+
+                {numberIsTollFree && (
+                  <div className="rounded-xl border border-border bg-bg-primary p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium text-text-primary">Toll-Free Verification</span>
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${TOLL_FREE_STATUS_STYLES[tollFreeStatus]}`}>
+                        {TOLL_FREE_STATUS_LABELS[tollFreeStatus]}
+                      </span>
+                    </div>
+
+                    {tollFreeStatus !== 'verified' && (
+                      <div className="mt-2 flex items-start gap-2 text-xs leading-relaxed text-text-secondary">
+                        <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" />
+                        <p>
+                          This number is toll-free. Carriers filter or block SMS from unverified
+                          toll-free numbers, which can stop automated booking confirmations from
+                          reaching customers.
+                        </p>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setShowTfvInfo((v) => !v)}
+                      className="focus-ring mt-2 text-xs font-semibold text-accent hover:underline"
+                    >
+                      {showTfvInfo ? 'Hide details' : 'What is this?'}
+                    </button>
+                    {showTfvInfo && (
+                      <p className="mt-2 text-xs leading-relaxed text-text-secondary">
+                        Toll-free numbers (800, 833, 844, 855, 866, 877, 888) need a one-time
+                        review by carriers before they can send SMS reliably — separate from
+                        10DLC, which covers local numbers. It typically takes a few business
+                        days once submitted and requires your business name, address, and how
+                        you use the number to text customers.
+                      </p>
+                    )}
+
+                    {(tollFreeStatus === 'not_started' || tollFreeStatus === 'rejected') && (
+                      <button
+                        type="button"
+                        onClick={handleStartVerification}
+                        disabled={savingNumber}
+                        className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+                      >
+                        <ShieldCheck size={13} />
+                        {tollFreeStatus === 'rejected' ? 'Resubmit for Verification' : 'Start Verification'}
+                      </button>
+                    )}
+                    {tollFreeStatus === 'pending' && (
+                      <p className="mt-3 text-xs text-text-secondary">
+                        We've received your request and will follow up by email once carrier
+                        review is complete.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </SectionCard>
 
             {/* Services Offered */}
             <SectionCard icon={Briefcase} title="Services Offered" description="What services does your business provide? Add one per line.">
