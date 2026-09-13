@@ -68,6 +68,7 @@ const AIReceptionistVsHumanPage = lazy(() => import('@/pages/AIReceptionistVsHum
 const IndustriesPage = lazy(() => import('@/pages/IndustriesPage').then((m) => ({ default: m.IndustriesPage })));
 const IndustryPage = lazy(() => import('@/pages/IndustryPage').then((m) => ({ default: m.IndustryPage })));
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
+const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
@@ -162,6 +163,7 @@ function App() {
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/enterprise" element={<EnterprisePage />} />
         <Route path="/demo" element={<DemoPage />} />
+        <Route path="/reschedule/:token" element={<ReschedulePage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
