@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded, Mic } from 'lucide-react';
+import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded, Mic, CalendarClock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -161,7 +161,7 @@ export function BusinessProfilePage() {
   const [assistantVoice, setAssistantVoice] = useState<string>(DEFAULT_ASSISTANT_VOICE);
   const [holidays, setHolidays] = useState<BusinessProfileHoliday[]>([]);
   const [escalationRules, setEscalationRules] = useState<BusinessProfileEscalationRule[]>([]);
-
+  const [allowSelfReschedule, setAllowSelfReschedule] = useState(false);
   const loadProfile = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -186,8 +186,9 @@ export function BusinessProfilePage() {
         setAssistantName(bp.assistant_name || DEFAULT_ASSISTANT_NAME);
         setAssistantTone(bp.assistant_tone || DEFAULT_ASSISTANT_TONE);
         setAssistantVoice(bp.assistant_voice || DEFAULT_ASSISTANT_VOICE);
-        setHolidays(bp.holidays ?? []);
+                setHolidays(bp.holidays ?? []);
         setEscalationRules(bp.escalation_rules ?? []);
+        setAllowSelfReschedule(bp.allow_customer_self_reschedule ?? false);
       }
     } catch {
       // empty state — user will create on save
@@ -300,6 +301,7 @@ export function BusinessProfilePage() {
         assistant_voice: assistantVoice,
         holidays: cleanHolidays.length > 0 ? cleanHolidays : null,
         escalation_rules: cleanEscalationRules.length > 0 ? cleanEscalationRules : null,
+        allow_customer_self_reschedule: allowSelfReschedule,
       };
 
       if (profileId) {
@@ -796,6 +798,38 @@ export function BusinessProfilePage() {
             </div>
             <div className="mt-6">
               <EscalationSettings />
+            </div>
+
+            <div className="mt-6">
+              <SectionCard
+                icon={CalendarClock}
+                title="Customer Self-Reschedule"
+                description="Let customers reschedule their own appointment from a link, without calling in."
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-text-primary">Allow self-reschedule</p>
+                    <p className="text-xs text-text-secondary">
+                      Each scheduled job gets a private link. Sarah (or your own texts) can send it.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={allowSelfReschedule}
+                    onClick={() => setAllowSelfReschedule((v) => !v)}
+                    className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                      allowSelfReschedule ? 'bg-accent' : 'bg-bg-tertiary'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                        allowSelfReschedule ? 'translate-x-[22px]' : 'translate-x-0.5'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </SectionCard>
             </div>
 
             {/* Save bar */}
