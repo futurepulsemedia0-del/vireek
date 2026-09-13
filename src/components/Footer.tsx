@@ -107,6 +107,8 @@ const FOOTER_COLUMNS = [
     title: 'Resources',
     links: [
       { label: 'Blog', href: '/blog' },
+      { label: 'State of Home Service Calls Report', href: '/report' },
+      { label: 'Podcast', href: '/podcast' },
       { label: 'Onboarding Guide', href: '/onboarding-guide' },
       { label: 'Glossary', href: '/glossary' },
       { label: 'Case Studies', href: '/case-studies' },
