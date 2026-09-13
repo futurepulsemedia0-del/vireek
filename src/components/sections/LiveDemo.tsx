@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Phone, Send, Sparkles } from 'lucide-react';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { SARAH_PHONE } from '@/lib/site';
@@ -29,6 +30,7 @@ const OPENING_MESSAGE: ChatMessage = {
 };
 
 export function LiveDemo() {
+  const { t } = useTranslation('common');
   const [messages, setMessages] = useState<ChatMessage[]>([OPENING_MESSAGE]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -149,6 +151,9 @@ export function LiveDemo() {
                 </p>
               </div>
 
+              <p className="border-b border-border bg-bg-secondary/60 px-4 py-1.5 text-center text-[10px] font-medium text-text-secondary sm:px-5">
+                {t('aiDisclosure.chatNotice')}
+              </p>
               <div ref={scrollRef} aria-live="polite" className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:space-y-4 sm:px-5 sm:py-5">
                 {messages.map((msg) => (
                   <MessageBubble key={msg.id} role={msg.role} streaming={msg.streaming}>
