@@ -1,74 +1,78 @@
 /*
-# Call source attribution (Google Business Profile, Local Services Ads, etc.)
+# Insurance claim capture (for restoration businesses)
 
 ## Why
-Many home-service leads call directly off a Google Maps/Business Profile
-listing or a Local Services Ads badge, not the business's main number.
-There is currently no way to tell those calls apart from any other —
-`business_profile.vapi_phone_number_id` is a UNIQUE column, meaning the
-current architecture only supports ONE Vapi phone number per business.
-Attribution needs several tracking numbers (one per source) that can all
-still route to the SAME AI assistant.
+Restoration businesses (water damage, fire damage, storm damage) mostly
+deal with the customer's insurance, not out-of-pocket payment. There was
+no schema anywhere for this — no way for the AI to record which insurer,
+policy/claim number, or adjuster is involved so the office's claims
+workflow can pick it up.
 
 ## What this does
-- New table `call_tracking_numbers`: maps additional Vapi phone number
-  IDs to a source label ("google_business_profile", "google_lsa",
-  "website", "print", etc.), independent of and additive to the existing
-  single `business_profile.vapi_phone_number_id` (which keeps working
-  exactly as before for accounts that never set this up).
-- Adds `source_channel` (text, nullable) to `calls`, populated by the
-  webhook at call time by looking up the dialed number in this table —
-  see the accompanying vapi-webhook edit (`resolveCallSource`). NULL for
-  any call on a number that isn't registered here, so existing single-
-  number accounts see no change.
+- New table `insurance_claims`, loosely linked to `calls`/`jobs` (both
+  nullable FKs — a claim can be captured before a job even exists yet,
+  during the initial triage call).
+- Reuses the EXISTING `public.dispatch_customer_webhook()` function
+  (already powering the calls/leads/jobs -> customer webhook pipeline
+  from 20260912010000_webhook_logs.sql) via one more trigger. No new
+  delivery code needed — whatever webhook/CRM/Zapier a business already
+  has connected under Integrations receives an `insurance_claim.created`
+  event the same way it already receives `call.created` etc. This
+  migration does NOT send email/SMS itself; it relies entirely on that
+  existing, already-working path. A business with no webhook connected
+  simply won't get this event automatically yet (same as any other
+  event type today) until they set one up on the Integrations page.
 
 ## RLS
-Same ownership pattern as every other per-tenant table in this project —
-only the account owner (`get_account_owner_id()`) can see/manage their
-own tracking numbers.
+Same ownership pattern as every other per-tenant table in this project.
 */
 
-CREATE TABLE IF NOT EXISTS call_tracking_numbers (
+CREATE TABLE IF NOT EXISTS insurance_claims (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL DEFAULT auth.uid(),
-  vapi_phone_number_id text NOT NULL,
-  source text NOT NULL,
-  label text,
+  call_id uuid REFERENCES calls(id) ON DELETE SET NULL,
+  job_id uuid REFERENCES jobs(id) ON DELETE SET NULL,
+  customer_name text,
+  customer_phone text,
+  insurance_company text,
+  policy_number text,
+  claim_number text,
+  date_of_loss date,
+  damage_type text,
+  adjuster_name text,
+  adjuster_phone text,
+  notes text,
+  status text NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'submitted', 'approved', 'denied')),
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_call_tracking_numbers_phone_number_id
-  ON call_tracking_numbers(vapi_phone_number_id);
+CREATE INDEX IF NOT EXISTS idx_insurance_claims_user_created
+  ON insurance_claims(user_id, created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_call_tracking_numbers_user_id
-  ON call_tracking_numbers(user_id);
+ALTER TABLE insurance_claims ENABLE ROW LEVEL SECURITY;
 
-ALTER TABLE call_tracking_numbers ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "select_own_tracking_numbers" ON call_tracking_numbers;
-CREATE POLICY "select_own_tracking_numbers"
-ON call_tracking_numbers FOR SELECT
+DROP POLICY IF EXISTS "select_own_insurance_claims" ON insurance_claims;
+CREATE POLICY "select_own_insurance_claims"
+ON insurance_claims FOR SELECT
 TO authenticated
 USING (user_id = public.get_account_owner_id());
 
-DROP POLICY IF EXISTS "insert_own_tracking_numbers" ON call_tracking_numbers;
-CREATE POLICY "insert_own_tracking_numbers"
-ON call_tracking_numbers FOR INSERT
+DROP POLICY IF EXISTS "insert_own_insurance_claims" ON insurance_claims;
+CREATE POLICY "insert_own_insurance_claims"
+ON insurance_claims FOR INSERT
 TO authenticated
 WITH CHECK (user_id = public.get_account_owner_id());
 
-DROP POLICY IF EXISTS "update_own_tracking_numbers" ON call_tracking_numbers;
-CREATE POLICY "update_own_tracking_numbers"
-ON call_tracking_numbers FOR UPDATE
+DROP POLICY IF EXISTS "update_own_insurance_claims" ON insurance_claims;
+CREATE POLICY "update_own_insurance_claims"
+ON insurance_claims FOR UPDATE
 TO authenticated
 USING (user_id = public.get_account_owner_id())
 WITH CHECK (user_id = public.get_account_owner_id());
 
-DROP POLICY IF EXISTS "delete_own_tracking_numbers" ON call_tracking_numbers;
-CREATE POLICY "delete_own_tracking_numbers"
-ON call_tracking_numbers FOR DELETE
-TO authenticated
-USING (user_id = public.get_account_owner_id());
-
-ALTER TABLE calls
-ADD COLUMN IF NOT EXISTS source_channel text;
+-- Reuses the existing generic dispatch function — no new trigger function.
+DROP TRIGGER IF EXISTS trigger_webhook_new_insurance_claim ON insurance_claims;
+CREATE TRIGGER trigger_webhook_new_insurance_claim
+  AFTER INSERT ON insurance_claims
+  FOR EACH ROW
+  EXECUTE FUNCTION public.dispatch_customer_webhook('insurance_claim.created');
