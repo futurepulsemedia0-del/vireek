@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -13,6 +13,8 @@ import {
   Mail,
   Clock,
   AlertTriangle,
+  BellRing,
+  Loader as Loader2,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -21,6 +23,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { useLiveStatus } from '@/hooks/useLiveStatus';
+import { supabase } from '@/lib/supabase';
 
 // ============================================================
 // CONTENT — edit this file directly to update the status page
@@ -188,6 +191,99 @@ const OVERALL_BANNER_COPY: Record<SystemStatus, string> = {
   maintenance: 'Scheduled Maintenance In Progress',
 };
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function SubscribeForm() {
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [wantsSms, setWantsSms] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
+      setStatus('error');
+      setErrorMessage('Enter a valid email address.');
+      return;
+    }
+
+    setStatus('loading');
+    setErrorMessage('');
+    const { error } = await supabase.from('status_subscribers').insert({
+      email: trimmedEmail,
+      phone: phone.trim() || null,
+      notify_sms: wantsSms && !!phone.trim(),
+    });
+
+    if (error) {
+      if (error.code === '23505') {
+        setStatus('success');
+      } else {
+        setStatus('error');
+        setErrorMessage('Could not subscribe right now. Please try again.');
+      }
+      return;
+    }
+    setStatus('success');
+  };
+
+  if (status === 'success') {
+    return (
+      <div className="flex items-center gap-3 rounded-2xl border border-success-500/25 bg-success-500/10 px-6 py-5">
+        <CheckCircle2 className="h-6 w-6 shrink-0 text-success-500" />
+        <p className="text-sm font-medium text-text-primary">
+          You&rsquo;re subscribed — we&rsquo;ll email you the moment something changes.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@company.com"
+          aria-label="Email address"
+          className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60"
+        />
+        <Button type="submit" variant="primary" disabled={status === 'loading'} className="shrink-0 gap-2">
+          {status === 'loading' ? <Loader2 size={16} className="animate-spin" /> : <BellRing size={16} />}
+          Subscribe
+        </Button>
+      </div>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Phone (optional — for SMS, coming soon)"
+          aria-label="Phone number, optional"
+          className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+        />
+        <label className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-text-secondary">
+          <input
+            type="checkbox"
+            checked={wantsSms}
+            onChange={(e) => setWantsSms(e.target.checked)}
+            className="h-4 w-4 rounded border-border text-accent focus-ring"
+          />
+          Text me when SMS launches
+        </label>
+      </div>
+      {status === 'error' && <p className="text-xs font-medium text-danger">{errorMessage}</p>}
+      <p className="text-xs text-text-secondary/60">
+        Email alerts are live today. Unsubscribe any time from a link in every email.
+      </p>
+    </form>
+  );
+}
+
 export function StatusPage() {
   const live = useLiveStatus();
 
@@ -257,6 +353,32 @@ export function StatusPage() {
               Last updated {effectiveLastUpdated}
             </p>
           </div>
+        </section>
+
+        {/* Subscribe to updates */}
+        <section className="px-6 pb-4">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewport}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="mx-auto max-w-2xl rounded-2xl border border-border bg-bg-secondary/90 p-6 shadow-card dark:shadow-card-dark sm:p-8"
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <BellRing size={18} />
+              </span>
+              <div>
+                <h2 className="text-base font-semibold text-text-primary">Subscribe to updates</h2>
+                <p className="mt-0.5 text-sm text-text-secondary">
+                  Get an email the moment we post an incident here — no need to keep refreshing.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5">
+              <SubscribeForm />
+            </div>
+          </motion.div>
         </section>
 
         {/* System components */}
