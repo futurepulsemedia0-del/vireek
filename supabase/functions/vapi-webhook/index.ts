@@ -1396,13 +1396,37 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
   }
 
   const vapiCallId = message.call?.id;
-  const trackingSource = await resolveCallSource(admin, message.phoneNumber?.id);
-  const patch: Record<string, unknown> = {
-    caller_phone: message.call?.customer?.number ?? null,
-    caller_name: message.call?.customer?.name ?? null,
-    source_channel: trackingSource,
-  };
 
+const trackingSource = await resolveCallSource(
+  admin,
+  message.phoneNumber?.id
+);
+
+const patch: Record<string, unknown> = {
+  caller_phone: message.call?.customer?.number ?? null,
+  caller_name: message.call?.customer?.name ?? null,
+  source_channel: trackingSource,
+};
+
+// Lead source attribution — see 20260912070000_call_source_attribution.sql.
+// Only meaningful if the business has set up additional tracking numbers
+// in Call Sources; otherwise this simply finds nothing and the call shows
+// as unattributed, which is the honest default.
+const dialedPhoneNumberId =
+  message.call?.phoneNumberId ?? message.phoneNumber?.id;
+
+if (dialedPhoneNumberId) {
+  const { data: matchedSource } = await admin
+    .from("call_sources")
+    .select("label")
+    .eq("user_id", tenant.userId)
+    .eq("vapi_phone_number_id", dialedPhoneNumberId)
+    .maybeSingle();
+
+  if (matchedSource?.label) {
+    patch.source_label = matchedSource.label;
+  }
+}
   if (message.type === "end-of-call-report") {
     const transcript = message.transcript ?? message.artifact?.transcript ?? null;
     const recordingUrl =
