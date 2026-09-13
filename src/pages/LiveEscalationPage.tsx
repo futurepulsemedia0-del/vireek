@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Ear,
   Gauge,
+  Languages,
   PhoneForwarded,
   ShieldAlert,
   Users,
@@ -49,6 +50,11 @@ const WHAT_IT_DOES = [
     icon: Gauge,
     title: 'Logged like any other call',
     body: 'Every escalation — who it went to, whether it was answered, how long it took — shows up in your call log, not in a separate, invisible channel.',
+  },
+  {
+    icon: Languages,
+    title: 'Routed by language, not just answered in it',
+    body: 'Set which languages each technician speaks on the Team page, and a Spanish-speaking caller escalates straight to your Spanish-speaking technician — not just to whoever picks up first.',
   },
 ];
 
