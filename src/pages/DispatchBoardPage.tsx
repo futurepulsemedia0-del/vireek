@@ -153,6 +153,9 @@ export function DispatchBoardPage() {
                             {job.service_type ?? 'Unspecified service'} · {formatTime(job.scheduled_datetime)}
                           </p>
                           {job.address && <p className="text-xs text-text-secondary/70">{job.address}</p>}
+                                                    {job.dispatch_note && (
+                            <p className="mt-1 text-xs italic text-accent/80">{job.dispatch_note}</p>
+                          )}
                         </div>
                         {top && (
                           <span className="flex shrink-0 items-center gap-1 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
