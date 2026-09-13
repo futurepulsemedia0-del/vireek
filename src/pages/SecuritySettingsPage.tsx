@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ShieldCheck, KeyRound, LogOut, ScrollText, CircleCheck as CheckCircle2, Trash2, Laptop } from 'lucide-react';
+import { ShieldCheck, KeyRound, LogOut, ScrollText, CircleCheck as CheckCircle2, Trash2, Laptop, Globe2, Download, UserX } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { BackButton } from '@/components/ui/BackButton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
 import { listTrustedDevices, revokeTrustedDevice, TrustedDeviceRow } from '@/lib/deviceTrust';
+import { listOwnSessions, revokeOwnSession, getCurrentSessionId, describeUserAgent, OwnSessionRow } from '@/lib/sessions';
+import { buildMyDataExport, downloadDataExport, deleteMyAccount } from '@/lib/accountData';
 
 interface AuditLogRow {
   id: string;
@@ -77,10 +79,15 @@ export function SecuritySettingsPage() {
 
   const [signingOutOthers, setSigningOutOthers] = useState(false);
 
-  const [devices, setDevices] = useState<TrustedDeviceRow[]>([]);
-  const [devicesLoading, setDevicesLoading] = useState(true);
-  const [revokingId, setRevokingId] = useState<string | null>(null);
-  const [revokeTarget, setRevokeTarget] = useState<TrustedDeviceRow | null>(null);
+  const [sessions, setSessions] = useState<OwnSessionRow[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [revokingSessionId, setRevokingSessionId] = useState<string | null>(null);
+  const [sessionRevokeTarget, setSessionRevokeTarget] = useState<OwnSessionRow | null>(null);
+
+  const [exporting, setExporting] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const loadFactors = useCallback(async () => {
     setMfaLoading(true);
@@ -115,11 +122,25 @@ export function SecuritySettingsPage() {
     }
   }, []);
 
+  const loadSessions = useCallback(async () => {
+    setSessionsLoading(true);
+    try {
+      const [rows, currentId] = await Promise.all([listOwnSessions(), getCurrentSessionId()]);
+      setSessions(rows);
+      setCurrentSessionId(currentId);
+    } catch {
+      setSessions([]);
+    } finally {
+      setSessionsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadFactors();
     loadAuditLog();
     loadDevices();
-  }, [loadFactors, loadAuditLog, loadDevices]);
+    loadSessions();
+  }, [loadFactors, loadAuditLog, loadDevices, loadSessions]);
 
   if (!isOwner) {
     return (
@@ -196,7 +217,51 @@ export function SecuritySettingsPage() {
     if (error) toast(`Could not sign out other sessions: ${error.message}`, 'error');
     else toast('Every other session has been signed out.', 'success');
   };
+   const handleRevokeSession = async () => {
+    if (!sessionRevokeTarget) return;
+    setRevokingSessionId(sessionRevokeTarget.id);
+    try {
+      await revokeOwnSession(sessionRevokeTarget.id);
+      toast('That session has been signed out.', 'success');
+      await loadSessions();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not sign out that session.', 'error');
+    } finally {
+      setRevokingSessionId(null);
+      setSessionRevokeTarget(null);
+    }
+  };
 
+  const handleExportData = async () => {
+    setExporting(true);
+    try {
+      const data = await buildMyDataExport();
+      downloadDataExport(data);
+      toast('Your data export has started downloading.', 'success');
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not build your data export.', 'error');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user?.email) return;
+    setDeletingAccount(true);
+    try {
+      await deleteMyAccount(user.email);
+      toast('Your account has been deleted.', 'info');
+      await supabase.auth.signOut();
+      window.location.href = '/';
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not delete your account.', 'error');
+      setDeletingAccount(false);
+      setDeleteConfirmOpen(false);
+    }
+  };
+
+  const handleRevokeDevice = async () => {
+    if (!revokeTarget) return; 
   const handleRevokeDevice = async () => {
     if (!revokeTarget) return;
     setRevokingId(revokeTarget.id);
@@ -347,7 +412,60 @@ export function SecuritySettingsPage() {
           {signingOutOthers ? 'Signing out…' : 'Sign out of all other sessions'}
         </button>
       </div>
+              {/* Active sessions (real per-session list, distinct from "sign out others" above) */}
+      <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+            <Globe2 size={18} />
+          </span>
+          <div>
+            <h2 className="text-base font-semibold text-text-primary">Active sessions</h2>
+            <p className="text-xs text-text-secondary">Everywhere you're currently signed in, with the option to sign out any one of them.</p>
+          </div>
+        </div>
 
+        <div className="mt-4 space-y-2">
+          {sessionsLoading ? (
+            <div className="space-y-2">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="h-14 w-full animate-pulse rounded-xl bg-bg-tertiary" />
+              ))}
+            </div>
+          ) : sessions.length === 0 ? (
+            <p className="text-sm text-text-secondary">No active sessions found.</p>
+          ) : (
+            sessions.map((s) => (
+              <div key={s.id} className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-text-primary">
+                    {describeUserAgent(s.user_agent)}
+                    {s.id === currentSessionId && (
+                      <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                        This session
+                      </span>
+                    )}
+                  </p>
+                  <p className="mt-0.5 text-xs text-text-secondary">
+                    {s.ip ? `${s.ip} · ` : ''}Last active {new Date(s.refreshed_at ?? s.updated_at).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSessionRevokeTarget(s)}
+                  disabled={revokingSessionId === s.id}
+                  className="focus-ring flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger/10 disabled:opacity-50"
+                >
+                  <LogOut size={13} />
+                  Sign out
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Trusted devices */}
+      <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       {/* Trusted devices */}
       <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
         <div className="flex items-center gap-3">
@@ -448,7 +566,44 @@ export function SecuritySettingsPage() {
           )}
         </div>
       </div>
+            {/* Data export + account deletion */}
+      <div className="mt-4 rounded-2xl border border-danger/30 bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-danger/10 text-danger">
+            <UserX size={18} />
+          </span>
+          <div>
+            <h2 className="text-base font-semibold text-text-primary">Your data</h2>
+            <p className="text-xs text-text-secondary">Export everything Vireek has on your account, or delete it permanently.</p>
+          </div>
+        </div>
 
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={handleExportData}
+            disabled={exporting}
+            className="focus-ring flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary disabled:opacity-50"
+          >
+            <Download size={14} />
+            {exporting ? 'Preparing export…' : 'Export my data'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeleteConfirmOpen(true)}
+            className="focus-ring flex items-center justify-center gap-2 rounded-xl border border-danger/40 px-4 py-2.5 text-sm font-medium text-danger transition-colors hover:bg-danger/10"
+          >
+            <Trash2 size={14} />
+            Delete my account
+          </button>
+        </div>
+        <p className="mt-3 text-xs text-text-secondary">
+          Deletion is immediate and permanent — calls, leads, jobs, and every other record tied to your account are removed, not just deactivated.
+        </p>
+      </div>
+
+      <ConfirmDialog
+        open={!!unenrollTarget}
       <ConfirmDialog
         open={!!unenrollTarget}
         title="Remove two-factor authentication?"
@@ -469,6 +624,29 @@ export function SecuritySettingsPage() {
         confirmLabel="Yes, remove device"
         onConfirm={handleRevokeDevice}
         onCancel={() => setRevokeTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={!!sessionRevokeTarget}
+        title="Sign out this session?"
+        description={
+          sessionRevokeTarget?.id === currentSessionId
+            ? "This is the session you're using right now — signing it out will log you out immediately."
+            : 'That device or browser will be signed out immediately and will need to sign in again.'
+        }
+        confirmLabel="Yes, sign out"
+        onConfirm={handleRevokeSession}
+        onCancel={() => setSessionRevokeTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete your account permanently?"
+        description={`This cannot be undone. Every call, lead, job, and setting tied to your account will be permanently deleted. Type your email address (${user?.email ?? ''}) to confirm.`}
+        confirmPhrase={user?.email ?? ''}
+        confirmLabel={deletingAccount ? 'Deleting…' : 'Yes, delete my account'}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setDeleteConfirmOpen(false)}
       />
     </DashboardLayout>
   );
