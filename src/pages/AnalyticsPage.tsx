@@ -14,6 +14,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call, Job, Lead } from '@/lib/supabase';
+import { LeadSourceBreakdown } from '@/components/LeadSourceBreakdown';
+import { CohortLtvSection } from '@/components/CohortLtvSection';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { Lock } from 'lucide-react';
 
@@ -1107,12 +1109,22 @@ export function AnalyticsPage() {
           ) : (
             <>
               <ChartCard title="Call Outcomes Breakdown" insight={metrics.insights.outcomes}>
-                {metrics.totalCalls === 0 ? (
-                  <EmptyChart message="No calls to analyze." />
-                ) : (
-                  <DonutChart data={metrics.outcomes} />
-                )}
-              </ChartCard>
+                              {metrics.totalCalls === 0 ? (
+                <EmptyChart message="No call data to build a heatmap." />
+              ) : isMobile ? (
+                <HeatmapMobile data={metrics.heatmap} />
+              ) : (
+                <Heatmap data={metrics.heatmap} />
+              )}
+            </ChartCard>
+          )}
+        </div>
+
+        {/* Lead Source Attribution + Cohort/LTV */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <LeadSourceBreakdown calls={allCalls} />
+          <CohortLtvSection jobs={allJobs} />
+        </div>
 
               <ChartCard title="Emergency Response" insight={metrics.insights.emergency}>
                 {metrics.emergencyVolume.every((d) => d.count === 0) ? (
