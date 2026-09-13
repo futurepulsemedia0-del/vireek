@@ -207,7 +207,6 @@ export function LoginPage() {
   }, [pendingEmail]);
 
   const handleGoogleSignIn = async () => {
-  const handleGoogleSignIn = async () => {
     setAuthError('');
     setGoogleLoading(true);
     try {
@@ -351,7 +350,7 @@ export function LoginPage() {
               <AuthBackLink onClick={backToSignIn} label="Back to sign in" />
             </div>
           </div>
-                  ) : step === 'magic-link-sent' ? (
+        ) : step === 'magic-link-sent' ? (
           <div className="flex flex-col items-center text-center">
             <AuthIconBadge icon={<Sparkles size={22} />} />
             <h1 className="text-2xl font-bold tracking-tight text-text-primary">Check your email</h1>
@@ -377,7 +376,6 @@ export function LoginPage() {
               <AuthBackLink onClick={backToSignIn} label="Back to sign in" />
             </div>
           </div>
-        ) : step === 'device-otp' ? (
         ) : step === 'device-otp' ? (
           <div className="flex flex-col items-center text-center">
             <AuthIconBadge icon={<KeyRound size={22} />} />
