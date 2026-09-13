@@ -59,6 +59,7 @@ export interface Call {
   voicemail_listened_at: string | null;
   escalated_to: string | null;
   escalated_at: string | null;
+  detected_language: string | null;
   created_at: string;
 }
 
@@ -207,9 +208,11 @@ export interface TeamMember {
   invite_status: 'pending' | 'active';
   last_invited_at: string | null;
   skills: string[];
+  languages: string[];
   service_area: string | null;
   max_jobs_per_day: number;
   dispatch_enabled: boolean;
+  member_phone: string | null;
   created_at: string;
 }
 
