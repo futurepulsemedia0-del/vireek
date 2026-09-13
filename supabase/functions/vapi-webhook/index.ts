@@ -115,8 +115,11 @@ interface TenantContext {
   surgeModeMessage: string | null;
   surgeModePriority: string | null;
   surgeMaxBookingsPerDay: number | null;
+  businessHours: BusinessHoursMap | null;
+  holidays: HolidayEntry[] | null;
+  afterHoursFee: number | null;
+  afterHoursFeeNote: string | null;
 }
-
 interface EscalationRule {
   id?: string;
   trigger?: "emergency" | "after_hours" | "no_answer" | "human_request";
@@ -247,7 +250,7 @@ async function resolveTenant(
 
   let query = admin
     .from("business_profile")
-.select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day")
+.select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note")
     .limit(1);
 
   if (assistantId) {
@@ -307,6 +310,10 @@ async function resolveTenant(
     surgeModeMessage: resolvedBusiness.surge_mode_message ?? null,
     surgeModePriority: resolvedBusiness.surge_mode_priority ?? null,
     surgeMaxBookingsPerDay: resolvedBusiness.surge_max_bookings_per_day ?? null,
+    businessHours: (resolvedBusiness.business_hours as BusinessHoursMap | null) ?? null,
+    holidays: (resolvedBusiness.holidays as HolidayEntry[] | null) ?? null,
+    afterHoursFee: resolvedBusiness.after_hours_fee ?? null,
+    afterHoursFeeNote: resolvedBusiness.after_hours_fee_note ?? null,
   };
 }
 
@@ -482,11 +489,13 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   const callerNumber = message.call?.customer?.number ?? null;
   const callerContext = await buildCallerContextVariable(admin, tenant, callerNumber);
   const surgeContext = buildSurgeContextVariable(tenant);
+  const afterHoursContext = buildAfterHoursContextVariable(tenant, new Date());
 
   logEvent("assistant_request_resolved", requestId, {
     user_id: tenant.userId,
     caller_known: callerContext.startsWith("Returning caller"),
     surge_mode_active: tenant.surgeModeEnabled,
+    after_hours: afterHoursContext.length > 0,
   });
 
   return jsonResponse({
@@ -495,6 +504,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
       variableValues: {
         caller_context: callerContext,
         surge_context: surgeContext,
+        after_hours_context: afterHoursContext,
       },
     },
   });
@@ -575,6 +585,68 @@ function resolveOnCallTarget(schedule: OnCallEntry[] | null, now: Date): string 
   }
 
   return null;
+}
+// ---------------------------------------------------------------------------
+// After-hours fee disclosure — computes whether a given moment (either
+// "right now" for the live call, or a proposed booking time) falls
+// outside the business's configured hours, so the fee can be disclosed
+// BEFORE booking rather than surprising the customer on the invoice.
+//
+// All matching runs in the Edge Function runtime's local time (typically
+// UTC). If a business operates in a different timezone, the open/close
+// boundaries will be off by the UTC offset — same caveat as the on-call
+// schedule above; worth adding a per-business timezone column if that
+// turns out to matter in practice.
+// ---------------------------------------------------------------------------
+
+interface DayHours {
+  open?: string;
+  close?: string;
+  closed?: boolean;
+}
+
+type BusinessHoursMap = Partial<Record<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun", DayHours>>;
+
+interface HolidayEntry {
+  id?: string;
+  date?: string;
+  label?: string;
+  message?: string;
+}
+
+const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+
+function isAfterHoursAt(
+  businessHours: BusinessHoursMap | null,
+  holidays: HolidayEntry[] | null,
+  checkTime: Date,
+): boolean {
+  const dateStr = checkTime.toISOString().slice(0, 10);
+  if (holidays?.some((h) => h.date === dateStr)) {
+    return true; // a configured holiday closure counts as after-hours
+  }
+
+  if (!businessHours) return false; // no hours configured — don't guess a fee applies
+
+  const dayKey = DAY_KEYS[checkTime.getUTCDay()];
+  const hours = businessHours[dayKey];
+  if (!hours || hours.closed || !hours.open || !hours.close) {
+    return true;
+  }
+
+  const minutesNow = checkTime.getUTCHours() * 60 + checkTime.getUTCMinutes();
+  const [openH, openM] = hours.open.split(":").map(Number);
+  const [closeH, closeM] = hours.close.split(":").map(Number);
+  return minutesNow < openH * 60 + openM || minutesNow >= closeH * 60 + closeM;
+}
+
+function buildAfterHoursContextVariable(tenant: TenantContext, now: Date): string {
+  if (!tenant.afterHoursFee) return "";
+  if (!isAfterHoursAt(tenant.businessHours, tenant.holidays, now)) return "";
+  return (
+    tenant.afterHoursFeeNote ??
+    `This call is happening after hours. Let the caller know a $${tenant.afterHoursFee} after-hours fee applies before confirming any booking.`
+  );
 }
 async function handleTransferDestinationRequest(
   admin: SupabaseClient,
@@ -897,9 +969,16 @@ async function toolBookAppointment(
     return "I wasn't able to save this appointment due to a system error — please have the office confirm it manually.";
   }
 
-  return job.scheduled_datetime
-    ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
-    : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
+  let afterHoursFeeNote = "";
+  if (tenant.afterHoursFee && scheduledDatetime && isAfterHoursAt(tenant.businessHours, tenant.holidays, new Date(scheduledDatetime))) {
+    afterHoursFeeNote = ` Note: a $${tenant.afterHoursFee} after-hours fee applies for this time — make sure the customer was told before confirming.`;
+  }
+
+  return (
+    job.scheduled_datetime
+      ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
+      : `Booked for ${customerName}. Exact time still needs to be confirmed.`
+  ) + afterHoursFeeNote;
 }
 
 async function toolCheckWeather(args: Record<string, unknown>): Promise<string> {
