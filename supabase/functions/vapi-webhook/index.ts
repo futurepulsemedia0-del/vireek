@@ -731,7 +731,78 @@ async function toolLookupCustomer(
   return parts.join(" ");
 }
 
+// ---------------------------------------------------------------------------
+// Server-side technician suggestion — a lightweight port of
+// src/lib/dispatch.ts's suggestTechnicians() ranking (skill match +
+// remaining capacity that day), so a hint can be attached to the job the
+// moment Sarah books it over the phone.
+//
+// This writes only an informational `dispatch_note` — never
+// `assigned_technician_id`. That column means a HUMAN has committed the
+// job to a technician and drives the Dispatch Board's "unassigned jobs"
+// queue (see DispatchBoardPage.tsx); writing to it here would silently
+// skip human review. The Dispatch Board's own live ranking stays the
+// real source of truth — this is just a head start for whoever opens it.
+//
+// Deliberately conservative: if nobody has this exact service_type listed
+// in their `skills`, we return null rather than guessing at a "closest"
+// match, since a wrong guess in a dispatch note is worse than no note.
+// ---------------------------------------------------------------------------
 
+async function suggestTechnicianNote(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  serviceType: string | null,
+  scheduledDatetime: string | null,
+): Promise<string | null> {
+  if (!serviceType) return null;
+
+  const { data: technicians } = await admin
+    .from("team_members")
+    .select("id, member_name, member_email, skills, max_jobs_per_day")
+    .eq("account_owner_id", tenant.userId)
+    .eq("role", "technician")
+    .eq("invite_status", "active")
+    .eq("dispatch_enabled", true);
+
+  if (!technicians || technicians.length === 0) return null;
+
+  const skilled = technicians.filter((t) => Array.isArray(t.skills) && t.skills.includes(serviceType));
+  if (skilled.length === 0) return null;
+
+  let dayStart: Date | null = null;
+  let dayEnd: Date | null = null;
+  if (scheduledDatetime) {
+    dayStart = new Date(scheduledDatetime);
+    dayStart.setUTCHours(0, 0, 0, 0);
+    dayEnd = new Date(dayStart);
+    dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+  }
+
+  let best: { name: string; load: number; capacity: number } | null = null;
+
+  for (const tech of skilled) {
+    let load = 0;
+    if (dayStart && dayEnd) {
+      const { count } = await admin
+        .from("jobs")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", tenant.userId)
+        .eq("assigned_technician_id", tech.id)
+        .gte("scheduled_datetime", dayStart.toISOString())
+        .lt("scheduled_datetime", dayEnd.toISOString());
+      load = count ?? 0;
+    }
+    const capacity = tech.max_jobs_per_day || 6;
+    if (load >= capacity) continue;
+    if (!best || capacity - load > best.capacity - best.load) {
+      best = { name: tech.member_name ?? tech.member_email, load, capacity };
+    }
+  }
+
+  if (!best) return null;
+  return `Suggested technician: ${best.name} (skill match: ${serviceType}, ${best.load}/${best.capacity} jobs that day). A human dispatcher should confirm before assigning.`;
+}
 async function toolBookAppointment(
   admin: SupabaseClient,
   tenant: TenantContext,
@@ -773,15 +844,19 @@ async function toolBookAppointment(
     callId = callRow?.id ?? null;
   }
 
+  const serviceType = typeof args.service_type === "string" ? args.service_type : null;
+  const dispatchNote = await suggestTechnicianNote(admin, tenant, serviceType, scheduledDatetime);
+
   const jobPayload = {
     user_id: tenant.userId,
     call_id: callId,
     customer_name: customerName,
     customer_phone: (typeof args.phone === "string" && args.phone.trim()) || callerNumber || null,
-    service_type: typeof args.service_type === "string" ? args.service_type : null,
+    service_type: serviceType,
     address: typeof args.address === "string" ? args.address : null,
     scheduled_datetime: scheduledDatetime,
     job_status: "scheduled",
+    dispatch_note: dispatchNote,
   };
 
   const { data: job, error: jobError } = await admin.from("jobs").insert(jobPayload).select("id, scheduled_datetime").maybeSingle();
