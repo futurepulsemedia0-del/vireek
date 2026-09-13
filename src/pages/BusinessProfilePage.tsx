@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded, Mic, CalendarClock } from 'lucide-react';
+import { Phone, ArrowLeft, Plus, X, Trash2, Save, Clock, Briefcase, MapPin, MessageSquare, CircleHelp as HelpCircle, Sparkles, Loader as Loader2, Star, Calendar, PhoneForwarded, Mic, CalendarClock, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -162,6 +162,8 @@ export function BusinessProfilePage() {
   const [assistantVoice, setAssistantVoice] = useState<string>(DEFAULT_ASSISTANT_VOICE);
   const [holidays, setHolidays] = useState<BusinessProfileHoliday[]>([]);
   const [escalationRules, setEscalationRules] = useState<BusinessProfileEscalationRule[]>([]);
+  const [financingPartnerName, setFinancingPartnerName] = useState('');
+  const [financingNote, setFinancingNote] = useState('');
   const [allowSelfReschedule, setAllowSelfReschedule] = useState(false);
   const loadProfile = useCallback(async () => {
     if (!user) return;
@@ -189,6 +191,8 @@ export function BusinessProfilePage() {
         setAssistantVoice(bp.assistant_voice || DEFAULT_ASSISTANT_VOICE);
                 setHolidays(bp.holidays ?? []);
         setEscalationRules(bp.escalation_rules ?? []);
+        setFinancingPartnerName(bp.financing_partner_name ?? '');
+        setFinancingNote(bp.financing_note ?? '');
         setAllowSelfReschedule(bp.allow_customer_self_reschedule ?? false);
       }
     } catch {
@@ -302,6 +306,8 @@ export function BusinessProfilePage() {
         assistant_voice: assistantVoice,
         holidays: cleanHolidays.length > 0 ? cleanHolidays : null,
         escalation_rules: cleanEscalationRules.length > 0 ? cleanEscalationRules : null,
+        financing_partner_name: financingPartnerName.trim() || null,
+        financing_note: financingNote.trim() || null,
         allow_customer_self_reschedule: allowSelfReschedule,
       };
 
@@ -640,6 +646,30 @@ export function BusinessProfilePage() {
               {holidays.length === 0 && (
                 <p className="mt-3 text-xs text-text-secondary/60">No holidays added yet.</p>
               )}
+            </SectionCard>
+
+            {/* Financing Mention */}
+            <SectionCard
+              icon={CreditCard}
+              title="Financing"
+              description="If you offer on-the-spot financing (Wisetack or similar) on bigger jobs, add it here — it shows up as a reminder on your Quotes page when following up."
+            >
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  type="text"
+                  value={financingPartnerName}
+                  onChange={(e) => setFinancingPartnerName(e.target.value)}
+                  placeholder="Financing partner, e.g. Wisetack"
+                  className={inputClass}
+                />
+                <input
+                  type="text"
+                  value={financingNote}
+                  onChange={(e) => setFinancingNote(e.target.value)}
+                  placeholder="e.g. 0% APR for 12 months on jobs over $500"
+                  className={inputClass}
+                />
+              </div>
             </SectionCard>
 
             {/* Call Routing & Escalation Rules */}
