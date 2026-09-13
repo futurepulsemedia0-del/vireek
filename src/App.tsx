@@ -50,6 +50,8 @@ const AboutPage = lazy(() => import('@/pages/AboutPage').then((m) => ({ default:
 const DeveloperDocsPage = lazy(() => import('@/pages/DeveloperDocsPage').then((m) => ({ default: m.DeveloperDocsPage })));
 const BlogPage = lazy(() => import('@/pages/BlogPage').then((m) => ({ default: m.BlogPage })));
 const BlogPostPage = lazy(() => import('@/pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
+const ReportPage = lazy(() => import('@/pages/ReportPage').then((m) => ({ default: m.ReportPage })));
+const PodcastPage = lazy(() => import('@/pages/PodcastPage').then((m) => ({ default: m.PodcastPage })));
 const GlossaryPage = lazy(() => import('@/pages/GlossaryPage').then((m) => ({ default: m.GlossaryPage })));
 const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage').then((m) => ({ default: m.TestimonialsPage })));
 const ContactPage = lazy(() => import('@/pages/ContactPage').then((m) => ({ default: m.ContactPage })));
@@ -143,6 +145,8 @@ function App() {
         <Route path="/docs" element={<DeveloperDocsPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/report" element={<ReportPage />} />
+        <Route path="/podcast" element={<PodcastPage />} />
         <Route path="/glossary" element={<GlossaryPage />} />
         <Route path="/testimonials" element={<TestimonialsPage />} />
         <Route path="/contact" element={<ContactPage />} />
