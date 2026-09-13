@@ -330,7 +330,7 @@ export function ReportPage() {
                   by the outlets that matter. If you&rsquo;d like to contribute anonymized call
                   volume data, check the box in the form above or email us directly.
                 </p>
-                
+                <a
                   href={`mailto:${EMAIL}?subject=Data%20Partner%20-%20State%20of%20Home%20Service%20Calls`}
                   className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
                 >
