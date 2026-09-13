@@ -25,6 +25,8 @@ export interface Profile {
   role: 'owner' | 'admin' | 'member';
   onboarding_completed: boolean;
   forwarding_number: string | null;
+  toll_free_verification_status: 'not_applicable' | 'not_started' | 'pending' | 'verified' | 'rejected';
+  toll_free_verification_requested_at: string | null;
     escalation_enabled: boolean;
   escalation_phone: string | null;
   escalation_mode: 'warm_transfer' | 'barge_in';
