@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { Mail, Lock, MailCheck, KeyRound } from 'lucide-react';
+import { Mail, Lock, MailCheck, KeyRound, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -28,7 +28,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // /reset-password pages — see those files for that flow. This page keeps
 // only the steps that are genuinely part of signing in: post-signup email
 // confirmation, and the new-device OTP step-up below.
-type LoginStep = 'signin' | 'confirm-email' | 'device-otp';
+type LoginStep = 'signin' | 'confirm-email' | 'device-otp' | 'magic-link-sent';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -50,14 +50,21 @@ export function LoginPage() {
   const [step, setStep] = useState<LoginStep>('signin');
   const [pendingEmail, setPendingEmail] = useState('');
   const [deviceChecking, setDeviceChecking] = useState(false);
-
+  const [signInMode, setSignInMode] = useState<'password' | 'magic-link'>('password');
+  const [magicLinkSending, setMagicLinkSending] = useState(false);
   // Only auto-redirect on an existing session while on the plain sign-in
   // step (the confirm-email / device-otp steps handle their own
   // navigation once their success animation settles).
   useEffect(() => {
-    if (!loading && session && step === 'signin') navigate('/dashboard', { replace: true });
+    if (!loading && session && (step === 'signin' || step === 'magic-link-sent')) {
+      // Clicking a magic link is itself proof of email possession — the
+      // same bar the 6-digit device-otp step exists to clear — so treat
+      // this browser as trusted going forward instead of showing an OTP
+      // screen the user never asked for.
+      registerTrustedDevice().catch(() => {});
+      navigate('/dashboard', { replace: true });
+    }
   }, [session, loading, step, navigate]);
-
   // Show a one-time confirmation banner after a successful password reset
   // on /reset-password, then scrub the query param so it doesn't persist
   // across refreshes or get shared if the URL is copied.
@@ -161,7 +168,45 @@ export function LoginPage() {
       setSubmitting(false);
     }
   };
+        const handleMagicLinkRequest = async (e: FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    if (!validateEmail()) return;
 
+    setMagicLinkSending(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (error) throw error;
+      setPendingEmail(email.trim());
+      setStep('magic-link-sent');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Could not send a magic link. Please try again.';
+      setAuthError(msg.toLowerCase().includes('not found') ? 'No account found with that email.' : msg);
+    } finally {
+      setMagicLinkSending(false);
+    }
+  };
+
+  const handleResendMagicLink = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: pendingEmail,
+        options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/dashboard` },
+      });
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch {
+      return { success: false, error: "Couldn't resend the link. Try again shortly." };
+    }
+  }, [pendingEmail]);
+
+  const handleGoogleSignIn = async () => {
   const handleGoogleSignIn = async () => {
     setAuthError('');
     setGoogleLoading(true);
@@ -306,6 +351,33 @@ export function LoginPage() {
               <AuthBackLink onClick={backToSignIn} label="Back to sign in" />
             </div>
           </div>
+                  ) : step === 'magic-link-sent' ? (
+          <div className="flex flex-col items-center text-center">
+            <AuthIconBadge icon={<Sparkles size={22} />} />
+            <h1 className="text-2xl font-bold tracking-tight text-text-primary">Check your email</h1>
+            <p className="mx-auto mt-1.5 max-w-[320px] text-sm leading-relaxed text-text-secondary">
+              We sent a sign-in link to{' '}
+              <span className="font-semibold text-text-primary">{pendingEmail}</span>. Open it on
+              this device to finish signing in — no password needed.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                const result = await handleResendMagicLink();
+                toast(
+                  result.success ? 'Link resent — check your inbox.' : (result.error ?? 'Could not resend.'),
+                  result.success ? 'success' : 'error'
+                );
+              }}
+              className="focus-ring mt-6 text-sm font-semibold text-accent hover:underline"
+            >
+              Resend link
+            </button>
+            <div className="mt-8">
+              <AuthBackLink onClick={backToSignIn} label="Back to sign in" />
+            </div>
+          </div>
+        ) : step === 'device-otp' ? (
         ) : step === 'device-otp' ? (
           <div className="flex flex-col items-center text-center">
             <AuthIconBadge icon={<KeyRound size={22} />} />
@@ -364,7 +436,7 @@ export function LoginPage() {
             </AnimatePresence>
 
             {/* Form */}
-            <form onSubmit={handleSignIn} noValidate className="space-y-4">
+            <form onSubmit={signInMode === 'password' ? handleSignIn : handleMagicLinkRequest} noValidate className="space-y-4">
               <AuthInput
                 id="email"
                 type="email"
@@ -384,43 +456,67 @@ export function LoginPage() {
                 isValid={EMAIL_REGEX.test(email.trim())}
               />
 
-              <AuthInput
-                id="password"
-                type="password"
-                label="Password"
-                icon={<Lock size={18} />}
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                showPasswordToggle
-              />
-
-              {/* Remember + forgot */}
-              <div className="flex items-center justify-between">
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-text-secondary select-none">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 rounded border-border accent-accent"
+              {signInMode === 'password' && (
+                <>
+                  <AuthInput
+                    id="password"
+                    type="password"
+                    label="Password"
+                    icon={<Lock size={18} />}
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    showPasswordToggle
                   />
-                  Remember me
-                </label>
-                <Link
-                  to="/forgot-password"
-                  className="focus-ring rounded text-sm font-medium text-accent transition-colors hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+
+                  {/* Remember + forgot */}
+                  <div className="flex items-center justify-between">
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-text-secondary select-none">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="h-4 w-4 rounded border-border accent-accent"
+                      />
+                      Remember me
+                    </label>
+                    <Link
+                      to="/forgot-password"
+                      className="focus-ring rounded text-sm font-medium text-accent transition-colors hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                </>
+              )}
 
               <AuthSubmitButton
-                loading={submitting}
-                disabled={googleLoading || !isFormValid}
-                label="Sign In"
-                loadingLabel={deviceChecking ? 'Checking device…' : 'Signing in…'}
+                loading={signInMode === 'password' ? submitting : magicLinkSending}
+                disabled={
+                  googleLoading ||
+                  (signInMode === 'password' ? !isFormValid : !EMAIL_REGEX.test(email.trim()))
+                }
+                label={signInMode === 'password' ? 'Sign In' : 'Send Magic Link'}
+                loadingLabel={
+                  signInMode === 'password'
+                    ? deviceChecking
+                      ? 'Checking device…'
+                      : 'Signing in…'
+                    : 'Sending link…'
+                }
               />
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSignInMode((m) => (m === 'password' ? 'magic-link' : 'password'));
+                  setAuthError('');
+                }}
+                className="focus-ring block w-full text-center text-sm font-medium text-text-secondary transition-colors hover:text-accent"
+              >
+                {signInMode === 'password' ? 'Sign in with a magic link instead' : 'Sign in with a password instead'}
+              </button>
             </form>
 
             {/* Footer */}
