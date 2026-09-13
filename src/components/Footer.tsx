@@ -101,6 +101,7 @@ const FOOTER_COLUMNS = [
       { label: 'Electrical', href: '/industries/electrical' },
       { label: 'Restoration', href: '/industries/restoration' },
       { label: 'Locksmith', href: '/industries/locksmith' },
+      { label: 'Browse by City', href: '/locations' },
     ],
   },
   {
