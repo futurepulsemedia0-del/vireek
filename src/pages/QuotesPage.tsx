@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil } from 'lucide-react';
+import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send, Copy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
-import { supabase, Lead, BusinessProfile } from '@/lib/supabase';
+import { supabase, Lead, BusinessProfile, Quote } from '@/lib/supabase';
+import {
+  QuoteLineItem,
+  calculateQuoteTotals,
+  formatCents,
+  getQuoteLink,
+  QUOTE_STATUS_LABELS,
+  QUOTE_STATUS_COLORS,
+} from '@/lib/quotes';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
@@ -89,19 +97,229 @@ function QuoteAmountEditor({
   );
 }
 
+// ============================================================
+// ITEMIZED QUOTE BUILDER — build a real line-item estimate, send a link,
+// let the customer accept/decline it themselves (writes to the `quotes`
+// table; see src/lib/quotes.ts)
+// ============================================================
+
+const EMPTY_LINE_ITEM: QuoteLineItem = { description: '', quantity: 1, unit_price_cents: 0 };
+
+interface QuoteFormState {
+  lead_id: string | null;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string;
+  tax_percent: string;
+  valid_until: string;
+  line_items: QuoteLineItem[];
+}
+
+const EMPTY_FORM: QuoteFormState = {
+  lead_id: null,
+  customer_name: '',
+  customer_phone: '',
+  customer_email: '',
+  tax_percent: '0',
+  valid_until: '',
+  line_items: [{ ...EMPTY_LINE_ITEM }],
+};
+
+function QuoteBuilderForm({
+  initial,
+  leadOptions,
+  onCancel,
+  onSave,
+}: {
+  initial: QuoteFormState;
+  leadOptions: Lead[];
+  onCancel: () => void;
+  onSave: (form: QuoteFormState) => Promise<void>;
+}) {
+  const [form, setForm] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  const totals = calculateQuoteTotals(form.line_items, Number(form.tax_percent) || 0);
+
+  const updateLineItem = (index: number, patch: Partial<QuoteLineItem>) => {
+    setForm((f) => ({ ...f, line_items: f.line_items.map((li, i) => (i === index ? { ...li, ...patch } : li)) }));
+  };
+  const addLineItem = () => setForm((f) => ({ ...f, line_items: [...f.line_items, { ...EMPTY_LINE_ITEM }] }));
+  const removeLineItem = (index: number) =>
+    setForm((f) => ({ ...f, line_items: f.line_items.filter((_, i) => i !== index) }));
+
+  const handleLeadPick = (leadId: string) => {
+    const lead = leadOptions.find((l) => l.id === leadId);
+    setForm((f) => ({
+      ...f,
+      lead_id: leadId || null,
+      customer_name: lead ? lead.name : f.customer_name,
+      customer_phone: lead?.phone ?? f.customer_phone,
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!form.customer_name.trim() || form.line_items.length === 0) return;
+    setSaving(true);
+    await onSave(form);
+    setSaving(false);
+  };
+
+  return (
+    <div className="rounded-xl border border-border bg-bg-primary p-4">
+      {leadOptions.length > 0 && (
+        <div className="mb-3">
+          <label className="mb-1 block text-xs text-text-secondary">Link to an existing lead (optional)</label>
+          <select value={form.lead_id ?? ''} onChange={(e) => handleLeadPick(e.target.value)} className={inputClass}>
+            <option value="">Not linked to a lead</option>
+            {leadOptions.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name} {l.service_interested ? `— ${l.service_interested}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <input
+          type="text"
+          value={form.customer_name}
+          onChange={(e) => setForm((f) => ({ ...f, customer_name: e.target.value }))}
+          placeholder="Customer name"
+          className={inputClass}
+        />
+        <input
+          type="tel"
+          value={form.customer_phone}
+          onChange={(e) => setForm((f) => ({ ...f, customer_phone: e.target.value }))}
+          placeholder="Phone"
+          className={inputClass}
+        />
+        <input
+          type="email"
+          value={form.customer_email}
+          onChange={(e) => setForm((f) => ({ ...f, customer_email: e.target.value }))}
+          placeholder="Email"
+          className={inputClass}
+        />
+      </div>
+
+      <div className="mt-4 space-y-2">
+        <p className="text-xs font-medium text-text-secondary">Line items</p>
+        {form.line_items.map((li, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={li.description}
+              onChange={(e) => updateLineItem(i, { description: e.target.value })}
+              placeholder="Description"
+              className={`${inputClass} flex-1`}
+            />
+            <input
+              type="number"
+              min={1}
+              value={li.quantity}
+              onChange={(e) => updateLineItem(i, { quantity: Number(e.target.value) })}
+              className={`${inputClass} w-16 text-center`}
+            />
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={li.unit_price_cents / 100}
+              onChange={(e) => updateLineItem(i, { unit_price_cents: Math.round(Number(e.target.value) * 100) })}
+              placeholder="$0.00"
+              className={`${inputClass} w-24`}
+            />
+            <button
+              type="button"
+              onClick={() => removeLineItem(i)}
+              disabled={form.line_items.length === 1}
+              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-danger/10 hover:text-danger disabled:opacity-30"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addLineItem}
+          className="focus-ring flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+        >
+          <Plus size={12} /> Add line item
+        </button>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-xs text-text-secondary">Tax %</label>
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            value={form.tax_percent}
+            onChange={(e) => setForm((f) => ({ ...f, tax_percent: e.target.value }))}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-text-secondary">Valid until</label>
+          <input
+            type="date"
+            value={form.valid_until}
+            onChange={(e) => setForm((f) => ({ ...f, valid_until: e.target.value }))}
+            className={inputClass}
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
+        <p className="text-sm font-semibold text-text-primary">Total: {formatCents(totals.totalCents)}</p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="focus-ring rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || !form.customer_name.trim()}
+            className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          >
+            Save quote
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// PAGE
+// ============================================================
+
 export function QuotesPage() {
   const { user } = useAuth();
   const { toast } = useToast();
 
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [allLeads, setAllLeads] = useState<Lead[]>([]); // for the "link to a lead" picker on the builder
   const [financing, setFinancing] = useState<{ name: string | null; note: string | null }>({ name: null, note: null });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterKey>('open');
 
+  const [itemizedQuotes, setItemizedQuotes] = useState<Quote[]>([]);
+  const [quotesLoading, setQuotesLoading] = useState(true);
+  const [creatingQuote, setCreatingQuote] = useState(false);
+  const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
+
   const fetchAll = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const [leadsRes, profileRes] = await Promise.all([
+    const [leadsRes, profileRes, pickerLeadsRes] = await Promise.all([
       supabase
         .from('leads')
         .select('*')
@@ -114,6 +332,7 @@ export function QuotesPage() {
         .select('financing_partner_name, financing_note')
         .eq('user_id', user.id)
         .maybeSingle(),
+      supabase.from('leads').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(100),
     ]);
 
     if (leadsRes.error) {
@@ -123,12 +342,25 @@ export function QuotesPage() {
     }
     const bp = profileRes.data as Pick<BusinessProfile, 'financing_partner_name' | 'financing_note'> | null;
     setFinancing({ name: bp?.financing_partner_name ?? null, note: bp?.financing_note ?? null });
+    setAllLeads((pickerLeadsRes.data as Lead[]) || []);
     setLoading(false);
   }, [user, toast]);
 
+  const fetchItemizedQuotes = useCallback(async () => {
+    setQuotesLoading(true);
+    const { data, error } = await supabase.from('quotes').select('*').order('created_at', { ascending: false });
+    if (error) {
+      toast('Failed to load itemized quotes', 'error');
+    } else {
+      setItemizedQuotes((data as Quote[]) || []);
+    }
+    setQuotesLoading(false);
+  }, [toast]);
+
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+    fetchItemizedQuotes();
+  }, [fetchAll, fetchItemizedQuotes]);
 
   const filtered = useMemo(() => {
     if (filter === 'all') return leads;
@@ -149,7 +381,10 @@ export function QuotesPage() {
   const handleSaveAmount = async (leadId: string, amount: number) => {
     const { error } = await supabase
       .from('leads')
-      .update({ quote_amount: amount, quote_sent_at: leads.find((l) => l.id === leadId)?.quote_sent_at ?? new Date().toISOString() })
+      .update({
+        quote_amount: amount,
+        quote_sent_at: leads.find((l) => l.id === leadId)?.quote_sent_at ?? new Date().toISOString(),
+      })
       .eq('id', leadId);
     if (error) {
       toast('Could not save quote amount', 'error');
@@ -181,16 +416,191 @@ export function QuotesPage() {
     fetchAll();
   };
 
+  const handleSaveItemizedQuote = async (form: QuoteFormState, quoteId?: string) => {
+    if (!user) return;
+    const totals = calculateQuoteTotals(form.line_items, Number(form.tax_percent) || 0);
+    const payload = {
+      user_id: user.id,
+      lead_id: form.lead_id,
+      customer_name: form.customer_name.trim(),
+      customer_phone: form.customer_phone.trim() || null,
+      customer_email: form.customer_email.trim() || null,
+      line_items: form.line_items.filter((li) => li.description.trim()),
+      tax_percent: Number(form.tax_percent) || 0,
+      valid_until: form.valid_until || null,
+    };
+
+    const query = quoteId
+      ? supabase.from('quotes').update(payload).eq('id', quoteId)
+      : supabase.from('quotes').insert(payload);
+
+    const { error } = await query;
+    if (error) {
+      toast('Could not save the quote', 'error');
+      return;
+    }
+
+    // Keep the follow-up tracker below in sync: an itemized quote linked to
+    // a lead marks that lead "quoted" with this total.
+    if (form.lead_id) {
+      await supabase
+        .from('leads')
+        .update({
+          stage: 'quoted',
+          quote_amount: Math.round(totals.totalCents / 100),
+          quote_sent_at: new Date().toISOString(),
+        })
+        .eq('id', form.lead_id);
+    }
+
+    toast('Quote saved', 'success');
+    setCreatingQuote(false);
+    setEditingQuoteId(null);
+    fetchItemizedQuotes();
+    fetchAll();
+  };
+
+  const handleSendItemizedQuote = async (quote: Quote) => {
+    const { error } = await supabase
+      .from('quotes')
+      .update({ status: 'sent', sent_at: new Date().toISOString() })
+      .eq('id', quote.id);
+    if (error) {
+      toast('Could not send the quote', 'error');
+      return;
+    }
+    await navigator.clipboard.writeText(getQuoteLink(quote.quote_token));
+    setItemizedQuotes((prev) => prev.map((q) => (q.id === quote.id ? { ...q, status: 'sent' as const } : q)));
+    toast('Quote marked sent — link copied to send to the customer', 'success');
+  };
+
+  const handleCopyQuoteLink = async (quote: Quote) => {
+    await navigator.clipboard.writeText(getQuoteLink(quote.quote_token));
+    toast('Quote link copied', 'success');
+  };
+
   return (
     <DashboardLayout activeLabel="Quotes">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-text-primary">Quotes &amp; Estimates</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            Every lead that reached the &ldquo;Quoted&rdquo; stage lives here until it&rsquo;s won or lost &mdash;
-            so nothing sits unconverted without someone noticing.
+            Build and send an itemized quote below, or track follow-ups on any lead you&rsquo;ve already quoted.
           </p>
         </div>
+
+        {/* ================= Itemized quote builder ================= */}
+        <div className="mb-8">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-text-primary">Itemized quotes</h2>
+            {!creatingQuote && (
+              <button
+                type="button"
+                onClick={() => setCreatingQuote(true)}
+                className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white transition-all hover:brightness-110"
+              >
+                <Plus size={14} /> New quote
+              </button>
+            )}
+          </div>
+
+          {creatingQuote && (
+            <div className="mb-3">
+              <QuoteBuilderForm
+                initial={EMPTY_FORM}
+                leadOptions={allLeads}
+                onCancel={() => setCreatingQuote(false)}
+                onSave={(form) => handleSaveItemizedQuote(form)}
+              />
+            </div>
+          )}
+
+          {quotesLoading ? (
+            <div className="h-20 animate-pulse rounded-2xl bg-bg-tertiary" />
+          ) : itemizedQuotes.length === 0 && !creatingQuote ? (
+            <div className="rounded-2xl border border-dashed border-border py-8 text-center">
+              <p className="text-sm text-text-secondary">
+                No itemized quotes yet — build one above to send a real line-item estimate with a link the
+                customer can accept or decline themselves.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {itemizedQuotes.map((quote) =>
+                editingQuoteId === quote.id ? (
+                  <QuoteBuilderForm
+                    key={quote.id}
+                    initial={{
+                      lead_id: quote.lead_id,
+                      customer_name: quote.customer_name,
+                      customer_phone: quote.customer_phone ?? '',
+                      customer_email: quote.customer_email ?? '',
+                      tax_percent: String(quote.tax_percent),
+                      valid_until: quote.valid_until ?? '',
+                      line_items: quote.line_items.length > 0 ? quote.line_items : [{ ...EMPTY_LINE_ITEM }],
+                    }}
+                    leadOptions={allLeads}
+                    onCancel={() => setEditingQuoteId(null)}
+                    onSave={(form) => handleSaveItemizedQuote(form, quote.id)}
+                  />
+                ) : (
+                  <motion.div
+                    key={quote.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-2xl border border-border bg-bg-secondary p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-text-primary">{quote.customer_name}</p>
+                        <p className="text-xs text-text-secondary">
+                          {formatCents(calculateQuoteTotals(quote.line_items, quote.tax_percent).totalCents)} ·{' '}
+                          {quote.line_items.length} item{quote.line_items.length === 1 ? '' : 's'}
+                        </p>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-medium ${QUOTE_STATUS_COLORS[quote.status]}`}>
+                        {QUOTE_STATUS_LABELS[quote.status]}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {quote.status === 'draft' && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setEditingQuoteId(quote.id)}
+                            className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSendItemizedQuote(quote)}
+                            className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110"
+                          >
+                            <Send size={12} /> Send
+                          </button>
+                        </>
+                      )}
+                      {quote.status !== 'draft' && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopyQuoteLink(quote)}
+                          className="focus-ring flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary"
+                        >
+                          <Copy size={12} /> Copy link
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ================= Follow-up tracker (leads at "quoted") ================= */}
+        <h2 className="mb-3 text-sm font-semibold text-text-primary">Quote follow-ups</h2>
 
         {!financing.name && !financing.note && (
           <div className="mb-6 flex items-start gap-3 rounded-2xl border border-dashed border-border bg-bg-secondary/60 p-4">
@@ -338,8 +748,9 @@ export function QuotesPage() {
 
         <p className="mt-6 flex items-center gap-1.5 text-xs text-text-secondary/70">
           <RefreshCw size={12} />
-          This tracks follow-ups on quotes &mdash; it isn&rsquo;t a full estimating or invoicing system. For
-          line-item estimates and invoicing, keep using whatever field-service tool you already run.
+          Itemized quotes above create a real link the customer can accept or decline. This lower section
+          tracks follow-ups on any lead you&rsquo;ve quoted &mdash; itemized or not &mdash; so nothing sits
+          unconverted without someone noticing.
         </p>
       </div>
     </DashboardLayout>
