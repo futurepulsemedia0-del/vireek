@@ -25,7 +25,7 @@ import { useSEO } from '@/lib/seo';
 const EMAIL = 'ali@vireek.com';
 // Swap for a dedicated form endpoint before launch — do not reuse the
 // contact-page endpoint, so report signups don't mix with support inbox.
-const FORM_ENDPOINT = 'https://submit-form.com/REPLACE_WITH_NEW_FORM_ID';
+const FORM_ENDPOINT = 'https://formspree.io/f/xrpgweza';
 
 const METHODOLOGY_POINTS = [
   {
