@@ -728,6 +728,38 @@ async function toolLookupCustomer(
       );
     }
   }
+
+  // Membership upsell hook — see 20260912060000_quote_followups_and_financing.sql
+  // and MembershipsPage.tsx. This is what actually lets Sarah know a caller's
+  // membership status instead of just showing it in the dashboard.
+  const { data: existingMembership } = await admin
+    .from("memberships")
+    .select("status, plan:membership_plans(name)")
+    .eq("user_id", tenant.userId)
+    .eq("customer_phone", phone)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingMembership) {
+    const planName = (existingMembership as { plan?: { name?: string } | null }).plan?.name ?? "a membership plan";
+    if (existingMembership.status === "active") {
+      parts.push(`This customer already has an active membership (${planName}) — no need to pitch one.`);
+    } else if (existingMembership.status === "offered") {
+      parts.push(`This customer was previously offered ${planName} but hasn't started it — a good moment to follow up on that.`);
+    }
+  } else {
+    const { data: activePlans } = await admin
+      .from("membership_plans")
+      .select("name")
+      .eq("user_id", tenant.userId)
+      .eq("active", true)
+      .limit(1);
+    if (activePlans && activePlans.length > 0) {
+      parts.push(`This customer has no membership on file — "${activePlans[0].name}" is available to offer if it fits the call.`);
+    }
+  }
+
   return parts.join(" ");
 }
 
