@@ -183,6 +183,9 @@ export interface BusinessProfile {
   assistant_name?: string | null;
   assistant_voice?: string | null;
   assistant_tone?: string | null;
+  custom_voice_id?: string | null;
+  custom_voice_status?: 'none' | 'processing' | 'ready' | 'failed';
+  custom_voice_error?: string | null;
   allow_customer_self_reschedule: boolean;
   created_at: string;
   updated_at: string;
