@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { StaffRoute } from '@/components/StaffRoute';
 
 // Performance pass: only the landing page (the route almost every first-time
 // visitor lands on) ships eagerly in the main bundle. Every other route —
@@ -15,6 +16,9 @@ const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage').then((m
 const SignupPage = lazy(() => import('@/pages/SignupPage').then((m) => ({ default: m.SignupPage })));
 const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })));
 const OnboardingGuidePage = lazy(() => import('@/pages/OnboardingGuidePage').then((m) => ({ default: m.OnboardingGuidePage })));
+const AcademyPage = lazy(() => import('@/pages/AcademyPage').then((m) => ({ default: m.AcademyPage })));
+const AcademyCertificatePage = lazy(() => import('@/pages/AcademyCertificatePage').then((m) => ({ default: m.AcademyCertificatePage })));
+const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
@@ -130,6 +134,16 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/onboarding-guide" element={<OnboardingGuidePage />} />
+                <Route path="/academy" element={<AcademyPage />} />
+        <Route path="/academy/certificate" element={<AcademyCertificatePage />} />
+        <Route
+          path="/staff/support-inbox"
+          element={
+            <StaffRoute>
+              <SupportInboxPage />
+            </StaffRoute>
+          }
+        />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/cookies" element={<CookiePolicyPage />} />
         <Route path="/terms" element={<TermsPage />} />
