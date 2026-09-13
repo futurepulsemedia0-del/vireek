@@ -65,6 +65,8 @@ const LiveEscalationPage = lazy(() => import('@/pages/LiveEscalationPage').then(
 const PlatformPage = lazy(() => import('@/pages/PlatformPage').then((m) => ({ default: m.PlatformPage })));
 const ComparePage = lazy(() => import('@/pages/ComparePage').then((m) => ({ default: m.ComparePage })));
 const CompetitorPage = lazy(() => import('@/pages/CompetitorPage').then((m) => ({ default: m.CompetitorPage })));
+const SwitchGuidesPage = lazy(() => import('@/pages/SwitchGuidesPage').then((m) => ({ default: m.SwitchGuidesPage })));
+const SwitchGuidePage = lazy(() => import('@/pages/SwitchGuidePage').then((m) => ({ default: m.SwitchGuidePage })));
 const FeatureMatrixPage = lazy(() => import('@/pages/FeatureMatrixPage').then((m) => ({ default: m.FeatureMatrixPage })));
 const AIReceptionistVsHumanPage = lazy(() => import('@/pages/AIReceptionistVsHumanPage').then((m) => ({ default: m.AIReceptionistVsHumanPage })));
 const IndustriesPage = lazy(() => import('@/pages/IndustriesPage').then((m) => ({ default: m.IndustriesPage })));
@@ -161,6 +163,8 @@ function App() {
         <Route path="/compare" element={<ComparePage />} />
         <Route path="/compare/matrix" element={<FeatureMatrixPage />} />
         <Route path="/compare/:slug" element={<CompetitorPage />} />
+        <Route path="/switch" element={<SwitchGuidesPage />} />
+        <Route path="/switch/:slug" element={<SwitchGuidePage />} />
         <Route path="/ai-receptionist-vs-human-receptionist" element={<AIReceptionistVsHumanPage />} />
         <Route path="/industries" element={<IndustriesPage />} />
         <Route path="/industries/:slug" element={<IndustryPage />} />
