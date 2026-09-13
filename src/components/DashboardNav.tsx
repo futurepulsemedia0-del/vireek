@@ -25,6 +25,7 @@ import {
    DollarSign,
    Route,
   FileText,
+  ShieldAlert,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -64,6 +65,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Quotes', href: '/dashboard/quotes', icon: FileText },
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
+  { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
