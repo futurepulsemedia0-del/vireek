@@ -260,17 +260,25 @@ export function SiteAssistant() {
               {status.online ? (
                 <>
                   Prefer a human?{' '}
-                  <Link to="/contact" className="font-semibold text-accent hover:underline">
-                    Email the team
-                  </Link>{' '}
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent('vireek:open-live-chat'))}
+                    className="font-semibold text-accent hover:underline"
+                  >
+                    Chat with our team
+                  </button>{' '}
                   — {SUPPORT_HOURS_LABEL}
                 </>
               ) : (
                 <>
                   Our team is offline right now.{' '}
-                  <Link to="/contact" className="font-semibold text-accent hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent('vireek:open-live-chat'))}
+                    className="font-semibold text-accent hover:underline"
+                  >
                     Leave a message
-                  </Link>{' '}
+                  </button>{' '}
                   and we'll reply within 24 hours.
                 </>
               )}
