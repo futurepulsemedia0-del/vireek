@@ -91,6 +91,7 @@ export interface Job {
   job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled';
   invoice_amount: number | null;
   invoice_status: 'not_sent' | 'sent' | 'paid';
+  dispatch_note: string | null;
   reschedule_token: string;
   rescheduled_by_customer_at: string | null;
   created_at: string;
