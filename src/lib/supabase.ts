@@ -91,6 +91,8 @@ export interface Job {
   job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled';
   invoice_amount: number | null;
   invoice_status: 'not_sent' | 'sent' | 'paid';
+  reschedule_token: string;
+  rescheduled_by_customer_at: string | null;
   created_at: string;
 }
 
@@ -181,6 +183,7 @@ export interface BusinessProfile {
   assistant_name?: string | null;
   assistant_voice?: string | null;
   assistant_tone?: string | null;
+  allow_customer_self_reschedule: boolean;
   created_at: string;
   updated_at: string;
 }
