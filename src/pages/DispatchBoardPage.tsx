@@ -29,17 +29,21 @@ export function DispatchBoardPage() {
   const [technicians, setTechnicians] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [assigning, setAssigning] = useState<string | null>(null);
+    const [aiDispatchEnabled, setAiDispatchEnabled] = useState(false);
+  const [autoAssigning, setAutoAssigning] = useState(false);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const [jobsRes, teamRes] = await Promise.all([
+    const [jobsRes, teamRes, profileRes] = await Promise.all([
       supabase
         .from('jobs')
         .select('*')
         .in('job_status', ['scheduled', 'en_route', 'in_progress'])
         .order('scheduled_datetime', { ascending: true }),
       supabase.from('team_members').select('*').eq('role', 'technician').eq('invite_status', 'active'),
+      supabase.from('business_profile').select('ai_dispatch_enabled').maybeSingle(),
     ]);
+    setAiDispatchEnabled(Boolean((profileRes as { data?: { ai_dispatch_enabled?: boolean } })?.data?.ai_dispatch_enabled));
 
     if (jobsRes.error || teamRes.error) {
       toast('Failed to load the dispatch board', 'error');
@@ -64,6 +68,23 @@ export function DispatchBoardPage() {
   }, [jobs]);
 
   const unassignedJobs = jobs.filter((j) => !j.assigned_technician_id);
+    const handleToggleAiDispatch = async () => {
+    const next = !aiDispatchEnabled;
+    setAiDispatchEnabled(next);
+    await supabase.from('business_profile').update({ ai_dispatch_enabled: next }).eq('user_id', user!.id);
+  };
+
+  const handleAutoAssignAll = async () => {
+    setAutoAssigning(true);
+    const { data, error } = await supabase.functions.invoke('dispatch-auto-assign', { body: {} });
+    setAutoAssigning(false);
+    if (error || data?.error) {
+      toast(data?.error || 'Auto-assign failed', 'error');
+      return;
+    }
+    toast(`Assigned ${data.assigned} of ${data.total} unassigned jobs.`, 'success');
+    fetchAll();
+  };
 
   const handleAssign = async (job: Job, technicianId: string) => {
     setAssigning(job.id);
@@ -93,6 +114,25 @@ export function DispatchBoardPage() {
             <p className="mt-1 text-sm text-text-secondary">
               Suggested technician for each unassigned job, ranked by skill match and today's workload.
             </p>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleToggleAiDispatch}
+              className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                aiDispatchEnabled ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'
+              }`}
+            >
+              AI Dispatch: {aiDispatchEnabled ? 'On' : 'Off'}
+            </button>
+            <button
+              type="button"
+              onClick={handleAutoAssignAll}
+              disabled={autoAssigning || unassignedJobs.length === 0}
+              className="focus-ring rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary disabled:opacity-50"
+            >
+              {autoAssigning ? 'Assigning…' : 'Auto-assign all'}
+            </button>
           </div>
         </div>
 
