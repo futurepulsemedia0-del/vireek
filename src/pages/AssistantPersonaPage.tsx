@@ -302,7 +302,7 @@ export function AssistantPersonaPage() {
           <SectionCard
             icon={ShieldCheck}
             title="AI disclosure"
-            description="Sarah always states upfront that she's an AI before anything else — required in some jurisdictions (e.g. California's AB 2905) for calls using an AI-generated voice, and a safe default everywhere else."
+            description="Sarah always states upfront that she's an AI before anything else — required in some jurisdictions (e.g. California's AB 2905, and EU AI Act Article 50 for callers in the EU) for calls using an AI-generated voice, and a safe default everywhere else."
           >
             <div className="mb-3 flex items-center gap-2 rounded-lg bg-bg-tertiary px-3 py-2 text-xs font-medium text-text-secondary">
               <Lock size={13} className="shrink-0 text-text-secondary/70" />
@@ -321,7 +321,11 @@ export function AssistantPersonaPage() {
               className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors"
             />
             <p className="mt-2 text-xs text-text-secondary/60">
-              Spoken first, before your greeting script — on every inbound and outbound call.
+              Spoken first, before your greeting script — on every inbound and outbound call, for
+              every account, with no on/off switch. That's what satisfies EU AI Act Article 50
+              (in force since Aug 2, 2026) as well as US rules like AB 2905 — the obligation is
+              "tell the caller they're talking to an AI, clearly, at the start," and this line does
+              that unconditionally rather than only when a toggle happens to be on.
             </p>
           </SectionCard>
 
