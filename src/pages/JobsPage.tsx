@@ -507,6 +507,9 @@ function CreateJobModal({
   const [address, setAddress] = useState('');
   const [scheduledDate, setScheduledDate] = useState('');
   const [technicianId, setTechnicianId] = useState('');
+  const [customerType, setCustomerType] = useState<'residential' | 'commercial'>('residential');
+  const [slaResponseHours, setSlaResponseHours] = useState('');
+  const [contractReference, setContractReference] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -521,6 +524,9 @@ function CreateJobModal({
         address: address.trim() || null,
         job_status: 'scheduled',
         invoice_status: 'not_sent',
+        customer_type: customerType,
+        sla_response_hours: customerType === 'commercial' && slaResponseHours ? Number(slaResponseHours) : null,
+        contract_reference: customerType === 'commercial' && contractReference.trim() ? contractReference.trim() : null,
       };
       if (prefill?.lead_id) insert.lead_id = prefill.lead_id;
       if (prefill?.call_id) insert.call_id = prefill.call_id;
@@ -625,7 +631,42 @@ function CreateJobModal({
               </select>
             </div>
           </div>
-
+                     <div>
+            <label className="mb-1.5 block text-sm font-medium text-text-primary">Customer Type</label>
+            <select
+              value={customerType}
+              onChange={(e) => setCustomerType(e.target.value as 'residential' | 'commercial')}
+              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
+            >
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          </div>
+          {customerType === 'commercial' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">SLA Response (hours)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={slaResponseHours}
+                  onChange={(e) => setSlaResponseHours(e.target.value)}
+                  placeholder="e.g. 4"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">Contract / PO Reference</label>
+                <input
+                  type="text"
+                  value={contractReference}
+                  onChange={(e) => setContractReference(e.target.value)}
+                  placeholder="e.g. PO-10293"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
+                />
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-3 pt-2">
             <button
               type="submit"
