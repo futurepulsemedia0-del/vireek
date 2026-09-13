@@ -35,5 +35,9 @@
   "menu": {
     "open": "打开菜单",
     "close": "关闭菜单"
+  },
+  "aiDisclosure": {
+    "chatBadge": "AI",
+    "chatNotice": "您正在与AI助手聊天，而非真人。"
   }
 }
