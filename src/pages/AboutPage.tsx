@@ -156,9 +156,16 @@ export function AboutPage() {
                 Vireek is early. We are not claiming to have thousands of customers or a massive
                 team. What we do have is a product that solves a real problem for contractors, and
                 a commitment to build it honestly alongside the businesses that use it. If you are
-                a contractor who is tired of losing jobs to voicemail, I would love for you to
+                                a contractor who is tired of losing jobs to voicemail, I would love for you to
                 try it.
               </p>
+              <Link
+                to="/leadership"
+                className="focus-ring inline-flex items-center gap-2 text-base font-semibold text-accent hover:underline"
+              >
+                Meet the team &amp; advisors
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </motion.div>
           </div>
         </section>
