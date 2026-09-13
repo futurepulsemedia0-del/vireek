@@ -174,6 +174,38 @@ export interface Quote {
   created_at: string;
   updated_at: string;
 }
+export interface InsuranceClaim {
+  id: string;
+  user_id: string;
+  lead_id: string | null;
+  job_id: string | null;
+  customer_name: string;
+  customer_phone: string | null;
+  customer_email: string | null;
+  property_address: string | null;
+  loss_type: 'water_damage' | 'fire_damage' | 'smoke_damage' | 'mold' | 'storm_wind' | 'other';
+  date_of_loss: string | null;
+  insurance_carrier: string | null;
+  policy_number: string | null;
+  claim_number: string | null;
+  adjuster_name: string | null;
+  adjuster_phone: string | null;
+  adjuster_email: string | null;
+  deductible_cents: number | null;
+  estimated_damage_cents: number | null;
+  status:
+    | 'intake'
+    | 'documentation'
+    | 'submitted_to_carrier'
+    | 'adjuster_scheduled'
+    | 'approved'
+    | 'denied'
+    | 'in_repair'
+    | 'closed';
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
 export interface BusinessProfileHoliday {
   id: string;
   date: string;
