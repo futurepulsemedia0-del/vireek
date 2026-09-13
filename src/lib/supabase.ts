@@ -63,7 +63,7 @@ export interface Call {
   voicemail_listened_at: string | null;
   escalated_to: string | null;
   escalated_at: string | null;
-  detected_language: string | null;
+  source_label: string | null;
   created_at: string;
 }
 
