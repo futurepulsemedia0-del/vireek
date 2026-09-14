@@ -128,7 +128,18 @@ export function WebhookLogsPage() {
   const loadLogs = useCallback(
     async (isRefresh = false) => {
       if (!user) return;
-      isRefresh ? setRefreshing(true) : setLoading(true);
+
+      // NOTE: this used to be a bare ternary expression used only for its
+      // side effects (`isRefresh ? setRefreshing(true) : setLoading(true);`),
+      // which ESLint flags via `no-unused-expressions` since a ternary's
+      // whole point is to produce a value, not to be a standalone statement.
+      // A plain if/else is the correct construct for branching side effects.
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
       try {
         const { data, error } = await supabase
           .from('webhook_logs')
