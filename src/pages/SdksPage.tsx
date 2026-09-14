@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { BackButton } from '@/components/ui/BackButton';
 import { useSEO } from '@/lib/seo';
-import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+import { EASE, eyebrowClass, sectionHeadingClass, bodyClass } from '@/lib/motion';
 
 const SDK_EMAIL = 'ali@vireek.com';
 
