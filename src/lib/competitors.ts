@@ -512,7 +512,9 @@ export const COMPETITORS: Competitor[] = [
         q: 'How do I know which AI answering service actually fits my trade?',
         a: 'The most reliable way is testing on your own calls. Start a free trial and let Vireek answer your real calls for a week — you’ll see exactly how many get answered, triaged, and booked for your specific trade before committing to anything.',
       },
-        {
+    ],
+  },
+  {
     slug: 'fieldroutes',
     name: 'FieldRoutes',
     icon: Bug,
@@ -720,6 +722,8 @@ export const COMPETITORS: Competitor[] = [
     ],
   },
 ];
+
+export function getCompetitorBySlug(slug?: string): Competitor | undefined {
   if (!slug) return undefined;
   return COMPETITORS.find((c) => c.slug === slug);
 }
