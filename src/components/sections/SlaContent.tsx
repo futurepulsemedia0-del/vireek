@@ -103,7 +103,7 @@ export function SlaContent() {
               </p>
               <nav className="flex flex-col gap-1 border-l border-border">
                 {SECTIONS.map((s) => (
-                  <a
+                  
                     key={s.id}
                     href={`#${s.id}`}
                     className={`-ml-px border-l-2 py-1.5 pl-4 text-sm transition-colors ${
