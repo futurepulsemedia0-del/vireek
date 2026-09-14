@@ -10,11 +10,12 @@ import { EASE, fadeUpItem, staggerContainer, viewport } from '@/lib/motion';
  * shipping — never display a star rating or review count that isn't
  * pulled from the live listing.
  */
+const HAS_VERIFIED_REVIEWS = false; // فقط وقتی پروفایل واقعی روی G2/Capterra/Trustpilot claim و تایید شد → true کن
 interface ReviewPlatform {
   name: string;
   rating?: number;
   reviewCount?: number;
-  url: string;
+  url: string; 
   wordmark: string;
 }
 
@@ -44,6 +45,7 @@ function StarRow({ rating }: { rating: number }) {
 }
 
 export function ReviewBadges() {
+  if (!HAS_VERIFIED_REVIEWS) return null;
   return (
     <section className="border-y border-border/60 bg-bg-secondary/50 py-10 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
