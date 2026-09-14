@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -97,7 +97,7 @@ export function EnterpriseDemoBookingCalendar({
 
   const timezone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
 
-  const loadSlots = async () => {
+  const loadSlots = useCallback(async () => {
     setLoadingSlots(true);
     setSlotsError(null);
     try {
@@ -119,12 +119,11 @@ export function EnterpriseDemoBookingCalendar({
       setLoadingSlots(false);
       setHasLoadedOnce(true);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadSlots();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadSlots]);
 
   const availableDateKeys = useMemo(() => {
     const keys: string[] = [];
