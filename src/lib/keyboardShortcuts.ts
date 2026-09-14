@@ -142,7 +142,6 @@ export function useKeyboardShortcuts(shortcuts: Shortcut[], enabled = true) {
       window.removeEventListener('keydown', handleKeyDown);
       clearBuffer();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, shortcuts]);
 }
 
