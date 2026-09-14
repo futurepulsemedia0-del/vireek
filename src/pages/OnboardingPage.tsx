@@ -247,6 +247,23 @@ export function OnboardingPage() {
       await saveBusinessProfile();
 
       await refreshProfile();
+
+      // Defensive check: `profiles.update()` above can resolve without an
+      // `error` even if it silently matched zero rows (e.g. an RLS/session
+      // mismatch). Confirm the refreshed profile actually reflects the save
+      // before leaving this page — otherwise DashboardPage's own
+      // "onboarding not completed" guard would immediately bounce the user
+      // straight back here, which looked like the form "resetting itself".
+      const { data: verifyRow, error: verifyError } = await supabase
+        .from('profiles')
+        .select('onboarding_completed')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (verifyError || !verifyRow?.onboarding_completed) {
+        toast('Could not save your setup — please try again.', 'error');
+        return;
+      }
+
       toast('Welcome to Vireek! Your dashboard is ready.', 'success');
       navigate('/dashboard', { replace: true });
     } catch {
