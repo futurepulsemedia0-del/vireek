@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -129,11 +129,21 @@ export function OnboardingPage() {
   // Step 3: Business hours
   const [hours, setHours] = useState<Record<string, { open: string; close: string }>>({});
 
+  // Only seed the form fields from the DB profile once — not on every
+  // `profile` object change. supabase-js re-validates the session (and
+  // hands back a *new* profile object reference) whenever the browser tab
+  // regains focus, which used to re-run this effect mid-form and silently
+  // wipe out whatever the user had already typed with the still-empty
+  // (not-yet-saved) DB values — that's what caused "Please fill in your
+  // name and company name" to fire even after the fields were filled in.
+  const hasSeededFromProfile = useRef(false);
+
   useEffect(() => {
     if (!profileLoading && profile?.onboarding_completed) {
       navigate('/dashboard', { replace: true });
     }
-    if (profile) {
+    if (profile && !hasSeededFromProfile.current) {
+      hasSeededFromProfile.current = true;
       setFullName(profile.full_name ?? '');
       setCompanyName(profile.company_name ?? '');
       setPhone(profile.phone ?? '');
@@ -230,8 +240,12 @@ export function OnboardingPage() {
     }
     setSubmitting(true);
     try {
-      // Save profile
-      const { error: profError } = await supabase
+      // Save profile. Chaining `.select().maybeSingle()` onto the update
+      // makes this atomic and conclusive: if RLS's WITH CHECK (or a USING
+      // mismatch) silently prevented the row from being written, PostgREST
+      // hands back `data: null` in this exact same response — no separate,
+      // theoretically-racy follow-up query needed to find out.
+      const { data: updatedProfile, error: profError } = await supabase
         .from('profiles')
         .update({
           full_name: fullName.trim(),
@@ -240,29 +254,24 @@ export function OnboardingPage() {
           forwarding_number: forwardingNumber.trim(),
           onboarding_completed: true,
         })
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select('onboarding_completed')
+        .maybeSingle();
       if (profError) throw profError;
+      if (!updatedProfile?.onboarding_completed) {
+        // The update ran without throwing but didn't actually persist —
+        // almost always a session/RLS mismatch (e.g. a stale/expired
+        // access token). Surface this clearly instead of silently
+        // continuing to the dashboard, where the "onboarding not
+        // completed" guard would just bounce the user straight back here.
+        toast('Could not save your setup — please sign out and back in, then try again.', 'error');
+        return;
+      }
 
       // Save business profile (services, hours, service area)
       await saveBusinessProfile();
 
       await refreshProfile();
-
-      // Defensive check: `profiles.update()` above can resolve without an
-      // `error` even if it silently matched zero rows (e.g. an RLS/session
-      // mismatch). Confirm the refreshed profile actually reflects the save
-      // before leaving this page — otherwise DashboardPage's own
-      // "onboarding not completed" guard would immediately bounce the user
-      // straight back here, which looked like the form "resetting itself".
-      const { data: verifyRow, error: verifyError } = await supabase
-        .from('profiles')
-        .select('onboarding_completed')
-        .eq('id', user.id)
-        .maybeSingle();
-      if (verifyError || !verifyRow?.onboarding_completed) {
-        toast('Could not save your setup — please try again.', 'error');
-        return;
-      }
 
       toast('Welcome to Vireek! Your dashboard is ready.', 'success');
       navigate('/dashboard', { replace: true });
