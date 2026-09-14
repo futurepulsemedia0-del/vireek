@@ -1018,19 +1018,18 @@ export function AnalyticsPage() {
               className="focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 disabled:opacity-50"
             >
               <Download size={16} className="text-text-secondary" />
-<span className="hidden sm:inline">Export Report</span>
-</button>
+              <span className="hidden sm:inline">Export Report</span>
+            </button>
 
-<button
-  type="button"
-  onClick={() => window.print()}
-  disabled={dataLoading}
-  className="focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 disabled:opacity-50"
->
-  <Printer size={16} className="text-text-secondary" />
-  <span className="hidden sm:inline">Print</span>
-</button>
-
+            <button
+              type="button"
+              onClick={() => window.print()}
+              disabled={dataLoading}
+              className="focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 disabled:opacity-50"
+            >
+              <Printer size={16} className="text-text-secondary" />
+              <span className="hidden sm:inline">Print</span>
+            </button>
           </div>
         </div>
 
@@ -1109,22 +1108,12 @@ export function AnalyticsPage() {
           ) : (
             <>
               <ChartCard title="Call Outcomes Breakdown" insight={metrics.insights.outcomes}>
-                              {metrics.totalCalls === 0 ? (
-                <EmptyChart message="No call data to build a heatmap." />
-              ) : isMobile ? (
-                <HeatmapMobile data={metrics.heatmap} />
-              ) : (
-                <Heatmap data={metrics.heatmap} />
-              )}
-            </ChartCard>
-          )}
-        </div>
-
-        {/* Lead Source Attribution + Cohort/LTV */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <LeadSourceBreakdown calls={allCalls} />
-          <CohortLtvSection jobs={allJobs} />
-        </div>
+                {metrics.totalCalls === 0 ? (
+                  <EmptyChart message="No calls in this period." />
+                ) : (
+                  <DonutChart data={metrics.outcomes} />
+                )}
+              </ChartCard>
 
               <ChartCard title="Emergency Response" insight={metrics.insights.emergency}>
                 {metrics.emergencyVolume.every((d) => d.count === 0) ? (
@@ -1145,6 +1134,12 @@ export function AnalyticsPage() {
               </ChartCard>
             </>
           )}
+        </div>
+
+        {/* Lead Source Attribution + Cohort/LTV */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <LeadSourceBreakdown calls={allCalls} />
+          <CohortLtvSection jobs={allJobs} />
         </div>
 
         {/* Lead Funnel + Revenue */}
@@ -1190,11 +1185,8 @@ export function AnalyticsPage() {
               )}
             </ChartCard>
           )}
-</div>
-
-</div>
-
-</DashboardLayout>
-);
+        </div>
+        </div>
+    </DashboardLayout>
+  );
 }
-
