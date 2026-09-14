@@ -232,6 +232,56 @@ export function SettingsPage() {
           />
         </div>
       </div>
+            <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+        <h2 className="text-base font-semibold text-text-primary">Tax &amp; invoicing</h2>
+        <p className="mt-1 text-sm text-text-secondary">
+          Used to calculate VAT and the currency shown on customer invoices in Billing.
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <label className="text-sm">
+            <span className="mb-1.5 block text-xs font-medium text-text-secondary">Business country</span>
+            <input
+              type="text"
+              maxLength={2}
+              placeholder="e.g. DE"
+              defaultValue={profile?.business_country ?? ''}
+              onBlur={(e) => {
+                if (!profile) return;
+                supabase.from('profiles').update({ business_country: e.target.value.toUpperCase() || null }).eq('id', profile.id).then(() => refreshProfile());
+              }}
+              className="w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary focus-ring"
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1.5 block text-xs font-medium text-text-secondary">VAT / Tax ID</span>
+            <input
+              type="text"
+              placeholder="e.g. DE123456789"
+              defaultValue={profile?.business_vat_number ?? ''}
+              onBlur={(e) => {
+                if (!profile) return;
+                supabase.from('profiles').update({ business_vat_number: e.target.value.toUpperCase() || null }).eq('id', profile.id).then(() => refreshProfile());
+              }}
+              className="w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary focus-ring"
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1.5 block text-xs font-medium text-text-secondary">Invoice currency</span>
+            <select
+              defaultValue={profile?.invoice_currency ?? 'USD'}
+              onChange={(e) => {
+                if (!profile) return;
+                supabase.from('profiles').update({ invoice_currency: e.target.value }).eq('id', profile.id).then(() => refreshProfile());
+              }}
+              className="w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary focus-ring"
+            >
+              {['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'AED', 'TRY'].map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </div>
       <PushNotificationsCard />
       <button
         type="button"
