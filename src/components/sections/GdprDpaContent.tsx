@@ -136,7 +136,7 @@ export function GdprDpaContent() {
               {mobileTocOpen && (
                 <nav className="mt-2 flex flex-col gap-1 rounded-xl border border-border bg-bg-secondary p-3">
                   {SECTIONS.map((s) => (
-                    
+                    <a
                       key={s.id}
                       href={`#${s.id}`}
                       onClick={() => setMobileTocOpen(false)}
