@@ -208,8 +208,15 @@ export function LiveChatWidget() {
             <div className="border-t border-border/80 px-4 pt-3">
               <div className="flex items-center gap-2 text-xs text-text-secondary">
                 <Mail size={12} />
-                <span>Leave your email so we can reply</span>
+                <span>Leave your details so we can reply</span>
               </div>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className="focus-ring mt-1.5 w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
+              />
               <input
                 type="email"
                 value={email}
