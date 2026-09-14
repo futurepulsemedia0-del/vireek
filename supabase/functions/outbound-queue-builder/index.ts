@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 
 interface CampaignRow {
   user_id: string;
@@ -18,11 +19,12 @@ async function queueQuoteFollowups(admin: SupabaseClient, campaign: CampaignRow)
 
   let queued = 0, skipped = 0;
   for (const lead of leads ?? []) {
+    const suppressed = lead.phone ? await isDncSuppressed(admin, campaign.user_id, lead.phone) : false;
     const { error } = await admin.from("outbound_calls").insert({
       user_id: campaign.user_id, campaign_type: "quote_followup", lead_id: lead.id,
-      customer_name: lead.name, customer_phone: lead.phone, status: "queued",
+      customer_name: lead.name, customer_phone: lead.phone, status: suppressed ? "opted_out" : "queued",
     });
-    if (!error) queued += 1; else skipped += 1; // already queued (dedupe index) or blocked for missing consent
+    if (!error) queued += suppressed ? 0 : 1; else skipped += 1;
   }
   return { queued, skipped };
 }
@@ -41,11 +43,12 @@ async function queueAppointmentReminders(admin: SupabaseClient, campaign: Campai
 
   let queued = 0, skipped = 0;
   for (const job of jobs ?? []) {
+    const suppressed = job.customer_phone ? await isDncSuppressed(admin, campaign.user_id, job.customer_phone) : false;
     const { error } = await admin.from("outbound_calls").insert({
       user_id: campaign.user_id, campaign_type: "appointment_reminder", job_id: job.id,
-      customer_name: job.customer_name, customer_phone: job.customer_phone, status: "queued",
+      customer_name: job.customer_name, customer_phone: job.customer_phone, status: suppressed ? "opted_out" : "queued",
     });
-    if (!error) queued += 1; else skipped += 1;
+    if (!error) queued += suppressed ? 0 : 1; else skipped += 1;
   }
   return { queued, skipped };
 }
@@ -62,11 +65,12 @@ async function queueReviewRequestCalls(admin: SupabaseClient, campaign: Campaign
 
   let queued = 0, skipped = 0;
   for (const job of jobs ?? []) {
+    const suppressed = job.customer_phone ? await isDncSuppressed(admin, campaign.user_id, job.customer_phone) : false;
     const { error } = await admin.from("outbound_calls").insert({
       user_id: campaign.user_id, campaign_type: "review_request_call", job_id: job.id,
-      customer_name: job.customer_name, customer_phone: job.customer_phone, status: "queued",
+      customer_name: job.customer_name, customer_phone: job.customer_phone, status: suppressed ? "opted_out" : "queued",
     });
-    if (!error) queued += 1; else skipped += 1;
+    if (!error) queued += suppressed ? 0 : 1; else skipped += 1;
   }
   return { queued, skipped };
 }
