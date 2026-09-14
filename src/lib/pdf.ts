@@ -360,7 +360,14 @@ export function downloadInsuranceClaimPdf(claim: InsuranceClaim): void {
   if (claim.notes) {
     y += 10;
     y = drawSectionLabel(doc, 'Notes', y);
-    y = drawParagraph(doc, claim.notes, y, { color: MUTED });
+    // NOTE: drawParagraph's return value (the y position after the notes
+    // text) used to be reassigned to `y` here, but `y` is never read again
+    // afterward — drawFooter positions itself with its own fixed y = 800,
+    // not this local variable. That made it a dead store that ESLint
+    // flags as an unused assignment. The call itself must stay (it's what
+    // actually renders the notes text onto the PDF); only the pointless
+    // reassignment is removed.
+    drawParagraph(doc, claim.notes, y, { color: MUTED });
   }
 
   drawFooter(doc, `Claim status: ${claim.status.replace(/_/g, ' ')}. Generated for internal and adjuster reference.`);
