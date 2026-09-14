@@ -168,7 +168,12 @@ export const STRIPE_CHECKOUT_LINKS: Partial<Record<PlanId, Record<BillingCycle, 
 /** Sales inbox for Enterprise inquiries. Update this if the address ever changes. */
 export const SALES_EMAIL = 'ali@vireek.com';
 
-function buildEnterpriseMailto(): string {
+// NOTE: this used to be an unexported function that nothing in this module
+// called, so ESLint flagged it as an unused declaration (no-unused-vars).
+// It's exported so callers elsewhere (e.g. the Enterprise contact page) can
+// use it to build the sales mailto: link — the implementation itself is
+// unchanged.
+export function buildEnterpriseMailto(): string {
   const subject = encodeURIComponent('Enterprise plan inquiry');
   const body = encodeURIComponent(
     "Hi Vireek team,\n\nI'm interested in the Enterprise plan. Here are a few details about my business:\n\n- Company name:\n- Number of locations:\n- Approximate monthly call volume:\n\nThanks!"
