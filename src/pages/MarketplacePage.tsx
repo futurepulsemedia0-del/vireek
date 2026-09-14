@@ -57,7 +57,7 @@ export function MarketplacePage() {
                 <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-text-secondary sm:mt-6 sm:text-lg sm:leading-8 lg:text-xl">
                   Browse apps and integrations built by our team and by partners. Every listing is
                   reviewed before it ships — building something worth listing?{' '}
-                  
+                  <a
                     href={`mailto:${MARKETPLACE_SUBMISSION_EMAIL}?subject=${encodeURIComponent('Marketplace app submission')}`}
                     className="font-semibold text-accent hover:text-cta"
                   >
