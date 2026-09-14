@@ -281,6 +281,7 @@ export function SlaContent() {
               <div className="mt-2 flex items-center gap-3">
                 <Mail size={18} className="text-accent" />
                 
+                <a
                   href={`mailto:${CONTACT_EMAIL}`}
                   className="text-lg font-semibold text-accent hover:underline"
                 >
