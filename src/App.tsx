@@ -87,6 +87,7 @@ const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ defaul
 const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
 const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
+const DeveloperChangelogPage = lazy(() => import('@/pages/DeveloperChangelogPage').then((m) => ({ default: m.DeveloperChangelogPage })));
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
 const AccessibilityConformancePage = lazy(() => import('@/pages/AccessibilityConformancePage').then((m) => ({ default: m.AccessibilityConformancePage })));
 const CareersPage = lazy(() => import('@/pages/CareersPage').then((m) => ({ default: m.CareersPage })));
