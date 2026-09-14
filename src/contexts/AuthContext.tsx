@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
@@ -46,7 +47,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
 
+  // fetchProfile can be triggered from several independent places (initial
+  // getSession(), every onAuthStateChange event — including the
+  // TOKEN_REFRESHED/SIGNED_IN events supabase-js re-emits when the tab
+  // regains focus — and manual refreshProfile() calls after a save). None of
+  // those calls are cancelled or sequenced, so if an older call happens to
+  // resolve AFTER a newer one (e.g. a focus-triggered refetch that started
+  // before the onboarding save landed, but whose response arrives after it),
+  // it would blindly overwrite the fresh profile with stale data — which is
+  // exactly what caused onboarding_completed to "revert" a few seconds after
+  // reaching the dashboard. requestIdRef guards against that: only the
+  // response from the most recently *started* call is ever applied.
+  const requestIdRef = useRef(0);
+
   const fetchProfile = useCallback(async (userId: string) => {
+    const requestId = ++requestIdRef.current;
     setProfileLoading(true);
     try {
       // The `profiles` row is created by a database trigger right after
@@ -71,6 +86,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await new Promise((resolve) => setTimeout(resolve, 400 * attempt));
         }
       }
+
+      // A newer fetchProfile call has started since this one began — this
+      // result is stale, discard it instead of clobbering fresher state.
+      if (requestId !== requestIdRef.current) return;
+
       setProfile(prof);
 
       // If not an owner, fetch their team_members record for permissions
@@ -80,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .select('*')
           .eq('member_email', prof.email)
           .maybeSingle();
+        if (requestId !== requestIdRef.current) return;
         if (!tmError && tmData) {
           setTeamMember(tmData as TeamMember);
         } else {
@@ -89,10 +110,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setTeamMember(null);
       }
     } catch {
+      if (requestId !== requestIdRef.current) return;
       setProfile(null);
       setTeamMember(null);
     } finally {
-      setProfileLoading(false);
+      if (requestId === requestIdRef.current) setProfileLoading(false);
     }
   }, []);
 
