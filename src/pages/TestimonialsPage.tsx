@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, Droplets, Eye, Quote, Sparkles, Star, TrendingUp, Wind, Zap } from 'lucide-react';
+import { ArrowRight, BookOpen, Droplets, Eye, Mail, Quote, Sparkles, Star, TrendingUp, Wind, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
+import { Button } from '@/components/ui/Button';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
@@ -18,6 +19,9 @@ import { BLOG_POSTS, getCategoryBySlug } from '@/lib/blog';
 // receptionist compares to the alternatives, and how we handle data. This
 // keeps every link on the page honest and internally consistent instead of
 // inventing new copy just for this page.
+const SHARE_STORY_EMAIL = 'ali@vireek.com';
+const SHARE_STORY_SUBJECT = 'My Vireek story';
+const SHARE_STORY_HREF = `mailto:${SHARE_STORY_EMAIL}?subject=${encodeURIComponent(SHARE_STORY_SUBJECT)}`;
 const RELATED_READING_SLUGS = [
   'cost-of-a-missed-call',
   'ai-receptionist-vs-answering-service',
@@ -232,6 +236,34 @@ export function TestimonialsPage() {
                 with more verified stories.
               </p>
             </div>
+          </motion.div>
+        </section>
+
+        {/* Share your story */}
+        <section className="px-6 pb-4 pt-12 sm:pt-16">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewport}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="mx-auto flex max-w-4xl flex-col items-center gap-5 rounded-2xl border border-border bg-bg-secondary p-8 text-center shadow-card dark:shadow-card-dark sm:flex-row sm:text-left"
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
+              <Mail className="h-5 w-5" />
+            </span>
+            <div className="flex-1">
+              <p className="text-base font-semibold text-text-primary">Are you a Vireek customer?</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">
+                Send us your story — a couple of sentences on what changed, and a photo of you or
+                your crew if you'd like one included. We read every one and add real, verified
+                stories here and to our case studies.
+              </p>
+            </div>
+            <a href={SHARE_STORY_HREF} className="shrink-0">
+              <Button variant="secondary" size="md">
+                Share your story <ArrowRight size={16} />
+              </Button>
+            </a>
           </motion.div>
         </section>
 
