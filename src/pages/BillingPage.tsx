@@ -7,6 +7,9 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { formatMoney } from '@/lib/currency';
+import { calculateVat } from '@/lib/tax';
+import type { CurrencyCode } from '@/lib/currency';
 
 // ============================================================
 // CONSTANTS
@@ -235,23 +238,38 @@ export function BillingPage() {
     : 0;
 
   // Customer invoices from jobs
+  const invoiceCurrency = (profile?.invoice_currency ?? 'USD') as CurrencyCode;
   const invoicedJobs = useMemo(
     () => jobs.filter((j) => j.invoice_status !== 'not_sent' || j.invoice_amount !== null),
     [jobs],
   );
-
+    const invoicedJobsWithTax = useMemo(
+    () => invoicedJobs.map((j) => {
+      const subtotal = j.invoice_amount ?? 0;
+      const vat = j.invoice_vat_amount != null
+        ? { vatAmount: j.invoice_vat_amount, total: subtotal + j.invoice_vat_amount, vatRate: j.invoice_vat_rate ?? 0 }
+        : calculateVat({
+            sellerCountry: profile?.business_country,
+            customerCountry: j.customer_country,
+            customerVatNumber: j.customer_vat_number,
+            subtotal,
+          });
+      return { job: j, subtotal, ...vat };
+    }),
+    [invoicedJobs, profile?.business_country],
+  );
   const totalOwed = useMemo(
-    () => invoicedJobs
-      .filter((j) => j.invoice_status === 'sent')
-      .reduce((sum, j) => sum + (j.invoice_amount ?? 0), 0),
-    [invoicedJobs],
+    () => invoicedJobsWithTax
+      .filter((x) => x.job.invoice_status === 'sent')
+      .reduce((sum, x) => sum + x.total, 0),
+    [invoicedJobsWithTax],
   );
 
   const totalCollected = useMemo(
-    () => invoicedJobs
-      .filter((j) => j.invoice_status === 'paid')
-      .reduce((sum, j) => sum + (j.invoice_amount ?? 0), 0),
-    [invoicedJobs],
+    () => invoicedJobsWithTax
+      .filter((x) => x.job.invoice_status === 'paid')
+      .reduce((sum, x) => sum + x.total, 0),
+    [invoicedJobsWithTax],
   );
 
   const handleSelectPlan = async (planId: string) => {
@@ -430,7 +448,7 @@ export function BillingPage() {
               <span className="text-xs font-medium text-text-secondary">Outstanding</span>
             </div>
             <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
-              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalOwed)}
+              {formatMoney(totalOwed, invoiceCurrency)}
             </p>
             <p className="mt-0.5 text-xs text-text-secondary">Awaiting payment from customers</p>
           </div>
@@ -440,7 +458,7 @@ export function BillingPage() {
               <span className="text-xs font-medium text-text-secondary">Collected</span>
             </div>
             <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
-              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalCollected)}
+              {formatMoney(totalCollected, invoiceCurrency)}
             </p>
             <p className="mt-0.5 text-xs text-text-secondary">Paid by customers</p>
           </div>
@@ -473,22 +491,28 @@ export function BillingPage() {
                     <th className="pb-3 pr-4 font-medium">Date</th>
                     <th className="pb-3 pr-4 font-medium">Customer</th>
                     <th className="pb-3 pr-4 font-medium">Service</th>
-                    <th className="pb-3 pr-4 font-medium">Amount</th>
+                    <th className="pb-3 pr-4 font-medium">Subtotal</th>
+                    <th className="pb-3 pr-4 font-medium">VAT</th>
+                    <th className="pb-3 pr-4 font-medium">Total</th>
                     <th className="pb-3 font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {invoicedJobs.map((job) => (
+                  {invoicedJobsWithTax.map(({ job, subtotal, vatRate, vatAmount, total }) => (
                     <tr key={job.id} className="border-b border-border/50 last:border-0">
                       <td className="py-3 pr-4 text-text-secondary">
                         {new Date(job.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </td>
                       <td className="py-3 pr-4 font-medium text-text-primary">{job.customer_name}</td>
                       <td className="py-3 pr-4 text-text-secondary">{job.service_type ?? '—'}</td>
+                      <td className="py-3 pr-4 text-text-secondary">
+                        {job.invoice_amount !== null ? formatMoney(subtotal, invoiceCurrency) : '—'}
+                      </td>
+                      <td className="py-3 pr-4 text-text-secondary">
+                        {job.invoice_amount !== null && vatRate > 0 ? `${vatRate}% · ${formatMoney(vatAmount, invoiceCurrency)}` : job.invoice_reverse_charge ? 'Reverse charge' : '—'}
+                      </td>
                       <td className="py-3 pr-4 font-medium text-text-primary">
-                        {job.invoice_amount !== null
-                          ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(job.invoice_amount)
-                          : '—'}
+                        {job.invoice_amount !== null ? formatMoney(total, invoiceCurrency) : '—'}
                       </td>
                       <td className="py-3">
                         <span
@@ -505,7 +529,6 @@ export function BillingPage() {
                       </td>
                     </tr>
                   ))}
-                </tbody>
               </table>
             </div>
           )}
