@@ -19,7 +19,8 @@ export type KnowledgeTopic =
   | "industries"
   | "faq"
   | "onboarding"
-  | "policies";
+  | "policies"
+  | "contact";
 
 interface KnowledgeEntry {
   topic: KnowledgeTopic;
@@ -75,6 +76,11 @@ const KNOWLEDGE_BASE: KnowledgeEntry[] = [
     facts:
       "Common questions: (1) Does it replace my staff? — It handles calls so staff aren't interrupted mid-job, and warm-transfers or escalates anything it can't resolve; on Professional+ it can transfer live to on-call staff. (2) What happens on an emergency call? — It's detected against the business's own escalation rules and flagged/dispatched immediately rather than queued normally. (3) Can it book appointments? — Yes, synced to the connected calendar based on real availability. (4) What if I go over my included minutes? — Billed at the per-minute overage rate shown on the plan, visible up front, never a surprise fee or auto-upgrade. (5) Is there a setup fee? — No, on any plan.",
   },
+  {
+    topic: "contact",
+    facts:
+      "How to reach the Vireek team: the contact form at vireek.com/contact, or email ali@vireek.com directly (usually same-day reply). Vireek is on Facebook (facebook.com/profile.php?id=61591755299005), Instagram (@vireek.ai), TikTok (@ai_vireek), Reddit, and LinkedIn (linkedin.com/in/ali-moradi-741346339). The number +1 (650) 910-6703 connects to Sarah, the live AI voice demo, so a prospect can hear the product answer a call themselves — it is not a human support line. Paying customers get support through their plan's channel: standard 24h response on Starter, priority 4h on Professional, dedicated Slack channel on Business, and a named account manager with an SLA on Enterprise. General help and how-to articles live at vireek.com/help, common questions at vireek.com/faq, and current uptime at vireek.com/status. A free community for Vireek customers is being set up at vireek.com/community.",
+  },
 ];
 
 const byTopic = new Map(KNOWLEDGE_BASE.map((e) => [e.topic, e]));
@@ -98,6 +104,7 @@ export function findRelevantTopics(question: string): KnowledgeTopic[] {
     ["faq", ["replace", "staff", "emergency", "book", "appointment", "transfer", "escalat"]],
     ["product", ["feature", "does it", "capable", "can it", "crm", "integrat", "dashboard"]],
     ["company", ["what is vireek", "who is vireek", "about vireek"]],
+    ["contact", ["contact", "email address", "reach you", "get in touch", "talk to a human", "social media", "facebook", "instagram", "linkedin", "tiktok", "reddit", "phone number for support", "customer support"]],
   ];
   for (const [topic, keywords] of rules) {
     if (keywords.some((k) => q.includes(k))) hits.push(topic);
