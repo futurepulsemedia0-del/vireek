@@ -33,6 +33,9 @@ export interface Profile {
   external_id: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  business_country: string | null;
+  business_vat_number: string | null;
+  invoice_currency: string;
   notify_emergency_call?: boolean;
   notify_usage_alert?: boolean;
   notify_ai_insight?: boolean;
@@ -102,6 +105,12 @@ export interface Job {
     tags: string[];
   invoice_amount: number | null;
   invoice_status: 'not_sent' | 'sent' | 'paid';
+  customer_country: string | null;
+  customer_vat_number: string | null;
+  invoice_currency: string | null;
+  invoice_vat_rate: number | null;
+  invoice_vat_amount: number | null;
+  invoice_reverse_charge: boolean;
   dispatch_note: string | null;
   reschedule_token: string;
   rescheduled_by_customer_at: string | null;
