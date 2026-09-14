@@ -515,19 +515,24 @@ export function DashboardPage() {
     const missedCallRate = allCalls.length > 0
       ? `${Math.round((missedCalls / allCalls.length) * 100)}%`
       : '—';
-      const attributionRows: AttributionRow[] = useMemo(() => {
-    const map = new Map<string, { total: number; booked: number }>();
-    allCalls.forEach((c) => {
-      const key = c.lead_source || 'unknown';
-      const cur = map.get(key) ?? { total: 0, booked: 0 };
-      cur.total += 1;
-      if (c.status === 'booked') cur.booked += 1;
-      map.set(key, cur);
-    });
-    return Array.from(map.entries())
-      .map(([source, v]) => ({ source, ...v, rate: v.total ? Math.round((v.booked / v.total) * 100) : 0 }))
-      .sort((a, b) => b.booked - a.booked);
-  }, [allCalls]);
+
+    // NOTE: this used to be a nested `useMemo(...)` call right here, which is
+    // an illegal "hook inside a hook" call (violates the Rules of Hooks and
+    // can crash at runtime). It's just a plain derived value, so it's
+    // computed directly as part of this outer useMemo instead.
+    const attributionRows: AttributionRow[] = (() => {
+      const map = new Map<string, { total: number; booked: number }>();
+      allCalls.forEach((c) => {
+        const key = c.lead_source || 'unknown';
+        const cur = map.get(key) ?? { total: 0, booked: 0 };
+        cur.total += 1;
+        if (c.status === 'booked') cur.booked += 1;
+        map.set(key, cur);
+      });
+      return Array.from(map.entries())
+        .map(([source, v]) => ({ source, ...v, rate: v.total ? Math.round((v.booked / v.total) * 100) : 0 }))
+        .sort((a, b) => b.booked - a.booked);
+    })();
 
     // 14-day chart data
     const chartData: { date: string; count: number }[] = [];
@@ -686,6 +691,7 @@ export function DashboardPage() {
       chartData,
       attentionItems: attentionItems.slice(0, 8),
       activityItems: activityItems.slice(0, 10),
+      attributionRows,
     };
   }, [allCalls, allJobs, calls, jobs, leads, insights, profile]);
 
@@ -866,6 +872,13 @@ export function DashboardPage() {
           {dataLoading ? <ChartSkeleton /> : <CallVolumeChart data={metrics.chartData} />}
           <NeedsAttention items={metrics.attentionItems} onInsightClick={() => navigate('/dashboard/insights')} />
         </div>
+
+        {/* LEAD SOURCE ATTRIBUTION */}
+        {!dataLoading && metrics.attributionRows.length > 0 && (
+          <div className="mt-5">
+            <AttributionReport rows={metrics.attributionRows} />
+          </div>
+        )}
 
         {/* AI INSIGHTS (if any non-digest insights exist) */}
         {!dataLoading && insights.filter((i) => i.id !== dailyDigest?.id).length > 0 && (
