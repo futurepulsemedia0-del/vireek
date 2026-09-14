@@ -252,7 +252,7 @@ async function resolveTenant(
 
   let query = admin
     .from("business_profile")
-.select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
+    .select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
     .limit(1);
 
   if (assistantId) {
@@ -726,7 +726,7 @@ async function handleTransferDestinationRequest(
   const vapiCallId = message.call?.id;
   let emergencyTarget: string | null = null;
 
-    let humanTransferTarget: string | null = null;
+  let humanTransferTarget: string | null = null;
 
   if (vapiCallId) {
     const { data: callRow } = await admin
@@ -756,13 +756,13 @@ async function handleTransferDestinationRequest(
     );
   }
 
-    logEvent("transfer_resolved", requestId, {
+  logEvent("transfer_resolved", requestId, {
     user_id: tenant.userId,
     used_emergency_target: Boolean(emergencyTarget),
     used_human_transfer_target: Boolean(humanTransferTarget),
   });
 
-    return jsonResponse({
+  return jsonResponse({
     destination: {
       type: "number",
       number: destinationNumber,
@@ -855,7 +855,7 @@ async function toolLookupCustomer(
           : `That job's warranty expired ${warrantyDate.toDateString()}, so a new visit for it would not be covered.`,
       );
     }
-        if (latestJob.customer_type === "commercial") {
+    if (latestJob.customer_type === "commercial") {
       parts.push(
         `This is a COMMERCIAL account${
           latestJob.contract_reference ? ` (contract/reference: ${latestJob.contract_reference})` : ""
@@ -977,6 +977,7 @@ async function suggestTechnicianNote(
   if (!best) return null;
   return `Suggested technician: ${best.name} (skill match: ${serviceType}, ${best.load}/${best.capacity} jobs that day). A human dispatcher should confirm before assigning.`;
 }
+
 async function toolBookAppointment(
   admin: SupabaseClient,
   tenant: TenantContext,
@@ -1034,38 +1035,35 @@ async function toolBookAppointment(
   };
 
   const { data: job, error: jobError } = await admin
-  .from("jobs")
-  .insert(jobPayload)
-  .select("id, scheduled_datetime, service_type, address")
-  .maybeSingle();
+    .from("jobs")
+    .insert(jobPayload)
+    .select("id, scheduled_datetime, service_type, address")
+    .maybeSingle();
 
-if (jobError || !job) {
-  return "I wasn't able to save this appointment due to a system error — please have the office confirm it manually.";
-}
-
-const baseMessage = job.scheduled_datetime
-  ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
-  : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
-
-const { data: profile } = await admin
-  .from("business_profile")
-  .select("ai_dispatch_enabled")
-  .eq("user_id", tenant.userId)
-  .maybeSingle();
-
-if (profile?.ai_dispatch_enabled) {
-  const assignment = await assignBestTechnician(
-    admin,
-    tenant.userId,
-    job
-  );
-
-  if (assignment.technicianName) {
-    return `${baseMessage} Assigned to ${assignment.technicianName}.`;
+  if (jobError || !job) {
+    return "I wasn't able to save this appointment due to a system error — please have the office confirm it manually.";
   }
-}
 
-return baseMessage;
+  const baseMessage = job.scheduled_datetime
+    ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
+    : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
+
+  const { data: profile } = await admin
+    .from("business_profile")
+    .select("ai_dispatch_enabled")
+    .eq("user_id", tenant.userId)
+    .maybeSingle();
+
+  if (profile?.ai_dispatch_enabled) {
+    const assignment = await assignBestTechnician(admin, tenant.userId, job);
+
+    if (assignment.technicianName) {
+      return `${baseMessage} Assigned to ${assignment.technicianName}.`;
+    }
+  }
+
+  return baseMessage;
+}
 
 async function toolCheckWeather(args: Record<string, unknown>): Promise<string> {
   const location = typeof args.location === "string" ? args.location.trim() : "";
@@ -1461,22 +1459,22 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
           case "check_weather":
             result = await toolCheckWeather(args);
             break;
-                      case "lookup_price":
+          case "lookup_price":
             result = await toolLookupPrice(admin, tenant, args);
             break;
-                    case "flag_emergency_call":
+          case "flag_emergency_call":
             result = await toolFlagEmergencyCall(admin, tenant, args, vapiCallId, callerNumber, callerName);
             break;
           case "request_human_transfer":
             result = await toolRequestHumanTransfer(admin, tenant, args, vapiCallId, callerNumber, callerName);
             break;
-                      case "pitch_membership":
+          case "pitch_membership":
             result = await toolPitchMembership(admin, tenant, callerNumber, callerName);
             break;
           case "record_membership_decision":
             result = await toolRecordMembershipDecision(admin, tenant, args, callerNumber);
             break;
-                      case "check_billing_status":
+          case "check_billing_status":
             result = await toolCheckBillingStatus(admin, tenant, callerNumber);
             break;
           case "reschedule_appointment":
@@ -1611,6 +1609,7 @@ async function updateOutboundCallStatus(admin: SupabaseClient, outboundCallId: s
     })
     .eq("id", outboundCallId);
 }
+
 async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   const tenant = await resolveTenant(admin, message, requestId);
   if (!tenant) {
@@ -1621,46 +1620,33 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
   }
 
   const vapiCallId = message.call?.id;
-async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMessage, requestId: string) {
-  const tenant = await resolveTenant(admin, message, requestId);
-  if (!tenant) {
-    logEvent("lifecycle_event_no_tenant", requestId, { type: message.type });
-    // 200, not an error: Vapi doesn't need to retry an event we simply
-    // can't attribute to a tenant (e.g. a stale/demo assistant id).
-    return jsonResponse({ received: true });
+  const trackingSource = await resolveCallSource(admin, message.phoneNumber?.id);
+
+  const patch: Record<string, unknown> = {
+    caller_phone: message.call?.customer?.number ?? null,
+    caller_name: message.call?.customer?.name ?? null,
+    source_channel: trackingSource,
+  };
+
+  // Lead source attribution — see 20260912070000_call_source_attribution.sql.
+  // Only meaningful if the business has set up additional tracking numbers
+  // in Call Sources; otherwise this simply finds nothing and the call shows
+  // as unattributed, which is the honest default.
+  const dialedPhoneNumberId = message.call?.phoneNumberId ?? message.phoneNumber?.id;
+
+  if (dialedPhoneNumberId) {
+    const { data: matchedSource } = await admin
+      .from("call_sources")
+      .select("label")
+      .eq("user_id", tenant.userId)
+      .eq("vapi_phone_number_id", dialedPhoneNumberId)
+      .maybeSingle();
+
+    if (matchedSource?.label) {
+      patch.source_label = matchedSource.label;
+    }
   }
 
-  const vapiCallId = message.call?.id;
-const trackingSource = await resolveCallSource(
-  admin,
-  message.phoneNumber?.id
-);
-
-const patch: Record<string, unknown> = {
-  caller_phone: message.call?.customer?.number ?? null,
-  caller_name: message.call?.customer?.name ?? null,
-  source_channel: trackingSource,
-};
-
-// Lead source attribution — see 20260912070000_call_source_attribution.sql.
-// Only meaningful if the business has set up additional tracking numbers
-// in Call Sources; otherwise this simply finds nothing and the call shows
-// as unattributed, which is the honest default.
-const dialedPhoneNumberId =
-  message.call?.phoneNumberId ?? message.phoneNumber?.id;
-
-if (dialedPhoneNumberId) {
-  const { data: matchedSource } = await admin
-    .from("call_sources")
-    .select("label")
-    .eq("user_id", tenant.userId)
-    .eq("vapi_phone_number_id", dialedPhoneNumberId)
-    .maybeSingle();
-
-  if (matchedSource?.label) {
-    patch.source_label = matchedSource.label;
-  }
-}
   if (message.type === "end-of-call-report") {
     const transcript = message.transcript ?? message.artifact?.transcript ?? null;
     const recordingUrl =
@@ -1716,7 +1702,7 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Server not configured" }, 500);
   }
 
- const providedSecret = req.headers.get("x-vapi-secret");
+  const providedSecret = req.headers.get("x-vapi-secret");
   if (providedSecret !== expectedSecret) {
     logEvent("unauthorized_request", requestId, {});
     return jsonResponse({ error: "Unauthorized" }, 401);
