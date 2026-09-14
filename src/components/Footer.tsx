@@ -122,6 +122,7 @@ const FOOTER_COLUMNS = [
       { label: 'Podcast', href: '/podcast' },
       { label: 'Onboarding Guide', href: '/onboarding-guide' },
       { label: 'Academy', href: '/academy' },
+      { label: 'Community', href: '/community' },
       { label: 'Glossary', href: '/glossary' },
       { label: 'Case Studies', href: '/case-studies' },
       { label: 'Testimonials', href: '/testimonials' },
