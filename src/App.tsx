@@ -18,6 +18,7 @@ const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => (
 const OnboardingGuidePage = lazy(() => import('@/pages/OnboardingGuidePage').then((m) => ({ default: m.OnboardingGuidePage })));
 const AcademyPage = lazy(() => import('@/pages/AcademyPage').then((m) => ({ default: m.AcademyPage })));
 const AcademyCertificatePage = lazy(() => import('@/pages/AcademyCertificatePage').then((m) => ({ default: m.AcademyCertificatePage })));
+const CommunityPage = lazy(() => import('@/pages/CommunityPage').then((m) => ({ default: m.CommunityPage })));
 const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
@@ -145,6 +146,7 @@ function App() {
         <Route path="/onboarding-guide" element={<OnboardingGuidePage />} />
         <Route path="/academy" element={<AcademyPage />} />
         <Route path="/academy/certificate" element={<AcademyCertificatePage />} />
+        <Route path="/community" element={<CommunityPage />} />
         <Route
           path="/staff/support-inbox"
           element={
