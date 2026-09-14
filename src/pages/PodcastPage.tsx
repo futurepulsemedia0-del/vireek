@@ -9,7 +9,7 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
-import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 
 // IMPORTANT: no real episodes, guest names, or quotes exist yet — every
