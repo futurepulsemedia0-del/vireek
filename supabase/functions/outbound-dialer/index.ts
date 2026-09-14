@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 
 const BATCH_SIZE = 20;
 const VAPI_CALL_URL = "https://api.vapi.ai/call";
@@ -57,7 +58,12 @@ Deno.serve(async (req: Request) => {
       failed += 1;
       continue;
     }
-
+    if (call.customer_phone && (await isDncSuppressed(admin, call.user_id, call.customer_phone))) {
+      await admin.from("outbound_calls").update({
+        status: "opted_out", outcome_notes: "Suppressed by DNC list at dial time.", attempt_count: call.attempt_count + 1,
+      }).eq("id", call.id);
+      continue;
+    }    
     try {
       const res = await fetch(VAPI_CALL_URL, {
         method: "POST",
