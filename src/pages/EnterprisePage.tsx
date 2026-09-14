@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EnterpriseDemoBookingCalendar } from '@/components/EnterpriseDemoBookingCalendar';
+import { CSMOnboardingBookingCalendar } from '@/components/CSMOnboardingBookingCalendar';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { PRICING_PLANS, SALES_EMAIL } from '@/lib/pricing';
@@ -387,7 +388,7 @@ export function EnterprisePage() {
               transition={{ duration: 0.5, ease: EASE }}
               className="text-center"
             >
-              <p className={eyebrowClass()}>See it live</p>
+              <p className={eyebrowClass()}>Executive Briefing Center</p>
               <h2 className={sectionHeadingClass()}>Prefer to talk it through first?</h2>
               <p className={bodyClass()}>
                 Book 30 minutes with our team — pick a time on our real calendar and it&apos;s
@@ -404,6 +405,38 @@ export function EnterprisePage() {
               <EnterpriseDemoBookingCalendar
                 heading="Book an enterprise walkthrough"
                 description="30 minutes with our team — pick whatever works for you and it's confirmed instantly."
+              />
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Dedicated onboarding specialist */}
+        <section id="onboarding-specialist" className="scroll-mt-24 px-6 pb-20 sm:pb-24">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="text-center"
+            >
+              <p className={eyebrowClass()}>White-glove onboarding</p>
+              <h2 className={sectionHeadingClass()}>Get a dedicated onboarding specialist</h2>
+              <p className={bodyClass()}>
+                Enterprise accounts get a named Customer Success Manager — book time directly on
+                their calendar to plan your rollout.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+              className="mt-10"
+            >
+              <CSMOnboardingBookingCalendar
+                heading="Book your onboarding kickoff"
+                description="45 minutes with your dedicated CSM to plan rollout, integrations, and team training."
               />
             </motion.div>
           </div>
