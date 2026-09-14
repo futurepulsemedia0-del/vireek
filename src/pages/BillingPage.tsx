@@ -529,6 +529,7 @@ export function BillingPage() {
                       </td>
                     </tr>
                   ))}
+                </tbody>
               </table>
             </div>
           )}
