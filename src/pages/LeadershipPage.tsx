@@ -69,7 +69,7 @@ function PersonCard({ person, size = 'lg' }: { person: Advisor; size?: 'lg' | 'm
       <h3 className="mt-4 text-base font-bold text-text-primary">{person.name}</h3>
       <p className="text-sm text-text-secondary">{person.title}</p>
       {person.linkedinUrl && (
-        
+        <a
           href={person.linkedinUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -170,7 +170,7 @@ export function LeadershipPage() {
                 <p className="mt-3 text-sm leading-relaxed text-text-secondary sm:text-base">{FOUNDER_BIO}</p>
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-4 sm:justify-start">
                   {FOUNDER_LINKEDIN_URL && (
-                    
+                    <a
                       href={FOUNDER_LINKEDIN_URL}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -180,7 +180,7 @@ export function LeadershipPage() {
                       LinkedIn
                     </a>
                   )}
-                  
+                  <a
                     href={`mailto:${FOUNDER_EMAIL}`}
                     className="focus-ring flex items-center gap-1.5 text-sm font-semibold text-text-secondary hover:text-accent"
                   >
