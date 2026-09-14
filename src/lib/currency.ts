@@ -79,3 +79,18 @@ export function formatPrice(usdAmount: number, currency: CurrencyCode): string {
     return `${c.symbol}${rounded}`;
   }
 }
+
+
+/**
+ * Formats an amount that is ALREADY in `currency` (no FX conversion) —
+ * use this for real invoice/job amounts, unlike formatPrice() above
+ * which converts a USD marketing price for display only.
+ */
+export function formatMoney(amount: number, currency: CurrencyCode): string {
+  const c = CURRENCIES[currency] ?? CURRENCIES[DEFAULT_CURRENCY];
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: c.code }).format(amount);
+  } catch {
+    return `${c.symbol}${amount.toFixed(2)}`;
+  }
+}
