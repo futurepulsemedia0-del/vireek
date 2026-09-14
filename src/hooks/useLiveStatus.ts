@@ -38,6 +38,28 @@ export interface LiveStatusResult {
   lastUpdated: string | null;
 }
 
+// Raw shapes returned by Instatus's public `summary.json` endpoint.
+// Only the fields this hook actually reads are declared; everything else
+// in the payload is ignored.
+interface InstatusComponent {
+  name?: string;
+  status: string;
+}
+
+interface InstatusIncident {
+  createdAt?: string;
+  name?: string;
+  impact: string;
+  status: string;
+  latestUpdateMessage?: string;
+}
+
+interface InstatusSummary {
+  components?: InstatusComponent[];
+  activeIncidents?: InstatusIncident[];
+  uptime?: number;
+}
+
 const FETCH_TIMEOUT_MS = 10_000;
 const REFRESH_INTERVAL_MS = 60_000;
 
@@ -95,14 +117,14 @@ export function useLiveStatus(): LiveStatusResult {
       try {
         const res = await fetch(endpoint, { cache: 'no-store', signal: controller.signal });
         if (!res.ok) throw new Error(`Status provider returned ${res.status}`);
-        const data = await res.json();
+        const data = (await res.json()) as InstatusSummary;
 
         const componentStatus: Record<string, LiveSystemStatus> = {};
         for (const c of data.components ?? []) {
           if (c?.name) componentStatus[c.name] = mapInstatusStatus(c.status);
         }
 
-        const incidents: LiveIncident[] = (data.activeIncidents ?? []).map((inc: any) => ({
+        const incidents: LiveIncident[] = (data.activeIncidents ?? []).map((inc: InstatusIncident) => ({
           date: inc.createdAt
             ? new Date(inc.createdAt).toLocaleDateString('en-US', {
                 month: 'short',
