@@ -102,6 +102,7 @@ export function GdprDpaContent() {
               </p>
               <nav className="flex flex-col gap-1 border-l border-border">
                 {SECTIONS.map((s) => (
+                  <a
                   
                     key={s.id}
                     href={`#${s.id}`}
