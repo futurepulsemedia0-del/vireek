@@ -35,8 +35,14 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     this.setState({ componentStack: info.componentStack ?? null });
-    // eslint-disable-next-line no-console
-    console.error('Unhandled error caught by ErrorBoundary:', error, info);
+    if (import.meta.env.DEV) {
+      // Dev-only: keep the browser console quiet for real users in
+      // production (avoids dumping stack/component-tree details into
+      // every visitor's console). Sentry reporting below still runs in
+      // every environment.
+      // eslint-disable-next-line no-console
+      console.error('Unhandled error caught by ErrorBoundary:', error, info);
+    }
     captureError(error, { componentStack: info.componentStack ?? undefined });
   }
 
