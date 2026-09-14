@@ -203,6 +203,16 @@ export function OutboundCampaignsPage() {
     setCampaigns((prev) => [...prev.filter((c) => c.campaign_type !== type), data as OutboundCampaign]);
     toast(enabled ? 'Campaign turned on' : 'Campaign turned off', 'success');
   };
+    
+  const handleOptOut = async (callId: string) => {
+    const { error } = await supabase.from('outbound_calls').update({ status: 'opted_out' }).eq('id', callId);
+    if (error) {
+      toast('Could not update this call', 'error');
+      return;
+    }
+    setCalls((prev) => prev.map((c) => (c.id === callId ? { ...c, status: 'opted_out' } : c)));
+    toast('Number added to your do-not-call list', 'success');
+  };
 
   return (
     <DashboardLayout>
@@ -263,13 +273,23 @@ export function OutboundCampaignsPage() {
                           {call.customer_phone || 'No phone on file'} · {formatDateTime(call.created_at)}
                         </p>
                       </div>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          STATUS_COLORS[call.status] ?? 'bg-bg-tertiary text-text-secondary'
-                        }`}
-                      >
-                        {formatOutboundCallStatus(call.status)}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${
+                            STATUS_COLORS[call.status] ?? 'bg-bg-tertiary text-text-secondary'
+                          }`}
+                        >
+                          {formatOutboundCallStatus(call.status)}
+                        </span>
+                        {call.status !== 'opted_out' && call.customer_phone && (
+                          <button
+                            onClick={() => handleOptOut(call.id)}
+                            className="focus-ring rounded-full border border-border px-2.5 py-1 text-xs font-medium text-text-secondary hover:border-danger/40 hover:text-danger"
+                          >
+                            Don't call again
+                          </button>
+                        )}
+                      </div>
                     </motion.div>
                   ))}
                 </div>
