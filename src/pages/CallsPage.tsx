@@ -178,7 +178,7 @@ function AudioPlayer({ url }: { url: string }) {
 // ============================================================
 // CALL DETAIL PANEL
 // ============================================================
-
+import { CallSatisfactionWidget } from '@/components/CallSatisfactionWidget';
 function CallDetailPanel({
   call,
   onClose,
@@ -315,6 +315,9 @@ function CallDetailPanel({
             </div>
           </div>
         )}
+
+        {/* AI interaction satisfaction (NPS/CSAT) */}
+        <CallSatisfactionWidget callId={call.id} userId={call.user_id} />
 
         {/* Quick actions */}
         <div className="space-y-2 border-t border-border pt-4">
