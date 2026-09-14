@@ -79,7 +79,6 @@ const FeatureMatrixPage = lazy(() => import('@/pages/FeatureMatrixPage').then((m
 const AIReceptionistVsHumanPage = lazy(() => import('@/pages/AIReceptionistVsHumanPage').then((m) => ({ default: m.AIReceptionistVsHumanPage })));
 const IndustriesPage = lazy(() => import('@/pages/IndustriesPage').then((m) => ({ default: m.IndustriesPage })));
 const IndustryPage = lazy(() => import('@/pages/IndustryPage').then((m) => ({ default: m.IndustryPage })));
-const LocationsIndexPage = lazy(() => import('@/pages/LocationsIndexPage').then((m) => ({ default: m.LocationsIndexPage })));
 const LocationPage = lazy(() => import('@/pages/LocationPage').then((m) => ({ default: m.LocationPage })));
 const IndustryLocationPage = lazy(() => import('@/pages/IndustryLocationPage').then((m) => ({ default: m.IndustryLocationPage })));
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
