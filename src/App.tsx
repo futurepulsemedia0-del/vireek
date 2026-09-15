@@ -116,6 +116,7 @@ const IntegrationsHubPage = lazy(() => import('@/pages/IntegrationsHubPage').the
 const IntegrationDetailPage = lazy(() => import('@/pages/IntegrationDetailPage').then((m) => ({ default: m.IntegrationDetailPage })));
 const TrustCenterPage = lazy(() => import('@/pages/TrustCenterPage').then((m) => ({ default: m.TrustCenterPage })));
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
+const UsageDashboardPage = lazy(() => import('@/pages/UsageDashboardPage').then((m) => ({ default: m.UsageDashboardPage })));
 const SitemapPage = lazy(() => import('@/pages/SitemapPage').then((m) => ({ default: m.SitemapPage })));
 const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => ({ default: m.EnterprisePage })));
 const MarketplacePage = lazy(() => import('@/pages/MarketplacePage').then((m) => ({ default: m.MarketplacePage })));
@@ -246,6 +247,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/usage"
+          element={
+            <ProtectedRoute>
+              <UsageDashboardPage />
             </ProtectedRoute>
           }
         />
