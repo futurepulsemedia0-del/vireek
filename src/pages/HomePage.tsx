@@ -8,6 +8,7 @@ import { HighlightBanner } from '@/components/sections/HighlightBanner';
 import { TrustBar } from '@/components/sections/TrustBar';
 import { ReviewBadges } from '@/components/sections/ReviewBadges';
 import { HowItWorks } from '@/components/sections/HowItWorks';
+import { DashboardPreview } from '@/components/sections/DashboardPreview';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
 import { Integrations } from '@/components/sections/Integrations';
@@ -31,31 +32,33 @@ import { FinalCTA } from '@/components/sections/FinalCTA';
 export function HomePage() {
   useSEO({
     title: 'Vireek — AI Voice Receptionist for Home Services | Never Miss a Call',
-    description: 'Vireek is an AI voice receptionist built for home service businesses. Answer calls, capture leads, book appointments, and keep customer communication moving 24/7.',
+    description:
+      'Vireek is an AI voice receptionist built for home service businesses. Answer calls, capture leads, book appointments, and keep customer communication moving 24/7.',
     canonical: 'https://vireek.com/',
   });
 
   return (
-  <>
-    <Header />
+    <>
+      <Header />
 
-    <main>
-      <Hero />
-      <SocialProof />
-      <HighlightBanner />
-      <TrustBar />
-      <ReviewBadges />
-      <HowItWorks />
-      <LiveDemo />
-      <MissedCallCalculator />
-      <Integrations />
-      <Comparison />
-      <PricingTeaser />
-      <FinalCTA />
-    </main>
+      <main>
+        <Hero />
+        <SocialProof />
+        <HighlightBanner />
+        <TrustBar />
+        <ReviewBadges />
+        <HowItWorks />
+        <DashboardPreview />
+        <LiveDemo />
+        <MissedCallCalculator />
+        <Integrations />
+        <Comparison />
+        <PricingTeaser />
+        <FinalCTA />
+      </main>
 
-    <Footer />
-    <CookieConsent />
-  </>
-);
+      <Footer />
+      <CookieConsent />
+    </>
+  );
 }
