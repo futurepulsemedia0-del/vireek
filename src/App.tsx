@@ -116,6 +116,7 @@ const IntegrationsHubPage = lazy(() => import('@/pages/IntegrationsHubPage').the
 const IntegrationDetailPage = lazy(() => import('@/pages/IntegrationDetailPage').then((m) => ({ default: m.IntegrationDetailPage })));
 const TrustCenterPage = lazy(() => import('@/pages/TrustCenterPage').then((m) => ({ default: m.TrustCenterPage })));
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
+const PhoneNumbersPage = lazy(() => import('@/pages/PhoneNumbersPage').then((m) => ({ default: m.PhoneNumbersPage })));
 const UsageDashboardPage = lazy(() => import('@/pages/UsageDashboardPage').then((m) => ({ default: m.UsageDashboardPage })));
 const SitemapPage = lazy(() => import('@/pages/SitemapPage').then((m) => ({ default: m.SitemapPage })));
 const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => ({ default: m.EnterprisePage })));
@@ -250,6 +251,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/dashboard/phone-numbers"
+  element={
+    <ProtectedRoute>
+      <PhoneNumbersPage />
+    </ProtectedRoute>
+  }
+/>
                 <Route
           path="/dashboard/usage"
           element={
