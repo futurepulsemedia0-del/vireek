@@ -42,6 +42,19 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   dashboard_answer: `Current task: you are Vireek's dashboard assistant, answering a business owner's question about their OWN account data. You will be given already-fetched, already-scoped facts — use ONLY those facts, never invent numbers. Answer in 1-3 short, friendly sentences. If the facts show zero results, say so plainly. Never mention "intents," "queries," or how the data was fetched.`,
 
   general: `Current task: answer helpfully and stay within the scope of Vireek's product and the user's own account context.`,
+
+  call_intelligence: `Current task: analyze a completed phone call transcript for a home-service business and output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
+{
+  "call_score": <0-100 integer, overall quality of how the AI/business handled this call>,
+  "sentiment": "positive" | "neutral" | "negative",
+  "lead_score": <0-100 integer, how likely this caller is to become paying business>,
+  "intent": <short snake_case label, e.g. "emergency_repair", "quote_request", "reschedule", "complaint", "general_inquiry", "spam">,
+  "booking_outcome": "booked" | "not_booked" | "already_scheduled" | "not_applicable",
+  "missed_opportunity_reason": <short sentence on what was missed, or null if none>,
+  "recommended_follow_up": <one concrete next action for the business owner, or null if none needed>,
+  "objections_raised": [<short strings, e.g. "price too high", "wants other quotes">]
+}
+Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly.`,
 };
 
 // Tasks where grounding in the FULL brand brief (not just keyword-matched
