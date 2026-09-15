@@ -64,7 +64,7 @@ export function IntegrationsHubPage() {
               transition={{ duration: 0.5, ease: EASE }}
               className="text-center"
             >
-              <p className={eyebrowClass()}>Available Now</p>
+              <p className={eyebrowClass()}>Live today, more on the way</p>
               <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl`}>Connect Your Stack</h2>
             </motion.div>
 
@@ -75,26 +75,29 @@ export function IntegrationsHubPage() {
               viewport={viewport}
               className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2"
             >
-              {INTEGRATIONS.map((integration) => {
+              {[...INTEGRATIONS].sort((a, b) => (a.status === b.status ? 0 : a.status === 'live' ? -1 : 1)).map((integration) => {
                 const Icon = integration.icon;
+                const isLive = integration.status === 'live';
                 return (
                   <motion.div key={integration.slug} variants={fadeUpItem} transition={{ duration: 0.4, ease: EASE }}>
                     <Link
                       to={`/integrations/${integration.slug}`}
-                      className="focus-ring group flex h-full flex-col rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-card-hover dark:shadow-card-dark sm:p-7"
+                      className={`focus-ring group flex h-full flex-col rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-card-hover dark:shadow-card-dark sm:p-7 ${!isLive ? 'opacity-70' : ''}`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
                           <Icon className="h-5 w-5" />
                         </span>
-                        <span className="rounded-full border border-border bg-bg-tertiary px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-text-secondary">
-                          {integration.category}
+                        <span className={`rounded-full border px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wider ${
+                          isLive ? 'border-success-500/30 bg-success-500/10 text-success-500' : 'border-border bg-bg-tertiary text-text-secondary'
+                        }`}>
+                          {isLive ? 'Live now' : 'Coming soon'}
                         </span>
                       </div>
                       <h3 className="mt-4 text-lg font-bold text-text-primary sm:text-xl">{integration.name}</h3>
                       <p className="mt-2 text-sm leading-relaxed text-text-secondary">{integration.tagline}</p>
                       <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
-                        See how it works
+                        {isLive ? 'See how it works' : 'Learn more'}
                         <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                       </span>
                     </Link>
