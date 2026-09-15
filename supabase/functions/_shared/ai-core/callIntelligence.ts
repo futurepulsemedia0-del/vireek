@@ -22,6 +22,9 @@ export interface CallIntelligence {
   missed_opportunity_reason: string | null;
   recommended_follow_up: string | null;
   objections_raised: string[];
+  objections_resolved: boolean | null;
+  upsell_opportunities: string[];
+  coaching_tip: string | null;
   memory_facts: string[];
 }
 
@@ -53,21 +56,27 @@ export async function analyzeCallIntelligence(
 
     const parsed = JSON.parse(result.text);
 
-    return {
-      call_score: clampScore(parsed.call_score),
-      sentiment: VALID_SENTIMENT.has(parsed.sentiment) ? parsed.sentiment : "neutral",
-      lead_score: clampScore(parsed.lead_score),
-      intent: typeof parsed.intent === "string" ? parsed.intent.slice(0, 100) : "unknown",
-      booking_outcome: VALID_OUTCOME.has(parsed.booking_outcome) ? parsed.booking_outcome : "not_applicable",
-      missed_opportunity_reason: typeof parsed.missed_opportunity_reason === "string" ? parsed.missed_opportunity_reason.slice(0, 500) : null,
-      recommended_follow_up: typeof parsed.recommended_follow_up === "string" ? parsed.recommended_follow_up.slice(0, 500) : null,
-      objections_raised: Array.isArray(parsed.objections_raised)
-        ? parsed.objections_raised.filter((o: unknown) => typeof o === "string").slice(0, 10)
-        : [],
-      memory_facts: Array.isArray(parsed.memory_facts)
-        ? parsed.memory_facts.filter((f: unknown) => typeof f === "string" && f.trim().length > 0).map((f: string) => f.trim().slice(0, 300)).slice(0, 5)
-        : [],
-    };
+const objectionsRaised: string[] = Array.isArray(parsed.objections_raised)
+  ? parsed.objections_raised.filter((o: unknown) => typeof o === "string").slice(0, 10)
+  : [];
+
+return {
+  call_score: clampScore(parsed.call_score),
+  sentiment: VALID_SENTIMENT.has(parsed.sentiment) ? parsed.sentiment : "neutral",
+  lead_score: clampScore(parsed.lead_score),
+  intent: typeof parsed.intent === "string" ? parsed.intent.slice(0, 100) : "unknown",
+  booking_outcome: VALID_OUTCOME.has(parsed.booking_outcome) ? parsed.booking_outcome : "not_applicable",
+  missed_opportunity_reason: typeof parsed.missed_opportunity_reason === "string" ? parsed.missed_opportunity_reason.slice(0, 500) : null,
+  recommended_follow_up: typeof parsed.recommended_follow_up === "string" ? parsed.recommended_follow_up.slice(0, 500) : null,
+  objections_raised: objectionsRaised,
+  objections_resolved: objectionsRaised.length > 0 && typeof parsed.objections_resolved === "boolean"
+    ? parsed.objections_resolved
+    : null,
+  upsell_opportunities: Array.isArray(parsed.upsell_opportunities)
+    ? parsed.upsell_opportunities.filter((o: unknown) => typeof o === "string").slice(0, 5)
+    : [],
+  coaching_tip: typeof parsed.coaching_tip === "string" ? parsed.coaching_tip.slice(0, 300) : null,
+};
   } catch (err) {
     console.error("analyzeCallIntelligence failed:", err);
     return null; // caller keeps whatever it already had
