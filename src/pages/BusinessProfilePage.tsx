@@ -172,6 +172,12 @@ export function BusinessProfilePage() {
   // `business_profile`, since forwarding_number always has)
   const [forwardingNumber, setForwardingNumber] = useState('');
   const [tollFreeStatus, setTollFreeStatus] = useState<TollFreeVerificationStatus>('not_applicable');
+  const [a2pCampaignStatus, setA2pCampaignStatus] = useState<string>('not_started');
+  const [legalBusinessName, setLegalBusinessName] = useState('');
+  const [ein, setEin] = useState('');
+  const [smsSampleMessage, setSmsSampleMessage] = useState('');
+  const [smsOptInDescription, setSmsOptInDescription] = useState('');
+  const [savingA2p, setSavingA2p] = useState(false);
   const [savingNumber, setSavingNumber] = useState(false);
   const [showTfvInfo, setShowTfvInfo] = useState(false);
 
@@ -179,7 +185,13 @@ export function BusinessProfilePage() {
     if (!profile) return;
     setForwardingNumber(profile.forwarding_number ?? '');
     setTollFreeStatus(profile.toll_free_verification_status ?? 'not_applicable');
-  }, [profile]);
+
+    setA2pCampaignStatus(profile.a2p_campaign_status ?? 'not_started');
+    setLegalBusinessName(profile.legal_business_name ?? '');
+    setEin(profile.ein ?? '');
+    setSmsSampleMessage(profile.sms_sample_message ?? '');
+    setSmsOptInDescription(profile.sms_opt_in_description ?? '');
+      }, [profile]);
 
   const loadProfile = useCallback(async () => {
     if (!user) return;
@@ -405,6 +417,41 @@ export function BusinessProfilePage() {
     }
   };
 
+       const handleSubmitA2pRegistration = async () => {
+    if (!user) return;
+    if (!legalBusinessName.trim() || !ein.trim() || !smsSampleMessage.trim() || !smsOptInDescription.trim()) {
+      toast('Fill in legal business name, EIN, sample message, and opt-in description first.', 'error');
+      return;
+    }
+    setSavingA2p(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          legal_business_name: legalBusinessName.trim(),
+          ein: ein.trim(),
+          sms_sample_message: smsSampleMessage.trim(),
+          sms_opt_in_description: smsOptInDescription.trim(),
+          a2p_brand_status: 'pending',
+          a2p_campaign_status: 'pending',
+          a2p_requested_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+      if (error) throw error;
+
+      setA2pCampaignStatus('pending');
+      await refreshProfile();
+      toast('A2P 10DLC registration submitted — carrier review usually takes 1-5 business days.', 'success');
+      window.location.href = `mailto:ali@vireek.com?subject=A2P%2010DLC%20Brand%20Registration&body=Business%3A%20${encodeURIComponent(
+        legalBusinessName
+      )}%0AEIN%3A%20${encodeURIComponent(ein)}%0AAccount%20email%3A%20${encodeURIComponent(user.email ?? '')}`;
+    } catch {
+      toast('Could not submit registration. Please try again.', 'error');
+    } finally {
+      setSavingA2p(false);
+    }
+  };
+
   const inputClass =
     'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
 
@@ -623,6 +670,36 @@ export function BusinessProfilePage() {
                         review is complete.
                       </p>
                     )}
+                  </div>
+                )}
+              </div>
+                            <div className="mt-6 rounded-xl border border-border bg-bg-primary p-5">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-text-primary">SMS Carrier Registration (A2P 10DLC)</p>
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    a2pCampaignStatus === 'approved'
+                      ? 'bg-success-500/15 text-success-500'
+                      : a2pCampaignStatus === 'rejected'
+                      ? 'bg-danger/10 text-danger'
+                      : a2pCampaignStatus === 'pending'
+                      ? 'bg-accent/10 text-accent'
+                      : 'bg-warning-500/15 text-warning-500'
+                  }`}>
+                    {a2pCampaignStatus === 'approved' ? 'Approved' : a2pCampaignStatus === 'rejected' ? 'Rejected' : a2pCampaignStatus === 'pending' ? 'Pending carrier review' : 'Not started'}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-text-secondary">
+                  Required by carriers (AT&T, T-Mobile, Verizon) before any SMS can be delivered. Unregistered traffic is blocked, not filtered.
+                </p>
+                {a2pCampaignStatus !== 'approved' && (
+                  <div className="mt-4 space-y-3">
+                    <input value={legalBusinessName} onChange={(e) => setLegalBusinessName(e.target.value)} placeholder="Legal business name (as registered)" className={inputClass} />
+                    <input value={ein} onChange={(e) => setEin(e.target.value)} placeholder="EIN (XX-XXXXXXX)" className={inputClass} />
+                    <textarea value={smsSampleMessage} onChange={(e) => setSmsSampleMessage(e.target.value)} placeholder="Sample SMS message customers will receive" rows={2} className={inputClass} />
+                    <textarea value={smsOptInDescription} onChange={(e) => setSmsOptInDescription(e.target.value)} placeholder="How customers opt in (e.g. checkbox on booking form)" rows={2} className={inputClass} />
+                    <Button variant="secondary" size="sm" onClick={handleSubmitA2pRegistration} disabled={savingA2p}>
+                      {savingA2p ? 'Submitting…' : a2pCampaignStatus === 'rejected' ? 'Resubmit Registration' : 'Submit for Carrier Registration'}
+                    </Button>
                   </div>
                 )}
               </div>
