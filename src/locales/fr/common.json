@@ -8,6 +8,7 @@
     "blog": "Blog",
     "faq": "FAQ"
   },
+
   "cta": {
     "login": "Connexion",
     "getStarted": "Commencer",
@@ -15,6 +16,7 @@
     "bookDemo": "Réserver une démo",
     "talkToSarah": "Parler à Sarah"
   },
+
   "footer": {
     "product": "Produit",
     "integrations": "Intégrations",
@@ -29,15 +31,33 @@
     "newsletterSuccess": "Inscription réussie ! Vérifiez votre boîte de réception.",
     "rightsReserved": "Tous droits réservés."
   },
+
   "language": {
     "switchLanguage": "Changer de langue"
   },
+
   "menu": {
     "open": "Ouvrir le menu",
     "close": "Fermer le menu"
   },
+
   "aiDisclosure": {
     "chatBadge": "AI",
     "chatNotice": "Vous discutez avec un assistant IA, pas avec un humain."
+  },
+
+  "finalCta": {
+    "headline": "Ne perdez plus de chantiers à cause de la messagerie vocale.",
+    "subhead": "Chaque appel pris par Sarah, c'est un client qui a eu une vraie voix, pas un bip.",
+    "getStarted": "Commencer",
+    "startTrial": "Démarrez votre essai gratuit",
+    "trialTerms": "14 jours · sans carte · annulation à tout moment",
+    "createAccount": "Créer un compte",
+    "hearFirst": "Écoutez d'abord",
+    "callNow": "Appelez Sarah maintenant",
+    "callSubtitle": "Un vrai appel en direct — sans inscription",
+    "guaranteeLive": "Actif en 15 minutes",
+    "guaranteeNoCard": "Sans carte bancaire",
+    "guaranteeCancel": "Annulation à tout moment"
   }
 }
