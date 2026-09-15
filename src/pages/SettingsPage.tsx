@@ -301,7 +301,26 @@ export function SettingsPage() {
         </div>
         <ChevronRight size={18} className="text-text-secondary" />
       </button>
-
+             {isOwner && (
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard/settings/api-keys')}
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+              <KeyRound size={20} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-text-primary">API keys</p>
+              <p className="mt-0.5 text-xs text-text-secondary">
+                Create and manage keys for the Developer API.
+              </p>
+            </div>
+          </div>
+          <ChevronRight size={18} className="text-text-secondary" />
+        </button>
+      )}
       {isOwner && (
         <button
           type="button"
