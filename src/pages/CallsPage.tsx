@@ -179,6 +179,7 @@ function AudioPlayer({ url }: { url: string }) {
 // CALL DETAIL PANEL
 // ============================================================
 import { CallSatisfactionWidget } from '@/components/CallSatisfactionWidget';
+import { CustomerMemoryPanel } from '@/components/CustomerMemoryPanel';
 function CallDetailPanel({
   call,
   onClose,
@@ -315,7 +316,8 @@ function CallDetailPanel({
             </div>
           </div>
         )}
-
+        
+        <CustomerMemoryPanel phone={call.caller_phone} />
                  {/* Call Intelligence */}
         {call.call_score !== null && (
           <div className="space-y-3 rounded-xl border border-border bg-bg-primary p-4">
