@@ -4,33 +4,49 @@ import { motion } from 'framer-motion';
 import { FileText, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { fetchQuoteForToken, respondToQuote, calculateQuoteTotals, formatCents, PublicQuoteInfo } from '@/lib/quotes';
-
+import { fetchQuoteForToken, respondToQuote, recordQuoteView, calculateQuoteTotals, formatCents, PublicQuoteInfo } from '@/lib/quotes';
+import { isTieredQuote } from '@/lib/estimates';
+import { EstimatePresentation } from '@/components/quotes/EstimatePresentation';
 export function QuoteAcceptPage() {
   const { token } = useParams<{ token: string }>();
   const [quote, setQuote] = useState<PublicQuoteInfo | null | undefined>(undefined);
   const [submitting, setSubmitting] = useState(false);
   const [responded, setResponded] = useState<'accepted' | 'declined' | null>(null);
 
-  useEffect(() => {
-    if (!token) return;
-    fetchQuoteForToken(token).then(setQuote);
-  }, [token]);
+useEffect(() => {
+  if (!token) return;
+  fetchQuoteForToken(token).then((q) => {
+    setQuote(q);
 
-  const handleRespond = async (response: 'accepted' | 'declined') => {
-    if (!token) return;
-    setSubmitting(true);
-    const ok = await respondToQuote(token, response);
-    if (ok) setResponded(response);
-    setSubmitting(false);
-  };
+    if (q && q.status === 'sent') {
+      void recordQuoteView(token);
+    }
+  });
+}, [token]);
+
+const handleRespond = async (
+  response: 'accepted' | 'declined',
+  optionId: string | null = null
+) => {
+  if (!token) return;
+  setSubmitting(true);
+  const ok = await respondToQuote(token, response, optionId);
+  if (ok) setResponded(response);
+  setSubmitting(false);
+};
 
   const totals = quote ? calculateQuoteTotals(quote.line_items, quote.tax_percent) : null;
+  const tiered = Boolean(quote && isTieredQuote(quote));
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
       <Header />
       <main className="flex flex-1 items-center justify-center px-4 py-16">
+        {tiered && quote && !responded && quote.status === 'sent' ? (
+          <div className="w-full max-w-5xl">
+            <EstimatePresentation quote={quote} submitting={submitting} onRespond={handleRespond} />
+          </div>
+        ) : (
         <div className="w-full max-w-md rounded-2xl border border-border bg-bg-secondary p-8 shadow-card dark:shadow-card-dark">
           {quote === undefined && <p className="text-center text-sm text-text-secondary">Loading your quote…</p>}
 
@@ -117,6 +133,7 @@ export function QuoteAcceptPage() {
             </motion.div>
           )}
         </div>
+        )}
       </main>
       <Footer />
     </div>
