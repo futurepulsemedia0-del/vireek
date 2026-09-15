@@ -21,7 +21,6 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EnterpriseDemoBookingCalendar } from '@/components/EnterpriseDemoBookingCalendar';
-import { CSMOnboardingBookingCalendar } from '@/components/CSMOnboardingBookingCalendar';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { PRICING_PLANS, SALES_EMAIL } from '@/lib/pricing';
