@@ -326,6 +326,10 @@ export function TermsContent() {
                   • Following all applicable laws regarding{' '}
                   <strong className="text-text-primary">call recording consent</strong>,
                   including two-party consent states.
+                  {' '}For callers in recognized all-party-consent states, Vireek's AI
+                  automatically requests verbal consent at the start of the call before
+                  recording begins.
+
                 </li>
                 <li>
                   • Following applicable{' '}
