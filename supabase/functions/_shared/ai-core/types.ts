@@ -6,7 +6,7 @@
 
 export type ProviderId = "gemini" | "groq" | "cerebras" | "cloudflare" | "openrouter" | "anthropic";
 
-export type TaskType = "demo_chat" | "intent_classify" | "dashboard_answer" | "general";
+export type TaskType = "demo_chat" | "intent_classify" | "dashboard_answer" | "general" | "call_intelligence";
 
 export interface ChatMessage {
   role: "user" | "assistant";
