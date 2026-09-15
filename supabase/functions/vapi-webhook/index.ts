@@ -53,6 +53,7 @@
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
+import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
 
 // ---------------------------------------------------------------------------
 // Types (only the fields we actually read — Vapi payloads carry much more)
@@ -1671,6 +1672,20 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
       summary,
       duration_seconds: durationSeconds,
     });
+
+    // Call Intelligence — best-effort enrichment, must never block the
+    // calls-row upsert below if the AI call is slow or fails.
+    if (transcript) {
+      const intelligence = await analyzeCallIntelligence(transcript, summary);
+      if (intelligence) {
+        Object.assign(patch, intelligence);
+        logEvent("call_intelligence_computed", requestId, {
+          call_score: intelligence.call_score,
+          sentiment: intelligence.sentiment,
+          booking_outcome: intelligence.booking_outcome,
+        });
+      }
+    }
   }
 
   const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, requestId);
