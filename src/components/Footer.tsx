@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, Loader2, ShieldCheck, Sparkles, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
 import { SARAH_PHONE } from '@/lib/site';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -227,7 +228,10 @@ function NewsletterSection() {
     setMessage('');
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1400));
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert({ email: emailValue.trim().toLowerCase() });
+      if (error && error.code !== '23505') throw error;
       setState('success');
       setMessage("You're subscribed! Check your inbox for a confirmation.");
       setEmailValue('');
