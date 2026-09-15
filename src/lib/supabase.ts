@@ -33,6 +33,11 @@ export interface Profile {
   external_id: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  subscription_status: 'active' | 'past_due' | 'suspended';
+  dunning_stage: number;
+  payment_failed_at: string | null;
+  payment_grace_period_ends_at: string | null;
+  last_payment_error: string | null;
   business_country: string | null;
   business_vat_number: string | null;
   invoice_currency: string;
