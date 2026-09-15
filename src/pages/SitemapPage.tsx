@@ -134,6 +134,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'Contact', href: '/contact' },
           { label: 'Status', href: '/status' },
           { label: 'Changelog', href: '/changelog' },
+          { label: 'Roadmap', href: '/roadmap' },
           { label: 'Accessibility', href: '/accessibility' },
         ],
       },
