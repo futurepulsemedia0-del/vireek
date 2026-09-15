@@ -422,6 +422,7 @@ function NewsletterSection() {
 }
 
 export function Footer() {
+const { t } = useTranslation();
   return (
     <footer className="border-t border-border bg-bg-tertiary">
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -481,7 +482,7 @@ export function Footer() {
           {FOOTER_COLUMNS.map((col) => (
             <div key={col.title} className="mb-9 break-inside-avoid last:mb-0">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
-                {col.title}
+                {FOOTER_COLUMN_TITLE_KEYS[col.title] ? t(FOOTER_COLUMN_TITLE_KEYS[col.title]) : col.title}
               </h3>
               <ul className="mt-4 flex flex-col gap-3">
                 {col.links.map((link) => (
@@ -524,7 +525,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-6 flex flex-col items-center gap-5 border-t border-border pt-8 sm:mt-8 sm:flex-row sm:justify-between sm:gap-4">
-          <p className="order-2 text-sm text-text-secondary sm:order-1">© 2026 Vireek. All rights reserved.</p>
+          <p className="order-2 text-sm text-text-secondary sm:order-1">© 2026 Vireek. {t('footer.rightsReserved')}</p>
           <div className="order-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:order-2 sm:justify-end sm:gap-6">
             <Link
               to="/privacy"
