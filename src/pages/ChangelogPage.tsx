@@ -140,9 +140,10 @@ export function ChangelogPage() {
               className="mt-12 text-center text-sm text-text-secondary/70"
             >
               That&rsquo;s everything since launch on August 21, 2026. Have a feature request?{' '}
-              <Link to="/contact" className="font-semibold text-accent hover:text-cta">
-                Tell us what you need
+              <Link to="/roadmap" className="font-semibold text-accent hover:text-cta">
+                Vote on the roadmap
               </Link>
+.
               .
             </motion.p>
           </div>
