@@ -131,7 +131,16 @@ Deno.serve(async (req: Request) => {
     if (!user) {
       return new Response(JSON.stringify({ error: "Not authenticated." }), { status: 401, headers: jsonHeaders });
     }
-
+     
+        // Rate-limit bookkeeping MUST go through a service-role client, never
+    // the caller's own JWT-scoped one — otherwise an authenticated user
+    // could call the Supabase REST API directly with their own token and
+    // reset their own counter, bypassing this entirely. See the RLS lock-
+    // down in 20260915010000_lock_down_ai_assistant_rate_limit.sql.
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const rateLimitDb = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    });
     const RATE_LIMIT_MAX_PER_HOUR = 30;
     const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
     const nowMs = Date.now();
