@@ -67,6 +67,13 @@ export interface Call {
   escalated_to: string | null;
   escalated_at: string | null;
   source_label: string | null;
+  call_score: number | null;
+  lead_score: number | null;
+  intent: string | null;
+  booking_outcome: 'booked' | 'not_booked' | 'already_scheduled' | 'not_applicable' | null;
+  missed_opportunity_reason: string | null;
+  recommended_follow_up: string | null;
+  objections_raised: string[];
   created_at: string;
 }
 
