@@ -10,7 +10,7 @@
 //   - transfer-destination-request  -> live call transfer to profiles.forwarding_number
 //   - tool-calls                    -> book_appointment / lookup_customer /
 //                                       check_weather / flag_emergency_call /
-//                                       request_human_transfer / lookup_price
+//                                       request_human_transfer / lookup_price / search_knowledge
 //   - status-update / end-of-call-report / hang / other lifecycle events
 //                                    -> upsert the `calls` row (drives the
 //                                       existing emergency-notification DB
@@ -54,6 +54,7 @@
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
+import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 
 // ---------------------------------------------------------------------------
 // Types (only the fields we actually read — Vapi payloads carry much more)
@@ -1486,6 +1487,9 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "capture_insurance_claim":
             result = await toolCaptureInsuranceClaim(admin, tenant, args, vapiCallId, callerNumber, callerName);
+            break;
+                      case "search_knowledge":
+            result = await toolSearchKnowledge(admin, tenant, args);
             break;
           default:
             logEvent("tool_call_unknown", requestId, { tool: name });
