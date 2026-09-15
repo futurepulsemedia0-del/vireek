@@ -7,6 +7,7 @@ import {
   PhoneCall,
   Users,
   Wrench,
+  BookUser,
   TrendingUp,
   Lightbulb,
   Settings,
@@ -29,6 +30,7 @@ const PAGES: StaticPage[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
+  { label: 'Customers', href: '/dashboard/customers', icon: BookUser },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
@@ -96,10 +98,11 @@ export function CommandPalette() {
     let cancelled = false;
     setSearching(true);
     const timeout = setTimeout(async () => {
-      const [callsRes, leadsRes, jobsRes] = await Promise.all([
+      const [callsRes, leadsRes, jobsRes, customersRes] = await Promise.all([
         supabase.from('calls').select('id, caller_name, caller_phone').ilike('caller_name', `%${q}%`).limit(4),
         supabase.from('leads').select('id, name, phone').ilike('name', `%${q}%`).limit(4),
         supabase.from('jobs').select('id, customer_name, service_type').ilike('customer_name', `%${q}%`).limit(4),
+        supabase.from('customers').select('id, name, phone').ilike('name', `%${q}%`).limit(4),
       ]);
       if (cancelled) return;
       const found: SearchResult[] = [
@@ -120,6 +123,12 @@ export function CommandPalette() {
           sublabel: j.service_type ?? 'Job',
           href: '/dashboard/jobs',
           icon: Wrench,
+        })),
+        ...(customersRes.data ?? []).map((c) => ({
+          label: c.name,
+          sublabel: c.phone ?? 'Customer',
+          href: '/dashboard/customers',
+          icon: BookUser,
         })),
       ];
       setResults(found);
