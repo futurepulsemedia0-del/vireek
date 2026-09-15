@@ -248,7 +248,7 @@ export function Hero() {
             transition={{ duration: 0.55, delay: 0.2, ease: EASE }}
             className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start"
           >
-            <Link to="/login" className="w-full sm:w-auto">
+            <Link to="/signup" className="w-full sm:w-auto">
               <Button variant="primary" size="lg" className="w-full gap-2 sm:w-auto">
                 Start free trial
                 <ArrowRight size={18} />
