@@ -8,6 +8,7 @@
     "blog": "Blog",
     "faq": "FAQ"
   },
+
   "cta": {
     "login": "Anmelden",
     "getStarted": "Loslegen",
@@ -15,6 +16,7 @@
     "bookDemo": "Demo buchen",
     "talkToSarah": "Mit Sarah sprechen"
   },
+
   "footer": {
     "product": "Produkt",
     "integrations": "Integrationen",
@@ -29,15 +31,33 @@
     "newsletterSuccess": "Angemeldet! Bitte bestätigen Sie per E-Mail.",
     "rightsReserved": "Alle Rechte vorbehalten."
   },
+
   "language": {
     "switchLanguage": "Sprache wechseln"
   },
+
   "menu": {
     "open": "Menü öffnen",
     "close": "Menü schließen"
   },
+
   "aiDisclosure": {
     "chatBadge": "AI",
     "chatNotice": "Sie chatten mit einem KI-Assistenten, nicht mit einem Menschen."
+  },
+
+  "finalCta": {
+    "headline": "Verlieren Sie keine Aufträge mehr an die Mailbox.",
+    "subhead": "Jeder Anruf, den Sarah entgegennimmt, ist ein Kunde, der eine echte Stimme statt eines Signaltons erreicht hat.",
+    "getStarted": "Loslegen",
+    "startTrial": "Kostenlose Testphase starten",
+    "trialTerms": "14 Tage · keine Karte nötig · jederzeit kündbar",
+    "createAccount": "Konto erstellen",
+    "hearFirst": "Erst reinhören",
+    "callNow": "Jetzt bei Sarah anrufen",
+    "callSubtitle": "Ein echtes Live-Gespräch — keine Anmeldung nötig",
+    "guaranteeLive": "In 15 Minuten startklar",
+    "guaranteeNoCard": "Keine Kreditkarte nötig",
+    "guaranteeCancel": "Jederzeit kündbar"
   }
 }
