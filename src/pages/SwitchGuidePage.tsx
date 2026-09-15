@@ -19,7 +19,7 @@ export function SwitchGuidePage() {
   useSEO({
     title: guide?.seoTitle ?? 'Switching to Vireek | Vireek',
     description: guide?.seoDescription ?? 'Everything it takes to switch your business to Vireek, the AI voice receptionist for home-service trades.',
-    canonical: `https://vireek.com/switch/${guide?.slug ?? ''}`,
+    canonical: `https://vireek.com/switch/${slug ?? ''}`,
   });
 
   if (!guide) {
