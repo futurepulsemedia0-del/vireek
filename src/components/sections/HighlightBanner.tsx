@@ -35,7 +35,7 @@ const TONE_STYLES: Record<Tone, string> = {
 
 const ITEMS: HighlightItem[] = [
   { icon: PhoneCall, tone: 'accent', title: 'Answers Every Call', detail: '24/7, no voicemail' },
-  { icon: Zap, tone: 'cta', title: 'Live in Under 10 Minutes', detail: 'No hardware, no contracts' },
+    { icon: Zap, tone: 'cta', title: 'Live in 15 Minutes', detail: 'No hardware, no contracts' },
   { icon: Siren, tone: 'danger', title: 'Emergency Detection', detail: 'Urgent jobs jump the queue' },
   { icon: CalendarCheck, tone: 'success', title: 'Books the Job', detail: 'Straight to your calendar' },
   { icon: Languages, tone: 'accent', title: 'Speaks Their Language', detail: 'English & Spanish, natively' },
@@ -245,7 +245,7 @@ export function HighlightBanner() {
       {/* Accessible summary for screen readers, since the marquee track
           itself is decorative/duplicated and hidden from the a11y tree. */}
       <p className="sr-only">
-        Vireek answers every call 24/7, gets set up in under 10 minutes, detects emergencies and
+        Vireek answers every call 24/7, gets set up in under 15 minutes, detects emergencies and
         prioritizes them automatically, books the job straight to your calendar, speaks to
         customers in their own language, follows up on every missed call to recover lost revenue,
         syncs to your CRM automatically, runs on SOC 2-ready infrastructure, texts customers back
