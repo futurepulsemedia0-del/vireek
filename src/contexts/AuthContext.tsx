@@ -33,7 +33,7 @@ interface AuthContextValue {
 
 const OWNER_PERMISSIONS: UserPermissions = {
   can_view_billing: true,
-  can_manage_numbers: boolean;
+  can_manage_numbers: true,
   can_manage_team: true,
   can_edit_business_profile: true,
   can_view_all_jobs: true,
