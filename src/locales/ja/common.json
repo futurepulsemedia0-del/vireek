@@ -1,3 +1,4 @@
+```json
 {
   "nav": {
     "features": "機能",
@@ -39,5 +40,20 @@
   "aiDisclosure": {
     "chatBadge": "AI",
     "chatNotice": "あなたはAIアシスタントとチャットしています。人間ではありません。"
+  },
+  "finalCta": {
+    "headline": "留守番電話で仕事を逃すのはもう終わりに。",
+    "subhead": "サラが応答する一件一件が、ビープ音ではなく本物の声に出会えたお客様です。",
+    "getStarted": "今すぐ始める",
+    "startTrial": "無料トライアルを開始",
+    "trialTerms": "14日間 · カード不要 · いつでも解約可能",
+    "createAccount": "アカウント作成",
+    "hearFirst": "まず聞いてみる",
+    "callNow": "今すぐサラに電話する",
+    "callSubtitle": "登録不要のリアルタイム通話です",
+    "guaranteeLive": "15分で稼働開始",
+    "guaranteeNoCard": "クレジットカード不要",
+    "guaranteeCancel": "いつでも解約可能"
   }
 }
+```
