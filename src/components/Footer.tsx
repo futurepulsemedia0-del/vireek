@@ -526,7 +526,7 @@ const { t } = useTranslation();
 
         {/* Bottom bar */}
         <div className="mt-6 flex flex-col items-center gap-5 border-t border-border pt-8 sm:mt-8 sm:flex-row sm:justify-between sm:gap-4">
-          <p className="order-2 text-sm text-text-secondary sm:order-1">© 2026 Vireek. {t('footer.rightsReserved')}</p>
+          <p className="order-2 text-sm text-text-secondary sm:order-1">© {new Date().getFullYear()} Vireek. All rights reserved.</p>
           <div className="order-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:order-2 sm:justify-end sm:gap-6">
             <Link
               to="/privacy"
