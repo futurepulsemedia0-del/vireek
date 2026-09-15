@@ -1,4 +1,4 @@
-import { Calculator, Calendar, CreditCard, Zap, Users, Cloud, MessageSquare, Mail, PhoneCall, type LucideIcon } from 'lucide-react';
+import { Calculator, Calendar, CreditCard, Zap, Users, Cloud, MessageSquare, Mail, PhoneCall, Wrench, type LucideIcon } from 'lucide-react';
 
 export interface IntegrationFAQ {
   q: string;
@@ -23,9 +23,10 @@ export interface Integration {
   capabilities: string[];
   /** Ordered "how it works" steps for connecting it */
   steps: IntegrationStep[];
-  faq: IntegrationFAQ[];
+    faq: IntegrationFAQ[];
+/** 'live' = real backend integration exists today. 'coming_soon' = marketing/roadmap only, no backend yet. */
+status: 'live' | 'coming_soon';
 }
-
 export const INTEGRATIONS: Integration[] = [
   {
     slug: 'quickbooks',
@@ -292,8 +293,57 @@ export const INTEGRATIONS: Integration[] = [
       },
     ],
   },
+  {
+    slug: 'jobber',
+    status: 'live',
+    name: 'Jobber',
+    category: 'Field Service',
+    icon: Wrench,
+    tagline: 'Sarah quotes real prices straight from your live Jobber price book.',
+    summary:
+      'Connect your Jobber account so Sarah always quotes from your actual, current pricing — not a static price list that goes stale the moment you update a rate in Jobber.',
+    capabilities: [
+      'Your Jobber product/service price book is pulled in and kept in sync.',
+      'Sarah references live pricing when quoting callers, instead of guessing or using outdated numbers.',
+      'Reconnect anytime from Settings \u2192 Integrations if your Jobber credentials change.',
+    ],
+    steps: [
+      { title: 'Connect Jobber', detail: 'Authorize Vireek from your dashboard \u2014 you\u2019ll be redirected to Jobber to approve access.' },
+      { title: 'Price book syncs automatically', detail: 'Vireek pulls your current Jobber price book on connect and keeps it refreshed.' },
+    ],
+    faq: [
+      {
+        q: 'Does this sync jobs or customers too?',
+        a: 'Not yet \u2014 today this connection is scoped to price book sync only, so Sarah quotes accurate pricing. Job and customer sync is on the roadmap.',
+      },
+    ],
+  },
+  {
+    slug: 'servicetitan',
+    status: 'live',
+    name: 'ServiceTitan',
+    category: 'Field Service',
+    icon: Wrench,
+    tagline: 'Sarah quotes real prices straight from your live ServiceTitan price book.',
+    summary:
+      'Connect your ServiceTitan account so Sarah always quotes from your actual, current pricing instead of a static list.',
+    capabilities: [
+      'Your ServiceTitan Pricebook is pulled in and kept in sync via ServiceTitan\u2019s API.',
+      'Sarah references live pricing when quoting callers.',
+      'Reconnect anytime from Settings \u2192 Integrations if your ServiceTitan credentials change.',
+    ],
+    steps: [
+      { title: 'Connect ServiceTitan', detail: 'Enter your ServiceTitan API credentials in Settings \u2192 Integrations.' },
+      { title: 'Price book syncs automatically', detail: 'Vireek pulls your current ServiceTitan Pricebook on connect and keeps it refreshed.' },
+    ],
+    faq: [
+      {
+        q: 'Does this sync jobs or customers too?',
+        a: 'Not yet \u2014 today this connection is scoped to price book sync only, so Sarah quotes accurate pricing. Job and customer sync is on the roadmap.',
+      },
+    ],
+  },
 ];
-
 export function getIntegrationBySlug(slug: string | undefined): Integration | undefined {
   return INTEGRATIONS.find((i) => i.slug === slug);
 }
