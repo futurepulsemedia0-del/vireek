@@ -339,7 +339,23 @@ function CallDetailPanel({
               <p className="text-sm text-text-primary"><span className="text-text-secondary">Outcome:</span> {call.booking_outcome.replace(/_/g, ' ')}</p>
             )}
             {call.objections_raised?.length > 0 && (
-              <p className="text-sm text-text-primary"><span className="text-text-secondary">Objections:</span> {call.objections_raised.join(', ')}</p>
+              <p className="text-sm text-text-primary">
+                <span className="text-text-secondary">Objections:</span> {call.objections_raised.join(', ')}
+                {call.objections_resolved === true && <span className="ml-1 text-success-500">(resolved)</span>}
+                {call.objections_resolved === false && <span className="ml-1 text-danger">(not resolved)</span>}
+              </p>
+            )}
+            {call.upsell_opportunities?.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-xs text-text-secondary">Upsell opportunities missed:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {call.upsell_opportunities.map((item) => (
+                    <span key={item} className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
             {call.missed_opportunity_reason && (
               <div className="rounded-lg bg-warning-500/10 p-3 text-sm text-warning-500">
@@ -349,6 +365,11 @@ function CallDetailPanel({
             {call.recommended_follow_up && (
               <div className="rounded-lg bg-accent/10 p-3 text-sm text-accent">
                 <strong>Recommended follow-up:</strong> {call.recommended_follow_up}
+              </div>
+            )}
+            {call.coaching_tip && (
+              <div className="rounded-lg bg-ai/10 p-3 text-sm text-ai">
+                <strong>Coaching tip:</strong> {call.coaching_tip}
               </div>
             )}
           </div>
