@@ -22,24 +22,81 @@ import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, f
 import { useSEO } from '@/lib/seo';
 
 const DOCS_EMAIL = 'ali@vireek.com';
+const API_BASE_URL = 'https://<your-project-ref>.supabase.co/functions/v1/api-v1';
 
-const SAMPLE_REQUEST = `POST /v1/calls/lookup
-Authorization: Bearer {api_key}
+const ENDPOINTS: {
+  method: string; path: string; scope: string; description: string;
+}[] = [
+  { method: 'GET', path: '/calls', scope: 'calls:read', description: 'List recent calls (recordings, transcripts, summaries, sentiment).' },
+  { method: 'GET', path: '/calls/:id', scope: 'calls:read', description: 'Fetch a single call by ID.' },
+  { method: 'GET', path: '/leads', scope: 'leads:read', description: 'List leads captured from calls.' },
+  { method: 'GET', path: '/leads/:id', scope: 'leads:read', description: 'Fetch a single lead by ID.' },
+  { method: 'GET', path: '/jobs', scope: 'jobs:read', description: 'List booked/scheduled jobs.' },
+  { method: 'GET', path: '/jobs/:id', scope: 'jobs:read', description: 'Fetch a single job by ID.' },
+];
+
+const QUERY_PARAMS = [
+  { name: 'limit', type: 'integer', description: 'Max rows to return (1–100). Defaults to 25.' },
+  { name: 'before', type: 'ISO 8601 timestamp', description: 'Return rows created before this timestamp, for pagination.' },
+];
+
+const WEBHOOK_EVENTS = [
+  { event: 'call.created', description: 'Fired the moment a new call record is saved.' },
+  { event: 'lead.created', description: 'Fired when a new lead is captured.' },
+  { event: 'job.created', description: 'Fired when a new job is booked.' },
+];
+
+const CODE_CURL = `curl "${'{base_url}'}/calls?limit=5" \\
+  -H "Authorization: Bearer vrk_live_..."`;
+
+const CODE_JS = `const res = await fetch('${'{base_url}'}/calls?limit=5', {
+  headers: { Authorization: 'Bearer vrk_live_...' },
+});
+const { data } = await res.json();`;
+
+const CODE_PY = `import requests
+
+res = requests.get(
+    "${'{base_url}'}/calls",
+    params={"limit": 5},
+    headers={"Authorization": "Bearer vrk_live_..."},
+)
+data = res.json()["data"]`;
+
+const WEBHOOK_PAYLOAD = `POST <your-webhook-url>
 Content-Type: application/json
 
 {
-  "phone": "+15551234567"
+  "event": "call.created",
+  "data": {
+    "id": "3f8a1c9e-...",
+    "caller_name": "Jordan Reyes",
+    "is_emergency": false,
+    "status": "booked",
+    "created_at": "2026-09-14T18:22:03Z"
+  }
 }`;
 
+const SAMPLE_REQUEST = `GET /calls?limit=5 HTTP/1.1
+Host: <your-project-ref>.supabase.co
+Authorization: Bearer vrk_live_...
+`;
+
 const SAMPLE_RESPONSE = `{
-  "call_id": "call_9f2a1c",
-  "status": "completed",
-  "lead": {
-    "name": "Jordan Reyes",
-    "issue": "No AC — unit blowing warm air",
-    "urgency": "same_day"
-  },
-  "appointment_booked": true
+  "data": [
+    {
+      "id": "3f8a1c9e-...",
+      "caller_name": "Jordan Reyes",
+      "caller_phone": "+15551234567",
+      "summary": "No AC — unit blowing warm air",
+      "is_emergency": false,
+      "status": "booked",
+      "duration_seconds": 174,
+      "created_at": "2026-09-14T18:22:03Z"
+    }
+  ],
+  "has_more": false,
+  "next_before": null
 }`;
 
 type Capability = {
@@ -73,31 +130,21 @@ const CAPABILITIES: Capability[] = [
 
 const ACCESS_STEPS = [
   {
-    icon: Mail,
-    title: 'Request Access',
-    body: 'Tell us what you are building and which capabilities you need.',
-  },
-  {
     icon: KeyRound,
-    title: 'Get Scoped Credentials',
-    body: 'We issue an API key scoped to your account, plus the exact request/response shapes for your use case.',
+    title: 'Generate a Key',
+    body: 'Head to Settings → API Keys, name your key, and pick the scopes you need.',
   },
   {
     icon: Code2,
-    title: 'Integrate',
-    body: 'We walk you through the integration directly — no generic ticket queue for API access.',
+    title: 'Make a Request',
+    body: 'Call any endpoint below with your key in the Authorization header. That\u2019s it.',
+  },
+  {
+    icon: Webhook,
+    title: 'Add Webhooks',
+    body: 'Set a URL under Integrations to get pushed events instead of polling.',
   },
 ];
-
-function SEO() {
-  useSEO({
-    title: 'Developer Docs & API Reference — Vireek',
-    description:
-      'API and integration access for agencies and enterprise teams building on top of Vireek — calls, leads, jobs, and webhooks.',
-    canonical: 'https://vireek.com/docs',
-  });
-  return null;
-}
 
 function CodeBlock({ label, code }: { label: string; code: string }) {
   return (
@@ -136,16 +183,16 @@ export function DeveloperDocsPage() {
                 Build on Top of Vireek
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-text-secondary sm:text-xl">
-                API and webhook access for agencies and enterprise teams that need to connect
-                Vireek to a custom CRM or internal system. Access is granted per account — no
-                public, self-serve API keys yet.
+                Every account can generate its own scoped API key from Settings — read calls,
+                leads, and jobs programmatically, and receive real-time webhooks. No request
+                queue, no waiting on us.
               </p>
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <a href={`mailto:${DOCS_EMAIL}?subject=${encodeURIComponent('API access request')}`}>
+                <Link to="/dashboard/settings/api-keys">
                   <Button variant="primary" size="lg">
-                    Request API Access
+                    Generate an API Key
                   </Button>
-                </a>
+                </Link>
                 <a href="#capabilities" className="focus-ring inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-text-primary transition-colors hover:text-accent">
                   See What's Possible
                   <ArrowRight className="h-4 w-4" />
@@ -192,7 +239,110 @@ export function DeveloperDocsPage() {
             </motion.div>
           </div>
         </section>
+                 {/* Authentication + Endpoints */}
+        <section className="px-6 py-20 sm:py-24">
+          <div className="mx-auto max-w-5xl">
+            <p className={`${eyebrowClass()} text-center`}>Reference</p>
+            <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>Authentication &amp; Endpoints</h2>
 
+            <div className="mt-10 rounded-2xl border border-border bg-bg-secondary p-6">
+              <h3 className="text-base font-semibold text-text-primary">Authentication</h3>
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                Every request needs an <code className="rounded bg-bg-tertiary px-1.5 py-0.5 text-xs">Authorization: Bearer &lt;api_key&gt;</code> header.
+                Generate a key from <Link to="/dashboard/settings/api-keys" className="font-medium text-accent hover:underline">Settings → API Keys</Link> — each key is scoped to specific resources and can be rotated or revoked anytime.
+              </p>
+              <div className="mt-4 rounded-xl border border-border bg-bg-tertiary px-4 py-3">
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">Base URL</span>
+                <code className="mt-1 block text-sm text-text-primary">{API_BASE_URL}</code>
+              </div>
+            </div>
+
+            <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-bg-secondary">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-bg-tertiary/50 text-left text-xs text-text-secondary">
+                    <th className="px-5 py-3 font-medium">Method</th>
+                    <th className="px-5 py-3 font-medium">Path</th>
+                    <th className="px-5 py-3 font-medium">Scope</th>
+                    <th className="px-5 py-3 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ENDPOINTS.map((e) => (
+                    <tr key={e.path} className="border-b border-border/60 last:border-0">
+                      <td className="px-5 py-3"><span className="rounded-md bg-success-500/10 px-2 py-0.5 text-xs font-bold text-success-500">{e.method}</span></td>
+                      <td className="px-5 py-3"><code className="text-xs text-text-primary">{e.path}</code></td>
+                      <td className="px-5 py-3"><code className="text-xs text-text-secondary">{e.scope}</code></td>
+                      <td className="px-5 py-3 text-text-secondary">{e.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-border bg-bg-secondary p-6">
+              <h3 className="text-base font-semibold text-text-primary">Query parameters (list endpoints)</h3>
+              <div className="mt-3 space-y-2">
+                {QUERY_PARAMS.map((p) => (
+                  <div key={p.name} className="flex flex-wrap items-baseline gap-2 text-sm">
+                    <code className="text-text-primary">{p.name}</code>
+                    <span className="text-xs text-text-secondary/70">{p.type}</span>
+                    <span className="text-text-secondary">— {p.description}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-6 md:grid-cols-3">
+              <CodeBlock label="cURL" code={CODE_CURL} />
+              <CodeBlock label="JavaScript" code={CODE_JS} />
+              <CodeBlock label="Python" code={CODE_PY} />
+            </div>
+          </div>
+        </section>
+
+        {/* Webhooks */}
+        <section className="px-6 py-20 sm:py-24">
+          <div className="mx-auto max-w-5xl">
+            <p className={`${eyebrowClass()} text-center`}>Real-time</p>
+            <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>Webhooks</h2>
+            <p className={`${bodyClass()} mx-auto text-center`}>
+              Set your webhook URL under Dashboard → Integrations. We'll POST these events the moment they happen —
+              delivery attempts are logged and visible from your dashboard's Webhook Logs.
+            </p>
+
+            <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-bg-secondary">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-bg-tertiary/50 text-left text-xs text-text-secondary">
+                    <th className="px-5 py-3 font-medium">Event</th>
+                    <th className="px-5 py-3 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {WEBHOOK_EVENTS.map((w) => (
+                    <tr key={w.event} className="border-b border-border/60 last:border-0">
+                      <td className="px-5 py-3"><code className="text-xs text-text-primary">{w.event}</code></td>
+                      <td className="px-5 py-3 text-text-secondary">{w.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6">
+              <CodeBlock label="Example payload" code={WEBHOOK_PAYLOAD} />
+            </div>
+
+            <div className="mx-auto mt-6 flex max-w-2xl items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-5">
+              <Lock size={18} className="mt-0.5 shrink-0 text-warning-500" />
+              <p className="text-sm leading-relaxed text-text-secondary">
+                Payloads are not currently HMAC-signed — verify by checking the event came from an IP/URL you
+                control and treat the payload as informational (re-fetch via the API for anything security-sensitive).
+              </p>
+            </div>
+          </div>
+        </section>
         {/* Sample request/response */}
         <section className="px-6 py-20 sm:py-24">
           <div className="mx-auto max-w-5xl">
@@ -241,8 +391,8 @@ export function DeveloperDocsPage() {
                 How API access works
               </h2>
               <p className={`${bodyClass()} mx-auto text-center`}>
-                API and webhook access is included with Business and Enterprise plans, and
-                available by request for agencies building integrations on a client's behalf.
+                API and webhook access is included with Business and Enterprise plans. Generate,
+                rotate, and revoke your own keys — no ticket, no wait.
               </p>
             </motion.div>
 
@@ -340,12 +490,12 @@ export function DeveloperDocsPage() {
                 today and what access you will need.
               </p>
               <div className="mt-9 flex justify-center">
-                <a href={`mailto:${DOCS_EMAIL}?subject=${encodeURIComponent('API access request')}`}>
+                <Link to="/dashboard/settings/api-keys">
                   <Button variant="primary" size="lg" className="shadow-glow-cta">
-                    <Mail size={18} />
-                    Request API Access
+                    <KeyRound size={18} />
+                    Generate an API Key
                   </Button>
-                </a>
+                </Link>
               </div>
               <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-white/70">
                 <ShieldCheck size={13} className="shrink-0" />
