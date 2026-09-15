@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send, Copy } from 'lucide-react';
+import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send, Copy, Eye, Images } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -13,6 +13,14 @@ import {
   QUOTE_STATUS_LABELS,
   QUOTE_STATUS_COLORS,
 } from '@/lib/quotes';
+import {
+  TieredEstimateBuilder,
+  emptyTieredDraft,
+  quoteToTieredDraft,
+  draftToQuotePayload,
+} from '@/components/quotes/TieredEstimateBuilder';
+import type { TieredEstimateDraft } from '@/components/quotes/TieredEstimateBuilder';
+import { describeEngagement, isTieredQuote } from '@/lib/estimates';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
@@ -315,6 +323,10 @@ export function QuotesPage() {
   const [quotesLoading, setQuotesLoading] = useState(true);
   const [creatingQuote, setCreatingQuote] = useState(false);
   const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
+  // Visual + tiered estimates: null = builder closed. Holds the draft being
+  // edited, and `tieredQuoteId` the row it maps to (null for a new one).
+  const [tieredDraft, setTieredDraft] = useState<TieredEstimateDraft | null>(null);
+  const [tieredQuoteId, setTieredQuoteId] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
     if (!user) return;
@@ -459,7 +471,42 @@ export function QuotesPage() {
     fetchItemizedQuotes();
     fetchAll();
   };
+  
+    const handleSaveTieredEstimate = async (draft: TieredEstimateDraft) => {
+    if (!user) return;
+    const payload = draftToQuotePayload(draft, user.id);
 
+    const { error } = tieredQuoteId
+      ? await supabase.from('quotes').update(payload).eq('id', tieredQuoteId)
+      : await supabase.from('quotes').insert(payload);
+
+    if (error) {
+      toast('Could not save the estimate', 'error');
+      return;
+    }
+
+    // Mirror into the follow-up tracker, same as the flat builder does.
+    if (draft.lead_id) {
+      const recommended = payload.options.find((o) => o.recommended) ?? payload.options[0];
+      const totalCents = recommended
+        ? calculateQuoteTotals(recommended.line_items, payload.tax_percent).totalCents
+        : 0;
+      await supabase
+        .from('leads')
+        .update({
+          stage: 'quoted',
+          quote_amount: Math.round(totalCents / 100),
+          quote_sent_at: new Date().toISOString(),
+        })
+        .eq('id', draft.lead_id);
+    }
+
+    toast('Estimate saved', 'success');
+    setTieredDraft(null);
+    setTieredQuoteId(null);
+    fetchItemizedQuotes();
+    fetchAll();
+  };
   const handleSendItemizedQuote = async (quote: Quote) => {
     const { error } = await supabase
       .from('quotes')
@@ -493,17 +540,43 @@ export function QuotesPage() {
         <div className="mb-8">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-text-primary">Itemized quotes</h2>
-            {!creatingQuote && (
-              <button
-                type="button"
-                onClick={() => setCreatingQuote(true)}
-                className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white transition-all hover:brightness-110"
-              >
-                <Plus size={14} /> New quote
-              </button>
+            {!creatingQuote && !tieredDraft && (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCreatingQuote(true)}
+                  className="focus-ring flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+                >
+                  <Plus size={14} /> Simple quote
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTieredQuoteId(null);
+                    setTieredDraft(emptyTieredDraft());
+                  }}
+                  className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white transition-all hover:brightness-110"
+                >
+                  <Images size={14} /> New visual estimate
+                </button>
+              </div>
             )}
           </div>
 
+                     {tieredDraft && user && (
+            <div className="mb-3">
+              <TieredEstimateBuilder
+                userId={user.id}
+                initial={tieredDraft}
+                leadOptions={allLeads}
+                onCancel={() => {
+                  setTieredDraft(null);
+                  setTieredQuoteId(null);
+                }}
+                onSave={handleSaveTieredEstimate}
+              />
+            </div>
+          )}
           {creatingQuote && (
             <div className="mb-3">
               <QuoteBuilderForm
@@ -555,8 +628,15 @@ export function QuotesPage() {
                         <p className="text-sm font-semibold text-text-primary">{quote.customer_name}</p>
                         <p className="text-xs text-text-secondary">
                           {formatCents(calculateQuoteTotals(quote.line_items, quote.tax_percent).totalCents)} ·{' '}
-                          {quote.line_items.length} item{quote.line_items.length === 1 ? '' : 's'}
+                          {isTieredQuote(quote)
+                            ? `${quote.options.length} options · ${quote.photos.length} photo${quote.photos.length === 1 ? '' : 's'}`
+                            : `${quote.line_items.length} item${quote.line_items.length === 1 ? '' : 's'}`}
                         </p>
+                        {describeEngagement(quote) && (
+                          <p className="mt-0.5 flex items-center gap-1 text-xs text-text-secondary/80">
+                            <Eye size={11} /> {describeEngagement(quote)}
+                          </p>
+                        )}
                       </div>
                       <span className={`rounded-full px-3 py-1 text-xs font-medium ${QUOTE_STATUS_COLORS[quote.status]}`}>
                         {QUOTE_STATUS_LABELS[quote.status]}
@@ -568,7 +648,14 @@ export function QuotesPage() {
                         <>
                           <button
                             type="button"
-                            onClick={() => setEditingQuoteId(quote.id)}
+                            onClick={() => {
+                              if (isTieredQuote(quote)) {
+                                setTieredQuoteId(quote.id);
+                                setTieredDraft(quoteToTieredDraft(quote));
+                              } else {
+                                setEditingQuoteId(quote.id);
+                              }
+                            }}
                             className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary"
                           >
                             Edit
