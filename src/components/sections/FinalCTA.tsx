@@ -57,7 +57,7 @@ export function FinalCTA() {
           className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2"
         >
           <Link
-            to="/login"
+            to="/signup"
             className="group flex flex-col justify-between rounded-2xl border border-accent bg-accent p-6 text-left shadow-glow-accent transition-transform duration-200 hover:-translate-y-0.5"
           >
             <div>
