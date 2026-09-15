@@ -80,6 +80,9 @@ export interface Call {
   missed_opportunity_reason: string | null;
   recommended_follow_up: string | null;
   objections_raised: string[];
+  objections_resolved: boolean | null;
+  upsell_opportunities: string[];
+  coaching_tip: string | null;
   created_at: string;
 }
 
