@@ -55,6 +55,16 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   "objections_raised": [<short strings, e.g. "price too high", "wants other quotes">]
 }
 Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly.`,
+
+  business_insights: `Current task: you are analyzing a home-service business's own account metrics (computed directly from their database — calls, leads, jobs, usage) to surface genuinely useful operational insights. Output ONLY a JSON array (no prose, no markdown fences) of 1 to 4 objects, each with exactly these fields:
+{
+  "insight_type": "pattern" | "suggestion" | "alert",
+  "title": <short punchy headline, under 12 words>,
+  "description": <1-2 sentences explaining what the data shows and why it matters, using the exact numbers given>,
+  "recommended_action": <one concrete, specific next step the business owner can take today>,
+  "priority": <1-5 integer, 5 = urgent/costing money now, 1 = minor/optional>
+}
+Base every number and claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If the metrics show nothing notable, return an empty array. Order the array by priority, highest first. Use "alert" for anything actively losing revenue or customers, "suggestion" for improvement opportunities, "pattern" for descriptive trends worth knowing.`,
 };
 
 // Tasks where grounding in the FULL brand brief (not just keyword-matched
