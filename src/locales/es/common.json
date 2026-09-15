@@ -8,6 +8,7 @@
     "blog": "Blog",
     "faq": "Preguntas frecuentes"
   },
+
   "cta": {
     "login": "Iniciar sesión",
     "getStarted": "Comenzar",
@@ -15,6 +16,7 @@
     "bookDemo": "Reservar una demo",
     "talkToSarah": "Habla con Sarah"
   },
+
   "footer": {
     "product": "Producto",
     "integrations": "Integraciones",
@@ -29,15 +31,33 @@
     "newsletterSuccess": "¡Listo! Revisa tu bandeja de entrada para confirmar.",
     "rightsReserved": "Todos los derechos reservados."
   },
+
   "language": {
     "switchLanguage": "Cambiar idioma"
   },
+
   "menu": {
     "open": "Abrir menú",
     "close": "Cerrar menú"
   },
+
   "aiDisclosure": {
     "chatBadge": "AI",
     "chatNotice": "Estás chateando con un asistente de IA, no con un humano."
+  },
+
+  "finalCta": {
+    "headline": "Deja de perder trabajos por el buzón de voz.",
+    "subhead": "Cada llamada que Sarah responde es un cliente que encontró una voz real, no un pitido.",
+    "getStarted": "Empezar",
+    "startTrial": "Inicia tu prueba gratuita",
+    "trialTerms": "14 días · sin tarjeta · cancela cuando quieras",
+    "createAccount": "Crear cuenta",
+    "hearFirst": "Escúchalo primero",
+    "callNow": "Llama a Sarah ahora mismo",
+    "callSubtitle": "Una llamada real en vivo — sin registro",
+    "guaranteeLive": "Activo en 15 minutos",
+    "guaranteeNoCard": "Sin tarjeta de crédito",
+    "guaranteeCancel": "Cancela cuando quieras"
   }
 }
