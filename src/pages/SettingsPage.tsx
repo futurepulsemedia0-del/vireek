@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings as SettingsIcon, ShieldCheck, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff } from 'lucide-react';
+import { Settings as SettingsIcon, ShieldCheck, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
