@@ -399,6 +399,71 @@ async function upsertCallRow(
 // BEFORE the conversation starts, instead of waiting for it to decide to
 // call the lookup_customer tool mid-call.
 // ---------------------------------------------------------------------------
+const MAX_MEMORY_PER_CUSTOMER = 20;
+const MEMORY_CATEGORIES = new Set(["preference", "property_detail", "recurring_issue", "access_info", "note"]);
+
+async function saveCustomerMemoryFact(
+  admin: SupabaseClient,
+  userId: string,
+  customerPhone: string,
+  fact: string,
+  category: string,
+  source: "ai_tool" | "auto_extracted",
+  callId: string | null,
+): Promise<void> {
+  const cleanFact = fact.trim().slice(0, 300);
+  if (!cleanFact) return;
+
+  const { data: existing } = await admin
+    .from("customer_memory")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("customer_phone", customerPhone)
+    .ilike("fact", `%${cleanFact.slice(0, 40)}%`)
+    .limit(1);
+  if (existing && existing.length > 0) return; // already noted, skip duplicate
+
+  await admin.from("customer_memory").insert({
+    user_id: userId,
+    customer_phone: customerPhone,
+    category: MEMORY_CATEGORIES.has(category) ? category : "note",
+    fact: cleanFact,
+    source,
+    call_id: callId,
+  });
+
+  const { data: allRows } = await admin
+    .from("customer_memory")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("customer_phone", customerPhone)
+    .order("created_at", { ascending: false });
+  if (allRows && allRows.length > MAX_MEMORY_PER_CUSTOMER) {
+    const staleIds = allRows.slice(MAX_MEMORY_PER_CUSTOMER).map((r) => r.id);
+    await admin.from("customer_memory").delete().in("id", staleIds);
+  }
+}
+
+async function buildCustomerMemoryContextVariable(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  callerNumber: string | null,
+): Promise<string> {
+  if (!callerNumber) return "";
+
+  const { data: memories } = await admin
+    .from("customer_memory")
+    .select("fact, category")
+    .eq("user_id", tenant.userId)
+    .eq("customer_phone", callerNumber)
+    .order("created_at", { ascending: false })
+    .limit(12);
+
+  if (!memories || memories.length === 0) return "";
+
+  const lines = memories.map((m) => `- ${m.fact}`).join("\n");
+  return `Known facts about this returning customer from prior calls (use naturally, don't recite as a list):\n${lines}`;
+}
 
 async function buildCallerContextVariable(
   admin: SupabaseClient,
@@ -549,6 +614,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   const surgeContext = buildSurgeContextVariable(tenant);
   const afterHoursContext = buildAfterHoursContextVariable(tenant, new Date());
   const recordingConsentContext = buildRecordingConsentNotice(callerNumber);
+  const customerMemoryContext = await buildCustomerMemoryContextVariable(admin, tenant, callerNumber);
 
   logEvent("assistant_request_resolved", requestId, {
     user_id: tenant.userId,
@@ -566,6 +632,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
         surge_context: surgeContext,
         after_hours_context: afterHoursContext,
         recording_consent_context: recordingConsentContext,
+        customer_memory_context: customerMemoryContext,
       },
     },
   });
@@ -1347,6 +1414,36 @@ async function toolCheckBillingStatus(
 // feature), so an unassigned job after a reschedule is meant to surface
 // on the Dispatch Board for a human to re-assign.
 // ---------------------------------------------------------------------------
+async function toolSaveCustomerMemory(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  args: Record<string, unknown>,
+  callerNumber: string | null,
+  vapiCallId: string | undefined,
+): Promise<string> {
+  if (!callerNumber) {
+    return "I don't have a phone number for this caller, so I can't save this to their record.";
+  }
+  const fact = typeof args.fact === "string" ? args.fact.trim() : null;
+  const category = typeof args.category === "string" ? args.category : "note";
+  if (!fact) {
+    return "No fact was provided to remember.";
+  }
+
+  let callId: string | null = null;
+  if (vapiCallId) {
+    const { data: callRow } = await admin
+      .from("calls")
+      .select("id")
+      .eq("user_id", tenant.userId)
+      .eq("external_id", vapiCallId)
+      .maybeSingle();
+    callId = callRow?.id ?? null;
+  }
+
+  await saveCustomerMemoryFact(admin, tenant.userId, callerNumber, fact, category, "ai_tool", callId);
+  return "Got it, I've made a note of that on their record for next time.";
+}
 
 async function toolRescheduleAppointment(
   admin: SupabaseClient,
@@ -1487,6 +1584,9 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "capture_insurance_claim":
             result = await toolCaptureInsuranceClaim(admin, tenant, args, vapiCallId, callerNumber, callerName);
+            break;
+          case "save_customer_memory":
+            result = await toolSaveCustomerMemory(admin, tenant, args, callerNumber, vapiCallId);
             break;
                       case "search_knowledge":
             result = await toolSearchKnowledge(admin, tenant, args);
@@ -1682,12 +1782,19 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
     if (transcript) {
       const intelligence = await analyzeCallIntelligence(transcript, summary);
       if (intelligence) {
-        Object.assign(patch, intelligence);
+        const { memory_facts, ...intelligenceForCallRow } = intelligence;
+        Object.assign(patch, intelligenceForCallRow);
         logEvent("call_intelligence_computed", requestId, {
           call_score: intelligence.call_score,
           sentiment: intelligence.sentiment,
           booking_outcome: intelligence.booking_outcome,
         });
+
+        if (callerNumber && memory_facts.length > 0) {
+          for (const fact of memory_facts) {
+            await saveCustomerMemoryFact(admin, tenant.userId, callerNumber, fact, "note", "auto_extracted", null);
+          }
+        }
       }
     }
   }
