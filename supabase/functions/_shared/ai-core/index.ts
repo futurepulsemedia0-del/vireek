@@ -53,10 +53,11 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   "missed_opportunity_reason": <short sentence on what was missed, or null if none>,
   "recommended_follow_up": <one concrete next action for the business owner, or null if none needed>,
 "objections_raised": [<short strings, e.g. "price too high", "wants other quotes">],
-  "memory_facts": [<short durable facts about this specific customer or their property worth remembering on future calls — e.g. "Has a dog, use the side gate", "Prefers text over phone calls", "Recurring issue with the upstairs AC unit". ONLY include facts actually stated in the transcript, never invent. Empty array if nothing durable came up.>]
+  "objections_resolved": <true if every objection above was successfully overcome by the end of the call, false if left unresolved, null if objections_raised is empty>,
+  "upsell_opportunities": [<short strings naming a SPECIFIC add-on/upgrade this caller was a good fit for but was NOT offered or booked on this call — grounded only in what they actually said, e.g. "annual maintenance plan", "duct cleaning", "water heater flush", "smart thermostat upgrade", "extended warranty". Empty array if nothing genuinely fits>],
+  "coaching_tip": <one short, concrete, actionable tip for handling the NEXT similar call better — e.g. how to answer this exact objection, or how to naturally pitch the upsell above — or null if the call was already handled well>
 }
-Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly.`,
-
+Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly. Never suggest an upsell during an emergency call or an active complaint — it would come across as tone-deaf and hurt the business's reputation.`,
   business_insights: `Current task: you are analyzing a home-service business's own account metrics (computed directly from their database — calls, leads, jobs, usage) to surface genuinely useful operational insights. Output ONLY a JSON array (no prose, no markdown fences) of 1 to 4 objects, each with exactly these fields:
 {
   "insight_type": "pattern" | "suggestion" | "alert",
