@@ -10,10 +10,18 @@ export interface PublicQuoteInfo {
   quote_id: string;
   customer_name: string;
   line_items: QuoteLineItem[];
+  options: unknown[];
+  photos: unknown[];
+  recommended_option_id: string | null;
+  selected_option_id: string | null;
+  presentation_note: string | null;
+  deposit_percent: number;
   tax_percent: number;
   status: string;
   valid_until: string | null;
   business_name: string | null;
+  financing_partner_name: string | null;
+  financing_note: string | null;
 }
 
 export function calculateQuoteTotals(lineItems: QuoteLineItem[], taxPercent: number) {
@@ -52,11 +60,20 @@ export async function fetchQuoteForToken(token: string): Promise<PublicQuoteInfo
   return data[0] as PublicQuoteInfo;
 }
 
-export async function respondToQuote(token: string, response: 'accepted' | 'declined'): Promise<boolean> {
+export async function respondToQuote(
+  token: string,
+  response: 'accepted' | 'declined',
+  optionId: string | null = null
+): Promise<boolean> {
   const { data, error } = await supabase.rpc('respond_to_quote_by_token', {
     p_token: token,
     p_response: response,
+    p_option_id: optionId,
   });
   if (error) return false;
   return Boolean(data);
+}
+
+export async function recordQuoteView(token: string): Promise<void> {
+  await supabase.rpc('record_quote_view', { p_token: token });
 }
