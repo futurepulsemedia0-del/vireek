@@ -280,6 +280,20 @@ export function PricingPage() {
     description:
       "Compare Vireek's Free, Starter, Professional, Business, and Enterprise plans, including included minutes and transparent overage rates.",
     canonical: 'https://vireek.com/pricing',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: 'Vireek AI Voice Receptionist',
+      description: 'AI voice receptionist for home service businesses — call answering, lead capture, and appointment booking.',
+      brand: { '@type': 'Brand', name: 'Vireek' },
+      offers: PRICING_PLANS.filter((p) => p.monthly !== null).map((p) => ({
+        '@type': 'Offer',
+        name: p.name,
+        price: p.monthly,
+        priceCurrency: 'USD',
+        url: 'https://vireek.com/pricing',
+      })),
+    },
   });
 
   const defaultBillingVariant = useExperiment('pricing_default_billing');
