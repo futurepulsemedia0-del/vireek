@@ -1,18 +1,20 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useSEO } from '@/lib/seo';
+import { CookieConsent } from '@/components/CookieConsent';
 import { Hero } from '@/components/sections/Hero';
+import { SocialProof } from '@/components/sections/SocialProof';
 import { HighlightBanner } from '@/components/sections/HighlightBanner';
 import { TrustBar } from '@/components/sections/TrustBar';
 import { ReviewBadges } from '@/components/sections/ReviewBadges';
 import { HowItWorks } from '@/components/sections/HowItWorks';
-import { IntegrationEcosystem } from '@/components/sections/IntegrationEcosystem';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
+import { Integrations } from '@/components/sections/Integrations';
+import { IntegrationEcosystem } from '@/components/sections/IntegrationEcosystem';
+import { Comparison } from '@/components/sections/Comparison';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
 import { FinalCTA } from '@/components/sections/FinalCTA';
-import { CookieConsent } from '@/components/CookieConsent';
-
 /**
  * Homepage — cut down to a single, six-section path: prove it works (Hero),
  * prove it's trusted (TrustBar), explain it (HowItWorks), let the visitor
@@ -34,22 +36,26 @@ export function HomePage() {
   });
 
   return (
-    <>
-      <Header />
-      <main>
-        <Hero />
-        <HighlightBanner />
-        <TrustBar />
-        <ReviewBadges />
-        <HowItWorks />
-        <IntegrationEcosystem />
-        <LiveDemo />
-        <MissedCallCalculator />
-        <PricingTeaser />
-        <FinalCTA />
-      </main>
-      <Footer />
-      <CookieConsent />
-    </>
-  );
+  <>
+    <Header />
+
+    <main>
+      <Hero />
+      <SocialProof />
+      <HighlightBanner />
+      <TrustBar />
+      <ReviewBadges />
+      <HowItWorks />
+      <LiveDemo />
+      <MissedCallCalculator />
+      <Integrations />
+      <Comparison />
+      <PricingTeaser />
+      <FinalCTA />
+    </main>
+
+    <Footer />
+    <CookieConsent />
+  </>
+);
 }
