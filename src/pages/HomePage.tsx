@@ -6,6 +6,7 @@ import { HighlightBanner } from '@/components/sections/HighlightBanner';
 import { TrustBar } from '@/components/sections/TrustBar';
 import { ReviewBadges } from '@/components/sections/ReviewBadges';
 import { HowItWorks } from '@/components/sections/HowItWorks';
+import { IntegrationEcosystem } from '@/components/sections/IntegrationEcosystem';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
@@ -41,6 +42,7 @@ export function HomePage() {
         <TrustBar />
         <ReviewBadges />
         <HowItWorks />
+        <IntegrationEcosystem />
         <LiveDemo />
         <MissedCallCalculator />
         <PricingTeaser />
