@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import type { LanguageCode } from '@/lib/i18n';
+import { LANGUAGES, type LanguageCode } from '@/lib/i18n';
 
 export interface SEOConfig {
   title: string;
@@ -8,7 +8,9 @@ export interface SEOConfig {
   /** Canonical URL for this page (without trailing slash). */
   canonical: string;
   /** og:type — defaults to "website". */
-  type?: string;
+    type?: string;
+  /** One or more schema.org objects to inject as <script type="application/ld+json">. */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const SITE_NAME = 'Vireek';
@@ -65,7 +67,7 @@ function upsertLink(rel: string, href: string): () => void {
 }
 
 /** Page-specific SEO metadata for the SPA. Restores previous values on unmount. */
-export function useSEO({ title, description, canonical, type = 'website' }: SEOConfig) {
+export function useSEO({ title, description, canonical, type = 'website', jsonLd }: SEOConfig) {
   const { language } = useAccessibility();
 
   useEffect(() => {
@@ -104,10 +106,35 @@ export function useSEO({ title, description, canonical, type = 'website' }: SEOC
         return el;
       });
 
+    // hreflang: since language-switching here is client-side (one URL
+    // serves every language, not /fa/... /ar/... paths), we self-reference
+    // the same canonical for every hreflang value plus x-default. This is
+    // the correct honest signal for this architecture ("this URL serves
+    // all these languages") — it is NOT equivalent to true per-locale URLs,
+    // which would need locale-prefixed routing to do better.
+    const hreflangEls = [...LANGUAGES.map((l) => l.code), 'x-default'].map((code) => {
+      const el = document.createElement('link');
+      el.setAttribute('rel', 'alternate');
+      el.setAttribute('hreflang', code);
+      el.setAttribute('href', canonical);
+      document.head.appendChild(el);
+      return el;
+    });
+
+    const jsonLdEls = (jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []).map((schema) => {
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify(schema);
+      document.head.appendChild(script);
+      return script;
+    });
+
     return () => {
       document.title = previousTitle;
       cleanups.forEach((fn) => fn());
       alternateEls.forEach((el) => el.remove());
+      hreflangEls.forEach((el) => el.remove());
+      jsonLdEls.forEach((el) => el.remove());
     };
-  }, [title, description, canonical, type, language]);
+  }, [title, description, canonical, type, language, jsonLd]);
 }
