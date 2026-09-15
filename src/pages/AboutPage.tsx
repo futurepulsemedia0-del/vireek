@@ -276,7 +276,7 @@ export function AboutPage() {
               className="mt-8 space-y-6 text-lg leading-8 text-text-secondary"
             >
               <p>
-                Vireek is early, and we are building with intent. The roadmap is shaped by the
+                Vireek is early, and we are building with intent. The <Link to="/roadmap" className="font-semibold text-accent hover:text-cta">roadmap</Link> is shaped by the
                 contractors who use the product and the realities of running a home-service
                 business. Our near-term focus is on deeper integrations with the field-service
                 software that contractors already rely on — so that a call answered by Sarah flows
