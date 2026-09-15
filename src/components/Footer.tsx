@@ -1,12 +1,22 @@
 
 
 import { useState, useRef, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, Loader2, ShieldCheck, Sparkles, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SARAH_PHONE } from '@/lib/site';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+
+const FOOTER_COLUMN_TITLE_KEYS: Record<string, string> = {
+  Product: 'footer.product',
+  Integrations: 'footer.integrations',
+  Industries: 'footer.industries',
+  Resources: 'footer.resources',
+  Company: 'footer.company',
+  Legal: 'footer.legal',
+};
 
 // Sarah's number, formatted for display next to the tel: link.
 // (Same number as SARAH_PHONE — already public elsewhere on the site.)
