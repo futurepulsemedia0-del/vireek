@@ -36,7 +36,7 @@ export function CompetitorPage() {
   useSEO({
     title: competitor?.seoTitle ?? 'Compare Vireek | Vireek',
     description: competitor?.seoDescription ?? 'Compare Vireek, the AI voice receptionist for home-service businesses, to other tools.',
-    canonical: `https://vireek.com/compare/${competitor?.slug ?? ''}`,
+        canonical: `https://vireek.com/compare/${slug ?? ''}`,
   });
 
   if (!competitor) {
