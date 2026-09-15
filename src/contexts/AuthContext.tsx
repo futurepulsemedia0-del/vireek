@@ -12,6 +12,7 @@ import { supabase, Profile, TeamMember } from '@/lib/supabase';
 
 export interface UserPermissions {
   can_view_billing: boolean;
+  can_manage_numbers: boolean;
   can_manage_team: boolean;
   can_edit_business_profile: boolean;
   can_view_all_jobs: boolean;
@@ -32,6 +33,7 @@ interface AuthContextValue {
 
 const OWNER_PERMISSIONS: UserPermissions = {
   can_view_billing: true,
+  can_manage_numbers: boolean;
   can_manage_team: true,
   can_edit_business_profile: true,
   can_view_all_jobs: true,
@@ -167,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ? OWNER_PERMISSIONS
     : teamMember?.permissions ?? {
         can_view_billing: false,
+        can_manage_numbers: boolean;
         can_manage_team: false,
         can_edit_business_profile: false,
         can_view_all_jobs: false,
