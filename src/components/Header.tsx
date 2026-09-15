@@ -326,7 +326,7 @@ export function Header() {
                 {t('cta.login')}
               </Link>
               <Link
-                to="/login"
+                to="/signup"
                 className="focus-ring group relative hidden h-9 items-center gap-1.5 overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-glow-accent active:scale-[0.97] md:flex"
               >
                 <span className="relative z-10">{t('cta.startFreeTrial')}</span>
@@ -451,7 +451,7 @@ export function Header() {
                   {t('cta.login')}
                 </Link>
                 <Link
-                  to="/login"
+                  to="/signup"
                   onClick={() => setDrawerOpen(false)}
                   className="focus-ring group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white shadow-sm transition-all hover:shadow-glow-accent active:scale-[0.98]"
                 >
