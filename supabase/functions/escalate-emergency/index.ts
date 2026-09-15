@@ -18,7 +18,7 @@
 //   supabase functions deploy escalate-emergency
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-
+import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -183,15 +183,23 @@ Deno.serve(async (req: Request) => {
     }
 
     /*
-      Future production integration:
-
-      1. Twilio SMS
-      2. Twilio Voice call
-      3. Vapi outbound emergency call
-
-      This section intentionally stays isolated so external providers
-      cannot break the emergency database workflow above.
+      SMS integration — gated by A2P 10DLC approval + opt-out list.
+      See _shared/messaging/sendSms.ts and _shared/compliance/a2pGate.ts.
+      Kept isolated so a Twilio failure never breaks the emergency DB
+      workflow above.
     */
+    if (resolvedContactPhone) {
+      const smsResult = await sendCompliantSms(
+        admin,
+        updatedCall.user_id,
+        resolvedContactPhone,
+        `EMERGENCY: ${payload.caller_phone ?? 'Unknown caller'} — ${payload.issue_description ?? payload.summary ?? 'no details'}. Reply for details.`,
+      );
+      if (!smsResult.ok) {
+        console.warn(JSON.stringify({ event: "emergency_sms_not_sent", requestId, reason: smsResult.reason, detail: smsResult.detail }));
+      }
+    }
+
     console.log(
       JSON.stringify({
         event: "emergency_ready_for_provider",
