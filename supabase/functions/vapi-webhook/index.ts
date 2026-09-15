@@ -532,6 +532,7 @@ async function buildCustomerTypeContextVariable(
 // could drop the call instead of just skipping personalization.
 // ---------------------------------------------------------------------------
 
+import { buildRecordingConsentNotice } from "../_shared/compliance/recordingConsent.ts";
 async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   const tenant = await resolveTenant(admin, message, requestId);
 
@@ -545,6 +546,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   const customerTypeContext = await buildCustomerTypeContextVariable(admin, tenant, callerNumber);
   const surgeContext = buildSurgeContextVariable(tenant);
   const afterHoursContext = buildAfterHoursContextVariable(tenant, new Date());
+  const recordingConsentContext = buildRecordingConsentNotice(callerNumber);
 
   logEvent("assistant_request_resolved", requestId, {
     user_id: tenant.userId,
@@ -561,6 +563,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
         customer_type_context: customerTypeContext,
         surge_context: surgeContext,
         after_hours_context: afterHoursContext,
+        recording_consent_context: recordingConsentContext,
       },
     },
   });
