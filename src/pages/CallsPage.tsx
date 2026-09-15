@@ -316,6 +316,41 @@ function CallDetailPanel({
           </div>
         )}
 
+                 {/* Call Intelligence */}
+        {call.call_score !== null && (
+          <div className="space-y-3 rounded-xl border border-border bg-bg-primary p-4">
+            <p className="text-xs font-medium text-text-secondary">Call Intelligence</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-2xl font-bold text-text-primary">{call.call_score}<span className="text-sm text-text-secondary">/100</span></p>
+                <p className="text-xs text-text-secondary">Call Score</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-text-primary">{call.lead_score}<span className="text-sm text-text-secondary">/100</span></p>
+                <p className="text-xs text-text-secondary">Lead Score</p>
+              </div>
+            </div>
+            {call.intent && (
+              <p className="text-sm text-text-primary"><span className="text-text-secondary">Intent:</span> {call.intent.replace(/_/g, ' ')}</p>
+            )}
+            {call.booking_outcome && call.booking_outcome !== 'not_applicable' && (
+              <p className="text-sm text-text-primary"><span className="text-text-secondary">Outcome:</span> {call.booking_outcome.replace(/_/g, ' ')}</p>
+            )}
+            {call.objections_raised?.length > 0 && (
+              <p className="text-sm text-text-primary"><span className="text-text-secondary">Objections:</span> {call.objections_raised.join(', ')}</p>
+            )}
+            {call.missed_opportunity_reason && (
+              <div className="rounded-lg bg-warning-500/10 p-3 text-sm text-warning-500">
+                <strong>Missed opportunity:</strong> {call.missed_opportunity_reason}
+              </div>
+            )}
+            {call.recommended_follow_up && (
+              <div className="rounded-lg bg-accent/10 p-3 text-sm text-accent">
+                <strong>Recommended follow-up:</strong> {call.recommended_follow_up}
+              </div>
+            )}
+          </div>
+        )}
         {/* AI interaction satisfaction (NPS/CSAT) */}
         <CallSatisfactionWidget callId={call.id} userId={call.user_id} />
 
