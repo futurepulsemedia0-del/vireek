@@ -96,6 +96,11 @@ function InsightCard({
           </span>
         </div>
         <p className="mt-1 text-sm leading-relaxed text-text-secondary">{insight.description}</p>
+        {insight.recommended_action && (
+          <p className="mt-2 rounded-lg bg-bg-tertiary/60 px-3 py-2 text-xs font-medium text-text-primary">
+            → {insight.recommended_action}
+          </p>
+        )}
         <p className="mt-2 text-xs text-text-secondary/60">{formatTimeAgo(insight.created_at)}</p>
       </div>
       <button
@@ -135,7 +140,10 @@ export function InsightsPage() {
         .limit(10);
 
       if (error) throw error;
-      if (data) setInsights(data as AiInsight[]);
+      if (data) {
+        const sorted = [...(data as AiInsight[])].sort((a, b) => b.priority - a.priority);
+        setInsights(sorted);
+      }
     } catch {
       // empty state
     } finally {
