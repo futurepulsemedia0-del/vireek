@@ -337,6 +337,9 @@ export interface AiInsight {
   title: string;
   description: string;
   is_dismissed: boolean;
+  priority: number;
+  recommended_action: string | null;
+  metric_snapshot: Record<string, unknown> | null;
   created_at: string;
 }
 
