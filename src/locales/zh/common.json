@@ -1,3 +1,4 @@
+```json
 {
   "nav": {
     "features": "功能",
@@ -39,5 +40,20 @@
   "aiDisclosure": {
     "chatBadge": "AI",
     "chatNotice": "您正在与AI助手聊天，而非真人。"
+  },
+  "finalCta": {
+    "headline": "别再因为语音信箱错失订单了。",
+    "subhead": "Sarah 接听的每一通电话，都是一位听到真人声音而非提示音的客户。",
+    "getStarted": "立即开始",
+    "startTrial": "开始免费试用",
+    "trialTerms": "14 天 · 无需信用卡 · 随时取消",
+    "createAccount": "创建账户",
+    "hearFirst": "先听听看",
+    "callNow": "现在就给 Sarah 打电话",
+    "callSubtitle": "真实的实时通话 — 无需注册",
+    "guaranteeLive": "15 分钟内上线",
+    "guaranteeNoCard": "无需信用卡",
+    "guaranteeCancel": "随时取消"
   }
 }
+```
