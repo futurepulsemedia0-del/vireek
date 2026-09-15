@@ -4,5 +4,38 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    },
+    {
+      "source": "/((?!badge).*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        {
+          "key": "Permissions-Policy",
+          "value": "microphone=(self), camera=(), geolocation=(), payment=(), usb=(), midi=(), magnetometer=(), gyroscope=(), interest-cohort=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' https://www.googletagmanager.com 'sha256-Xma8oZkv3oTOyj4uOAMj/doQjGzBSPNrIbPTV3hNkE0=' 'sha256-yevTU9NtiNG1owfR3ianAPmUdvHSRwmUTTeIsSViuf8=' 'sha256-uoAapF/Ia2EsEcZoPqnVQy/4ZIL9ksWcM1Pl2lnDqos='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; manifest-src 'self'; connect-src 'self' https://tagpfcwwxnmsmjneciqh.supabase.co wss://tagpfcwwxnmsmjneciqh.supabase.co https://api.vapi.ai wss://api.vapi.ai https://*.daily.co wss://*.daily.co https://*.dailywebrtc.com https://*.dailywebrtc.net https://*.pluot.blue https://*.banuba.cloud https://www.google-analytics.com https://analytics.google.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io; frame-src 'self' https://*.daily.co; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/badge",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors *"
+        }
+      ]
+    }
   ]
 }
