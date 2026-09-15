@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { analyzeBusinessInsights, type BusinessInsight } from "../_shared/ai-core/businessInsights.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,6 +11,8 @@ interface InsightRow {
   insight_type: "pattern" | "suggestion" | "alert";
   title: string;
   description: string;
+  recommended_action: string | null;
+  priority: number;
 }
 
 interface CallRow {
@@ -17,6 +20,7 @@ interface CallRow {
   status: string | null;
   call_datetime: string;
   caller_name: string | null;
+  sentiment: "positive" | "neutral" | "negative" | null;
 }
 
 interface LeadRow {
@@ -26,6 +30,190 @@ interface LeadRow {
 interface JobRow {
   job_status: string | null;
   invoice_status: string | null;
+  invoice_amount: number | null;
+}
+
+// ---------------------------------------------------------------------
+// Deterministic metric computation. This is intentionally the ONLY place
+// that touches raw rows and does arithmetic — the AI layer below only
+// ever reasons over the numbers this produces, so it can never invent a
+// statistic that isn't real. Kept as small, named helpers so each metric
+// is easy to audit independently.
+// ---------------------------------------------------------------------
+
+function computeEmergencySpike(calls: CallRow[]) {
+  if (calls.length < 10) return null;
+  const emergencyCalls = calls.filter((c) => c.is_emergency);
+  if (emergencyCalls.length < 3) return null;
+  const dayCount: Record<string, number> = {};
+  emergencyCalls.forEach((c) => {
+    const day = new Date(c.call_datetime).toLocaleDateString("en-US", { weekday: "long" });
+    dayCount[day] = (dayCount[day] ?? 0) + 1;
+  });
+  const peakDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0];
+  if (!peakDay || peakDay[1] < 2) return null;
+  return {
+    peak_day: peakDay[0],
+    peak_day_count: peakDay[1],
+    total_emergency_calls: emergencyCalls.length,
+    peak_day_pct: Math.round((peakDay[1] / emergencyCalls.length) * 100),
+  };
+}
+
+function computeMissedCallRate(calls: CallRow[]) {
+  if (calls.length < 8) return null;
+  const missedCalls = calls.filter((c) => c.status === "missed");
+  if (missedCalls.length < 2) return null;
+  const overallMissedRate = Math.round((missedCalls.length / calls.length) * 100);
+
+  const serviceMissed: Record<string, { total: number; missed: number }> = {};
+  calls.forEach((c) => {
+    const key = c.caller_name ?? "Unknown";
+    if (!serviceMissed[key]) serviceMissed[key] = { total: 0, missed: 0 };
+    serviceMissed[key].total++;
+    if (c.status === "missed") serviceMissed[key].missed++;
+  });
+  const worstCaller = Object.entries(serviceMissed)
+    .filter(([, v]) => v.total >= 2 && v.missed / v.total > 0.5)
+    .sort((a, b) => b[1].missed - a[1].missed)[0];
+
+  return {
+    overall_missed_rate_pct: overallMissedRate,
+    total_calls: calls.length,
+    total_missed: missedCalls.length,
+    repeat_missed_caller: worstCaller
+      ? { name: worstCaller[0], missed: worstCaller[1].missed, total: worstCaller[1].total }
+      : null,
+  };
+}
+
+function computeStalledPipeline(leads: LeadRow[]) {
+  if (leads.length < 5) return null;
+  const stageCounts: Record<string, number> = {};
+  leads.forEach((l) => {
+    stageCounts[l.stage] = (stageCounts[l.stage] ?? 0) + 1;
+  });
+  const activeStages = ["new", "contacted", "quoted"];
+  const stuckStage = activeStages
+    .map((s) => ({ stage: s, count: stageCounts[s] ?? 0 }))
+    .sort((a, b) => b.count - a.count)[0];
+  if (!stuckStage || stuckStage.count < 3) return null;
+  return {
+    total_leads: leads.length,
+    stalled_stage: stuckStage.stage,
+    stalled_count: stuckStage.count,
+    stalled_pct: Math.round((stuckStage.count / leads.length) * 100),
+    stage_breakdown: stageCounts,
+  };
+}
+
+function computeUsagePressure(profile: { minutes_used_this_month: number; minutes_included: number } | null) {
+  if (!profile || profile.minutes_included <= 0) return null;
+  const pct = Math.round((profile.minutes_used_this_month / profile.minutes_included) * 100);
+  if (pct < 75) return null;
+  return {
+    minutes_used: profile.minutes_used_this_month,
+    minutes_included: profile.minutes_included,
+    usage_pct: pct,
+    minutes_remaining: Math.max(0, profile.minutes_included - profile.minutes_used_this_month),
+  };
+}
+
+function computeUnsentInvoices(jobs: JobRow[]) {
+  const completedNoInvoice = jobs.filter((j) => j.job_status === "completed" && j.invoice_status === "not_sent");
+  if (completedNoInvoice.length < 2) return null;
+  return {
+    count: completedNoInvoice.length,
+    estimated_value_cents: completedNoInvoice.reduce((sum, j) => sum + (j.invoice_amount ?? 0), 0),
+  };
+}
+
+function computeSentimentBreakdown(calls: CallRow[]) {
+  const withSentiment = calls.filter((c) => c.sentiment !== null);
+  if (withSentiment.length < 5) return null;
+  const counts = { positive: 0, neutral: 0, negative: 0 };
+  withSentiment.forEach((c) => {
+    if (c.sentiment) counts[c.sentiment]++;
+  });
+  return { ...counts, total_analyzed: withSentiment.length };
+}
+
+// ---------------------------------------------------------------------
+// Rule-based fallback — used ONLY if the AI layer is unavailable or
+// returns nothing, so the feature degrades gracefully instead of going
+// silent. Turns the same metrics straight into plain-language insights.
+// ---------------------------------------------------------------------
+
+function buildFallbackInsights(metrics: Record<string, unknown>): InsightRow[] {
+  const insights: InsightRow[] = [];
+
+  const spike = metrics.emergency_call_spike as ReturnType<typeof computeEmergencySpike>;
+  if (spike) {
+    insights.push({
+      insight_type: "pattern",
+      title: `Emergency calls spike on ${spike.peak_day}s`,
+      description: `${spike.peak_day_pct}% of your recent emergency calls fall on ${spike.peak_day}s (${spike.peak_day_count} of ${spike.total_emergency_calls}).`,
+      recommended_action: "Consider adding extra technician coverage or adjusting your on-call schedule for that day.",
+      priority: 3,
+    });
+  }
+
+  const missed = metrics.missed_call_rate as ReturnType<typeof computeMissedCallRate>;
+  if (missed) {
+    if (missed.repeat_missed_caller) {
+      const c = missed.repeat_missed_caller;
+      insights.push({
+        insight_type: "alert",
+        title: `High missed-call rate from ${c.name}`,
+        description: `${Math.round((c.missed / c.total) * 100)}% of calls from ${c.name} were missed (${c.missed} of ${c.total}).`,
+        recommended_action: "Schedule a callback or adjust your availability for this caller.",
+        priority: 4,
+      });
+    } else if (missed.overall_missed_rate_pct > 20) {
+      insights.push({
+        insight_type: "alert",
+        title: `Overall missed-call rate is ${missed.overall_missed_rate_pct}%`,
+        description: `You're missing ${missed.overall_missed_rate_pct}% of incoming calls (${missed.total_missed} of ${missed.total_calls}).`,
+        recommended_action: "Consider extending business hours or enabling after-hours forwarding.",
+        priority: 4,
+      });
+    }
+  }
+
+  const stalled = metrics.stalled_pipeline as ReturnType<typeof computeStalledPipeline>;
+  if (stalled) {
+    insights.push({
+      insight_type: "suggestion",
+      title: `Leads stalling at "${stalled.stalled_stage}" stage`,
+      description: `${stalled.stalled_count} leads (${stalled.stalled_pct}% of your pipeline) are stuck in "${stalled.stalled_stage}".`,
+      recommended_action: "Follow up with these leads or review your quoting process to move them forward.",
+      priority: 3,
+    });
+  }
+
+  const usage = metrics.usage_pressure as ReturnType<typeof computeUsagePressure>;
+  if (usage) {
+    insights.push({
+      insight_type: usage.usage_pct >= 90 ? "alert" : "suggestion",
+      title: usage.usage_pct >= 90 ? "Minutes usage near plan limit" : "Minutes usage trending high",
+      description: `You've used ${usage.minutes_used} of ${usage.minutes_included} included minutes (${usage.usage_pct}%). ${usage.minutes_remaining} minutes remaining this month.`,
+      recommended_action: usage.usage_pct >= 90 ? "Upgrade your plan to avoid interruptions." : "Monitor usage to avoid hitting the limit.",
+      priority: usage.usage_pct >= 90 ? 5 : 3,
+    });
+  }
+
+  const invoices = metrics.unsent_invoices as ReturnType<typeof computeUnsentInvoices>;
+  if (invoices) {
+    insights.push({
+      insight_type: "suggestion",
+      title: `${invoices.count} completed jobs without invoices`,
+      description: `You have ${invoices.count} completed jobs with invoices not yet sent, representing outstanding revenue.`,
+      recommended_action: "Send these invoices now to collect payment sooner.",
+      priority: 4,
+    });
+  }
+
+  return insights.slice(0, 4);
 }
 
 Deno.serve(async (req: Request) => {
@@ -49,7 +237,6 @@ Deno.serve(async (req: Request) => {
       auth: { persistSession: false },
     });
 
-    // Fetch recent data: last 30 days of calls, leads, jobs, and profile
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const thirtyDaysIso = thirtyDaysAgo.toISOString();
@@ -66,130 +253,39 @@ Deno.serve(async (req: Request) => {
     const jobs = (jobsRes.data ?? []) as JobRow[];
     const profile = profileRes.data;
 
-    const insights: InsightRow[] = [];
+    // Build the ground-truth metric snapshot. Every field is either null
+    // (nothing notable) or a real computed object — never a guess.
+    const metrics: Record<string, unknown> = {};
+    const emergencySpike = computeEmergencySpike(calls);
+    const missedCallRate = computeMissedCallRate(calls);
+    const stalledPipeline = computeStalledPipeline(leads);
+    const usagePressure = computeUsagePressure(profile);
+    const unsentInvoices = computeUnsentInvoices(jobs);
+    const sentimentBreakdown = computeSentimentBreakdown(calls);
 
-    // -------------------------------------------------------
-    // 1. Emergency call spike on a specific day of week
-    // -------------------------------------------------------
-    if (calls.length >= 10) {
-      const emergencyCalls = calls.filter((c) => c.is_emergency);
-      if (emergencyCalls.length >= 3) {
-        const dayCount: Record<string, number> = {};
-        emergencyCalls.forEach((c) => {
-          const day = new Date(c.call_datetime).toLocaleDateString("en-US", { weekday: "long" });
-          dayCount[day] = (dayCount[day] ?? 0) + 1;
-        });
-        const peakDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0];
-        if (peakDay && peakDay[1] >= 2) {
-          const totalEmergencies = emergencyCalls.length;
-          const pct = Math.round((peakDay[1] / totalEmergencies) * 100);
-          insights.push({
-            insight_type: "pattern",
-            title: `Emergency calls spike on ${peakDay[0]}s`,
-            description: `${pct}% of your recent emergency calls fall on ${peakDay[0]}s (${peakDay[1]} of ${totalEmergencies}). Consider adding extra technician coverage or adjusting your on-call schedule for that day.`,
-          });
-        }
+    if (emergencySpike) metrics.emergency_call_spike = emergencySpike;
+    if (missedCallRate) metrics.missed_call_rate = missedCallRate;
+    if (stalledPipeline) metrics.stalled_pipeline = stalledPipeline;
+    if (usagePressure) metrics.usage_pressure = usagePressure;
+    if (unsentInvoices) metrics.unsent_invoices = unsentInvoices;
+    if (sentimentBreakdown) metrics.call_sentiment_breakdown = sentimentBreakdown;
+
+    let insights: InsightRow[] = [];
+
+    if (Object.keys(metrics).length > 0) {
+      // Real AI layer: let the model reason over the grounded metrics and
+      // produce prioritized, narrative insights with a concrete action.
+      const aiInsights: BusinessInsight[] = await analyzeBusinessInsights(metrics);
+      if (aiInsights.length > 0) {
+        insights = aiInsights;
+      } else {
+        // AI unavailable or returned nothing usable — degrade gracefully
+        // to the deterministic rule-based version rather than going silent.
+        insights = buildFallbackInsights(metrics);
       }
     }
 
-    // -------------------------------------------------------
-    // 2. High missed-call rate for a specific service type
-    // -------------------------------------------------------
-    if (calls.length >= 8) {
-      const missedCalls = calls.filter((c) => c.status === "missed");
-      if (missedCalls.length >= 2) {
-        const overallMissedRate = missedCalls.length / calls.length;
-        // Group by caller_name or summary keywords as a proxy for service type
-        const serviceMissed: Record<string, { total: number; missed: number }> = {};
-        calls.forEach((c) => {
-          const key = c.caller_name ?? "Unknown";
-          if (!serviceMissed[key]) serviceMissed[key] = { total: 0, missed: 0 };
-          serviceMissed[key].total++;
-          if (c.status === "missed") serviceMissed[key].missed++;
-        });
-        // Find callers with high missed rate (at least 2 calls, >50% missed)
-        const highMissCallers = Object.entries(serviceMissed)
-          .filter(([, v]) => v.total >= 2 && v.missed / v.total > 0.5)
-          .sort((a, b) => b[1].missed - a[1].missed);
-        if (highMissCallers.length > 0) {
-          const top = highMissCallers[0];
-          const rate = Math.round((top[1].missed / top[1].total) * 100);
-          insights.push({
-            insight_type: "alert",
-            title: `High missed-call rate from ${top[0]}`,
-            description: `${rate}% of calls from ${top[0]} were missed (${top[1].missed} of ${top[1].total}). This caller may need a follow-up — consider scheduling a callback or adjusting your availability.`,
-          });
-        } else if (overallMissedRate > 0.2) {
-          const pct = Math.round(overallMissedRate * 100);
-          insights.push({
-            insight_type: "alert",
-            title: `Overall missed-call rate is ${pct}%`,
-            description: `You're missing ${pct}% of incoming calls. Each missed call is a potential lost customer. Consider extending your business hours or enabling after-hours forwarding.`,
-          });
-        }
-      }
-    }
-
-    // -------------------------------------------------------
-    // 3. Lead pipeline stalling at a specific stage
-    // -------------------------------------------------------
-    if (leads.length >= 5) {
-      const stageCounts: Record<string, number> = {};
-      leads.forEach((l) => {
-        stageCounts[l.stage] = (stageCounts[l.stage] ?? 0) + 1;
-      });
-      const stages = ["new", "contacted", "quoted", "won", "lost"];
-      // Find the stage with the most leads stuck (excluding won/lost)
-      const activeStages = stages.filter((s) => s !== "won" && s !== "lost");
-      const stuckStage = activeStages
-        .map((s) => ({ stage: s, count: stageCounts[s] ?? 0 }))
-        .sort((a, b) => b.count - a.count)[0];
-      if (stuckStage && stuckStage.count >= 3) {
-        const pct = Math.round((stuckStage.count / leads.length) * 100);
-        insights.push({
-          insight_type: "suggestion",
-          title: `Leads stalling at "${stuckStage.stage}" stage`,
-          description: `${stuckStage.count} leads (${pct}% of your pipeline) are stuck in the "${stuckStage.stage}" stage. Consider following up with these leads or reviewing your quoting process to move them forward.`,
-        });
-      }
-    }
-
-    // -------------------------------------------------------
-    // 4. Minutes usage trending toward plan limit
-    // -------------------------------------------------------
-    if (profile && profile.minutes_used_this_month !== null && profile.minutes_included !== null) {
-      const used = profile.minutes_used_this_month;
-      const included = profile.minutes_included;
-      const pct = included > 0 ? (used / included) * 100 : 0;
-      if (pct >= 75) {
-        const remaining = Math.max(0, included - used);
-        insights.push({
-          insight_type: pct >= 90 ? "alert" : "suggestion",
-          title: pct >= 90 ? "Minutes usage near plan limit" : "Minutes usage trending high",
-          description: `You've used ${used} of ${included} included minutes (${Math.round(pct)}%). ${remaining} minutes remaining this month. ${pct >= 90 ? "Consider upgrading your plan to avoid interruptions." : "Monitor your usage to avoid hitting the limit."}`,
-        });
-      }
-    }
-
-    // -------------------------------------------------------
-    // 5. Jobs completed but invoices not sent
-    // -------------------------------------------------------
-    if (jobs.length >= 3) {
-      const completedNoInvoice = jobs.filter(
-        (j) => j.job_status === "completed" && j.invoice_status === "not_sent",
-      );
-      if (completedNoInvoice.length >= 2) {
-        insights.push({
-          insight_type: "suggestion",
-          title: `${completedNoInvoice.length} completed jobs without invoices`,
-          description: `You have ${completedNoInvoice.length} completed jobs with invoices not yet sent. Send these invoices to collect payment sooner — each one represents outstanding revenue.`,
-        });
-      }
-    }
-
-    // -------------------------------------------------------
-    // Deduplicate: check if identical insights already exist
-    // -------------------------------------------------------
+    // Deduplicate against insights already shown and not dismissed.
     let newInsights: InsightRow[] = [];
     if (insights.length > 0) {
       const { data: existing } = await supabase
@@ -204,13 +300,18 @@ Deno.serve(async (req: Request) => {
       newInsights = insights.filter((i) => !existingTitles.has(i.title));
     }
 
-    // -------------------------------------------------------
-    // Insert new insights (cap at 4 to stay sparse)
-    // -------------------------------------------------------
     const toInsert = newInsights.slice(0, 4);
     let generated = 0;
     if (toInsert.length > 0) {
-      const rows = toInsert.map((i) => ({ ...i, user_id }));
+      const rows = toInsert.map((i) => ({
+        user_id,
+        insight_type: i.insight_type,
+        title: i.title,
+        description: i.description,
+        recommended_action: i.recommended_action,
+        priority: i.priority,
+        metric_snapshot: metrics,
+      }));
       const { error: insertError } = await supabase.from("ai_insights").insert(rows);
       if (insertError) throw insertError;
       generated = toInsert.length;
