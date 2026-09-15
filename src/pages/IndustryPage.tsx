@@ -13,45 +13,11 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { getIndustryBySlug, INDUSTRIES } from '@/lib/industries';
+import { useSEO } from '@/lib/seo';
 
 /* ------------------------------------------------------------------ */
 /*  SEO                                                                */
 /* ------------------------------------------------------------------ */
-
-function SEO({ name, audience, tagline }: { name: string; audience: string; tagline: string }) {
-  useEffect(() => {
-    const title = `AI Receptionist for ${name} ${name === 'HVAC' ? 'Companies' : ''} | Vireek`.replace(/\s+/g, ' ').trim();
-    const description = `${tagline} Vireek answers every call, books appointments, and captures leads for ${audience} — 24/7, no missed calls.`;
-    const previousTitle = document.title;
-
-    const upsertMeta = (name_: string, content: string) => {
-      let meta = document.querySelector<HTMLMetaElement>(`meta[name="${name_}"]`);
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', name_);
-        document.head.appendChild(meta);
-      }
-      const previous = meta.getAttribute('content');
-      meta.setAttribute('content', content);
-      return () => {
-        if (previous === null) meta?.remove();
-        else meta?.setAttribute('content', previous);
-      };
-    };
-
-    document.title = title;
-    const cleanupDescription = upsertMeta('description', description);
-    const cleanupRobots = upsertMeta('robots', 'index, follow');
-
-    return () => {
-      document.title = previousTitle;
-      cleanupDescription();
-      cleanupRobots();
-    };
-  }, [name, audience, tagline]);
-
-  return null;
-}
 
 /* ------------------------------------------------------------------ */
 /*  Workflow steps                                                     */
@@ -87,9 +53,42 @@ export function IndustryPage() {
   const { name, audience, tagline, painPoints, capabilities, faq, icon: Icon, terms } = industry;
   const otherIndustries = INDUSTRIES.filter((i) => i.slug !== industry.slug);
 
+  const title = `AI Receptionist for ${name}${name === 'HVAC' ? ' Companies' : ''} | Vireek`.replace(/\s+/g, ' ').trim();
+  const description = `${tagline} Vireek answers every call, books appointments, and captures leads for ${audience} — 24/7, no missed calls.`;
+  const canonical = `https://vireek.com/industries/${industry.slug}`;
+
+  useSEO({
+    title,
+    description,
+    canonical,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vireek.com/' },
+          { '@type': 'ListItem', position: 2, name: 'Industries', item: 'https://vireek.com/#industries' },
+          { '@type': 'ListItem', position: 3, name, item: canonical },
+        ],
+      },
+      ...(faq.length > 0
+        ? [
+            {
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: faq.map((item) => ({
+                '@type': 'Question',
+                name: item.q,
+                acceptedAnswer: { '@type': 'Answer', text: item.a },
+              })),
+            },
+          ]
+        : []),
+    ],
+  });
+
   return (
     <>
-      <SEO name={name} audience={audience} tagline={tagline} />
       <Header />
       <main className="min-h-screen overflow-hidden bg-bg-primary pt-20 sm:pt-24">
         {/* Hero */}
