@@ -32,7 +32,8 @@ const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
 const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ default: m.InsightsPage })));
-const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ default: m.QuotesPage })));
+const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ default: m.QuotesPage })));|
+const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m) => ({ default: m.KnowledgeBasePage })));
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
@@ -388,6 +389,14 @@ function App() {
           }
         />
         <Route path="/quote/:token" element={<QuoteAcceptPage />} />
+                <Route
+          path="/dashboard/knowledge"
+          element={
+            <ProtectedRoute>
+              <KnowledgeBasePage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/dispatch"
           element={
