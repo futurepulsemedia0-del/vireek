@@ -52,7 +52,8 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   "booking_outcome": "booked" | "not_booked" | "already_scheduled" | "not_applicable",
   "missed_opportunity_reason": <short sentence on what was missed, or null if none>,
   "recommended_follow_up": <one concrete next action for the business owner, or null if none needed>,
-  "objections_raised": [<short strings, e.g. "price too high", "wants other quotes">]
+"objections_raised": [<short strings, e.g. "price too high", "wants other quotes">],
+  "memory_facts": [<short durable facts about this specific customer or their property worth remembering on future calls — e.g. "Has a dog, use the side gate", "Prefers text over phone calls", "Recurring issue with the upstairs AC unit". ONLY include facts actually stated in the transcript, never invent. Empty array if nothing durable came up.>]
 }
 Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly.`,
 
