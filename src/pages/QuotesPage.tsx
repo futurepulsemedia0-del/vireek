@@ -1,3 +1,5 @@
+import { uploadEstimatePhoto, getVisualEstimate, severityLabel, MAX_ESTIMATE_PHOTOS } from '@/lib/visualEstimate';
+import { useAuth } from '@/contexts/AuthContext';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send, Copy, Eye, Images } from 'lucide-react';
@@ -121,6 +123,9 @@ interface QuoteFormState {
   tax_percent: string;
   valid_until: string;
   line_items: QuoteLineItem[];
+  ai_generated: boolean;
+  ai_detected_issue: string | null;
+  source_photo_paths: string[];
 }
 
 const EMPTY_FORM: QuoteFormState = {
@@ -131,7 +136,97 @@ const EMPTY_FORM: QuoteFormState = {
   tax_percent: '0',
   valid_until: '',
   line_items: [{ ...EMPTY_LINE_ITEM }],
+  ai_generated: false,
+  ai_detected_issue: null,
+  source_photo_paths: [],
 };
+
+function PhotoEstimatePanel({ onResult }: { onResult: (r: { line_items: QuoteLineItem[]; detected_issue: string; severity: string; photoPaths: string[] }) => void }) {
+  const { user } = useAuth();
+  const [files, setFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const addFiles = (list: FileList | null) => {
+    if (!list) return;
+    setError(null);
+    setFiles((prev) => [...prev, ...Array.from(list)].slice(0, MAX_ESTIMATE_PHOTOS));
+  };
+  const removeFile = (i: number) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
+
+  const handleEstimate = async () => {
+    if (!user || files.length === 0) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const paths = await Promise.all(files.map((f) => uploadEstimatePhoto(user.id, f)));
+      const result = await getVisualEstimate(paths);
+      onResult({
+        line_items: result.line_items,
+        detected_issue: result.detected_issue,
+        severity: result.severity,
+        photoPaths: paths,
+      });
+      setFiles([]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not generate an estimate from this photo.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mb-4 rounded-xl border border-dashed border-accent/40 bg-accent/5 p-4">
+      <div className="flex items-center gap-2">
+        <Sparkles size={16} className="text-accent" />
+        <p className="text-sm font-semibold text-text-primary">Visual AI Estimating</p>
+        <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[0.65rem] font-medium text-accent">Beta</span>
+      </div>
+      <p className="mt-1 text-xs text-text-secondary">
+        Upload up to {MAX_ESTIMATE_PHOTOS} photos of the issue — the AI drafts line items below for you to review.
+      </p>
+
+      {files.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {files.map((f, i) => (
+            <span key={i} className="flex items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-2 py-1 text-xs text-text-secondary">
+              {f.name.length > 18 ? `${f.name.slice(0, 15)}…` : f.name}
+              <button type="button" onClick={() => removeFile(i)} className="text-text-secondary hover:text-danger">
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-3 flex items-center gap-2">
+        <label className="focus-ring flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:border-accent/40">
+          <Camera size={13} />
+          Add photo
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            disabled={files.length >= MAX_ESTIMATE_PHOTOS}
+            onChange={(e) => addFiles(e.target.files)}
+          />
+        </label>
+        <button
+          type="button"
+          onClick={handleEstimate}
+          disabled={files.length === 0 || loading}
+          className="focus-ring flex items-center gap-1.5 rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+        >
+          {loading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+          {loading ? 'Analyzing…' : 'Generate estimate'}
+        </button>
+      </div>
+
+      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+    </div>
+  );
+}
 
 function QuoteBuilderForm({
   initial,
@@ -211,6 +306,28 @@ function QuoteBuilderForm({
           className={inputClass}
         />
       </div>
+
+            <PhotoEstimatePanel
+        onResult={({ line_items, detected_issue, severity, photoPaths }) => {
+          setForm((f) => ({
+            ...f,
+            line_items: line_items.length > 0 ? line_items : f.line_items,
+            ai_generated: true,
+            ai_detected_issue: detected_issue,
+            source_photo_paths: [...f.source_photo_paths, ...photoPaths],
+          }));
+        }}
+      />
+      {form.ai_generated && (
+        <div className="mb-3 flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3">
+          <Sparkles size={14} className="mt-0.5 shrink-0 text-warning-500" />
+          <p className="text-xs leading-relaxed text-text-secondary">
+            <span className="font-semibold text-text-primary">AI-generated — review before sending.</span>{' '}
+            Detected: {form.ai_detected_issue} ({severityLabel('')}). Prices below are ballpark estimates only —
+            confirm every line before this goes to a customer.
+          </p>
+        </div>
+      )}
 
       <div className="mt-4 space-y-2">
         <p className="text-xs font-medium text-text-secondary">Line items</p>
@@ -440,6 +557,9 @@ export function QuotesPage() {
       line_items: form.line_items.filter((li) => li.description.trim()),
       tax_percent: Number(form.tax_percent) || 0,
       valid_until: form.valid_until || null,
+      ai_generated: form.ai_generated,
+      ai_detected_issue: form.ai_detected_issue,
+      source_photo_paths: form.source_photo_paths,
     };
 
     const query = quoteId
@@ -611,6 +731,9 @@ export function QuotesPage() {
                       tax_percent: String(quote.tax_percent),
                       valid_until: quote.valid_until ?? '',
                       line_items: quote.line_items.length > 0 ? quote.line_items : [{ ...EMPTY_LINE_ITEM }],
+                      ai_generated: quote.ai_generated ?? false,
+                      ai_detected_issue: quote.ai_detected_issue ?? null,
+                      source_photo_paths: quote.source_photo_paths ?? [],
                     }}
                     leadOptions={allLeads}
                     onCancel={() => setEditingQuoteId(null)}
