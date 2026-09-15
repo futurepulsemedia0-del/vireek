@@ -168,8 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const permissions: UserPermissions = isOwner
     ? OWNER_PERMISSIONS
     : teamMember?.permissions ?? {
-        can_view_billing: false,
-        can_manage_numbers: boolean;
+        can_manage_numbers: false,
         can_manage_team: false,
         can_edit_business_profile: false,
         can_view_all_jobs: false,
