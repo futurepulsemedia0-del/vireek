@@ -225,6 +225,7 @@ export function Header() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
   const location = useLocation();
   const { scrollYProgress } = useScroll();
   const scrollProgress = useSpring(scrollYProgress, {
@@ -255,6 +256,31 @@ export function Header() {
     if (!drawerOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setDrawerOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawerOpen]);
+  
+  // Move focus into the drawer when it opens, and trap Tab/Shift+Tab
+  // inside it while open — otherwise a keyboard or screen-reader user can
+  // tab straight past the drawer into page content hidden behind it.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    const focusable = drawer.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+    focusable[0]?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -357,7 +383,8 @@ export function Header() {
               onClick={() => setDrawerOpen(false)}
               className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md md:hidden"
             />
-            <motion.aside
+             <motion.aside
+              ref={drawerRef}
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
