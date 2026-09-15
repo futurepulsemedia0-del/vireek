@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  BookOpen,
   Phone,
   LogOut,
   Menu,
@@ -69,12 +70,12 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
-  { label: 'Quotes', href: '/dashboard/quotes', icon: FileText },
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
+  { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
 ];
 
 const ACCOUNT_ITEMS: NavItem[] = [
