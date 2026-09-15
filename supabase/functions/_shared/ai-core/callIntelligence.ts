@@ -22,6 +22,7 @@ export interface CallIntelligence {
   missed_opportunity_reason: string | null;
   recommended_follow_up: string | null;
   objections_raised: string[];
+  memory_facts: string[];
 }
 
 const VALID_SENTIMENT = new Set(["positive", "neutral", "negative"]);
@@ -62,6 +63,9 @@ export async function analyzeCallIntelligence(
       recommended_follow_up: typeof parsed.recommended_follow_up === "string" ? parsed.recommended_follow_up.slice(0, 500) : null,
       objections_raised: Array.isArray(parsed.objections_raised)
         ? parsed.objections_raised.filter((o: unknown) => typeof o === "string").slice(0, 10)
+        : [],
+      memory_facts: Array.isArray(parsed.memory_facts)
+        ? parsed.memory_facts.filter((f: unknown) => typeof f === "string" && f.trim().length > 0).map((f: string) => f.trim().slice(0, 300)).slice(0, 5)
         : [],
     };
   } catch (err) {
