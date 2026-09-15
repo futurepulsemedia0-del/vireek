@@ -207,6 +207,9 @@ export interface Quote {
   customer_name: string;
   customer_phone: string | null;
   customer_email: string | null;
+  ai_generated: boolean;
+  ai_detected_issue: string | null;
+  source_photo_paths: string[];
   line_items: { description: string; quantity: number; unit_price_cents: number }[];
     options: unknown[];
   photos: unknown[];
