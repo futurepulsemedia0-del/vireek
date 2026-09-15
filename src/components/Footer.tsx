@@ -142,6 +142,7 @@ const FOOTER_COLUMNS = [
       { label: 'AI vs Human Receptionist', href: '/ai-receptionist-vs-human-receptionist' },
       { label: 'Status', href: '/status' },
       { label: 'Changelog', href: '/changelog' },
+      { label: 'Roadmap', href: '/roadmap' },
       { label: 'Webinars & Events', href: '/webinars' },
       { label: 'Customer ROI', href: '/roi' },
     ],
