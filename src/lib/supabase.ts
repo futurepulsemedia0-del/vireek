@@ -208,6 +208,16 @@ export interface Quote {
   customer_phone: string | null;
   customer_email: string | null;
   line_items: { description: string; quantity: number; unit_price_cents: number }[];
+    options: unknown[];
+  photos: unknown[];
+  recommended_option_id: string | null;
+  selected_option_id: string | null;
+  accepted_total_cents: number | null;
+  presentation_note: string | null;
+  deposit_percent: number;
+  first_viewed_at: string | null;
+  last_viewed_at: string | null;
+  view_count: number;
   tax_percent: number;
   status: 'draft' | 'sent' | 'accepted' | 'declined' | 'expired';
   quote_token: string;
