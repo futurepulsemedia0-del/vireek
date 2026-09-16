@@ -26,8 +26,12 @@ interface StreamAiChatOptions {
   functionName: string;
   message: string;
   history: StreamChatMessage[];
+  /** Extra fields merged into the POST body alongside message/history — e.g. onboarding-concierge's `known` snapshot. */
+  extraBody?: Record<string, unknown>;
   /** Called once per chunk of reply text, in order, as it arrives. */
   onDelta: (delta: string) => void;
+  /** Called once, before any delta, if the server sends a structured `fields` payload (used by onboarding-concierge). */
+  onFields?: (fields: Record<string, unknown>) => void;
   /** Called once the stream ends normally. */
   onDone?: (meta: { provider?: string; model?: string }) => void;
   /** Called if the server (or the network) reports a failure. */
@@ -47,7 +51,9 @@ export async function streamAiChat({
   functionName,
   message,
   history,
+  extraBody,
   onDelta,
+  onFields,
   onDone,
   onError,
   signal,
@@ -62,7 +68,7 @@ export async function streamAiChat({
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         apikey: SUPABASE_ANON_KEY,
       },
-      body: JSON.stringify({ message, history }),
+      body: JSON.stringify({ message, history, ...extraBody }),
     });
   } catch {
     onError("I'm having trouble responding right now — please try again in a moment.");
@@ -110,7 +116,7 @@ export async function streamAiChat({
         const payload = line.slice(5).trim();
         if (!payload) continue;
 
-        let parsed: { delta?: string; done?: boolean; error?: string; provider?: string; model?: string };
+        let parsed: { delta?: string; done?: boolean; error?: string; provider?: string; model?: string; fields?: Record<string, unknown> };
         try {
           parsed = JSON.parse(payload);
         } catch {
@@ -120,6 +126,8 @@ export async function streamAiChat({
         if (parsed.error) {
           sawError = true;
           onError(parsed.error);
+        } else if (parsed.fields) {
+          onFields?.(parsed.fields);
         } else if (typeof parsed.delta === 'string' && parsed.delta) {
           onDelta(parsed.delta);
         } else if (parsed.done) {
