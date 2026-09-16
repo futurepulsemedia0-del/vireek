@@ -514,7 +514,8 @@ function App() {
               <AutomationMarketplacePage />
             </ProtectedRoute>
           }
-                  <Route
+        />
+        <Route
           path="/dashboard/franchise"
           element={
             <ProtectedRoute>
@@ -522,7 +523,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-                <Route
+        <Route
           path="/dashboard/event-bus"
           element={
             <ProtectedRoute>
@@ -530,8 +531,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        />
-                <Route
+        <Route
           path="/dashboard/profitability"
           element={
             <ProtectedRoute>
