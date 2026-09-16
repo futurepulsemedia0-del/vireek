@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   BookOpen,
+  BookMarked,
   Phone,
   LogOut,
   Menu,
@@ -78,6 +79,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
+  { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
 ];
 
 const ACCOUNT_ITEMS: NavItem[] = [
