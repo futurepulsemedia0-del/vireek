@@ -102,6 +102,54 @@ export interface Customer {
   created_at: string;
   updated_at: string;
 }
+export interface Customer {
+  id: string;
+  user_id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  customer_type: 'residential' | 'commercial';
+  lifecycle_stage: 'lead' | 'active' | 'vip' | 'inactive';
+  tags: string[];
+  notes: string | null;
+  source: 'manual' | 'call' | 'lead' | 'job' | 'import';
+  last_contacted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Equipment {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  equipment_type: 'hvac_system' | 'water_heater' | 'furnace' | 'boiler' | 'generator' | 'sump_pump' | 'other';
+  name: string;
+  brand: string | null;
+  model: string | null;
+  serial_number: string | null;
+  install_date: string | null;
+  expected_lifespan_years: number;
+  service_interval_months: number;
+  last_service_date: string | null;
+  notes: string | null;
+  status: 'active' | 'replaced' | 'removed';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EquipmentMaintenanceAlert {
+  id: string;
+  user_id: string;
+  equipment_id: string;
+  risk_level: 'low' | 'medium' | 'high';
+  predicted_issue: string;
+  recommended_action: string | null;
+  predicted_service_due: string | null;
+  is_dismissed: boolean;
+  metric_snapshot: Record<string, unknown> | null;
+  created_at: string;
+}
 export interface Lead {
   id: string;
   user_id: string;
