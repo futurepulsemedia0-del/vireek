@@ -258,6 +258,9 @@ function EditModal({
   const [languages, setLanguages] = useState(member.languages?.join(', ') ?? '');
   const [serviceArea, setServiceArea] = useState(member.service_area ?? '');
   const [memberPhone, setMemberPhone] = useState(member.member_phone ?? '');
+  const [hourlyCostRate, setHourlyCostRate] = useState(
+    member.hourly_cost_rate_cents != null ? String(member.hourly_cost_rate_cents / 100) : '',
+  );
   const [maxJobsPerDay, setMaxJobsPerDay] = useState(member.max_jobs_per_day ?? 6);
   const [dispatchEnabled, setDispatchEnabled] = useState(member.dispatch_enabled ?? true);
   const handleRoleChange = (newRole: Role) => {
@@ -281,6 +284,7 @@ function EditModal({
           languages: languages.split(',').map((s) => s.trim()).filter(Boolean),
           service_area: serviceArea.trim() || null,
           member_phone: memberPhone.trim() || null,
+          hourly_cost_rate_cents: hourlyCostRate.trim() ? Math.round(Number(hourlyCostRate) * 100) : null,
           max_jobs_per_day: maxJobsPerDay,
           dispatch_enabled: dispatchEnabled,
         })
@@ -424,6 +428,27 @@ function EditModal({
                   className="focus-ring mt-2 w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
                 />
               </div>
+                            <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">Internal cost rate</label>
+                <p className="mt-0.5 text-xs text-text-secondary">
+                  What this technician costs you per hour — used to prefill labor costs on the Profitability page. Never shown to customers.
+                </p>
+                <div className="relative mt-2">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-text-secondary">$</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={hourlyCostRate}
+                    onChange={(e) => setHourlyCostRate(e.target.value)}
+                    placeholder="0.00 / hr"
+                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-7 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <label className="text-sm font-medium text-text-primary">Max jobs per day</label>
               <div className="flex items-center justify-between gap-4">
                 <label className="text-sm font-medium text-text-primary">Max jobs per day</label>
                 <input
