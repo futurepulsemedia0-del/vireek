@@ -8,18 +8,21 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { CurrencyProvider } from '@/contexts/CurrencyContext';
 import { ExperimentProvider } from '@/contexts/ExperimentContext';
 import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
+import { ConnectivityProvider } from '@/contexts/ConnectivityContext';
 import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { SiteAssistant } from '@/components/SiteAssistant';
 import { LiveChatWidget } from '@/components/LiveChatWidget';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
+import { ConnectivityShell } from '@/components/system/ConnectivityShell';
 import { initSentry } from '@/lib/sentry';
 import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
 import './styles/print.css';
 
 initSentry();
+
 // Register the push-notification service worker eagerly.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -28,6 +31,7 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
@@ -38,19 +42,23 @@ createRoot(document.getElementById('root')!).render(
           <ExperimentProvider>
             <CurrencyProvider>
               <ToastProvider>
-                <AuthProvider>
-                  <ErrorBoundary>
-                    <App />
-                    <AccessibilityWidget />
-                    <SiteAssistant />
-                    <LiveChatWidget />
-                  </ErrorBoundary>
-                </AuthProvider>
+                <ConnectivityProvider>
+                  <AuthProvider>
+                    <ErrorBoundary>
+                      <ConnectivityShell>
+                        <App />
+                      </ConnectivityShell>
+                      <AccessibilityWidget />
+                      <SiteAssistant />
+                      <LiveChatWidget />
+                    </ErrorBoundary>
+                  </AuthProvider>
+                </ConnectivityProvider>
               </ToastProvider>
             </CurrencyProvider>
           </ExperimentProvider>
         </AccessibilityProvider>
       </ThemeProvider>
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );
