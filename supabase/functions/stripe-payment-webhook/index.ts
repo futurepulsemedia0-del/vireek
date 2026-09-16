@@ -12,7 +12,7 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
   const signature = req.headers.get("Stripe-Signature") ?? "";
-  const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? "";
+  const webhookSecret = Deno.env.get("STRIPE_PAYMENT_WEBHOOK_SECRET") ?? "";
   const payload = await req.text();
 
   if (!webhookSecret || !(await verifyStripeSignature(payload, signature, webhookSecret))) {
