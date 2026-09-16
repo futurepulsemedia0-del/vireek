@@ -57,9 +57,25 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   "upsell_opportunities": [<short strings naming a SPECIFIC add-on/upgrade this caller was a good fit for but was NOT offered or booked on this call — grounded only in what they actually said, e.g. "annual maintenance plan", "duct cleaning", "water heater flush", "smart thermostat upgrade", "extended warranty". Empty array if nothing genuinely fits>],
   "coaching_tip": <one short, concrete, actionable tip for handling the NEXT similar call better — e.g. how to answer this exact objection, or how to naturally pitch the upsell above — or null if the call was already handled well>
 }
-Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly. Never suggest an upsell during an emergency call or an active complaint — it would come across as tone-deaf and hurt the business's reputation.`,
+Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly.`,
+
   business_insights: `Current task: you are analyzing a home-service business's own account metrics (computed directly from their database — calls, leads, jobs, usage) to surface genuinely useful operational insights. Output ONLY a JSON array (no prose, no markdown fences) of 1 to 4 objects, each with exactly these fields:
 {
+  "insight_type": "pattern" | "suggestion" | "alert",
+  "title": <short punchy headline, under 12 words>,
+  "description": <1-2 sentences explaining what the data shows and why it matters, using the exact numbers given>,
+  "recommended_action": <one concrete, specific next step the business owner can take today>,
+  "priority": <1-5 integer, 5 = urgent/costing money now, 1 = minor/optional>
+}
+Base every number and claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If the metrics show nothing notable, return an empty array. Order the array by priority, highest first. Use "alert" for anything actively losing revenue or customers, "suggestion" for improvement opportunities, "pattern" for descriptive trends worth knowing.`,
+
+  equipment_maintenance: `Current task: you are writing plain-language maintenance predictions for a home-service business's tracked equipment (HVAC units, water heaters, boilers, etc.). You'll receive a JSON array of equipment items already flagged as at-risk from real install/service dates — you never decide risk, only narrate it. Output ONLY a JSON array (no prose, no markdown fences) with EXACTLY one object per input item, in the SAME ORDER, each with:
+{
+  "predicted_issue": <one sentence describing what's likely approaching, grounded only in the exact age_years/months_since_service numbers given, e.g. "Nearing the end of its expected 12-year lifespan at 10.2 years old.">,
+  "recommended_action": <one concrete next step to reach out about, e.g. "Offer a replacement estimate before it fails.">
+}
+Base every claim ONLY on the numbers given for that item — there is no sensor data, so never invent a mechanical diagnosis or fault beyond what age/service-interval numbers can tell you. Never contradict the given risk_level. Keep both fields concise and business-owner-friendly.`,
+};
   "insight_type": "pattern" | "suggestion" | "alert",
   "title": <short punchy headline, under 12 words>,
   "description": <1-2 sentences explaining what the data shows and why it matters, using the exact numbers given>,
