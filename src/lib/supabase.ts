@@ -177,6 +177,57 @@ export interface OutboundCall {
   called_at: string | null;
   outcome_notes: string | null;
   created_at: string;
+  enrollment_id: string | null;
+  step_number: number | null;
+}
+export type FollowupAgentStepChannel = 'call' | 'sms';
+
+export interface FollowupAgentStep {
+  id: string;
+  user_id: string;
+  campaign_type: 'quote_followup' | 'appointment_reminder' | 'review_request_call';
+  step_number: number;
+  channel: FollowupAgentStepChannel;
+  delay_hours: number;
+  sms_body: string | null;
+  call_context: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FollowupAgentEnrollment {
+  id: string;
+  user_id: string;
+  campaign_type: 'quote_followup' | 'appointment_reminder' | 'review_request_call';
+  lead_id: string | null;
+  job_id: string | null;
+  customer_name: string;
+  customer_phone: string | null;
+  current_step: number;
+  status: 'active' | 'completed' | 'stopped' | 'opted_out';
+  stop_reason: string | null;
+  attempt_count: number;
+  next_action_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OutboundSms {
+  id: string;
+  user_id: string;
+  campaign_type: 'quote_followup' | 'appointment_reminder' | 'review_request_call';
+  enrollment_id: string | null;
+  lead_id: string | null;
+  job_id: string | null;
+  step_number: number | null;
+  customer_name: string;
+  customer_phone: string | null;
+  body: string;
+  status: 'queued' | 'sent' | 'delivered' | 'failed' | 'opted_out';
+  twilio_sid: string | null;
+  outcome_notes: string | null;
+  sent_at: string | null;
+  created_at: string;
 }
 export interface MembershipPlan {
   id: string;
