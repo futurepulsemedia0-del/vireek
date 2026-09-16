@@ -106,9 +106,32 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Every send (first invite AND resend) rotates the token and gives the
+    // recipient a fresh window, so a stale/leaked link can't be replayed.
+    const inviteToken = crypto.randomUUID();
+    const inviteTokenExpiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: teamRow, error: teamRowError } = await admin
+      .from("team_members")
+      .update({
+        invite_token: inviteToken,
+        invite_token_expires_at: inviteTokenExpiresAt,
+        last_invited_at: new Date().toISOString(),
+      })
+      .eq("account_owner_id", caller.id)
+      .eq("member_email", memberEmail)
+      .select("id")
+      .maybeSingle();
+
+    if (teamRowError || !teamRow) {
+      return new Response(
+        JSON.stringify({ error: "No pending team member found for this email. Add them first." }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Vireek <onboarding@resend.dev>";
     const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
-    const signupUrl = `${siteUrl}/signup?email=${encodeURIComponent(memberEmail)}&invited=1`;
+    const inviteUrl = `${siteUrl}/invite/${inviteToken}`;
 
     const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
     const greetingName = memberName ? memberName.split(" ")[0] : "there";
@@ -121,7 +144,7 @@ Deno.serve(async (req: Request) => {
           ${escapeHtml(inviterName)} added you as a <strong>${escapeHtml(roleLabel)}</strong> on their Vireek account —
           the AI voice receptionist platform that answers calls, books jobs, and keeps the whole team in sync.
         </p>
-        <a href="${signupUrl}"
+        <a href="${inviteUrl}"
            style="display: inline-block; margin-top: 24px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">
           Accept invite &amp; create your account
         </a>
@@ -132,7 +155,7 @@ Deno.serve(async (req: Request) => {
       </div>
     `;
 
-    const text = `${inviterName} added you as a ${roleLabel} on their Vireek account (${companyName}).\n\nCreate your account: ${signupUrl}\n\nSign up with ${memberEmail} so it links automatically. If you weren't expecting this, ignore this email.`;
+    const text = `${inviterName} added you as a ${roleLabel} on their Vireek account (${companyName}).\n\nAccept your invite: ${inviteUrl}\n\nUse ${memberEmail} to sign in or sign up so it links automatically. If you weren't expecting this, ignore this email.`;
 
     const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -158,12 +181,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Best-effort timestamp so the UI can show "invited 2 days ago" / support a resend cooldown.
-    await admin
-      .from("team_members")
-      .update({ last_invited_at: new Date().toISOString() })
-      .eq("account_owner_id", caller.id)
-      .eq("member_email", memberEmail);
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
