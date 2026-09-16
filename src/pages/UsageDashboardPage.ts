@@ -4,8 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Zap, TrendingUp, Clock, Gauge, TriangleAlert as AlertTriangle, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/DashboardNav';
-import { supabase, Call } from '@/lib/supabase';
-import { PRICING_PLANS } from '@/lib/pricing';
+import { PRICING_PLANS, parseOverageRate } from '@/lib/pricing';
 
 // ============================================================
 // HELPERS
@@ -25,13 +24,6 @@ function dayKey(d: Date): string {
 
 function formatDayLabel(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { day: 'numeric' });
-}
-
-/** Parses "$0.20/min after" -> 0.2. Returns null for non-metered plans (e.g. Enterprise). */
-function parseOverageRate(overage: string | null): number | null {
-  if (!overage) return null;
-  const match = overage.match(/\$([\d.]+)\/min/);
-  return match ? parseFloat(match[1]) : null;
 }
 
 const STATUS_LABELS: Record<Call['status'], { label: string; color: string }> = {
