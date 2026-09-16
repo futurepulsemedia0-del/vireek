@@ -409,6 +409,13 @@ export interface BusinessProfile {
   custom_voice_error?: string | null;
   allow_customer_self_reschedule: boolean;
   commercial_sla_policy: string | null;
+  onboarding_wizard_state?: {
+  current_step: string;
+  completed_steps: string[];
+  calendar_provider: 'google' | 'outlook' | 'other' | 'none';
+  test_call_completed: boolean;
+  updated_at: string;
+  } | null;
   created_at: string;
   updated_at: string;
 }
