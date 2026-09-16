@@ -187,6 +187,7 @@ const FOOTER_COLUMNS = [
       { label: 'Acceptable Use', href: '/acceptable-use-policy' },
       { label: 'Trademark Policy', href: '/trademark-policy' },
       { label: 'Vulnerability Disclosure', href: '/vulnerability-disclosure' },
+      { label: 'Responsible AI', href: '/responsible-ai' },
       { label: 'CCPA Rights', href: '/ccpa' },
       { label: 'Accessibility', href: '/accessibility' },
     ],
