@@ -21,6 +21,7 @@ import {
 } from '@/components/auth/AuthParts';
 import { OtpEntry } from '@/components/auth/OtpEntry';
 import { registerTrustedDevice } from '@/lib/deviceTrust';
+import { consumePostAuthRedirect } from '@/lib/inviteRedirect';
 
 type SignupStep = 'form' | 'verify';
 
@@ -77,7 +78,7 @@ export function SignupPage() {
   // form — once we're in the verify step we want to play the OTP success
   // animation ourselves before navigating (see handleOtpSuccess below).
   useEffect(() => {
-    if (!loading && session && step === 'form') navigate('/dashboard', { replace: true });
+    if (!loading && session && step === 'form') navigate(consumePostAuthRedirect(), { replace: true });
   }, [session, loading, step, navigate]);
 
   const validateName = useCallback(() => {
@@ -187,7 +188,7 @@ export function SignupPage() {
         }
         setShowSuccess(true);
         toast('Welcome to Vireek!', 'success');
-        setTimeout(() => navigate('/dashboard', { replace: true }), 600);
+        setTimeout(() => navigate(consumePostAuthRedirect(), { replace: true }), 600);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Sign up failed. Please try again.';
