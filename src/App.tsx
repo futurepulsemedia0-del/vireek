@@ -28,6 +28,7 @@ const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => (
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
 const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const CustomerIntelligencePage = lazy(() => import('@/pages/CustomerIntelligencePage').then((m) => ({ default: m.CustomerIntelligencePage })));
+const PlaybooksPage = lazy(() => import('@/pages/PlaybooksPage').then((m) => ({ default: m.PlaybooksPage })));
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
@@ -403,6 +404,14 @@ function App() {
           element={
             <ProtectedRoute>
               <KnowledgeBasePage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/playbooks"
+          element={
+            <ProtectedRoute>
+              <PlaybooksPage />
             </ProtectedRoute>
           }
         />
