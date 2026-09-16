@@ -154,6 +154,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'SLA', href: '/sla' },
           { label: 'Acceptable Use Policy', href: '/acceptable-use-policy' },
           { label: 'Vulnerability Disclosure', href: '/vulnerability-disclosure' },
+          { label: 'Responsible AI Policy', href: '/responsible-ai' },
           { label: 'CCPA Rights', href: '/ccpa' },
         ],
       },
