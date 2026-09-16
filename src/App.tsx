@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ProfitabilityPage } from '@/pages/ProfitabilityPage';
 import { StaffRoute } from '@/components/StaffRoute';
 
 // Performance pass: only the landing page (the route almost every first-time
@@ -247,6 +248,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/dashboard/profitability" element={<ProfitabilityPage />} />
         <Route
           path="/dashboard/analytics"
           element={
