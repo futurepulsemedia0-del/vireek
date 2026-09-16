@@ -195,6 +195,13 @@ export function isExternalLink(planId: PlanId): boolean {
   return planId !== 'free' && planId !== 'enterprise';
 }
 
+/** Parses "$0.20/min after" -> 0.2. Returns null for non-metered plans (e.g. Enterprise/Free). */
+export function parseOverageRate(overage: string | null): number | null {
+  if (!overage) return null;
+  const match = overage.match(/\$([\d.]+)\/min/);
+  return match ? parseFloat(match[1]) : null;
+}
+
 export interface CompareRow {
   label: string;
   key: 'minutes' | 'overage' | 'seats' | 'locations' | 'dispatch' | 'crm' | 'recording' | 'analytics' | 'api';
