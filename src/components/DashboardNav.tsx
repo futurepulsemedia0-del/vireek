@@ -34,6 +34,7 @@ import {
   FileText,
   ShieldAlert,
   Zap,
+  Building2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -84,6 +85,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
+  { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
