@@ -21,6 +21,7 @@ import {
 } from '@/components/auth/AuthParts';
 import { OtpEntry } from '@/components/auth/OtpEntry';
 import { checkDeviceTrusted, registerTrustedDevice } from '@/lib/deviceTrust';
+import { consumePostAuthRedirect } from '@/lib/inviteRedirect';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -62,7 +63,7 @@ export function LoginPage() {
       // this browser as trusted going forward instead of showing an OTP
       // screen the user never asked for.
       registerTrustedDevice().catch(() => {});
-      navigate('/dashboard', { replace: true });
+      navigate(consumePostAuthRedirect(), { replace: true });
     }
   }, [session, loading, step, navigate]);
   // Show a one-time confirmation banner after a successful password reset
@@ -127,7 +128,7 @@ export function LoginPage() {
       if (trusted) {
         setShowSuccess(true);
         toast('Welcome back to Vireek!', 'success');
-        setTimeout(() => navigate('/dashboard', { replace: true }), 600);
+        setTimeout(() => navigate(consumePostAuthRedirect(), { replace: true }), 600);
         return;
       }
 
@@ -343,7 +344,7 @@ export function LoginPage() {
                 onVerify={handleVerifyConfirmOtp}
                 onResend={handleResendConfirmOtp}
                 externalSuccess={!!session}
-                onSuccessSettled={() => navigate('/dashboard', { replace: true })}
+                onSuccessSettled={() => navigate(consumePostAuthRedirect(), { replace: true })}
               />
             </div>
             <div className="mt-8">
@@ -389,7 +390,7 @@ export function LoginPage() {
                 length={6}
                 onVerify={handleVerifyDeviceOtp}
                 onResend={handleResendDeviceOtp}
-                onSuccessSettled={() => navigate('/dashboard', { replace: true })}
+                onSuccessSettled={() => navigate(consumePostAuthRedirect(), { replace: true })}
               />
             </div>
             <div className="mt-8">
