@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
@@ -15,6 +15,7 @@ import {
   GripVertical,
   Check,
   FileText,
+  Calculator,
   Trash2,
   LayoutGrid,
   List,
@@ -447,6 +448,16 @@ function JobDetailPanel({
             </div>
           )}
         </div>
+
+        <Link
+          to={`/dashboard/profitability?job=${job.id}`}
+          className="focus-ring flex items-center justify-between gap-2 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 hover:text-accent"
+        >
+          <span className="flex items-center gap-2">
+            <Calculator size={15} /> View profitability & costs
+          </span>
+          <span className="text-text-secondary">→</span>
+        </Link>
 
         {/* Request a review — only once the job is actually done */}
         {job.job_status === 'completed' && (
