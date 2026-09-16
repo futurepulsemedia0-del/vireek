@@ -82,6 +82,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
+  { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
 ];
 
