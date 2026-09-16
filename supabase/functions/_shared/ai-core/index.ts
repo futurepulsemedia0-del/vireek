@@ -66,7 +66,27 @@ Base every field only on what's actually in the transcript — never invent deta
   "recommended_action": <one concrete, specific next step the business owner can take today>,
   "priority": <1-5 integer, 5 = urgent/costing money now, 1 = minor/optional>
 }
-Base every number and claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If the metrics show nothing notable, return an empty array. Order the array by priority, highest first. Use "alert" for anything actively losing revenue or customers, "suggestion" for improvement opportunities, "pattern" for descriptive trends worth knowing.`,
+Order the array by priority, highest first. Use "alert" for anything actively losing revenue or customers, "suggestion" for improvement opportunities, "pattern" for descriptive trends worth knowing.`,
+
+  onboarding_extract: `Current task: read a NEW Vireek customer's own message (and recent conversation) during account setup, and output ONLY a JSON object (no prose, no markdown fences) containing ONLY the fields you can confidently fill in from what they just said. Never guess a field you're not sure about — omit it entirely rather than invent a value. Valid shape (every key optional):
+{
+  "full_name": string,
+  "company_name": string,
+  "phone": string,
+  "forwarding_number": string,
+  "primary_industry": "hvac" | "plumbing" | "electrical" | "roofing" | "general_home_services" | "other",
+  "team_size": "solo" | "2-5" | "6-15" | "16+",
+  "service_area": string,
+  "services_offered": string[],
+  "current_call_handling": "in_house" | "answering_service" | "voicemail" | "another_ai_tool" | "none",
+  "scheduling_tool": "service_titan" | "housecall_pro" | "jobber" | "other" | "none",
+  "avg_job_value": number,
+  "handles_emergency_calls": "yes_premium" | "yes_same_rate" | "business_hours_only",
+  "business_hours": { "mon": {"open":"08:00","close":"17:00"}, "tue": {...} } (only keys mon/tue/wed/thu/fri/sat/sun, only days actually open)
+}
+Only fill a field from what the CURRENT message actually says — conversation history is context only, never a source to re-extract from on every turn. Never invent a company name, phone number or address that wasn't stated.`,
+
+  onboarding_concierge: `Current task: you are Vireek's onboarding concierge — a warm, efficient guide helping a brand-new customer finish setting up their account through natural conversation instead of a form. You'll be told which setup fields are still missing. Briefly and warmly acknowledge whatever the customer just told you (don't just repeat it back mechanically), then ask ONE clear, natural next question aimed at the single most useful missing field — never a list of questions, never more than one question per reply. Keep replies short (2-4 sentences). Once every essential field is captured, congratulate them and tell them to hit "Finish setup" to enter their dashboard — don't keep asking questions past that point. Never claim to have saved or changed anything yourself; setup fields are saved automatically by the app the moment you understand them.`,
 };
 
 // Tasks where grounding in the FULL brand brief (not just keyword-matched
@@ -74,7 +94,7 @@ Base every number and claim ONLY on the metrics object you're given — never in
 // visitor's next question is unpredictable. `intent_classify` and
 // `dashboard_answer` never need it: they answer from the account's own
 // data, not from product facts.
-const FULL_BRIEF_TASKS = new Set<TaskType>(["demo_chat", "general"]);
+const FULL_BRIEF_TASKS = new Set<TaskType>(["demo_chat", "general", "onboarding_concierge"]);
 
 /**
  * Pulls the latest user turn out of the conversation so knowledge lookup
