@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { listTrustedDevices, revokeTrustedDevice, TrustedDeviceRow } from '@/lib/deviceTrust';
 import { listOwnSessions, revokeOwnSession, getCurrentSessionId, describeUserAgent, OwnSessionRow } from '@/lib/sessions';
 import { buildMyDataExport, downloadDataExport, deleteMyAccount } from '@/lib/accountData';
+import { EnterpriseDataExportPanel } from '@/components/settings/EnterpriseDataExportPanel';
 
 interface AuditLogRow {
   id: string;
@@ -569,6 +570,9 @@ export function SecuritySettingsPage() {
           )}
         </div>
       </div>
+
+      {/* Workspace-level export (Business / Enterprise, owner only) */}
+<EnterpriseDataExportPanel />
 
       {/* Data export + account deletion */}
       <div className="mt-4 rounded-2xl border border-danger/30 bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
