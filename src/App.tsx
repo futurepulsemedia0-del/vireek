@@ -48,6 +48,8 @@ const TeamPage = lazy(() => import('@/pages/TeamPage').then((m) => ({ default: m
 const BillingPage = lazy(() => import('@/pages/BillingPage').then((m) => ({ default: m.BillingPage })));
 const UpdatePaymentMethodPage = lazy(() => import('@/pages/UpdatePaymentMethodPage').then((m) => ({ default: m.UpdatePaymentMethodPage })));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })));
+const PaymentsPage = lazy(() => import('@/pages/PaymentsPage').then((m) => ({ default: m.PaymentsPage })));
+const PaymentResultPage = lazy(() => import('@/pages/PaymentResultPage').then((m) => ({ default: m.PaymentResultPage })));
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage').then((m) => ({ default: m.CookiePolicyPage })));
 const TermsPage = lazy(() => import('@/pages/TermsPage').then((m) => ({ default: m.TermsPage })));
@@ -235,6 +237,7 @@ function App() {
         <Route path="/press" element={<PressPage />} />
         <Route path="/brand" element={<BrandGuidelinesPage />} />
         <Route path="/partners" element={<PartnersPage />} />
+        <Route path="/pay-result" element={<PaymentResultPage />} />
         <Route path="/affiliate" element={<AffiliatePage />} />
         <Route path="/referral" element={<ReferralPage />} />
         <Route path="/beta" element={<BetaProgramPage />} />
@@ -506,6 +509,14 @@ function App() {
           element={
             <ProtectedRoute>
               <IntegrationsPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/payments"
+          element={
+            <ProtectedRoute>
+              <PaymentsPage />
             </ProtectedRoute>
           }
         />
