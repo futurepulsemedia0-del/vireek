@@ -308,7 +308,7 @@ export function OnboardingPage() {
           <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
         </span>
         <div className="flex items-center gap-3">
-          <Link to="/onboarding" className="focus-ring hidden text-xs font-medium text-text-secondary hover:text-accent sm:block">
+          <Link to="/onboarding/concierge" className="focus-ring hidden text-xs font-medium text-text-secondary hover:text-accent sm:block">
             ← Try the AI concierge instead
           </Link>
           <ThemeToggle />
