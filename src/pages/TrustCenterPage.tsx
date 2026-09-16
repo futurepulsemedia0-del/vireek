@@ -76,6 +76,7 @@ const RESOURCES = [
   { label: 'Service Level Agreement', description: 'Our uptime commitment and service credits.', href: '/sla' },
   { label: 'Acceptable Use Policy', description: 'Rules for lawful use of the platform.', href: '/acceptable-use-policy' },
   { label: 'Vulnerability Disclosure', description: 'How to report a security issue.', href: '/vulnerability-disclosure' },
+  { label: 'Responsible AI Policy', description: 'How we disclose, oversee, and govern AI in the product.', href: '/responsible-ai' },
   { label: 'Refund & Cancellation Policy', description: 'How billing and cancellation work.', href: '/refund-policy' },
 ];
 
