@@ -183,7 +183,7 @@ export function PaymentsPage() {
                 {job.customer_name} — {formatMoney(Number(job.invoice_amount ?? 0))}
               </p>
               {!connected ? (
-                <p className="flex items-center gap-2 rounded-lg border border-warning/25 bg-warning/10 px-3 py-2 text-sm text-warning">
+                <p className="flex items-center gap-2 rounded-lg border border-warning-500/25 bg-warning-500/10 px-3 py-2 text-sm text-warning-500">
                   <AlertTriangle className="h-4 w-4 shrink-0" /> Connect Stripe above before sending payment requests.
                 </p>
               ) : (
