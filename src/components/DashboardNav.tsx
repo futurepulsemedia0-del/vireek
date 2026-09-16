@@ -46,6 +46,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
 import { SurgeModeBanner } from '@/components/SurgeModeBanner';
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
+import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AiAssistant } from '@/components/AiAssistant';
 import { CommandPalette } from '@/components/CommandPalette';
@@ -352,6 +353,7 @@ export function DashboardLayout({
                             <UpgradeBanner />
               <SurgeModeBanner />
               <PaymentFailedBanner />
+              <UsageLimitBanner />             
             </div>
             {children}
           </main>
