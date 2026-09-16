@@ -129,6 +129,7 @@ const MarketplacePage = lazy(() => import('@/pages/MarketplacePage').then((m) =>
 const SdksPage = lazy(() => import('@/pages/SdksPage').then((m) => ({ default: m.SdksPage })));
 const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ default: m.SandboxPage })));
 const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
+const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) => ({ default: m.InviteAcceptPage })));
 
 function RouteLoadingFallback() {
   return (
@@ -411,6 +412,7 @@ function App() {
           }
         />
         <Route path="/quote/:token" element={<QuoteAcceptPage />} />
+        <Route path="/invite/:token" element={<InviteAcceptPage />} />
                 <Route
           path="/dashboard/knowledge"
           element={
