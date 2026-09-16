@@ -436,6 +436,14 @@ function JobDetailPanel({
                 <p className="text-2xl font-bold text-text-primary">{formatCurrency(job.invoice_amount)}</p>
                 <div className="mt-1"><InvoiceBadge status={job.invoice_status} /></div>
               </div>
+              {job.invoice_amount != null && job.invoice_status !== 'paid' && (
+                
+                  href={`/dashboard/payments?job=${job.id}`}
+                  className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Send Payment Request
+                </a>
+              )}
             </div>
           )}
         </div>
