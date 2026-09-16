@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader as Loader2,
@@ -307,7 +307,12 @@ export function OnboardingPage() {
           </span>
           <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
         </span>
-        <ThemeToggle />
+        <div className="flex items-center gap-3">
+          <Link to="/onboarding" className="focus-ring hidden text-xs font-medium text-text-secondary hover:text-accent sm:block">
+            ← Try the AI concierge instead
+          </Link>
+          <ThemeToggle />
+        </div>
       </div>
 
       <motion.div
