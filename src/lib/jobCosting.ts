@@ -1,4 +1,11 @@
+import { supabase } from './supabase';
 import { formatCents } from './priceBook';
+
+// ============================================================
+// TYPES — mirror the real DB schema (job_cost_entries table +
+// job_profitability SQL view). Money stays in integer cents to
+// match the database; formatCents() is how it's shown as dollars.
+// ============================================================
 
 export type CostCategory = 'labor' | 'material' | 'equipment' | 'subcontractor' | 'permit' | 'other';
 
@@ -49,19 +56,50 @@ export const COST_CATEGORY_LABELS: Record<CostCategory, string> = {
   other: 'Other',
 };
 
+/** Used for the category dot in cost-entry rows and the breakdown chart bars. */
+export const COST_CATEGORY_COLORS: Record<CostCategory, string> = {
+  labor: '#6366f1',
+  material: '#22c55e',
+  equipment: '#f59e0b',
+  subcontractor: '#ec4899',
+  permit: '#06b6d4',
+  other: '#94a3b8',
+};
+
 export { formatCents };
 
+// ============================================================
+// MARGIN HELPERS
+// ============================================================
+
+export type MarginTier = 'unknown' | 'loss' | 'thin' | 'healthy';
+
+export function marginTier(marginPct: number | null): MarginTier {
+  if (marginPct === null) return 'unknown';
+  if (marginPct < 0) return 'loss';
+  if (marginPct < 20) return 'thin';
+  return 'healthy';
+}
+
+const MARGIN_TIER_CLASS: Record<MarginTier, string> = {
+  unknown: 'bg-bg-tertiary text-text-secondary',
+  loss: 'bg-danger/10 text-danger',
+  thin: 'bg-warning-500/10 text-warning-500',
+  healthy: 'bg-success-500/10 text-success-500',
+};
+
 export function marginBadgeColor(marginPct: number | null): string {
-  if (marginPct === null) return 'bg-bg-tertiary text-text-secondary';
-  if (marginPct < 0) return 'bg-danger/10 text-danger';
-  if (marginPct < 20) return 'bg-warning-500/10 text-warning-500';
-  return 'bg-success-500/10 text-success-500';
+  return MARGIN_TIER_CLASS[marginTier(marginPct)];
 }
 
 export function formatMargin(marginPct: number | null): string {
   if (marginPct === null) return '—';
   return `${marginPct.toFixed(1)}%`;
 }
+
+// ============================================================
+// COST ENTRY FORM STATE
+// ============================================================
 
 export interface JobCostFormState {
   category: CostCategory;
@@ -116,6 +154,10 @@ export function jobCostFormToPayload(form: JobCostFormState, jobId: string, user
   };
 }
 
+// ============================================================
+// SUMMARY / BREAKDOWN
+// ============================================================
+
 export interface ProfitabilitySummary {
   jobCount: number;
   totalRevenueCents: number;
@@ -132,4 +174,80 @@ export function summarize(rows: JobProfitability[]): ProfitabilitySummary {
   const avgMarginPct =
     totalRevenueCents > 0 ? Math.round((totalProfitCents / totalRevenueCents) * 1000) / 10 : null;
   return { jobCount, totalRevenueCents, totalCostCents, totalProfitCents, avgMarginPct };
+}
+
+export interface CategoryBreakdownItem {
+  category: CostCategory;
+  totalCents: number;
+}
+
+/**
+ * Built straight from the view's per-category columns — no extra
+ * fetch needed, and it naturally follows whatever rows are passed
+ * in (e.g. the currently filtered job list).
+ */
+export function buildCategoryBreakdown(rows: JobProfitability[]): CategoryBreakdownItem[] {
+  const totals: Record<CostCategory, number> = {
+    labor: 0,
+    material: 0,
+    equipment: 0,
+    subcontractor: 0,
+    permit: 0,
+    other: 0,
+  };
+  rows.forEach((r) => {
+    totals.labor += r.labor_cost_cents;
+    totals.material += r.material_cost_cents;
+    totals.equipment += r.equipment_cost_cents;
+    totals.subcontractor += r.subcontractor_cost_cents;
+    totals.permit += r.permit_cost_cents;
+    totals.other += r.other_cost_cents;
+  });
+  return (Object.keys(totals) as CostCategory[])
+    .map((category) => ({ category, totalCents: totals[category] }))
+    .filter((b) => b.totalCents > 0)
+    .sort((a, b) => b.totalCents - a.totalCents);
+}
+
+// ============================================================
+// DATA ACCESS — centralized here instead of scattered supabase
+// calls in the page component.
+// ============================================================
+
+export async function fetchProfitabilityRows(): Promise<JobProfitability[]> {
+  const { data, error } = await supabase
+    .from('job_profitability')
+    .select('*')
+    .order('scheduled_datetime', { ascending: false });
+  if (error) throw error;
+  return (data as JobProfitability[]) || [];
+}
+
+export async function fetchCostEntries(jobId: string): Promise<JobCostEntry[]> {
+  const { data, error } = await supabase
+    .from('job_cost_entries')
+    .select('*')
+    .eq('job_id', jobId)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data as JobCostEntry[]) || [];
+}
+
+export async function saveCostEntry(
+  form: JobCostFormState,
+  jobId: string,
+  userId: string,
+  existingId?: string,
+): Promise<void> {
+  const payload = jobCostFormToPayload(form, jobId, userId);
+  const query = existingId
+    ? supabase.from('job_cost_entries').update(payload).eq('id', existingId)
+    : supabase.from('job_cost_entries').insert(payload);
+  const { error } = await query;
+  if (error) throw error;
+}
+
+export async function deleteCostEntry(id: string): Promise<void> {
+  const { error } = await supabase.from('job_cost_entries').delete().eq('id', id);
+  if (error) throw error;
 }
