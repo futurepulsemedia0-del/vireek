@@ -231,6 +231,16 @@ function PriceItemForm({
       </div>
 
       <input
+        type="number"
+        min={0}
+        step="0.01"
+        value={form.cost}
+        onChange={(e) => setForm((f) => ({ ...f, cost: e.target.value }))}
+        placeholder="Your cost (optional, $) — what this actually costs you, not the customer price"
+        className={`${inputClass} mt-3`}
+      />
+
+      <input
         type="text"
         value={form.keywords}
         onChange={(e) => setForm((f) => ({ ...f, keywords: e.target.value }))}
