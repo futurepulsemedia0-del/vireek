@@ -123,6 +123,8 @@ interface TenantContext {
   afterHoursFee: number | null;
   afterHoursFeeNote: string | null;
   commercialSlaPolicy: string | null;
+  /** True when profiles.status or subscription_status is suspended/canceled — AI answering must not run. */
+  isSuspended: boolean;
 }
 interface EscalationRule {
   id?: string;
@@ -295,7 +297,7 @@ async function resolveTenant(
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("forwarding_number")
+    .select("forwarding_number, status, subscription_status")
     .eq("id", resolvedBusiness.user_id)
     .maybeSingle();
 
@@ -319,6 +321,10 @@ async function resolveTenant(
     afterHoursFee: resolvedBusiness.after_hours_fee ?? null,
     afterHoursFeeNote: resolvedBusiness.after_hours_fee_note ?? null,
     commercialSlaPolicy: resolvedBusiness.commercial_sla_policy ?? null,
+    isSuspended:
+      profile?.status === "suspended" ||
+      profile?.status === "canceled" ||
+      profile?.subscription_status === "suspended",
   };
 }
 
@@ -608,6 +614,18 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     return jsonResponse({});
   }
 
+  // Hard stop before the AI connects. past_due is intentionally allowed
+  // (grace period); only suspended/canceled cut service and avoid Vapi/LLM cost.
+  if (tenant.isSuspended) {
+    logEvent("assistant_request_account_suspended", requestId, { user_id: tenant.userId });
+    // No assistantId → Vapi must not attach the live AI assistant.
+    // Phone numbers must use Server URL for assistant selection (not a
+    // static assistantId on the number), otherwise this gate is bypassed.
+    return jsonResponse({
+      error: "Account suspended. AI call answering is disabled until billing is restored.",
+    });
+  }
+
   const callerNumber = message.call?.customer?.number ?? null;
   const callerContext = await buildCallerContextVariable(admin, tenant, callerNumber);
   const customerTypeContext = await buildCustomerTypeContextVariable(admin, tenant, callerNumber);
@@ -789,6 +807,13 @@ async function handleTransferDestinationRequest(
     // we don't guess a number. Vapi's assistant will hear this back and can
     // apologize / take a message instead of silently failing.
     return jsonResponse({ error: "No matching business configuration found for this call." }, 200);
+  }
+    if (tenant.isSuspended) {
+    logEvent("transfer_account_suspended", requestId, { user_id: tenant.userId });
+    return jsonResponse(
+      { error: "Account suspended. Transfers are disabled until billing is restored." },
+      200,
+    );
   }
 
   // If the calling assistant already has emergency context flagged for this
@@ -1537,6 +1562,14 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
     return jsonResponse({ results });
   }
 
+  if (tenant.isSuspended) {
+    logEvent("tool_calls_account_suspended", requestId, { user_id: tenant.userId });
+    const results = toolCalls.map((tc) => ({
+      toolCallId: tc.id ?? tc.toolCallId ?? "",
+      result: "This account is suspended. No actions can be taken until billing is restored.",
+    }));
+    return jsonResponse({ results });
+  }
   const vapiCallId = message.call?.id;
   const callerNumber = message.call?.customer?.number ?? null;
   const callerName = message.call?.customer?.name ?? null;
