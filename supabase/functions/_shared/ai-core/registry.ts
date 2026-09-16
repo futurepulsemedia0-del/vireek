@@ -40,6 +40,8 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   dashboard_answer: DEFAULT_CHAIN,
   intent_classify: JSON_CHAIN,
   call_intelligence: JSON_CHAIN,
+  onboarding_extract: JSON_CHAIN,
+  onboarding_concierge: DEFAULT_CHAIN,
 };
 
 export function getRouteForTask(task: TaskType): RouteEntry[] {
