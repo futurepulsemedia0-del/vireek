@@ -435,4 +435,6 @@ export interface WebhookLog {
   error_message: string | null;
   request_id: string | null;
   created_at: string;
+  endpoint_id: string | null;
+  attempt: number;
 }
