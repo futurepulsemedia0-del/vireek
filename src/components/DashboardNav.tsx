@@ -38,6 +38,7 @@ import {
   Zap,
   Building2,
   Webhook,
+  User,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -100,6 +101,7 @@ const PRIMARY_ITEMS: NavItem[] = [
 ];
 
 const ACCOUNT_ITEMS: NavItem[] = [
+  { label: 'My Account', href: '/dashboard/account', icon: User },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, requiresPermission: 'can_edit_business_profile' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
