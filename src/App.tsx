@@ -126,6 +126,7 @@ const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => (
 const MarketplacePage = lazy(() => import('@/pages/MarketplacePage').then((m) => ({ default: m.MarketplacePage })));
 const SdksPage = lazy(() => import('@/pages/SdksPage').then((m) => ({ default: m.SdksPage })));
 const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ default: m.SandboxPage })));
+const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
 
 function RouteLoadingFallback() {
   return (
@@ -315,6 +316,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CallsPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/coaching-reports"
+          element={
+            <ProtectedRoute>
+              <CoachingReportsPage />
             </ProtectedRoute>
           }
         />
