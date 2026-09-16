@@ -91,6 +91,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
   { label: 'Payments', href: '/dashboard/payments', icon: CreditCard, requiresPermission: 'can_view_billing' },
+    { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
