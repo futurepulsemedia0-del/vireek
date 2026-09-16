@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
@@ -14,30 +14,39 @@ import {
   X,
   Pencil,
   Trash2,
+  Check,
   Loader2,
   Lock,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
-import { Job } from '@/lib/supabase';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { TeamMember } from '@/lib/supabase';
+import { PriceBookItem } from '@/lib/priceBook';
 import {
   CostCategory,
   JobCostEntry,
-  JobCostEntryInput,
   JobProfitability,
-  CATEGORY_LABELS,
-  CATEGORY_COLORS,
-  fetchJobsForCosting,
-  fetchCostEntries,
-  addCostEntry,
-  updateCostEntry,
-  deleteCostEntry,
-  computeProfitability,
-  marginTier,
+  JobCostFormState,
+  EMPTY_JOB_COST_FORM,
+  COST_CATEGORY_LABELS,
+  COST_CATEGORY_COLORS,
+  entryToForm,
+  marginBadgeColor,
+  formatMargin,
+  formatCents,
+  summarize,
   buildCategoryBreakdown,
-  formatCurrency,
+  fetchProfitabilityRows,
+  fetchCostEntries,
+  saveCostEntry,
+  deleteCostEntry,
 } from '@/lib/jobCosting';
+import { supabase } from '@/lib/supabase';
+
+const inputClass =
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
 
 // ============================================================
 // SHARED UI
@@ -47,29 +56,23 @@ function SkeletonBlock({ className }: { className: string }) {
   return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
 }
 
-const MARGIN_TIER_CLASS: Record<string, string> = {
-  healthy: 'bg-success-500/10 text-success-500',
-  thin: 'bg-warning-500/10 text-warning-500',
-  loss: 'bg-danger/10 text-danger',
-  unknown: 'bg-bg-tertiary text-text-secondary',
-};
-
 function MarginBadge({ marginPct }: { marginPct: number | null }) {
-  const tier = marginTier(marginPct);
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${MARGIN_TIER_CLASS[tier]}`}>
-      {marginPct === null ? 'No revenue yet' : `${marginPct.toFixed(0)}% margin`}
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${marginBadgeColor(marginPct)}`}>
+      {marginPct !== null && (marginPct < 0 ? <TrendingDown size={11} /> : <TrendingUp size={11} />)}
+      {marginPct === null ? 'No revenue yet' : formatMargin(marginPct)}
     </span>
   );
 }
 
 // ============================================================
-// CATEGORY BREAKDOWN (horizontal bars)
+// CATEGORY BREAKDOWN (horizontal bars) — driven by the view's
+// per-category columns on whatever rows are currently filtered.
 // ============================================================
 
-function CategoryBreakdownChart({ entries }: { entries: JobCostEntry[] }) {
-  const breakdown = useMemo(() => buildCategoryBreakdown(entries), [entries]);
-  const maxVal = Math.max(...breakdown.map((b) => b.total), 1);
+function CategoryBreakdownChart({ rows }: { rows: JobProfitability[] }) {
+  const breakdown = useMemo(() => buildCategoryBreakdown(rows), [rows]);
+  const maxVal = Math.max(...breakdown.map((b) => b.totalCents), 1);
 
   if (breakdown.length === 0) {
     return <p className="py-8 text-center text-sm text-text-secondary">No costs logged yet.</p>;
@@ -79,17 +82,17 @@ function CategoryBreakdownChart({ entries }: { entries: JobCostEntry[] }) {
     <div className="space-y-3">
       {breakdown.map((b, i) => (
         <div key={b.category} className="flex items-center gap-3">
-          <span className="w-28 shrink-0 text-xs font-medium text-text-secondary">{CATEGORY_LABELS[b.category]}</span>
+          <span className="w-28 shrink-0 text-xs font-medium text-text-secondary">{COST_CATEGORY_LABELS[b.category]}</span>
           <div className="h-6 flex-1 overflow-hidden rounded-md bg-bg-tertiary">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${(b.total / maxVal) * 100}%` }}
+              animate={{ width: `${(b.totalCents / maxVal) * 100}%` }}
               transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
               className="h-full rounded-md"
-              style={{ backgroundColor: CATEGORY_COLORS[b.category] }}
+              style={{ backgroundColor: COST_CATEGORY_COLORS[b.category] }}
             />
           </div>
-          <span className="w-20 shrink-0 text-right text-xs font-semibold text-text-primary">{formatCurrency(b.total)}</span>
+          <span className="w-20 shrink-0 text-right text-xs font-semibold text-text-primary">{formatCents(b.totalCents)}</span>
         </div>
       ))}
     </div>
@@ -97,246 +100,297 @@ function CategoryBreakdownChart({ entries }: { entries: JobCostEntry[] }) {
 }
 
 // ============================================================
-// COST ENTRY MODAL (add / edit)
+// COST ENTRY FORM (inline add / edit — with technician + price
+// book item linking)
 // ============================================================
 
-function CostEntryModal({
-  initial,
-  onClose,
-  onSave,
-  submitting,
+function CostEntryForm({
+  jobId,
+  entry,
+  technicians,
+  priceBookItems,
+  onSaved,
+  onCancel,
 }: {
-  initial?: JobCostEntry;
-  onClose: () => void;
-  onSave: (input: JobCostEntryInput) => void;
-  submitting: boolean;
+  jobId: string;
+  entry?: JobCostEntry;
+  technicians: TeamMember[];
+  priceBookItems: PriceBookItem[];
+  onSaved: () => void;
+  onCancel: () => void;
 }) {
-  const [category, setCategory] = useState<CostCategory>(initial?.category ?? 'labor');
-  const [description, setDescription] = useState(initial?.description ?? '');
-  const [amount, setAmount] = useState(initial ? String(initial.amount) : '');
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [form, setForm] = useState<JobCostFormState>(entry ? entryToForm(entry) : EMPTY_JOB_COST_FORM);
+  const [saving, setSaving] = useState(false);
 
-  const parsedAmount = parseFloat(amount);
-  const canSubmit = description.trim().length > 0 && !Number.isNaN(parsedAmount) && parsedAmount > 0;
+  const handleTechPick = (techId: string) => {
+    const tech = technicians.find((t) => t.id === techId);
+    setForm((f) => ({
+      ...f,
+      team_member_id: techId,
+      unit_cost: tech?.hourly_cost_rate_cents != null ? String(tech.hourly_cost_rate_cents / 100) : f.unit_cost,
+    }));
+  };
+
+  const handleItemPick = (itemId: string) => {
+    const item = priceBookItems.find((i) => i.id === itemId);
+    setForm((f) => ({
+      ...f,
+      price_book_item_id: itemId,
+      description: f.description || item?.service_name || '',
+      unit_cost: item?.cost_cents != null ? String(item.cost_cents / 100) : f.unit_cost,
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      await saveCostEntry(form, jobId, user.id, entry?.id);
+      toast('Cost saved', 'success');
+      onSaved();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not save this cost', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ opacity: 0, y: 16, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.25 }}
-        className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
-      >
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-base font-bold text-text-primary">{initial ? 'Edit Cost' : 'Add Cost'}</h2>
-          <button type="button" onClick={onClose} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Close">
-            <X size={18} />
-          </button>
-        </div>
+    <div className="rounded-xl border border-border bg-bg-primary p-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as CostCategory }))} className={inputClass}>
+          {(Object.keys(COST_CATEGORY_LABELS) as CostCategory[]).map((c) => (
+            <option key={c} value={c}>{COST_CATEGORY_LABELS[c]}</option>
+          ))}
+        </select>
+        <input type="number" min={0} step="0.01" value={form.quantity} onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))} placeholder="Qty" className={inputClass} />
+        <input type="number" min={0} step="0.01" value={form.unit_cost} onChange={(e) => setForm((f) => ({ ...f, unit_cost: e.target.value }))} placeholder="Unit cost ($)" className={inputClass} />
+      </div>
 
-        <div className="space-y-4 px-6 py-5">
-          <div>
-            <label className="text-xs font-medium text-text-secondary">Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as CostCategory)}
-              className="focus-ring mt-1.5 w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
-            >
-              {(Object.keys(CATEGORY_LABELS) as CostCategory[]).map((c) => (
-                <option key={c} value={c}>
-                  {CATEGORY_LABELS[c]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-text-secondary">Description</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Copper piping, 2 technicians x 3 hrs"
-              className="focus-ring mt-1.5 w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-text-secondary">Amount ($)</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              className="focus-ring mt-1.5 w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
-            />
-          </div>
-        </div>
+      <input
+        type="text"
+        value={form.description}
+        onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+        placeholder="Description, e.g. 2hrs labor — drain snake"
+        className={`${inputClass} mt-3`}
+      />
 
-        <div className="flex items-center justify-end gap-3 border-t border-border px-6 py-4">
-          <button type="button" onClick={onClose} className="focus-ring rounded-xl px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary">
-            Cancel
-          </button>
-          <button
-            type="button"
-            disabled={!canSubmit || submitting}
-            onClick={() => onSave({ category, description: description.trim(), amount: parsedAmount })}
-            className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {submitting && <Loader2 size={14} className="animate-spin" />}
-            {initial ? 'Save Changes' : 'Add Cost'}
-          </button>
-        </div>
-      </motion.div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <select value={form.team_member_id} onChange={(e) => handleTechPick(e.target.value)} className={inputClass}>
+          <option value="">Link technician (optional)</option>
+          {technicians.map((t) => (
+            <option key={t.id} value={t.id}>{t.member_name ?? t.member_email}</option>
+          ))}
+        </select>
+        <select value={form.price_book_item_id} onChange={(e) => handleItemPick(e.target.value)} className={inputClass}>
+          <option value="">Link price book item (optional)</option>
+          {priceBookItems.map((i) => (
+            <option key={i.id} value={i.id}>{i.service_name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mt-3 flex justify-end gap-2">
+        <button type="button" onClick={onCancel} className="focus-ring flex items-center gap-1 rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary">
+          <X size={14} /> Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+        >
+          {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+          Save cost
+        </button>
+      </div>
     </div>
   );
 }
 
 // ============================================================
-// DELETE CONFIRM MODAL
-// ============================================================
-
-function DeleteConfirmModal({ onClose, onConfirm, submitting }: { onClose: () => void; onConfirm: () => void; submitting: boolean }) {
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.2 }}
-        className="relative w-full max-w-sm rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
-      >
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-danger/10 text-danger">
-          <Trash2 size={20} />
-        </span>
-        <h2 className="mt-4 text-base font-bold text-text-primary">Delete this cost entry?</h2>
-        <p className="mt-2 text-sm leading-relaxed text-text-secondary">This will remove it from the job's profitability calculation. This can't be undone.</p>
-        <div className="mt-6 flex justify-end gap-3">
-          <button type="button" onClick={onClose} className="focus-ring rounded-xl px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary">
-            Cancel
-          </button>
-          <button
-            type="button"
-            disabled={submitting}
-            onClick={onConfirm}
-            className="focus-ring flex items-center gap-2 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {submitting && <Loader2 size={14} className="animate-spin" />}
-            Delete
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-// ============================================================
-// JOB ROW (expandable)
+// JOB ROW (expandable — lazy-loads its cost entries)
 // ============================================================
 
 function JobRow({
-  data,
+  row,
+  technicians,
+  priceBookItems,
   expanded,
   onToggle,
-  onAddCost,
-  onEditCost,
-  onDeleteCost,
 }: {
-  data: JobProfitability;
+  row: JobProfitability;
+  technicians: TeamMember[];
+  priceBookItems: PriceBookItem[];
   expanded: boolean;
   onToggle: () => void;
-  onAddCost: () => void;
-  onEditCost: (entry: JobCostEntry) => void;
-  onDeleteCost: (entry: JobCostEntry) => void;
 }) {
-  const { job, costEntries, revenue, totalCost, profit, marginPct } = data;
-  const isLoss = profit < 0;
+  const { toast } = useToast();
+  const [entries, setEntries] = useState<JobCostEntry[] | null>(null);
+  const [loadingEntries, setLoadingEntries] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<JobCostEntry | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const tech = technicians.find((t) => t.id === row.assigned_technician_id) ?? null;
+
+  const loadEntries = useCallback(async () => {
+    setLoadingEntries(true);
+    try {
+      const data = await fetchCostEntries(row.job_id);
+      setEntries(data);
+    } catch {
+      toast('Could not load cost entries', 'error');
+    } finally {
+      setLoadingEntries(false);
+    }
+  }, [row.job_id, toast]);
+
+  useEffect(() => {
+    if (expanded && entries === null) loadEntries();
+  }, [expanded, entries, loadEntries]);
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    setDeleting(true);
+    try {
+      await deleteCostEntry(deletingId);
+      setEntries((prev) => (prev ? prev.filter((e) => e.id !== deletingId) : prev));
+      toast('Cost deleted', 'success');
+      setDeletingId(null);
+    } catch {
+      toast('Could not delete this cost', 'error');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
       <button type="button" onClick={onToggle} className="focus-ring flex w-full items-center gap-3 px-5 py-4 text-left">
         {expanded ? <ChevronDown size={16} className="shrink-0 text-text-secondary" /> : <ChevronRight size={16} className="shrink-0 text-text-secondary" />}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-text-primary">{job.customer_name}</p>
+          <p className="truncate text-sm font-semibold text-text-primary">{row.customer_name}</p>
           <p className="truncate text-xs text-text-secondary">
-            {job.service_type ?? 'No service type'} · {job.job_status}
+            {row.service_type ?? 'General'} · {tech ? (tech.member_name ?? tech.member_email) : 'Unassigned'} · {row.job_status}
           </p>
         </div>
         <div className="hidden shrink-0 text-right sm:block">
           <p className="text-xs text-text-secondary">Revenue</p>
-          <p className="text-sm font-semibold text-text-primary">{formatCurrency(revenue)}</p>
+          <p className="text-sm font-semibold text-text-primary">{formatCents(row.revenue_cents)}</p>
         </div>
         <div className="hidden shrink-0 text-right sm:block">
           <p className="text-xs text-text-secondary">Costs</p>
-          <p className="text-sm font-semibold text-text-primary">{formatCurrency(totalCost)}</p>
+          <p className="text-sm font-semibold text-text-primary">{formatCents(row.total_cost_cents)}</p>
         </div>
         <div className="shrink-0 text-right">
           <p className="text-xs text-text-secondary">Profit</p>
-          <p className={`flex items-center justify-end gap-1 text-sm font-bold ${isLoss ? 'text-danger' : 'text-success-500'}`}>
-            {isLoss ? <TrendingDown size={13} /> : <TrendingUp size={13} />}
-            {formatCurrency(profit)}
+          <p className={`text-sm font-bold ${row.gross_profit_cents < 0 ? 'text-danger' : 'text-success-500'}`}>
+            {formatCents(row.gross_profit_cents)}
           </p>
         </div>
         <div className="hidden shrink-0 sm:block">
-          <MarginBadge marginPct={marginPct} />
+          <MarginBadge marginPct={row.margin_pct} />
         </div>
       </button>
 
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {expanded && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <div className="border-t border-border px-5 py-4">
-              <div className="mb-3 flex items-center justify-between sm:hidden">
-                <MarginBadge marginPct={marginPct} />
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden border-t border-border"
+          >
+            <div className="space-y-2 p-4">
+              <div className="mb-1 flex items-center justify-between sm:hidden">
+                <MarginBadge marginPct={row.margin_pct} />
                 <span className="text-xs text-text-secondary">
-                  {formatCurrency(revenue)} revenue · {formatCurrency(totalCost)} costs
+                  {formatCents(row.revenue_cents)} revenue · {formatCents(row.total_cost_cents)} costs
                 </span>
               </div>
 
-              {costEntries.length === 0 ? (
-                <p className="py-2 text-sm text-text-secondary">No costs logged for this job yet.</p>
-              ) : (
-                <div className="space-y-2">
-                  {costEntries.map((entry) => (
-                    <div key={entry.id} className="flex items-center justify-between gap-3 rounded-lg bg-bg-tertiary/50 px-3 py-2">
+              {loadingEntries ? (
+                <div className="h-10 animate-pulse rounded-xl bg-bg-tertiary" />
+              ) : entries && entries.length > 0 ? (
+                entries.map((entry) =>
+                  editingEntry?.id === entry.id ? (
+                    <CostEntryForm
+                      key={entry.id}
+                      jobId={row.job_id}
+                      entry={entry}
+                      technicians={technicians}
+                      priceBookItems={priceBookItems}
+                      onCancel={() => setEditingEntry(null)}
+                      onSaved={() => {
+                        setEditingEntry(null);
+                        setEntries(null);
+                      }}
+                    />
+                  ) : (
+                    <div key={entry.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-primary px-4 py-2.5">
                       <div className="flex min-w-0 items-center gap-2">
-                        <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[entry.category] }} />
+                        <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: COST_CATEGORY_COLORS[entry.category] }} />
                         <div className="min-w-0">
                           <p className="truncate text-sm text-text-primary">{entry.description}</p>
-                          <p className="text-xs text-text-secondary">{CATEGORY_LABELS[entry.category]}</p>
+                          <p className="text-xs text-text-secondary">
+                            {COST_CATEGORY_LABELS[entry.category]} · {entry.quantity} × {formatCents(entry.unit_cost_cents)}
+                          </p>
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-sm font-semibold text-text-primary">{formatCurrency(entry.amount)}</span>
-                        <button
-                          type="button"
-                          onClick={() => onEditCost(entry)}
-                          className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
-                          aria-label="Edit cost"
-                        >
-                          <Pencil size={13} />
+                        <span className="text-sm font-medium text-text-primary">{formatCents(entry.total_cost_cents)}</span>
+                        <button type="button" onClick={() => setEditingEntry(entry)} className="focus-ring text-text-secondary hover:text-accent" aria-label="Edit cost">
+                          <Pencil size={14} />
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => onDeleteCost(entry)}
-                          className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-danger/10 hover:text-danger"
-                          aria-label="Delete cost"
-                        >
-                          <Trash2 size={13} />
+                        <button type="button" onClick={() => setDeletingId(entry.id)} className="focus-ring text-text-secondary hover:text-danger" aria-label="Delete cost">
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  ),
+                )
+              ) : (
+                <p className="py-2 text-sm text-text-secondary">No costs logged for this job yet.</p>
               )}
 
-              <button type="button" onClick={onAddCost} className="focus-ring mt-3 flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
-                <Plus size={14} /> Add cost
-              </button>
+              {adding ? (
+                <CostEntryForm
+                  jobId={row.job_id}
+                  technicians={technicians}
+                  priceBookItems={priceBookItems}
+                  onCancel={() => setAdding(false)}
+                  onSaved={() => {
+                    setAdding(false);
+                    setEntries(null);
+                  }}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAdding(true)}
+                  className="focus-ring flex items-center gap-1.5 rounded-xl border border-dashed border-border px-3 py-2 text-sm text-text-secondary transition-colors hover:border-accent hover:text-accent"
+                >
+                  <Plus size={14} /> Add cost
+                </button>
+              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={!!deletingId}
+        title="Delete this cost entry?"
+        description="This will remove it from the job's profitability calculation. This can't be undone."
+        confirmLabel="Yes, delete it"
+        onConfirm={handleDelete}
+        onCancel={() => setDeletingId(null)}
+        loading={deleting}
+      />
     </div>
   );
 }
@@ -346,69 +400,73 @@ function JobRow({
 // ============================================================
 
 type SortKey = 'margin_asc' | 'margin_desc' | 'profit_desc' | 'revenue_desc' | 'recent';
+type StatusFilter = 'all' | JobProfitability['job_status'];
 
 export function ProfitabilityPage() {
   const navigate = useNavigate();
   const { isOwner, permissions } = useAuth();
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Reuses the existing billing permission — profitability is financial data.
   const canAccess = isOwner || permissions.can_view_billing;
 
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [costEntries, setCostEntries] = useState<JobCostEntry[]>([]);
+  const [rows, setRows] = useState<JobProfitability[]>([]);
+  const [technicians, setTechnicians] = useState<TeamMember[]>([]);
+  const [priceBookItems, setPriceBookItems] = useState<PriceBookItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState('');
   const [serviceFilter, setServiceFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('margin_asc');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedJobId, setExpandedJobId] = useState<string | null>(searchParams.get('job'));
 
-  const [costModal, setCostModal] = useState<{ jobId: string; entry?: JobCostEntry } | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<JobCostEntry | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const loadData = useCallback(async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [jobsData, entriesData] = await Promise.all([fetchJobsForCosting(), fetchCostEntries()]);
-      setJobs(jobsData);
-      setCostEntries(entriesData);
+      const [rowsData, techRes, itemsRes] = await Promise.all([
+        fetchProfitabilityRows(),
+        supabase.from('team_members').select('*'),
+        supabase.from('price_book_items').select('*').eq('active', true),
+      ]);
+      setRows(rowsData);
+      setTechnicians((techRes.data as TeamMember[]) || []);
+      setPriceBookItems((itemsRes.data as PriceBookItem[]) || []);
     } catch {
-      toast('Could not load profitability data.', 'error');
+      toast('Could not load profitability data', 'error');
     } finally {
       setLoading(false);
     }
   }, [toast]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (canAccess) fetchAll();
+    else setLoading(false);
+  }, [canAccess, fetchAll]);
 
-  const entriesByJob = useMemo(() => {
-    const map = new Map<string, JobCostEntry[]>();
-    costEntries.forEach((e) => {
-      const list = map.get(e.job_id) ?? [];
-      list.push(e);
-      map.set(e.job_id, list);
-    });
-    return map;
-  }, [costEntries]);
-
-  const profitability = useMemo(() => jobs.map((job) => computeProfitability(job, entriesByJob.get(job.id) ?? [])), [jobs, entriesByJob]);
+  // Consume the ?job= deep link once, then clean the URL.
+  useEffect(() => {
+    if (searchParams.get('job')) {
+      searchParams.delete('job');
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const serviceTypes = useMemo(() => {
     const set = new Set<string>();
-    jobs.forEach((j) => j.service_type && set.add(j.service_type));
+    rows.forEach((r) => r.service_type && set.add(r.service_type));
     return Array.from(set).sort();
-  }, [jobs]);
+  }, [rows]);
 
-  const filtered = useMemo(() => {
-    let list = profitability.filter((p) => {
-      if (serviceFilter !== 'all' && p.job.service_type !== serviceFilter) return false;
+  const filteredRows = useMemo(() => {
+    let list = rows.filter((r) => {
+      if (serviceFilter !== 'all' && r.service_type !== serviceFilter) return false;
+      if (statusFilter !== 'all' && r.job_status !== statusFilter) return false;
       if (search.trim()) {
         const q = search.trim().toLowerCase();
-        const haystack = `${p.job.customer_name} ${p.job.service_type ?? ''}`.toLowerCase();
+        const haystack = `${r.customer_name} ${r.service_type ?? ''}`.toLowerCase();
         if (!haystack.includes(q)) return false;
       }
       return true;
@@ -417,64 +475,23 @@ export function ProfitabilityPage() {
     list = [...list].sort((a, b) => {
       switch (sortKey) {
         case 'margin_asc':
-          return (a.marginPct ?? 999) - (b.marginPct ?? 999);
+          return (a.margin_pct ?? 999) - (b.margin_pct ?? 999);
         case 'margin_desc':
-          return (b.marginPct ?? -999) - (a.marginPct ?? -999);
+          return (b.margin_pct ?? -999) - (a.margin_pct ?? -999);
         case 'profit_desc':
-          return b.profit - a.profit;
+          return b.gross_profit_cents - a.gross_profit_cents;
         case 'revenue_desc':
-          return b.revenue - a.revenue;
+          return b.revenue_cents - a.revenue_cents;
         case 'recent':
         default:
-          return new Date(b.job.created_at).getTime() - new Date(a.job.created_at).getTime();
+          return new Date(b.scheduled_datetime ?? 0).getTime() - new Date(a.scheduled_datetime ?? 0).getTime();
       }
     });
 
     return list;
-  }, [profitability, search, serviceFilter, sortKey]);
+  }, [rows, search, serviceFilter, statusFilter, sortKey]);
 
-  const kpis = useMemo(() => {
-    const totalRevenue = profitability.reduce((sum, p) => sum + p.revenue, 0);
-    const totalCost = profitability.reduce((sum, p) => sum + p.totalCost, 0);
-    const grossProfit = totalRevenue - totalCost;
-    const withRevenue = profitability.filter((p) => p.marginPct !== null);
-    const avgMargin = withRevenue.length > 0 ? withRevenue.reduce((s, p) => s + (p.marginPct ?? 0), 0) / withRevenue.length : null;
-    return { totalRevenue, totalCost, grossProfit, avgMargin };
-  }, [profitability]);
-
-  const handleSaveCost = async (input: JobCostEntryInput) => {
-    if (!costModal) return;
-    setSubmitting(true);
-    try {
-      if (costModal.entry) {
-        await updateCostEntry(costModal.entry.id, input);
-      } else {
-        await addCostEntry(costModal.jobId, input);
-      }
-      toast(costModal.entry ? 'Cost updated.' : 'Cost added.', 'success');
-      setCostModal(null);
-      loadData();
-    } catch {
-      toast('Could not save this cost entry.', 'error');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDeleteCost = async () => {
-    if (!deleteTarget) return;
-    setSubmitting(true);
-    try {
-      await deleteCostEntry(deleteTarget.id);
-      toast('Cost entry deleted.', 'success');
-      setDeleteTarget(null);
-      loadData();
-    } catch {
-      toast('Could not delete this cost entry.', 'error');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const summary = useMemo(() => summarize(filteredRows), [filteredRows]);
 
   if (!canAccess) {
     return (
@@ -506,7 +523,9 @@ export function ProfitabilityPage() {
           </button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Profitability</h1>
-            <p className="mt-1 text-sm text-text-secondary">Track real margin per job — revenue against actual cost.</p>
+            <p className="mt-1 text-sm text-text-secondary">
+              Revenue, cost and margin per job — log labor, material and other costs to see real profit, not just invoiced revenue.
+            </p>
           </div>
         </div>
       </div>
@@ -524,22 +543,22 @@ export function ProfitabilityPage() {
           <>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
               <p className="text-xs font-medium text-text-secondary">Total Revenue</p>
-              <p className="mt-2 text-3xl font-bold text-text-primary">{formatCurrency(kpis.totalRevenue)}</p>
+              <p className="mt-2 text-3xl font-bold text-text-primary">{formatCents(summary.totalRevenueCents)}</p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
               <p className="text-xs font-medium text-text-secondary">Total Costs</p>
-              <p className="mt-2 text-3xl font-bold text-text-primary">{formatCurrency(kpis.totalCost)}</p>
+              <p className="mt-2 text-3xl font-bold text-text-primary">{formatCents(summary.totalCostCents)}</p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
               <p className="text-xs font-medium text-text-secondary">Gross Profit</p>
-              <p className={`mt-2 text-3xl font-bold ${kpis.grossProfit < 0 ? 'text-danger' : 'text-success-500'}`}>
-                {formatCurrency(kpis.grossProfit)}
+              <p className={`mt-2 text-3xl font-bold ${summary.totalProfitCents < 0 ? 'text-danger' : 'text-success-500'}`}>
+                {formatCents(summary.totalProfitCents)}
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
               <p className="text-xs font-medium text-text-secondary">Avg. Margin</p>
               <p className="mt-2 flex items-center gap-1 text-3xl font-bold text-cta">
-                {kpis.avgMargin === null ? '—' : `${kpis.avgMargin.toFixed(0)}%`}
+                {formatMargin(summary.avgMarginPct)}
                 <Percent size={18} className="text-cta/60" />
               </p>
             </div>
@@ -558,7 +577,7 @@ export function ProfitabilityPage() {
           <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
             <h3 className="text-sm font-semibold text-text-primary">Costs by Category</h3>
             <div className="mt-5">
-              <CategoryBreakdownChart entries={costEntries} />
+              <CategoryBreakdownChart rows={filteredRows} />
             </div>
           </div>
         )}
@@ -573,27 +592,25 @@ export function ProfitabilityPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by customer or service type…"
-            className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-9 pr-3 text-sm text-text-primary"
+            className={`${inputClass} pl-9`}
           />
         </div>
         <div className="flex flex-wrap gap-2">
-          <select
-            value={serviceFilter}
-            onChange={(e) => setServiceFilter(e.target.value)}
-            className="focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm text-text-primary"
-          >
+          <select value={serviceFilter} onChange={(e) => setServiceFilter(e.target.value)} className={`${inputClass} w-auto`}>
             <option value="all">All service types</option>
             {serviceTypes.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+              <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          <select
-            value={sortKey}
-            onChange={(e) => setSortKey(e.target.value as SortKey)}
-            className="focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm text-text-primary"
-          >
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)} className={`${inputClass} w-auto`}>
+            <option value="all">All statuses</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="en_route">En Route</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)} className={`${inputClass} w-auto`}>
             <option value="margin_asc">Lowest margin first</option>
             <option value="margin_desc">Highest margin first</option>
             <option value="profit_desc">Highest profit first</option>
@@ -612,38 +629,31 @@ export function ProfitabilityPage() {
               <SkeletonBlock className="mt-2 h-3 w-32" />
             </div>
           ))
-        ) : filtered.length === 0 ? (
+        ) : filteredRows.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
               <DollarSign size={22} />
             </span>
             <h3 className="mt-4 text-base font-semibold text-text-primary">
-              {jobs.length === 0 ? 'No jobs to cost out yet' : 'No jobs match your filters'}
+              {rows.length === 0 ? 'No jobs to cost out yet' : 'No jobs match your filters'}
             </h3>
             <p className="mt-1.5 max-w-sm text-sm text-text-secondary">
-              {jobs.length === 0 ? "Once jobs come in from calls, they'll show up here for cost tracking." : 'Try a different search term or service type.'}
+              {rows.length === 0 ? "Once jobs come in from calls, they'll show up here for cost tracking." : 'Try a different search term or filter.'}
             </p>
           </div>
         ) : (
-          filtered.map((data) => (
+          filteredRows.map((row) => (
             <JobRow
-              key={data.job.id}
-              data={data}
-              expanded={expandedId === data.job.id}
-              onToggle={() => setExpandedId(expandedId === data.job.id ? null : data.job.id)}
-              onAddCost={() => setCostModal({ jobId: data.job.id })}
-              onEditCost={(entry) => setCostModal({ jobId: data.job.id, entry })}
-              onDeleteCost={(entry) => setDeleteTarget(entry)}
+              key={row.job_id}
+              row={row}
+              technicians={technicians}
+              priceBookItems={priceBookItems}
+              expanded={expandedJobId === row.job_id}
+              onToggle={() => setExpandedJobId((prev) => (prev === row.job_id ? null : row.job_id))}
             />
           ))
         )}
       </div>
-
-      {costModal && (
-        <CostEntryModal initial={costModal.entry} onClose={() => setCostModal(null)} onSave={handleSaveCost} submitting={submitting} />
-      )}
-
-      {deleteTarget && <DeleteConfirmModal onClose={() => setDeleteTarget(null)} onConfirm={handleDeleteCost} submitting={submitting} />}
     </DashboardLayout>
   );
 }
