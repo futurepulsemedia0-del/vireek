@@ -47,6 +47,7 @@ const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) =>
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
+const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m) => ({ default: m.ProfitabilityPage })));
 const TeamPage = lazy(() => import('@/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
 const BillingPage = lazy(() => import('@/pages/BillingPage').then((m) => ({ default: m.BillingPage })));
@@ -498,6 +499,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FranchiseCommandCenterPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/event-bus"
+          element={
+            <ProtectedRoute>
+              <EventBusPage />
             </ProtectedRoute>
           }
         />
