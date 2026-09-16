@@ -90,6 +90,8 @@ const FOOTER_COLUMNS = [
       { label: 'Book a Demo', href: '/demo' },
       { label: 'Security', href: '/security' },
       { label: 'Enterprise', href: '/enterprise' },
+      { label: 'Switch Guides', href: '/switch' },
+      { label: 'Services', href: '/services' },
     ],
   },
   {
@@ -186,6 +188,7 @@ const FOOTER_COLUMNS = [
       { label: 'Trademark Policy', href: '/trademark-policy' },
       { label: 'Vulnerability Disclosure', href: '/vulnerability-disclosure' },
       { label: 'CCPA Rights', href: '/ccpa' },
+      { label: 'Accessibility', href: '/accessibility' },
     ],
   },
 ];
