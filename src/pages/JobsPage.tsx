@@ -20,6 +20,8 @@ import {
   LayoutGrid,
   List,
   Star,
+  RotateCcw,
+} from 'lucide-react';
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -295,6 +297,12 @@ function JobDetailPanel({
               {job.service_type && <p className="text-sm text-text-secondary">{job.service_type}</p>}
             </div>
           </div>
+          {job.is_rework && (
+            <div className="mt-3 flex items-center gap-2 rounded-xl bg-warning-500/10 px-3 py-2 text-xs font-medium text-warning-500">
+              <RotateCcw size={13} />
+              Repeat visit — same customer &amp; service type as an earlier completed job
+            </div>
+          )}
         </div>
 
         {/* Meta */}
@@ -1367,7 +1375,14 @@ export function JobsPage() {
                       className="cursor-pointer border-b border-border transition-colors last:border-0 hover:bg-bg-tertiary/50"
                     >
                       <td className="px-4 py-3 text-sm font-medium text-text-primary whitespace-nowrap">
-                        {job.customer_name}
+                        <span className="flex items-center gap-1.5">
+                          {job.customer_name}
+                          {job.is_rework && (
+                            <span title="Repeat visit — same customer/service type as an earlier job">
+                              <RotateCcw size={12} className="text-warning-500" />
+                            </span>
+                          )}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-text-secondary whitespace-nowrap">
                         {job.service_type || '—'}
