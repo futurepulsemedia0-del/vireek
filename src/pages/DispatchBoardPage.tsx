@@ -86,21 +86,29 @@ export function DispatchBoardPage() {
     fetchAll();
   };
 
-  const handleAssign = async (job: Job, technicianId: string) => {
-    setAssigning(job.id);
-    const { error } = await supabase
-      .from('jobs')
-      .update({ assigned_technician_id: technicianId })
-      .eq('id', job.id);
+const handleAssign = async (job: Job, technicianId: string) => {
+  setAssigning(job.id);
 
-    if (error) {
-      toast(isDoubleBookingError(error) ? DOUBLE_BOOKING_MESSAGE : 'Could not assign this job', 'error');
-    } else {
-      setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, assigned_technician_id: technicianId } : j)));
-      toast('Job assigned', 'success');
-    }
-    setAssigning(null);
-  };
+  const { data, error } = await supabase.rpc('assign_technician_to_job', {
+    p_job_id: job.id,
+    p_technician_id: technicianId,
+  });
+
+  if (error || data?.status !== 'assigned') {
+    toast(data?.reason || 'Could not assign this job', 'error');
+  } else {
+    setJobs((prev) =>
+      prev.map((j) =>
+        j.id === job.id
+          ? { ...j, assigned_technician_id: technicianId }
+          : j
+      )
+    );
+    toast('Job assigned', 'success');
+  }
+
+  setAssigning(null);
+};
 
   return (
     <DashboardLayout>
