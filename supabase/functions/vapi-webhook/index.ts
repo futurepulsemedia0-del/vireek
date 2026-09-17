@@ -900,6 +900,27 @@ async function toolLookupCustomer(
     return "No phone number was provided, so I can't look up this customer.";
   }
 
+  // Knowledge Graph — Customer × Equipment × Job × Call. Resolve the
+  // customer record for this phone (if any) so Sarah can reference
+  // specific units, not just job-level warranty text.
+  const { data: customerRecord } = await admin
+    .from("customers")
+    .select("id")
+    .eq("user_id", tenant.userId)
+    .eq("phone", phone)
+    .maybeSingle();
+
+  const { data: equipmentOnFile } = customerRecord
+    ? await admin
+        .from("equipment")
+        .select("equipment_type, make, model, install_date, warranty_expires_at, warranty_notes, status")
+        .eq("user_id", tenant.userId)
+        .eq("customer_id", customerRecord.id)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(5)
+    : { data: null as { equipment_type: string; make: string | null; model: string | null; install_date: string | null; warranty_expires_at: string | null; warranty_notes: string | null; status: string }[] | null };
+
   const { data: pastCalls, error: callsError } = await admin
     .from("calls")
     .select("caller_name, summary, call_datetime, status")
@@ -920,7 +941,7 @@ async function toolLookupCustomer(
     return "I couldn't reach the customer records system right now.";
   }
 
-  if ((!pastCalls || pastCalls.length === 0) && (!pastJobs || pastJobs.length === 0)) {
+  if ((!pastCalls || pastCalls.length === 0) && (!pastJobs || pastJobs.length === 0) && (!equipmentOnFile || equipmentOnFile.length === 0)) {
     return "This looks like a new customer — no prior calls or jobs on file.";
   }
 
@@ -968,6 +989,24 @@ async function toolLookupCustomer(
     }
   }
 
+  if (equipmentOnFile && equipmentOnFile.length > 0) {
+    for (const eq of equipmentOnFile) {
+      const label = [eq.make, eq.model].filter(Boolean).join(" ") || eq.equipment_type;
+      const installNote = eq.install_date ? `, installed ${new Date(eq.install_date).toDateString()}` : "";
+      let warrantyNote = "";
+      if (eq.warranty_expires_at) {
+        const warrantyDate = new Date(eq.warranty_expires_at);
+        warrantyNote =
+          warrantyDate.getTime() >= Date.now()
+            ? ` — still under warranty until ${warrantyDate.toDateString()}${eq.warranty_notes ? ` (${eq.warranty_notes})` : ""}`
+            : ` — warranty expired ${warrantyDate.toDateString()}`;
+      }
+      parts.push(
+        `On file: ${eq.equipment_type} (${label})${installNote}${warrantyNote}. Confirm with the caller this is the unit they mean before assuming.`,
+      );
+    }
+  }
+  
   // Membership upsell hook — see 20260912060000_quote_followups_and_financing.sql
   // and MembershipsPage.tsx. This is what actually lets Sarah know a caller's
   // membership status instead of just showing it in the dashboard.
