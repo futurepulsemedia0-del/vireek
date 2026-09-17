@@ -199,6 +199,8 @@ export interface Job {
   customer_type: 'residential' | 'commercial';
   sla_response_hours: number | null;
   contract_reference: string | null;
+  is_rework: boolean;
+  rework_of_job_id: string | null;
   created_at: string;
 }
 
