@@ -130,15 +130,16 @@ const FOOTER_COLUMNS = [
   {
     title: 'Resources',
     links: [
-      { label: 'Blog', href: '/blog' },
       { label: 'State of Home Service Calls Report', href: '/report' },
+      { label: 'Customer ROI', href: '/roi' },
+      { label: 'Case Studies', href: '/case-studies' },
+      { label: 'Blog', href: '/blog' },
       { label: 'Podcast', href: '/podcast' },
       { label: 'Onboarding Guide', href: '/onboarding-guide' },
       { label: 'Academy', href: '/academy' },
       { label: 'Community', href: '/community' },
       { label: 'Champions', href: '/ambassador' },
       { label: 'Glossary', href: '/glossary' },
-      { label: 'Case Studies', href: '/case-studies' },
       { label: 'Testimonials', href: '/testimonials' },
       { label: 'Help Center', href: '/help' },
       { label: 'FAQ', href: '/faq' },
@@ -147,7 +148,6 @@ const FOOTER_COLUMNS = [
       { label: 'Changelog', href: '/changelog' },
       { label: 'Roadmap', href: '/roadmap' },
       { label: 'Webinars & Events', href: '/webinars' },
-      { label: 'Customer ROI', href: '/roi' },
     ],
   },
   {
