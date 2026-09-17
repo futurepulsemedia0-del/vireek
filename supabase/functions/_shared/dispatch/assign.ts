@@ -76,8 +76,27 @@ export async function assignBestTechnician(admin: SupabaseClient, userId: string
     return { technicianId: null, technicianName: null, reason: "Every technician is at capacity for that day." };
   }
 
-  const best = scored[0].tech;
-  await admin.from("jobs").update({ assigned_technician_id: best.id }).eq("id", job.id);
+  for (const candidate of scored) {
+    const { error } = await admin
+      .from("jobs")
+      .update({ assigned_technician_id: candidate.tech.id })
+      .eq("id", job.id);
 
-  return { technicianId: best.id, technicianName: best.member_name, reason: "Assigned by AI Dispatcher — best skill/service-area/capacity match." };
+    if (!error) {
+      return {
+        technicianId: candidate.tech.id,
+        technicianName: candidate.tech.member_name,
+        reason: "Assigned by AI Dispatcher — best skill/service-area/capacity match.",
+      };
+    }
+
+    if (error.code !== "23P01") {
+      return { technicianId: null, technicianName: null, reason: `Could not assign a technician: ${error.message}` };
+    }
+    // 23P01 = this technician is already booked at that exact time
+    // (jobs_no_double_booking) — try the next best match instead of
+    // leaving the job unassigned.
+  }
+
+  return { technicianId: null, technicianName: null, reason: "Every matching technician is already booked at that time." };
 }
