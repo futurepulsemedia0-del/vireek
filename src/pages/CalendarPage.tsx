@@ -791,12 +791,12 @@ export function CalendarPage() {
         if (error) throw error;
         if (successMessage) toast(successMessage, 'success');
         return true;
-      } catch {
+      } catch (error) {
         if (previous) {
           setAllJobs((prev) => prev.map((j) => (j.id === jobId ? previous : j)));
           setSelectedJob((prev) => (prev && prev.id === jobId ? previous : prev));
         }
-        toast('Could not update the job. Please try again.', 'error');
+        toast(isDoubleBookingError(error) ? DOUBLE_BOOKING_MESSAGE : 'Could not update the job. Please try again.', 'error');
         return false;
       }
     },
