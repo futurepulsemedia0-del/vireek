@@ -781,27 +781,63 @@ export function CalendarPage() {
   // Mutations
   // ------------------------------------------------------------
 
-  const updateJob = useCallback(
-    async (jobId: string, updates: Partial<Job>, successMessage?: string) => {
-      const previous = allJobs.find((j) => j.id === jobId) ?? null;
-      setAllJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, ...updates } : j)));
-      setSelectedJob((prev) => (prev && prev.id === jobId ? { ...prev, ...updates } : prev));
-      try {
-        const { error } = await supabase.from('jobs').update(updates).eq('id', jobId);
-        if (error) throw error;
-        if (successMessage) toast(successMessage, 'success');
-        return true;
-      } catch (error) {
-        if (previous) {
-          setAllJobs((prev) => prev.map((j) => (j.id === jobId ? previous : j)));
-          setSelectedJob((prev) => (prev && prev.id === jobId ? previous : prev));
+const updateJob = useCallback(
+  async (jobId: string, updates: Partial<Job>, successMessage?: string) => {
+    const previous = allJobs.find((j) => j.id === jobId) ?? null;
+    setAllJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, ...updates } : j)));
+    setSelectedJob((prev) => (prev && prev.id === jobId ? { ...prev, ...updates } : prev));
+
+    try {
+      if (updates.assigned_technician_id) {
+        const { data, error } = await supabase.rpc('assign_technician_to_job', {
+          p_job_id: jobId,
+          p_technician_id: updates.assigned_technician_id,
+        });
+
+        if (error || data?.status !== 'assigned') {
+          throw new Error(data?.reason || error?.message || 'Could not assign this job.');
         }
-        toast(isDoubleBookingError(error) ? DOUBLE_BOOKING_MESSAGE : 'Could not update the job. Please try again.', 'error');
-        return false;
+
+        const rest = { ...updates };
+        delete rest.assigned_technician_id;
+
+        if (Object.keys(rest).length > 0) {
+          const { error: restError } = await supabase
+            .from('jobs')
+            .update(rest)
+            .eq('id', jobId);
+
+          if (restError) throw restError;
+        }
+      } else {
+        const { error } = await supabase
+          .from('jobs')
+          .update(updates)
+          .eq('id', jobId);
+
+        if (error) throw error;
       }
-    },
-    [allJobs, toast]
-  );
+
+      if (successMessage) toast(successMessage, 'success');
+      return true;
+    } catch (err) {
+      if (previous) {
+        setAllJobs((prev) => prev.map((j) => (j.id === jobId ? previous : j)));
+        setSelectedJob((prev) => (prev && prev.id === jobId ? previous : prev));
+      }
+
+      toast(
+        err instanceof Error
+          ? err.message
+          : 'Could not update the job. Please try again.',
+        'error'
+      );
+
+      return false;
+    }
+  },
+  [allJobs, toast]
+);
 
   // ------------------------------------------------------------
   // Drag and drop
