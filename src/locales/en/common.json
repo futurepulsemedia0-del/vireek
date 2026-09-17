@@ -1,7 +1,7 @@
 {
   "nav": {
-    "features": "Features",
-    "platform": "Platform",
+    "features": "Meet Sarah",
+    "platform": "How It Works",
     "industries": "Industries",
     "pricing": "Pricing",
     "compare": "Compare",
@@ -14,6 +14,20 @@
     "startFreeTrial": "Start Free Trial",
     "bookDemo": "Book a Demo",
     "talkToSarah": "Talk to Sarah"
+  },
+  "finalCta": {
+    "headline": "Stop Losing Jobs to Voicemail",
+    "subhead": "Every call Sarah answers is a customer who",
+    "guaranteeLive": "Live in 15 minutes",
+    "guaranteeNoCard": "No credit card required",
+    "guaranteeCancel": "Cancel anytime",
+    "getStarted": "Get started",
+    "startTrial": "Start Your Free Trial",
+    "trialTerms": "14 days · no card required · cancel anytime",
+    "createAccount": "Create your account",
+    "hearFirst": "Hear it first",
+    "callNow": "Call Sarah Right Now",
+    "callSubtitle": "A real, live conversation — no signup required"
   },
   "footer": {
     "product": "Product",
