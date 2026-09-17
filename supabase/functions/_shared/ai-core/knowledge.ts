@@ -31,7 +31,8 @@ const KNOWLEDGE_BASE: KnowledgeEntry[] = [
   {
     topic: "company",
     facts:
-      "Vireek is an AI-powered virtual receptionist and business-operations platform for home-service businesses (plumbing, HVAC, electrical, roofing, restoration, locksmith, and similar trades). It answers and triages phone calls 24/7, captures and qualifies leads, detects emergencies, books appointments, and gives owners a dashboard with call/lead/job/revenue visibility so a missed call never becomes a lost job.",
+      "Vireek is an AI-powered virtual receptionist and business-operations platform for home-service businesses (plumbing, HVAC, electrical, roofing, restoration, locksmith, and similar trades). It answers and triages phone calls 24/7, captures and qualifies leads, detects emergencies, books appointments, and gives owners a dashboard with call/lead/job/revenue visibility so a missed call never becomes a lost job. " +
+      "Vireek is a small, early-stage, founder-led company. It does not claim a specific customer count, team size, or funding figure — never invent or imply one (no 'trusted by X businesses' or similar) if asked; say plainly that Vireek is early-stage and exact figures aren't published.",
   },
   {
     topic: "product",
@@ -69,12 +70,14 @@ const KNOWLEDGE_BASE: KnowledgeEntry[] = [
   {
     topic: "policies",
     facts:
-      "Vireek never impersonates a human when a caller directly asks if they're talking to an AI. Customer call and business data is scoped per account with Postgres Row Level Security — one account can never query another's data, and a team member only sees what their role's permissions allow. All calls are encrypted in transit and at rest. Enterprise plans include audit logging and role-based access controls.",
+      "Vireek never impersonates a human when a caller directly asks if they're talking to an AI. Customer call and business data is scoped per account with Postgres Row Level Security — one account can never query another's data, and a team member only sees what their role's permissions allow. All calls are encrypted in transit and at rest. Enterprise plans include audit logging and role-based access controls. " +
+      "IMPORTANT: Vireek does not currently hold or claim SOC 2, HIPAA, PCI-DSS, or ISO 27001 certification — never state or imply that it does. If asked about a specific certification, say it isn't currently published and suggest contacting ali@vireek.com or booking a demo to discuss compliance requirements. " +
+      "Vireek is also not a replacement for emergency services (911/fire/police/ambulance) — it helps a business avoid missing an urgent customer call, it does not perform life-safety dispatch itself.",
   },
   {
     topic: "faq",
     facts:
-      "Common questions: (1) Does it replace my staff? — It handles calls so staff aren't interrupted mid-job, and warm-transfers or escalates anything it can't resolve; on Professional+ it can transfer live to on-call staff. (2) What happens on an emergency call? — It's detected against the business's own escalation rules and flagged/dispatched immediately rather than queued normally. (3) Can it book appointments? — Yes, synced to the connected calendar based on real availability. (4) What if I go over my included minutes? — Billed at the per-minute overage rate shown on the plan, visible up front, never a surprise fee or auto-upgrade. (5) Is there a setup fee? — No, on any plan.",
+      "Common questions: (1) Does it replace my staff? — It handles calls so staff aren't interrupted mid-job, and warm-transfers or escalates anything it can't resolve; on Professional+ it can transfer live to on-call staff. Many businesses use it to support existing staff rather than fully replace human judgment for complex situations. (2) What happens on an emergency call? — It's detected against the business's own escalation rules and flagged/dispatched immediately rather than queued normally (not a substitute for calling 911). (3) Can it book appointments? — Yes, synced to the connected calendar based on real availability. (4) What if I go over my included minutes? — Billed at the per-minute overage rate shown on the plan, visible up front, never a surprise fee or auto-upgrade. (5) Is there a setup fee? — No, on any plan. (6) Do I need a new phone number? — No, in most cases the business keeps its existing number and forwards calls to Vireek.",
   },
   {
     topic: "contact",
@@ -100,7 +103,7 @@ export function findRelevantTopics(question: string): KnowledgeTopic[] {
     ["pricing", ["price", "pricing", "cost", "plan", "$", "fee", "trial", "minute", "overage", "upgrade", "downgrade"]],
     ["industries", ["industry", "trade", "plumb", "hvac", "electric", "roof", "restoration", "locksmith", "clean", "landscap"]],
     ["onboarding", ["sign up", "signup", "onboard", "get started", "setup", "set up", "trial"]],
-    ["policies", ["human", "privacy", "data", "security", "policy", "encrypt", "rls", "access"]],
+    ["policies", ["human", "privacy", "data", "security", "policy", "encrypt", "rls", "access", "compliance", "certification", "soc 2", "soc2", "hipaa", "911", "emergency service"]],
     ["faq", ["replace", "staff", "emergency", "book", "appointment", "transfer", "escalat"]],
     ["product", ["feature", "does it", "capable", "can it", "crm", "integrat", "dashboard"]],
     ["company", ["what is vireek", "who is vireek", "about vireek"]],
