@@ -94,7 +94,7 @@ export function DispatchBoardPage() {
       .eq('id', job.id);
 
     if (error) {
-      toast('Could not assign this job', 'error');
+      toast(isDoubleBookingError(error) ? DOUBLE_BOOKING_MESSAGE : 'Could not assign this job', 'error');
     } else {
       setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, assigned_technician_id: technicianId } : j)));
       toast('Job assigned', 'success');
