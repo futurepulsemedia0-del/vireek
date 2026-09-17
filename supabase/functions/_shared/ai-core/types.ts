@@ -13,8 +13,7 @@ export type TaskType =
   | "general"
   | "call_intelligence"
   | "business_insights"
-  | "onboarding_extract"
-  | "onboarding_concierge";
+  | "dispatch_copilot";
 
 export interface ChatMessage {
   role: "user" | "assistant";
