@@ -77,6 +77,12 @@ export function UnderpricedJobsPage() {
     [techSummary],
   );
 
+  const techNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const t of techSummary) map.set(t.assigned_technician_id ?? 'unassigned', technicianLabel(t));
+    return map;
+  }, [techSummary]);
+  
   const summary = summarizeUnderpricing(rows);
 
   return (
@@ -234,7 +240,7 @@ export function UnderpricedJobsPage() {
                               </p>
                             </Link>
                           </td>
-                          <td className="px-4 py-3 text-text-secondary">{technicianLabel(row as never)}</td>
+                          <td className="px-4 py-3 text-text-secondary">{techNameById.get(row.assigned_technician_id ?? 'unassigned') ?? 'Unassigned'}</td>
                           <td className="px-4 py-3 text-text-secondary">{formatCents(row.book_price_cents)}</td>
                           <td className="px-4 py-3 text-text-secondary">{formatCents(row.invoice_cents)}</td>
                           <td className="px-4 py-3">
