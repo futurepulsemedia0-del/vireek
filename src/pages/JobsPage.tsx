@@ -28,6 +28,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { getRescheduleLink } from '@/lib/reschedule';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
+import { PriceBookItem } from '@/lib/priceBook';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
@@ -519,11 +520,13 @@ interface PrefillData {
 
 function CreateJobModal({
   technicians,
+  priceBookItems,
   prefill,
   onClose,
   onCreated,
 }: {
   technicians: TeamMember[];
+  priceBookItems: PriceBookItem[];
   prefill: PrefillData | null;
   onClose: () => void;
   onCreated: () => void;
@@ -531,6 +534,7 @@ function CreateJobModal({
   const [customerName, setCustomerName] = useState(prefill?.customer_name ?? '');
   const [customerPhone, setCustomerPhone] = useState('');
   const [serviceType, setServiceType] = useState(prefill?.service_type ?? '');
+  const [priceBookItemId, setPriceBookItemId] = useState('');
   const [address, setAddress] = useState('');
   const [scheduledDate, setScheduledDate] = useState('');
   const [technicianId, setTechnicianId] = useState('');
@@ -548,6 +552,7 @@ function CreateJobModal({
         customer_name: customerName.trim(),
         customer_phone: customerPhone.trim() || null,
         service_type: serviceType.trim() || null,
+        price_book_item_id: priceBookItemId || null,
         address: address.trim() || null,
         job_status: 'scheduled',
         invoice_status: 'not_sent',
@@ -622,6 +627,27 @@ function CreateJobModal({
               placeholder="e.g. Plumbing repair"
               className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
             />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-text-primary">Price Book Item (optional)</label>
+            <select
+              value={priceBookItemId}
+              onChange={(e) => {
+                const id = e.target.value;
+                setPriceBookItemId(id);
+                const item = priceBookItems.find((p) => p.id === id);
+                if (item && !serviceType.trim()) setServiceType(item.service_name);
+              }}
+              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
+            >
+              <option value="">Not linked</option>
+              {priceBookItems.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.service_name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-text-secondary/70">Links this job to its catalog price for accurate underpricing detection.</p>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text-primary">Service Address</label>
@@ -730,6 +756,7 @@ export function JobsPage() {
 
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [technicians, setTechnicians] = useState<TeamMember[]>([]);
+  const [priceBookItems, setPriceBookItems] = useState<PriceBookItem[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -751,9 +778,10 @@ export function JobsPage() {
     if (!user) return;
     setDataLoading(true);
     try {
-      const [jobsRes, techRes] = await Promise.all([
+      const [jobsRes, techRes, priceBookRes] = await Promise.all([
         supabase.from('jobs').select('*').order('created_at', { ascending: false }),
         supabase.from('team_members').select('*').eq('role', 'technician').eq('invite_status', 'active'),
+        supabase.from('price_book_items').select('*').eq('active', true).order('service_name'),
       ]);
       let jobs = (jobsRes.data as Job[]) ?? [];
       // Technicians without can_view_all_jobs only see jobs assigned to them
@@ -762,6 +790,7 @@ export function JobsPage() {
       }
       setAllJobs(jobs);
       if (techRes.data) setTechnicians(techRes.data as TeamMember[]);
+      if (priceBookRes.data) setPriceBookItems(priceBookRes.data as PriceBookItem[]);
     } catch {
       // empty states
     } finally {
@@ -1447,6 +1476,7 @@ export function JobsPage() {
         {showCreateModal && (
           <CreateJobModal
             technicians={technicians}
+            priceBookItems={priceBookItems}
             prefill={prefill}
             onClose={() => {
               setShowCreateModal(false);
