@@ -123,7 +123,7 @@ export const cohereAdapter: ProviderAdapter = {
         body: JSON.stringify({
           model,
           texts: req.input,
-          input_type: "search_document",
+          input_type: req.inputType ?? "search_document",
         }),
       });
     } catch (err) {
