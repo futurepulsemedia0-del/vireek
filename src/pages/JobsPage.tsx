@@ -550,10 +550,11 @@ function CreateJobModal({
       if (prefill?.lead_id) insert.lead_id = prefill.lead_id;
       if (prefill?.call_id) insert.call_id = prefill.call_id;
       if (scheduledDate) insert.scheduled_datetime = new Date(scheduledDate).toISOString();
-      if (technicianId) insert.assigned_technician_id = technicianId;
-
-      const { error } = await supabase.from('jobs').insert(insert);
+      const { data: created, error } = await supabase.from('jobs').insert(insert).select('id').single();
       if (error) throw error;
+      if (technicianId && created) {
+        await supabase.rpc('assign_technician_to_job', { p_job_id: created.id, p_technician_id: technicianId });
+      }
       onCreated();
     } catch {
       // parent handles toast
@@ -944,11 +945,16 @@ export function JobsPage() {
   const updateTechnician = async (techId: string | null) => {
     if (!selectedJob) return;
     try {
-      const { error } = await supabase
-        .from('jobs')
-        .update({ assigned_technician_id: techId })
-        .eq('id', selectedJob.id);
-      if (error) throw error;
+      if (techId) {
+        const { data, error } = await supabase.rpc('assign_technician_to_job', {
+          p_job_id: selectedJob.id,
+          p_technician_id: techId,
+        });
+        if (error || data?.status !== 'assigned') throw new Error(data?.reason || error?.message);
+      } else {
+        const { error } = await supabase.from('jobs').update({ assigned_technician_id: null }).eq('id', selectedJob.id);
+        if (error) throw error;
+      }
       setAllJobs((prev) =>
         prev.map((j) => (j.id === selectedJob.id ? { ...j, assigned_technician_id: techId } : j))
       );
