@@ -31,72 +31,21 @@ export interface AssignResult {
 }
 
 export async function assignBestTechnician(admin: SupabaseClient, userId: string, job: JobRow): Promise<AssignResult> {
-  const { data: technicians } = await admin
-    .from("team_members")
-    .select("id, member_name, skills, service_area, max_jobs_per_day")
-    .eq("account_owner_id", userId)
-    .eq("role", "technician")
-    .eq("invite_status", "active")
-    .eq("dispatch_enabled", true);
+  const { data, error } = await admin.rpc("assign_technician_to_job", { p_job_id: job.id, p_technician_id: null });
 
-  if (!technicians || technicians.length === 0) {
-    return { technicianId: null, technicianName: null, reason: "No dispatch-enabled technicians on the team." };
+  if (error) {
+    return { technicianId: null, technicianName: null, reason: error.message };
   }
 
-  const { data: activeJobs } = await admin
-    .from("jobs")
-    .select("assigned_technician_id, scheduled_datetime")
-    .eq("user_id", userId)
-    .not("assigned_technician_id", "is", null)
-    .in("job_status", ["scheduled", "en_route", "in_progress"]);
+  const result = data as { status: string; technician_id?: string; technician_name?: string | null; reason?: string };
 
-  const loadByTech: Record<string, number> = {};
-  for (const j of activeJobs ?? []) {
-    if (!isSameDay(j.scheduled_datetime, job.scheduled_datetime)) continue;
-    const techId = j.assigned_technician_id as string;
-    loadByTech[techId] = (loadByTech[techId] ?? 0) + 1;
+  if (result.status !== "assigned") {
+    return { technicianId: null, technicianName: null, reason: result.reason ?? "No technician available." };
   }
 
-  const scored = (technicians as TeamMemberRow[])
-    .map((tech) => {
-      const load = loadByTech[tech.id] ?? 0;
-      const capacity = tech.max_jobs_per_day || 6;
-      if (load >= capacity) return { tech, score: -1 };
-
-      let score = (capacity - load) * 2;
-      if (job.service_type && tech.skills.includes(job.service_type)) score += 10;
-      if (tech.service_area && job.address && job.address.toLowerCase().includes(tech.service_area.toLowerCase())) score += 5;
-
-      return { tech, score };
-    })
-    .filter((s) => s.score >= 0)
-    .sort((a, b) => b.score - a.score);
-
-  if (scored.length === 0) {
-    return { technicianId: null, technicianName: null, reason: "Every technician is at capacity for that day." };
-  }
-
-  for (const candidate of scored) {
-    const { error } = await admin
-      .from("jobs")
-      .update({ assigned_technician_id: candidate.tech.id })
-      .eq("id", job.id);
-
-    if (!error) {
-      return {
-        technicianId: candidate.tech.id,
-        technicianName: candidate.tech.member_name,
-        reason: "Assigned by AI Dispatcher — best skill/service-area/capacity match.",
-      };
-    }
-
-    if (error.code !== "23P01") {
-      return { technicianId: null, technicianName: null, reason: `Could not assign a technician: ${error.message}` };
-    }
-    // 23P01 = this technician is already booked at that exact time
-    // (jobs_no_double_booking) — try the next best match instead of
-    // leaving the job unassigned.
-  }
-
-  return { technicianId: null, technicianName: null, reason: "Every matching technician is already booked at that time." };
+  return {
+    technicianId: result.technician_id ?? null,
+    technicianName: result.technician_name ?? null,
+    reason: result.reason ?? "Assigned by AI Dispatcher — best skill/service-area/capacity match.",
+  };
 }
