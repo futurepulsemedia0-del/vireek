@@ -33,6 +33,25 @@ export function PricingTeaser() {
           <p className={`${bodyClass()} text-sm sm:text-base md:text-lg`}>{"Just one who never sleeps, never takes a sick day, and costs less than an hour of overtime."}</p>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={{ duration: 0.4, delay: 0.05, ease: EASE }}
+          className="mx-auto mt-8 flex max-w-xl flex-col items-center gap-2 rounded-2xl border border-accent/20 bg-accent/5 px-5 py-4 text-center sm:mt-10 sm:flex-row sm:gap-4 sm:text-left"
+        >
+          <p className="text-sm leading-relaxed text-text-primary">
+            <span className="font-semibold">One missed emergency call averages $1,200+.</span> Every plan below
+            costs less than that per month.
+          </p>
+          <Link
+            to="/roi"
+            className="focus-ring inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-accent hover:underline"
+          >
+            See real payback numbers
+          </Link>
+        </motion.div>
+
         {/* Mobile: horizontal scroll cards */}
         <div className="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 sm:mt-12 sm:hidden">
           {TEASER_PLANS.map((plan, index) => (
