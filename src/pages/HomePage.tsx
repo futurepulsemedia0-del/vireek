@@ -3,31 +3,29 @@ import { Footer } from '@/components/Footer';
 import { useSEO } from '@/lib/seo';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Hero } from '@/components/sections/Hero';
-import { SocialProof } from '@/components/sections/SocialProof';
-import { HighlightBanner } from '@/components/sections/HighlightBanner';
 import { TrustBar } from '@/components/sections/TrustBar';
-import { ReviewBadges } from '@/components/sections/ReviewBadges';
 import { HowItWorks } from '@/components/sections/HowItWorks';
-import { DashboardPreview } from '@/components/sections/DashboardPreview';
+import { WhyNow } from '@/components/sections/WhyNow';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
-import { Integrations } from '@/components/sections/Integrations';
-import { IntegrationEcosystem } from '@/components/sections/IntegrationEcosystem';
-import { Comparison } from '@/components/sections/Comparison';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 /**
- * Homepage — cut down to a single, six-section path: prove it works (Hero),
- * prove it's trusted (TrustBar), explain it (HowItWorks), let the visitor
- * try it themselves (LiveDemo), make the cost of missed calls concrete
- * (MissedCallCalculator), show the price (PricingTeaser), close
- * (FinalCTA). Everything else that used to live here — AICapability,
- * LiveActivityStream, DashboardPreview, Industries, Integrations,
- * CaseStudies — was saying the same "Sarah is smart" pitch a second or
- * third time and pushing the live demo and pricing further down the page
- * than a first-time visitor actually scrolls. That content isn't gone: it
- * lives on /platform, /industries, /integrations and /case-studies, all one
- * click away from the header and footer nav.
+ * Homepage — a single, seven-section path: prove it works (Hero), prove
+ * it's trusted (TrustBar), make the case for urgency (WhyNow), explain it
+ * (HowItWorks), let the visitor try it themselves (LiveDemo), make the
+ * cost of missed calls concrete (MissedCallCalculator), show the price
+ * (PricingTeaser), close (FinalCTA).
+ *
+ * SocialProof, HighlightBanner, ReviewBadges, DashboardPreview,
+ * Integrations and Comparison used to live here too. Each one was saying
+ * a version of "Sarah is smart and trusted" a second or third time,
+ * which pushed the live demo and pricing further down the page than a
+ * first-time visitor actually scrolls — and Comparison specifically
+ * duplicated the dedicated, more complete /compare page. None of that
+ * content is gone: it lives on /platform, /industries, /integrations,
+ * /compare and /case-studies, all one click away from the header and
+ * footer nav.
  */
 export function HomePage() {
   useSEO({
@@ -43,16 +41,11 @@ export function HomePage() {
 
       <main>
         <Hero />
-        <SocialProof />
-        <HighlightBanner />
         <TrustBar />
-        <ReviewBadges />
+        <WhyNow />
         <HowItWorks />
-        <DashboardPreview />
         <LiveDemo />
         <MissedCallCalculator />
-        <Integrations />
-        <Comparison />
         <PricingTeaser />
         <FinalCTA />
       </main>
