@@ -67,6 +67,21 @@ export class AiCoreError extends Error {
   }
 }
 
+export interface EmbeddingRequest {
+  /** One or more strings to embed in a single batch call. */
+  input: string[];
+  timeoutMs?: number;
+  /**
+   * Cohere's embed models are asymmetric: a chunk being stored for later
+   * retrieval should be embedded as "search_document", while the user's
+   * live question should be embedded as "search_query" — using the wrong
+   * one for either side measurably hurts match quality. Defaults to
+   * "search_document" (the ingestion-script use case) so existing calls
+   * that don't pass this keep working unchanged.
+   */
+  inputType?: "search_document" | "search_query";
+}
+
 export interface ProviderAdapter {
   readonly id: ProviderId;
   isConfigured(): boolean;
