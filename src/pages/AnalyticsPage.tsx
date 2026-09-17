@@ -13,9 +13,10 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
-import { supabase, Call, Job, Lead } from '@/lib/supabase';
+import { supabase, Call, Job, Lead, TeamMember } from '@/lib/supabase';
 import { LeadSourceBreakdown } from '@/components/LeadSourceBreakdown';
 import { CohortLtvSection } from '@/components/CohortLtvSection';
+import { ReworkIntelligence } from '@/components/ReworkIntelligence';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { Lock } from 'lucide-react';
 
@@ -714,6 +715,7 @@ export function AnalyticsPage() {
   const [allCalls, setAllCalls] = useState<Call[]>([]);
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [allLeads, setAllLeads] = useState<Lead[]>([]);
+  const [allTechnicians, setAllTechnicians] = useState<TeamMember[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
   const [range, setRange] = useState<DateRange>('30d');
@@ -733,14 +735,16 @@ export function AnalyticsPage() {
     if (!user) return;
     setDataLoading(true);
     try {
-      const [callsRes, jobsRes, leadsRes] = await Promise.all([
+      const [callsRes, jobsRes, leadsRes, techRes] = await Promise.all([
         supabase.from('calls').select('*').order('call_datetime', { ascending: false }),
         supabase.from('jobs').select('*').order('created_at', { ascending: false }),
         supabase.from('leads').select('*').order('created_at', { ascending: false }),
+        supabase.from('team_members').select('*').eq('role', 'technician'),
       ]);
       if (callsRes.data) setAllCalls(callsRes.data as Call[]);
       if (jobsRes.data) setAllJobs(jobsRes.data as Job[]);
       if (leadsRes.data) setAllLeads(leadsRes.data as Lead[]);
+      if (techRes.data) setAllTechnicians(techRes.data as TeamMember[]);
     } catch {
       // empty states
     } finally {
@@ -1140,6 +1144,11 @@ export function AnalyticsPage() {
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <LeadSourceBreakdown calls={allCalls} />
           <CohortLtvSection jobs={allJobs} />
+        </div>
+
+        {/* Rework Intelligence */}
+        <div className="mt-6">
+          <ReworkIntelligence jobs={allJobs} technicians={allTechnicians} />
         </div>
 
         {/* Lead Funnel + Revenue */}
