@@ -4,12 +4,14 @@
 // Add/remove/reorder a provider by editing this file only.
 
 import type { ProviderAdapter, ProviderId, RouteEntry, TaskType } from "./types.ts";
+
 import { geminiAdapter } from "./providers/gemini.ts";
 import { groqAdapter } from "./providers/groq.ts";
 import { cerebrasAdapter } from "./providers/cerebras.ts";
 import { cloudflareAdapter } from "./providers/cloudflare.ts";
 import { openrouterAdapter } from "./providers/openrouter.ts";
 import { anthropicAdapter } from "./providers/anthropic.ts";
+import { cohereAdapter } from "./providers/cohere.ts";
 
 export const ALL_ADAPTERS: Record<ProviderId, ProviderAdapter> = {
   gemini: geminiAdapter,
@@ -18,6 +20,7 @@ export const ALL_ADAPTERS: Record<ProviderId, ProviderAdapter> = {
   cloudflare: cloudflareAdapter,
   openrouter: openrouterAdapter,
   anthropic: anthropicAdapter,
+  cohere: cohereAdapter,
 };
 
 // Gemini -> Groq -> Cerebras -> Cloudflare -> OpenRouter, exactly as required.
