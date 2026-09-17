@@ -1176,6 +1176,10 @@ async function toolBookAppointment(
     .select("id, scheduled_datetime, service_type, address")
     .maybeSingle();
 
+  if (jobError?.code === "23P01") {
+    return "That time is already booked on the schedule — offer the customer a different time slot.";
+  }
+  
   if (jobError || !job) {
     return "I wasn't able to save this appointment due to a system error — please have the office confirm it manually.";
   }
