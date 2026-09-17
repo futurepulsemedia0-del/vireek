@@ -160,6 +160,7 @@ const FOOTER_COLUMNS = [
     title: 'Company',
     links: [
       { label: 'About', href: '/about' },
+      { label: 'Manifesto', href: '/manifesto' },
       { label: 'Leadership', href: '/leadership' },
       { label: 'Docs', href: '/docs' },
       { label: 'Careers', href: '/careers' },
