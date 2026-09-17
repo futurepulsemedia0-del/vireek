@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Route, Wrench, Sparkles } from 'lucide-react';
+import { Route, Wrench, Sparkles, Brain, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -22,6 +22,19 @@ function isToday(dateStr: string | null): boolean {
   return new Date(dateStr).toDateString() === new Date().toDateString();
 }
 
+interface CopilotRecommendation {
+  priority: number;
+  title: string;
+  description: string;
+  recommended_action: string;
+}
+
+function copilotPriorityStyle(priority: number): { color: string; bgColor: string; borderColor: string } {
+  if (priority >= 5) return { color: 'text-danger', bgColor: 'bg-danger/10', borderColor: 'border-l-danger' };
+  if (priority >= 3) return { color: 'text-warning-500', bgColor: 'bg-warning-500/10', borderColor: 'border-l-warning-500' };
+  return { color: 'text-accent', bgColor: 'bg-accent/10', borderColor: 'border-l-accent' };
+}
+
 export function DispatchBoardPage() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -31,6 +44,8 @@ export function DispatchBoardPage() {
   const [assigning, setAssigning] = useState<string | null>(null);
     const [aiDispatchEnabled, setAiDispatchEnabled] = useState(false);
   const [autoAssigning, setAutoAssigning] = useState(false);
+  const [copilotLoading, setCopilotLoading] = useState(false);
+  const [copilotRecommendations, setCopilotRecommendations] = useState<CopilotRecommendation[] | null>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -84,6 +99,17 @@ export function DispatchBoardPage() {
     }
     toast(`Assigned ${data.assigned} of ${data.total} unassigned jobs.`, 'success');
     fetchAll();
+  };
+  
+  const handleAskCopilot = async () => {
+    setCopilotLoading(true);
+    const { data, error } = await supabase.functions.invoke('dispatch-copilot', { body: {} });
+    setCopilotLoading(false);
+    if (error || data?.error) {
+      toast(data?.error || 'AI Copilot could not analyze the board right now', 'error');
+      return;
+    }
+    setCopilotRecommendations((data?.recommendations as CopilotRecommendation[]) ?? []);
   };
 
 const handleAssign = async (job: Job, technicianId: string) => {
@@ -141,8 +167,57 @@ const handleAssign = async (job: Job, technicianId: string) => {
             >
               {autoAssigning ? 'Assigning…' : 'Auto-assign all'}
             </button>
+            <button
+              type="button"
+              onClick={handleAskCopilot}
+              disabled={copilotLoading}
+              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
+            >
+              <Brain size={13} />
+              {copilotLoading ? 'Thinking…' : 'Ask AI Copilot'}
+            </button>
           </div>
         </div>
+
+        {copilotRecommendations !== null && (
+          <div className="mb-8 rounded-2xl border border-border bg-bg-secondary p-5">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Brain size={16} className="text-accent" />
+                <h2 className="text-sm font-semibold text-text-primary">AI Copilot recommendations</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCopilotRecommendations(null)}
+                className="focus-ring flex h-7 w-7 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+                aria-label="Dismiss AI Copilot recommendations"
+              >
+                <X size={14} />
+              </button>
+            </div>
+            {copilotRecommendations.length === 0 ? (
+              <p className="text-sm text-text-secondary">Nothing urgent right now — the board looks healthy.</p>
+            ) : (
+              <div className="space-y-2.5">
+                {copilotRecommendations.map((rec, i) => {
+                  const style = copilotPriorityStyle(rec.priority);
+                  return (
+                    <div
+                      key={`${rec.title}-${i}`}
+                      className={`rounded-xl border border-border border-l-4 ${style.borderColor} bg-bg-primary p-3`}
+                    >
+                      <p className="text-sm font-semibold text-text-primary">{rec.title}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-text-secondary">{rec.description}</p>
+                      {rec.recommended_action && (
+                        <p className={`mt-1.5 text-xs font-medium ${style.color}`}>→ {rec.recommended_action}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {loading ? (
           <div className="space-y-4">
