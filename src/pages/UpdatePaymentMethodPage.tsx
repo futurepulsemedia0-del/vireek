@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CreditCard, ShieldCheck, TriangleAlert as AlertTriangle, Loader as Loader2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { Button } from '@/components/ui/Button';
 import { supabase } from '@/lib/supabase';
 
 // ============================================================
@@ -104,13 +105,9 @@ export function UpdatePaymentMethodPage() {
           {status === 'error' ? (
             <div className="mt-6 flex flex-col items-center gap-3">
               <p className="text-sm text-danger">{errorMessage}</p>
-              <button
-                type="button"
-                onClick={startPortalSession}
-                className="focus-ring rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95"
-              >
+              <Button variant="primary" onClick={startPortalSession}>
                 Try again
-              </button>
+              </Button>
               <p className="text-xs text-text-secondary">
                 Still stuck?{' '}
                 <a href="mailto:support@vireek.com" className="font-medium text-accent hover:underline">
