@@ -101,6 +101,7 @@ const IndustriesPage = lazy(() => import('@/pages/IndustriesPage').then((m) => (
 const IndustryPage = lazy(() => import('@/pages/IndustryPage').then((m) => ({ default: m.IndustryPage })));
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
+const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
@@ -234,6 +235,7 @@ function App() {
         <Route path="/developers/changelog" element={<DeveloperChangelogPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
+        <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
