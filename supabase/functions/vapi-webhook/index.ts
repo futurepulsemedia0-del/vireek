@@ -355,45 +355,42 @@ async function upsertCallRow(
     return null;
   }
 
-  const { data: existing, error: findError } = await admin
-    .from("calls")
-    .select("id, user_id")
-    .eq("vapi_call_id", vapiCallId)
-    .eq("user_id", tenant.userId)
-    .maybeSingle();
-
-  if (findError) {
-    logError("call_upsert_lookup_failed", requestId, findError);
-    return null;
-  }
-
-  if (existing) {
-    const { data: updated, error: updateError } = await admin
+  // Single atomic INSERT ... ON CONFLICT (vapi_call_id) DO UPDATE, instead
+  // of SELECT-then-branch. That old pattern let two concurrent Vapi events
+  // for the same call (a tool-call racing status-update, or the final
+  // end-of-call-report racing a late tool-call) both see "no row yet" and
+  // both try to INSERT — the unique index on vapi_call_id then failed the
+  // second insert outright, silently dropping whatever that event carried
+  // (transcript, booking status, emergency flag). A single upsert statement
+  // is atomic at the database level: Postgres itself serializes concurrent
+  // writers against the same vapi_call_id, so the second writer always
+  // lands as a real merge, never a lost write. Only the columns present in
+  // `patch` are touched — this is a merge, not a full-row replace, so an
+  // earlier event's data (e.g. caller_name from call-start) is never wiped
+  // out by a later, narrower patch (e.g. just is_emergency from a tool-call).
+  const attemptUpsert = () =>
+    admin
       .from("calls")
-      .update(patch)
-      .eq("id", existing.id)
-      .eq("user_id", tenant.userId) // tenant isolation, belt-and-suspenders even with service role
+      .upsert({ ...patch, vapi_call_id: vapiCallId, user_id: tenant.userId }, { onConflict: "vapi_call_id" })
       .select("id, user_id")
       .maybeSingle();
 
-    if (updateError) {
-      logError("call_upsert_update_failed", requestId, updateError);
-      return existing;
-    }
-    return updated ?? existing;
+  let { data, error } = await attemptUpsert();
+
+  // One retry for a transient failure only (network blip, connection reset)
+  // — a real conflict is exactly what onConflict already resolved, so this
+  // is purely resilience, not a second attempt at fixing the race itself.
+  if (error) {
+    logError("call_upsert_failed_retrying", requestId, error);
+    ({ data, error } = await attemptUpsert());
   }
 
-  const { data: inserted, error: insertError } = await admin
-    .from("calls")
-    .insert({ ...patch, vapi_call_id: vapiCallId, user_id: tenant.userId })
-    .select("id, user_id")
-    .maybeSingle();
-
-  if (insertError) {
-    logError("call_upsert_insert_failed", requestId, insertError);
+  if (error) {
+    logError("call_upsert_failed", requestId, error);
     return null;
   }
-  return inserted;
+
+  return data;
 }
 
 // ---------------------------------------------------------------------------
