@@ -42,6 +42,7 @@ import {
   Building2,
   Webhook,
   Lock,
+  History,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -100,6 +101,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
+  { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
