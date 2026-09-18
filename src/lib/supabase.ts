@@ -460,6 +460,30 @@ export interface Integration {
   created_at: string;
 }
 
+export interface BusinessDecisionSettings {
+  user_id: string;
+  autonomy_enabled: boolean;
+  surge_mode_auto_control: boolean;
+  min_confidence_threshold: number;
+  updated_at: string;
+}
+
+export interface BusinessDecision {
+  id: string;
+  user_id: string;
+  category: 'pricing' | 'dispatch' | 'staffing' | 'marketing' | 'collections' | 'retention' | 'operations';
+  title: string;
+  reasoning: string;
+  recommended_action: string;
+  confidence_score: number;
+  estimated_impact: number | null;
+  status: 'pending' | 'approved' | 'rejected' | 'auto_executed' | 'expired';
+  is_auto_executable: boolean;
+  executed_at: string | null;
+  metric_snapshot: Record<string, unknown>;
+  created_at: string;
+}
+
 export interface AiInsight {
   id: string;
   user_id: string;
