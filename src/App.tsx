@@ -43,6 +43,7 @@ const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
+const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
@@ -389,6 +390,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CashFlowForecastPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/regional-demand"
+          element={
+            <ProtectedRoute>
+              <RegionalDemandPage />
             </ProtectedRoute>
           }
         />
