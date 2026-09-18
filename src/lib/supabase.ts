@@ -366,6 +366,30 @@ export interface OutboundSms {
   created_at: string;
 }
 
+export interface MutualAidRequest {
+  id: string;
+  user_id: string;
+  industry: string | null;
+  region_key: string;
+  trade_note: string;
+  need_type: 'overflow_calls' | 'technician_labor' | 'both';
+  related_weather_event_id: string | null;
+  status: 'open' | 'fulfilled' | 'cancelled' | 'expired';
+  expires_at: string;
+  created_at: string;
+}
+
+export interface MutualAidOffer {
+  id: string;
+  request_id: string;
+  offering_user_id: string;
+  offer_type: 'overflow_calls' | 'technician_labor' | 'both';
+  note: string | null;
+  status: 'offered' | 'accepted' | 'declined' | 'withdrawn';
+  created_at: string;
+  responded_at: string | null;
+}
+
 export interface OnCallSchedule {
   id: string;
   user_id: string;
