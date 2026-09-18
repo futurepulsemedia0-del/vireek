@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings as SettingsIcon, ShieldCheck, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound } from 'lucide-react';
+import { Settings as SettingsIcon, ShieldCheck, ShieldAlert, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -142,6 +142,7 @@ export function SettingsPage() {
     notify_usage_alert: profile?.notify_usage_alert ?? true,
     notify_ai_insight: profile?.notify_ai_insight ?? true,
     notify_job_update: profile?.notify_job_update ?? true,
+    notify_warranty_alert: profile?.notify_warranty_alert ?? true,
     notify_new_lead: profile?.notify_new_lead ?? true,
     notify_missed_call: profile?.notify_missed_call ?? true,
   };
@@ -229,6 +230,14 @@ export function SettingsPage() {
             checked={prefs.notify_job_update}
             disabled={saving === 'notify_job_update'}
             onChange={(v) => updatePref('notify_job_update', v)}
+          />
+          <ToggleRow
+            icon={ShieldAlert}
+            label="Warranty alerts"
+            description="Notify me when a customer's equipment warranty is expiring soon or has lapsed."
+            checked={prefs.notify_warranty_alert}
+            disabled={saving === 'notify_warranty_alert'}
+            onChange={(v) => updatePref('notify_warranty_alert', v)}
           />
         </div>
       </div>
