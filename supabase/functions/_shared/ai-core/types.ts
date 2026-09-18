@@ -4,7 +4,13 @@
 // provider-specific code. Every other ai-core file imports ONLY from
 // this file for cross-module types.
 
-export type ProviderId = "gemini" | "groq" | "cerebras" | "cloudflare" | "openrouter" | "anthropic";
+export type ProviderId =
+  | "gemini"
+  | "groq"
+  | "cerebras"
+  | "cloudflare"
+  | "openrouter"
+  | "anthropic";
 
 export type TaskType =
   | "demo_chat"
@@ -13,7 +19,8 @@ export type TaskType =
   | "general"
   | "call_intelligence"
   | "business_insights"
-  | "dispatch_copilot";
+  | "dispatch_copilot"
+  | "promise_extraction";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -40,8 +47,8 @@ export interface NormalizedChatResponse {
 /**
  * Called once per incremental text delta while a provider streams its
  * reply. Adapters call this as soon as tokens are available — never
- * buffered — so the caller (the router, then the edge function, then the
- * browser) can forward each piece the moment it exists.
+ * buffered — so the caller (the router, then the edge function, then
+ * the browser) can forward each piece the moment it exists.
  */
 export type ChatStreamHandler = (delta: string) => void;
 
@@ -58,7 +65,11 @@ export class AiCoreError extends Error {
   readonly code: AiCoreErrorCode;
   readonly provider?: ProviderId;
 
-  constructor(code: AiCoreErrorCode, message: string, provider?: ProviderId) {
+  constructor(
+    code: AiCoreErrorCode,
+    message: string,
+    provider?: ProviderId,
+  ) {
     super(message);
     this.name = "AiCoreError";
     this.code = code;
@@ -70,6 +81,7 @@ export interface EmbeddingRequest {
   /** One or more strings to embed in a single batch call. */
   input: string[];
   timeoutMs?: number;
+
   /**
    * Cohere's embed models are asymmetric: a chunk being stored for later
    * retrieval should be embedded as "search_document", while the user's
@@ -85,6 +97,7 @@ export interface ProviderAdapter {
   readonly id: ProviderId;
   isConfigured(): boolean;
   chat(req: NormalizedChatRequest): Promise<NormalizedChatResponse>;
+
   /**
    * Optional streaming variant. When present, the router prefers this over
    * `chat()` for streaming callers and invokes `onDelta` for every chunk of
@@ -93,7 +106,10 @@ export interface ProviderAdapter {
    * `chat()` and delivering the whole reply as a single chunk, so every
    * provider still "streams" from the caller's point of view.
    */
-  chatStream?(req: NormalizedChatRequest, onDelta: ChatStreamHandler): Promise<NormalizedChatResponse>;
+  chatStream?(
+    req: NormalizedChatRequest,
+    onDelta: ChatStreamHandler,
+  ): Promise<NormalizedChatResponse>;
 }
 
 export interface RouteEntry {
