@@ -20,6 +20,7 @@ export type TaskType =
   | "call_intelligence"
   | "business_insights"
   | "business_decision_engine"
+  | "cash_flow_narrative"
   | "dispatch_copilot"
   | "promise_extraction";
 
