@@ -22,11 +22,15 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
-  const admin = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } },
-  );
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error(JSON.stringify({ event: "escalation_tick_failed", error: "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY." }));
+    return new Response(JSON.stringify({ error: "Server misconfiguration." }), { status: 500 });
+  }
+
+  const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
   const siteUrl = (Deno.env.get("SITE_URL") ?? "https://app.vireek.com").replace(/\/$/, "");
 
   const { data: events, error } = await admin
@@ -37,54 +41,90 @@ Deno.serve(async (req: Request) => {
 
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
 
-  let escalated = 0, exhausted = 0;
+  let escalated = 0, exhausted = 0, failed = 0;
 
   for (const ev of events ?? []) {
-    const { data: tiers } = await admin
-      .from("escalation_tiers")
-      .select("tier_order, team_member_id, delay_minutes, notify_via")
-      .eq("schedule_id", ev.schedule_id)
-      .order("tier_order", { ascending: true });
+    try {
+      const { data: tiers, error: tiersError } = await admin
+        .from("escalation_tiers")
+        .select("tier_order, team_member_id, delay_minutes, notify_via")
+        .eq("schedule_id", ev.schedule_id)
+        .order("tier_order", { ascending: true });
 
-    if (!tiers || tiers.length === 0) continue;
+      if (tiersError) throw tiersError;
+      if (!tiers || tiers.length === 0) continue;
 
-    const activeTier = tiers.find((t) => t.tier_order === ev.current_tier);
-    const nextTier = tiers.find((t) => t.tier_order === ev.current_tier + 1);
-    const elapsedMs = ev.last_notified_at ? Date.now() - new Date(ev.last_notified_at).getTime() : Infinity;
-    if (!activeTier || elapsedMs < activeTier.delay_minutes * 60_000) continue;
+      const activeTier = tiers.find((t) => t.tier_order === ev.current_tier);
+      const nextTier = tiers.find((t) => t.tier_order === ev.current_tier + 1);
+      const elapsedMs = ev.last_notified_at ? Date.now() - new Date(ev.last_notified_at).getTime() : Infinity;
+      if (!activeTier || elapsedMs < activeTier.delay_minutes * 60_000) continue;
 
-    if (!nextTier) {
-      const { data: profile } = await admin.from("profiles").select("phone").eq("id", ev.user_id).maybeSingle();
-      if (profile?.phone) {
-        await sendSms(profile.phone, `Vireek: on-call escalation exhausted with no acknowledgement (call ${ev.call_id ?? ev.id}). Please respond directly.`);
+      if (!nextTier) {
+        const { data: profile, error: profileError } = await admin
+          .from("profiles")
+          .select("phone")
+          .eq("id", ev.user_id)
+          .maybeSingle();
+        if (profileError) throw profileError;
+
+        if (profile?.phone) {
+          await sendSms(profile.phone, `Vireek: on-call escalation exhausted with no acknowledgement (call ${ev.call_id ?? ev.id}). Please respond directly.`);
+        }
+
+        const { data: updatedExhausted, error: exhaustError } = await admin
+          .from("escalation_events")
+          .update({ status: "exhausted" })
+          .eq("id", ev.id)
+          .eq("status", "active")
+          .select("id");
+        if (exhaustError) throw exhaustError;
+        if (updatedExhausted && updatedExhausted.length > 0) exhausted++;
+        continue;
       }
-      await admin.from("escalation_events").update({ status: "exhausted" }).eq("id", ev.id);
-      exhausted++;
-      continue;
+
+      let memberId = nextTier.team_member_id;
+      if (!memberId) {
+        const { data: onCallId, error: onCallError } = await admin.rpc("get_current_on_call", { p_schedule_id: ev.schedule_id });
+        if (onCallError) throw onCallError;
+        memberId = onCallId;
+      }
+      if (!memberId) continue;
+
+      const { data: member, error: memberError } = await admin
+        .from("team_members")
+        .select("member_phone")
+        .eq("id", memberId)
+        .maybeSingle();
+      if (memberError) throw memberError;
+      if (!member?.member_phone) continue;
+
+      const ackUrl = `${siteUrl}/ack/${ev.ack_token}`;
+      const body = `Vireek escalation (tier ${nextTier.tier_order}): unacknowledged emergency call. Tap to accept: ${ackUrl}`;
+
+      if (nextTier.notify_via === "sms" || nextTier.notify_via === "both") {
+        await sendSms(member.member_phone, body);
+      }
+      if (nextTier.notify_via === "call" || nextTier.notify_via === "both") {
+        await sendVoiceCall(member.member_phone, "You have an unacknowledged emergency escalation from Vireek. Please check your text messages immediately.");
+      }
+
+      const { data: updatedEvent, error: updateError } = await admin
+        .from("escalation_events")
+        .update({ current_tier: nextTier.tier_order, last_notified_at: new Date().toISOString() })
+        .eq("id", ev.id)
+        .eq("current_tier", ev.current_tier)
+        .select("id");
+      if (updateError) throw updateError;
+      if (updatedEvent && updatedEvent.length > 0) escalated++;
+    } catch (evError) {
+      failed++;
+      console.error(JSON.stringify({
+        event: "escalation_tick_event_failed",
+        escalation_event_id: ev.id,
+        error: evError instanceof Error ? evError.message : String(evError),
+      }));
     }
-
-    const memberId = nextTier.team_member_id
-      ?? (await admin.rpc("get_current_on_call", { p_schedule_id: ev.schedule_id })).data;
-    if (!memberId) continue;
-
-    const { data: member } = await admin.from("team_members").select("member_phone").eq("id", memberId).maybeSingle();
-    if (!member?.member_phone) continue;
-
-    const ackUrl = `${siteUrl}/ack/${ev.ack_token}`;
-    const body = `Vireek escalation (tier ${nextTier.tier_order}): unacknowledged emergency call. Tap to accept: ${ackUrl}`;
-
-    if (nextTier.notify_via === "sms" || nextTier.notify_via === "both") {
-      await sendSms(member.member_phone, body);
-    }
-    if (nextTier.notify_via === "call" || nextTier.notify_via === "both") {
-      await sendVoiceCall(member.member_phone, "You have an unacknowledged emergency escalation from Vireek. Please check your text messages immediately.");
-    }
-
-    await admin.from("escalation_events")
-      .update({ current_tier: nextTier.tier_order, last_notified_at: new Date().toISOString() })
-      .eq("id", ev.id);
-    escalated++;
   }
 
-  return new Response(JSON.stringify({ escalated, exhausted }), { headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ escalated, exhausted, failed }), { headers: { "Content-Type": "application/json" } });
 });
