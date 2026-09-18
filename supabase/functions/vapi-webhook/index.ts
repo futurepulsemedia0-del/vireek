@@ -54,6 +54,7 @@
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
+import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 
 // ---------------------------------------------------------------------------
@@ -1250,6 +1251,7 @@ async function toolLookupPrice(
   admin: SupabaseClient,
   tenant: TenantContext,
   args: Record<string, unknown>,
+  vapiCallId: string | undefined,
 ): Promise<string> {
   const query = typeof args.service === "string" ? args.service.trim() : "";
   if (!query) {
@@ -1285,6 +1287,19 @@ async function toolLookupPrice(
   }
 
   const matches = scored.slice(0, 3).map(({ item }) => formatPriceLine(item));
+
+  await admin.from("price_lookup_log").insert({
+    user_id: tenant.userId,
+    external_call_id: (args as { __vapiCallId?: string }).__vapiCallId ?? null,
+    query,
+    matched_items: scored.slice(0, 3).map(({ item }) => ({
+      service_name: item.service_name,
+      pricing_model: item.pricing_model,
+      price_cents: item.price_cents,
+      price_max_cents: item.price_max_cents,
+    })),
+  });
+
   return matches.length === 1 ? matches[0] : `A few things matched "${query}": ${matches.join(" ")}`;
 }
 
@@ -1635,7 +1650,7 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             result = await toolCheckWeather(args);
             break;
           case "lookup_price":
-            result = await toolLookupPrice(admin, tenant, args);
+            result = await toolLookupPrice(admin, tenant, args, vapiCallId);
             break;
           case "flag_emergency_call":
             result = await toolFlagEmergencyCall(admin, tenant, args, vapiCallId, callerNumber, callerName);
@@ -1849,6 +1864,37 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
       summary,
       duration_seconds: durationSeconds,
     });
+
+    // Price Book Enforcement — deterministic, no LLM call. Runs whether
+    // or not Call Intelligence succeeds.
+    if (transcript) {
+      const { data: activePriceBook } = await admin
+        .from("price_book_items")
+        .select("service_name, pricing_model, price_cents, price_max_cents")
+        .eq("user_id", tenant.userId)
+        .eq("active", true);
+
+      const { data: lookupRows } = await admin
+        .from("price_lookup_log")
+        .select("query, matched_items")
+        .eq("external_call_id", vapiCallId ?? "");
+
+      const lookups: PriceLookupLite[] = (lookupRows ?? []).map((r) => ({
+        query: r.query ?? "",
+        matched_items: (r.matched_items ?? []) as PriceLookupLite["matched_items"],
+      }));
+
+      const priceCheck = verifyPriceAccuracy(transcript, activePriceBook ?? [], lookups);
+      Object.assign(patch, {
+        price_accuracy_status: priceCheck.price_accuracy_status,
+        price_accuracy_details: priceCheck.price_accuracy_details,
+        price_lookups_performed: priceCheck.price_lookups_performed,
+      });
+      logEvent("price_accuracy_computed", requestId, {
+        status: priceCheck.price_accuracy_status,
+        mismatches: priceCheck.price_accuracy_details.length,
+      });
+    }
 
     // Call Intelligence — best-effort enrichment, must never block the
     // calls-row upsert below if the AI call is slow or fails.
