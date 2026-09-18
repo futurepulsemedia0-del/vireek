@@ -460,6 +460,49 @@ export interface Integration {
   created_at: string;
 }
 
+export interface CashFlowSettings {
+  user_id: string;
+  starting_cash_balance: number;
+  default_cost_ratio: number;
+  quote_win_rate: number;
+  updated_at: string;
+}
+
+export interface CashFlowFixedExpense {
+  id: string;
+  user_id: string;
+  name: string;
+  amount: number;
+  frequency: 'one_time' | 'weekly' | 'biweekly' | 'monthly';
+  next_due_date: string;
+  active: boolean;
+  created_at: string;
+}
+
+export interface CashFlowWeekBucket {
+  week_index: number;
+  week_start: string;
+  week_end: string;
+  committed_inflow: number;
+  pipeline_inflow: number;
+  fixed_outflow: number;
+  variable_outflow: number;
+  net_committed: number;
+  projected_balance_committed: number;
+  projected_balance_optimistic: number;
+}
+
+export interface CashFlowSnapshot {
+  id: string;
+  user_id: string;
+  starting_balance: number;
+  weeks: CashFlowWeekBucket[];
+  narrative: { severity: 'info' | 'warning' | 'critical'; week_index: number; message: string }[];
+  cost_ratio_used: number | null;
+  cost_ratio_source: 'actual' | 'default';
+  created_at: string;
+}
+
 export interface BusinessDecisionSettings {
   user_id: string;
   autonomy_enabled: boolean;
