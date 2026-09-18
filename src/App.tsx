@@ -145,6 +145,7 @@ const SitemapPage = lazy(() => import('@/pages/SitemapPage').then((m) => ({ defa
 const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => ({ default: m.EnterprisePage })));
 const MarketplacePage = lazy(() => import('@/pages/MarketplacePage').then((m) => ({ default: m.MarketplacePage })));
 const SdksPage = lazy(() => import('@/pages/SdksPage').then((m) => ({ default: m.SdksPage })));
+const PromiseTrackerPage = lazy(() => import('@/pages/PromiseTrackerPage').then((m) => ({ default: m.PromiseTrackerPage })));
 const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ default: m.SandboxPage })));
 const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
 const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) => ({ default: m.InviteAcceptPage })));
@@ -320,6 +321,14 @@ function App() {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/promises"
+          element={
+            <ProtectedRoute>
+              <PromiseTrackerPage />
             </ProtectedRoute>
           }
         />
