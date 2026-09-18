@@ -83,6 +83,9 @@ export interface Call {
   objections_resolved: boolean | null;
   upsell_opportunities: string[];
   coaching_tip: string | null;
+  price_accuracy_status: 'verified' | 'mismatch' | 'unverified' | 'not_applicable' | null;
+  price_accuracy_details: unknown[];
+  price_lookups_performed: number;
   created_at: string;
 }
 
