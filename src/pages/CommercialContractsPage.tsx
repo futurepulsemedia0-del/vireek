@@ -10,12 +10,14 @@ import {
   ChevronDown,
   ChevronUp,
   AlertTriangle,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { supabase, CommercialContract, ContractSlaBreach, Customer } from '@/lib/supabase';
+import { downloadContractPdf } from '@/lib/pdf';
 import {
   ContractType,
   ContractStatus,
@@ -790,6 +792,18 @@ export function CommercialContractsPage() {
                             </p>
                           </div>
                         </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => downloadContractPdf(contract, breachesByContract[contract.id] || [])}
+                            className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+                            aria-label="Download contract summary PDF"
+                          >
+                            <Download size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingId(contract.id)}
                         <div className="flex items-center gap-1">
                           <button
                             type="button"
