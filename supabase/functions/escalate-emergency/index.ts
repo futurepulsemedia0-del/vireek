@@ -19,6 +19,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { sendSms, sendVoiceCall } from "../_shared/notify/deliver.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -210,6 +211,60 @@ Deno.serve(async (req: Request) => {
         issue: payload.issue_description ?? payload.summary,
       }),
     );
+
+    // ---- On-call rotation & escalation (optional, additive — no-op if the
+    // account hasn't set up a schedule, so nothing above this changes). ----
+    try {
+      const { data: onCallSchedule } = await supabase
+        .from("on_call_schedules")
+        .select("id")
+        .eq("user_id", updatedCall.user_id)
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle();
+
+      if (onCallSchedule) {
+        const { data: tier1 } = await supabase
+          .from("escalation_tiers")
+          .select("team_member_id, notify_via")
+          .eq("schedule_id", onCallSchedule.id)
+          .eq("tier_order", 1)
+          .maybeSingle();
+
+        if (tier1) {
+          const tier1MemberId =
+            tier1.team_member_id ??
+            (await supabase.rpc("get_current_on_call", { p_schedule_id: onCallSchedule.id })).data;
+
+          const tier1Member = tier1MemberId
+            ? (await supabase.from("team_members").select("member_phone").eq("id", tier1MemberId).maybeSingle()).data
+            : null;
+
+          const { data: escalationEvent } = await supabase
+            .from("escalation_events")
+            .insert({
+              user_id: updatedCall.user_id,
+              call_id: payload.call_id,
+              schedule_id: onCallSchedule.id,
+              current_tier: 1,
+              last_notified_at: tier1Member?.member_phone ? new Date().toISOString() : null,
+            })
+            .select("ack_token")
+            .maybeSingle();
+
+          if (tier1Member?.member_phone && escalationEvent?.ack_token) {
+            const ackUrl = `${(Deno.env.get("SITE_URL") ?? "https://app.vireek.com").replace(/\/$/, "")}/ack/${escalationEvent.ack_token}`;
+            const alertBody = `Vireek emergency escalation (tier 1): ${payload.caller_phone ?? "Unknown caller"} — ${payload.issue_description ?? payload.summary ?? "no details"}. Tap to accept: ${ackUrl}`;
+            if (tier1.notify_via === "sms" || tier1.notify_via === "both") await sendSms(tier1Member.member_phone, alertBody);
+            if (tier1.notify_via === "call" || tier1.notify_via === "both") {
+              await sendVoiceCall(tier1Member.member_phone, "You have an unacknowledged emergency escalation from Vireek. Please check your text messages immediately.");
+            }
+          }
+        }
+      }
+    } catch (escalationError) {
+      console.error(JSON.stringify({ event: "on_call_escalation_failed", requestId, error: String(escalationError) }));
+    }
 
     return jsonResponse({
       success: true,
