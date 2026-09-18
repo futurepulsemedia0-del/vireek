@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import type { CaseStudy } from '@/components/sections/CaseStudies';
 import type { InsuranceClaim } from '@/lib/supabase';
+import type { CommercialContract, ContractSlaBreach } from '@/lib/supabase';
 
 // ============================================================
 // SHARED LAYOUT HELPERS
@@ -372,4 +373,69 @@ export function downloadInsuranceClaimPdf(claim: InsuranceClaim): void {
 
   drawFooter(doc, `Claim status: ${claim.status.replace(/_/g, ' ')}. Generated for internal and adjuster reference.`);
   doc.save(`insurance-claim-${claim.customer_name.trim().replace(/\s+/g, '-').toLowerCase() || 'summary'}.pdf`);
+}
+export function downloadContractPdf(contract: CommercialContract, breaches: ContractSlaBreach[] = []): void {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  let y = drawHeader(doc, 'Commercial Contract Summary', contract.contract_name);
+
+  y = drawSectionLabel(doc, 'Contract details', y);
+  y = drawParagraph(
+    doc,
+    `Contract #: ${contract.contract_number || 'Not on file'}\n` +
+      `Type: ${contract.contract_type.replace(/_/g, ' ')}\n` +
+      `Status: ${contract.status.replace(/_/g, ' ')}\n` +
+      `Term: ${contract.start_date || 'Not set'} to ${contract.end_date || 'Open-ended'}\n` +
+      `Auto-renew: ${contract.auto_renew ? `Yes (${contract.renewal_notice_days}-day notice)` : 'No'}\n` +
+      `Billing: ${contract.billing_frequency.replace(/_/g, ' ')} · ${
+        contract.contract_value_cents != null ? currency(contract.contract_value_cents / 100) : 'Not on file'
+      }`,
+    y
+  );
+
+  y += 10;
+  y = drawSectionLabel(doc, 'SLA commitments', y);
+  y = drawParagraph(
+    doc,
+    `Response time (standard): ${
+      contract.sla_response_minutes_standard != null ? `${contract.sla_response_minutes_standard} min` : 'Not set'
+    }\n` +
+      `Response time (critical): ${
+        contract.sla_response_minutes_critical != null ? `${contract.sla_response_minutes_critical} min` : 'Not set'
+      }\n` +
+      `Resolution time: ${contract.sla_resolution_hours != null ? `${contract.sla_resolution_hours} hr` : 'Not set'}\n` +
+      `Penalty: ${contract.penalty_percentage ?? 0}% of contract value per breach, capped at ${
+        contract.penalty_cap_percentage ?? 100
+      }%`,
+    y
+  );
+
+  y += 10;
+  y = drawSectionLabel(doc, 'Signature', y);
+  y = drawParagraph(
+    doc,
+    `${contract.signed_by || 'Not yet signed'}${contract.signed_at ? ` · ${contract.signed_at}` : ''}\n` +
+      `${contract.document_url || 'No document on file'}`,
+    y
+  );
+
+  if (breaches.length > 0) {
+    y += 10;
+    const totalPenaltyCents = breaches.reduce((sum, b) => sum + (b.penalty_amount_cents ?? 0), 0);
+    y = drawSectionLabel(doc, 'SLA breach log', y);
+    y = drawParagraph(
+      doc,
+      `${breaches.length} breach${breaches.length === 1 ? '' : 'es'} logged · ${currency(totalPenaltyCents / 100)} total credit owed`,
+      y,
+      { color: DANGER }
+    );
+  }
+
+  if (contract.notes) {
+    y += 10;
+    y = drawSectionLabel(doc, 'Notes', y);
+    drawParagraph(doc, contract.notes, y, { color: MUTED });
+  }
+
+  drawFooter(doc, `Contract status: ${contract.status.replace(/_/g, ' ')}. Generated for internal reference.`);
+  doc.save(`contract-${contract.contract_name.trim().replace(/\s+/g, '-').toLowerCase() || 'summary'}.pdf`);
 }
