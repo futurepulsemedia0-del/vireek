@@ -365,6 +365,52 @@ export interface OutboundSms {
   sent_at: string | null;
   created_at: string;
 }
+
+export interface OnCallSchedule {
+  id: string;
+  user_id: string;
+  name: string;
+  rotation_type: 'daily' | 'weekly';
+  timezone: string;
+  rotation_start_date: string;
+  handoff_hour: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface OnCallScheduleMember {
+  id: string;
+  schedule_id: string;
+  team_member_id: string;
+  position: number;
+  created_at: string;
+}
+
+export interface EscalationTier {
+  id: string;
+  schedule_id: string;
+  tier_order: number;
+  team_member_id: string | null;
+  delay_minutes: number;
+  notify_via: 'sms' | 'call' | 'both';
+  created_at: string;
+}
+
+export interface EscalationEvent {
+  id: string;
+  user_id: string;
+  call_id: string | null;
+  schedule_id: string;
+  current_tier: number;
+  status: 'active' | 'acknowledged' | 'exhausted' | 'cancelled';
+  acknowledged_by: string | null;
+  acknowledged_at: string | null;
+  last_notified_at: string | null;
+  ack_token: string;
+  reason: string | null;
+  created_at: string;
+}
+
 export interface MembershipPlan {
   id: string;
   user_id: string;
