@@ -17,6 +17,7 @@ import { supabase, Call, Job, Lead, TeamMember } from '@/lib/supabase';
 import { LeadSourceBreakdown } from '@/components/LeadSourceBreakdown';
 import { CohortLtvSection } from '@/components/CohortLtvSection';
 import { ReworkIntelligence } from '@/components/ReworkIntelligence';
+import { WarrantyIntelligence } from '@/components/WarrantyIntelligence';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { Lock } from 'lucide-react';
 
@@ -1146,9 +1147,10 @@ export function AnalyticsPage() {
           <CohortLtvSection jobs={allJobs} />
         </div>
 
-        {/* Rework Intelligence */}
+
+        {/* Warranty Intelligence */}
         <div className="mt-6">
-          <ReworkIntelligence jobs={allJobs} technicians={allTechnicians} />
+          <WarrantyIntelligence />
         </div>
 
         {/* Lead Funnel + Revenue */}
