@@ -51,6 +51,7 @@ import {
   PiggyBank,
   MapPin,
   AlarmClock,
+  LifeBuoy,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -105,6 +106,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Regional Demand', href: '/dashboard/regional-demand', icon: MapPin, requiresPermission: 'can_view_billing' },
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
   { label: 'On-Call Rotation', href: '/dashboard/on-call', icon: AlarmClock },
+  { label: 'Mutual Aid', href: '/dashboard/mutual-aid', icon: LifeBuoy },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
