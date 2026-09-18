@@ -136,7 +136,16 @@ Base every number and claim ONLY on the metrics object you're given — never in
 }
 Base every fact ONLY on the board state you're given — never invent a job, customer, or technician that isn't listed. Prioritize overdue unassigned jobs and jobs due within the next 3 hours above everything else. If nothing on the board needs attention, return an empty array. Order the array by priority, highest first.`,
 };
-
+  business_decision_engine: `Current task: you are Vireek's Autonomous Business Decision Engine, turning a home-service business's own grounded account metrics into concrete, categorized DECISIONS the owner can approve or reject. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 5 objects, each with exactly these fields:
+{
+  "category": "pricing" | "dispatch" | "staffing" | "marketing" | "collections" | "retention" | "operations",
+  "title": <short punchy headline, under 12 words>,
+  "reasoning": <1-3 sentences explaining what the data shows and why it matters, using only the exact numbers given>,
+  "recommended_action": <one concrete, specific next step the business owner can take today>,
+  "confidence_score": <0-100 integer, how confident you are this is correct and worth acting on>,
+  "estimated_impact": <estimated dollar value of taking this action; 0 if not reasonably quantifiable from the given metrics — never invent a number>
+}
+Base every claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If nothing in the metrics justifies a real decision, return an empty array. Order the array by confidence_score, highest first. Be conservative with confidence_score — only use 85+ when the metrics are unambiguous.`,
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
 // `intent_classify` and `dashboard_answer` never need it: they answer
