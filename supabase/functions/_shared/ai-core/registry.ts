@@ -43,6 +43,7 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   dashboard_answer: DEFAULT_CHAIN,
   intent_classify: JSON_CHAIN,
   call_intelligence: JSON_CHAIN,
+  business_decision_engine: JSON_CHAIN,
   business_insights: JSON_CHAIN,
   dispatch_copilot: JSON_CHAIN,
   onboarding_extract: JSON_CHAIN,
