@@ -48,6 +48,7 @@ const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => (
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
+const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
@@ -544,6 +545,14 @@ function App() {
           element={
             <ProtectedRoute>
               <InsuranceClaimsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/contracts"
+          element={
+            <ProtectedRoute>
+              <CommercialContractsPage />
             </ProtectedRoute>
           }
         />
