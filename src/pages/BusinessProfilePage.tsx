@@ -9,6 +9,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, BusinessProfile, BusinessProfileHoliday, BusinessProfileEscalationRule } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { EscalationSettings } from '@/components/settings/EscalationSettings';
+import { AgentOrchestrationSettings } from '@/components/settings/AgentOrchestrationSettings';
 import { VoiceCloningCard } from '@/components/settings/VoiceCloningCard';
 import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
 import { SkeletonCardList } from '@/components/Skeleton';
@@ -1080,6 +1081,7 @@ export function BusinessProfilePage() {
             </div>
             <div className="mt-6">
               <EscalationSettings />
+              <AgentOrchestrationSettings />
             </div>
 
             <div className="mt-6">
