@@ -123,6 +123,50 @@ export interface Customer {
   updated_at: string;
 }
 
+export interface CommercialContract {
+  id: string;
+  user_id: string;
+  customer_id: string | null;
+  job_id: string | null;
+  contract_number: string | null;
+  contract_name: string;
+  contract_type: 'service_agreement' | 'maintenance_contract' | 'msa' | 'sla_only' | 'other';
+  status: 'draft' | 'active' | 'expiring_soon' | 'expired' | 'terminated' | 'renewed';
+  start_date: string | null;
+  end_date: string | null;
+  auto_renew: boolean;
+  renewal_notice_days: number;
+  billing_frequency: 'monthly' | 'quarterly' | 'annual' | 'one_time';
+  contract_value_cents: number | null;
+  sla_response_minutes_standard: number | null;
+  sla_response_minutes_critical: number | null;
+  sla_resolution_hours: number | null;
+  penalty_percentage: number | null;
+  penalty_cap_percentage: number | null;
+  signed_by: string | null;
+  signed_at: string | null;
+  document_url: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContractSlaBreach {
+  id: string;
+  user_id: string;
+  contract_id: string;
+  job_id: string | null;
+  breach_type: 'response_time' | 'resolution_time' | 'other';
+  severity: 'minor' | 'major' | 'critical';
+  expected_at: string | null;
+  actual_at: string | null;
+  minutes_over: number | null;
+  penalty_amount_cents: number | null;
+  resolved: boolean;
+  notes: string | null;
+  created_at: string;
+}
+
 export interface Equipment {
   id: string;
   user_id: string;
