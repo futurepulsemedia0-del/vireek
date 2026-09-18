@@ -57,6 +57,7 @@ import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts"
 import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
 import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
+import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
 
 // ---------------------------------------------------------------------------
 // Types (only the fields we actually read — Vapi payloads carry much more)
@@ -125,6 +126,7 @@ interface TenantContext {
   afterHoursFee: number | null;
   afterHoursFeeNote: string | null;
   commercialSlaPolicy: string | null;
+  agentOrchestrationEnabled: boolean;
   /** True when profiles.status or subscription_status is suspended/canceled — AI answering must not run. */
   isSuspended: boolean;
 }
@@ -299,7 +301,7 @@ async function resolveTenant(
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("forwarding_number, status, subscription_status")
+    .select("forwarding_number, status, subscription_status, agent_orchestration_enabled")
     .eq("id", resolvedBusiness.user_id)
     .maybeSingle();
 
@@ -323,6 +325,7 @@ async function resolveTenant(
     afterHoursFee: resolvedBusiness.after_hours_fee ?? null,
     afterHoursFeeNote: resolvedBusiness.after_hours_fee_note ?? null,
     commercialSlaPolicy: resolvedBusiness.commercial_sla_policy ?? null,
+    agentOrchestrationEnabled: Boolean(profile?.agent_orchestration_enabled),
     isSuspended:
       profile?.status === "suspended" ||
       profile?.status === "canceled" ||
@@ -640,17 +643,26 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     after_hours: afterHoursContext.length > 0,
   });
 
+  const sharedVariableValues = {
+    caller_context: callerContext,
+    customer_type_context: customerTypeContext,
+    surge_context: surgeContext,
+    after_hours_context: afterHoursContext,
+    recording_consent_context: recordingConsentContext,
+    customer_memory_context: customerMemoryContext,
+  };
+
+  if (tenant.agentOrchestrationEnabled) {
+    logEvent("assistant_request_squad_mode", requestId, { user_id: tenant.userId });
+    return jsonResponse({
+      squad: buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues),
+    });
+  }
+
   return jsonResponse({
     assistantId: tenant.assistantId,
     assistantOverrides: {
-      variableValues: {
-        caller_context: callerContext,
-        customer_type_context: customerTypeContext,
-        surge_context: surgeContext,
-        after_hours_context: afterHoursContext,
-        recording_consent_context: recordingConsentContext,
-        customer_memory_context: customerMemoryContext,
-      },
+      variableValues: sharedVariableValues,
     },
   });
 }
