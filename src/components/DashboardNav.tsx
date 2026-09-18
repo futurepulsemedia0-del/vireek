@@ -93,6 +93,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
+  { label: 'Promise Tracker', href: '/dashboard/promises', icon: Handshake },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
