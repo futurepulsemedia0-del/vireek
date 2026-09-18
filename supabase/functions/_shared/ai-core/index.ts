@@ -9,6 +9,8 @@ import type { ChatMessage, ChatStreamHandler, TaskType } from "./types.ts";
 
 import { AiCoreError } from "./types.ts";
 
+import { runInputGuardrails, runOutputGuardrails, createStreamGuard } from "./guardrails.ts";
+
 import { routeChat, routeChatStream, type RouteChatResult } from "./router.ts";
 
 import {
@@ -240,23 +242,28 @@ export async function askVireekAi(
     );
   }
 
+  const guardCtx = { task: opts.task, jsonMode: opts.jsonMode };
+  const guardedMessages = runInputGuardrails(opts.messages, guardCtx);
+
   const system = await buildSystemPrompt(
     opts.task,
-    opts.messages,
+    guardedMessages,
     opts.extraInstructions,
   );
 
   const result = await routeChat(opts.task, {
     system,
-    messages: opts.messages,
+    messages: guardedMessages,
     maxTokens: opts.maxTokens,
     temperature: opts.temperature,
     jsonMode: opts.jsonMode,
     timeoutMs: opts.timeoutMs,
   });
 
+  const guardedOutput = runOutputGuardrails(result.response.text, guardCtx);
+
   return {
-    text: result.response.text,
+    text: guardedOutput.text,
     meta: {
       provider: result.response.provider,
       model: result.response.model,
@@ -284,9 +291,13 @@ export async function askVireekAiStream(
     );
   }
 
+  const guardCtx = { task: opts.task, jsonMode: opts.jsonMode };
+  const guardedMessages = runInputGuardrails(opts.messages, guardCtx);
+  const streamGuard = createStreamGuard(guardCtx);
+
   const system = await buildSystemPrompt(
     opts.task,
-    opts.messages,
+    guardedMessages,
     opts.extraInstructions,
   );
 
@@ -294,13 +305,16 @@ export async function askVireekAiStream(
     opts.task,
     {
       system,
-      messages: opts.messages,
+      messages: guardedMessages,
       maxTokens: opts.maxTokens,
       temperature: opts.temperature,
       jsonMode: opts.jsonMode,
       timeoutMs: opts.timeoutMs,
     },
-    onDelta,
+        (delta: string) => {
+      const { forward } = streamGuard.check(delta);
+      if (forward) onDelta(forward);
+    },
   );
 
   return {
