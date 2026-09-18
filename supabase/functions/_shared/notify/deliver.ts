@@ -22,6 +22,26 @@ export async function sendSms(to: string, body: string): Promise<{ ok: boolean; 
   return { ok: true };
 }
 
+export async function sendVoiceCall(to: string, message: string): Promise<{ ok: boolean; error?: string }> {
+  const sid = Deno.env.get("TWILIO_ACCOUNT_SID");
+  const token = Deno.env.get("TWILIO_AUTH_TOKEN");
+  const from = Deno.env.get("TWILIO_FROM_NUMBER");
+  if (!sid || !token || !from) {
+    return { ok: false, error: "Voice calling isn't configured yet (missing TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM_NUMBER)." };
+  }
+  const twiml = `<Response><Say voice="Polly.Matthew">${message.replace(/&/g, "and")}</Say></Response>`;
+  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Calls.json`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${btoa(`${sid}:${token}`)}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({ To: to, From: from, Twiml: twiml }),
+  });
+  if (!res.ok) return { ok: false, error: await res.text() };
+  return { ok: true };
+}
+
 export async function sendEmail(to: string, subject: string, html: string, text: string): Promise<{ ok: boolean; error?: string }> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const from = Deno.env.get("RESEND_FROM_EMAIL") || "Vireek <onboarding@resend.dev>";
