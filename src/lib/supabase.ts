@@ -30,6 +30,7 @@ export interface Profile {
     escalation_enabled: boolean;
   escalation_phone: string | null;
   escalation_mode: 'warm_transfer' | 'barge_in';
+  agent_orchestration_enabled: boolean;
   external_id: string | null;
   customer_id: string | null;
   stripe_customer_id: string | null;
