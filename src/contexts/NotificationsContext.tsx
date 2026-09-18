@@ -16,7 +16,7 @@ export interface NotificationRow {
   [key: string]: unknown;
   id: string;
   user_id: string;
-  type: 'emergency_call' | 'usage_alert' | 'ai_insight' | 'job_update' | 'system';
+  type: 'emergency_call' | 'usage_alert' | 'ai_insight' | 'job_update' | 'warranty_alert' | 'system';
   title: string;
   message: string;
   is_read: boolean;
