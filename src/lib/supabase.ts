@@ -167,6 +167,44 @@ export interface ContractSlaBreach {
   created_at: string;
 }
 
+export interface LaborMarketplaceListing {
+  id: string;
+  user_id: string;
+  listing_type: 'offering' | 'requesting';
+  trade_category: 'hvac' | 'plumbing' | 'electrical' | 'roofing' | 'restoration' | 'locksmith' | 'general';
+  title: string;
+  description: string | null;
+  technicians_count: number;
+  start_date: string | null;
+  end_date: string | null;
+  hourly_rate_cents: number | null;
+  location_city: string | null;
+  location_region: string | null;
+  business_name: string;
+  contact_name: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+  status: 'open' | 'matched' | 'closed' | 'expired';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LaborMarketplaceMatch {
+  id: string;
+  listing_id: string;
+  user_id: string;
+  business_name: string;
+  contact_name: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+  agreed_technicians_count: number | null;
+  agreed_rate_cents: number | null;
+  message: string | null;
+  status: 'proposed' | 'accepted' | 'declined' | 'completed' | 'cancelled';
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Equipment {
   id: string;
   user_id: string;
