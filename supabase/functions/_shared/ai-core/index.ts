@@ -94,6 +94,19 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   "coaching_tip": <one short, concrete, actionable tip for handling the NEXT similar call better — e.g. how to answer this exact objection, or how to naturally pitch the upsell above — or null if the call was already handled well>
 }
 
+  promise_extraction: `Current task: read a completed phone call transcript for a home-service business and extract only CONCRETE COMMITMENTS the business (Sarah or a human) made to the caller — things like a callback, an arrival time, a promised discount, sending a document, or a specific follow-up action. Output ONLY a JSON object (no prose, no markdown fences):
+{
+  "promises": [
+    {
+      "promise_text": <short, specific description of exactly what was promised, from the business's side, e.g. "Send a text with the quote within 30 minutes">,
+      "category": "callback" | "arrival_time" | "pricing" | "follow_up" | "documentation" | "other",
+      "due_description": <the timeframe as actually said, e.g. "tomorrow by 2pm", "within the hour", or null if no timeframe was given>,
+      "due_hours_estimate": <your best-guess number of hours from call end until this is due, based on due_description — e.g. "within the hour" is about 1, "tomorrow morning" is roughly 16, "by end of day" is roughly 6 — or null if no timeframe was given or it can't be estimated>
+    }
+  ]
+}
+Only include something a REASONABLE PERSON would consider a commitment — not vague chat like "we'll take care of you" or small talk. If the caller made a promise TO the business (e.g. "I'll pay when he arrives"), do not include it — this only tracks what the business owes the caller. Maximum 5 promises. If nothing was actually promised, return {"promises": []}.`,
+
 Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly.`,
 
   business_insights: `Current task: you are analyzing a home-service business's own account metrics (computed directly from their database — calls, leads, jobs, usage) to surface genuinely useful operational insights. Output ONLY a JSON array (no prose, no markdown fences) of 1 to 4 objects, each with exactly these fields:
