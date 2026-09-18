@@ -16,6 +16,7 @@ import {
   VolumeX,
   RotateCw,
   AlertCircle,
+  ShieldAlert,
 } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationsContext';
 import type { NotificationRow } from '@/contexts/NotificationsContext';
@@ -30,6 +31,7 @@ const TYPE_ICON: Record<NotificationRow['type'], typeof Bell> = {
   usage_alert: Gauge,
   ai_insight: Lightbulb,
   job_update: Wrench,
+  warranty_alert: ShieldAlert,
   quote_viewed: Eye,
   system: Info,
 };
@@ -39,6 +41,7 @@ const TYPE_COLOR: Record<NotificationRow['type'], string> = {
   usage_alert: 'bg-warning-500/10 text-warning-500',
   ai_insight: 'bg-ai/10 text-ai',
   job_update: 'bg-accent/10 text-accent',
+  warranty_alert: 'bg-warning-500/10 text-warning-500',
   quote_viewed: 'bg-success-500/10 text-success-500',
   system: 'bg-bg-tertiary text-text-secondary',
 };
@@ -48,6 +51,7 @@ const TYPE_LABEL: Record<NotificationRow['type'], string> = {
   usage_alert: 'Usage alert',
   ai_insight: 'AI insight',
   job_update: 'Job update',
+  warranty_alert: 'Warranty alert',
   quote_viewed: 'Estimate activity',
   system: 'System',
 };
