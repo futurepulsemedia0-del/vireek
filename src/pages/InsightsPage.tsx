@@ -16,6 +16,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, AiInsight } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { IndustryIntelligenceCard } from '@/components/IndustryIntelligenceCard';
 
 // ============================================================
 // INSIGHT CONFIG
@@ -255,6 +256,8 @@ export function InsightsPage() {
           </button>
         </div>
 
+        <IndustryIntelligenceCard userId={user?.id} />
+        
         {/* Content */}
         {loading ? (
           <div className="space-y-4">
