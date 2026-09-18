@@ -55,6 +55,7 @@ import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
 import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
+import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 
 // ---------------------------------------------------------------------------
@@ -1924,6 +1925,30 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
     user_id: tenant.userId,
     call_row_found: Boolean(callRow),
   });
+
+  // Promise Tracker — best-effort, must never block the response above.
+  if (message.type === "end-of-call-report" && transcript && callRow) {
+    try {
+      const extracted = await extractPromises(transcript);
+      if (extracted.length > 0) {
+        const endedAt = message.call?.endedAt ? new Date(message.call.endedAt) : new Date();
+        const rows = extracted.map((p) => ({
+          user_id: tenant.userId,
+          call_id: callRow.id,
+          customer_name: callerName,
+          customer_phone: callerNumber,
+          promise_text: p.promise_text,
+          category: p.category,
+          due_description: p.due_description,
+          due_at: computeDueAt(endedAt, p.due_hours_estimate),
+        }));
+        await admin.from("promises").insert(rows);
+        logEvent("promises_extracted", requestId, { count: rows.length });
+      }
+    } catch (error) {
+      logError("promise_extraction_failed", requestId, error, {});
+    }
+  }
 
   return jsonResponse({ received: true });
 }
