@@ -89,6 +89,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Command Center', href: '/dashboard/command-center', icon: Radio },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Profitability', href: '/dashboard/profitability', icon: DollarSign },
+  { label: 'Parts & Inventory', href: '/dashboard/inventory', icon: Package },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
