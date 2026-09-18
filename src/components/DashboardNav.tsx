@@ -43,6 +43,7 @@ import {
   Webhook,
   Lock,
   History,
+  CloudLightning,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -103,6 +104,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
+  { label: 'Weather Surge', href: '/dashboard/weather-surge', icon: CloudLightning },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
