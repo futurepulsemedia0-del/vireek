@@ -76,6 +76,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Coaching Reports', href: '/dashboard/coaching-reports', icon: GraduationCap, requiresPermission: 'can_view_billing' },
+  { label: 'Price Accuracy', href: '/dashboard/price-accuracy', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Voicemails', href: '/dashboard/voicemails', icon: Voicemail },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Customers', href: '/dashboard/customers', icon: BookUser },
