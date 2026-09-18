@@ -1,79 +1,20 @@
-import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
-import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+// supabase/functions/escalation-tick/index.ts
+//
+// Scans active escalation_events. When a tier's delay_minutes has
+// elapsed with no acknowledgement, notifies the next tier (SMS and/or
+// voice call) and advances current_tier. When tiers are exhausted,
+// marks the event 'exhausted' and does one final SMS to the account
+// owner directly. Tier 1's own first notification is sent immediately
+// by escalate-emergency at creation time — this function only handles
+// tier 2+ (see the edit to escalate-emergency/index.ts below).
+//
+// Run every 1-2 min — see the cron.schedule() comment at the bottom of
+// 20261002000000_on_call_rotation_escalation.sql.
+//
+// Deploy: supabase functions deploy escalation-tick
 
-interface CampaignRow {
-  user_id: string;
-  campaign_type: "quote_followup" | "appointment_reminder" | "review_request_call";
-  trigger_after_hours: number;
-}
-
-async function queueQuoteFollowups(admin: SupabaseClient, campaign: CampaignRow) {
-  const cutoff = new Date(Date.now() - campaign.trigger_after_hours * 3600_000).toISOString();
-  const { data: leads } = await admin
-    .from("leads")
-    .select("id, name, phone")
-    .eq("user_id", campaign.user_id)
-    .eq("stage", "quoted")
-    .lte("stage_updated_at", cutoff)
-    .not("phone", "is", null);
-
-  let queued = 0, skipped = 0;
-  for (const lead of leads ?? []) {
-    const suppressed = lead.phone ? await isDncSuppressed(admin, campaign.user_id, lead.phone) : false;
-    const { error } = await admin.from("outbound_calls").insert({
-      user_id: campaign.user_id, campaign_type: "quote_followup", lead_id: lead.id,
-      customer_name: lead.name, customer_phone: lead.phone, status: suppressed ? "opted_out" : "queued",
-    });
-    if (!error) queued += suppressed ? 0 : 1; else skipped += 1;
-  }
-  return { queued, skipped };
-}
-
-async function queueAppointmentReminders(admin: SupabaseClient, campaign: CampaignRow) {
-  const windowStart = new Date().toISOString();
-  const windowEnd = new Date(Date.now() + campaign.trigger_after_hours * 3600_000).toISOString();
-  const { data: jobs } = await admin
-    .from("jobs")
-    .select("id, customer_name, customer_phone, scheduled_datetime")
-    .eq("user_id", campaign.user_id)
-    .eq("job_status", "scheduled")
-    .gte("scheduled_datetime", windowStart)
-    .lte("scheduled_datetime", windowEnd)
-    .not("customer_phone", "is", null);
-
-  let queued = 0, skipped = 0;
-  for (const job of jobs ?? []) {
-    const suppressed = job.customer_phone ? await isDncSuppressed(admin, campaign.user_id, job.customer_phone) : false;
-    const { error } = await admin.from("outbound_calls").insert({
-      user_id: campaign.user_id, campaign_type: "appointment_reminder", job_id: job.id,
-      customer_name: job.customer_name, customer_phone: job.customer_phone, status: suppressed ? "opted_out" : "queued",
-    });
-    if (!error) queued += suppressed ? 0 : 1; else skipped += 1;
-  }
-  return { queued, skipped };
-}
-
-async function queueReviewRequestCalls(admin: SupabaseClient, campaign: CampaignRow) {
-  const cutoff = new Date(Date.now() - campaign.trigger_after_hours * 3600_000).toISOString();
-  const { data: jobs } = await admin
-    .from("jobs")
-    .select("id, customer_name, customer_phone, completed_at")
-    .eq("user_id", campaign.user_id)
-    .eq("job_status", "completed")
-    .lte("completed_at", cutoff)
-    .not("customer_phone", "is", null);
-
-  let queued = 0, skipped = 0;
-  for (const job of jobs ?? []) {
-    const suppressed = job.customer_phone ? await isDncSuppressed(admin, campaign.user_id, job.customer_phone) : false;
-    const { error } = await admin.from("outbound_calls").insert({
-      user_id: campaign.user_id, campaign_type: "review_request_call", job_id: job.id,
-      customer_name: job.customer_name, customer_phone: job.customer_phone, status: suppressed ? "opted_out" : "queued",
-    });
-    if (!error) queued += suppressed ? 0 : 1; else skipped += 1;
-  }
-  return { queued, skipped };
-}
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { sendSms, sendVoiceCall } from "../_shared/notify/deliver.ts";
 
 Deno.serve(async (req: Request) => {
   const cronSecret = Deno.env.get("CRON_SECRET");
@@ -81,22 +22,109 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
-  const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-  const { data: campaigns, error } = await admin.from("outbound_campaigns").select("user_id, campaign_type, trigger_after_hours").eq("enabled", true);
-  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-
-  const results = { quote_followup: { queued: 0, skipped: 0 }, appointment_reminder: { queued: 0, skipped: 0 }, review_request_call: { queued: 0, skipped: 0 } };
-
-  for (const campaign of (campaigns as CampaignRow[]) ?? []) {
-    let outcome;
-    if (campaign.campaign_type === "quote_followup") outcome = await queueQuoteFollowups(admin, campaign);
-    else if (campaign.campaign_type === "appointment_reminder") outcome = await queueAppointmentReminders(admin, campaign);
-    else outcome = await queueReviewRequestCalls(admin, campaign);
-
-    results[campaign.campaign_type].queued += outcome.queued;
-    results[campaign.campaign_type].skipped += outcome.skipped;
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error(JSON.stringify({ event: "escalation_tick_failed", error: "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY." }));
+    return new Response(JSON.stringify({ error: "Server misconfiguration." }), { status: 500 });
   }
 
-  return new Response(JSON.stringify({ results }), { headers: { "Content-Type": "application/json" } });
+  const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+  const siteUrl = (Deno.env.get("SITE_URL") ?? "https://app.vireek.com").replace(/\/$/, "");
+
+  const { data: events, error } = await admin
+    .from("escalation_events")
+    .select("id, user_id, schedule_id, current_tier, last_notified_at, ack_token, call_id")
+    .eq("status", "active")
+    .limit(100);
+
+  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+
+  let escalated = 0, exhausted = 0, failed = 0;
+
+  for (const ev of events ?? []) {
+    try {
+      const { data: tiers, error: tiersError } = await admin
+        .from("escalation_tiers")
+        .select("tier_order, team_member_id, delay_minutes, notify_via")
+        .eq("schedule_id", ev.schedule_id)
+        .order("tier_order", { ascending: true });
+
+      if (tiersError) throw tiersError;
+      if (!tiers || tiers.length === 0) continue;
+
+      const activeTier = tiers.find((t) => t.tier_order === ev.current_tier);
+      const nextTier = tiers.find((t) => t.tier_order === ev.current_tier + 1);
+      const elapsedMs = ev.last_notified_at ? Date.now() - new Date(ev.last_notified_at).getTime() : Infinity;
+      if (!activeTier || elapsedMs < activeTier.delay_minutes * 60_000) continue;
+
+      if (!nextTier) {
+        const { data: profile, error: profileError } = await admin
+          .from("profiles")
+          .select("phone")
+          .eq("id", ev.user_id)
+          .maybeSingle();
+        if (profileError) throw profileError;
+
+        if (profile?.phone) {
+          await sendSms(profile.phone, `Vireek: on-call escalation exhausted with no acknowledgement (call ${ev.call_id ?? ev.id}). Please respond directly.`);
+        }
+
+        const { data: updatedExhausted, error: exhaustError } = await admin
+          .from("escalation_events")
+          .update({ status: "exhausted" })
+          .eq("id", ev.id)
+          .eq("status", "active")
+          .select("id");
+        if (exhaustError) throw exhaustError;
+        if (updatedExhausted && updatedExhausted.length > 0) exhausted++;
+        continue;
+      }
+
+      let memberId = nextTier.team_member_id;
+      if (!memberId) {
+        const { data: onCallId, error: onCallError } = await admin.rpc("get_current_on_call", { p_schedule_id: ev.schedule_id });
+        if (onCallError) throw onCallError;
+        memberId = onCallId;
+      }
+      if (!memberId) continue;
+
+      const { data: member, error: memberError } = await admin
+        .from("team_members")
+        .select("member_phone")
+        .eq("id", memberId)
+        .maybeSingle();
+      if (memberError) throw memberError;
+      if (!member?.member_phone) continue;
+
+      const ackUrl = `${siteUrl}/ack/${ev.ack_token}`;
+      const body = `Vireek escalation (tier ${nextTier.tier_order}): unacknowledged emergency call. Tap to accept: ${ackUrl}`;
+
+      if (nextTier.notify_via === "sms" || nextTier.notify_via === "both") {
+        await sendSms(member.member_phone, body);
+      }
+      if (nextTier.notify_via === "call" || nextTier.notify_via === "both") {
+        await sendVoiceCall(member.member_phone, "You have an unacknowledged emergency escalation from Vireek. Please check your text messages immediately.");
+      }
+
+      const { data: updatedEvent, error: updateError } = await admin
+        .from("escalation_events")
+        .update({ current_tier: nextTier.tier_order, last_notified_at: new Date().toISOString() })
+        .eq("id", ev.id)
+        .eq("current_tier", ev.current_tier)
+        .select("id");
+      if (updateError) throw updateError;
+      if (updatedEvent && updatedEvent.length > 0) escalated++;
+    } catch (evError) {
+      failed++;
+      console.error(JSON.stringify({
+        event: "escalation_tick_event_failed",
+        escalation_event_id: ev.id,
+        error: evError instanceof Error ? evError.message : String(evError),
+      }));
+    }
+  }
+
+  return new Response(JSON.stringify({ escalated, exhausted, failed }), { headers: { "Content-Type": "application/json" } });
 });
