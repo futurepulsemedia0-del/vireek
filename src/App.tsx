@@ -41,6 +41,7 @@ const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ de
 const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ default: m.QuotesPage })));
 const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m) => ({ default: m.KnowledgeBasePage })));
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
+const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
@@ -371,6 +372,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CoachingReportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/decision-engine"
+          element={
+            <ProtectedRoute>
+              <BusinessDecisionEnginePage />
             </ProtectedRoute>
           }
         />
