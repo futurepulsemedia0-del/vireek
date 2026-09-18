@@ -53,6 +53,7 @@ const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPa
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
+const MutualAidPage = lazy(() => import('@/pages/MutualAidPage').then((m) => ({ default: m.MutualAidPage })));
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
@@ -589,6 +590,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OnCallPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/mutual-aid"
+          element={
+            <ProtectedRoute>
+              <MutualAidPage />
             </ProtectedRoute>
           }
         />
