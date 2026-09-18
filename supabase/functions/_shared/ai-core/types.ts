@@ -59,7 +59,8 @@ export type AiCoreErrorCode =
   | "AUTH"
   | "INVALID_RESPONSE"
   | "PROVIDER_ERROR"
-  | "ALL_PROVIDERS_FAILED";
+  | "ALL_PROVIDERS_FAILED"
+  | "GUARDRAIL_BLOCKED";
 
 export class AiCoreError extends Error {
   readonly code: AiCoreErrorCode;
