@@ -23,6 +23,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Cron-Secret" };
 const USER_AGENT = "Vireek Dashboard (weather-surge-check, support@vireek.com)";
+const FETCH_TIMEOUT_MS = 10_000;
 
 function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -82,21 +83,37 @@ interface NwsAlertProperties {
 }
 
 async function geocodeZip(zip: string): Promise<{ lat: number; lon: number } | null> {
-  const res = await fetch(`https://api.zippopotam.us/us/${encodeURIComponent(zip)}`);
-  if (!res.ok) return null;
-  const data = await res.json();
-  const place = data?.places?.[0];
-  if (!place) return null;
-  return { lat: Number(place.latitude), lon: Number(place.longitude) };
+  try {
+    const res = await fetch(`https://api.zippopotam.us/us/${encodeURIComponent(zip)}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const place = data?.places?.[0];
+    if (!place) return null;
+    const lat = Number(place.latitude);
+    const lon = Number(place.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    return { lat, lon };
+  } catch (err) {
+    console.error(JSON.stringify({ event: "geocode_zip_failed", zip, error: err instanceof Error ? err.message : String(err) }));
+    return null;
+  }
 }
 
 async function fetchActiveAlerts(lat: number, lon: number): Promise<NwsAlertProperties[]> {
-  const res = await fetch(`https://api.weather.gov/alerts/active?point=${lat},${lon}`, {
-    headers: { "User-Agent": USER_AGENT, Accept: "application/geo+json" },
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.features ?? []).map((f: { properties: NwsAlertProperties }) => f.properties);
+  try {
+    const res = await fetch(`https://api.weather.gov/alerts/active?point=${lat},${lon}`, {
+      headers: { "User-Agent": USER_AGENT, Accept: "application/geo+json" },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data?.features ?? []).map((f: { properties: NwsAlertProperties }) => f.properties);
+  } catch (err) {
+    console.error(JSON.stringify({ event: "fetch_active_alerts_failed", lat, lon, error: err instanceof Error ? err.message : String(err) }));
+    return [];
+  }
 }
 
 async function checkOneBusiness(
@@ -146,8 +163,12 @@ async function checkOneBusiness(
     }
   }
 
-  if (alerts.length === 0) {
-    await admin.from("business_profile").update({ weather_surge_last_checked_at: new Date().toISOString() }).eq("user_id", business.user_id);
+  const { error: checkedError } = await admin
+    .from("business_profile")
+    .update({ weather_surge_last_checked_at: new Date().toISOString() })
+    .eq("user_id", business.user_id);
+  if (checkedError) {
+    console.error(JSON.stringify({ event: "update_last_checked_failed", user_id: business.user_id, error: checkedError.message }));
   }
 
   return { user_id: business.user_id, alerts_seen: alerts.length, alerts_triggered: triggered };
@@ -156,7 +177,15 @@ async function checkOneBusiness(
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
 
-  const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error(JSON.stringify({ event: "weather_surge_check_failed", error: "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY." }));
+    return jsonResponse({ error: "Server misconfiguration." }, 500);
+  }
+
+  const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
   const cronSecret = Deno.env.get("WEATHER_SURGE_CRON_SECRET");
   const providedCronSecret = req.headers.get("X-Cron-Secret");
@@ -174,7 +203,17 @@ Deno.serve(async (req: Request) => {
 
       const results = [];
       for (const b of businesses ?? []) {
-        results.push(await checkOneBusiness(admin, b as { user_id: string; weather_zip_code: string; primary_industry: string | null }));
+        const typedBusiness = b as { user_id: string; weather_zip_code: string; primary_industry: string | null };
+        try {
+          results.push(await checkOneBusiness(admin, typedBusiness));
+        } catch (businessError) {
+          console.error(JSON.stringify({
+            event: "check_one_business_failed",
+            user_id: typedBusiness.user_id,
+            error: businessError instanceof Error ? businessError.message : String(businessError),
+          }));
+          results.push({ user_id: typedBusiness.user_id, error: "Unexpected error during check." });
+        }
       }
 
       const { data: resolvedCount, error: resolveError } = await admin.rpc("resolve_expired_weather_surges");
