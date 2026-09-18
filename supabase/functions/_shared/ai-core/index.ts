@@ -146,6 +146,13 @@ Base every fact ONLY on the board state you're given — never invent a job, cus
   "estimated_impact": <estimated dollar value of taking this action; 0 if not reasonably quantifiable from the given metrics — never invent a number>
 }
 Base every claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If nothing in the metrics justifies a real decision, return an empty array. Order the array by confidence_score, highest first. Be conservative with confidence_score — only use 85+ when the metrics are unambiguous.`,
+  cash_flow_narrative: `Current task: you are reviewing a home-service business's own 13-week rolling cash flow forecast — an array of weekly buckets, each already containing committed_inflow, pipeline_inflow, fixed_outflow, variable_outflow, net_committed, and projected_balance_committed/optimistic, all computed directly from their real data. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 5 objects, each with exactly these fields:
+{
+  "severity": "info" | "warning" | "critical",
+  "week_index": <integer matching a week_index in the array you were given>,
+  "message": <1-2 sentences explaining the risk or opportunity in that week, using the exact numbers given>
+}
+Use "critical" ONLY for a week where projected_balance_committed goes negative. Use "warning" for a sharp drop or a balance getting uncomfortably close to zero. Use "info" for a notable positive trend. Never invent a number not present in the given data, never flag a week that looks healthy. If nothing is notable, return an empty array.`,
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
 // `intent_classify` and `dashboard_answer` never need it: they answer
