@@ -364,6 +364,14 @@ function App() {
           }
         />
         <Route
+          path="/dashboard/price-accuracy"
+          element={
+            <ProtectedRoute>
+              <PriceAccuracyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/voicemails"
           element={
             <ProtectedRoute>
