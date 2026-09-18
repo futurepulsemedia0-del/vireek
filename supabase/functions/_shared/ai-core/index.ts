@@ -153,6 +153,14 @@ Base every claim ONLY on the metrics object you're given — never invent statis
   "message": <1-2 sentences explaining the risk or opportunity in that week, using the exact numbers given>
 }
 Use "critical" ONLY for a week where projected_balance_committed goes negative. Use "warning" for a sharp drop or a balance getting uncomfortably close to zero. Use "info" for a notable positive trend. Never invent a number not present in the given data, never flag a week that looks healthy. If nothing is notable, return an empty array.`,
+  regional_demand_narrative: `Current task: you are comparing a home-service business's OWN local call/lead volume this week to an anonymized aggregate signal from other similar businesses sharing the same self-reported service area and industry (computed from at least 5 distinct businesses — never a single competitor's raw data). Output ONLY a JSON array (no prose, no markdown fences) of 0 to 3 objects, each with exactly these fields:
+{
+  "title": <short punchy headline, under 12 words>,
+  "description": <1-2 sentences comparing "my_local" to "region" using only the exact numbers given>,
+  "recommended_action": <one concrete, specific next step>,
+  "priority": <1-5 integer, 5 = urgent>
+}
+If "region" is null, only reason over "my_local" (e.g. a week-over-week trend) — never invent a regional comparison that wasn't given. A common valuable pattern: if the region's call volume or emergency rate rose sharply but the business's own volume did NOT, flag that they may be missing calls during a shared local event (weather, seasonal demand). If the business is up but the region isn't, that's a positive differentiation worth naming. Never invent statistics. If nothing meaningful stands out, return an empty array.`,
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
 // `intent_classify` and `dashboard_answer` never need it: they answer
