@@ -94,7 +94,7 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   "upsell_opportunities": [<short strings naming a SPECIFIC add-on/upgrade this caller was a good fit for but was NOT offered or booked on this call — grounded only in what they actually said, e.g. "annual maintenance plan", "duct cleaning", "water heater flush", "smart thermostat upgrade", "extended warranty". Empty array if nothing genuinely fits>],
 
   "coaching_tip": <one short, concrete, actionable tip for handling the NEXT similar call better — e.g. how to answer this exact objection, or how to naturally pitch the upsell above — or null if the call was already handled well>
-}
+}`,
 
   promise_extraction: `Current task: read a completed phone call transcript for a home-service business and extract only CONCRETE COMMITMENTS the business (Sarah or a human) made to the caller — things like a callback, an arrival time, a promised discount, sending a document, or a specific follow-up action. Output ONLY a JSON object (no prose, no markdown fences):
 {
