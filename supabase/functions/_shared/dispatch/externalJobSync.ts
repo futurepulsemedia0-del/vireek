@@ -12,6 +12,7 @@
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { refreshJobberTokenIfNeeded } from "../price-book/jobber.ts";
+import { createServiceTitanJob, type ServiceTitanJobConfig } from "../price-book/servicetitanJobs.ts";
 
 export interface BookedJobForSync {
   id: string;
@@ -28,6 +29,12 @@ interface PriceBookConnectionRow {
   jobber_access_token: string | null;
   jobber_refresh_token: string | null;
   jobber_token_expires_at: string | null;
+  st_client_id: string | null;
+  st_client_secret: string | null;
+  st_app_key: string | null;
+  st_tenant_id: string | null;
+  st_business_unit_id: string | null;
+  st_job_type_id: string | null;
 }
 
 const JOBBER_GRAPHQL_URL = "https://api.getjobber.com/api/graphql";
@@ -204,6 +211,52 @@ async function pushJobToJobber(
   }
 }
 
+async function pushJobToServiceTitan(
+  admin: SupabaseClient,
+  userId: string,
+  connection: PriceBookConnectionRow,
+  job: BookedJobForSync,
+): Promise<void> {
+  try {
+    if (!connection.st_business_unit_id || !connection.st_job_type_id) {
+      throw new Error("servicetitan_job_config_missing");
+    }
+    const config: ServiceTitanJobConfig = {
+      st_client_id: connection.st_client_id ?? "",
+      st_client_secret: connection.st_client_secret ?? "",
+      st_app_key: connection.st_app_key ?? "",
+      st_tenant_id: connection.st_tenant_id ?? "",
+      st_business_unit_id: connection.st_business_unit_id,
+      st_job_type_id: connection.st_job_type_id,
+    };
+
+    const { externalId } = await createServiceTitanJob(config, {
+      customerName: job.customerName,
+      customerPhone: job.customerPhone,
+      serviceType: job.serviceType,
+      address: job.address,
+      scheduledDatetime: job.scheduledDatetime,
+    });
+
+    await recordSyncResult(admin, userId, job.id, "service_titan", {
+      status: "synced",
+      externalId,
+      externalType: "job",
+    });
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: "servicetitan_job_push_failed",
+      user_id: userId,
+      job_id: job.id,
+      error: error instanceof Error ? error.message : String(error),
+    }));
+    await recordSyncResult(admin, userId, job.id, "service_titan", {
+      status: "error",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 /**
  * Fan-out entry point called right after a job is booked internally. Looks
  * up which CRMs this tenant has connected and pushes to each. Never throws
@@ -218,7 +271,7 @@ export async function syncJobToExternalProviders(
 ): Promise<void> {
   const { data: connections } = await admin
     .from("price_book_connections")
-    .select("provider, status, jobber_access_token, jobber_refresh_token, jobber_token_expires_at")
+    .select("provider, status, jobber_access_token, jobber_refresh_token, jobber_token_expires_at, st_client_id, st_client_secret, st_app_key, st_tenant_id, st_business_unit_id, st_job_type_id")
     .eq("user_id", userId)
     .eq("status", "connected");
 
@@ -228,7 +281,10 @@ export async function syncJobToExternalProviders(
     if (connection.provider === "jobber") {
       await pushJobToJobber(admin, userId, connection, job);
     }
-    // service_titan and housecall_pro land in the next two phases — see
-    // job_external_syncs.provider, already sized for both.
+    if (connection.provider === "service_titan") {
+      await pushJobToServiceTitan(admin, userId, connection, job);
+    }
+    // housecall_pro lands in the next phase — see job_external_syncs.provider,
+    // already sized for it.
   }
 }
