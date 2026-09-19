@@ -17,6 +17,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { supabase } from '@/lib/supabase';
 
 // ============================================================
 // CONFIG — edit once the real invite link exists.
@@ -68,10 +69,17 @@ function NotifySignup() {
       return;
     }
     setState('loading');
-    // TODO: wire to the real notify-list endpoint once the backend route
-    // exists (same mock-submit pattern used in WebinarsPage.tsx until that
-    // lands).
-    await new Promise((r) => setTimeout(r, 1000));
+    // Reuses newsletter_subscribers (same table as the footer signup) with
+    // a distinct `source` so this list can be filtered/exported separately.
+    // Unique-violation (23505) means this email is already subscribed —
+    // treat that as success rather than showing an error.
+    const { error } = await supabase
+      .from('newsletter_subscribers')
+      .insert({ email: email.trim().toLowerCase(), source: 'community' });
+    if (error && error.code !== '23505') {
+      setState('error');
+      return;
+    }
     setState('success');
     setEmail('');
   };
