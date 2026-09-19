@@ -29,10 +29,18 @@ interface ServiceTitanFormState {
   client_secret: string;
   app_key: string;
   tenant_id: string;
+  business_unit_id: string;
+  job_type_id: string;
 }
 
-const EMPTY_ST_FORM: ServiceTitanFormState = { client_id: '', client_secret: '', app_key: '', tenant_id: '' };
-
+const EMPTY_ST_FORM: ServiceTitanFormState = {
+  client_id: '',
+  client_secret: '',
+  app_key: '',
+  tenant_id: '',
+  business_unit_id: '',
+  job_type_id: '',
+};
 function CrmConnections({
   connections,
   onChanged,
@@ -50,7 +58,7 @@ function CrmConnections({
   const byProvider = (p: CrmProvider) => connections.find((c) => c.provider === p);
 
   const handleConnectServiceTitan = async () => {
-    if (!stForm.client_id || !stForm.client_secret || !stForm.app_key || !stForm.tenant_id) return;
+    if (!stForm.client_id || !stForm.client_secret || !stForm.app_key || !stForm.tenant_id || !stForm.business_unit_id || !stForm.job_type_id) return;
     setConnectingSt(true);
     const { data, error } = await supabase.functions.invoke('price-book-connect-servicetitan', { body: stForm });
     setConnectingSt(false);
@@ -159,7 +167,12 @@ function CrmConnections({
             <input type="password" value={stForm.client_secret} onChange={(e) => setStForm((f) => ({ ...f, client_secret: e.target.value }))} placeholder="Client Secret" className={inputClass} />
             <input type="text" value={stForm.app_key} onChange={(e) => setStForm((f) => ({ ...f, app_key: e.target.value }))} placeholder="App Key" className={inputClass} />
             <input type="text" value={stForm.tenant_id} onChange={(e) => setStForm((f) => ({ ...f, tenant_id: e.target.value }))} placeholder="Tenant ID" className={inputClass} />
+            <input type="text" value={stForm.business_unit_id} onChange={(e) => setStForm((f) => ({ ...f, business_unit_id: e.target.value }))} placeholder="Business Unit ID" className={inputClass} />
+            <input type="text" value={stForm.job_type_id} onChange={(e) => setStForm((f) => ({ ...f, job_type_id: e.target.value }))} placeholder="Job Type ID" className={inputClass} />
           </div>
+          <p className="mt-2 text-[11px] text-text-secondary/70">
+            Business Unit ID and Job Type ID come from Settings → Business Units / Job Types inside ServiceTitan — they decide which crew queue and job category new bookings land in.
+          </p>
           <div className="mt-3 flex justify-end gap-2">
             <button type="button" onClick={() => setShowStForm(false)} className="focus-ring rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary">
               Cancel
