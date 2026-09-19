@@ -156,7 +156,7 @@ export function BillingPage() {
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
-  const [stripeReady] = useState(false); // Stripe not configured yet
+  const hasStripeCustomer = Boolean(profile?.stripe_customer_id);
   const [showPlans, setShowPlans] = useState(false);
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
@@ -274,17 +274,24 @@ export function BillingPage() {
 
   const handleSelectPlan = async (planId: string) => {
     if (planId === profile?.plan) return;
-    if (!stripeReady) {
-      toast('Stripe is not configured yet. Connect Stripe to enable plan upgrades.', 'info');
-      return;
-    }
     setProcessingPlan(planId);
-    // Stripe checkout would happen here via edge function
-    setTimeout(() => {
-      setProcessingPlan(null);
+    try {
+      const { data, error } = await supabase.functions.invoke<{ url?: string; switched?: boolean; error?: string }>(
+        'create-checkout-session',
+        { body: { planId } },
+      );
+      if (error || data?.error) throw new Error(data?.error || error?.message || 'Could not start checkout.');
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+      toast(`Switched to the ${PLANS.find((p) => p.id === planId)?.name} plan.`, 'success');
       setShowPlans(false);
-      toast('Stripe integration coming soon.', 'info');
-    }, 1000);
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not start checkout.', 'error');
+    } finally {
+      setProcessingPlan(null);
+    }
   };
 
   if (!canAccess) return <NoAccess />;
@@ -395,7 +402,7 @@ export function BillingPage() {
             <Receipt size={18} className="text-text-secondary" />
             <h3 className="text-sm font-semibold text-text-primary">Billing History</h3>
           </div>
-          {stripeReady ? (
+          {hasStripeCustomer ? (
             <div className="mt-4">
               <table className="w-full text-sm">
                 <thead>
@@ -613,12 +620,6 @@ export function BillingPage() {
                 );
               })}
             </div>
-
-            {!stripeReady && (
-              <p className="mt-4 text-center text-xs text-text-secondary/60">
-                Stripe payment integration is not yet configured. Plan switching will be available once Stripe is connected.
-              </p>
-            )}
           </motion.div>
         </div>
       )}
