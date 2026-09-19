@@ -25,12 +25,12 @@ const SECURITY_FEATURES: SecurityFeature[] = [
   {
     icon: FileCheck,
     title: 'Compliance Ready',
-    body: 'Built to align with SOC 2 and GDPR standards. Audit logs and data retention controls included.',
+    body: 'Built with SOC 2 and GDPR principles in mind — encryption, audit logs, and data retention controls included.',',
   },
   {
     icon: Server,
     title: 'Enterprise Infrastructure',
-    body: 'Hosted on enterprise-grade cloud infrastructure with 99.9% uptime and automatic failover.',
+    body: 'Hosted on enterprise-grade cloud infrastructure, targeting 99.9% monthly uptime under our published SLA.',',
   },
   {
     icon: KeyRound,
@@ -45,9 +45,9 @@ const SECURITY_FEATURES: SecurityFeature[] = [
 ];
 
 const TRUST_BADGES = [
-  { label: 'SOC 2 Ready', value: 'Type II' },
-  { label: 'GDPR', value: 'Compliant' },
-  { label: 'Uptime SLA', value: '99.9%' },
+  { label: 'SOC 2', value: 'Aligned' },
+  { label: 'GDPR', value: 'Aligned' },
+  { label: 'Uptime SLA', value: '99.9% Target' },
   { label: 'Data Ownership', value: 'Yours' },
 ];
 
