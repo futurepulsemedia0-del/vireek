@@ -101,7 +101,7 @@ const LeadQualificationPage = lazy(() => import('@/pages/LeadQualificationPage')
 const SmsTextBackPage = lazy(() => import('@/pages/SmsTextBackPage').then((m) => ({ default: m.SmsTextBackPage })));
 const WhatsAppInstagramDMPage = lazy(() => import('@/pages/WhatsAppInstagramDMPage').then((m) => ({ default: m.WhatsAppInstagramDMPage })));
 const WebhookLogsPage = lazy(() => import('@/pages/WebhookLogsPage').then((m) => ({ default: m.WebhookLogsPage })));
-const LiveEscalationPage = lazy(() => import('@/pages/LiveEscalationPage').then((m) => ({ default: m.LiveEscalationPage })));
+const LiveEscalationPage = lazy(() => import('./pages/LiveEscalationPage').then((m) => ({ default: m.LiveEscalationPage })));
 const PlatformPage = lazy(() => import('@/pages/PlatformPage').then((m) => ({ default: m.PlatformPage })));
 const ComparePage = lazy(() => import('@/pages/ComparePage').then((m) => ({ default: m.ComparePage })));
 const CompetitorPage = lazy(() => import('@/pages/CompetitorPage').then((m) => ({ default: m.CompetitorPage })));
