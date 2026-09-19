@@ -53,6 +53,7 @@
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
+import { syncJobToExternalProviders } from "../_shared/dispatch/externalJobSync.ts";
 import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
 import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
 import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
@@ -1194,6 +1195,15 @@ async function toolBookAppointment(
   if (jobError || !job) {
     return "I wasn't able to save this appointment due to a system error — please have the office confirm it manually.";
   }
+
+  await syncJobToExternalProviders(admin, tenant.userId, {
+    id: job.id,
+    customerName,
+    customerPhone: jobPayload.customer_phone,
+    serviceType: job.service_type,
+    address: job.address,
+    scheduledDatetime: job.scheduled_datetime,
+  });
 
   const baseMessage = job.scheduled_datetime
     ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
