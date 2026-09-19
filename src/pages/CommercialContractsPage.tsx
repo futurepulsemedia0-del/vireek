@@ -891,7 +891,6 @@ export function CommercialContractsPage() {
                         </div>
                       )}
                     </motion.div>
-                )}
               </div>
             )}
           </>
