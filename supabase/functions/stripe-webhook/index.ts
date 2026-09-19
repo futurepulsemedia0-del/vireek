@@ -30,7 +30,8 @@
 // pointing at:
 //   https://<project-ref>.supabase.co/functions/v1/stripe-webhook
 // subscribed to: invoice.payment_failed, invoice.payment_succeeded,
-// customer.subscription.deleted.
+// customer.subscription.deleted, checkout.session.completed,
+// customer.subscription.updated.
 //
 // --no-verify-jwt is required because Stripe calls this endpoint directly
 // with no Supabase auth header — the Stripe signature check below (via
@@ -291,7 +292,41 @@ Deno.serve(async (req: Request) => {
           .eq("stripe_customer_id", customerId);
         break;
       }
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        if (session.mode !== "subscription" || !session.subscription) break;
+        const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
+        const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
+        const planId = session.metadata?.plan_id as string | undefined;
+        if (!customerId) break;
 
+        await admin
+          .from("profiles")
+          .update({
+            stripe_subscription_id: subscriptionId,
+            plan: planId ?? undefined,
+            subscription_status: "active",
+            status: "active",
+            dunning_stage: 0,
+            payment_failed_at: null,
+            payment_grace_period_ends_at: null,
+            last_payment_error: null,
+          })
+          .eq("stripe_customer_id", customerId);
+        break;
+      }
+
+      case "customer.subscription.updated": {
+        // اگه کاربر پلن رو از داخل Stripe Billing Portal عوض کنه، این کیس
+        // profiles.plan رو هم‌سو نگه می‌داره.
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
+        const planId = subscription.metadata?.plan_id as string | undefined;
+        if (!customerId || !planId) break;
+
+        await admin.from("profiles").update({ plan: planId }).eq("stripe_customer_id", customerId);
+        break;
+      }
       default:
         // Not a dunning-relevant event — acknowledged and ignored.
         break;
