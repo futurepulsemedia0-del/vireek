@@ -287,6 +287,7 @@ export interface Job {
   contract_reference: string | null;
   is_rework: boolean;
   rework_of_job_id: string | null;
+  completed_at: string | null;
   created_at: string;
 }
 
