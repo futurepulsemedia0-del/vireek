@@ -22,7 +22,6 @@ import {
   Star,
   RotateCcw,
 } from 'lucide-react';
-} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { getRescheduleLink } from '@/lib/reschedule';
