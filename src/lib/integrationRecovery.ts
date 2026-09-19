@@ -177,4 +177,82 @@ export function getIntegrationHealth(row: Integration | undefined | null): Integ
       needsRecovery: true,
       failure: failure ?? { error_code: 'unknown' },
       title: copy.title,
-      detail: 
+      detail: copy.detail,
+      primaryActionLabel: copy.action,
+    };
+  }
+
+  // row.status === 'disconnected'
+  // Distinguish a user-initiated disconnect (quiet, no recovery banner)
+  // from an automatic one caused by a real failure (needs recovery).
+  if (failure && failure.error_code !== 'manual_disconnect') {
+    const copy = REASON_COPY[failure.error_code];
+    return {
+      status: 'disconnected',
+      isHealthy: false,
+      needsRecovery: true,
+      failure,
+      title: copy.title,
+      detail: copy.detail,
+      primaryActionLabel: copy.action,
+    };
+  }
+
+  const copy = REASON_COPY.manual_disconnect;
+  return {
+    status: 'disconnected',
+    isHealthy: false,
+    needsRecovery: false,
+    failure: failure ?? null,
+    title: copy.title,
+    detail: copy.detail,
+    primaryActionLabel: copy.action,
+  };
+}
+
+/** Integrations whose current health needs user action (error, or an auto-disconnect). */
+export function listUnhealthyIntegrations(integrations: Integration[]): Integration[] {
+  return integrations.filter((row) => getIntegrationHealth(row).needsRecovery);
+}
+
+/** "5m ago" / "3h ago" / "2d ago" style relative time for a failure timestamp. */
+export function formatFailedAt(iso: string | undefined): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.round(diffMs / 60000);
+  if (diffMin < 1) return 'just now';
+  if (diffMin < 60) return `${diffMin}m ago`;
+
+  const diffHr = Math.round(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+
+  const diffDay = Math.round(diffHr / 24);
+  if (diffDay < 30) return `${diffDay}d ago`;
+
+  return date.toLocaleDateString();
+}
+
+/**
+ * Returns a copy of an integration's config with all failure-tracking keys
+ * (current and legacy field names) stripped — used when reconnecting or
+ * successfully saving, so stale error state doesn't linger.
+ */
+export function clearFailureConfig(
+  config: Record<string, unknown> | null | undefined,
+): Record<string, unknown> {
+  if (!config || typeof config !== 'object') return {};
+  const next = { ...config };
+  delete next.error_code;
+  delete next.errorCode;
+  delete next.error_message;
+  delete next.last_error;
+  delete next.error;
+  delete next.failed_at;
+  delete next.provider_status;
+  delete next.providerStatus;
+  delete next.recovery_hint;
+  return next;
+}
