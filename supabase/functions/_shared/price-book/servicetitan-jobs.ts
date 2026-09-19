@@ -1,83 +1,116 @@
-// Pushes a booked appointment into ServiceTitan as a real Job.
-// Docs: https://developer.servicetitan.io/docs/ (JPM v2) — verify field
-// names against your tenant's current API version before relying on this
-// in production; ServiceTitan requires customerId + locationId to exist
-// first, so this does a find-or-create on both before creating the job.
+// ServiceTitan job write-back: find-or-create Customer + Location, then
+// create a Job via the JPM v2 API. Unlike Jobber's Request object,
+// ServiceTitan's Jobs API requires a businessUnitId and jobTypeId that are
+// specific to each tenant's own ServiceTitan configuration — these are
+// collected once at connect time (see price-book-connect-servicetitan) and
+// stored on price_book_connections.
+//
+// VERIFY before production: endpoint paths, field names (`customers`,
+// `locations`, `jobs`, `summary`, `priority`) against
+// https://developer.servicetitan.io/ (CRM v2 + JPM v2 sections) — ServiceTitan
+// evolves this API and the exact request/response shape should be confirmed
+// against a live sandbox tenant before this touches real customers.
 
-import type { ServiceTitanCredentials } from "./types.ts";
-import { getServiceTitanToken } from "./servicetitan.ts";
+import { getServiceTitanToken, type ServiceTitanCredentials } from "./servicetitan.ts";
 
 const ST_API_BASE = "https://api.servicetitan.io";
 
-interface PushJobInput {
-  creds: ServiceTitanCredentials;
+export interface ServiceTitanJobConfig extends ServiceTitanCredentials {
+  st_business_unit_id: string;
+  st_job_type_id: string;
+}
+
+export interface BookedJobForServiceTitan {
   customerName: string;
-  phone: string;
+  customerPhone: string | null;
+  serviceType: string | null;
   address: string | null;
-  serviceType: string;
-  scheduledStart: string; // ISO
-  scheduledEnd: string;   // ISO
-  jobTypeId: number;      // must be configured per-tenant, see step 2
-  businessUnitId: number; // must be configured per-tenant, see step 2
+  scheduledDatetime: string | null;
 }
 
-export interface PushJobResult {
-  ok: boolean;
-  externalJobId?: string;
-  error?: string;
-}
-
-async function findOrCreateCustomer(base: string, tenantId: string, token: string, name: string, phone: string): Promise<number> {
-  const searchRes = await fetch(
-    `${base}/crm/v2/tenant/${tenantId}/customers?phone=${encodeURIComponent(phone)}`,
-    { headers: { Authorization: `Bearer ${token}` } },
-  );
-  if (searchRes.ok) {
-    const data = await searchRes.json();
-    if (Array.isArray(data?.data) && data.data.length > 0) return data.data[0].id;
+async function stFetch(token: string, appKey: string, path: string, init: RequestInit = {}) {
+  const res = await fetch(`${ST_API_BASE}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "ST-App-Key": appKey,
+      "Content-Type": "application/json",
+      ...(init.headers ?? {}),
+    },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`servicetitan_http_${res.status}_${body.slice(0, 200)}`);
   }
-  const createRes = await fetch(`${base}/crm/v2/tenant/${tenantId}/customers`, {
+  return res.status === 204 ? null : res.json();
+}
+
+async function findOrCreateCustomer(
+  token: string,
+  config: ServiceTitanJobConfig,
+  job: BookedJobForServiceTitan,
+): Promise<{ customerId: number; locationId: number }> {
+  const base = `/crm/v2/tenant/${config.st_tenant_id}`;
+
+  if (job.customerPhone) {
+    const search = await stFetch(
+      token,
+      config.st_app_key,
+      `${base}/customers?phone=${encodeURIComponent(job.customerPhone)}&pageSize=1`,
+    );
+    const existing = search?.data?.[0];
+    if (existing?.id && existing?.locations?.[0]?.id) {
+      return { customerId: existing.id, locationId: existing.locations[0].id };
+    }
+  }
+
+  const created = await stFetch(token, config.st_app_key, `${base}/customers`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      name,
+      name: job.customerName,
       type: "Residential",
-      phoneSettings: { phoneNumbers: [{ number: phone, type: "Mobile" }] },
+      phoneSettings: job.customerPhone ? { phoneNumbers: [{ number: job.customerPhone, type: "Mobile" }] } : undefined,
+      address: job.address ? { street: job.address } : undefined,
     }),
   });
-  if (!createRes.ok) throw new Error(`st_customer_create_${createRes.status}`);
-  const created = await createRes.json();
-  return created.id;
+
+  const customerId = created?.id;
+  const locationId = created?.locations?.[0]?.id ?? created?.locationId;
+  if (!customerId || !locationId) throw new Error("servicetitan_customer_create_incomplete");
+  return { customerId, locationId };
 }
 
-export async function pushJobToServiceTitan(input: PushJobInput): Promise<PushJobResult> {
-  try {
-    const token = await getServiceTitanToken(input.creds);
-    const tenantId = input.creds.st_tenant_id;
+/**
+ * Creates a Job in ServiceTitan directly on the tenant's schedule (unlike
+ * Jobber's Request-based push, ServiceTitan's Jobs API books straight in —
+ * businessUnitId/jobTypeId already encode which crew/queue it belongs to).
+ */
+export async function createServiceTitanJob(
+  config: ServiceTitanJobConfig,
+  job: BookedJobForServiceTitan,
+): Promise<{ externalId: string }> {
+  const token = await getServiceTitanToken(config);
+  const { customerId, locationId } = await findOrCreateCustomer(token, config, job);
 
-    const customerId = await findOrCreateCustomer(ST_API_BASE, tenantId, token, input.customerName, input.phone);
+  const summary = job.serviceType ? `${job.serviceType} — booked by Sarah` : "Booked by Sarah";
+  const scheduledStart = job.scheduledDatetime ?? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const scheduledEnd = new Date(new Date(scheduledStart).getTime() + 2 * 60 * 60 * 1000).toISOString();
 
-    const jobRes = await fetch(`${ST_API_BASE}/jpm/v2/tenant/${tenantId}/jobs`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerId,
-        locationId: customerId, // TODO: replace with a real location lookup/create — ST requires a separate Location resource, this is a placeholder
-        businessUnitId: input.businessUnitId,
-        jobTypeId: input.jobTypeId,
-        priority: "Normal",
-        summary: `${input.serviceType} — booked by Sarah AI`,
-        appointments: [{ start: input.scheduledStart, end: input.scheduledEnd, arrivalWindowStart: input.scheduledStart, arrivalWindowEnd: input.scheduledEnd }],
-      }),
-    });
+  const created = await stFetch(token, config.st_app_key, `/jpm/v2/tenant/${config.st_tenant_id}/jobs`, {
+    method: "POST",
+    body: JSON.stringify({
+      customerId,
+      locationId,
+      businessUnitId: Number(config.st_business_unit_id),
+      jobTypeId: Number(config.st_job_type_id),
+      priority: "Normal",
+      summary,
+      appointments: [{ start: scheduledStart, end: scheduledEnd }],
+    }),
+  });
 
-    if (!jobRes.ok) {
-      const body = await jobRes.text();
-      return { ok: false, error: `st_job_create_${jobRes.status}: ${body.slice(0, 300)}` };
-    }
-    const job = await jobRes.json();
-    return { ok: true, externalJobId: String(job.id) };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
+  const externalId = created?.id;
+  if (!externalId) throw new Error("servicetitan_job_create_no_id");
+  return { externalId: String(externalId) };
 }
