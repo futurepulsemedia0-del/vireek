@@ -57,16 +57,33 @@ export const EXPERIMENTS: Record<ExperimentId, ExperimentConfig> = {
 const VISITOR_ID_KEY = 'vireek-visitor-id';
 const ASSIGNMENTS_KEY = 'vireek-experiment-assignments';
 
+function generateId(): string {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+// Falls back to an in-memory id for this page load if localStorage is
+// blocked/unavailable (private-mode restrictions, storage disabled by
+// browser policy, third-party iframe embedding, privacy extensions, etc.).
+// Without this fallback, localStorage.getItem/setItem throwing here used
+// to crash the whole homepage render (caught by the app's ErrorBoundary,
+// shown as "Something went wrong") on every visit for anyone in that
+// situation — this is the fix for that bug.
+let inMemoryVisitorId: string | null = null;
+
 function getVisitorId(): string {
-  let id = localStorage.getItem(VISITOR_ID_KEY);
-  if (!id) {
-    id =
-      typeof crypto !== 'undefined' && 'randomUUID' in crypto
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    localStorage.setItem(VISITOR_ID_KEY, id);
+  try {
+    let id = localStorage.getItem(VISITOR_ID_KEY);
+    if (!id) {
+      id = generateId();
+      localStorage.setItem(VISITOR_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    if (!inMemoryVisitorId) inMemoryVisitorId = generateId();
+    return inMemoryVisitorId;
   }
-  return id;
 }
 
 /** Simple deterministic string hash (djb2). Good enough for bucketing, not for security. */
@@ -98,7 +115,12 @@ function readStoredAssignments(): Record<string, string> {
 }
 
 function writeStoredAssignments(assignments: Record<string, string>) {
-  localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments));
+  try {
+    localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments));
+  } catch {
+    // Storage unavailable — the assignment just won't persist across
+    // reloads for this visitor; non-fatal.
+  }
 }
 
 /**
