@@ -23,7 +23,7 @@ export interface PriceBookItem {
   updated_at: string;
 }
 
-export type CrmProvider = 'service_titan' | 'jobber';
+export type CrmProvider = 'service_titan' | 'jobber' | 'housecall_pro';
 
 export interface PriceBookConnection {
   provider: CrmProvider;
@@ -35,6 +35,7 @@ export interface PriceBookConnection {
 export const CRM_PROVIDER_LABELS: Record<CrmProvider, string> = {
   service_titan: 'ServiceTitan',
   jobber: 'Jobber',
+  housecall_pro: 'Housecall Pro',
 };
 
 export const PRICING_MODEL_LABELS: Record<PricingModel, string> = {
