@@ -64,6 +64,7 @@ const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCe
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
+const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerformancePage').then((m) => ({ default: m.TechnicianPerformancePage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
 const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m) => ({ default: m.ProfitabilityPage })));
 const TeamPage = lazy(() => import('@/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
@@ -674,6 +675,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianCapacityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/technician-performance"
+          element={
+            <ProtectedRoute>
+              <TechnicianPerformancePage />
             </ProtectedRoute>
           }
         />
