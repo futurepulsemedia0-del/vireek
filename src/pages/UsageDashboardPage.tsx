@@ -5,6 +5,7 @@ import { ArrowLeft, Zap, TrendingUp, Clock, Gauge, TriangleAlert as AlertTriangl
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { PRICING_PLANS, parseOverageRate } from '@/lib/pricing';
+import { supabase, Call } from '@/lib/supabase';
 
 // ============================================================
 // HELPERS
