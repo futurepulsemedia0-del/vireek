@@ -18,7 +18,7 @@ import { useSEO } from '@/lib/seo';
 // linking nowhere. If you leave FOUNDER_PHOTO_URL empty, a monogram
 // avatar is shown instead of a broken image.
 
-const FOUNDER_NAME = 'Ali Moradi'; // TODO: replace with the real name
+const FOUNDER_NAME = 'Founder & CEO'; // TODO: replace with the real name
 const FOUNDER_TITLE = 'Founder & CEO';
 const FOUNDER_PHOTO_URL = '/founder.jpg';
 const FOUNDER_LINKEDIN_URL = 'https://www.linkedin.com/in/ali-moradi-741346339'; 
