@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Calendar,
   Mail,
   Webhook,
-  Zap,
   Plug,
   Check,
   Loader as Loader2,
@@ -42,8 +41,9 @@ interface IntegrationDef {
    *  state instead of a Connect button that would silently do nothing. See
    *  NATIVE_INTEGRATIONS_PLAYBOOK.md for what it'd take to make this real. */
   comingSoon?: boolean;
+  /** true = این کارت با ریدایرکت OAuth واقعی وصل می‌شه (نه toggle محلی) */
+  oauth?: boolean;
 }
-
 const INTEGRATION_DEFS: IntegrationDef[] = [
   {
     type: 'google_calendar',
@@ -53,7 +53,7 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10',
     hasWebhook: false,
-    comingSoon: true,
+    oauth: true,
   },
   {
     type: 'hubspot',
@@ -63,19 +63,9 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     color: 'text-violet-500',
     bgColor: 'bg-violet-500/10',
     hasWebhook: false,
-    comingSoon: true,
+    oauth: true,
   },
-  {
-    type: 'zapier',
-    name: 'Zapier',
-    description:
-      'Works today via the Webhook connection below — paste a Zapier "Catch Hook" URL there to use it.',
-    icon: Zap,
-    color: 'text-accent',
-    bgColor: 'bg-accent/10',
-    hasWebhook: false,
-    comingSoon: true,
-  },
+
   {
     type: 'webhook',
     name: 'Webhook',
@@ -149,6 +139,51 @@ export function IntegrationsPage() {
 
   const getIntegration = (type: string): Integration | undefined =>
     integrations.find((i) => i.integration_type === type);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [connectingOAuth, setConnectingOAuth] = useState<string | null>(null);
+
+  useEffect(() => {
+    const gcal = searchParams.get('google_calendar');
+    const hub = searchParams.get('hubspot');
+    if (!gcal && !hub) return;
+    if (gcal) toast(gcal === 'connected' ? 'Google Calendar connected.' : 'Could not connect Google Calendar — please try again.', gcal === 'connected' ? 'success' : 'error');
+    if (hub) toast(hub === 'connected' ? 'HubSpot connected.' : 'Could not connect HubSpot — please try again.', hub === 'connected' ? 'success' : 'error');
+    searchParams.delete('google_calendar');
+    searchParams.delete('hubspot');
+    searchParams.delete('reason');
+    setSearchParams(searchParams, { replace: true });
+    loadIntegrations();
+  }, [searchParams, setSearchParams, toast, loadIntegrations]);
+
+  const handleOAuthConnect = async (def: IntegrationDef) => {
+    setConnectingOAuth(def.type);
+    try {
+      const fn = def.type === 'google_calendar' ? 'google-calendar-oauth-start' : 'hubspot-oauth-start';
+      const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>(fn, { body: {} });
+      if (error || !data?.url) throw new Error(data?.error || error?.message || `Could not connect ${def.name}.`);
+      window.location.href = data.url;
+    } catch (err) {
+      toast(err instanceof Error ? err.message : `Could not connect ${def.name}.`, 'error');
+      setConnectingOAuth(null);
+    }
+  };
+
+  const handleOAuthDisconnect = async (def: IntegrationDef) => {
+    const existing = getIntegration(def.type);
+    if (!existing) return;
+    setToggling(def.type);
+    try {
+      const { error } = await supabase.from('integrations').update({ status: 'disconnected' }).eq('id', existing.id);
+      if (error) throw error;
+      toast(`${def.name} disconnected.`, 'info');
+      await loadIntegrations();
+    } catch {
+      toast(`Could not disconnect ${def.name}. Please try again.`, 'error');
+    } finally {
+      setToggling(null);
+    }
+  };
 
   const focusIntegration = (type: string) => {
     document.getElementById(`integration-${type}`)?.scrollIntoView({
@@ -432,15 +467,21 @@ export function IntegrationsPage() {
                 ) : showRecovery ? null : (
                   <button
                     type="button"
-                    onClick={() => handleToggle(def)}
-                    disabled={toggling === def.type}
+                    onClick={() =>
+                      def.oauth
+                        ? isConnected
+                          ? handleOAuthDisconnect(def)
+                          : handleOAuthConnect(def)
+                        : handleToggle(def)
+                    }
+                    disabled={toggling === def.type || connectingOAuth === def.type}
                     className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:opacity-50 ${
                       isConnected
                         ? 'border-border text-text-secondary hover:border-danger/40 hover:text-danger'
                         : 'border-accent/30 bg-accent/5 text-accent hover:bg-accent/10'
                     }`}
                   >
-                    {toggling === def.type ? (
+                    {toggling === def.type || connectingOAuth === def.type ? (
                       <Loader2 size={16} className="animate-spin" />
                     ) : isConnected ? (
                       <>
