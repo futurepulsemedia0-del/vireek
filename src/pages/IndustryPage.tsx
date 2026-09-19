@@ -46,46 +46,52 @@ export function IndustryPage() {
   const { slug } = useParams<{ slug: string }>();
   const industry = getIndustryBySlug(slug);
 
+  const title = industry
+    ? `AI Receptionist for ${industry.name}${industry.name === 'HVAC' ? ' Companies' : ''} | Vireek`.replace(/\s+/g, ' ').trim()
+    : 'AI Receptionist | Vireek';
+  const description = industry
+    ? `${industry.tagline} Vireek answers every call, books appointments, and captures leads for ${industry.audience} — 24/7, no missed calls.`
+    : 'Vireek answers every call, books appointments, and captures leads 24/7.';
+  const canonical = `https://vireek.com/industries/${slug ?? ''}`;
+
+  useSEO({
+    title,
+    description,
+    canonical,
+    jsonLd: industry
+      ? [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vireek.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Industries', item: 'https://vireek.com/#industries' },
+              { '@type': 'ListItem', position: 3, name: industry.name, item: canonical },
+            ],
+          },
+          ...(industry.faq.length > 0
+            ? [
+                {
+                  '@context': 'https://schema.org',
+                  '@type': 'FAQPage',
+                  mainEntity: industry.faq.map((item) => ({
+                    '@type': 'Question',
+                    name: item.q,
+                    acceptedAnswer: { '@type': 'Answer', text: item.a },
+                  })),
+                },
+              ]
+            : []),
+        ]
+      : [],
+  });
+
   if (!industry) {
     return <Navigate to="/#industries" replace />;
   }
 
   const { name, audience, tagline, painPoints, capabilities, faq, icon: Icon, terms } = industry;
   const otherIndustries = INDUSTRIES.filter((i) => i.slug !== industry.slug);
-
-  const title = `AI Receptionist for ${name}${name === 'HVAC' ? ' Companies' : ''} | Vireek`.replace(/\s+/g, ' ').trim();
-  const description = `${tagline} Vireek answers every call, books appointments, and captures leads for ${audience} — 24/7, no missed calls.`;
-  const canonical = `https://vireek.com/industries/${industry.slug}`;
-
-  useSEO({
-    title,
-    description,
-    canonical,
-    jsonLd: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vireek.com/' },
-          { '@type': 'ListItem', position: 2, name: 'Industries', item: 'https://vireek.com/#industries' },
-          { '@type': 'ListItem', position: 3, name, item: canonical },
-        ],
-      },
-      ...(faq.length > 0
-        ? [
-            {
-              '@context': 'https://schema.org',
-              '@type': 'FAQPage',
-              mainEntity: faq.map((item) => ({
-                '@type': 'Question',
-                name: item.q,
-                acceptedAnswer: { '@type': 'Answer', text: item.a },
-              })),
-            },
-          ]
-        : []),
-    ],
-  });
 
   return (
     <>
