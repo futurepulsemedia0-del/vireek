@@ -4,6 +4,7 @@ import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ProfitabilityPage } from '@/pages/ProfitabilityPage';
 import { StaffRoute } from '@/components/StaffRoute';
+import MarketingPage from './pages/MarketingPage';
 
 // Performance pass: only the landing page (the route almost every first-time
 // visitor lands on) ships eagerly in the main bundle. Every other route —
@@ -463,6 +464,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OutboundCampaignsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/marketing"
+          element={
+            <ProtectedRoute>
+              <MarketingPage />
             </ProtectedRoute>
           }
         />
