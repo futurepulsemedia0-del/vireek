@@ -135,6 +135,9 @@ const ReferralPage = lazy(() => import('@/pages/ReferralPage').then((m) => ({ de
 const BetaProgramPage = lazy(() => import('@/pages/BetaProgramPage').then((m) => ({ default: m.BetaProgramPage })));
 const WebinarsPage = lazy(() => import('@/pages/WebinarsPage').then((m) => ({ default: m.WebinarsPage })));
 const CustomerRoiPage = lazy(() => import('@/pages/CustomerRoiPage').then((m) => ({ default: m.CustomerRoiPage })));
+const SystemRequirementsPage = lazy(() => import('@/pages/SystemRequirementsPage').then((m) => ({ default: m.SystemRequirementsPage })));
+const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
+const CustomerDetailPage = lazy(() => import('@/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const SecuritySettingsPage = lazy(() => import('@/pages/SecuritySettingsPage').then((m) => ({ default: m.SecuritySettingsPage })));
@@ -275,6 +278,7 @@ function App() {
         <Route path="/beta" element={<BetaProgramPage />} />
         <Route path="/webinars" element={<WebinarsPage />} />
         <Route path="/roi" element={<CustomerRoiPage />} />
+        <Route path="/system-requirements" element={<SystemRequirementsPage />} />
         <Route path="/badge" element={<BadgePage />} />
         <Route path="/sitemap" element={<SitemapPage />} />
         <Route
@@ -435,6 +439,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CustomersPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/customers/:id"
+          element={
+            <ProtectedRoute>
+              <CustomerDetailPage />
             </ProtectedRoute>
           }
         />
