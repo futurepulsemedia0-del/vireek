@@ -446,9 +446,7 @@ function EditModal({
                   />
                 </div>
               </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <label className="text-sm font-medium text-text-primary">Max jobs per day</label>
+              
               <div className="flex items-center justify-between gap-4">
                 <label className="text-sm font-medium text-text-primary">Max jobs per day</label>
                 <input
