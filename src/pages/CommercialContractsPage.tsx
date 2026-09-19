@@ -398,6 +398,16 @@ function ContractForm({
 // BREACH LOG FORM (quick add, inline)
 // ============================================================
 
+interface BreachFormState {
+  breach_type: BreachType;
+  severity: BreachSeverity;
+  expected_at: string;
+  actual_at: string;
+  minutes_over: string;
+  penalty_amount: string;
+  notes: string;
+}
+
 function BreachForm({ onCancel, onSave }: { onCancel: () => void; onSave: (form: BreachFormState) => Promise<void> }) {
   const [form, setForm] = useState<BreachFormState>({
     breach_type: 'response_time',
@@ -494,16 +504,6 @@ function BreachForm({ onCancel, onSave }: { onCancel: () => void; onSave: (form:
       </div>
     </div>
   );
-}
-
-interface BreachFormState {
-  breach_type: BreachType;
-  severity: BreachSeverity;
-  expected_at: string;
-  actual_at: string;
-  minutes_over: string;
-  penalty_amount: string;
-  notes: string;
 }
 
 // ============================================================
@@ -883,7 +883,7 @@ export function CommercialContractsPage() {
                                     <span className="text-text-secondary">{BREACH_TYPE_LABELS[b.breach_type]}</span>
                                     {b.minutes_over != null && <span className="text-text-secondary">· {b.minutes_over} min over</span>}
                                   </div>
-<span className="font-medium text-text-primary">{formatCents(b.penalty_amount_cents)}</span>
+                                  <span className="font-medium text-text-primary">{formatCents(b.penalty_amount_cents)}</span>
                                 </div>
                               ))
                             )}
@@ -891,11 +891,13 @@ export function CommercialContractsPage() {
                         </div>
                       )}
                     </motion.div>
-                  </div>
+                  )
                 )}
-              </>
+              </div>
             )}
-          </div>
+          </>
+        )}
+      </div>
 
       <ConfirmDialog
         open={Boolean(deletingId)}
