@@ -59,7 +59,7 @@ Deno.serve(async (req: Request) => {
   }
   const ownerId = ownerIdData as string;
 
-  const { headers, rows } = parseCsv(body.csv_text);
+  const { rows } = parseCsv(body.csv_text);
   if (rows.length === 0) {
     return jsonResponse({ error: "No data rows found in the uploaded CSV." }, 400);
   }
