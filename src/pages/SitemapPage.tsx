@@ -119,6 +119,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'Testimonials', href: '/testimonials' },
           { label: 'Onboarding Guide', href: '/onboarding-guide' },
           { label: 'Help Center', href: '/help' },
+          { label: 'System Requirements', href: '/system-requirements' },
           { label: 'FAQ', href: '/faq' },
         ],
       },
