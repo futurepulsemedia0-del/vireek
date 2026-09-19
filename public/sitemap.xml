@@ -109,6 +109,30 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://vireek.com/system-requirements</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vireek.com/compare/dialzara</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://vireek.com/compare/ruby-receptionists</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+    <url>
+    <loc>https://vireek.com/industries</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://vireek.com/referral</loc>
     <lastmod>2026-09-12</lastmod>
     <changefreq>monthly</changefreq>
