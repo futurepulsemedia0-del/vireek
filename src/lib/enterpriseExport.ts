@@ -258,7 +258,7 @@ export async function buildEnterpriseWorkspaceExport(
 
 export function downloadEnterpriseJson(bundle: EnterpriseExportBundle): void {
   const company = (bundle.meta.company_name || 'workspace')
-    .replace(/[^\w\-]+/g, '-')
+    .replace(/[^\w-]+/g, '-')
     .slice(0, 40);
   const date = bundle.meta.exported_at.slice(0, 10);
   const filename = `vireek-workspace-export-${company}-${date}.json`;
@@ -305,7 +305,7 @@ function inferCsvColumns(rows: Record<string, unknown>[]): CsvColumn<Record<stri
  */
 export async function downloadEnterpriseCsv(bundle: EnterpriseExportBundle): Promise<number> {
   const company = (bundle.meta.company_name || 'workspace')
-    .replace(/[^\w\-]+/g, '-')
+    .replace(/[^\w-]+/g, '-')
     .slice(0, 40);
   const date = bundle.meta.exported_at.slice(0, 10);
   let files = 0;
