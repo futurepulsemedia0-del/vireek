@@ -1,4 +1,3 @@
-```tsx
 import { Network, Wrench, BriefcaseBusiness, Phone, User } from 'lucide-react';
 
 export interface GraphEquipment {
@@ -242,4 +241,3 @@ export function CustomerKnowledgeGraph({
     </div>
   );
 }
-```
