@@ -1303,7 +1303,7 @@ async function toolLookupPrice(
 
   await admin.from("price_lookup_log").insert({
     user_id: tenant.userId,
-    external_call_id: (args as { __vapiCallId?: string }).__vapiCallId ?? null,
+    external_call_id: vapiCallId ?? null,
     query,
     matched_items: scored.slice(0, 3).map(({ item }) => ({
       service_name: item.service_name,
@@ -1829,11 +1829,13 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
   }
 
   const vapiCallId = message.call?.id;
+  const callerNumber = message.call?.customer?.number ?? null;
+  const callerName = message.call?.customer?.name ?? null;
   const trackingSource = await resolveCallSource(admin, message.phoneNumber?.id);
 
   const patch: Record<string, unknown> = {
-    caller_phone: message.call?.customer?.number ?? null,
-    caller_name: message.call?.customer?.name ?? null,
+    caller_phone: callerNumber,
+    caller_name: callerName,
     source_channel: trackingSource,
   };
 
@@ -1856,8 +1858,9 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
     }
   }
 
+  let transcript: string | null = null;
   if (message.type === "end-of-call-report") {
-    const transcript = message.transcript ?? message.artifact?.transcript ?? null;
+    transcript = message.transcript ?? message.artifact?.transcript ?? null;
     const recordingUrl =
       message.recordingUrl ?? message.artifact?.recordingUrl ?? message.artifact?.recording?.stereoUrl ?? null;
     const summary = message.summary ?? message.analysis?.summary ?? null;
