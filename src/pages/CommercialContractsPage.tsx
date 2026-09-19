@@ -801,9 +801,6 @@ export function CommercialContractsPage() {
                           >
                             <Download size={14} />
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingId(contract.id)}
                         <div className="flex items-center gap-1">
                           <button
                             type="button"
