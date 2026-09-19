@@ -13,6 +13,7 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { refreshJobberTokenIfNeeded } from "../price-book/jobber.ts";
 import { createServiceTitanJob, type ServiceTitanJobConfig } from "../price-book/servicetitanJobs.ts";
+import { createHousecallProJob } from "../price-book/housecallpro.ts";
 
 export interface BookedJobForSync {
   id: string;
@@ -35,6 +36,7 @@ interface PriceBookConnectionRow {
   st_tenant_id: string | null;
   st_business_unit_id: string | null;
   st_job_type_id: string | null;
+  hcp_api_key: string | null;
 }
 
 const JOBBER_GRAPHQL_URL = "https://api.getjobber.com/api/graphql";
@@ -257,6 +259,42 @@ async function pushJobToServiceTitan(
   }
 }
 
+async function pushJobToHousecallPro(
+  admin: SupabaseClient,
+  userId: string,
+  connection: PriceBookConnectionRow,
+  job: BookedJobForSync,
+): Promise<void> {
+  try {
+    if (!connection.hcp_api_key) throw new Error("housecallpro_not_connected");
+
+    const { externalId } = await createHousecallProJob(connection.hcp_api_key, {
+      customerName: job.customerName,
+      customerPhone: job.customerPhone,
+      serviceType: job.serviceType,
+      address: job.address,
+      scheduledDatetime: job.scheduledDatetime,
+    });
+
+    await recordSyncResult(admin, userId, job.id, "housecall_pro", {
+      status: "synced",
+      externalId,
+      externalType: "job",
+    });
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: "housecallpro_job_push_failed",
+      user_id: userId,
+      job_id: job.id,
+      error: error instanceof Error ? error.message : String(error),
+    }));
+    await recordSyncResult(admin, userId, job.id, "housecall_pro", {
+      status: "error",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 /**
  * Fan-out entry point called right after a job is booked internally. Looks
  * up which CRMs this tenant has connected and pushes to each. Never throws
@@ -271,7 +309,7 @@ export async function syncJobToExternalProviders(
 ): Promise<void> {
   const { data: connections } = await admin
     .from("price_book_connections")
-    .select("provider, status, jobber_access_token, jobber_refresh_token, jobber_token_expires_at, st_client_id, st_client_secret, st_app_key, st_tenant_id, st_business_unit_id, st_job_type_id")
+    .select("provider, status, jobber_access_token, jobber_refresh_token, jobber_token_expires_at, st_client_id, st_client_secret, st_app_key, st_tenant_id, st_business_unit_id, st_job_type_id, hcp_api_key")
     .eq("user_id", userId)
     .eq("status", "connected");
 
@@ -284,7 +322,8 @@ export async function syncJobToExternalProviders(
     if (connection.provider === "service_titan") {
       await pushJobToServiceTitan(admin, userId, connection, job);
     }
-    // housecall_pro lands in the next phase — see job_external_syncs.provider,
-    // already sized for it.
+    if (connection.provider === "housecall_pro") {
+      await pushJobToHousecallPro(admin, userId, connection, job);
+    }
   }
 }
