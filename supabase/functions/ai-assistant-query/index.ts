@@ -137,47 +137,46 @@ Deno.serve(async (req: Request) => {
     // could call the Supabase REST API directly with their own token and
     // reset their own counter, bypassing this entirely. See the RLS lock-
     // down in 20260915010000_lock_down_ai_assistant_rate_limit.sql.
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const rateLimitDb = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false },
-    });
-    const RATE_LIMIT_MAX_PER_HOUR = 30;
-    const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-    const nowMs = Date.now();
+const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const rateLimitDb = createClient(supabaseUrl, serviceRoleKey, {
+  auth: { persistSession: false },
+});
+const RATE_LIMIT_MAX_PER_HOUR = 30;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const nowMs = Date.now();
 
-    const { data: existingLimit } = await supabase
-      .from("ai_assistant_rate_limit")
-      .select("window_start, request_count")
-      .eq("user_id", user.id)
-      .maybeSingle();
+const { data: existingLimit } = await rateLimitDb
+  .from("ai_assistant_rate_limit")
+  .select("window_start, request_count")
+  .eq("user_id", user.id)
+  .maybeSingle();
 
-    if (existingLimit) {
-      const windowAgeMs = nowMs - new Date(existingLimit.window_start).getTime();
-      if (windowAgeMs < RATE_LIMIT_WINDOW_MS) {
-        if (existingLimit.request_count >= RATE_LIMIT_MAX_PER_HOUR) {
-          return new Response(
-            JSON.stringify({ error: "You've hit the AI Assistant's hourly question limit. Try again in a bit." }),
-            { status: 429, headers: jsonHeaders },
-          );
-        }
-        await supabase
-          .from("ai_assistant_rate_limit")
-          .update({ request_count: existingLimit.request_count + 1 })
-          .eq("user_id", user.id);
-      } else {
-        await supabase
-          .from("ai_assistant_rate_limit")
-          .update({ window_start: new Date(nowMs).toISOString(), request_count: 1 })
-          .eq("user_id", user.id);
-      }
-    } else {
-      await supabase.from("ai_assistant_rate_limit").insert({
-        user_id: user.id,
-        window_start: new Date(nowMs).toISOString(),
-        request_count: 1,
-      });
+if (existingLimit) {
+  const windowAgeMs = nowMs - new Date(existingLimit.window_start).getTime();
+  if (windowAgeMs < RATE_LIMIT_WINDOW_MS) {
+    if (existingLimit.request_count >= RATE_LIMIT_MAX_PER_HOUR) {
+      return new Response(
+        JSON.stringify({ error: "You've hit the AI Assistant's hourly question limit. Try again in a bit." }),
+        { status: 429, headers: jsonHeaders },
+      );
     }
-
+    await rateLimitDb
+      .from("ai_assistant_rate_limit")
+      .update({ request_count: existingLimit.request_count + 1 })
+      .eq("user_id", user.id);
+  } else {
+    await rateLimitDb
+      .from("ai_assistant_rate_limit")
+      .update({ window_start: new Date(nowMs).toISOString(), request_count: 1 })
+      .eq("user_id", user.id);
+  }
+} else {
+  await rateLimitDb.from("ai_assistant_rate_limit").insert({
+    user_id: user.id,
+    window_start: new Date(nowMs).toISOString(),
+    request_count: 1,
+  });
+}
     // -------------------------------------------------------------
     // Step 1: classify the question into a fixed intent (never SQL).
     // -------------------------------------------------------------
