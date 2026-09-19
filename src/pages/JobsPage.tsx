@@ -446,7 +446,7 @@ function JobDetailPanel({
                 <div className="mt-1"><InvoiceBadge status={job.invoice_status} /></div>
               </div>
               {job.invoice_amount != null && job.invoice_status !== 'paid' && (
-                
+                <a
                   href={`/dashboard/payments?job=${job.id}`}
                   className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white hover:opacity-90"
                 >
