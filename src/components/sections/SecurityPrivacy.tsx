@@ -25,12 +25,12 @@ const SECURITY_FEATURES: SecurityFeature[] = [
   {
     icon: FileCheck,
     title: 'Compliance Ready',
-    body: 'Built with SOC 2 and GDPR principles in mind — encryption, audit logs, and data retention controls included.',',
+    body: 'Built with SOC 2 and GDPR principles in mind — encryption, audit logs, and data retention controls included.',
   },
   {
     icon: Server,
     title: 'Enterprise Infrastructure',
-    body: 'Hosted on enterprise-grade cloud infrastructure, targeting 99.9% monthly uptime under our published SLA.',',
+    body: 'Hosted on enterprise-grade cloud infrastructure, targeting 99.9% monthly uptime under our published SLA.',
   },
   {
     icon: KeyRound,
