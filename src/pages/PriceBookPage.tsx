@@ -53,6 +53,9 @@ function CrmConnections({
   const [stForm, setStForm] = useState<ServiceTitanFormState>(EMPTY_ST_FORM);
   const [connectingSt, setConnectingSt] = useState(false);
   const [connectingJobber, setConnectingJobber] = useState(false);
+  const [showHcpForm, setShowHcpForm] = useState(false);
+  const [hcpApiKey, setHcpApiKey] = useState('');
+  const [connectingHcp, setConnectingHcp] = useState(false);
   const [syncingProvider, setSyncingProvider] = useState<CrmProvider | null>(null);
 
   const byProvider = (p: CrmProvider) => connections.find((c) => c.provider === p);
@@ -83,6 +86,21 @@ function CrmConnections({
     window.location.href = data.url;
   };
 
+  const handleConnectHousecallPro = async () => {
+    if (!hcpApiKey.trim()) return;
+    setConnectingHcp(true);
+    const { data, error } = await supabase.functions.invoke('price-book-connect-housecallpro', { body: { api_key: hcpApiKey.trim() } });
+    setConnectingHcp(false);
+    if (error || data?.error) {
+      toast(data?.error || 'Could not connect Housecall Pro', 'error');
+      return;
+    }
+    toast('Housecall Pro connected.', 'success');
+    setShowHcpForm(false);
+    setHcpApiKey('');
+    onChanged();
+  };
+
   const handleSync = async (provider: CrmProvider) => {
     setSyncingProvider(provider);
     const { data, error } = await supabase.functions.invoke('price-book-sync', { body: {} });
@@ -107,7 +125,7 @@ function CrmConnections({
       </p>
 
       <div className="space-y-2">
-        {(['service_titan', 'jobber'] as CrmProvider[]).map((provider) => {
+        {(['service_titan', 'jobber', 'housecall_pro'] as CrmProvider[]).map((provider) => {
           const conn = byProvider(provider);
           return (
             <div key={provider} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-primary px-4 py-3">
@@ -142,7 +160,7 @@ function CrmConnections({
                 >
                   <Link2 size={12} /> Connect
                 </button>
-              ) : (
+              ) : provider === 'jobber' ? (
                 <button
                   type="button"
                   onClick={handleConnectJobber}
@@ -151,11 +169,47 @@ function CrmConnections({
                 >
                   <Link2 size={12} /> Connect
                 </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowHcpForm((v) => !v)}
+                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-all hover:brightness-110"
+                >
+                  <Link2 size={12} /> Connect
+                </button>
               )}
             </div>
           );
         })}
       </div>
+
+      {showHcpForm && (
+        <div className="mt-3 rounded-xl border border-border bg-bg-primary p-4">
+          <p className="mb-3 text-xs text-text-secondary">
+            From Housecall Pro: Settings → API Keys → create a new key and paste it here.
+          </p>
+          <input
+            type="password"
+            value={hcpApiKey}
+            onChange={(e) => setHcpApiKey(e.target.value)}
+            placeholder="API Key"
+            className={inputClass}
+          />
+          <div className="mt-3 flex justify-end gap-2">
+            <button type="button" onClick={() => setShowHcpForm(false)} className="focus-ring rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary">
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConnectHousecallPro}
+              disabled={connectingHcp}
+              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+            >
+              {connectingHcp ? 'Connecting…' : 'Connect Housecall Pro'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {showStForm && (
         <div className="mt-3 rounded-xl border border-border bg-bg-primary p-4">
