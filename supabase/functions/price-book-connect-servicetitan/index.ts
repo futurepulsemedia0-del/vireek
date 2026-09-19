@@ -17,6 +17,8 @@ interface RequestBody {
   client_secret?: string;
   app_key?: string;
   tenant_id?: string;
+  business_unit_id?: string;
+  job_type_id?: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -39,6 +41,8 @@ Deno.serve(async (req: Request) => {
       st_client_secret: (body.client_secret ?? "").trim(),
       st_app_key: (body.app_key ?? "").trim(),
       st_tenant_id: (body.tenant_id ?? "").trim(),
+      st_business_unit_id: (body.business_unit_id ?? "").trim(),
+      st_job_type_id: (body.job_type_id ?? "").trim(),
     };
     if (!creds.st_client_id || !creds.st_client_secret || !creds.st_app_key || !creds.st_tenant_id) {
       return jsonResponse({ error: "Client ID, Client Secret, App Key, and Tenant ID are all required." }, 400);
