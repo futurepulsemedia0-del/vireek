@@ -9,6 +9,12 @@ import {
   CalendarClock,
   Receipt,
   BadgeAlert,
+  PartyPopper,
+  Wrench,
+  RotateCcw,
+  ShieldOff,
+  HeartHandshake,
+  UserPlus,
 } from 'lucide-react';
 import type { WorkflowStepDefinition, WorkflowTriggerEvent } from '@/lib/workflowEngine';
 
@@ -362,6 +368,202 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
         delay_minutes: 0,
         on_failure: 'continue',
         config: { call_context: 'collection_recovery_call' },
+      },
+    ],
+  },
+]  {
+    slug: 'membership-welcome',
+    name: 'Membership Welcome',
+    category: 'Membership Lifecycle',
+    icon: PartyPopper,
+    tagline: 'Get a new member using their plan before the honeymoon wears off.',
+    description:
+      'The moment a membership goes active, the customer gets a welcome message and, a day later, a nudge to book their first included visit \u2014 members who use the benefit early stick around.',
+    industry: 'general',
+    trigger_event: 'membership.sold',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: "Welcome to {{business_name}}'s membership program, {{customer_name}}! You're all set \u2014 we'll reach out to help schedule your included visits." },
+      },
+      {
+        step_number: 2,
+        type: 'wait',
+        delay_minutes: 1440, // 1 day
+        on_failure: 'continue',
+        config: {},
+      },
+      {
+        step_number: 3,
+        type: 'call',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { call_context: 'membership_welcome_visit_booking' },
+      },
+    ],
+  },
+  {
+    slug: 'membership-visit-reminder',
+    name: 'Membership Visit Reminder',
+    category: 'Membership Lifecycle',
+    icon: Wrench,
+    tagline: 'An unused benefit is the #1 reason members cancel.',
+    description:
+      'Halfway through the billing period, a member who hasn\u2019t booked their included visit gets a friendly reminder \u2014 keeping the benefit real keeps the membership real.',
+    industry: 'general',
+    trigger_event: 'membership.visit_due',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, just a reminder that your {{business_name}} membership includes a visit you haven't used yet this period \u2014 want to grab a time?" },
+      },
+      {
+        step_number: 2,
+        type: 'wait',
+        delay_minutes: 4320, // 3 days
+        on_failure: 'continue',
+        config: {},
+      },
+      {
+        step_number: 3,
+        type: 'call',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { call_context: 'membership_visit_booking_followup' },
+      },
+    ],
+  },
+  {
+    slug: 'membership-renewal-reminder',
+    name: 'Membership Renewal Follow-Up',
+    category: 'Membership Lifecycle',
+    icon: RotateCcw,
+    tagline: "Don't let a forgotten renewal invoice quietly lapse into churn.",
+    description:
+      'The renewal invoice itself goes out immediately when it\u2019s due; this playbook follows up three days later on anyone who still hasn\u2019t paid, before it ever reaches dunning.',
+    industry: 'general',
+    trigger_event: 'membership.renewal_upcoming',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'wait',
+        delay_minutes: 4320, // 3 days
+        on_failure: 'continue',
+        config: {},
+      },
+      {
+        step_number: 2,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, just checking in \u2014 your {{business_name}} membership renewal is ready whenever you get a chance. Let us know if you have any questions!" },
+      },
+    ],
+  },
+  {
+    slug: 'membership-payment-failed',
+    name: 'Membership Payment Recovery',
+    category: 'Membership Lifecycle',
+    icon: ShieldOff,
+    tagline: 'A failed card is usually an accident, not a decision to leave.',
+    description:
+      'When a renewal payment doesn\u2019t go through, the member gets a clear, low-pressure heads-up with time to fix it before the membership lapses.',
+    industry: 'general',
+    trigger_event: 'membership.payment_failed',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, we weren't able to process your {{business_name}} membership renewal. No rush \u2014 just reply or use your original payment link whenever you get a chance." },
+      },
+      {
+        step_number: 2,
+        type: 'wait',
+        delay_minutes: 10080, // 7 days
+        on_failure: 'continue',
+        config: {},
+      },
+      {
+        step_number: 3,
+        type: 'call',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { call_context: 'membership_payment_recovery_call' },
+      },
+    ],
+  },
+  {
+    slug: 'membership-churn-risk-save',
+    name: 'Membership Save Offer',
+    category: 'Membership Lifecycle',
+    icon: HeartHandshake,
+    tagline: 'Catch a quiet member before they cancel, not after.',
+    description:
+      'A member who\u2019s paid for months without using their included visit is flagged before renewal \u2014 this playbook gets them scheduled, with an optional human-approved save offer for anyone still at risk.',
+    industry: 'general',
+    trigger_event: 'membership.churn_risk',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, you've got an included visit still available on your {{business_name}} membership \u2014 want to use it before your next renewal?" },
+      },
+      {
+        step_number: 2,
+        type: 'human_approval',
+        delay_minutes: 2880, // 2 days
+        on_failure: 'stop',
+        config: { reason: 'Still unused close to renewal \u2014 approve a retention offer for this member?' },
+      },
+      {
+        step_number: 3,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, we noticed you haven't had a chance to use your membership visit \u2014 we'd love to make it easy for you. Reply here and we'll get you taken care of." },
+      },
+    ],
+  },
+  {
+    slug: 'membership-winback',
+    name: 'Membership Win-Back',
+    category: 'Membership Lifecycle',
+    icon: UserPlus,
+    tagline: 'A lapsed member already trusted you once.',
+    description:
+      'A respectful, no-pressure re-offer a week after a membership churns or is cancelled \u2014 recovering members who lapsed on payment or timing, not dissatisfaction.',
+    industry: 'general',
+    trigger_event: 'membership.churned',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'wait',
+        delay_minutes: 10080, // 7 days
+        on_failure: 'continue',
+        config: {},
+      },
+      {
+        step_number: 2,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, we noticed your {{business_name}} membership lapsed \u2014 no hard feelings! If you'd like to pick it back up, just reply here." },
       },
     ],
   },
