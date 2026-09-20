@@ -20,6 +20,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
 import { sendSms, sendVoiceCall } from "../_shared/notify/deliver.ts";
+import { isAutomationEnabled } from "../_shared/automation/gate.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -118,6 +119,10 @@ Deno.serve(async (req: Request) => {
 
     if (!existingCall) {
       return jsonResponse({ success: false, error: "Call not found", requestId }, 404);
+    }
+
+    if (!(await isAutomationEnabled(supabase, existingCall.user_id, "after-hours-emergency-escalation"))) {
+      return jsonResponse({ success: true, skipped: true, reason: "automation_paused", requestId }, 200);
     }
 
     let resolvedContactPhone = payload.contact_phone ?? null;
