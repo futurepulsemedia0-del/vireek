@@ -57,6 +57,8 @@ import {
   Workflow,
   Network,
   ArrowRightLeft,
+  Truck,
+  ClipboardList,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -138,7 +140,9 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Vendor & Procurement', href: '/dashboard/procurement', icon: Truck, requiresPermission: 'can_view_billing' },
 ];
+
 
 const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'My Account', href: '/dashboard/account', icon: User },
