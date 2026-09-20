@@ -55,6 +55,8 @@ import {
   AlarmClock,
   LifeBuoy,
   Workflow,
+  Network,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -111,6 +113,8 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
   { label: 'On-Call Rotation', href: '/dashboard/on-call', icon: AlarmClock },
   { label: 'Mutual Aid', href: '/dashboard/mutual-aid', icon: LifeBuoy },
+  { label: 'Contractor Network', href: '/dashboard/network', icon: Network },
+  { label: 'Job Handoffs', href: '/dashboard/network/handoffs', icon: ArrowRightLeft },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
