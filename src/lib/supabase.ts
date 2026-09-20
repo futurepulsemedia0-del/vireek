@@ -446,6 +446,8 @@ export interface MembershipPlan {
   billing_interval: 'monthly' | 'yearly';
   benefits: string[];
   active: boolean;
+  visits_included_per_period: number;
+  service_type: string | null;
   created_at: string;
 }
 
@@ -455,12 +457,38 @@ export interface Membership {
   plan_id: string | null;
   lead_id: string | null;
   job_id: string | null;
+  customer_id: string | null;
   customer_name: string;
   customer_phone: string | null;
-  status: 'offered' | 'active' | 'cancelled';
+  customer_email: string | null;
+  status: 'offered' | 'active' | 'past_due' | 'cancelled' | 'churned';
   offered_at: string;
   started_at: string | null;
   cancelled_at: string | null;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  auto_renew: boolean;
+  visits_included_current_period: number;
+  visits_used_current_period: number;
+  last_payment_request_id: string | null;
+  dunning_stage: number;
+  payment_failed_at: string | null;
+  payment_grace_period_ends_at: string | null;
+  churn_risk_score: number;
+  churned_at: string | null;
+  created_at: string;
+}
+
+export interface MembershipVisit {
+  id: string;
+  user_id: string;
+  membership_id: string;
+  job_id: string | null;
+  period_start: string;
+  period_end: string;
+  status: 'scheduled' | 'completed' | 'missed';
+  scheduled_at: string | null;
+  completed_at: string | null;
   created_at: string;
 }
 export interface Quote {
