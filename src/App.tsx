@@ -57,6 +57,8 @@ const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ defa
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
 const MutualAidPage = lazy(() => import('@/pages/MutualAidPage').then((m) => ({ default: m.MutualAidPage })));
+const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => ({ default: m.NetworkHubPage })));
+const NetworkHandoffsPage = lazy(() => import('@/pages/NetworkHandoffsPage').then((m) => ({ default: m.NetworkHandoffsPage })));
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
@@ -628,6 +630,22 @@ function App() {
           element={
             <ProtectedRoute>
               <MutualAidPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/network"
+          element={
+            <ProtectedRoute>
+              <NetworkHubPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/network/handoffs"
+          element={
+            <ProtectedRoute>
+              <NetworkHandoffsPage />
             </ProtectedRoute>
           }
         />
