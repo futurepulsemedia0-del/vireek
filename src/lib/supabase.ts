@@ -509,6 +509,8 @@ export interface Quote {
   customer_email: string | null;
   ai_generated: boolean;
   ai_detected_issue: string | null;
+  ai_confidence: number | null;
+  ai_report: unknown | null;
   source_photo_paths: string[];
   line_items: { description: string; quantity: number; unit_price_cents: number }[];
     options: unknown[];
