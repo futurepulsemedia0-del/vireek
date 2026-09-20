@@ -209,12 +209,14 @@ export interface Equipment {
   id: string;
   user_id: string;
   customer_id: string;
-  equipment_type: 'hvac_system' | 'water_heater' | 'furnace' | 'boiler' | 'generator' | 'sump_pump' | 'other';
-  name: string;
-  brand: string | null;
+  equipment_type: string;
+  make: string | null;
   model: string | null;
   serial_number: string | null;
   install_date: string | null;
+  install_job_id: string | null;
+  warranty_expires_at: string | null;
+  warranty_notes: string | null;
   expected_lifespan_years: number;
   service_interval_months: number;
   last_service_date: string | null;
