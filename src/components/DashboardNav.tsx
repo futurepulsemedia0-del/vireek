@@ -133,6 +133,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
+  { label: 'Capacity Demand Control', href: '/dashboard/capacity-demand', icon: Gauge },
   { label: 'Technician Performance', href: '/dashboard/technician-performance', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Weather Surge', href: '/dashboard/weather-surge', icon: CloudLightning },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
