@@ -63,6 +63,7 @@ import {
   Siren,
   Layers,
   GitBranch,
+  MousePointerClick,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -140,6 +141,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
   { label: 'Capacity Demand Control', href: '/dashboard/capacity-demand', icon: Gauge },
   { label: 'Technician Performance', href: '/dashboard/technician-performance', icon: Gauge, requiresPermission: 'can_view_billing' },
+  { label: 'Click-to-Cash', href: '/dashboard/click-to-cash', icon: MousePointerClick, requiresPermission: 'can_view_billing' },
   { label: 'Skill Graph', href: '/dashboard/skill-graph', icon: GitBranch, requiresPermission: 'can_view_billing' },
   { label: 'Weather Surge', href: '/dashboard/weather-surge', icon: CloudLightning },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
