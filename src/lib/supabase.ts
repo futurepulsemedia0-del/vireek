@@ -269,7 +269,7 @@ export interface Job {
   scheduled_datetime: string | null;
   duration_minutes: number | null;
   assigned_technician_id: string | null;
-  job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled';
+  job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
     tags: string[];
   invoice_amount: number | null;
   invoice_status: 'not_sent' | 'sent' | 'paid';
