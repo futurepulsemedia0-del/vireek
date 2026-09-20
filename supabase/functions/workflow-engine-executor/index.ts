@@ -289,6 +289,20 @@ Deno.serve(async (req: Request) => {
       await admin.from("workflow_run_steps").update({ status: "succeeded", completed_at: new Date().toISOString(), result: outcome.result ?? {} }).eq("id", step.id);
       await admin.rpc("workflow_advance_run", { p_run_id: typedRun.id, p_completed_step_number: step.step_number, p_status: "active" });
       succeeded += 1;
+
+      // Mirror this automated touch onto the Revenue Recovery Ledger, if
+      // this entity has an open/contacted entry there — same follow-up
+      // count a human clicking "log follow-up" on that page would create.
+      // See 20261006000000_workflow_revenue_attribution.sql.
+      const sourceTable = typedRun.entity_type === "call" ? "calls" : typedRun.entity_type === "quote" ? "quotes" : null;
+      if (sourceTable && typedRun.entity_id && (step.step_type === "sms" || step.step_type === "call")) {
+        await admin.rpc("log_workflow_engine_followup", {
+          p_source_table: sourceTable,
+          p_source_id: typedRun.entity_id,
+          p_method: step.step_type === "sms" ? "sms" : "callback",
+          p_run_id: typedRun.id,
+        });
+      }
       continue;
     }
 
