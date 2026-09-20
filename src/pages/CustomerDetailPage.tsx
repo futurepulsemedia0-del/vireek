@@ -13,6 +13,7 @@ import {
   Trash2,
   ShieldCheck,
   ShieldAlert,
+  Building2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -387,6 +388,15 @@ export function CustomerDetailPage() {
           <span className="rounded-full bg-bg-tertiary px-3 py-1 text-xs font-medium capitalize text-text-secondary">
             {customer.lifecycle_stage} · {customer.customer_type}
           </span>
+          {customer.customer_type === 'commercial' && (
+            <button
+              type="button"
+              onClick={() => navigate(`/dashboard/customers/${id}/sites`)}
+              className="focus-ring flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-accent/50 hover:text-accent"
+            >
+              <Building2 size={13} /> Locations
+            </button>
+          )}
         </div>
 
         {/* Knowledge graph */}
