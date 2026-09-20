@@ -120,6 +120,7 @@ const IndustriesPage = lazy(() => import('@/pages/IndustriesPage').then((m) => (
 const IndustryPage = lazy(() => import('@/pages/IndustryPage').then((m) => ({ default: m.IndustryPage })));
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
+const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
@@ -258,6 +259,7 @@ function App() {
         <Route path="/developers/changelog" element={<DeveloperChangelogPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
+        <Route path="/book/:slug" element={<BookingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
