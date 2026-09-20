@@ -17,9 +17,9 @@ Deno.serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   // Management API token: create at https://supabase.com/dashboard/account/tokens
-  // then `supabase secrets set SUPABASE_MANAGEMENT_TOKEN=... SUPABASE_PROJECT_REF=...`
-  const managementToken = Deno.env.get("SUPABASE_MANAGEMENT_TOKEN") ?? "";
-  const projectRef = Deno.env.get("SUPABASE_PROJECT_REF") ?? "";
+ 
+ const managementToken = Deno.env.get("VIREK_MANAGEMENT_TOKEN") ?? "";
+ const projectRef = Deno.env.get("VIREK_PROJECT_REF") ?? "";
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
   const authHeader = req.headers.get("authorization") ?? "";
@@ -37,7 +37,7 @@ Deno.serve(async (req: Request) => {
   const action = body.action as "register" | "remove" | undefined;
 
   if (!managementToken || !projectRef) {
-    return json({ error: "SSO isn't configured on this server yet. Set SUPABASE_MANAGEMENT_TOKEN and SUPABASE_PROJECT_REF as edge function secrets." }, 501);
+    return json({ error: "SSO isn't configured on this server yet. Set VIREK_MANAGEMENT_TOKEN and VIREK_PROJECT_REF as edge function secrets." }, 501);
   }
 
   const mgmtHeaders = { Authorization: `Bearer ${managementToken}`, "Content-Type": "application/json" };
