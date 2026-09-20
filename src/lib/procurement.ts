@@ -774,3 +774,4 @@ export async function fetchVendorEvaluations(vendorId: string): Promise<VendorEv
   if (error) throw error;
   return data ?? [];
 }
+

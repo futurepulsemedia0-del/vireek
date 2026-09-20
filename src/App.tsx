@@ -27,7 +27,6 @@ const AmbassadorPage = lazy(() => import('@/pages/AmbassadorPage').then((m) => (
 const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
-const ProcurementPage = lazy(() => import('@/pages/ProcurementPage').then((m) => ({ default: m.ProcurementPage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
@@ -41,8 +40,8 @@ const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').the
 const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ default: m.InsightsPage })));
 const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ default: m.QuotesPage })));
 const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m) => ({ default: m.KnowledgeBasePage })));
-const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ default: m.WorkflowsPage })));
+const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
 const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
@@ -128,9 +127,6 @@ const IndustryPage = lazy(() => import('@/pages/IndustryPage').then((m) => ({ de
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
 const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
-const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
-const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
-const ReferralRedirectPage = lazy(() => import('@/pages/ReferralRedirectPage').then((m) => ({ default: m.ReferralRedirectPage })));
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
@@ -274,9 +270,6 @@ function App() {
         <Route path="/book/:slug" element={<BookingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
-        <Route path="/track/:token" element={<TrackingPage />} />
-        <Route path="/review/:token" element={<ReviewSubmitPage />} />
-        <Route path="/r/:code" element={<ReferralRedirectPage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
@@ -308,14 +301,6 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-                <Route
-          path="/dashboard/procurement"
-          element={
-            <ProtectedRoute>
-              <ProcurementPage />
             </ProtectedRoute>
           }
         />

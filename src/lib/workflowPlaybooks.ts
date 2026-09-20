@@ -19,18 +19,18 @@ import {
 import type { WorkflowStepDefinition, WorkflowTriggerEvent } from '@/lib/workflowEngine';
 
 /* ------------------------------------------------------------------ */
-/*  workflowPlaybooks — the built-in Call-to-Cash step definitions.    */
+/*  workflowPlaybooks â€” the built-in Call-to-Cash step definitions.    */
 /*  Curated content, same philosophy as AUTOMATION_TEMPLATES in         */
 /*  src/lib/automationMarketplace.ts: shipping a new playbook is a      */
 /*  code change, not a migration. "Install" clones one of these into    */
 /*  workflow_definitions/workflow_versions for the account via the      */
-/*  install_workflow_playbook RPC — after that, the business owns and   */
+/*  install_workflow_playbook RPC â€” after that, the business owns and   */
 /*  can edit their copy independently of this catalog.                  */
 /*                                                                       */
 /*  Template variables available to every {{...}} in a step's body are  */
 /*  customer_name, customer_phone, customer_email, business_name, plus  */
 /*  whatever fields exist on the record that triggered the run (e.g. a  */
-/*  quote's valid_until, a job's service_type) — see workflow_advance   */
+/*  quote's valid_until, a job's service_type) â€” see workflow_advance   */
 /*  and match_workflow_definitions in the migration for exactly what's  */
 /*  copied into context.                                                */
 /* ------------------------------------------------------------------ */
@@ -226,7 +226,7 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
   },
   {
     slug: 'estimate-financing-recovery',
-    name: 'Estimate Recovery — Financing',
+    name: 'Estimate Recovery â€” Financing',
     category: 'Estimate-to-Cash Recovery',
     icon: CreditCard,
     tagline: 'A stalled high-value quote is often a cash-flow problem, not a "no".',
@@ -268,7 +268,7 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
   },
   {
     slug: 'estimate-booking-recovery',
-    name: 'Estimate Recovery — Booking',
+    name: 'Estimate Recovery â€” Booking',
     category: 'Estimate-to-Cash Recovery',
     icon: CalendarClock,
     tagline: 'An accepted quote with no job on the calendar is money left on the table.',
@@ -303,7 +303,7 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
   },
   {
     slug: 'estimate-invoice-recovery',
-    name: 'Estimate Recovery — Invoicing',
+    name: 'Estimate Recovery â€” Invoicing',
     category: 'Estimate-to-Cash Recovery',
     icon: Receipt,
     tagline: 'A completed job with no invoice is revenue stuck in limbo.',
@@ -331,7 +331,7 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
   },
   {
     slug: 'estimate-collection-recovery',
-    name: 'Estimate Recovery — Collection',
+    name: 'Estimate Recovery â€” Collection',
     category: 'Estimate-to-Cash Recovery',
     icon: BadgeAlert,
     tagline: 'An overdue invoice deserves a human check-in, not just another auto-reminder.',
@@ -371,6 +371,7 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
       },
     ],
   },
+
   {
     slug: 'membership-welcome',
     name: 'Membership Welcome',
