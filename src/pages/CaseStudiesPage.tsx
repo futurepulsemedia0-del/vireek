@@ -277,8 +277,8 @@ export function CaseStudiesPage() {
           >
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
             <p className="text-sm leading-relaxed text-text-secondary">
-              These are early-access partner stories from Vireek\u2019s founding contractor program \u2014 not composite
-              examples. We don\u2019t publish invented testimonials or numbers here; see our{' '}
+              These are illustrative examples of the kind of outcome Sarah is designed to produce \u2014 Vireek is
+              early-stage and doesn\u2019t publish invented customer counts or fabricated verified testimonials; see our{' '}
               <Link to="/about" className="font-semibold text-accent hover:text-cta">
                 About page
               </Link>{' '}
