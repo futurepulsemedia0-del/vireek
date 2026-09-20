@@ -19,7 +19,9 @@ export type WorkflowTriggerEvent =
   | 'call.created' | 'call.missed' | 'call.emergency'
   | 'lead.created' | 'job.created' | 'job.completed'
   | 'quote.sent' | 'quote.accepted' | 'quote.declined'
-  | 'payment.received' | 'review.completed';
+  | 'payment.received' | 'review.completed'
+  | 'quote.financing_needed' | 'quote.accepted_not_booked'
+  | 'job.completed_not_invoiced' | 'invoice.payment_overdue';
 
 export type WorkflowStatus = 'draft' | 'active' | 'paused' | 'archived';
 export type WorkflowMode = 'live' | 'test';
