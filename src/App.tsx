@@ -53,6 +53,7 @@ const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
+const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m) => ({ default: m.CustomerSitesPage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
@@ -482,6 +483,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CustomerDetailPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/customers/:id/sites"
+          element={
+            <ProtectedRoute>
+              <CustomerSitesPage />
             </ProtectedRoute>
           }
         />
