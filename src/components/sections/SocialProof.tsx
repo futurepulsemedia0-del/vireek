@@ -109,7 +109,7 @@ export function SocialProof() {
             What Contractors Are Saying
           </h3>
           <p className="mt-3 text-base text-text-secondary">
-            Early access partners share their experience with Sarah.
+            Illustrative examples of the kind of experience Sarah is designed to deliver.
           </p>
         </motion.div>
 
