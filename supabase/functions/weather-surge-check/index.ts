@@ -20,6 +20,7 @@
 // also free and keyless. US-only, matching this product's market.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { isAutomationEnabled } from "../_shared/automation/gate.ts";
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Cron-Secret" };
 const USER_AGENT = "Vireek Dashboard (weather-surge-check, support@vireek.com)";
@@ -120,6 +121,10 @@ async function checkOneBusiness(
   admin: ReturnType<typeof createClient>,
   business: { user_id: string; weather_zip_code: string; primary_industry: string | null }
 ): Promise<{ user_id: string; alerts_seen: number; alerts_triggered: number } | { user_id: string; error: string }> {
+  if (!(await isAutomationEnabled(admin, business.user_id, "surge-mode-price-alert"))) {
+    return { user_id: business.user_id, alerts_seen: 0, alerts_triggered: 0 };
+  }
+
   const geo = await geocodeZip(business.weather_zip_code);
   if (!geo) return { user_id: business.user_id, error: "Could not geocode zip code" };
 
