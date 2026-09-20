@@ -284,6 +284,11 @@ export interface Job {
   dispatch_note: string | null;
   reschedule_token: string;
   rescheduled_by_customer_at: string | null;
+  eta_minutes: number | null;
+  eta_set_at: string | null;
+  technician_lat: number | null;
+  technician_lng: number | null;
+  location_updated_at: string | null;
   customer_type: 'residential' | 'commercial';
   sla_response_hours: number | null;
   contract_reference: string | null;
