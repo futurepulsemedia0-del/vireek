@@ -51,12 +51,17 @@ import {
   validateEstimateOptions,
 } from '@/lib/estimates';
 import type { EstimateOption, EstimatePhoto, EstimatePhotoKind, EstimateTemplate, EstimateTier } from '@/lib/estimates';
+import { FieldEstimatePanel } from '@/components/quotes/FieldEstimatePanel';
+import { buildAiReport, tiersToOptions } from '@/lib/fieldEstimate';
+import type { AiReport, FieldEstimateResult } from '@/lib/fieldEstimate';
 
 // ============================================================
 // DRAFT SHAPE — what the page saves
 // ============================================================
 
 export interface TieredEstimateDraft {
+  ai_report: AiReport | null;
+  ai_confidence: number | null;
   /** Folder key for photo uploads. The quote id once saved, a uuid before that. */
   draft_id: string;
   lead_id: string | null;
@@ -89,6 +94,8 @@ export function emptyTieredDraft(): TieredEstimateDraft {
     presentation_note: '',
     options: createDefaultOptions(),
     photos: [],
+    ai_report: null,
+    ai_confidence: null,
   };
 }
 
@@ -107,6 +114,8 @@ export function quoteToTieredDraft(quote: Quote): TieredEstimateDraft {
     presentation_note: quote.presentation_note ?? '',
     options: options.length > 0 ? options : createDefaultOptions(),
     photos: (quote.photos ?? []) as EstimatePhoto[],
+    ai_report: (quote.ai_report ?? null) as AiReport | null,
+    ai_confidence: quote.ai_confidence ?? null,
   };
 }
 
@@ -133,6 +142,14 @@ export function draftToQuotePayload(draft: TieredEstimateDraft, userId: string) 
     tax_percent: Number(draft.tax_percent) || 0,
     deposit_percent: Number(draft.deposit_percent) || 0,
     valid_until: draft.valid_until || null,
+    ...(draft.ai_report
+      ? {
+          ai_generated: true,
+          ai_detected_issue: draft.ai_report.diagnosis.summary || null,
+          ai_confidence: draft.ai_confidence,
+          ai_report: draft.ai_report,
+        }
+      : {}),
   };
 }
 
@@ -587,6 +604,22 @@ export function TieredEstimateBuilder({
   const recommendOption = (id: string) =>
     setDraft((d) => ({ ...d, options: d.options.map((o) => ({ ...o, recommended: o.id === id })) }));
 
+  // --- AI field estimate -------------------------------------
+  const applyFieldEstimate = (result: FieldEstimateResult): boolean => {
+    const hasWork = draft.options.some((o) =>
+      o.line_items.some((li) => li.description.trim() || li.unit_price_cents > 0)
+    );
+    if (hasWork && !window.confirm('Replace your current options with the AI draft?')) return false;
+    setDraft((d) => ({
+      ...d,
+      options: tiersToOptions(result),
+      presentation_note: d.presentation_note.trim() ? d.presentation_note : result.diagnosis.customer_summary,
+      ai_report: buildAiReport(result),
+      ai_confidence: result.diagnosis.confidence,
+    }));
+    return true;
+  };
+
   // --- photos -------------------------------------------------
   const handlePickPhotos = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -761,6 +794,17 @@ export function TieredEstimateBuilder({
         />
       </div>
 
+      {/* AI photo + voice estimate */}
+      <FieldEstimatePanel
+        userId={userId}
+        draftId={draft.draft_id}
+        photoPaths={draft.photos.map((p) => p.path)}
+        uploadingPhotos={uploading}
+        photoLimitReached={draft.photos.length >= MAX_PHOTOS_PER_QUOTE}
+        onPickPhotos={handlePickPhotos}
+        onApply={applyFieldEstimate}
+      />
+      
       {/* Photos */}
       <PhotoStrip
         photos={draft.photos}
