@@ -108,6 +108,7 @@ export function CustomerPortalPage() {
     () => (bundle?.jobs ?? []).filter((j) => j.job_status !== 'completed' && j.job_status !== 'cancelled'),
     [bundle],
   );
+
   const pastJobs = useMemo(
     () => (bundle?.jobs ?? []).filter((j) => j.job_status === 'completed' || j.job_status === 'cancelled'),
     [bundle],
@@ -181,9 +182,7 @@ export function CustomerPortalPage() {
             <>
               <div className="mb-6">
                 <h1 className="text-2xl font-bold tracking-tight text-text-primary">Hi {bundle.customer.name.split(' ')[0]},</h1>
-                <p className="mt-1 text-sm text-text-secondary">
-                  Your account with {bundle.business_name ?? 'us'}
-                </p>
+                <p className="mt-1 text-sm text-text-secondary">Your account with {bundle.business_name ?? 'us'}</p>
               </div>
 
               {bundle.membership && (
@@ -232,8 +231,6 @@ export function CustomerPortalPage() {
                   <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                     <h2 className="text-sm font-semibold text-text-primary">Upcoming</h2>
                     {upcomingJobs.length === 0 ? (
-```
-
                       <p className="mt-3 text-sm text-text-secondary">No upcoming appointments.</p>
                     ) : (
                       <div className="mt-4 space-y-3">
@@ -251,7 +248,7 @@ export function CustomerPortalPage() {
                             {(j.reschedule_token || (j.invoice_status === 'sent' && j.payment_link_url)) && (
                               <div className="mt-3 flex flex-wrap gap-2 border-t border-border/60 pt-2.5">
                                 {j.reschedule_token && j.job_status === 'scheduled' && (
-                                  
+                                  <a
                                     href={getRescheduleLink(j.reschedule_token)}
                                     className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
                                   >
@@ -259,7 +256,7 @@ export function CustomerPortalPage() {
                                   </a>
                                 )}
                                 {j.invoice_status === 'sent' && j.payment_link_url && (
-                                  
+                                  <a
                                     href={j.payment_link_url}
                                     className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90"
                                   >
@@ -337,8 +334,8 @@ export function CustomerPortalPage() {
                   )}
                 </div>
               )}
-               
-                             {/* Equipment & Warranty */}
+
+              {/* Equipment */}
               {tab === 'equipment' && (
                 <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                   <h2 className="text-sm font-semibold text-text-primary">Your Equipment</h2>
@@ -380,9 +377,8 @@ export function CustomerPortalPage() {
                   )}
                 </div>
               )}
-              
 
-                            {/* Refer & Earn */}
+              {/* Refer & Earn */}
               {tab === 'referral' && (
                 <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                   <h2 className="text-sm font-semibold text-text-primary">Refer a Friend</h2>
@@ -410,13 +406,12 @@ export function CustomerPortalPage() {
                   )}
                 </div>
               )}
-              
-              {/* Request service */}
+
+              {/* Request Service */}
               {tab === 'request' && (
                 <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                   <h2 className="text-sm font-semibold text-text-primary">Request Service</h2>
                   <p className="mt-1 text-xs text-text-secondary">We'll reach out to get this scheduled.</p>
-
                   {reqDone ? (
                     <div className="mt-5 flex items-center gap-3 rounded-xl border border-success-500/30 bg-success/5 p-4">
                       <CheckCircle2 size={20} className="shrink-0 text-success" />
@@ -468,7 +463,6 @@ export function CustomerPortalPage() {
                 <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                   <h2 className="text-sm font-semibold text-text-primary">My Info</h2>
                   <p className="mt-1 text-xs text-text-secondary">Keep your contact info up to date.</p>
-
                   <form onSubmit={handleSaveProfile} className="mt-5 space-y-4">
                     <div>
                       <label htmlFor="portal-phone" className="mb-1.5 block text-xs font-medium text-text-secondary">Phone</label>
