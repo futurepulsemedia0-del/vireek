@@ -107,6 +107,23 @@ async function checkCondition(admin: SupabaseClient, run: Run, check: string): P
         .maybeSingle();
       return !data;
     }
+    case "quote_still_accepted_unbooked": {
+      if (!run.entity_id) return false;
+      const { data: quote } = await admin.from("quotes").select("lead_id").eq("id", run.entity_id).maybeSingle();
+      if (!quote?.lead_id) return true;
+      const { data: job } = await admin.from("jobs").select("id").eq("lead_id", quote.lead_id).maybeSingle();
+      return !job;
+    }
+    case "job_still_unbilled": {
+      if (!run.entity_id) return false;
+      const { data } = await admin.from("jobs").select("invoice_status").eq("id", run.entity_id).maybeSingle();
+      return data?.invoice_status === "not_sent";
+    }
+    case "invoice_still_unpaid": {
+      if (!run.entity_id) return false;
+      const { data } = await admin.from("payment_requests").select("status").eq("id", run.entity_id).maybeSingle();
+      return data?.status === "sent" || data?.status === "overdue";
+    }
     default:
       return true;
   }
