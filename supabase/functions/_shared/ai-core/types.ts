@@ -23,7 +23,8 @@ export type TaskType =
   | "cash_flow_narrative"
   | "regional_demand_narrative"
   | "dispatch_copilot"
-  | "promise_extraction";
+  | "promise_extraction"
+  | "capacity_demand_narrative";
 
 export interface ChatMessage {
   role: "user" | "assistant";
