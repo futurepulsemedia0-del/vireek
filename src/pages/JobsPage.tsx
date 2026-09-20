@@ -25,6 +25,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { getRescheduleLink } from '@/lib/reschedule';
+import { getTrackingLink, setJobEta, pushTechnicianLocation, QUICK_ETA_OPTIONS } from '@/lib/liveTracking';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { PriceBookItem } from '@/lib/priceBook';
@@ -375,6 +376,59 @@ function JobDetailPanel({
           )}
         </div>
 
+        {/* Live ETA & tracking — only meaningful once a job is actively moving */}
+        {(job.job_status === 'en_route' || job.job_status === 'in_progress') && (
+          <div className="rounded-xl border border-border bg-bg-primary p-4">
+            <p className="mb-2 text-xs font-medium text-text-secondary">Customer ETA</p>
+            <div className="flex flex-wrap gap-1.5">
+              {QUICK_ETA_OPTIONS.map((mins) => (
+                <button
+                  key={mins}
+                  type="button"
+                  onClick={async () => {
+                    const ok = await setJobEta(job.id, mins);
+                    toast(ok ? `ETA set to ${mins} min` : 'Could not set ETA', ok ? 'success' : 'error');
+                  }}
+                  className="focus-ring rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
+                >
+                  {mins} min
+                </button>
+              ))}
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!navigator.geolocation) {
+                    toast('Location sharing is not supported on this device', 'error');
+                    return;
+                  }
+                  navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                      const ok = await pushTechnicianLocation(job.id, pos.coords.latitude, pos.coords.longitude);
+                      toast(ok ? 'Live location shared' : 'Could not share location', ok ? 'success' : 'error');
+                    },
+                    () => toast('Could not get your location — check browser permissions', 'error'),
+                    { enableHighAccuracy: true, timeout: 10000 }
+                  );
+                }}
+                className="focus-ring flex-1 rounded-lg border border-border py-2 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+              >
+                Share my location
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(getTrackingLink(job.reschedule_token));
+                  toast('Tracking link copied', 'success');
+                }}
+                className="focus-ring flex-1 rounded-lg border border-border py-2 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+              >
+                Copy tracking link
+              </button>
+            </div>
+          </div>
+        )}
         {/* Invoice card */}
         <div className="rounded-xl border border-border bg-bg-primary p-4">
           <div className="mb-3 flex items-center justify-between">
