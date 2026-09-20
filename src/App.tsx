@@ -148,6 +148,8 @@ const CustomerDetailPage = lazy(() => import('@/pages/CustomerDetailPage').then(
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const SecuritySettingsPage = lazy(() => import('@/pages/SecuritySettingsPage').then((m) => ({ default: m.SecuritySettingsPage })));
+const EnterpriseSecurityPage = lazy(() => import('@/pages/EnterpriseSecurityPage').then((m) => ({ default: m.EnterpriseSecurityPage })));
+const SsoLoginPage = lazy(() => import('@/pages/SsoLoginPage').then((m) => ({ default: m.SsoLoginPage })));
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
@@ -362,6 +364,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard/settings/enterprise-security"
+          element={
+            <ProtectedRoute>
+              <EnterpriseSecurityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/sso-login" element={<SsoLoginPage />} />
                 <Route
           path="/dashboard/settings/api-keys"
           element={
