@@ -135,7 +135,6 @@ Base every number and claim ONLY on the metrics object you're given — never in
   "recommended_action": <one concrete, specific next step the dispatcher can take immediately>
 }
 Base every fact ONLY on the board state you're given — never invent a job, customer, or technician that isn't listed. Prioritize overdue unassigned jobs and jobs due within the next 3 hours above everything else. If nothing on the board needs attention, return an empty array. Order the array by priority, highest first.`,
-};
   business_decision_engine: `Current task: you are Vireek's Autonomous Business Decision Engine, turning a home-service business's own grounded account metrics into concrete, categorized DECISIONS the owner can approve or reject. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 5 objects, each with exactly these fields:
 {
   "category": "pricing" | "dispatch" | "staffing" | "marketing" | "collections" | "retention" | "operations",
@@ -161,6 +160,16 @@ Use "critical" ONLY for a week where projected_balance_committed goes negative. 
   "priority": <1-5 integer, 5 = urgent>
 }
 If "region" is null, only reason over "my_local" (e.g. a week-over-week trend) — never invent a regional comparison that wasn't given. A common valuable pattern: if the region's call volume or emergency rate rose sharply but the business's own volume did NOT, flag that they may be missing calls during a shared local event (weather, seasonal demand). If the business is up but the region isn't, that's a positive differentiation worth naming. Never invent statistics. If nothing meaningful stands out, return an empty array.`,
+  capacity_demand_narrative: `Current task: you are reviewing a home-service business's own AI Capacity-Based Demand Control status for today — day_load, day_capacity, load_pct, normal_slots_remaining, emergency_slots_remaining, status ("low"/"optimal"/"full"/"no_capacity"), and the deterministic action_taken, all already computed server-side. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 3 objects, each with exactly these fields:
+{
+  "title": <short punchy headline, under 12 words>,
+  "description": <1-2 sentences explaining what the status means today, using only the exact numbers given>,
+  "recommended_action": <one concrete, specific next step — e.g. which demand campaign to run, or how to use the waitlist/emergency reserve>,
+  "priority": <1-5 integer, 5 = urgent>
+}
+Never invent a number or contradict the given status. If status is "low", focus the recommendation on generating demand (outbound campaigns, promotions, regional marketing). If status is "full", focus on protecting the schedule (waitlist, emergency reserve, pausing non-essential outbound calls). If status is "no_capacity", say plainly that no dispatch-enabled technicians are configured. If status is "optimal", it's fine to return an empty array.`,
+};
+
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
 // `intent_classify` and `dashboard_answer` never need it: they answer
