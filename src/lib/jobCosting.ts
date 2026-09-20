@@ -251,3 +251,170 @@ export async function deleteCostEntry(id: string): Promise<void> {
   const { error } = await supabase.from('job_cost_entries').delete().eq('id', id);
   if (error) throw error;
 }
+// ============================================================
+// VENDOR BILLS (Accounts Payable) — linked to job_cost_entries so
+// every bill automatically counts toward the job's real profit.
+// ============================================================
+
+export type VendorBillStatus = 'unpaid' | 'paid' | 'overdue';
+
+export interface VendorBill {
+  id: string;
+  user_id: string;
+  job_id: string;
+  cost_entry_id: string | null;
+  vendor_name: string;
+  bill_number: string | null;
+  category: CostCategory;
+  amount_cents: number;
+  bill_date: string;
+  due_date: string | null;
+  status: VendorBillStatus;
+  paid_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VendorBillFormState {
+  vendor_name: string;
+  bill_number: string;
+  category: CostCategory;
+  amount: string;
+  bill_date: string;
+  due_date: string;
+  notes: string;
+}
+
+export const EMPTY_VENDOR_BILL_FORM: VendorBillFormState = {
+  vendor_name: '',
+  bill_number: '',
+  category: 'material',
+  amount: '',
+  bill_date: new Date().toISOString().slice(0, 10),
+  due_date: '',
+  notes: '',
+};
+
+export function vendorBillToForm(bill: VendorBill): VendorBillFormState {
+  return {
+    vendor_name: bill.vendor_name,
+    bill_number: bill.bill_number ?? '',
+    category: bill.category,
+    amount: String(bill.amount_cents / 100),
+    bill_date: bill.bill_date,
+    due_date: bill.due_date ?? '',
+    notes: bill.notes ?? '',
+  };
+}
+
+function vendorBillFormToPayload(form: VendorBillFormState, jobId: string, userId: string) {
+  const amountCents = Math.round(Number(form.amount) * 100);
+  if (!Number.isFinite(amountCents) || amountCents <= 0) {
+    throw new Error('Enter a valid bill amount.');
+  }
+  if (!form.vendor_name.trim()) {
+    throw new Error('Enter the vendor name.');
+  }
+  return {
+    user_id: userId,
+    job_id: jobId,
+    vendor_name: form.vendor_name.trim(),
+    bill_number: form.bill_number.trim() || null,
+    category: form.category,
+    amount_cents: amountCents,
+    bill_date: form.bill_date || new Date().toISOString().slice(0, 10),
+    due_date: form.due_date || null,
+    notes: form.notes.trim() || null,
+  };
+}
+
+export const VENDOR_BILL_STATUS_LABELS: Record<VendorBillStatus, string> = {
+  unpaid: 'Unpaid',
+  paid: 'Paid',
+  overdue: 'Overdue',
+};
+
+export const VENDOR_BILL_STATUS_CLASS: Record<VendorBillStatus, string> = {
+  unpaid: 'bg-warning-500/10 text-warning-500',
+  paid: 'bg-success-500/10 text-success-500',
+  overdue: 'bg-danger/10 text-danger',
+};
+
+export function unpaidVendorBillsTotalCents(bills: VendorBill[]): number {
+  return bills.filter((b) => b.status !== 'paid').reduce((sum, b) => sum + b.amount_cents, 0);
+}
+
+export async function fetchVendorBills(jobId: string): Promise<VendorBill[]> {
+  const { data, error } = await supabase
+    .from('vendor_bills')
+    .select('*')
+    .eq('job_id', jobId)
+    .order('bill_date', { ascending: false });
+  if (error) throw error;
+  return (data as VendorBill[]) || [];
+}
+
+/**
+ * Saves the vendor bill AND keeps a linked job_cost_entries row in
+ * sync — this is what makes the bill actually count toward the
+ * job's total cost / margin in the profitability view above.
+ */
+export async function saveVendorBill(
+  form: VendorBillFormState,
+  jobId: string,
+  userId: string,
+  existingId?: string,
+  existingCostEntryId?: string | null,
+): Promise<void> {
+  const payload = vendorBillFormToPayload(form, jobId, userId);
+  const costEntryPayload = {
+    user_id: userId,
+    job_id: jobId,
+    category: form.category,
+    description: `Vendor bill — ${form.vendor_name.trim()}${form.bill_number.trim() ? ` (#${form.bill_number.trim()})` : ''}`,
+    quantity: 1,
+    unit_cost_cents: payload.amount_cents,
+    team_member_id: null,
+    price_book_item_id: null,
+  };
+
+  let costEntryId = existingCostEntryId ?? null;
+
+  if (costEntryId) {
+    const { error: costErr } = await supabase.from('job_cost_entries').update(costEntryPayload).eq('id', costEntryId);
+    if (costErr) throw costErr;
+  } else {
+    const { data: costEntry, error: costErr } = await supabase
+      .from('job_cost_entries')
+      .insert(costEntryPayload)
+      .select('id')
+      .single();
+    if (costErr) throw costErr;
+    costEntryId = costEntry.id as string;
+  }
+
+  const finalPayload = { ...payload, cost_entry_id: costEntryId };
+  const query = existingId
+    ? supabase.from('vendor_bills').update(finalPayload).eq('id', existingId)
+    : supabase.from('vendor_bills').insert(finalPayload);
+  const { error } = await query;
+  if (error) throw error;
+}
+
+export async function markVendorBillPaid(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('vendor_bills')
+    .update({ status: 'paid', paid_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+/** Deletes the bill and its linked job_cost_entries row together. */
+export async function deleteVendorBill(id: string, costEntryId?: string | null): Promise<void> {
+  const { error } = await supabase.from('vendor_bills').delete().eq('id', id);
+  if (error) throw error;
+  if (costEntryId) {
+    await supabase.from('job_cost_entries').delete().eq('id', costEntryId);
+  }
+}
