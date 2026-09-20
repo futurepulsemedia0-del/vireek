@@ -12,6 +12,7 @@ import { EscalationSettings } from '@/components/settings/EscalationSettings';
 import { AgentOrchestrationSettings } from '@/components/settings/AgentOrchestrationSettings';
 import { VoiceCloningCard } from '@/components/settings/VoiceCloningCard';
 import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
+import { BookingLinkCard } from '@/components/settings/BookingLinkCard';
 import { SkeletonCardList } from '@/components/Skeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { isTollFreeNumber, TOLL_FREE_STATUS_LABELS, TOLL_FREE_STATUS_STYLES, TollFreeVerificationStatus } from '@/lib/telephony';
@@ -168,6 +169,8 @@ export function BusinessProfilePage() {
   const [financingPartnerName, setFinancingPartnerName] = useState('');
   const [financingNote, setFinancingNote] = useState('');
   const [allowSelfReschedule, setAllowSelfReschedule] = useState(false);
+  const [bookingSlug, setBookingSlug] = useState('');
+  const [bookingEnabled, setBookingEnabled] = useState(false);
 
   // Phone Number & Compliance (Step 58 — lives on `profiles`, not
   // `business_profile`, since forwarding_number always has)
@@ -223,6 +226,8 @@ export function BusinessProfilePage() {
         setFinancingPartnerName(bp.financing_partner_name ?? '');
         setFinancingNote(bp.financing_note ?? '');
         setAllowSelfReschedule(bp.allow_customer_self_reschedule ?? false);
+        setBookingSlug(bp.booking_slug ?? '');
+        setBookingEnabled(bp.booking_enabled ?? false);
       }
     } catch {
       // empty state — user will create on save
@@ -338,6 +343,8 @@ export function BusinessProfilePage() {
         financing_partner_name: financingPartnerName.trim() || null,
         financing_note: financingNote.trim() || null,
         allow_customer_self_reschedule: allowSelfReschedule,
+        booking_slug: bookingSlug.trim() || null,
+        booking_enabled: bookingEnabled,
       };
 
       if (profileId) {
@@ -1114,6 +1121,15 @@ export function BusinessProfilePage() {
                   </button>
                 </div>
               </SectionCard>
+            </div>
+
+            <div className="mt-6">
+              <BookingLinkCard
+                slug={bookingSlug}
+                enabled={bookingEnabled}
+                onSlugChange={setBookingSlug}
+                onEnabledChange={setBookingEnabled}
+              />
             </div>
 
             {/* Save bar */}
