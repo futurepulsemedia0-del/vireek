@@ -10,6 +10,9 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  ShieldCheck,
+  CalendarClock,
+  CreditCard,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -17,6 +20,9 @@ import {
   fetchPortalBundle,
   submitServiceRequest,
   updateContactInfo,
+  getRescheduleLink,
+  getBookingLink,
+  formatWarrantyStatus,
   JOB_STATUS_LABELS,
   INVOICE_STATUS_LABELS,
   formatAmount,
@@ -25,7 +31,7 @@ import {
   type PortalBundle,
 } from '@/lib/customerPortal';
 
-type Tab = 'jobs' | 'quotes' | 'request' | 'profile';
+type Tab = 'jobs' | 'quotes' | 'equipment' | 'request' | 'profile';
 
 function JobStatusBadge({ status }: { status: PortalBundle['jobs'][number]['job_status'] }) {
   const colors: Record<typeof status, string> = {
@@ -142,6 +148,7 @@ export function CustomerPortalPage() {
   const TABS: { key: Tab; label: string; icon: typeof Briefcase }[] = [
     { key: 'jobs', label: 'My Appointments', icon: Briefcase },
     { key: 'quotes', label: 'Quotes', icon: FileText },
+    { key: 'equipment', label: 'Equipment', icon: ShieldCheck },
     { key: 'request', label: 'Request Service', icon: Send },
     { key: 'profile', label: 'My Info', icon: User },
   ];
@@ -209,6 +216,15 @@ export function CustomerPortalPage() {
               {/* Appointments */}
               {tab === 'jobs' && (
                 <div className="space-y-4">
+                  {bundle.booking_slug && (
+                    
+                      href={getBookingLink(bundle.booking_slug)}
+                      className="focus-ring flex items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-accent/90"
+                    >
+                      <CalendarClock size={15} /> Book new service
+                    </a>
+                  )}
+
                   <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                     <h2 className="text-sm font-semibold text-text-primary">Upcoming</h2>
                     {upcomingJobs.length === 0 ? (
@@ -226,6 +242,26 @@ export function CustomerPortalPage() {
                               </div>
                               <JobStatusBadge status={j.job_status} />
                             </div>
+                            {(j.reschedule_token || (j.invoice_status === 'sent' && j.payment_link_url)) && (
+                              <div className="mt-3 flex flex-wrap gap-2 border-t border-border/60 pt-2.5">
+                                {j.reschedule_token && j.job_status === 'scheduled' && (
+                                  
+                                    href={getRescheduleLink(j.reschedule_token)}
+                                    className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
+                                  >
+                                    <CalendarClock size={12} /> Reschedule
+                                  </a>
+                                )}
+                                {j.invoice_status === 'sent' && j.payment_link_url && (
+                                  
+                                    href={j.payment_link_url}
+                                    className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90"
+                                  >
+                                    <CreditCard size={12} /> Pay now
+                                  </a>
+                                )}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -295,7 +331,50 @@ export function CustomerPortalPage() {
                   )}
                 </div>
               )}
-
+               
+                             {/* Equipment & Warranty */}
+              {tab === 'equipment' && (
+                <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                  <h2 className="text-sm font-semibold text-text-primary">Your Equipment</h2>
+                  {bundle.equipment.length === 0 ? (
+                    <p className="mt-3 text-sm text-text-secondary">No equipment on file yet.</p>
+                  ) : (
+                    <div className="mt-4 space-y-3">
+                      {bundle.equipment.map((eq) => {
+                        const warranty = formatWarrantyStatus(eq.warranty_expires_at);
+                        const toneClass =
+                          warranty.tone === 'expired'
+                            ? 'bg-danger/10 text-danger'
+                            : warranty.tone === 'warn'
+                              ? 'bg-warning-500/10 text-warning-500'
+                              : 'bg-success-500/10 text-success';
+                        return (
+                          <div key={eq.id} className="rounded-xl border border-border/60 p-3.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">
+                                  {[eq.make, eq.model].filter(Boolean).join(' ') || eq.equipment_type}
+                                </p>
+                                <p className="mt-0.5 text-xs text-text-secondary">{eq.equipment_type}</p>
+                              </div>
+                              <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${toneClass}`}>
+                                <ShieldCheck size={11} className="mr-1 inline" />
+                                {warranty.label}
+                              </span>
+                            </div>
+                            {eq.last_service_date && (
+                              <p className="mt-2 border-t border-border/60 pt-2 text-xs text-text-secondary">
+                                Last serviced {formatPortalDate(eq.last_service_date)}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {/* Request service */}
               {tab === 'request' && (
                 <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
