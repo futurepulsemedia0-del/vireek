@@ -59,6 +59,9 @@ import {
   ArrowRightLeft,
   Truck,
   ClipboardList,
+  Navigation,
+  Siren,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -113,6 +116,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Cash Flow Forecast', href: '/dashboard/cash-flow', icon: PiggyBank, requiresPermission: 'can_view_billing' },
   { label: 'Regional Demand', href: '/dashboard/regional-demand', icon: MapPin, requiresPermission: 'can_view_billing' },
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
+  { label: 'Advanced Routing', href: '/dashboard/routing', icon: Navigation },
   { label: 'On-Call Rotation', href: '/dashboard/on-call', icon: AlarmClock },
   { label: 'Mutual Aid', href: '/dashboard/mutual-aid', icon: LifeBuoy },
   { label: 'Contractor Network', href: '/dashboard/network', icon: Network },
