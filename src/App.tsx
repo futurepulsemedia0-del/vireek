@@ -27,6 +27,7 @@ const AmbassadorPage = lazy(() => import('@/pages/AmbassadorPage').then((m) => (
 const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const ProcurementPage = lazy(() => import('@/pages/ProcurementPage').then((m) => ({ default: m.ProcurementPage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
@@ -301,6 +302,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/dashboard/procurement"
+          element={
+            <ProtectedRoute>
+              <ProcurementPage />
             </ProtectedRoute>
           }
         />
