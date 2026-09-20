@@ -18,7 +18,20 @@ export interface PortalJob {
   job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
   invoice_amount: number | null;
   invoice_status: 'not_sent' | 'sent' | 'paid';
+  reschedule_token: string | null;
+  payment_link_url: string | null;
   created_at: string;
+}
+
+export interface PortalEquipment {
+  id: string;
+  equipment_type: string;
+  make: string | null;
+  model: string | null;
+  install_date: string | null;
+  warranty_expires_at: string | null;
+  warranty_alert_stage: 'expiring_soon' | 'expired' | null;
+  last_service_date: string | null;
 }
 
 export interface PortalQuote {
@@ -47,13 +60,31 @@ export interface PortalBundle {
     lifecycle_stage: string;
   };
   business_name: string | null;
+  booking_slug: string | null;
   jobs: PortalJob[];
   quotes: PortalQuote[];
+  equipment: PortalEquipment[];
   membership: PortalMembership | null;
 }
 
 export function getPortalLink(token: string): string {
   return `${window.location.origin}/portal/${token}`;
+}
+
+export function getRescheduleLink(token: string): string {
+  return `${window.location.origin}/reschedule/${token}`;
+}
+
+export function getBookingLink(slug: string): string {
+  return `${window.location.origin}/book/${slug}`;
+}
+
+export function formatWarrantyStatus(exp: string | null): { label: string; tone: 'ok' | 'warn' | 'expired' } {
+  if (!exp) return { label: 'No warranty on file', tone: 'ok' };
+  const days = Math.floor((new Date(exp).getTime() - Date.now()) / 86400000);
+  if (days < 0) return { label: `Expired ${formatPortalDate(exp)}`, tone: 'expired' };
+  if (days <= 60) return { label: `Expires ${formatPortalDate(exp)}`, tone: 'warn' };
+  return { label: `Covered until ${formatPortalDate(exp)}`, tone: 'ok' };
 }
 
 /**
