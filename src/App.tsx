@@ -123,6 +123,8 @@ const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
 const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
 const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
+const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
+const ReferralRedirectPage = lazy(() => import('@/pages/ReferralRedirectPage').then((m) => ({ default: m.ReferralRedirectPage })));
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
@@ -267,6 +269,8 @@ function App() {
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/track/:token" element={<TrackingPage />} />
+        <Route path="/review/:token" element={<ReviewSubmitPage />} />
+        <Route path="/r/:code" element={<ReferralRedirectPage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
