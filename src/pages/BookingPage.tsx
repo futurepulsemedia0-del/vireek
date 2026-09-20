@@ -15,6 +15,7 @@ export function BookingPage() {
   const [searchParams] = useSearchParams();
   const embed = searchParams.get('embed') === '1';
   const channel = searchParams.get('src') || 'direct_link';
+  const refCode = searchParams.get('ref') || undefined;
 
   const [business, setBusiness] = useState<BookingBusinessInfo | null | undefined>(undefined);
   const [slots, setSlots] = useState<Date[]>([]);
@@ -49,7 +50,7 @@ export function BookingPage() {
     if (!slug || !selectedSlot) return;
     setSubmitting(true);
     setError(null);
-    const result = await submitPublicBooking({ slug, customerName: name, customerPhone: phone, customerEmail: email, serviceType: service, scheduledDatetime: selectedSlot, notes, channel });
+    const result = await submitPublicBooking({ slug, customerName: name, customerPhone: phone, customerEmail: email, serviceType: service, scheduledDatetime: selectedSlot, notes, channel, refCode });
     if (result.ok) setDone(true);
     else if (result.reason === 'slot_taken') { setError('That time was just taken — please pick another.'); setSelectedSlot(null); }
     else setError('Could not book that appointment. Please call the business directly.');
