@@ -72,6 +72,7 @@ const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then(
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
 const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerformancePage').then((m) => ({ default: m.TechnicianPerformancePage })));
+const TechnicianSkillGraphPage = lazy(() => import('@/pages/TechnicianSkillGraphPage').then((m) => ({ default: m.TechnicianSkillGraphPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
 const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m) => ({ default: m.ProfitabilityPage })));
@@ -782,6 +783,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianPerformancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/skill-graph"
+          element={
+            <ProtectedRoute>
+              <TechnicianSkillGraphPage />
             </ProtectedRoute>
           }
         />
