@@ -18,8 +18,15 @@
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+import { isAutomationEnabled } from "../_shared/automation/gate.ts";
 
 type CampaignType = "quote_followup" | "appointment_reminder" | "review_request_call";
+// appointment_reminder has no Marketplace equivalent yet, so it's left out
+// of this map on purpose — it stays governed only by outbound_campaigns.
+const CAMPAIGN_TYPE_TO_MARKETPLACE_SLUG: Partial<Record<CampaignType, string>> = {
+  quote_followup: "quote-follow-up-sequence",
+  review_request_call: "post-job-review-request",
+};
 
 interface CampaignRow {
   user_id: string;
@@ -154,6 +161,11 @@ Deno.serve(async (req: Request) => {
   };
 
   for (const campaign of (campaigns as CampaignRow[]) ?? []) {
+    const marketplaceSlug = CAMPAIGN_TYPE_TO_MARKETPLACE_SLUG[campaign.campaign_type];
+    if (marketplaceSlug && !(await isAutomationEnabled(admin, campaign.user_id, marketplaceSlug))) {
+      continue; // business turned this off in the Automation Marketplace
+    }
+
     const delayHours = await resolveStep1DelayHours(admin, campaign);
 
     let candidates: Candidate[];
