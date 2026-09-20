@@ -229,6 +229,29 @@ export async function rejectStep(approvalId: string, note?: string): Promise<boo
 }
 
 // ============================================================
+// REVENUE ATTRIBUTION (see revenue_recovery_events.recovering_run_id,
+// added in 20261006000000_workflow_revenue_attribution.sql)
+// ============================================================
+
+export interface RunRecoveryAttribution {
+  status: 'open' | 'contacted' | 'recovered' | 'written_off';
+  recovered_amount_cents: number | null;
+}
+
+/** Null if this run's entity has no Revenue Recovery Ledger entry at all
+ *  (e.g. a lead.created-triggered run — that table only tracks
+ *  calls/quotes/jobs). */
+export async function fetchRunRecoveryAttribution(runId: string): Promise<RunRecoveryAttribution | null> {
+  const { data, error } = await supabase
+    .from('revenue_recovery_events')
+    .select('status, recovered_amount_cents')
+    .eq('recovering_run_id', runId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as RunRecoveryAttribution;
+}
+
+// ============================================================
 // STATS
 // ============================================================
 
