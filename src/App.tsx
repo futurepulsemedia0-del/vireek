@@ -73,6 +73,7 @@ const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
 const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerformancePage').then((m) => ({ default: m.TechnicianPerformancePage })));
 const TechnicianSkillGraphPage = lazy(() => import('@/pages/TechnicianSkillGraphPage').then((m) => ({ default: m.TechnicianSkillGraphPage })));
+const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
 const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m) => ({ default: m.ProfitabilityPage })));
@@ -783,6 +784,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianPerformancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/click-to-cash"
+          element={
+            <ProtectedRoute>
+              <ClickToCashAttributionPage />
             </ProtectedRoute>
           }
         />
