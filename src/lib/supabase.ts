@@ -564,6 +564,11 @@ export interface BusinessProfile {
   assistant_voice?: string | null;
   assistant_tone?: string | null;
   custom_voice_id?: string | null;
+  booking_slug?: string | null;
+  booking_enabled?: boolean;
+  booking_default_duration_minutes?: number;
+  booking_lead_time_hours?: number;
+  booking_window_days?: number;
   custom_voice_status?: 'none' | 'processing' | 'ready' | 'failed';
   custom_voice_error?: string | null;
   allow_customer_self_reschedule: boolean;
