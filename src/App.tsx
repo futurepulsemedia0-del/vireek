@@ -61,6 +61,7 @@ const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => (
 const NetworkHandoffsPage = lazy(() => import('@/pages/NetworkHandoffsPage').then((m) => ({ default: m.NetworkHandoffsPage })));
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
+const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
@@ -664,6 +665,14 @@ function App() {
           element={
             <ProtectedRoute>
               <UnderpricedJobsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/equipment-health"
+          element={
+            <ProtectedRoute>
+              <EquipmentLifecyclePage />
             </ProtectedRoute>
           }
         />
