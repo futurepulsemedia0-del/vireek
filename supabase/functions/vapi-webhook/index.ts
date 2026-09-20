@@ -54,6 +54,8 @@
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import { syncJobToExternalProviders } from "../_shared/dispatch/externalJobSync.ts";
+import { isAutomationEnabled } from "../_shared/automation/gate.ts";
+import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
 import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
 import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
 import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
@@ -1938,6 +1940,24 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
         if (callerNumber && memory_facts.length > 0) {
           for (const fact of memory_facts) {
             await saveCustomerMemoryFact(admin, tenant.userId, callerNumber, fact, "note", "auto_extracted", null);
+          }
+        }
+
+        if (intelligence.sentiment === "negative" && tenant.forwardingNumber) {
+          if (await isAutomationEnabled(admin, tenant.userId, "low-csat-auto-escalate")) {
+            const recordingNote = patch.recording_url ? `Recording: ${patch.recording_url}` : "No recording available.";
+            const alertBody = `Vireek alert: a call just ended with a low satisfaction score (${intelligence.call_score}/10). ${recordingNote}`;
+            await sendSms(tenant.forwardingNumber, alertBody);
+
+            const { data: ownerUser } = await admin.auth.admin.getUserById(tenant.userId);
+            if (ownerUser?.user?.email) {
+              await sendEmail(
+                ownerUser.user.email,
+                "Vireek: a call needs your attention",
+                `<p>A call just ended with a low satisfaction score (${intelligence.call_score}/10).</p>${patch.recording_url ? `<p><a href="${patch.recording_url}">Listen to the recording</a></p>` : ""}`,
+                `A call just ended with a low satisfaction score (${intelligence.call_score}/10). ${recordingNote}`,
+              );
+            }
           }
         }
       }
