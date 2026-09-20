@@ -52,6 +52,7 @@ const BOARD_STAGES: { key: JobStatus; label: string; dotColor: string; borderCol
 const ALL_STATUSES: { key: JobStatus; label: string; color: string }[] = [
   ...BOARD_STAGES.map((s) => ({ key: s.key, label: s.label, color: s.dotColor })),
   { key: 'cancelled', label: 'Cancelled', color: 'bg-danger' },
+  { key: 'no_show', label: 'No-show', color: 'bg-warning-500' },
 ];
 
 const INVOICE_CONFIG: Record<InvoiceStatus, { label: string; badge: string }> = {
