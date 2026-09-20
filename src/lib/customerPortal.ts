@@ -44,6 +44,13 @@ export interface PortalQuote {
   created_at: string;
 }
 
+export interface PortalReferral {
+  code: string;
+  reward_type: 'credit' | 'discount' | 'cash';
+  reward_value: number;
+  clicks: number;
+}
+
 export interface PortalMembership {
   status: 'offered' | 'active' | 'cancelled';
   started_at: string | null;
@@ -64,6 +71,7 @@ export interface PortalBundle {
   jobs: PortalJob[];
   quotes: PortalQuote[];
   equipment: PortalEquipment[];
+  referral: PortalReferral | null;
   membership: PortalMembership | null;
 }
 
@@ -77,6 +85,16 @@ export function getRescheduleLink(token: string): string {
 
 export function getBookingLink(slug: string): string {
   return `${window.location.origin}/book/${slug}`;
+}
+
+export function getReferralLink(code: string): string {
+  return `${window.location.origin}/r/${code}`;
+}
+
+export function formatRewardLabel(referral: PortalReferral): string {
+  if (referral.reward_type === 'credit') return `$${referral.reward_value.toFixed(0)} account credit`;
+  if (referral.reward_type === 'discount') return `${referral.reward_value.toFixed(0)}% discount`;
+  return `$${referral.reward_value.toFixed(0)} cash reward`;
 }
 
 export function formatWarrantyStatus(exp: string | null): { label: string; tone: 'ok' | 'warn' | 'expired' } {
