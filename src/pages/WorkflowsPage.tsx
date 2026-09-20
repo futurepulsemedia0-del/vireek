@@ -31,6 +31,7 @@ import {
   computeStats,
   fetchDefinitions,
   fetchPendingApprovals,
+  fetchRunRecoveryAttribution,
   fetchRuns,
   fetchRunSteps,
   installPlaybook,
@@ -40,8 +41,9 @@ import {
   STATUS_LABELS,
   TRIGGER_EVENT_LABELS,
 } from '@/lib/workflowEngine';
-import type { WorkflowApproval, WorkflowDefinition, WorkflowRun, WorkflowRunStep } from '@/lib/workflowEngine';
+import type { RunRecoveryAttribution, WorkflowApproval, WorkflowDefinition, WorkflowRun, WorkflowRunStep } from '@/lib/workflowEngine';
 import { WORKFLOW_PLAYBOOKS } from '@/lib/workflowPlaybooks';
+import { formatCents } from '@/lib/revenueRecovery';
 
 type TabKey = 'catalog' | 'installed' | 'runs' | 'approvals';
 
@@ -199,12 +201,19 @@ function RunRow({ run, onCancelled }: { run: WorkflowRun; onCancelled: () => voi
   const [open, setOpen] = useState(false);
   const [steps, setSteps] = useState<WorkflowRunStep[] | null>(null);
   const [loadingSteps, setLoadingSteps] = useState(false);
+  const [recovery, setRecovery] = useState<RunRecoveryAttribution | null>(null);
 
   const toggleOpen = async () => {
     setOpen((v) => !v);
     if (!steps && !loadingSteps) {
       setLoadingSteps(true);
-      try { setSteps(await fetchRunSteps(run.id)); } finally { setLoadingSteps(false); }
+      try {
+        const [stepData, recoveryData] = await Promise.all([fetchRunSteps(run.id), fetchRunRecoveryAttribution(run.id)]);
+        setSteps(stepData);
+        setRecovery(recoveryData);
+      } finally {
+        setLoadingSteps(false);
+      }
     }
   };
 
@@ -228,6 +237,11 @@ function RunRow({ run, onCancelled }: { run: WorkflowRun; onCancelled: () => voi
       {open && (
         <div className="border-t border-border p-4">
           {loadingSteps && <Loader2 size={16} className="animate-spin text-text-secondary" />}
+          {recovery?.status === 'recovered' && (
+            <div className="mb-3 rounded-lg bg-success-500/10 px-3 py-2 text-xs font-medium text-success-500">
+              💰 This run recovered {formatCents(recovery.recovered_amount_cents ?? 0)} in revenue — see it on the Revenue Recovery Ledger.
+            </div>
+          )}
           {steps && (
             <ol className="space-y-2">
               {steps.map((s) => (
