@@ -297,9 +297,11 @@ export interface Job {
   is_rework: boolean;
   rework_of_job_id: string | null;
   completed_at: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  geocoded_at: string | null;
   created_at: string;
 }
-
 export interface OutboundCampaign {
   id: string;
   user_id: string;
@@ -643,6 +645,25 @@ export interface TeamMember {
   member_phone: string | null;
   /** What this technician costs the business per hour, in cents — internal only, never shown to customers. */
   hourly_cost_rate_cents: number | null;
+  home_address: string | null;
+  home_latitude: number | null;
+  home_longitude: number | null;
+  home_geocoded_at: string | null;
+  current_latitude: number | null;
+  current_longitude: number | null;
+  location_updated_at: string | null;
+  territory_id: string | null;
+  created_at: string;
+}
+
+export interface Territory {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  center_latitude: number;
+  center_longitude: number;
+  radius_miles: number;
   created_at: string;
 }
 
