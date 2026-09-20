@@ -22,7 +22,11 @@ export type RecoverySourceType =
   | 'not_booked'
   | 'declined_quote'
   | 'expired_quote'
-  | 'cancelled_job';
+  | 'cancelled_job'
+  | 'quote_financing_stalled'
+  | 'quote_accepted_unbooked'
+  | 'job_completed_unbilled'
+  | 'invoice_overdue';
 
 export type RecoveryStatus = 'open' | 'contacted' | 'recovered' | 'written_off';
 
@@ -33,7 +37,7 @@ export type ValueBasis = 'quote_amount' | 'job_invoice' | 'price_book_match' | '
 export interface RevenueRecoveryEvent {
   id: string;
   source_type: RecoverySourceType;
-  source_table: 'calls' | 'quotes' | 'jobs';
+  source_table: 'calls' | 'quotes' | 'jobs' | 'payment_requests';
   source_id: string;
   lead_id: string | null;
   call_id: string | null;
@@ -67,6 +71,10 @@ export const SOURCE_TYPE_LABELS: Record<RecoverySourceType, string> = {
   declined_quote: 'Quote declined',
   expired_quote: 'Quote expired',
   cancelled_job: 'Job cancelled',
+  quote_financing_stalled: 'Quote stalled — offer financing',
+  quote_accepted_unbooked: 'Accepted, not yet booked',
+  job_completed_unbilled: 'Completed, not yet invoiced',
+  invoice_overdue: 'Invoice overdue',
 };
 
 export const SOURCE_TYPE_COLORS: Record<RecoverySourceType, string> = {
@@ -76,6 +84,10 @@ export const SOURCE_TYPE_COLORS: Record<RecoverySourceType, string> = {
   declined_quote: 'bg-danger/10 text-danger',
   expired_quote: 'bg-bg-tertiary text-text-secondary',
   cancelled_job: 'bg-danger/10 text-danger',
+  quote_financing_stalled: 'bg-warning-500/10 text-warning-500',
+  quote_accepted_unbooked: 'bg-warning-500/10 text-warning-500',
+  job_completed_unbilled: 'bg-danger/10 text-danger',
+  invoice_overdue: 'bg-danger/10 text-danger',
 };
 
 export const STATUS_LABELS: Record<RecoveryStatus, string> = {
