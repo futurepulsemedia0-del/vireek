@@ -206,6 +206,7 @@ export interface LaborMarketplaceMatch {
 }
 
 export interface Equipment {
+  room_id: string | null;
   id: string;
   user_id: string;
   customer_id: string;
@@ -258,6 +259,7 @@ export interface Lead {
 }
 
 export interface Job {
+  site_id: string | null;
   [key: string]: unknown;
   id: string;
   user_id: string;
