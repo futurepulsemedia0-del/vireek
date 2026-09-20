@@ -221,7 +221,7 @@ export function CustomerPortalPage() {
               {tab === 'jobs' && (
                 <div className="space-y-4">
                   {bundle.booking_slug && (
-                    
+                    <a
                       href={getBookingLink(bundle.booking_slug)}
                       className="focus-ring flex items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-accent/90"
                     >
@@ -232,6 +232,8 @@ export function CustomerPortalPage() {
                   <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                     <h2 className="text-sm font-semibold text-text-primary">Upcoming</h2>
                     {upcomingJobs.length === 0 ? (
+```
+
                       <p className="mt-3 text-sm text-text-secondary">No upcoming appointments.</p>
                     ) : (
                       <div className="mt-4 space-y-3">
