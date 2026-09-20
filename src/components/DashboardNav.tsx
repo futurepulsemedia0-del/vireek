@@ -121,6 +121,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
+  { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
   { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
