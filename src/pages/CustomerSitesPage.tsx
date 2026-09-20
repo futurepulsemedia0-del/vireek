@@ -20,7 +20,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { supabase, Customer, Equipment } from '@/lib/supabase';
+import { supabase, Customer, Equipment, Job } from '@/lib/supabase';
 import {
   SiteType,
   RoomType,
@@ -58,6 +58,7 @@ export function CustomerSitesPage() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [sites, setSites] = useState<HierarchySite[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [jobs, setJobs] = useState<Pick<Job, 'id' | 'customer_name' | 'service_type' | 'job_status' | 'scheduled_datetime' | 'site_id'>[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
@@ -77,10 +78,15 @@ export function CustomerSitesPage() {
   const loadAll = useCallback(async () => {
     if (!user || !customerId) return;
     setLoading(true);
-    const [customerRes, hierarchyRes, equipmentRes] = await Promise.all([
+    const [customerRes, hierarchyRes, equipmentRes, jobsRes] = await Promise.all([
       supabase.from('customers').select('*').eq('id', customerId).maybeSingle(),
       supabase.rpc('get_customer_site_hierarchy', { p_customer_id: customerId }),
       supabase.from('equipment').select('*').eq('customer_id', customerId).order('equipment_type'),
+      supabase
+        .from('jobs')
+        .select('id, customer_name, service_type, job_status, scheduled_datetime, site_id')
+        .eq('customer_id', customerId)
+        .order('scheduled_datetime', { ascending: false }),
     ]);
     if (customerRes.data) setCustomer(customerRes.data as Customer);
     if (hierarchyRes.error) {
@@ -89,6 +95,7 @@ export function CustomerSitesPage() {
       setSites((hierarchyRes.data as HierarchySite[]) ?? []);
     }
     setEquipment((equipmentRes.data as Equipment[]) ?? []);
+    setJobs(jobsRes.data ?? []);
     setLoading(false);
   }, [user, customerId, toast]);
 
@@ -209,6 +216,15 @@ export function CustomerSitesPage() {
     }
     setEquipment((prev) => prev.map((e) => (e.id === equipmentId ? { ...e, room_id: roomId } : e)));
     loadAll();
+  };
+
+  const handleAssignJobSite = async (jobId: string, siteId: string | null) => {
+    const { error } = await supabase.from('jobs').update({ site_id: siteId }).eq('id', jobId);
+    if (error) {
+      toast('Could not update this job', 'error');
+      return;
+    }
+    setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, site_id: siteId } : j)));
   };
 
   if (loading) {
@@ -554,6 +570,40 @@ export function CustomerSitesPage() {
                     {roomOptions.map((opt) => (
                       <option key={opt.roomId} value={opt.roomId}>
                         {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Job-to-site assignment */}
+        {jobs.length > 0 && sites.length > 0 && (
+          <div className="mt-6">
+            <h2 className="mb-3 text-sm font-semibold text-text-primary">Assign jobs to sites</h2>
+            <div className="space-y-1.5 rounded-xl border border-border bg-bg-primary p-3">
+              {jobs.map((job) => (
+                <div key={job.id} className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5">
+                  <div className="min-w-0 text-xs text-text-primary">
+                    <span className="font-medium">{job.service_type ?? 'Job'}</span>
+                    {job.scheduled_datetime && (
+                      <span className="text-text-secondary"> · {new Date(job.scheduled_datetime).toLocaleDateString()}</span>
+                    )}
+                    <span className="ml-1.5 rounded-full bg-bg-tertiary px-2 py-0.5 text-[10px] capitalize text-text-secondary">
+                      {job.job_status}
+                    </span>
+                  </div>
+                  <select
+                    className={`${inputClass} w-auto min-w-[220px]`}
+                    value={job.site_id ?? ''}
+                    onChange={(e) => handleAssignJobSite(job.id, e.target.value || null)}
+                  >
+                    <option value="">No site</option>
+                    {sites.map((site) => (
+                      <option key={site.id} value={site.id}>
+                        {site.name}
                       </option>
                     ))}
                   </select>
