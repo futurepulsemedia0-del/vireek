@@ -120,8 +120,8 @@ export function TestimonialsPage() {
                   What contractors are saying
                 </h1>
                 <p className="mx-auto mt-6 max-w-3xl text-xl leading-8 text-text-secondary sm:text-2xl">
-                  Real quotes from early-access home service businesses using Sarah to answer calls and book jobs
-                  they used to lose.
+                  Illustrative examples of the kind of results home service businesses can expect from Sarah
+                  answering calls and booking jobs they used to lose.
                 </p>
 
                 {/* Industry filters */}
