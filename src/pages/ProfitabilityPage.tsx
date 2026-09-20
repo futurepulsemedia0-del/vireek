@@ -17,6 +17,7 @@ import {
   Check,
   Loader2,
   Lock,
+  Receipt,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -42,6 +43,16 @@ import {
   fetchCostEntries,
   saveCostEntry,
   deleteCostEntry,
+  VendorBill,
+  VendorBillFormState,
+  EMPTY_VENDOR_BILL_FORM,
+  VENDOR_BILL_STATUS_LABELS,
+  VENDOR_BILL_STATUS_CLASS,
+  vendorBillToForm,
+  fetchVendorBills,
+  saveVendorBill,
+  deleteVendorBill,
+  markVendorBillPaid,
 } from '@/lib/jobCosting';
 import { supabase } from '@/lib/supabase';
 
@@ -211,6 +222,88 @@ function CostEntryForm({
 }
 
 // ============================================================
+// VENDOR BILL FORM (inline add / edit)
+// ============================================================
+
+function VendorBillForm({
+  jobId,
+  bill,
+  onCancel,
+  onSaved,
+}: {
+  jobId: string;
+  bill?: VendorBill;
+  onCancel: () => void;
+  onSaved: () => void;
+}) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [form, setForm] = useState<VendorBillFormState>(bill ? vendorBillToForm(bill) : EMPTY_VENDOR_BILL_FORM);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      await saveVendorBill(form, jobId, user.id, bill?.id, bill?.cost_entry_id ?? null);
+      toast('Vendor bill saved', 'success');
+      onSaved();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not save this vendor bill', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-border bg-bg-primary p-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <input type="text" value={form.vendor_name} onChange={(e) => setForm((f) => ({ ...f, vendor_name: e.target.value }))} placeholder="Vendor name" className={inputClass} />
+        <input type="text" value={form.bill_number} onChange={(e) => setForm((f) => ({ ...f, bill_number: e.target.value }))} placeholder="Bill # (optional)" className={inputClass} />
+        <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as CostCategory }))} className={inputClass}>
+          {(Object.keys(COST_CATEGORY_LABELS) as CostCategory[]).map((c) => (
+            <option key={c} value={c}>{COST_CATEGORY_LABELS[c]}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <input type="number" min={0} step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} placeholder="Amount ($)" className={inputClass} />
+        <input type="date" value={form.bill_date} onChange={(e) => setForm((f) => ({ ...f, bill_date: e.target.value }))} className={inputClass} />
+        <input type="date" value={form.due_date} onChange={(e) => setForm((f) => ({ ...f, due_date: e.target.value }))} placeholder="Due date" className={inputClass} />
+      </div>
+
+      <input
+        type="text"
+        value={form.notes}
+        onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+        placeholder="Notes (optional)"
+        className={`${inputClass} mt-3`}
+      />
+
+      <div className="mt-3 flex justify-end gap-2">
+        <button type="button" onClick={onCancel} className="focus-ring flex items-center gap-1 rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary">
+          <X size={14} /> Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+        >
+          {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+          Save bill
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// JOB ROW (expandable — lazy-loads its cost entries)
+// ============================================================
+
+// ============================================================
 // JOB ROW (expandable — lazy-loads its cost entries)
 // ============================================================
 
@@ -220,12 +313,14 @@ function JobRow({
   priceBookItems,
   expanded,
   onToggle,
+  onCostsChanged,
 }: {
   row: JobProfitability;
   technicians: TeamMember[];
   priceBookItems: PriceBookItem[];
   expanded: boolean;
   onToggle: () => void;
+  onCostsChanged: () => void;
 }) {
   const { toast } = useToast();
   const [entries, setEntries] = useState<JobCostEntry[] | null>(null);
@@ -234,6 +329,12 @@ function JobRow({
   const [editingEntry, setEditingEntry] = useState<JobCostEntry | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [vendorBills, setVendorBills] = useState<VendorBill[] | null>(null);
+  const [loadingVendorBills, setLoadingVendorBills] = useState(false);
+  const [addingBill, setAddingBill] = useState(false);
+  const [editingBill, setEditingBill] = useState<VendorBill | null>(null);
+  const [deletingBillTarget, setDeletingBillTarget] = useState<VendorBill | null>(null);
+  const [deletingBillLoading, setDeletingBillLoading] = useState(false);
   const tech = technicians.find((t) => t.id === row.assigned_technician_id) ?? null;
 
   const loadEntries = useCallback(async () => {
@@ -248,9 +349,22 @@ function JobRow({
     }
   }, [row.job_id, toast]);
 
+  const loadVendorBills = useCallback(async () => {
+    setLoadingVendorBills(true);
+    try {
+      const data = await fetchVendorBills(row.job_id);
+      setVendorBills(data);
+    } catch {
+      toast('Could not load vendor bills', 'error');
+    } finally {
+      setLoadingVendorBills(false);
+    }
+  }, [row.job_id, toast]);
+
   useEffect(() => {
     if (expanded && entries === null) loadEntries();
-  }, [expanded, entries, loadEntries]);
+    if (expanded && vendorBills === null) loadVendorBills();
+  }, [expanded, entries, loadEntries, vendorBills, loadVendorBills]);
 
   const handleDelete = async () => {
     if (!deletingId) return;
@@ -260,10 +374,38 @@ function JobRow({
       setEntries((prev) => (prev ? prev.filter((e) => e.id !== deletingId) : prev));
       toast('Cost deleted', 'success');
       setDeletingId(null);
+      onCostsChanged();
     } catch {
       toast('Could not delete this cost', 'error');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleDeleteBill = async () => {
+    if (!deletingBillTarget) return;
+    setDeletingBillLoading(true);
+    try {
+      await deleteVendorBill(deletingBillTarget.id, deletingBillTarget.cost_entry_id);
+      setVendorBills((prev) => (prev ? prev.filter((b) => b.id !== deletingBillTarget.id) : prev));
+      setEntries(null);
+      toast('Vendor bill deleted', 'success');
+      setDeletingBillTarget(null);
+      onCostsChanged();
+    } catch {
+      toast('Could not delete this vendor bill', 'error');
+    } finally {
+      setDeletingBillLoading(false);
+    }
+  };
+
+  const handleMarkPaid = async (id: string) => {
+    try {
+      await markVendorBillPaid(id);
+      setVendorBills((prev) => (prev ? prev.map((b) => (b.id === id ? { ...b, status: 'paid' as const } : b)) : prev));
+      toast('Marked as paid', 'success');
+    } catch {
+      toast('Could not update this bill', 'error');
     }
   };
 
@@ -328,6 +470,7 @@ function JobRow({
                       onSaved={() => {
                         setEditingEntry(null);
                         setEntries(null);
+                        onCostsChanged();
                       }}
                     />
                   ) : (
@@ -366,6 +509,7 @@ function JobRow({
                   onSaved={() => {
                     setAdding(false);
                     setEntries(null);
+                    onCostsChanged();
                   }}
                 />
               ) : (
@@ -377,6 +521,88 @@ function JobRow({
                   <Plus size={14} /> Add cost
                 </button>
               )}
+
+              <div className="mt-4 border-t border-border pt-4">
+                <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                  <Receipt size={12} /> Vendor bills
+                </p>
+
+                {loadingVendorBills ? (
+                  <div className="h-10 animate-pulse rounded-xl bg-bg-tertiary" />
+                ) : vendorBills && vendorBills.length > 0 ? (
+                  <div className="space-y-2">
+                    {vendorBills.map((bill) =>
+                      editingBill?.id === bill.id ? (
+                        <VendorBillForm
+                          key={bill.id}
+                          jobId={row.job_id}
+                          bill={bill}
+                          onCancel={() => setEditingBill(null)}
+                          onSaved={() => {
+                            setEditingBill(null);
+                            setVendorBills(null);
+                            setEntries(null);
+                            onCostsChanged();
+                          }}
+                        />
+                      ) : (
+                        <div key={bill.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-primary px-4 py-2.5">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm text-text-primary">
+                              {bill.vendor_name}{bill.bill_number ? ` · #${bill.bill_number}` : ''}
+                            </p>
+                            <p className="text-xs text-text-secondary">
+                              {COST_CATEGORY_LABELS[bill.category]} · {bill.due_date ? `Due ${bill.due_date}` : 'No due date'}
+                            </p>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-3">
+                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${VENDOR_BILL_STATUS_CLASS[bill.status]}`}>
+                              {VENDOR_BILL_STATUS_LABELS[bill.status]}
+                            </span>
+                            <span className="text-sm font-medium text-text-primary">{formatCents(bill.amount_cents)}</span>
+                            {bill.status !== 'paid' && (
+                              <button type="button" onClick={() => handleMarkPaid(bill.id)} className="focus-ring text-text-secondary hover:text-success-500" aria-label="Mark paid">
+                                <Check size={14} />
+                              </button>
+                            )}
+                            <button type="button" onClick={() => setEditingBill(bill)} className="focus-ring text-text-secondary hover:text-accent" aria-label="Edit bill">
+                              <Pencil size={14} />
+                            </button>
+                            <button type="button" onClick={() => setDeletingBillTarget(bill)} className="focus-ring text-text-secondary hover:text-danger" aria-label="Delete bill">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                ) : (
+                  <p className="py-2 text-sm text-text-secondary">No vendor bills logged for this job yet.</p>
+                )}
+
+                {addingBill ? (
+                  <div className="mt-2">
+                    <VendorBillForm
+                      jobId={row.job_id}
+                      onCancel={() => setAddingBill(false)}
+                      onSaved={() => {
+                        setAddingBill(false);
+                        setVendorBills(null);
+                        setEntries(null);
+                        onCostsChanged();
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setAddingBill(true)}
+                    className="focus-ring mt-2 flex items-center gap-1.5 rounded-xl border border-dashed border-border px-3 py-2 text-sm text-text-secondary transition-colors hover:border-accent hover:text-accent"
+                  >
+                    <Plus size={14} /> Add vendor bill
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
@@ -390,6 +616,16 @@ function JobRow({
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
         loading={deleting}
+      />
+
+      <ConfirmDialog
+        open={!!deletingBillTarget}
+        title="Delete this vendor bill?"
+        description="This will also remove its linked cost entry from the job's profitability calculation. This can't be undone."
+        confirmLabel="Yes, delete it"
+        onConfirm={handleDeleteBill}
+        onCancel={() => setDeletingBillTarget(null)}
+        loading={deletingBillLoading}
       />
     </div>
   );
@@ -650,6 +886,7 @@ export function ProfitabilityPage() {
               priceBookItems={priceBookItems}
               expanded={expandedJobId === row.job_id}
               onToggle={() => setExpandedJobId((prev) => (prev === row.job_id ? null : row.job_id))}
+              onCostsChanged={fetchAll}
             />
           ))
         )}
