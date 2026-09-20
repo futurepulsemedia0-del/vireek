@@ -123,6 +123,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
+  { label: 'Equipment Health', href: '/dashboard/equipment-health', icon: HeartPulse },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
