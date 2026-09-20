@@ -32,7 +32,7 @@ export async function fetchBookedWindow(slug: string, start: Date, end: Date): P
 
 export interface SubmitBookingInput {
   slug: string; customerName: string; customerPhone: string; customerEmail: string;
-  serviceType: string; scheduledDatetime: Date; notes: string; channel: string;
+  serviceType: string; scheduledDatetime: Date; notes: string; channel: string; refCode?: string;
 }
 
 export async function submitPublicBooking(input: SubmitBookingInput): Promise<{ ok: true } | { ok: false; reason: string }> {
@@ -45,6 +45,7 @@ export async function submitPublicBooking(input: SubmitBookingInput): Promise<{ 
     p_scheduled_datetime: input.scheduledDatetime.toISOString(),
     p_notes: input.notes.trim() || null,
     p_channel: input.channel,
+    p_ref_code: input.refCode?.trim() || null,
   });
   if (error) {
     if (error.message.includes('slot_taken')) return { ok: false, reason: 'slot_taken' };
