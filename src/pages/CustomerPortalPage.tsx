@@ -12,6 +12,7 @@ import {
   ExternalLink,
   ShieldCheck,
   CalendarClock,
+  Gift,
   CreditCard,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -22,6 +23,8 @@ import {
   updateContactInfo,
   getRescheduleLink,
   getBookingLink,
+  getReferralLink,
+  formatRewardLabel,
   formatWarrantyStatus,
   JOB_STATUS_LABELS,
   INVOICE_STATUS_LABELS,
@@ -31,7 +34,7 @@ import {
   type PortalBundle,
 } from '@/lib/customerPortal';
 
-type Tab = 'jobs' | 'quotes' | 'equipment' | 'request' | 'profile';
+type Tab = 'jobs' | 'quotes' | 'equipment' | 'referral' | 'request' | 'profile';
 
 function JobStatusBadge({ status }: { status: PortalBundle['jobs'][number]['job_status'] }) {
   const colors: Record<typeof status, string> = {
@@ -149,6 +152,7 @@ export function CustomerPortalPage() {
     { key: 'jobs', label: 'My Appointments', icon: Briefcase },
     { key: 'quotes', label: 'Quotes', icon: FileText },
     { key: 'equipment', label: 'Equipment', icon: ShieldCheck },
+    { key: 'referral', label: 'Refer & Earn', icon: Gift },
     { key: 'request', label: 'Request Service', icon: Send },
     { key: 'profile', label: 'My Info', icon: User },
   ];
@@ -371,6 +375,36 @@ export function CustomerPortalPage() {
                         );
                       })}
                     </div>
+                  )}
+                </div>
+              )}
+              
+
+                            {/* Refer & Earn */}
+              {tab === 'referral' && (
+                <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                  <h2 className="text-sm font-semibold text-text-primary">Refer a Friend</h2>
+                  {bundle.referral ? (
+                    <>
+                      <p className="mt-1 text-xs text-text-secondary">
+                        Share your link — you get {formatRewardLabel(bundle.referral)} when they become a customer.
+                      </p>
+                      <div className="mt-4 flex items-center gap-2 rounded-xl border border-border/60 bg-bg-primary p-3">
+                        <code className="flex-1 truncate text-xs text-text-primary">
+                          {getReferralLink(bundle.referral.code)}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => navigator.clipboard.writeText(getReferralLink(bundle.referral!.code))}
+                          className="focus-ring shrink-0 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                      <p className="mt-3 text-xs text-text-secondary">{bundle.referral.clicks} people have clicked your link so far.</p>
+                    </>
+                  ) : (
+                    <p className="mt-3 text-sm text-text-secondary">Your referral link isn't ready yet — check back shortly.</p>
                   )}
                 </div>
               )}
