@@ -21,7 +21,9 @@ export type WorkflowTriggerEvent =
   | 'quote.sent' | 'quote.accepted' | 'quote.declined'
   | 'payment.received' | 'review.completed'
   | 'quote.financing_needed' | 'quote.accepted_not_booked'
-  | 'job.completed_not_invoiced' | 'invoice.payment_overdue';
+  | 'job.completed_not_invoiced' | 'invoice.payment_overdue'
+  | 'membership.sold' | 'membership.visit_due' | 'membership.renewal_upcoming'
+  | 'membership.payment_failed' | 'membership.churn_risk' | 'membership.churned';
 
 export type WorkflowStatus = 'draft' | 'active' | 'paused' | 'archived';
 export type WorkflowMode = 'live' | 'test';
