@@ -516,6 +516,13 @@ export function LoginPage() {
               >
                 {signInMode === 'password' ? 'Sign in with a magic link instead' : 'Sign in with a password instead'}
               </button>
+
+              <Link
+                to="/sso-login"
+                className="focus-ring block w-full text-center text-sm font-medium text-text-secondary transition-colors hover:text-accent"
+              >
+                Sign in with company SSO
+              </Link>
             </form>
 
             {/* Footer */}
