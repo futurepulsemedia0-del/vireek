@@ -84,7 +84,7 @@ export function CaseStudies() {
             Contractors Recover Lost Revenue With Vireek
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-text-secondary sm:mt-5 sm:text-base md:text-lg">
-            Real businesses, real results. See the difference Vireek makes from day one.
+            Illustrative examples of the difference Vireek is designed to make from day one.
           </p>
         </motion.div>
 
