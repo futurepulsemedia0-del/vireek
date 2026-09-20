@@ -16,6 +16,8 @@ export interface UserPermissions {
   can_manage_team: boolean;
   can_edit_business_profile: boolean;
   can_view_all_jobs: boolean;
+  can_view_audit_log: boolean;
+  can_manage_security: boolean;
 }
 
 interface AuthContextValue {
@@ -37,6 +39,8 @@ const OWNER_PERMISSIONS: UserPermissions = {
   can_manage_team: true,
   can_edit_business_profile: true,
   can_view_all_jobs: true,
+  can_view_audit_log: true,
+  can_manage_security: true,
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -99,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (prof && prof.role !== 'owner') {
         const { data: tmData, error: tmError } = await supabase
           .from('team_members')
-          .select('*')
+          .select('*, custom_role:custom_roles(permissions)')
           .eq('member_email', prof.email)
           .maybeSingle();
         if (requestId !== requestIdRef.current) return;
@@ -165,14 +169,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, fetchProfile]);
 
   const isOwner = profile?.role === 'owner';
+  const BASE_PERMISSIONS: UserPermissions = {
+    can_view_billing: false,
+    can_manage_numbers: false,
+    can_manage_team: false,
+    can_edit_business_profile: false,
+    can_view_all_jobs: false,
+    can_view_audit_log: false,
+    can_manage_security: false,
+  };
+  // A custom role (Enterprise RBAC) overrides the base team_members
+  // permission flags wherever it defines a value.
+  const customRolePermissions = (teamMember as unknown as { custom_role?: { permissions?: Partial<UserPermissions> } | null })?.custom_role?.permissions;
   const permissions: UserPermissions = isOwner
     ? OWNER_PERMISSIONS
-    : teamMember?.permissions ?? {
-        can_manage_numbers: false,
-        can_manage_team: false,
-        can_edit_business_profile: false,
-        can_view_all_jobs: false,
-      };
+    : { ...BASE_PERMISSIONS, ...teamMember?.permissions, ...customRolePermissions };
 
   return (
     <AuthContext.Provider
