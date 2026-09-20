@@ -126,7 +126,7 @@ export function CustomerRoiPage() {
               <p className={`${eyebrowClass()} text-center`}>By The Numbers</p>
               <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>Click a number, read the story</h2>
               <p className={`${bodyClass()} mx-auto text-center`}>
-                Each card is a real business. The numbers link straight to their full before/after
+                Each card is an illustrative example. The numbers link straight to the full before/after
                 story on the Case Studies page.
               </p>
             </motion.div>
