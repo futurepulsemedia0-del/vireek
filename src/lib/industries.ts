@@ -1,4 +1,4 @@
-import { Flame, Droplets, Home, Zap, Wind, KeyRound, type LucideIcon } from 'lucide-react';
+import { Flame, Droplets, Home, Zap, Wind, KeyRound, Bug, Trees, Sparkles, Waves, Wrench, Sun, PaintRoller, type LucideIcon } from 'lucide-react';
 
 export interface IndustryFAQ {
   q: string;
@@ -175,6 +175,202 @@ export const INDUSTRIES: Industry[] = [
       {
         q: 'Can Vireek handle after-hours lockout emergencies?',
         a: 'Yes. Vireek answers 24/7, captures the customer\'s location and situation, and triggers your escalation path so your on-call tech is notified immediately.',
+      },
+    ],
+  },
+  {
+    slug: 'pest-control',
+    name: 'Pest Control',
+    audience: 'pest control companies',
+    icon: Bug,
+    tagline: 'Infestation calls come in scared and urgent. Sarah never leaves them on hold.',
+    terms: ['Termites', 'rodents', 'bed bugs', 'ants', 'wasps', 'recurring treatment plans'],
+    painPoints: [
+      'A caller who just found termites or bed bugs wants reassurance immediately, not a callback tomorrow.',
+      'Recurring quarterly treatment plans generate a steady stream of rescheduling calls that eat office time.',
+      'Seasonal spikes (spring ants, fall rodents) overwhelm phone lines exactly when technicians are booked solid.',
+    ],
+    capabilities: [
+      'Answers instantly and asks the right triage questions (pest type, severity, occupied vs. vacant property).',
+      'Books initial inspections and recurring treatment visits straight onto your calendar.',
+      'Flags urgent infestations (active bed bugs, structural termite damage) for same-day follow-up.',
+    ],
+    faq: [
+      {
+        q: 'Can it tell the difference between a routine quarterly visit and an urgent infestation?',
+        a: 'Yes. Vireek is configured with your escalation rules so language indicating an active or severe infestation is flagged for priority scheduling, while routine treatment renewals are booked normally.',
+      },
+      {
+        q: 'Does it know pest control terminology?',
+        a: 'Yes. Vireek is set up with trade-specific vocabulary for common pests and treatment types so callers do not have to over-explain their situation.',
+      },
+    ],
+  },
+  {
+    slug: 'lawn-care',
+    name: 'Lawn Care & Landscaping',
+    audience: 'lawn care and landscaping companies',
+    icon: Trees,
+    tagline: 'Spring rush fills your voicemail. Sarah keeps every call moving instead.',
+    terms: ['Mowing', 'fertilization', 'aeration', 'landscape design', 'irrigation', 'seasonal cleanup'],
+    painPoints: [
+      'Spring and fall bring a flood of new-customer calls that a small office team cannot answer fast enough.',
+      'Recurring maintenance customers call constantly to reschedule around weather, tying up the phone.',
+      'Estimate requests for landscape design projects get lost in the same queue as a simple mowing signup.',
+    ],
+    capabilities: [
+      'Answers every call during your busiest seasons without hold times or voicemail.',
+      'Captures property size, service type, and frequency to route recurring vs. one-time requests correctly.',
+      'Books mowing and maintenance visits directly, and flags larger design/install jobs for a callback with details already collected.',
+    ],
+    faq: [
+      {
+        q: 'Can it handle the seasonal call spike in spring?',
+        a: 'Yes. Because Vireek answers every call instantly regardless of volume, seasonal surges do not create hold times, missed calls, or a backlog of voicemails to return.',
+      },
+      {
+        q: 'Can it separate a simple mowing signup from a landscape design estimate?',
+        a: 'Yes. Vireek captures the service type and scope up front so simple recurring services get booked immediately while larger design requests are routed to your estimating process.',
+      },
+    ],
+  },
+  {
+    slug: 'cleaning',
+    name: 'Cleaning Services',
+    audience: 'residential and commercial cleaning companies',
+    icon: Sparkles,
+    tagline: 'New-client calls and reschedules never stop. Sarah handles both without missing a beat.',
+    terms: ['Recurring cleaning', 'move-out cleaning', 'deep cleaning', 'commercial contracts', 'rescheduling'],
+    painPoints: [
+      'New-client inquiries often come in during active cleaning jobs, when no one is near a phone.',
+      'Recurring clients call constantly to reschedule or skip a visit, and each one takes office time.',
+      'Commercial contract inquiries need different handling than a one-time residential deep clean.',
+    ],
+    capabilities: [
+      'Answers instantly whether your team is mid-job or off for the day.',
+      'Captures property size, service type, and frequency to quote and book new recurring clients.',
+      'Handles reschedule and skip-a-visit requests directly against your calendar.',
+    ],
+    faq: [
+      {
+        q: 'Can it quote a recurring cleaning plan on the call?',
+        a: 'Yes. Vireek is configured with your pricing so it can give an estimate based on square footage and frequency, then book the first visit.',
+      },
+      {
+        q: 'Can existing clients reschedule without waiting for a callback?',
+        a: 'Yes. Vireek looks up the existing booking and rebooks it against your real availability in the same call.',
+      },
+    ],
+  },
+  {
+    slug: 'pool-service',
+    name: 'Pool Service',
+    audience: 'pool cleaning and repair companies',
+    icon: Waves,
+    tagline: 'Green pools and broken equipment cannot wait for a callback. Neither should you make them.',
+    terms: ['Green pool', 'equipment repair', 'weekly maintenance', 'opening/closing', 'leak detection'],
+    painPoints: [
+      'A green or unsafe pool is an urgent call that competitors will answer if you do not.',
+      'Weekly maintenance customers call often about scheduling, which pulls staff off routes.',
+      'Equipment failures (pumps, heaters, filters) need fast triage to know if it is a same-day dispatch.',
+    ],
+    capabilities: [
+      'Answers instantly and triages urgent issues like green or unsafe water from routine maintenance questions.',
+      'Books weekly service signups and one-time repair visits directly onto your calendar.',
+      'Flags equipment failures that need same-day dispatch based on your escalation rules.',
+    ],
+    faq: [
+      {
+        q: 'Can it tell a green pool emergency from a routine question?',
+        a: 'Yes. Vireek is configured with your escalation rules so urgent water-quality or safety issues are flagged for priority scheduling.',
+      },
+      {
+        q: 'Can it handle seasonal opening and closing requests?',
+        a: 'Yes. Vireek books seasonal opening and closing appointments the same way it books routine service, based on your real availability.',
+      },
+    ],
+  },
+  {
+    slug: 'appliance-repair',
+    name: 'Appliance Repair',
+    audience: 'appliance repair companies',
+    icon: Wrench,
+    tagline: 'A dead fridge or washer is urgent to the customer. Sarah treats it that way.',
+    terms: ['Refrigerator repair', 'washer/dryer', 'dishwasher', 'oven/range', 'warranty service'],
+    painPoints: [
+      'A broken refrigerator is a same-day emergency to the customer, even if it is routine to your team.',
+      'Diagnosing the likely issue and brand/model over the phone takes time your office staff does not have.',
+      'Warranty and non-warranty calls need different handling but often get mixed together.',
+    ],
+    capabilities: [
+      'Answers instantly and captures appliance type, brand, symptom, and warranty status.',
+      'Books diagnostic and repair visits directly onto your calendar based on real availability.',
+      'Flags high-urgency situations like a fridge full of spoiling food for faster scheduling.',
+    ],
+    faq: [
+      {
+        q: 'Can it capture the appliance brand and model over the phone?',
+        a: 'Yes. Vireek asks the same qualifying questions a trained dispatcher would, so your technician arrives with the right information.',
+      },
+      {
+        q: 'Can it separate warranty calls from paid service calls?',
+        a: 'Yes. Vireek captures warranty status on the call and routes the booking accordingly.',
+      },
+    ],
+  },
+  {
+    slug: 'solar',
+    name: 'Solar',
+    audience: 'solar installation and service companies',
+    icon: Sun,
+    tagline: 'Every missed call is a missed install lead. Sarah answers every one.',
+    terms: ['New installation', 'system monitoring alerts', 'inverter issues', 'maintenance', 'warranty claims'],
+    painPoints: [
+      'New-install leads are high-value and time-sensitive — a slow callback often means a lost sale to a competitor.',
+      'Existing customers call about monitoring alerts or production drops and need quick triage.',
+      'Sales inquiries and service/warranty calls need to be routed very differently.',
+    ],
+    capabilities: [
+      'Answers instantly and separates new-install sales inquiries from existing-customer service needs.',
+      'Captures property and system details up front so your sales or service team gets a qualified handoff.',
+      'Books site assessments and service visits directly onto your calendar.',
+    ],
+    faq: [
+      {
+        q: 'Can it separate a new sales lead from an existing customer service call?',
+        a: 'Yes. Vireek asks early qualifying questions to route new-install inquiries to sales and existing-system issues to service, so neither gets stuck in the wrong queue.',
+      },
+      {
+        q: 'Can it handle warranty and monitoring-alert calls?',
+        a: 'Yes. Vireek captures system details and the nature of the issue, then books a service visit or escalates according to your rules.',
+      },
+    ],
+  },
+  {
+    slug: 'painting',
+    name: 'Painting',
+    audience: 'painting companies',
+    icon: PaintRoller,
+    tagline: 'Estimate requests pile up fast. Sarah captures every one, day or night.',
+    terms: ['Interior painting', 'exterior painting', 'cabinet refinishing', 'commercial painting', 'estimates'],
+    painPoints: [
+      'Estimate requests are the lifeblood of a painting business, and a missed call is a lost bid opportunity.',
+      'Crews are on job sites all day and cannot answer new-lead calls during work hours.',
+      'Residential and commercial inquiries need different qualifying questions but often get handled the same way.',
+    ],
+    capabilities: [
+      'Answers instantly while your crews are on-site, capturing project scope, square footage, and timeline.',
+      'Books in-person estimate appointments directly onto your calendar.',
+      'Separates residential from commercial inquiries so each gets routed and qualified correctly.',
+    ],
+    faq: [
+      {
+        q: 'Can it capture enough detail for a useful estimate appointment?',
+        a: 'Yes. Vireek asks about project scope, rooms or square footage, and timeline so your estimator arrives prepared instead of starting from scratch.',
+      },
+      {
+        q: 'Can it handle commercial painting inquiries differently from residential?',
+        a: 'Yes. Vireek is configured to ask different qualifying questions for commercial projects and route them accordingly.',
       },
     ],
   },
