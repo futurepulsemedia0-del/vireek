@@ -56,6 +56,7 @@ import {
   LifeBuoy,
   Workflow,
   Network,
+  Package,
   ArrowRightLeft,
   Truck,
   ClipboardList,
