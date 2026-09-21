@@ -1,4 +1,5 @@
 import type { Job, TeamMember } from '@/lib/supabase';
+import { stockFitBonus, stockFitReason, type StockFitRow } from '@/lib/truckStock';
 
 export interface DispatchSuggestion {
   technician: TeamMember;
@@ -20,7 +21,8 @@ function isSameDay(a: string | null, b: string | null): boolean {
 export function suggestTechnicians(
   job: Job,
   technicians: TeamMember[],
-  jobsByTechnician: Record<string, Job[]>
+  jobsByTechnician: Record<string, Job[]>,
+  stockFit: Record<string, StockFitRow> = {}
 ): DispatchSuggestion[] {
   const candidates = technicians.filter((t) => t.role === 'technician' && t.dispatch_enabled);
 
@@ -51,7 +53,10 @@ export function suggestTechnicians(
         score += 5;
         reasons.push(`Covers ${tech.service_area}`);
       }
-
+      const fit = stockFit[tech.id];
+      score += stockFitBonus(fit);
+      const stockReason = stockFitReason(fit);
+      if (stockReason) reasons.push(stockReason);
       return { technician: tech, score, reasons };
     })
     .filter((s) => s.score >= 0)
