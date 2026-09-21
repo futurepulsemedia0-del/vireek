@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Route, Wrench, Sparkles, Brain, X } from 'lucide-react';
+import { Route, Wrench, Sparkles, Brain, X, PackageCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { suggestTechnicians } from '@/lib/dispatch';
+import { buildStockFitMap, fetchStockFit, stockFitBonus, type StockFitRow } from '@/lib/truckStock';
 
 function formatTime(dateStr: string | null): string {
   if (!dateStr) return 'Unscheduled';
@@ -41,6 +42,7 @@ export function DispatchBoardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [technicians, setTechnicians] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stockFit, setStockFit] = useState<Record<string, Record<string, StockFitRow>>>({});
   const [assigning, setAssigning] = useState<string | null>(null);
     const [aiDispatchEnabled, setAiDispatchEnabled] = useState(false);
   const [autoAssigning, setAutoAssigning] = useState(false);
@@ -63,7 +65,11 @@ export function DispatchBoardPage() {
     if (jobsRes.error || teamRes.error) {
       toast('Failed to load the dispatch board', 'error');
     } else {
-      setJobs((jobsRes.data as Job[]) || []);
+      const loadedJobs = (jobsRes.data as Job[]) || [];
+      setJobs(loadedJobs);
+      void fetchStockFit(loadedJobs.filter((j) => !j.assigned_technician_id).map((j) => j.id)).then((rows) =>
+        setStockFit(buildStockFitMap(rows)),
+      ); as Job[]) || []);
       setTechnicians((teamRes.data as TeamMember[]) || []);
     }
     setLoading(false);
@@ -131,6 +137,10 @@ const handleAssign = async (job: Job, technicianId: string) => {
       )
     );
     toast('Job assigned', 'success');
+    const fit = stockFit[job.id]?.[technicianId];
+    if (fit && fit.parts_on_van < fit.parts_required) {
+      toast(`This technician's truck is missing ${fit.parts_required - fit.parts_on_van} required part(s). Check Parts & Inventory before dispatch.`, 'info');
+    }
   }
 
   setAssigning(null);
@@ -260,7 +270,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
             ) : (
               <div className="space-y-3">
                 {unassignedJobs.map((job) => {
-                  const suggestions = suggestTechnicians(job, technicians, jobsByTechnician);
+                  const suggestions = suggestTechnicians(job, technicians, jobsByTechnician, stockFit[job.id] ?? {}); 
                   const top = suggestions[0];
                   return (
                     <motion.div
@@ -303,6 +313,9 @@ const handleAssign = async (job: Job, technicianId: string) => {
                               className="focus-ring rounded-xl border border-border bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-accent disabled:opacity-50"
                             >
                               {s.technician.member_name ?? s.technician.member_email}
+                              {stockFitBonus(stockFit[job.id]?.[s.technician.id]) >= 12 && (
+                               <PackageCheck size={12} className="ml-1 inline text-success-500" aria-label="Truck has all required parts" />
+                                )}
                             </button>
                           ))}
                         </div>
