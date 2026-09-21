@@ -20,6 +20,7 @@ import {
   Play,
   Pause,
   MessageSquare,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
