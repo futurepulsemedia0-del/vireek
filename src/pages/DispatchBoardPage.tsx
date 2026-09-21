@@ -69,7 +69,7 @@ export function DispatchBoardPage() {
       setJobs(loadedJobs);
       void fetchStockFit(loadedJobs.filter((j) => !j.assigned_technician_id).map((j) => j.id)).then((rows) =>
         setStockFit(buildStockFitMap(rows)),
-      ); as Job[]) || []);
+      );
       setTechnicians((teamRes.data as TeamMember[]) || []);
     }
     setLoading(false);
