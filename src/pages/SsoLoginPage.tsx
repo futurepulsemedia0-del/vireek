@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Building2, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { AuthShell } from '@/components/auth/AuthShell';
+import { AuthShell, AuthSidePanel } from '@/components/auth/AuthParts';
 import { signInWithSsoDomain } from '@/lib/enterpriseSecurity';
 
 export function SsoLoginPage() {
@@ -24,7 +24,7 @@ export function SsoLoginPage() {
   };
 
   return (
-    <AuthShell>
+    <AuthShell side={<AuthSidePanel />}>
       <div className="mb-6 flex items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
           <Building2 size={20} />
