@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, PhoneCall, Gauge, Lightbulb, Wrench, Info, CheckCheck, Trash2, AlertCircle, RotateCw, ShieldAlert } from 'lucide-react';
+import { Bell, PhoneCall, Gauge, Lightbulb, Wrench, Info, CheckCheck, Trash2, AlertCircle, RotateCw, ShieldAlert, Eye } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
