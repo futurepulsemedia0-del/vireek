@@ -6,7 +6,6 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
-import { Button } from '@/components/ui/Button';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
