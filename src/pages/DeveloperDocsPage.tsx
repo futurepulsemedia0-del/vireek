@@ -158,7 +158,15 @@ function CodeBlock({ label, code }: { label: string; code: string }) {
     </div>
   );
 }
-
+  function SEO() {
+    useSEO({
+      title: 'Vireek Developer Docs — REST API, Webhooks & SDKs',
+      description: 'Build on Vireek: REST API reference, API keys and scopes, webhooks, and SDK examples.',
+      canonical: 'https://vireek.com/docs',
+    });
+    return null;
+  }
+  
 export function DeveloperDocsPage() {
   return (
     <>
