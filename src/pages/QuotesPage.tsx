@@ -2,8 +2,7 @@ import { uploadEstimatePhoto, getVisualEstimate, severityLabel, MAX_ESTIMATE_PHO
 import { useAuth } from '@/contexts/AuthContext';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send, Copy, Eye, Images } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send,   Copy, Eye, Images, Sparkles, Camera, Loader2 } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Lead, BusinessProfile, Quote } from '@/lib/supabase';
