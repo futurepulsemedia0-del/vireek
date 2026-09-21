@@ -749,8 +749,8 @@ export async function fetchGoodsReceipts(poId: string): Promise<GoodsReceipt[]> 
 
 export async function submitVendorEvaluation(
   input: Pick<VendorEvaluation, 'vendor_id'> &
-    Partial
-      Pick
+    Partial<
+      Pick<
         VendorEvaluation,
         'po_id' | 'on_time' | 'quality_score' | 'price_score' | 'communication_score' | 'notes'
       >
