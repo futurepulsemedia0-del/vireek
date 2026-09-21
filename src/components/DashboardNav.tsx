@@ -12,14 +12,12 @@ import {
   LayoutDashboard,
   Calendar,
   TrendingUp,
-  TrendingUp,
   TrendingDown,
   Radio,
   PhoneCall,
   Users,
   Wrench,
   BookUser,
-  Wrench,
   Brain,
   Settings,
   Lightbulb,
@@ -36,7 +34,6 @@ import {
  Award,
    DollarSign,
    Calculator,
-   Gauge,
    Route,
   FileText,
   ShieldAlert,
@@ -65,6 +62,8 @@ import {
   Layers,
   GitBranch,
   MousePointerClick,
+  Handshake,
+  HeartPulse,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
