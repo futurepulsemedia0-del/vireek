@@ -17,6 +17,7 @@ import {
   RotateCw,
   AlertCircle,
   ShieldAlert,
+  Eye,
 } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationsContext';
 import type { NotificationRow } from '@/contexts/NotificationsContext';
