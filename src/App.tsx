@@ -2,9 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { ProfitabilityPage } from '@/pages/ProfitabilityPage';
 import { StaffRoute } from '@/components/StaffRoute';
-import MarketingPage from './pages/MarketingPage';
 
 // Performance pass: only the landing page (the route almost every first-time
 // visitor lands on) ships eagerly in the main bundle. Every other route —
@@ -12,6 +10,7 @@ import MarketingPage from './pages/MarketingPage';
 // code-split behind React.lazy so the initial JS payload (and therefore LCP)
 // stays small regardless of how large the app grows. Named exports are kept
 // consistent across pages specifically so this mapping stays mechanical.
+const MarketingPage = lazy(() => import('@/pages/MarketingPage'));
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })));
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })));
@@ -304,7 +303,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/dashboard/profitability" element={<ProfitabilityPage />} />
         <Route
           path="/dashboard/analytics"
           element={
