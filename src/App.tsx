@@ -50,6 +50,7 @@ const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
+const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
@@ -704,6 +705,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PriceBookPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/inventory"
+          element={
+            <ProtectedRoute>
+              <InventoryPage />
             </ProtectedRoute>
           }
         />
