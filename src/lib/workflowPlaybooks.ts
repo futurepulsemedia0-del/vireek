@@ -371,7 +371,7 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
       },
     ],
   },
-]  {
+  {
     slug: 'membership-welcome',
     name: 'Membership Welcome',
     category: 'Membership Lifecycle',
