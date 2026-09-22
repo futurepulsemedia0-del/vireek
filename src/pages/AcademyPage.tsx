@@ -45,6 +45,13 @@ export function AcademyPage() {
   }, [user]);
 
   const progressPct = Math.round((completed.size / ALL_LESSON_IDS.length) * 100);
+  useEffect(() => {
+    if (progressPct === 100 && user) {
+      supabase.rpc('award_academy_badge_if_complete', { p_total_lessons: ALL_LESSON_IDS.length }).then(({ data: newlyAwarded }) => {
+        if (newlyAwarded) toast('🎓 You completed Vireek Academy! Your certificate is ready.', 'success');
+      });
+    }
+  }, [progressPct, user]);
   const allDone = completed.size === ALL_LESSON_IDS.length;
 
   const markComplete = async (lessonId: string) => {
