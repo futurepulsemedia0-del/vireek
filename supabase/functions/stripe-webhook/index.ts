@@ -39,6 +39,7 @@
 
 import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -221,29 +222,29 @@ Deno.serve(async (req: Request) => {
           break;
         }
 
-        const isFirstFailureInStreak = !profile.payment_failed_at;
-        const failedAt = isFirstFailureInStreak ? new Date() : new Date(profile.payment_failed_at as string);
-        const graceEndsAt = new Date(failedAt.getTime() + GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000);
-        const nextStage = (profile.dunning_stage ?? 0) + 1;
-
         const declineReason =
           (invoice.last_finalization_error?.message as string | undefined) ??
           // Some accounts surface the reason on the underlying charge instead.
           null;
 
+        const update = computeDunningUpdate(
+          { dunning_stage: profile.dunning_stage ?? 0, payment_failed_at: profile.payment_failed_at as string | null },
+          declineReason,
+        );
+
         await admin
           .from("profiles")
           .update({
-            subscription_status: "past_due",
-            dunning_stage: nextStage,
-            payment_failed_at: failedAt.toISOString(),
-            payment_grace_period_ends_at: graceEndsAt.toISOString(),
-            last_payment_error: declineReason,
+            subscription_status: update.subscription_status,
+            dunning_stage: update.dunning_stage,
+            payment_failed_at: update.payment_failed_at,
+            payment_grace_period_ends_at: update.payment_grace_period_ends_at,
+            last_payment_error: update.last_payment_error,
           })
           .eq("id", profile.id);
 
         const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
-        const daysLeft = Math.max(1, Math.ceil((graceEndsAt.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+        const daysLeft = update.daysLeft;
         const email = buildDunningEmail({
           toEmail: profile.email,
           greetingName: profile.full_name?.split(" ")[0] || "there",
@@ -264,17 +265,7 @@ Deno.serve(async (req: Request) => {
         // A successful payment fully clears any in-progress dunning streak,
         // regardless of what stage it was at. Also lifts a suspension that
         // enforce-payment-suspension may have already applied.
-        await admin
-          .from("profiles")
-          .update({
-            subscription_status: "active",
-            status: "active",
-            dunning_stage: 0,
-            payment_failed_at: null,
-            payment_grace_period_ends_at: null,
-            last_payment_error: null,
-          })
-          .eq("stripe_customer_id", customerId);
+        await admin.from("profiles").update(computeRecoveryUpdate()).eq("stripe_customer_id", customerId);
         break;
       }
 
