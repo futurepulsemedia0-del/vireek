@@ -575,6 +575,41 @@ export interface InsuranceClaim {
   created_at: string;
   updated_at: string;
 }
+export interface WarrantyClaim {
+  id: string;
+  user_id: string;
+  job_id: string | null;
+  equipment_id: string | null;
+  customer_name: string;
+  customer_phone: string | null;
+  property_address: string | null;
+  manufacturer: string | null;
+  distributor: string | null;
+  model_number: string | null;
+  serial_number: string | null;
+  part_description: string | null;
+  failure_description: string | null;
+  install_date: string | null;
+  failure_date: string | null;
+  warranty_expires_at: string | null;
+  claim_deadline: string | null;
+  status: 'eligible' | 'packet_pending' | 'submitted' | 'approved' | 'denied' | 'credit_received' | 'closed';
+  part_cost_cents: number | null;
+  labor_cost_cents: number | null;
+  claimed_amount_cents: number | null;
+  approved_amount_cents: number | null;
+  credit_received_cents: number | null;
+  credit_received_at: string | null;
+  credit_method: 'account_credit' | 'check' | 'ach' | 'other' | null;
+  rma_number: string | null;
+  claim_number: string | null;
+  submitted_at: string | null;
+  denial_reason: string | null;
+  packet_checklist: Record<string, boolean>;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
 export interface BusinessProfileHoliday {
   id: string;
   date: string;
