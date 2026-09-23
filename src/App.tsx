@@ -52,6 +52,7 @@ const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) =>
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
+const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
 const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m) => ({ default: m.CustomerSitesPage })));
@@ -622,6 +623,14 @@ function App() {
           element={
             <ProtectedRoute>
               <InsuranceClaimsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/warranty-claims"
+          element={
+            <ProtectedRoute>
+              <WarrantyClaimRecoveryPage />
             </ProtectedRoute>
           }
         />
