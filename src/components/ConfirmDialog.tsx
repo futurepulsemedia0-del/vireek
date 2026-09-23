@@ -1,3 +1,4 @@
+import { useFocusTrap, useEscapeToClose } from '@/lib/a11y/focusTrap';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { TriangleAlert as AlertTriangle, X } from 'lucide-react';
@@ -31,6 +32,8 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const [typed, setTyped] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const dialogRef = useFocusTrap(open);
+  useEscapeToClose(open, onCancel);
 
   const canConfirm = confirmPhrase ? typed.trim().toLowerCase() === confirmPhrase.toLowerCase() : true;
 
@@ -62,9 +65,12 @@ export function ConfirmDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            ref={dialogRef}
+            tabIndex={-1}
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="confirm-dialog-title"
+            aria-describedby="confirm-dialog-description"
             className="fixed left-1/2 top-1/2 z-[120] w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
           >
             <div className="flex items-start justify-between gap-3">
@@ -83,7 +89,9 @@ export function ConfirmDialog({
             <h2 id="confirm-dialog-title" className="mt-4 text-base font-semibold text-text-primary">
               {title}
             </h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">{description}</p>
+            <p id="confirm-dialog-description" className="mt-1.5 text-sm leading-relaxed text-text-secondary">
+              {description}
+            </p>
 
             {confirmPhrase && (
               <div className="mt-4">
