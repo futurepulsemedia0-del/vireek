@@ -64,6 +64,7 @@ const NetworkHandoffsPage = lazy(() => import('@/pages/NetworkHandoffsPage').the
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
 const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
+const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
@@ -723,6 +724,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EquipmentLifecyclePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/fleet-economics"
+          element={
+            <ProtectedRoute>
+              <FleetEconomicsPage />
             </ProtectedRoute>
           }
         />
