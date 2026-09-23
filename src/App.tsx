@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StaffRoute } from '@/components/StaffRoute';
+import { SkipToContent } from '@/components/a11y/SkipToContent';
+import { AriaLiveRegion } from '@/lib/a11y/announcer';
 
 // Performance pass: only the landing page (the route almost every first-time
 // visitor lands on) ships eagerly in the main bundle. Every other route —
@@ -93,6 +95,7 @@ const ResponsibleAiPage = lazy(() => import('@/pages/ResponsibleAiPage').then((m
 const TrademarkPolicyPage = lazy(() => import('@/pages/TrademarkPolicyPage').then((m) => ({ default: m.TrademarkPolicyPage })));
 const VulnerabilityDisclosurePage = lazy(() => import('@/pages/VulnerabilityDisclosurePage').then((m) => ({ default: m.VulnerabilityDisclosurePage })));
 const CcpaPage = lazy(() => import('@/pages/CcpaPage').then((m) => ({ default: m.CcpaPage })));
+const AccessibilityStatementPage = lazy(() => import('@/pages/AccessibilityStatementPage').then((m) => ({ default: m.AccessibilityStatementPage })));
 const GdprDpaPage = lazy(() => import('@/pages/GdprDpaPage').then((m) => ({ default: m.GdprDpaPage })));
 const FAQPage = lazy(() => import('@/pages/FAQPage').then((m) => ({ default: m.FAQPage })));
 const HelpCenterPage = lazy(() => import('@/pages/HelpCenterPage').then((m) => ({ default: m.HelpCenterPage })));
@@ -228,6 +231,7 @@ function App() {
         <Route path="/trademark-policy" element={<TrademarkPolicyPage />} />
         <Route path="/vulnerability-disclosure" element={<VulnerabilityDisclosurePage />} />
         <Route path="/ccpa" element={<CcpaPage />} />
+        <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
         <Route path="/gdpr-dpa" element={<GdprDpaPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
