@@ -145,6 +145,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
   { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
+  { label: 'Franchise Governance', href: '/dashboard/franchise/governance', icon: Gavel },
   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
