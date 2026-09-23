@@ -193,6 +193,7 @@ const FOOTER_COLUMNS = [
       { label: 'Vulnerability Disclosure', href: '/vulnerability-disclosure' },
       { label: 'Responsible AI', href: '/responsible-ai' },
       { label: 'CCPA Rights', href: '/ccpa' },
+      { label: 'Accessibility', href: '/accessibility-statement' },
       { label: 'Accessibility', href: '/accessibility' },
     ],
   },
