@@ -72,6 +72,7 @@ const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').t
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
+const FranchiseGovernancePage = lazy(() => import('@/pages/FranchiseGovernancePage').then((m) => ({ default: m.FranchiseGovernancePage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
@@ -793,6 +794,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EventBusPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/franchise/governance"
+          element={
+            <ProtectedRoute>
+              <FranchiseGovernancePage />
             </ProtectedRoute>
           }
         />
