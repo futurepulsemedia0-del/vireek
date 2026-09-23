@@ -2,6 +2,7 @@ import { uploadEstimatePhoto, getVisualEstimate, severityLabel, MAX_ESTIMATE_PHO
 import { useAuth } from '@/contexts/AuthContext';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { checkMarginGuardrail } from '@/lib/marginGuardrail';
 import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send,   Copy, Eye, Images, Sparkles, Camera, Loader2 } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -627,6 +628,34 @@ export function QuotesPage() {
     fetchAll();
   };
   const handleSendItemizedQuote = async (quote: Quote) => {
+    let guardrail;
+    try {
+      guardrail = await checkMarginGuardrail(quote.id);
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not check the margin guardrail.', 'error');
+      return;
+    }
+
+    if (!guardrail.can_send) {
+      const reason = window.prompt(
+        `This quote's margin is ${guardrail.margin_pct?.toFixed(1) ?? '—'}%, below your ${guardrail.margin_floor_pct}% floor. Enter a reason to send anyway, or cancel to hold it.`,
+      );
+      if (!reason || !reason.trim()) {
+        toast('Quote held — below your margin floor.', 'error');
+        return;
+      }
+      try {
+        guardrail = await checkMarginGuardrail(quote.id, { overrideReason: reason.trim() });
+      } catch (err) {
+        toast(err instanceof Error ? err.message : 'Could not override the margin guardrail.', 'error');
+        return;
+      }
+      if (!guardrail.can_send) {
+        toast('Quote held — below your margin floor.', 'error');
+        return;
+      }
+    }
+
     const { error } = await supabase
       .from('quotes')
       .update({ status: 'sent', sent_at: new Date().toISOString() })
@@ -637,7 +666,12 @@ export function QuotesPage() {
     }
     await navigator.clipboard.writeText(getQuoteLink(quote.quote_token));
     setItemizedQuotes((prev) => prev.map((q) => (q.id === quote.id ? { ...q, status: 'sent' as const } : q)));
-    toast('Quote marked sent — link copied to send to the customer', 'success');
+    toast(
+      guardrail.verdict === 'overridden'
+        ? 'Quote sent below floor — override logged. Link copied.'
+        : 'Quote marked sent — link copied to send to the customer',
+      'success',
+    );
   };
 
   const handleCopyQuoteLink = async (quote: Quote) => {
