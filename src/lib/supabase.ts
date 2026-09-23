@@ -703,6 +703,31 @@ export interface TeamMember {
   territory_id: string | null;
   created_at: string;
 }
+export interface TechnicianCredential {
+  id: string;
+  user_id: string;
+  technician_id: string;
+  credential_type: string;
+  credential_name: string | null;
+  issuing_authority: string | null;
+  credential_number: string | null;
+  issued_at: string | null;
+  expires_at: string | null;
+  status: 'active' | 'revoked' | 'pending_renewal';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ComplianceRequirement {
+  id: string;
+  user_id: string;
+  service_type: string;
+  credential_type: string;
+  credential_label: string | null;
+  is_blocking: boolean;
+  notes: string | null;
+  created_at: string;
+}
 
 export interface Territory {
   id: string;
