@@ -1,0 +1,44 @@
+name: AI Regression
+
+# جدا از CI اصلی نگه داشته شده چون تماس واقعی (و billed) با مدل‌ها می‌زنه
+# و به‌خاطر غیرقطعی‌بودن ذاتی LLM، نباید merge هر PR رو مسدود کنه.
+# شبانه اجرا می‌شه + همیشه از UI Actions قابل اجرای دستیه.
+on:
+  schedule:
+    - cron: '0 6 * * *' # هر روز ۶ صبح UTC
+  workflow_dispatch:
+    inputs:
+      suiteId:
+        description: 'ai_eval_suites.id مورد اجرا'
+        required: true
+
+jobs:
+  run-eval-suite:
+    name: Run AI eval suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger ai-eval-run
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/ai-eval-run" \
+            -H "Authorization: Bearer ${{ secrets.AI_REGRESSION_TEST_USER_JWT }}" \
+            -H "Content-Type: application/json" \
+            -d '{"suiteId":"${{ github.event.inputs.suiteId || secrets.AI_REGRESSION_DEFAULT_SUITE_ID }}"}')
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          STATUS=$(echo "$RESPONSE" | tail -n1)
+          echo "$BODY"
+          if [ "$STATUS" -ge 300 ]; then
+            echo "ai-eval-run returned HTTP $STATUS"
+            exit 1
+          fi
+          PASS_COUNT=$(echo "$BODY" | grep -o '"passCount":[0-9]*' | grep -o '[0-9]*')
+          CASE_COUNT=$(echo "$BODY" | grep -o '"caseCount":[0-9]*' | grep -o '[0-9]*')
+          HALLUCINATIONS=$(echo "$BODY" | grep -o '"hallucinationCount":[0-9]*' | grep -o '[0-9]*')
+          echo "Pass rate: $PASS_COUNT / $CASE_COUNT — hallucinations: $HALLUCINATIONS"
+          if [ "$HALLUCINATIONS" -gt 0 ]; then
+            echo "::warning::AI regression suite flagged $HALLUCINATIONS possible hallucination(s) — review ai_eval_results."
+          fi
+          if [ "$CASE_COUNT" -gt 0 ] && [ "$PASS_COUNT" -lt "$CASE_COUNT" ]; then
+            echo "::error::$((CASE_COUNT - PASS_COUNT)) of $CASE_COUNT eval cases failed."
+            exit 1
+          fi
