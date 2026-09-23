@@ -24,7 +24,7 @@
   --accent-secondary: 214 88 42;
   --success: 22 132 88;
   --danger: 200 48 48;
-  --warning: 180 106 20;
+  --warning: 160 94 18; /* AA fix: was 180 106 20 (4.10:1 on white) → now 5.01:1 */
 }
 
 .dark {
