@@ -199,16 +199,25 @@ export async function revokeScimToken(id: string): Promise<void> {
 // ============================================================
 
 const IDLE_KEY = 'vrk_last_activity';
+const SESSION_START_KEY = 'vrk_session_start';
 
-/** Call once near the top of any protected layout. Signs the user out when
- * they've been idle longer than the account's policy, or when their
- * session has exceeded the max-session-duration. Silently no-ops when no
- * policy row exists (default = unrestricted). */
 export function trackActivity(): void {
   localStorage.setItem(IDLE_KEY, String(Date.now()));
+  if (!localStorage.getItem(SESSION_START_KEY)) {
+    localStorage.setItem(SESSION_START_KEY, String(Date.now()));
+  }
 }
 
 export function getIdleMinutes(): number {
   const last = Number(localStorage.getItem(IDLE_KEY) ?? Date.now());
   return (Date.now() - last) / 60000;
+}
+
+export function getSessionAgeHours(): number {
+  const start = Number(localStorage.getItem(SESSION_START_KEY) ?? Date.now());
+  return (Date.now() - start) / 3600000;
+}
+
+export function clearSessionStart(): void {
+  localStorage.removeItem(SESSION_START_KEY);
 }
