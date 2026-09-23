@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings as SettingsIcon, ShieldCheck, ShieldAlert, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound, Building2 } from 'lucide-react';
+import { Settings as SettingsIcon, ShieldCheck, ShieldAlert, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound, Building2, DatabaseBackup } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -364,6 +364,26 @@ export function SettingsPage() {
               <p className="text-sm font-semibold text-text-primary">Enterprise Security</p>
               <p className="mt-0.5 text-xs text-text-secondary">
                 SSO/SAML, SCIM, custom roles, IP allowlist, session policy.
+              </p>
+            </div>
+          </div>
+          <ChevronRight size={18} className="text-text-secondary" />
+        </button>
+      )}
+      {isOwner && (
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard/settings/data-governance')}
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+              <DatabaseBackup size={20} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-text-primary">Disaster Recovery &amp; Data Governance</p>
+              <p className="mt-0.5 text-xs text-text-secondary">
+                Backups, restore drills, retention, deletion requests, consent, and PII controls.
               </p>
             </div>
           </div>
