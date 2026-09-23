@@ -59,5 +59,9 @@ Deno.serve(async (req: Request) => {
   const { data: rules } = await admin.from("ip_allow_rules").select("cidr").eq("user_id", ownerId);
   const allowed = (rules ?? []).some((r) => ipInCidr(callerIp, r.cidr));
 
+  if (!allowed) {
+    await admin.rpc("log_audit_event", { p_user_id: ownerId, p_action: "ip_policy_blocked", p_target_table: "ip_allow_rules", p_target_id: callerIp || "unknown" });
+  }
+
   return json({ ip: callerIp, allowed, enforced: true });
 });
