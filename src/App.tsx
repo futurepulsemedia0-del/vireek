@@ -163,6 +163,7 @@ const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const SecuritySettingsPage = lazy(() => import('@/pages/SecuritySettingsPage').then((m) => ({ default: m.SecuritySettingsPage })));
 const EnterpriseSecurityPage = lazy(() => import('@/pages/EnterpriseSecurityPage').then((m) => ({ default: m.EnterpriseSecurityPage })));
+const DataGovernancePage = lazy(() => import('@/pages/DataGovernancePage').then((m) => ({ default: m.DataGovernancePage })));
 const SsoLoginPage = lazy(() => import('@/pages/SsoLoginPage').then((m) => ({ default: m.SsoLoginPage })));
 const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) => ({ default: m.ReliabilityPage })));
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
@@ -384,6 +385,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EnterpriseSecurityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/data-governance"
+          element={
+            <ProtectedRoute>
+              <DataGovernancePage />
             </ProtectedRoute>
           }
         />
