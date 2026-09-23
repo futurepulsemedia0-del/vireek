@@ -164,6 +164,7 @@ const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ de
 const SecuritySettingsPage = lazy(() => import('@/pages/SecuritySettingsPage').then((m) => ({ default: m.SecuritySettingsPage })));
 const EnterpriseSecurityPage = lazy(() => import('@/pages/EnterpriseSecurityPage').then((m) => ({ default: m.EnterpriseSecurityPage })));
 const SsoLoginPage = lazy(() => import('@/pages/SsoLoginPage').then((m) => ({ default: m.SsoLoginPage })));
+const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) => ({ default: m.ReliabilityPage })));
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
@@ -392,6 +393,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ApiKeysPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/reliability"
+          element={
+            <ProtectedRoute>
+              <ReliabilityPage />
             </ProtectedRoute>
           }
         />
