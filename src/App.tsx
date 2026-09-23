@@ -65,6 +65,7 @@ const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
 const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
+const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
@@ -732,6 +733,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FleetEconomicsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/field-evidence"
+          element={
+            <ProtectedRoute>
+              <FieldEvidencePage />
             </ProtectedRoute>
           }
         />
