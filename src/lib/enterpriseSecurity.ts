@@ -1,5 +1,11 @@
 import { supabase } from '@/lib/supabase';
 import { UserPermissions } from '@/contexts/AuthContext';
+async function logSecurityAudit(action: string, targetTable: string, targetId: string): Promise<void> {
+  const { data } = await supabase.auth.getUser();
+  const uid = data.user?.id;
+  if (!uid) return;
+  await supabase.rpc('log_audit_event', { p_user_id: uid, p_action: action, p_target_table: targetTable, p_target_id: targetId });
+}
 
 // ============================================================
 // CUSTOM ROLES
@@ -34,16 +40,19 @@ export async function saveCustomRole(userId: string, name: string, permissions: 
   const query = existingId ? supabase.from('custom_roles').update(payload).eq('id', existingId) : supabase.from('custom_roles').insert(payload);
   const { error } = await query;
   if (error) throw error;
+  await logSecurityAudit(existingId ? 'custom_role_updated' : 'custom_role_created', 'custom_roles', existingId ?? name.trim());
 }
 
 export async function deleteCustomRole(id: string): Promise<void> {
   const { error } = await supabase.from('custom_roles').delete().eq('id', id);
   if (error) throw error;
+  await logSecurityAudit('custom_role_deleted', 'custom_roles', id);
 }
 
 export async function assignCustomRole(teamMemberId: string, customRoleId: string | null): Promise<void> {
   const { error } = await supabase.from('team_members').update({ custom_role_id: customRoleId }).eq('id', teamMemberId);
   if (error) throw error;
+  await logSecurityAudit(customRoleId ? 'custom_role_assigned' : 'custom_role_unassigned', 'team_members', teamMemberId);
 }
 
 // ============================================================
@@ -71,11 +80,13 @@ export async function addIpAllowRule(userId: string, cidr: string, label: string
   const normalized = trimmed.includes('/') ? trimmed : `${trimmed}/32`;
   const { error } = await supabase.from('ip_allow_rules').insert({ user_id: userId, cidr: normalized, label: label.trim() || null });
   if (error) throw error;
+  await logSecurityAudit('ip_rule_added', 'ip_allow_rules', normalized);
 }
 
 export async function deleteIpAllowRule(id: string): Promise<void> {
   const { error } = await supabase.from('ip_allow_rules').delete().eq('id', id);
   if (error) throw error;
+  await logSecurityAudit('ip_rule_deleted', 'ip_allow_rules', id);
 }
 
 // ============================================================
@@ -104,6 +115,7 @@ export async function saveSecurityPolicy(userId: string, patch: Partial<Omit<Sec
     .from('security_policies')
     .upsert({ user_id: userId, ...patch, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
   if (error) throw error;
+  await logSecurityAudit('security_policy_updated', 'security_policies', userId);
 }
 
 // ============================================================
@@ -172,12 +184,14 @@ export async function createScimToken(userId: string, name: string): Promise<str
   const hash = await sha256Hex(raw);
   const { error } = await supabase.from('scim_tokens').insert({ user_id: userId, name: name.trim() || 'SCIM token', token_hash: hash });
   if (error) throw error;
+  await logSecurityAudit('scim_token_created', 'scim_tokens', name.trim() || 'SCIM token');
   return raw;
 }
 
 export async function revokeScimToken(id: string): Promise<void> {
   const { error } = await supabase.from('scim_tokens').update({ revoked_at: new Date().toISOString() }).eq('id', id);
   if (error) throw error;
+  await logSecurityAudit('scim_token_revoked', 'scim_tokens', id);
 }
 
 // ============================================================
