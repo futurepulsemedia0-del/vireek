@@ -31,35 +31,24 @@
 //       );
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { runSuspensionSweep } from "../_shared/billing/suspensionSweep.ts";
 
 Deno.serve(async (_req: Request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
-  const nowIso = new Date().toISOString();
-
-  // Anyone still `past_due` whose grace period is in the past gets
-  // suspended. `status` is flipped alongside `subscription_status` so any
-  // access-gating code that already checks `profiles.status` (or gets
-  // added later) suspends these accounts too, with no extra wiring.
-  const { data: suspended, error } = await admin
-    .from("profiles")
-    .update({ subscription_status: "suspended", status: "suspended" })
-    .eq("subscription_status", "past_due")
-    .lt("payment_grace_period_ends_at", nowIso)
-    .select("id, email");
-
-  if (error) {
-    console.error("enforce-payment-suspension failed:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  try {
+    const result = await runSuspensionSweep(admin);
+    return new Response(
+      JSON.stringify({ suspended_count: result.suspendedCount, suspended_ids: result.suspendedIds }),
+      { headers: { "Content-Type": "application/json" } },
+    );
+  } catch (err) {
+    console.error("enforce-payment-suspension failed:", err);
+    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  return new Response(
-    JSON.stringify({ suspended_count: suspended?.length ?? 0, suspended_ids: (suspended ?? []).map((p) => p.id) }),
-    { headers: { "Content-Type": "application/json" } },
-  );
 });
