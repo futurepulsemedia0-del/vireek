@@ -136,6 +136,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Equipment Health', href: '/dashboard/equipment-health', icon: HeartPulse },
   { label: 'Fleet Economics', href: '/dashboard/fleet-economics', icon: Fuel },
   { label: 'Field Evidence', href: '/dashboard/field-evidence', icon: ScanEye },
+  { label: 'Margin Guardrails', href: '/dashboard/margin-guardrails', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
