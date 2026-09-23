@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import type { CaseStudy } from '@/components/sections/CaseStudies';
 import type { InsuranceClaim } from '@/lib/supabase';
+import type { WarrantyClaim } from '@/lib/supabase';
 import type { CommercialContract, ContractSlaBreach } from '@/lib/supabase';
 
 // ============================================================
@@ -373,6 +374,62 @@ export function downloadInsuranceClaimPdf(claim: InsuranceClaim): void {
 
   drawFooter(doc, `Claim status: ${claim.status.replace(/_/g, ' ')}. Generated for internal and adjuster reference.`);
   doc.save(`insurance-claim-${claim.customer_name.trim().replace(/\s+/g, '-').toLowerCase() || 'summary'}.pdf`);
+}
+// ============================================================
+// WARRANTY CLAIM PACKET PDF
+// ============================================================
+
+export function downloadWarrantyClaimPacketPdf(claim: WarrantyClaim): void {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  let y = drawHeader(doc, 'Manufacturer Warranty Claim Packet', claim.customer_name);
+
+  y = drawSectionLabel(doc, 'Failed unit', y);
+  y = drawParagraph(
+    doc,
+    `Manufacturer: ${claim.manufacturer || 'Not on file'}\n` +
+      `Model #: ${claim.model_number || 'Not on file'}\n` +
+      `Serial #: ${claim.serial_number || 'Not on file'}\n` +
+      `Part: ${claim.part_description || 'Not on file'}\n` +
+      `Property: ${claim.property_address || 'Not on file'}`,
+    y
+  );
+
+  y += 10;
+  y = drawSectionLabel(doc, 'Claim details', y);
+  y = drawParagraph(
+    doc,
+    `Distributor: ${claim.distributor || 'Not on file'}\n` +
+      `Manufacturer claim #: ${claim.claim_number || 'Not on file'}\n` +
+      `RMA #: ${claim.rma_number || 'Not on file'}\n` +
+      `Failure date: ${claim.failure_date || 'Not recorded'}\n` +
+      `Filing deadline: ${claim.claim_deadline || 'Not set'}`,
+    y
+  );
+
+  y += 10;
+  y = drawSectionLabel(doc, 'Financials', y);
+  y = drawParagraph(
+    doc,
+    `Part cost: ${claim.part_cost_cents != null ? currency(claim.part_cost_cents / 100) : 'Not on file'}\n` +
+      `Labor cost: ${claim.labor_cost_cents != null ? currency(claim.labor_cost_cents / 100) : 'Not on file'}\n` +
+      `Claimed amount: ${claim.claimed_amount_cents != null ? currency(claim.claimed_amount_cents / 100) : 'Not on file'}\n` +
+      `Approved amount: ${claim.approved_amount_cents != null ? currency(claim.approved_amount_cents / 100) : 'Not yet approved'}\n` +
+      `Credit received: ${claim.credit_received_cents != null ? currency(claim.credit_received_cents / 100) : 'Not yet received'}`,
+    y
+  );
+
+  y += 10;
+  y = drawSectionLabel(doc, 'Failure description', y);
+  y = drawParagraph(doc, claim.failure_description || 'Not recorded', y);
+
+  if (claim.notes) {
+    y += 10;
+    y = drawSectionLabel(doc, 'Notes', y);
+    drawParagraph(doc, claim.notes, y, { color: MUTED });
+  }
+
+  drawFooter(doc, `Claim status: ${claim.status.replace(/_/g, ' ')}. Generated as the internal claim packet reference.`);
+  doc.save(`warranty-claim-${claim.customer_name.trim().replace(/\s+/g, '-').toLowerCase() || 'summary'}.pdf`);
 }
 export function downloadContractPdf(contract: CommercialContract, breaches: ContractSlaBreach[] = []): void {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
