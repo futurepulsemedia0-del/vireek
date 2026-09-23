@@ -66,6 +66,7 @@ const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').the
 const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
+const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
@@ -741,6 +742,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FieldEvidencePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/margin-guardrails"
+          element={
+            <ProtectedRoute>
+              <MarginGuardrailsPage />
             </ProtectedRoute>
           }
         />
