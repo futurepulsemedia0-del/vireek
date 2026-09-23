@@ -21,6 +21,16 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isAutomationEnabled } from "../_shared/automation/gate.ts";
+import { sendSms } from "../_shared/notify/deliver.ts";
+
+const EMERGENCY_TIER_EVENTS = new Set([
+  "Tornado Warning",
+  "Hurricane Warning",
+  "Flash Flood Warning",
+  "Ice Storm Warning",
+  "Extreme Cold Warning",
+  "Excessive Heat Warning",
+]);
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Cron-Secret" };
 const USER_AGENT = "Vireek Dashboard (weather-surge-check, support@vireek.com)";
@@ -164,6 +174,34 @@ async function checkOneBusiness(
         console.error(JSON.stringify({ event: "activate_weather_surge_failed", user_id: business.user_id, error: activateError.message }));
       } else {
         triggered += 1;
+
+        if (EMERGENCY_TIER_EVENTS.has(alert.event)) {
+          const { data: emergencyActivated } = await admin.rpc("activate_emergency_mode", {
+            p_user_id: business.user_id,
+            p_source: "weather",
+            p_headline: alert.headline ?? alert.event,
+          });
+          if (emergencyActivated) {
+            await admin.rpc("rebuild_emergency_triage_queue", { p_user_id: business.user_id });
+            const { data: schedule } = await admin
+              .from("on_call_schedules")
+              .select("id")
+              .eq("user_id", business.user_id)
+              .eq("is_active", true)
+              .order("created_at", { ascending: true })
+              .limit(1)
+              .maybeSingle();
+            if (schedule?.id) {
+              const { data: memberId } = await admin.rpc("get_current_on_call", { p_schedule_id: schedule.id });
+              if (memberId) {
+                const { data: member } = await admin.from("team_members").select("member_phone").eq("id", memberId).maybeSingle();
+                if (member?.member_phone) {
+                  await sendSms(member.member_phone, `Vireek: Emergency Operations Mode auto-activated (${alert.event}). Check the triage queue in your dashboard.`);
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
