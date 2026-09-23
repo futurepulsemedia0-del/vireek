@@ -34,6 +34,7 @@ const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default:
 const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const CustomerIntelligencePage = lazy(() => import('@/pages/CustomerIntelligencePage').then((m) => ({ default: m.CustomerIntelligencePage })));
 const PlaybooksPage = lazy(() => import('@/pages/PlaybooksPage').then((m) => ({ default: m.PlaybooksPage })));
+const AgentGovernancePage = lazy(() => import('@/pages/AgentGovernancePage').then((m) => ({ default: m.AgentGovernancePage })));
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
@@ -620,6 +621,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PlaybooksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/agent-governance"
+          element={
+            <ProtectedRoute>
+              <AgentGovernancePage />
             </ProtectedRoute>
           }
         />
