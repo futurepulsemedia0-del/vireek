@@ -13,24 +13,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-// Tables that store account-scoped data with a `user_id` column but NO
-// foreign key / ON DELETE CASCADE back to auth.users (verified against
-// supabase/migrations/20260821101135_create_data_tables.sql and the
-// review_requests migration). Only `profiles` and `team_members` cascade
-// automatically. Every table below must be wiped explicitly, or deleting
-// the auth user leaves orphaned call transcripts, recordings links, and
-// leads behind forever — which defeats the point of a GDPR deletion
-// request. If you add a new account-scoped table later, add it here too.
-const OWNED_TABLES = [
-  "jobs",
-  "leads",
-  "calls",
-  "ai_insights",
-  "review_requests",
-  "integrations",
-  "business_profile",
-] as const;
-
+import { OWNED_TABLE_NAMES } from "../_shared/compliance/ownedTables.ts";
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -77,11 +60,19 @@ Deno.serve(async (req: Request) => {
     .maybeSingle();
 
   if (profileRow) {
+    const { data: onHold } = await admin.rpc("has_active_legal_hold", { p_user_id: userId, p_dataset: null });
+    if (onHold) {
+      return json(
+        { error: "This account has an active legal hold and cannot be deleted. Remove the hold in Data Governance settings first." },
+        409
+      );
+    }
+
     // Account owner: wipe every table that stores this account's data
     // before removing the auth user. `team_members` and `profiles`
     // themselves cascade automatically once the auth user is deleted
     // (see 20260821101104_create_profiles_and_team_members.sql).
-    for (const table of OWNED_TABLES) {
+    for (const table of OWNED_TABLE_NAMES) {
       const { error } = await admin.from(table).delete().eq("user_id", userId);
       if (error) {
         return json({ error: `Failed to delete ${table}: ${error.message}` }, 500);
