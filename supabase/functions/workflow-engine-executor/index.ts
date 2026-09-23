@@ -26,6 +26,7 @@
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
 
 const BATCH_SIZE = 25;
 const VAPI_CALL_URL = "https://api.vapi.ai/call";
@@ -136,12 +137,26 @@ async function runSmsStep(admin: SupabaseClient, run: Run, config: Record<string
 
   if (run.mode === "test") return { ok: true, result: { simulated: true, body } };
 
+  const auth = await authorizeAgentAction(admin, {
+    userId: run.user_id,
+    actionSlug: "workflow_sms",
+    agentSource: "workflow-engine-executor",
+    targetTable: "workflow_runs",
+    targetId: run.id,
+    reasoning: `Send SMS step to ${run.customer_phone}: "${body.slice(0, 120)}"`,
+  });
+  if (auth.decision === "pending_approval") return { ok: false, terminal: false, error: "Awaiting human approval in Agent Governance." };
+  if (auth.decision === "rejected") return { ok: false, terminal: true, error: "Blocked by Agent Governance policy." };
+
   const result = await sendCompliantSms(admin, run.user_id, run.customer_phone, body);
+  await recordAgentActionOutcome(admin, auth.logId, {
+    status: result.ok ? "executed" : "failed",
+    error: result.ok ? undefined : `${result.reason}${result.detail ? `: ${result.detail}` : ""}`,
+  });
   if (result.ok) return { ok: true, result: { sid: result.sid, body } };
   const terminal = result.reason === "OPTED_OUT";
   return { ok: false, terminal, error: `${result.reason}${result.detail ? `: ${result.detail}` : ""}` };
 }
-
 async function runCallStep(admin: SupabaseClient, run: Run, config: Record<string, unknown>, vapiKey: string | undefined) {
   if (!run.customer_phone) return { ok: false, terminal: true, error: "No customer phone on file." };
   if (run.mode === "test") return { ok: true, result: { simulated: true } };
