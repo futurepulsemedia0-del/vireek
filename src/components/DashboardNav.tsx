@@ -24,6 +24,7 @@ import {
   GraduationCap,
   Gauge,
   ShieldCheck,
+  Bot,
   CreditCard,
   Plug,
   ChevronDown,
@@ -162,6 +163,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
   { label: 'Vendor & Procurement', href: '/dashboard/procurement', icon: Truck, requiresPermission: 'can_view_billing' },
 ];
 
