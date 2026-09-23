@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { trackActivity, getIdleMinutes } from '@/lib/enterpriseSecurity';
+import { trackActivity, getIdleMinutes, getSessionAgeHours, clearSessionStart } from '@/lib/enterpriseSecurity';
 
 /** Enforces the account's session policy (idle timeout / max session
  * length) and, when enabled, the IP allowlist — checked once per mount
@@ -26,11 +26,18 @@ function useSessionPolicyEnforcement(enabled: boolean) {
         if (!policy) return;
 
         if (policy.session_idle_minutes > 0 && getIdleMinutes() > policy.session_idle_minutes) {
+          clearSessionStart();
           await supabase.auth.signOut();
-          window.location.href = '/login';
+          window.location.href = '/login?reason=idle_timeout';
           return;
         }
 
+        if (policy.session_max_hours > 0 && getSessionAgeHours() > policy.session_max_hours) {
+          clearSessionStart();
+          await supabase.auth.signOut();
+          window.location.href = '/login?reason=session_expired';
+          return;
+        }
         if (policy.ip_restriction_enabled) {
           const { data, error } = await supabase.functions.invoke('check-ip-policy', {
             headers: { Authorization: `Bearer ${accessToken}` },
