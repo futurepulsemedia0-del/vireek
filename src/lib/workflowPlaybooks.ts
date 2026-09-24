@@ -15,6 +15,7 @@ import {
   ShieldOff,
   HeartHandshake,
   UserPlus,
+  HeartHandshake,
 } from 'lucide-react';
 import type { WorkflowStepDefinition, WorkflowTriggerEvent } from '@/lib/workflowEngine';
 
@@ -49,6 +50,34 @@ export interface WorkflowPlaybook {
 }
 
 export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
+  {
+    slug: 'service-recovery-auto-response',
+    name: 'Service Recovery Auto-Response',
+    category: 'Retention',
+    icon: HeartHandshake,
+    tagline: 'Apologize before the negative review goes public.',
+    description:
+      'The moment a service recovery signal is detected — a missed ETA, a broken promise, a negative-sentiment call, or a low private review — the customer automatically gets the drafted apology/update text. Anything flagged for a personal phone call is skipped here and left for staff in the Service Recovery dashboard.',
+    industry: 'general',
+    trigger_event: 'service_recovery.signal_detected',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'condition_gate',
+        delay_minutes: 0,
+        on_failure: 'stop',
+        config: { check: 'recommended_channel_not_call' },
+      },
+      {
+        step_number: 2,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: '{{recommended_message}}' },
+      },
+    ],
+  },
   {
     slug: 'speed-to-lead-60s',
     name: 'Speed-to-Lead (60 Seconds)',
