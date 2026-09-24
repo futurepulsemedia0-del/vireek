@@ -82,6 +82,7 @@ import {
   ShieldCheck,
   Target,
   Stethoscope,
+  Radar,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -186,6 +187,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Counterfactual Library', href: '/dashboard/counterfactuals', icon: GitBranch },
   { label: 'Commitment Graph', href: '/dashboard/commitments', icon: ShieldCheck },
   { label: 'Business Constitution', href: '/dashboard/constitution', icon: Scale },
+  { label: 'Value at Risk', href: '/dashboard/value-at-risk', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
   { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
   { label: 'Vendor & Procurement', href: '/dashboard/procurement', icon: Truck, requiresPermission: 'can_view_billing' },
