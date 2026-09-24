@@ -24,6 +24,7 @@ export type WorkflowTriggerEvent =
   | 'job.completed_not_invoiced' | 'invoice.payment_overdue'
   | 'membership.sold' | 'membership.visit_due' | 'membership.renewal_upcoming'
   | 'membership.payment_failed' | 'membership.churn_risk' | 'membership.churned'
+  | 'service_recovery.signal_detected';
   | 'job.parts_unbilled' | 'invoice.payment_failed';
 
 export type WorkflowStatus = 'draft' | 'active' | 'paused' | 'archived';
@@ -113,8 +114,8 @@ export const TRIGGER_EVENT_LABELS: Record<WorkflowTriggerEvent, string> = {
   'quote.declined': 'Quote declined',
   'payment.received': 'Payment received',
   'review.completed': 'Review submitted',
+  'service_recovery.signal_detected': 'Service recovery signal detected',
 };
-
 export const STATUS_LABELS: Record<RunStatus, string> = {
   active: 'Running',
   waiting_approval: 'Needs approval',
