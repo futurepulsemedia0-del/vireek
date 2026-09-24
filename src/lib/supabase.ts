@@ -308,6 +308,10 @@ export interface Job {
   is_rework: boolean;
   rework_of_job_id: string | null;
   completed_at: string | null;
+  completion_notes: string | null;
+  customer_signature_data_url: string | null;
+  customer_signature_name: string | null;
+  customer_signature_at: string | null;
   latitude: number | null;
   longitude: number | null;
   geocoded_at: string | null;
