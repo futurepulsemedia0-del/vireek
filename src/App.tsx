@@ -58,6 +58,7 @@ const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ 
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
 const ComplianceCenterPage = lazy(() => import('@/pages/ComplianceCenterPage').then((m) => ({ default: m.ComplianceCenterPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
+const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
 const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m) => ({ default: m.CustomerSitesPage })));
@@ -732,6 +733,14 @@ function App() {
           element={
             <ProtectedRoute>
               <WarrantyClaimRecoveryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/service-recovery"
+          element={
+            <ProtectedRoute>
+              <ServiceRecoveryPage />
             </ProtectedRoute>
           }
         />
