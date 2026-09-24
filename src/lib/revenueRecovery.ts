@@ -28,7 +28,9 @@ export type RecoverySourceType =
   | 'job_completed_unbilled'
   | 'invoice_overdue'
   | 'membership_cancelled'
-  | 'membership_churned';
+  | 'membership_churned'
+  | 'job_parts_unbilled'
+  | 'payment_failed';
 export type RecoveryStatus = 'open' | 'contacted' | 'recovered' | 'written_off';
 
 export type RecoveryMethod = 'callback' | 'sms' | 'quote_resent' | 'rebooked' | 'manual' | 'other';
@@ -78,6 +80,8 @@ export const SOURCE_TYPE_LABELS: Record<RecoverySourceType, string> = {
   invoice_overdue: 'Invoice overdue',
   membership_cancelled: 'Membership cancelled',
   membership_churned: 'Membership churned',
+  job_parts_unbilled: 'Parts installed, not fully billed',
+  payment_failed: 'Payment failed',
 };
 
 export const SOURCE_TYPE_COLORS: Record<RecoverySourceType, string> = {
@@ -93,6 +97,8 @@ export const SOURCE_TYPE_COLORS: Record<RecoverySourceType, string> = {
   invoice_overdue: 'bg-danger/10 text-danger',
   membership_cancelled: 'bg-bg-tertiary text-text-secondary',
   membership_churned: 'bg-danger/10 text-danger',
+  job_parts_unbilled: 'bg-warning-500/10 text-warning-500',
+  payment_failed: 'bg-danger/10 text-danger',
 };
 
 export const STATUS_LABELS: Record<RecoveryStatus, string> = {
