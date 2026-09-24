@@ -80,6 +80,7 @@ const FranchiseGovernancePage = lazy(() => import('@/pages/FranchiseGovernancePa
 const BusinessContradictionsPage = lazy(() => import('@/pages/BusinessContradictionsPage').then((m) => ({ default: m.BusinessContradictionsPage })));
 const CounterfactualLibraryPage = lazy(() => import('@/pages/CounterfactualLibraryPage').then((m) => ({ default: m.CounterfactualLibraryPage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
+const BusinessConstitutionPage = lazy(() => import('@/pages/BusinessConstitutionPage').then((m) => ({ default: m.BusinessConstitutionPage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
@@ -521,6 +522,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CommitmentGraphPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/constitution"
+          element={
+            <ProtectedRoute>
+              <BusinessConstitutionPage />
             </ProtectedRoute>
           }
         />
