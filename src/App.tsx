@@ -58,6 +58,7 @@ const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
 const ComplianceCenterPage = lazy(() => import('@/pages/ComplianceCenterPage').then((m) => ({ default: m.ComplianceCenterPage })));
+const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
@@ -763,6 +764,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ComplianceCenterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/job-quality-gate"
+          element={
+            <ProtectedRoute>
+              <JobQualityGateSettingsPage />
             </ProtectedRoute>
           }
         />
