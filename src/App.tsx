@@ -46,6 +46,7 @@ const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ 
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
+const BusinessRealityPage = lazy(() => import('@/pages/BusinessRealityPage').then((m) => ({ default: m.BusinessRealityPage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
 const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
@@ -452,6 +453,14 @@ function App() {
           element={
             <ProtectedRoute>
               <RegretConsolePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/reality"
+          element={
+            <ProtectedRoute>
+              <BusinessRealityPage />
             </ProtectedRoute>
           }
         />
