@@ -78,6 +78,7 @@ import {
   MousePointerClick,
   Handshake,
   HeartPulse,
+  Stethoscope,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -154,6 +155,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Equipment Health', href: '/dashboard/equipment-health', icon: HeartPulse },
   { label: 'Fleet Economics', href: '/dashboard/fleet-economics', icon: Fuel },
   { label: 'Field Evidence', href: '/dashboard/field-evidence', icon: ScanEye },
+  { label: 'Diagnosis Copilot', href: '/dashboard/diagnosis-copilot', icon: Stethoscope },
   { label: 'Margin Guardrails', href: '/dashboard/margin-guardrails', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
