@@ -45,6 +45,7 @@ const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m
 const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ default: m.WorkflowsPage })));
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
+const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
 const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
@@ -443,6 +444,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BusinessDecisionEnginePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/regret-console"
+          element={
+            <ProtectedRoute>
+              <RegretConsolePage />
             </ProtectedRoute>
           }
         />
