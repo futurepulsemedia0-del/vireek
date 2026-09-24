@@ -50,8 +50,8 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   dispatch_copilot: JSON_CHAIN,
   onboarding_extract: JSON_CHAIN,
   onboarding_concierge: DEFAULT_CHAIN,
+  next_best_action_engine: JSON_CHAIN,
 };
-
 export function getRouteForTask(task: TaskType): RouteEntry[] {
   return [...(TASK_ROUTES[task] ?? DEFAULT_CHAIN)].sort((a, b) => a.priority - b.priority);
 }
