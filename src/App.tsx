@@ -78,6 +78,7 @@ const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketpla
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
 const FranchiseGovernancePage = lazy(() => import('@/pages/FranchiseGovernancePage').then((m) => ({ default: m.FranchiseGovernancePage })));
 const BusinessContradictionsPage = lazy(() => import('@/pages/BusinessContradictionsPage').then((m) => ({ default: m.BusinessContradictionsPage })));
+const CounterfactualLibraryPage = lazy(() => import('@/pages/CounterfactualLibraryPage').then((m) => ({ default: m.CounterfactualLibraryPage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
@@ -503,6 +504,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BusinessContradictionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/counterfactuals"
+          element={
+            <ProtectedRoute>
+              <CounterfactualLibraryPage />
             </ProtectedRoute>
           }
         />
