@@ -32,6 +32,8 @@ import { PriceBookItem } from '@/lib/priceBook';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
+import { JobQualityGatePanel } from '@/components/jobs/JobQualityGatePanel';
+import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
 
 // ============================================================
 // TYPES & CONSTANTS
@@ -511,7 +513,7 @@ function JobDetailPanel({
             </div>
           )}
         </div>
-
+        <JobQualityGatePanel job={job} />
         <Link
           to={`/dashboard/profitability?job=${job.id}`}
           className="focus-ring flex items-center justify-between gap-2 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 hover:text-accent"
@@ -1028,8 +1030,13 @@ export function JobsPage() {
         setSelectedJob((prev) => (prev ? { ...prev, job_status: status } : null));
       }
       toast(`Job moved to ${ALL_STATUSES.find((s) => s.key === status)?.label}.`, 'success');
-    } catch {
-      toast('Could not update job status.', 'error');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      if (isQualityGateError(message)) {
+        toast(`Can't close this job yet — missing: ${parseQualityGateError(message).join(', ')}.`, 'error');
+      } else {
+        toast('Could not update job status.', 'error');
+      }
     }
   };
 
@@ -1073,8 +1080,13 @@ export function JobsPage() {
         prev ? { ...prev, invoice_amount: amount, invoice_status: status } : null
       );
       toast('Invoice updated.', 'success');
-    } catch {
-      toast('Could not update invoice.', 'error');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      if (isQualityGateError(message)) {
+        toast(`Can't send this invoice yet — missing: ${parseQualityGateError(message).join(', ')}.`, 'error');
+      } else {
+        toast('Could not update invoice.', 'error');
+      }
     }
   };
 
