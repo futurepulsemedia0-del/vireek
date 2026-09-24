@@ -25,6 +25,7 @@ export type TaskType =
   | "dispatch_copilot"
   | "promise_extraction"
   | "capacity_demand_narrative"
+  | "callback_root_cause";
   | "trust_bank_intervention";
   | "next_best_action_engine";
 
