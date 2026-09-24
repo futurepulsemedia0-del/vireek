@@ -33,6 +33,7 @@ const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => (
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
 const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const CustomerIntelligencePage = lazy(() => import('@/pages/CustomerIntelligencePage').then((m) => ({ default: m.CustomerIntelligencePage })));
+const TradePlaybooksPage = lazy(() => import('@/pages/TradePlaybooksPage').then((m) => ({ default: m.TradePlaybooksPage })));
 const PlaybooksPage = lazy(() => import('@/pages/PlaybooksPage').then((m) => ({ default: m.PlaybooksPage })));
 const AgentGovernancePage = lazy(() => import('@/pages/AgentGovernancePage').then((m) => ({ default: m.AgentGovernancePage })));
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
@@ -714,6 +715,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PlaybooksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/trade-playbooks"
+          element={
+            <ProtectedRoute>
+              <TradePlaybooksPage />
             </ProtectedRoute>
           }
         />
