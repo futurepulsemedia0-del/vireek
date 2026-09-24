@@ -15,7 +15,7 @@ import { supabase } from '@/lib/supabase';
 
 export type KnowledgeAudience = 'all' | 'ai' | 'customer' | 'team';
 export type KnowledgeStatus = 'draft' | 'published' | 'archived';
-export type KnowledgeSource = 'manual' | 'faq_import' | 'gap' | 'price_book';
+export type KnowledgeSource = 'manual' | 'faq_import' | 'gap' | 'price_book' | 'voice_note' | 'manual_upload';
 export type GapStatus = 'open' | 'answered' | 'dismissed';
 
 export interface KnowledgeArticle {
@@ -36,6 +36,7 @@ export interface KnowledgeArticle {
   version: number;
   usage_count: number;
   last_used_at: string | null;
+  contributed_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -110,6 +111,8 @@ export const SOURCE_LABELS: Record<KnowledgeSource, string> = {
   faq_import: 'Imported from FAQs',
   gap: 'Answered a gap',
   price_book: 'From price book',
+  voice_note: 'Captured from a voice note',
+  manual_upload: 'Pulled from an uploaded manual',
 };
 
 // ============================================================
@@ -380,4 +383,81 @@ export function relativeTime(iso: string | null): string {
   if (minutes < 60) return `${minutes}m ago`;
   if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`;
   return `${Math.floor(minutes / 1440)}d ago`;
+}
+
+// ============================================================
+// COMPANY BRAIN — TRIBAL KNOWLEDGE CAPTURE
+// ============================================================
+
+export interface KnowledgeManualUpload {
+  id: string;
+  file_name: string;
+  storage_path: string;
+  status: 'processing' | 'done' | 'failed';
+  articles_created: number;
+  error_message: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+const TRIBAL_MEDIA_BUCKET = 'tribal-knowledge-media';
+
+/** Uploads a technician's voice note to their own folder in the private tribal-knowledge-media bucket. */
+export async function uploadTribalVoiceNote(userId: string, file: File): Promise<string> {
+  const ext = file.name.split('.').pop() || 'wav';
+  const path = `${userId}/voice-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from(TRIBAL_MEDIA_BUCKET).upload(path, file, { upsert: false });
+  if (error) throw error;
+  return path;
+}
+
+/** Uploads a manual/spec-sheet PDF to the same private bucket. */
+export async function uploadTribalManualPdf(userId: string, file: File): Promise<string> {
+  const path = `${userId}/manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.pdf`;
+  const { error } = await supabase.storage.from(TRIBAL_MEDIA_BUCKET).upload(path, file, { upsert: false });
+  if (error) throw error;
+  return path;
+}
+
+export interface VoiceCaptureResult {
+  useful: boolean;
+  message?: string;
+  article?: KnowledgeArticle;
+  error?: string;
+}
+
+/** Sends an uploaded voice note (+ optional notes) to be drafted into a team-only KB article. */
+export async function captureVoiceNote(audioPath: string | null, notes: string): Promise<VoiceCaptureResult> {
+  const { data, error } = await supabase.functions.invoke('tribal-knowledge-voice-capture', {
+    body: { audioPath, notes },
+  });
+  if (error) throw error;
+  if (data?.error) return { useful: false, error: data.error as string };
+  return data as VoiceCaptureResult;
+}
+
+export interface ManualIngestResult {
+  articlesCreated: number;
+  message?: string;
+  error?: string;
+}
+
+/** Sends an uploaded manual PDF to be split into one or more draft KB articles. */
+export async function ingestManual(pdfPath: string, fileName: string): Promise<ManualIngestResult> {
+  const { data, error } = await supabase.functions.invoke('tribal-knowledge-manual-ingest', {
+    body: { pdfPath, fileName },
+  });
+  if (error) throw error;
+  if (data?.error) return { articlesCreated: 0, error: data.error as string };
+  return data as ManualIngestResult;
+}
+
+export async function fetchManualUploads(): Promise<KnowledgeManualUpload[]> {
+  const { data, error } = await supabase
+    .from('knowledge_manual_uploads')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(20);
+  if (error) return [];
+  return (data as KnowledgeManualUpload[]) ?? [];
 }
