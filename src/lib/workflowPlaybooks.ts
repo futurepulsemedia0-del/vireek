@@ -371,6 +371,62 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
       },
     ],
   },
+  {
+    slug: 'estimate-parts-unbilled-recovery',
+    name: 'Estimate Recovery — Parts Billing Gap',
+    category: 'Estimate-to-Cash Recovery',
+    icon: Wrench,
+    tagline: 'Parts went out on the truck; make sure their value made it onto the invoice.',
+    description:
+      'Flags a completed, already-invoiced job where the parts actually installed are worth more than what got billed — a quiet markup you never captured.',
+    industry: 'general',
+    trigger_event: 'job.parts_unbilled',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'human_approval',
+        delay_minutes: 0,
+        on_failure: 'stop',
+        config: { reason: 'This job\u2019s invoice looks light for the parts installed \u2014 send a supplemental invoice?' },
+      },
+    ],
+  },
+  {
+    slug: 'estimate-payment-failed-recovery',
+    name: 'Estimate Recovery — Payment Failed',
+    category: 'Estimate-to-Cash Recovery',
+    icon: CreditCard,
+    tagline: 'A declined card is a same-day fix if you catch it fast.',
+    description:
+      'The moment a charge attempt comes back failed, the customer gets a quick nudge to retry or update their payment method \u2014 before it goes cold.',
+    industry: 'general',
+    trigger_event: 'invoice.payment_failed',
+    trigger_conditions: {},
+    steps: [
+      {
+        step_number: 1,
+        type: 'sms',
+        delay_minutes: 0,
+        on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, your recent payment to {{business_name}} didn't go through. Reply here or call us and we'll get it sorted \u2014 happens to the best cards." },
+      },
+      {
+        step_number: 2,
+        type: 'wait',
+        delay_minutes: 1440,
+        on_failure: 'continue',
+        config: {},
+      },
+      {
+        step_number: 3,
+        type: 'human_approval',
+        delay_minutes: 0,
+        on_failure: 'stop',
+        config: { reason: 'Payment still hasn\u2019t gone through a day later \u2014 follow up personally?' },
+      },
+    ],
+  },
 
   {
     slug: 'membership-welcome',
