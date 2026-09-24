@@ -18,6 +18,7 @@ import { LeadSourceBreakdown } from '@/components/LeadSourceBreakdown';
 import { CohortLtvSection } from '@/components/CohortLtvSection';
 import { ReworkIntelligence } from '@/components/ReworkIntelligence';
 import { WarrantyIntelligence } from '@/components/WarrantyIntelligence';
+import { ServiceRecoveryIntelligence } from '@/components/ServiceRecoveryIntelligence';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { Lock } from 'lucide-react';
 
@@ -1151,6 +1152,10 @@ export function AnalyticsPage() {
         {/* Warranty Intelligence */}
         <div className="mt-6">
           <WarrantyIntelligence />
+        </div>
+        {/* Service Recovery Intelligence */}
+        <div className="mt-6">
+          <ServiceRecoveryIntelligence />
         </div>
 
         {/* Lead Funnel + Revenue */}
