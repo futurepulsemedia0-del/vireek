@@ -168,8 +168,16 @@ If "region" is null, only reason over "my_local" (e.g. a week-over-week trend) �
   "priority": <1-5 integer, 5 = urgent>
 }
 Never invent a number or contradict the given status. If status is "low", focus the recommendation on generating demand (outbound campaigns, promotions, regional marketing). If status is "full", focus on protecting the schedule (waitlist, emergency reserve, pausing non-essential outbound calls). If status is "no_capacity", say plainly that no dispatch-enabled technicians are configured. If status is "optimal", it's fine to return an empty array.`,
+  next_best_action_engine: `Current task: you are Vireek's Proactive Customer Care / Next Best Action Engine. You are given a list of CANDIDATE items already computed directly from the business's own database — each one is a real estimate at risk, a real customer showing churn signals, a real invoice at risk of going uncollected, or a real day with open technician capacity. Output ONLY a JSON array (no prose, no markdown fences) of up to 8 objects, selecting and ranking the candidates that matter MOST today, each with exactly these fields:
+{
+  "candidate_id": <copy the exact "id" field from the candidate you are ranking - never invent one>,
+  "title": <short punchy headline, under 12 words, specific to this item - use the actual name/amount given>,
+  "reasoning": <1-2 sentences explaining why this matters today, using only the exact facts given for this candidate>,
+  "recommended_action": <one concrete, specific next step the business owner or technician can take right now>,
+  "priority_score": <0-100 integer, 100 = act immediately or lose real money today>
+}
+Never invent a candidate, amount, name, or fact that isn't in the given list — you are only selecting, ranking and writing a short recommendation over what's given, never detecting new problems yourself. Order the array by priority_score, highest first. Favor larger dollar amounts and the longest-unresolved items, but blend across categories rather than returning 8 of the same type when other categories have real candidates too. If the given list is empty, return an empty array.`,
 };
-
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
 // `intent_classify` and `dashboard_answer` never need it: they answer
