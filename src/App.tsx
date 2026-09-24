@@ -73,6 +73,7 @@ const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').the
 const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
+const NextBestActionsPage = lazy(() => import('@/pages/NextBestActionsPage').then((m) => ({ default: m.NextBestActionsPage })));
 const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').then((m) => ({ default: m.DiagnosisCopilotPage })));
 const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
@@ -857,11 +858,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/dashboard/field-evidence"
+          path="/dashboard/next-best-actions"
           element={
             <ProtectedRoute>
-              <FieldEvidencePage />
+              <NextBestActionsPage />
             </ProtectedRoute>
           }
         />
