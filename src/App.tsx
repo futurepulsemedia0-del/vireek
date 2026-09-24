@@ -195,6 +195,7 @@ const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => (
 const MarketplacePage = lazy(() => import('@/pages/MarketplacePage').then((m) => ({ default: m.MarketplacePage })));
 const SdksPage = lazy(() => import('@/pages/SdksPage').then((m) => ({ default: m.SdksPage })));
 const PromiseTrackerPage = lazy(() => import('@/pages/PromiseTrackerPage').then((m) => ({ default: m.PromiseTrackerPage })));
+const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
 const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ default: m.SandboxPage })));
 const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
 const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) => ({ default: m.InviteAcceptPage })));
@@ -381,6 +382,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PromiseTrackerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/service-recovery"
+          element={
+            <ProtectedRoute>
+              <ServiceRecoveryPage />
             </ProtectedRoute>
           }
         />
