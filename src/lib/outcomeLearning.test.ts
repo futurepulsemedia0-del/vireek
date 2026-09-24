@@ -1,313 +1,119 @@
-/**
- * Outcome Learning — pure, deterministic, explainable.
- *
- * Same philosophy as margin guardrails / underpriced-job detection: a price or
- * a checklist rule must be a number and a reason the owner can inspect, never an
- * opaque model guess. This file has no I/O; tradePlaybooks.ts persists results.
- *
- * Statistical rules (all thresholds live in LEARNING):
- *  - Small samples are shrunk toward the catalog benchmark (Bayesian-style
- *    shrinkage), so 3 lucky jobs never rewrite a playbook.
- *  - Callback statistics only use "matured" outcomes (callbacks lag the job).
- *  - Rework jobs are excluded from rates: they are the fix, not new demand.
- *  - Price analysis only uses outcomes recorded after the last accepted price
- *    change for that job type, so an accepted increase is never re-suggested
- *    from data that predates it.
- *  - Every suggestion is human-approved; nothing is applied automatically.
- */
+import { describe, expect, it } from 'vitest';
+import { TRADE_PLAYBOOKS, matchJobType } from '@/lib/tradePlaybookCatalog';
+import { LEARNING, deriveSuggestions, median, shrink, summarize, type JobOutcome, type PriceRef } from '@/lib/outcomeLearning';
 
-import type { JobTypeBenchmark, TradeJobType, TradePlaybook } from '@/lib/tradePlaybookCatalog';
+const NOW = Date.parse('2026-09-24T00:00:00Z');
+const hvac = TRADE_PLAYBOOKS[0];
+const ac = hvac.jobTypes[0];
+const price: PriceRef = { id: 'p1', service_name: ac.price.serviceName, price_cents: 24900, price_max_cents: 64900 };
 
-export type Resolution = 'fixed_first_visit' | 'fixed_followup' | 'parts_pending' | 'quote_declined' | 'unresolved';
-
-export interface JobOutcome {
-  id: string;
-  job_id: string;
-  playbook_slug: string;
-  job_type_key: string;
-  root_cause_key: string | null;
-  resolution: Resolution;
-  checklist_done: string[];
-  checklist_total: number;
-  parts_used: string[];
-  notes: string | null;
-  revenue_cents: number | null;
-  cost_cents: number | null;
-  duration_minutes: number | null;
-  is_rework: boolean;
-  caused_callback: boolean;
-  technician_id: string | null;
-  customer_rating: number | null;
-  recorded_at: string;
-}
-
-export type SuggestionKind = 'price_adjust' | 'duration_adjust' | 'root_cause_article' | 'checklist_critical';
-export type SuggestionStatus = 'pending' | 'accepted' | 'dismissed';
-
-export interface DraftSuggestion {
-  playbook_slug: string;
-  job_type_key: string;
-  suggestion_key: string;
-  kind: SuggestionKind;
-  title: string;
-  rationale: string;
-  evidence: Record<string, number | string>;
-  payload: Record<string, unknown>;
-}
-
-export interface TuningRow {
-  playbook_slug: string;
-  job_type_key: string;
-  target_duration_minutes: number | null;
-  critical_item_ids: string[];
-}
-
-export interface PriceRef {
-  id: string;
-  service_name: string;
-  price_cents: number;
-  price_max_cents: number | null;
-}
-
-export interface DecisionRef {
-  kind: SuggestionKind;
-  job_type_key: string;
-  status: SuggestionStatus;
-  decided_at: string | null;
-}
-
-export const LEARNING = {
-  minSuggestionSamples: 8,
-  minMarginSamples: 6,
-  minChecklistGroup: 3,
-  priorStrength: 6,
-  maturityDays: 14,
-  maxPriceStepPct: 15,
-  minPriceStepPct: 3,
-  marginToleranceRatio: 0.05,
-  durationDeviationRatio: 0.2,
-  checklistLiftThreshold: 0.25,
-  causeShareThreshold: 0.3,
-  minCauseCount: 3,
-} as const;
-
-const DAY_MS = 86_400_000;
-
-export function median(values: number[]): number | null {
-  if (values.length === 0) return null;
-  const s = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(s.length / 2);
-  return s.length % 2 === 1 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
-}
-
-/** Blend an observed rate with a prior, weighting the prior as `k` pseudo-observations. */
-export function shrink(observed: number, n: number, prior: number, k: number = LEARNING.priorStrength): number {
-  if (n <= 0) return prior;
-  return (observed * n + prior * k) / (n + k);
-}
-
-export function confidenceOf(n: number): 'low' | 'medium' | 'high' {
-  if (n < 5) return 'low';
-  if (n < 15) return 'medium';
-  return 'high';
-}
-
-const round5 = (x: number) => Math.round(x / 5) * 5;
-const isMature = (o: JobOutcome, now: number) => now - Date.parse(o.recorded_at) >= LEARNING.maturityDays * DAY_MS;
-
-export interface JobTypeStats {
-  n: number;
-  confidence: 'low' | 'medium' | 'high';
-  firstTimeFixPct: number | null;
-  callbackPct: number | null;
-  medianTicketCents: number | null;
-  medianDurationMinutes: number | null;
-  marginPct: number | null;
-  marginSamples: number;
-  diagnosed: number;
-  topCauses: { key: string; count: number; share: number }[];
-}
-
-export function summarize(all: JobOutcome[], benchmark: JobTypeBenchmark, now: number = Date.now()): JobTypeStats {
-  const rows = all.filter((o) => !o.is_rework);
-  const n = rows.length;
-  const empty: JobTypeStats = {
-    n: 0, confidence: 'low', firstTimeFixPct: null, callbackPct: null, medianTicketCents: null,
-    medianDurationMinutes: null, marginPct: null, marginSamples: 0, diagnosed: 0, topCauses: [],
-  };
-  if (n === 0) return empty;
-
-  const ftf = rows.filter((o) => o.resolution === 'fixed_first_visit').length / n;
-  const mature = rows.filter((o) => isMature(o, now));
-  const cb = mature.length > 0 ? mature.filter((o) => o.caused_callback).length / mature.length : null;
-
-  const withMargin = rows.filter((o) => (o.revenue_cents ?? 0) > 0 && o.cost_cents !== null);
-  const sumRev = withMargin.reduce((s, o) => s + (o.revenue_cents ?? 0), 0);
-  const sumCost = withMargin.reduce((s, o) => s + (o.cost_cents ?? 0), 0);
-  const marginRaw = sumRev > 0 ? 1 - sumCost / sumRev : null;
-
-  const causeCounts = new Map<string, number>();
-  for (const o of rows) if (o.root_cause_key) causeCounts.set(o.root_cause_key, (causeCounts.get(o.root_cause_key) ?? 0) + 1);
-  const diagnosed = [...causeCounts.values()].reduce((s, v) => s + v, 0);
-
+let seq = 0;
+function outcome(over: Partial<JobOutcome> = {}): JobOutcome {
+  seq += 1;
   return {
-    n,
-    confidence: confidenceOf(n),
-    firstTimeFixPct: shrink(ftf, n, benchmark.firstTimeFixPct / 100) * 100,
-    callbackPct: cb === null ? null : shrink(cb, mature.length, benchmark.maxCallbackPct / 100) * 100,
-    medianTicketCents: median(rows.map((o) => o.revenue_cents ?? 0).filter((v) => v > 0)),
-    medianDurationMinutes: median(rows.map((o) => o.duration_minutes ?? 0).filter((v) => v > 0)),
-    marginPct: marginRaw === null ? null : shrink(marginRaw, withMargin.length, benchmark.targetMarginPct / 100) * 100,
-    marginSamples: withMargin.length,
-    diagnosed,
-    topCauses: [...causeCounts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([key, count]) => ({ key, count, share: diagnosed > 0 ? count / diagnosed : 0 })),
+    id: `o${seq}`, job_id: `j${seq}`, playbook_slug: 'hvac', job_type_key: ac.key, root_cause_key: null,
+    resolution: 'fixed_first_visit', checklist_done: [], checklist_total: 0, parts_used: [], notes: null,
+    revenue_cents: 40000, cost_cents: 20000, duration_minutes: 90, is_rework: false, caused_callback: false,
+    technician_id: null, customer_rating: null, recorded_at: '2026-08-01T00:00:00Z', ...over,
   };
 }
+const many = (n: number, over: Partial<JobOutcome> = {}) => Array.from({ length: n }, () => outcome(over));
 
-export interface DeriveInput {
-  playbook: TradePlaybook;
-  outcomes: JobOutcome[];
-  priceItems: PriceRef[];
-  tuning: TuningRow[];
-  decisions: DecisionRef[];
-  now?: number;
-}
+describe('math helpers', () => {
+  it('median handles odd, even and empty', () => {
+    expect(median([])).toBeNull();
+    expect(median([3, 1, 2])).toBe(2);
+    expect(median([1, 2, 3, 4])).toBe(2.5);
+  });
+  it('shrink pulls small samples toward the prior', () => {
+    expect(shrink(1, 0, 0.5)).toBe(0.5);
+    expect(shrink(1, 2, 0.5)).toBeLessThan(0.7);
+    expect(shrink(1, 200, 0.5)).toBeGreaterThan(0.98);
+  });
+});
 
-export function deriveSuggestions(input: DeriveInput): DraftSuggestion[] {
-  const { playbook, outcomes, priceItems, tuning, decisions } = input;
-  const now = input.now ?? Date.now();
-  const out: DraftSuggestion[] = [];
+describe('matchJobType', () => {
+  const plumbing = TRADE_PLAYBOOKS[1];
+  it('prefers the longest matching fragment', () => {
+    expect(matchJobType(plumbing, 'Water heater leak')?.key).toBe('water-heater');
+    expect(matchJobType(hvac, 'AC not cooling')?.key).toBe('ac-no-cooling');
+    expect(matchJobType(hvac, 'HVAC tune-up')?.key).toBe('maintenance-tuneup');
+  });
+  it('returns undefined for empty or unknown text', () => {
+    expect(matchJobType(hvac, '')).toBeUndefined();
+    expect(matchJobType(hvac, null)).toBeUndefined();
+    expect(matchJobType(hvac, 'window cleaning')).toBeUndefined();
+  });
+});
 
-  for (const jt of playbook.jobTypes) {
-    const rows = outcomes.filter((o) => o.playbook_slug === playbook.slug && o.job_type_key === jt.key && !o.is_rework);
-    if (rows.length === 0) continue;
-    const tune = tuning.find((t) => t.playbook_slug === playbook.slug && t.job_type_key === jt.key);
-    const lastPriceChange = decisions
-      .filter((d) => d.kind === 'price_adjust' && d.job_type_key === jt.key && d.status === 'accepted' && d.decided_at)
-      .map((d) => Date.parse(d.decided_at as string))
-      .reduce((m, v) => Math.max(m, v), 0);
+describe('summarize', () => {
+  it('excludes rework jobs and reports callback only from matured outcomes', () => {
+    const rows = [...many(4), ...many(2, { is_rework: true }), outcome({ recorded_at: '2026-09-23T00:00:00Z', caused_callback: true })];
+    const s = summarize(rows, ac.benchmark, NOW);
+    expect(s.n).toBe(5);
+    expect(s.callbackPct).not.toBeNull();
+    expect(s.callbackPct as number).toBeLessThanOrEqual(ac.benchmark.maxCallbackPct + 0.001);
+  });
+  it('returns empty stats with no data', () => {
+    expect(summarize([], ac.benchmark, NOW).n).toBe(0);
+  });
+});
 
-    const item = priceItems.find((p) => p.service_name.toLowerCase() === jt.price.serviceName.toLowerCase());
-    const push = (s: DraftSuggestion | null) => { if (s) out.push(s); };
+describe('deriveSuggestions', () => {
+  const base = { playbook: hvac, priceItems: [price], tuning: [], decisions: [], now: NOW };
 
-    if (item) push(priceSuggestion(playbook.slug, jt, rows, item, lastPriceChange));
-    push(durationSuggestion(playbook.slug, jt, rows, tune));
-    push(checklistSuggestion(playbook.slug, jt, rows, tune, now));
-    push(causeSuggestion(playbook.slug, jt, rows));
-  }
-  return out;
-}
+  it('stays silent below the minimum sample size', () => {
+    expect(deriveSuggestions({ ...base, outcomes: many(3, { cost_cents: 39000, duration_minutes: 200 }) })).toHaveLength(0);
+  });
 
-function priceSuggestion(slug: string, jt: TradeJobType, rows: JobOutcome[], item: PriceRef, sinceMs: number): DraftSuggestion | null {
-  const usable = rows.filter((o) => Date.parse(o.recorded_at) > sinceMs && (o.revenue_cents ?? 0) > 0 && o.cost_cents !== null);
-  const m = usable.length;
-  if (m < LEARNING.minMarginSamples) return null;
+  it('suggests a capped price increase when margin is below target', () => {
+    const list = deriveSuggestions({ ...base, outcomes: many(10, { revenue_cents: 40000, cost_cents: 30000 }) });
+    const s = list.find((x) => x.kind === 'price_adjust');
+    expect(s).toBeDefined();
+    const p = s?.payload as { new_price_cents: number; old_price_cents: number };
+    expect(p.new_price_cents).toBeGreaterThan(p.old_price_cents);
+    expect(p.new_price_cents).toBeLessThanOrEqual(Math.round((p.old_price_cents * (1 + LEARNING.maxPriceStepPct / 100)) / 100) * 100);
+  });
 
-  const rev = usable.reduce((s, o) => s + (o.revenue_cents ?? 0), 0);
-  const cost = usable.reduce((s, o) => s + (o.cost_cents ?? 0), 0);
-  const target = jt.benchmark.targetMarginPct / 100;
-  const observed = shrink(1 - cost / rev, m, target);
-  if (observed >= target - LEARNING.marginToleranceRatio) return null;
+  it('does not re-suggest a price change from data that predates an accepted one', () => {
+    const outcomes = many(10, { revenue_cents: 40000, cost_cents: 30000, recorded_at: '2026-08-01T00:00:00Z' });
+    const decisions = [{ kind: 'price_adjust' as const, job_type_key: ac.key, status: 'accepted' as const, decided_at: '2026-09-01T00:00:00Z' }];
+    expect(deriveSuggestions({ ...base, outcomes, decisions }).some((x) => x.kind === 'price_adjust')).toBe(false);
+  });
 
-  const factor = Math.min(1 + LEARNING.maxPriceStepPct / 100, (1 - observed) / (1 - target));
-  const newPrice = Math.round((item.price_cents * factor) / 100) * 100;
-  if (newPrice < item.price_cents * (1 + LEARNING.minPriceStepPct / 100)) return null;
-  const newMax = item.price_max_cents === null ? null : Math.max(newPrice, Math.round((item.price_max_cents * factor) / 100) * 100);
-  const pct = Math.round((newPrice / item.price_cents - 1) * 100);
+  it('suggests a duration target when the median deviates by 20% or more', () => {
+    const s = deriveSuggestions({ ...base, outcomes: many(10, { duration_minutes: 150 }) }).find((x) => x.kind === 'duration_adjust');
+    expect(s).toBeDefined();
+    expect((s?.payload as { target_duration_minutes: number }).target_duration_minutes).toBeGreaterThan(ac.benchmark.durationMinutes);
+  });
 
-  return {
-    playbook_slug: slug,
-    job_type_key: jt.key,
-    suggestion_key: `price:${slug}:${jt.key}:${item.price_cents}`,
-    kind: 'price_adjust',
-    title: `Raise “${item.service_name}” by ${pct}%`,
-    rationale: `Across ${m} recent jobs your realized gross margin is about ${Math.round(observed * 100)}% against a ${jt.benchmark.targetMarginPct}% target. Each step is capped at ${LEARNING.maxPriceStepPct}%. This changes the Price Book entry only; quotes already sent are unchanged.`,
-    evidence: { samples: m, margin_pct: Math.round(observed * 1000) / 10, target_margin_pct: jt.benchmark.targetMarginPct, step_pct: pct },
-    payload: { price_book_item_id: item.id, old_price_cents: item.price_cents, new_price_cents: newPrice, old_price_max_cents: item.price_max_cents, new_price_max_cents: newMax },
-  };
-}
+  it('flags a skipped checklist step that predicts callbacks', () => {
+    const done = many(5, { checklist_total: 8, checklist_done: ['thermostat', 'airflow'], caused_callback: false });
+    const skipped = many(5, { checklist_total: 8, checklist_done: ['airflow'], caused_callback: true });
+    const s = deriveSuggestions({ ...base, outcomes: [...done, ...skipped] }).find((x) => x.kind === 'checklist_critical');
+    expect((s?.payload as { item_id: string } | undefined)?.item_id).toBe('thermostat');
+  });
 
-function durationSuggestion(slug: string, jt: TradeJobType, rows: JobOutcome[], tune: TuningRow | undefined): DraftSuggestion | null {
-  const durations = rows.map((o) => o.duration_minutes ?? 0).filter((d) => d > 0);
-  if (durations.length < LEARNING.minSuggestionSamples) return null;
-  const med = median(durations) as number;
-  const current = tune?.target_duration_minutes ?? jt.benchmark.durationMinutes;
-  if (Math.abs(med - current) / current < LEARNING.durationDeviationRatio) return null;
-  const next = round5(shrink(med, durations.length, current, 4));
-  if (next <= 0 || next === current) return null;
+  it('teaches the AI the dominant root cause, with a no-phone-diagnosis guard', () => {
+    const rows = [...many(6, { root_cause_key: 'failed-capacitor' }), ...many(2, { root_cause_key: 'worn-contactor' }), ...many(2, { root_cause_key: 'low-refrigerant' })];
+    const s = deriveSuggestions({ ...base, outcomes: rows }).find((x) => x.kind === 'root_cause_article');
+    expect(s?.suggestion_key).toBe(`cause:hvac:${ac.key}:failed-capacitor`);
+    expect((s?.payload as { summary: string }).summary).toContain('never diagnose');
+  });
+});
 
-  return {
-    playbook_slug: slug,
-    job_type_key: jt.key,
-    suggestion_key: `duration:${slug}:${jt.key}:${Math.round(next / 15) * 15}`,
-    kind: 'duration_adjust',
-    title: `Set ${jt.label} time to ${next} min`,
-    rationale: `The median of ${durations.length} completed jobs is ${Math.round(med)} min versus a ${current} min target (${med > current ? 'longer' : 'shorter'} than planned). Booking to the real duration reduces overruns and idle gaps.`,
-    evidence: { samples: durations.length, median_minutes: Math.round(med), current_target_minutes: current },
-    payload: { target_duration_minutes: next },
-  };
-}
-
-function checklistSuggestion(slug: string, jt: TradeJobType, rows: JobOutcome[], tune: TuningRow | undefined, now: number): DraftSuggestion | null {
-  const mature = rows.filter((o) => isMature(o, now) && o.checklist_total > 0);
-  if (mature.length < LEARNING.minSuggestionSamples) return null;
-  const already = new Set([...jt.checklist.filter((i) => i.critical).map((i) => i.id), ...(tune?.critical_item_ids ?? [])]);
-  const rate = (list: JobOutcome[]) => list.filter((o) => o.caused_callback).length / list.length;
-
-  let best: { id: string; label: string; lift: number; skipped: number; done: number; rs: number; rd: number } | null = null;
-  for (const item of jt.checklist) {
-    if (already.has(item.id)) continue;
-    const done = mature.filter((o) => o.checklist_done.includes(item.id));
-    const skipped = mature.filter((o) => !o.checklist_done.includes(item.id));
-    if (done.length < LEARNING.minChecklistGroup || skipped.length < LEARNING.minChecklistGroup) continue;
-    const rs = rate(skipped);
-    const rd = rate(done);
-    const lift = rs - rd;
-    if (lift >= LEARNING.checklistLiftThreshold && (!best || lift > best.lift)) best = { id: item.id, label: item.label, lift, skipped: skipped.length, done: done.length, rs, rd };
-  }
-  if (!best) return null;
-
-  return {
-    playbook_slug: slug,
-    job_type_key: jt.key,
-    suggestion_key: `checklist:${slug}:${jt.key}:${best.id}`,
-    kind: 'checklist_critical',
-    title: `Make “${best.label}” a required step`,
-    rationale: `When this step was skipped, ${Math.round(best.rs * 100)}% of ${jt.label} jobs needed a callback, versus ${Math.round(best.rd * 100)}% when it was completed (${best.skipped} skipped, ${best.done} completed). Marking it critical highlights it for every technician.`,
-    evidence: { skipped_jobs: best.skipped, completed_jobs: best.done, callback_pct_skipped: Math.round(best.rs * 100), callback_pct_done: Math.round(best.rd * 100) },
-    payload: { item_id: best.id },
-  };
-}
-
-function causeSuggestion(slug: string, jt: TradeJobType, rows: JobOutcome[]): DraftSuggestion | null {
-  if (!jt.troubleshooting) return null;
-  const s = summarize(rows, jt.benchmark);
-  if (s.diagnosed < LEARNING.minSuggestionSamples) return null;
-  const top = s.topCauses[0];
-  if (!top || top.share < LEARNING.causeShareThreshold || top.count < LEARNING.minCauseCount) return null;
-  const cause = jt.troubleshooting.causes.find((c) => c.key === top.key);
-  if (!cause) return null;
-
-  const pct = Math.round(top.share * 100);
-  const parts = cause.parts.length > 0 ? ` Typical parts: ${cause.parts.join(', ')}.` : '';
-  const summary = `For ${jt.label.toLowerCase()} calls at this business, the most common diagnosed cause is ${cause.label.toLowerCase()} (${pct}% of diagnosed jobs). Use it only to prepare the right technician and parts; never diagnose or promise a fix by phone.`;
-  return {
-    playbook_slug: slug,
-    job_type_key: jt.key,
-    suggestion_key: `cause:${slug}:${jt.key}:${cause.key}`,
-    kind: 'root_cause_article',
-    title: `Teach the AI your top ${jt.label.toLowerCase()} cause`,
-    rationale: `${top.count} of ${s.diagnosed} diagnosed ${jt.label.toLowerCase()} jobs (${pct}%) ended in “${cause.label}”. Adding this to the knowledge base helps dispatch and the AI receptionist prepare the right skills and parts.`,
-    evidence: { diagnosed_jobs: s.diagnosed, cause_jobs: top.count, share_pct: pct },
-    payload: {
-      title: `Your data: most common ${jt.label.toLowerCase()} cause`,
-      summary,
-      body: `${summary}\n\nSymptom: ${jt.troubleshooting.symptom}.\nTypical test: ${cause.test}\nTypical fix: ${cause.fix}${parts}`,
-      keywords: [jt.label.toLowerCase(), cause.label.toLowerCase(), ...jt.price.keywords].slice(0, 8),
-      category: 'Learned from your jobs',
-    },
-  };
-}
+describe('catalog integrity', () => {
+  it('has unique ids and valid price ranges', () => {
+    for (const pb of TRADE_PLAYBOOKS) {
+      const keys = new Set<string>();
+      for (const jt of pb.jobTypes) {
+        expect(keys.has(jt.key)).toBe(false);
+        keys.add(jt.key);
+        expect(new Set(jt.checklist.map((i) => i.id)).size).toBe(jt.checklist.length);
+        if (jt.price.priceMaxCents !== undefined) expect(jt.price.priceMaxCents).toBeGreaterThanOrEqual(jt.price.priceCents);
+        expect(jt.price.estimatedCostCents).toBeLessThan(jt.price.priceCents);
+        if (jt.troubleshooting) expect(new Set(jt.troubleshooting.causes.map((c) => c.key)).size).toBe(jt.troubleshooting.causes.length);
+      }
+    }
+  });
+});
