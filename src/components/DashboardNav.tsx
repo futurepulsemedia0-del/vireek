@@ -83,6 +83,7 @@ import {
   ShieldCheck,
   Target,
   Stethoscope,
+  ClipboardCheck,
   Radar,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -148,6 +149,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Job Handoffs', href: '/dashboard/network/handoffs', icon: ArrowRightLeft },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Compliance Center', href: '/dashboard/compliance', icon: ShieldCheck },
+  { label: 'Job Quality Gate', href: '/dashboard/job-quality-gate', icon: ClipboardCheck },
   { label: 'Warranty Claim Recovery', href: '/dashboard/warranty-claims', icon: FileClock },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
