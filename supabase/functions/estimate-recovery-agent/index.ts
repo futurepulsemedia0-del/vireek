@@ -40,6 +40,7 @@ const FINANCING_MIN_VALUE_CENTS = 50000; // $500+ — worth mentioning financing
 const BOOKING_MIN_HOURS = 24;          // accepted 1+ day, still no job on the calendar
 const INVOICE_MIN_HOURS = 24;          // completed 1+ day, still not invoiced
 const COLLECTION_MIN_DAYS = 14;        // matches OVERDUE_AFTER_DAYS in send-payment-reminders
+const PARTS_GAP_MIN_CENTS = 1500;      // $15+ gap between parts installed and what was invoiced
 
 function riskScore(hoursStalled: number, valueCents: number): number {
   const timeComponent = Math.min(60, Math.round(hoursStalled / 4));
@@ -95,7 +96,7 @@ Deno.serve(async (req: Request) => {
   );
 
   const now = Date.now();
-  const counts = { financing: 0, booking: 0, invoice: 0, collection: 0 };
+  const counts = { financing: 0, booking: 0, invoice: 0, collection: 0, parts: 0, paymentFailed: 0 };
 
   // -----------------------------------------------------------------
   // 1. FINANCING RISK — quote sent, high value, stalled 72h+
@@ -238,6 +239,101 @@ Deno.serve(async (req: Request) => {
         extra: { risk_score: riskScore(daysStalled * 24, valueCents), amount_cents: valueCents },
       });
       counts.collection++;
+    }
+  }
+
+  // -----------------------------------------------------------------
+  // 5. PARTS LEAK — parts installed on an already-invoiced job whose
+  //    billed amount doesn't cover what was actually used
+  // -----------------------------------------------------------------
+  {
+    const { data: jobs } = await admin
+      .from("jobs")
+      .select("id, user_id, lead_id, customer_name, invoice_amount, job_status, invoice_status")
+      .eq("job_status", "completed")
+      .in("invoice_status", ["sent", "paid"]);
+
+    for (const j of jobs ?? []) {
+      const { data: parts } = await admin
+        .from("job_parts_required")
+        .select("quantity_required, part_id")
+        .eq("job_id", j.id)
+        .eq("status", "installed");
+      if (!parts || parts.length === 0) continue;
+
+      const partIds = parts.map((p) => p.part_id);
+      const { data: catalog } = await admin
+        .from("inventory_parts")
+        .select("id, unit_cost_cents, price_book_item_id")
+        .in("id", partIds);
+      const priceBookIds = (catalog ?? [])
+        .map((c) => c.price_book_item_id)
+        .filter((id): id is string => Boolean(id));
+      const { data: priceBook } = priceBookIds.length
+        ? await admin.from("price_book_items").select("id, price_cents").in("id", priceBookIds)
+        : { data: [] as { id: string; price_cents: number }[] };
+
+      let partsValueCents = 0;
+      for (const p of parts) {
+        const part = catalog?.find((c) => c.id === p.part_id);
+        if (!part) continue;
+        const bookPrice = priceBook?.find((b) => b.id === part.price_book_item_id)?.price_cents;
+        partsValueCents += (bookPrice ?? part.unit_cost_cents ?? 0) * p.quantity_required;
+      }
+
+      const invoicedCents = Math.round(Number(j.invoice_amount ?? 0) * 100);
+      const gapCents = partsValueCents - invoicedCents;
+      if (gapCents < PARTS_GAP_MIN_CENTS) continue;
+
+      let phone: string | null = null;
+      if (j.lead_id) {
+        const { data: lead } = await admin.from("leads").select("phone, email").eq("id", j.lead_id).maybeSingle();
+        phone = lead?.phone ?? null;
+      }
+
+      await upsertLedgerEntry(admin, {
+        user_id: j.user_id, source_type: "job_parts_unbilled", source_table: "jobs", source_id: j.id,
+        lead_id: j.lead_id, customer_name: j.customer_name, customer_phone: phone,
+        estimated_value_cents: gapCents, estimated_value_basis: "price_book_match",
+      });
+      await enroll(admin, {
+        aggregateType: "job", aggregateId: j.id, eventType: "job.parts_unbilled", userId: j.user_id,
+        customerName: j.customer_name, customerPhone: phone, customerEmail: null,
+        extra: { risk_score: riskScore(24, gapCents), amount_cents: gapCents },
+      });
+      counts.parts++;
+    }
+  }
+
+  // -----------------------------------------------------------------
+  // 6. PAYMENT FAILURE — a charge attempt that came back declined;
+  //    needs a same-day nudge, not the 14-day collection wait
+  // -----------------------------------------------------------------
+  {
+    const { data: failed } = await admin
+      .from("payment_requests")
+      .select("id, user_id, job_id, customer_name, customer_phone, customer_email, amount, status, created_at")
+      .eq("status", "failed");
+
+    for (const r of failed ?? []) {
+      let leadId: string | null = null;
+      if (r.job_id) {
+        const { data: job } = await admin.from("jobs").select("lead_id").eq("id", r.job_id).maybeSingle();
+        leadId = job?.lead_id ?? null;
+      }
+      const valueCents = Math.round(Number(r.amount ?? 0) * 100);
+
+      await upsertLedgerEntry(admin, {
+        user_id: r.user_id, source_type: "payment_failed", source_table: "payment_requests", source_id: r.id,
+        lead_id: leadId, customer_name: r.customer_name, customer_phone: r.customer_phone,
+        estimated_value_cents: valueCents, estimated_value_basis: "job_invoice",
+      });
+      await enroll(admin, {
+        aggregateType: "payment_request", aggregateId: r.id, eventType: "invoice.payment_failed", userId: r.user_id,
+        customerName: r.customer_name, customerPhone: r.customer_phone, customerEmail: r.customer_email,
+        extra: { risk_score: riskScore(24, valueCents), amount_cents: valueCents },
+      });
+      counts.paymentFailed++;
     }
   }
 
