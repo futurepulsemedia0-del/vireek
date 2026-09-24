@@ -22,12 +22,14 @@ import {
   History,
   Lightbulb,
   Loader2,
+  Mic,
   MessageSquare,
   Plus,
   RefreshCw,
   Search,
   Sparkles,
   Trash2,
+  Upload,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -56,6 +58,10 @@ import {
   STATUS_COLORS,
   testKnowledgeAnswer,
   updateArticle,
+  uploadTribalManualPdf,
+  uploadTribalVoiceNote,
+  captureVoiceNote,
+  ingestManual,
   validateArticleForm,
 } from '@/lib/knowledge';
 import type {
@@ -72,6 +78,154 @@ const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
 
 type Tab = 'articles' | 'gaps' | 'test';
+
+// ============================================================
+// COMPANY BRAIN — CAPTURE MODAL
+// ============================================================
+
+function CompanyBrainCaptureModal({
+  userId,
+  onClose,
+  onCaptured,
+}: {
+  userId: string;
+  onClose: () => void;
+  onCaptured: () => void;
+}) {
+  const { toast } = useToast();
+  const [mode, setMode] = useState<'voice' | 'manual'>('voice');
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [notes, setNotes] = useState('');
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const submitVoice = async () => {
+    if (!audioFile && notes.trim().length < 10) {
+      toast('Add a voice note or a few words of notes', 'error');
+      return;
+    }
+    setBusy(true);
+    try {
+      const audioPath = audioFile ? await uploadTribalVoiceNote(userId, audioFile) : null;
+      const result = await captureVoiceNote(audioPath, notes.trim());
+      if (result.error) {
+        toast(result.error, 'error');
+      } else if (result.useful === false) {
+        toast(result.message ?? 'Nothing reusable found in this note', 'info');
+      } else {
+        toast('Draft article created — review it under Articles', 'success');
+        onCaptured();
+        onClose();
+      }
+    } catch {
+      toast('Could not capture this voice note', 'error');
+    }
+    setBusy(false);
+  };
+
+  const submitManual = async () => {
+    if (!pdfFile) {
+      toast('Choose a PDF first', 'error');
+      return;
+    }
+    setBusy(true);
+    try {
+      const pdfPath = await uploadTribalManualPdf(userId, pdfFile);
+      const result = await ingestManual(pdfPath, pdfFile.name);
+      if (result.error) {
+        toast(result.error, 'error');
+      } else if (result.articlesCreated === 0) {
+        toast(result.message ?? 'No field-usable content found', 'info');
+      } else {
+        toast(`${result.articlesCreated} draft article(s) created — review them under Articles`, 'success');
+        onCaptured();
+        onClose();
+      }
+    } catch {
+      toast('Could not process this manual', 'error');
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-bg-primary p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-text-primary">Add to the Company Brain</h3>
+          <button type="button" onClick={onClose} className="focus-ring rounded-lg p-1 text-text-secondary hover:text-text-primary">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="mb-4 flex gap-1.5">
+          <button
+            type="button"
+            onClick={() => setMode('voice')}
+            className={`focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium ${mode === 'voice' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}
+          >
+            <Mic size={13} /> Voice note
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('manual')}
+            className={`focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium ${mode === 'manual' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}
+          >
+            <Upload size={13} /> Manual (PDF)
+          </button>
+        </div>
+
+        {mode === 'voice' ? (
+          <div className="space-y-3">
+            <p className="text-xs text-text-secondary">
+              Recap a fix, a diagnosis trick, or anything worth other technicians knowing. The AI drafts an article for you to review.
+            </p>
+            <input
+              type="file"
+              accept="audio/*"
+              onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
+              className="w-full text-xs text-text-secondary"
+            />
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Optional: type a few extra details"
+              rows={3}
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={() => void submitVoice()}
+              disabled={busy}
+              className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-xs font-medium text-white disabled:opacity-50"
+            >
+              {busy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Draft the article
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-xs text-text-secondary">
+              Upload an installation manual or spec sheet. The AI splits it into short, searchable articles — one per procedure or fact.
+            </p>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+              className="w-full text-xs text-text-secondary"
+            />
+            <button
+              type="button"
+              onClick={() => void submitManual()}
+              disabled={busy}
+              className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-xs font-medium text-white disabled:opacity-50"
+            >
+              {busy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Process this manual
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // ============================================================
 // EDITOR
@@ -306,6 +460,7 @@ export function KnowledgeBasePage() {
   const [historyFor, setHistoryFor] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<KnowledgeArticle | null>(null);
   const [busy, setBusy] = useState(false);
+  const [captureModalOpen, setCaptureModalOpen] = useState(false);
 
   const [testQuestion, setTestQuestion] = useState('');
   const [testResult, setTestResult] = useState<KnowledgeTestResult | null>(null);
@@ -601,6 +756,13 @@ export function KnowledgeBasePage() {
               >
                 <Download size={13} /> Import my FAQs
               </button>
+              <button
+                type="button"
+                onClick={() => setCaptureModalOpen(true)}
+                className="focus-ring flex items-center gap-1.5 rounded-xl border border-accent/40 px-3 py-2.5 text-xs font-medium text-accent hover:bg-accent/5"
+              >
+                <Mic size={13} /> Add to Company Brain
+              </button>
             </div>
 
             {loading ? (
@@ -875,6 +1037,14 @@ export function KnowledgeBasePage() {
         onConfirm={handleDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      {captureModalOpen && user && (
+        <CompanyBrainCaptureModal
+          userId={user.id}
+          onClose={() => setCaptureModalOpen(false)}
+          onCaptured={() => void load()}
+        />
+      )}
     </DashboardLayout>
   );
 }
