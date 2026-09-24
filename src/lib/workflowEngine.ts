@@ -23,7 +23,8 @@ export type WorkflowTriggerEvent =
   | 'quote.financing_needed' | 'quote.accepted_not_booked'
   | 'job.completed_not_invoiced' | 'invoice.payment_overdue'
   | 'membership.sold' | 'membership.visit_due' | 'membership.renewal_upcoming'
-  | 'membership.payment_failed' | 'membership.churn_risk' | 'membership.churned';
+  | 'membership.payment_failed' | 'membership.churn_risk' | 'membership.churned'
+  | 'job.parts_unbilled' | 'invoice.payment_failed';
 
 export type WorkflowStatus = 'draft' | 'active' | 'paused' | 'archived';
 export type WorkflowMode = 'live' | 'test';
