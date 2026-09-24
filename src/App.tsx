@@ -85,6 +85,7 @@ const BusinessContradictionsPage = lazy(() => import('@/pages/BusinessContradict
 const CounterfactualLibraryPage = lazy(() => import('@/pages/CounterfactualLibraryPage').then((m) => ({ default: m.CounterfactualLibraryPage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
 const BusinessConstitutionPage = lazy(() => import('@/pages/BusinessConstitutionPage').then((m) => ({ default: m.BusinessConstitutionPage })));
+const ValueAtRiskPage = lazy(() => import('@/pages/ValueAtRiskPage').then((m) => ({ default: m.ValueAtRiskPage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
@@ -546,6 +547,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/value-at-risk"
+  element={
+    <ProtectedRoute>
+      <ValueAtRiskPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/voicemails"
           element={
