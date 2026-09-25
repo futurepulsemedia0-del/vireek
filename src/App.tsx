@@ -25,6 +25,8 @@ const OnboardingGuidePage = lazy(() => import('@/pages/OnboardingGuidePage').the
 const AcademyPage = lazy(() => import('@/pages/AcademyPage').then((m) => ({ default: m.AcademyPage })));
 const AcademyCertificatePage = lazy(() => import('@/pages/AcademyCertificatePage').then((m) => ({ default: m.AcademyCertificatePage })));
 const CommunityPage = lazy(() => import('@/pages/CommunityPage').then((m) => ({ default: m.CommunityPage })));
+const CommunityForumPage = lazy(() => import('@/pages/CommunityForumPage').then((m) => ({ default: m.CommunityForumPage })));
+const CommunityThreadPage = lazy(() => import('@/pages/CommunityThreadPage').then((m) => ({ default: m.CommunityThreadPage })));
 const AmbassadorPage = lazy(() => import('@/pages/AmbassadorPage').then((m) => ({ default: m.AmbassadorPage })));
 const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
@@ -619,6 +621,22 @@ function App() {
           element={
             <ProtectedRoute>
               <CounterfactualLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/community"
+          element={
+            <ProtectedRoute>
+              <CommunityForumPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/community/:threadId"
+          element={
+            <ProtectedRoute>
+              <CommunityThreadPage />
             </ProtectedRoute>
           }
         />
