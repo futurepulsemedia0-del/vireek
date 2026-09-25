@@ -46,6 +46,7 @@ const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m
 const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ default: m.WorkflowsPage })));
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
+const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
 const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPage').then((m) => ({ default: m.BusinessDigitalTwinPage })));
 const BusinessWorldModelPage = lazy(() => import('@/pages/BusinessWorldModelPage').then((m) => ({ default: m.BusinessWorldModelPage })));
@@ -476,6 +477,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BusinessDecisionEnginePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/causal-simulator"
+          element={
+            <ProtectedRoute>
+              <CausalWorldSimulatorPage />
             </ProtectedRoute>
           }
         />
