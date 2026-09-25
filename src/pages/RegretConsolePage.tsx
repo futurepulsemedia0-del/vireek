@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Check, ChevronDown, Loader2, Plus, Scale, Trash2, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import AgentDisagreementChamber from '@/components/AgentDisagreementChamber';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
