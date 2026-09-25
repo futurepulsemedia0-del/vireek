@@ -48,6 +48,7 @@ const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedg
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
 const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPage').then((m) => ({ default: m.BusinessDigitalTwinPage })));
+const BusinessWorldModelPage = lazy(() => import('@/pages/BusinessWorldModelPage').then((m) => ({ default: m.BusinessWorldModelPage })));
 const BusinessRealityPage = lazy(() => import('@/pages/BusinessRealityPage').then((m) => ({ default: m.BusinessRealityPage })));
 const InvisibleRevenueMapPage = lazy(() => import('@/pages/InvisibleRevenueMapPage').then((m) => ({ default: m.InvisibleRevenueMapPage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
@@ -491,6 +492,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BusinessDigitalTwinPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/world-model"
+          element={
+            <ProtectedRoute>
+              <BusinessWorldModelPage />
             </ProtectedRoute>
           }
         />
