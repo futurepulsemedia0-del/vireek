@@ -9,6 +9,7 @@ import { WhyNow } from '@/components/sections/WhyNow';
 import { LiveDemo } from '@/components/sections/LiveDemo';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
 import { PricingTeaser } from '@/components/sections/PricingTeaser';
+import { CustomerResults } from '@/components/sections/CustomerResults';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 /**
  * Homepage — a single, seven-section path: prove it works (Hero), prove
@@ -47,6 +48,7 @@ export function HomePage() {
         <LiveDemo />
         <MissedCallCalculator />
         <PricingTeaser />
+        <CustomerResults />
         <FinalCTA />
       </main>
 
