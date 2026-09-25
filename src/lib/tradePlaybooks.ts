@@ -13,6 +13,8 @@
  */
 
 import { supabase } from '@/lib/supabase';
+import { recordNegativeEvent } from '@/lib/negativeKnowledgeApi';
+import { technicianOutcome } from '@/lib/negativeKnowledge';
 import {
   TRADE_PLAYBOOKS,
   type TradeJobType,
@@ -284,6 +286,17 @@ export async function recordJobOutcome(ownerId: string, input: RecordOutcomeInpu
   if (error) {
     if ((error as { code?: string }).code === '23505') throw new Error('An outcome is already recorded for this job.');
     throw error;
+  }
+  // Negative knowledge: a job that needed a follow-up is a failure signal for the technician.
+  // Fire-and-forget: learning must never make outcome recording fail.
+  if (job.assigned_technician_id) {
+    void recordNegativeEvent(ownerId, {
+      action_kind: 'technician',
+      subject_key: job.assigned_technician_id,
+      outcome: technicianOutcome(input.resolution),
+      context: { job_type: input.jobType.key },
+      recorded_at: new Date().toISOString(),
+    }).catch(() => undefined);
   }
 }
 
