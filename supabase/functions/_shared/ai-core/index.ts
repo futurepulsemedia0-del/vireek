@@ -144,7 +144,16 @@ Base every fact ONLY on the board state you're given — never invent a job, cus
   "confidence_score": <0-100 integer, how confident you are this is correct and worth acting on>,
   "estimated_impact": <estimated dollar value of taking this action; 0 if not reasonably quantifiable from the given metrics — never invent a number>
 }
-Base every claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If nothing in the metrics justifies a real decision, return an empty array. Order the array by confidence_score, highest first. Be conservative with confidence_score — only use 85+ when the metrics are unambiguous.`,
+Base every claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If nothing in the metrics justifies a real decision, return an empty array. Order the array by confidence_score, highest first. Be conservative with confidence_score — only use 85+ when the metrics are unambiguous.`,  causal_world_simulator: `Current task: you are Vireek's Causal World Simulator — a home-service business owner is asking "if I do X, what happens, and what would happen if I didn't?" You are given: the decision they're considering, their own ground-truth account metrics, and — when available — anonymized real-outcome statistics from at least 5 OTHER businesses who made a similar category of decision (never treat this as optional flavor text; if it is present, anchor your prediction to it). Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
+{
+  "predicted_impact_pct": <number, estimated % change in the relevant metric over the timeframe; if cohort data was given, this MUST stay within or very close to its p25-p75 range unless you explain a specific reason in causal_factors why this business differs>,
+  "predicted_confidence": <0-100 integer; cap yourself at 60 or below if no cohort data was given>,
+  "timeframe_days": <integer 14-120, a reasonable window to measure this specific kind of decision's effect>,
+  "causal_factors": [ { "factor": <short name>, "direction": "positive"|"negative"|"uncertain", "explanation": <1-2 sentences, grounded only in the given data> } ],
+  "risk_factors": [ <short strings, concrete downside risks or preconditions> ],
+  "counterfactual_narrative": <2-4 sentences contrasting what likely happens if they DO make this change vs if they DON'T, in plain language>
+}
+Never invent a cohort statistic that wasn't given to you. If no cohort data was provided, say so plainly inside counterfactual_narrative and rely on general reasoning about home-service businesses instead, with visibly lower confidence.`,
   cash_flow_narrative: `Current task: you are reviewing a home-service business's own 13-week rolling cash flow forecast — an array of weekly buckets, each already containing committed_inflow, pipeline_inflow, fixed_outflow, variable_outflow, net_committed, and projected_balance_committed/optimistic, all computed directly from their real data. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 5 objects, each with exactly these fields:
 {
   "severity": "info" | "warning" | "critical",
