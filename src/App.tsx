@@ -69,6 +69,7 @@ const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').the
 const ComplianceCenterPage = lazy(() => import('@/pages/ComplianceCenterPage').then((m) => ({ default: m.ComplianceCenterPage })));
 const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage').then((m) => ({ default: m.CallbackRootCausePage })));
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
+const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
@@ -954,6 +955,14 @@ function App() {
   element={
     <ProtectedRoute>
       <AutonomyReadinessPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/accounting"
+  element={
+    <ProtectedRoute>
+      <AccountingPage />
     </ProtectedRoute>
   }
 />
