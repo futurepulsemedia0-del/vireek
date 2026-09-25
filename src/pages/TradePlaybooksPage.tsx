@@ -17,6 +17,7 @@ import {
   TRADE_PLAYBOOKS, applySuggestion, dismissSuggestion, fetchAwaitingJobs, fetchOutcomes, fetchTradeState,
   installTradePlaybook, refreshSuggestions, type AwaitingJob, type LearningSuggestion, type TradeState,
 } from '@/lib/tradePlaybooks';
+import NegativeKnowledgePanel from '@/components/NegativeKnowledgePanel';
 
 const KIND_META: Record<SuggestionKind, { icon: LucideIcon; label: string }> = {
   price_adjust: { icon: TrendingUp, label: 'Pricing' },
@@ -400,6 +401,8 @@ export function TradePlaybooksPage() {
               )}
             </div>
           </div>
+
+          {ownerId && <NegativeKnowledgePanel ownerId={ownerId} />}
 
           <h2 className="mb-3 mt-8 text-lg font-semibold text-text-primary">{playbook.name} job types</h2>
           <div className="space-y-4">
