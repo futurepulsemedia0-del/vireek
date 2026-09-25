@@ -145,6 +145,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Decision Engine', href: '/dashboard/decision-engine', icon: Cpu, requiresPermission: 'can_view_billing' },
   { label: 'Regret Console', href: '/dashboard/regret-console', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Business Digital Twin', href: '/dashboard/digital-twin', icon: Layers, requiresPermission: 'can_view_billing' },
+  { label: 'Business World Model', href: '/dashboard/world-model', icon: Network, requiresPermission: 'can_view_billing' },
   { label: 'Business Reality', href: '/dashboard/reality', icon: Telescope, requiresPermission: 'can_view_billing' },
   { label: 'Revenue Map', href: '/dashboard/revenue-map', icon: MapPinned, requiresPermission: 'can_view_billing' },
   { label: 'Cash Flow Forecast', href: '/dashboard/cash-flow', icon: PiggyBank, requiresPermission: 'can_view_billing' },
