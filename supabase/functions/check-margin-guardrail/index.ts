@@ -105,6 +105,26 @@ Deno.serve(async (req: Request) => {
     const effectiveDiscountType = discountType ?? (quote.discount_type as "percent" | "flat" | null);
     const effectiveDiscountValue = discountType ? discountValue : Number(quote.discount_value ?? 0);
 
+    // ---- Business Constitution: protect_margin_floor (discount % cap) ----
+    if (effectiveDiscountType === "percent" && effectiveDiscountValue > 0) {
+      const constitutionServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      const constitutionAdmin = createClient(supabaseUrl, constitutionServiceRoleKey, { auth: { persistSession: false } });
+      const { data: constitutionCheck } = await constitutionAdmin.rpc("check_constitution", {
+        p_user_id: quote.user_id,
+        p_action_type: "apply_discount",
+        p_context: { discount_percent: effectiveDiscountValue },
+      });
+      const constitutionVerdict = Array.isArray(constitutionCheck) ? constitutionCheck[0] : constitutionCheck;
+      if (constitutionVerdict?.allowed === false) {
+        return json({
+          verdict: "blocked",
+          blocked_by_constitution: true,
+          reason: constitutionVerdict.reason,
+          can_send: false,
+        });
+      }
+    }
+
     let revenueCents = 0;
     let costCents = 0;
     const breakdown: { description: string; revenue_cents: number; cost_cents: number; matched: boolean }[] = [];
