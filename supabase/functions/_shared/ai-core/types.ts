@@ -30,6 +30,7 @@ export type TaskType =
   | "next_best_action_engine"
   | "causal_shock_extract"
   | "causal_shock_cascade";
+  | "opportunity_cost_ranking";
 
 export interface NormalizedChatRequest {
   system: string;
