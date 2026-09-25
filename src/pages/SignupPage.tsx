@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { supabase } from '@/lib/supabase';
+import { readPartnerReferralCode, clearPartnerReferralCode } from '@/lib/partnerPortal';
 import {
   AuthShell,
   AuthSidePanel,
@@ -169,6 +170,14 @@ export function SignupPage() {
         },
       });
       if (error) throw error;
+      const partnerRefCode = readPartnerReferralCode();
+      if (data.user && partnerRefCode) {
+        supabase.rpc('attribute_partner_referral', {
+          p_code: partnerRefCode,
+          p_user_id: data.user.id,
+          p_email: email.trim(),
+        }).then(() => clearPartnerReferralCode());
+      }
 
       if (data.user && !data.session) {
         // Email confirmation is required. Supabase's "Confirm signup" email
