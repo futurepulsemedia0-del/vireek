@@ -103,6 +103,7 @@ const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').the
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
 const BusinessEvolutionRoadmapPage = lazy(() => import('@/pages/BusinessEvolutionRoadmapPage').then((m) => ({ default: m.BusinessEvolutionRoadmapPage })));
 const BusinessConstitutionPage = lazy(() => import('@/pages/BusinessConstitutionPage').then((m) => ({ default: m.BusinessConstitutionPage })));
+const SelfEvolvingModelPage = lazy(() => import('@/pages/SelfEvolvingModelPage').then((m) => ({ default: m.SelfEvolvingModelPage })));
 const ValueAtRiskPage = lazy(() => import('@/pages/ValueAtRiskPage').then((m) => ({ default: m.ValueAtRiskPage })));
 const BottleneckMarketMakerPage = lazy(() => import('@/pages/BottleneckMarketMakerPage').then((m) => ({ default: m.BottleneckMarketMakerPage })));
 const UncertaintyMapPage = lazy(() => import('@/pages/UncertaintyMapPage').then((m) => ({ default: m.UncertaintyMapPage })));
@@ -554,6 +555,14 @@ function App() {
           element={
             <ProtectedRoute>
               <RegretConsolePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/operating-model"
+          element={
+            <ProtectedRoute>
+              <SelfEvolvingModelPage />
             </ProtectedRoute>
           }
         />
