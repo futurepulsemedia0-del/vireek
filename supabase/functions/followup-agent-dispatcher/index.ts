@@ -325,6 +325,23 @@ Deno.serve(async (req: Request) => {
       continue;
     }
 
+    // 2.5. Business Constitution — AI may not carry an unhappy customer's
+    // follow-up sequence entirely on its own (rule: ai_cannot_handle_unhappy_alone).
+    const { data: constitutionCheck } = await admin.rpc("check_constitution", {
+      p_user_id: enrollment.user_id,
+      p_action_type: "ai_auto_followup",
+      p_context: { customer_phone: enrollment.customer_phone ?? "", human_involved: false },
+    });
+    const constitutionVerdict = Array.isArray(constitutionCheck) ? constitutionCheck[0] : constitutionCheck;
+    if (constitutionVerdict?.allowed === false) {
+      await admin.from("followup_agent_enrollments").update({
+        status: "stopped",
+        stop_reason: `blocked_by_constitution: ${constitutionVerdict.reason ?? "unhappy customer needs a human"}`,
+      }).eq("id", enrollment.id);
+      stopped += 1;
+      continue;
+    }
+
     // 3. Figure out what to send next.
     const step = await loadNextStep(admin, enrollment);
     if (!step) {
