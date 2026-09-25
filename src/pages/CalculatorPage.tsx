@@ -8,6 +8,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
 import { EstimateRoiCalculator } from '@/components/sections/EstimateRoiCalculator';
+import { RevenueAtRiskPreview } from '@/components/sections/RevenueAtRiskPreview';
 import { EASE, eyebrowClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 
@@ -51,6 +52,7 @@ export function CalculatorPage() {
         {/* Calculator */}
         <MissedCallCalculator />
         <EstimateRoiCalculator />
+        <RevenueAtRiskPreview />
 
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
