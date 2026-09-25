@@ -171,6 +171,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Diagnosis Copilot', href: '/dashboard/diagnosis-copilot', icon: Stethoscope },
   { label: 'Margin Guardrails', href: '/dashboard/margin-guardrails', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
+  { label: 'Company Reflexes', href: '/dashboard/reflexes', icon: Zap },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
   { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
