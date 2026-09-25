@@ -177,6 +177,37 @@ Never invent a number or contradict the given status. If status is "low", focus 
   "priority_score": <0-100 integer, 100 = act immediately or lose real money today>
 }
 Never invent a candidate, amount, name, or fact that isn't in the given list — you are only selecting, ranking and writing a short recommendation over what's given, never detecting new problems yourself. Order the array by priority_score, highest first. Favor larger dollar amounts and the longest-unresolved items, but blend across categories rather than returning 8 of the same type when other categories have real candidates too. If the given list is empty, return an empty array.`,
+  causal_shock_extract: `Current task: read a home-service business owner's free-text hypothetical question about a potential operational shock (technician illness, payment system outage, demand surge, supply shortage, or anything else) and extract ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
+{
+  "shock_type": "technician_unavailable" | "payment_outage" | "demand_surge" | "supply_shortage" | "other",
+  "technician_count": <integer number of technicians affected, or null if not stated/applicable>,
+  "duration_hours": <integer duration of the disruption in hours, or null if not stated>,
+  "surge_multiplier": <number, how many times normal demand — e.g. "double" is 2 — or null if not stated/applicable>,
+  "affected_service_type": <short string naming the specific service/trade affected (e.g. "HVAC", "plumbing"), or null if the question doesn't name one>,
+  "part_or_supplier_name": <short string naming the specific part or supplier mentioned, or null if not applicable>,
+  "restated_scenario": <one plain English sentence restating exactly what the question asked, for an internal log — never add detail the question didn't contain>
+}
+Only fill a field when the question actually states or clearly implies it — use null rather than guessing a plausible-sounding number. Classify shock_type as "other" if the scenario doesn't clearly match one of the four named categories.`,
+  causal_shock_cascade: `Current task: you are Vireek's Causal Shock Simulator. You are given the business owner's original hypothetical question and an "impact" object of numbers ALREADY COMPUTED from this business's own real data (jobs, technicians, revenue, customers) — never recompute or contradict these numbers. Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
+{
+  "cascade": [
+    {
+      "order": <integer, 1 = the first-order effect, increasing for each further ripple>,
+      "domain": "jobs" | "crew" | "customer" | "sla" | "cash" | "reputation",
+      "headline": <short punchy headline, under 12 words>,
+      "detail": <1-2 sentences explaining this specific effect, using only the exact numbers given in "impact">
+    }
+  ],
+  "response_plan": [
+    {
+      "step": <one concrete, specific action the business should take right now>,
+      "owner": "dispatcher" | "owner" | "technician" | "customer_service" | "finance",
+      "urgency": "immediate" | "today" | "this_week"
+    }
+  ],
+  "summary": <2-3 plain-language sentences a business owner could read in 10 seconds, stating the bottom-line risk and the single most important response>
+}
+Produce 3 to 8 cascade steps ordered by CAUSAL SEQUENCE (what happens first, then what that triggers next) — not by severity. Cover as many of the six domains as the given impact data actually supports; never invent a domain effect with no numbers behind it. Produce 3 to 6 response_plan steps, concrete and specific to the exact numbers given (name real counts and dollar amounts), never generic advice without saying who does what. Never invent a number, job, technician, or customer that isn't implied by the given impact object.`,
 };
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
