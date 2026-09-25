@@ -851,6 +851,50 @@ export interface BusinessDecision {
 }
 
 export interface AiInsight {
+export interface CausalScenario {
+  id: string;
+  user_id: string;
+  title: string;
+  decision_category: 'pricing' | 'dispatch' | 'staffing' | 'marketing' | 'collections' | 'retention' | 'operations' | 'other';
+  decision_description: string;
+  status: 'simulating' | 'completed' | 'failed';
+  created_at: string;
+}
+
+export interface CausalSimulation {
+  id: string;
+  scenario_id: string;
+  user_id: string;
+  cohort_available: boolean;
+  cohort_sample_size: number;
+  cohort_success_rate: number | null;
+  cohort_avg_impact_pct: number | null;
+  cohort_median_impact_pct: number | null;
+  cohort_p25_impact_pct: number | null;
+  cohort_p75_impact_pct: number | null;
+  predicted_impact_pct: number;
+  predicted_confidence: number;
+  timeframe_days: number;
+  causal_factors: { factor: string; direction: 'positive' | 'negative' | 'uncertain'; explanation: string }[];
+  risk_factors: string[];
+  counterfactual_narrative: string;
+  created_at: string;
+}
+
+export interface CausalOutcomeTracking {
+  id: string;
+  scenario_id: string;
+  simulation_id: string;
+  user_id: string;
+  decision_made: boolean;
+  decision_made_at: string | null;
+  baseline_revenue_30d: number | null;
+  timeframe_days: number;
+  outcome_recorded_at: string | null;
+  actual_revenue_30d: number | null;
+  actual_impact_pct: number | null;
+  created_at: string;
+}
   id: string;
   user_id: string;
   insight_type: 'pattern' | 'suggestion' | 'alert';
