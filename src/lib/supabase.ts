@@ -933,3 +933,34 @@ export interface WebhookLog {
   endpoint_id: string | null;
   attempt: number;
 }
+export interface Partner {
+  id: string;
+  user_id: string;
+  company_name: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string | null;
+  channel: string | null;
+  tier: 'affiliate' | 'agency';
+  status: 'pending' | 'approved' | 'rejected' | 'suspended';
+  referral_code: string;
+  commission_rate: number;
+  payout_method: string | null;
+  payout_details: string | null;
+  applied_at: string;
+  approved_at: string | null;
+  created_at: string;
+}
+
+export interface PartnerReferral {
+  id: string;
+  partner_id: string;
+  referred_user_id: string | null;
+  referred_email: string | null;
+  status: 'signed_up' | 'converted' | 'churned' | 'rejected';
+  mrr_cents: number;
+  commission_cents: number;
+  commission_status: 'pending' | 'approved' | 'paid' | 'void';
+  created_at: string;
+  converted_at: string | null;
+}
