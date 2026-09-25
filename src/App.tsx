@@ -87,6 +87,7 @@ const FranchiseGovernancePage = lazy(() => import('@/pages/FranchiseGovernancePa
 const BusinessContradictionsPage = lazy(() => import('@/pages/BusinessContradictionsPage').then((m) => ({ default: m.BusinessContradictionsPage })));
 const CounterfactualLibraryPage = lazy(() => import('@/pages/CounterfactualLibraryPage').then((m) => ({ default: m.CounterfactualLibraryPage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
+const BusinessEvolutionRoadmapPage = lazy(() => import('@/pages/BusinessEvolutionRoadmapPage').then((m) => ({ default: m.BusinessEvolutionRoadmapPage })));
 const BusinessConstitutionPage = lazy(() => import('@/pages/BusinessConstitutionPage').then((m) => ({ default: m.BusinessConstitutionPage })));
 const ValueAtRiskPage = lazy(() => import('@/pages/ValueAtRiskPage').then((m) => ({ default: m.ValueAtRiskPage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
@@ -539,6 +540,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CommitmentGraphPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/roadmap"
+          element={
+            <ProtectedRoute>
+              <BusinessEvolutionRoadmapPage />
             </ProtectedRoute>
           }
         />
