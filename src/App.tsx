@@ -97,6 +97,7 @@ const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ de
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
+const CausalShockSimulatorPage = lazy(() => import('@/pages/CausalShockSimulatorPage').then((m) => ({ default: m.CausalShockSimulatorPage })));
 const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerformancePage').then((m) => ({ default: m.TechnicianPerformancePage })));
 const TechnicianSkillGraphPage = lazy(() => import('@/pages/TechnicianSkillGraphPage').then((m) => ({ default: m.TechnicianSkillGraphPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
@@ -1026,6 +1027,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CapacityDemandPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/causal-shock-simulator"
+          element={
+            <ProtectedRoute>
+              <CausalShockSimulatorPage />
             </ProtectedRoute>
           }
         />
