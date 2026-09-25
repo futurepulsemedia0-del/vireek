@@ -17,8 +17,8 @@
  *
  * No I/O here. negativeKnowledgeApi.ts persists.
  */
-
 import { shrink } from '@/lib/outcomeLearning';
+import { supabase } from '@/lib/supabase';
 
 export type NegativeActionKind = 'offer' | 'script' | 'technician' | 'schedule';
 export type NegativeOutcome = 'converted' | 'completed' | 'declined' | 'opted_out' | 'callback' | 'cancelled';
@@ -35,7 +35,6 @@ export interface NegativeContext {
 
 export interface NegativeEvent {
   action_kind: NegativeActionKind;
-  /** Offer id, script id, technician id, or job-type key. */
   subject_key: string;
   outcome: NegativeOutcome;
   context: NegativeContext;
@@ -76,7 +75,6 @@ export const NEGATIVE_LEARNING = {
 } as const;
 
 const DAY_MS = 86_400_000;
-
 const FAILURES: ReadonlySet<NegativeOutcome> = new Set(['declined', 'opted_out', 'callback', 'cancelled']);
 
 export const isFailure = (outcome: NegativeOutcome): boolean => FAILURES.has(outcome);
@@ -163,14 +161,12 @@ interface Group {
 export function deriveRules(events: NegativeEvent[], now: number = Date.now()): DraftRule[] {
   const cutoff = now - NEGATIVE_LEARNING.windowDays * DAY_MS;
   const recent = events.filter((e) => Date.parse(e.recorded_at) >= cutoff);
-
   const baseline = new Map<NegativeActionKind, number>();
   for (const kind of KINDS) {
     const rows = recent.filter((e) => e.action_kind === kind);
     const failures = rows.filter((e) => isFailure(e.outcome)).length;
     baseline.set(kind, shrink(rows.length > 0 ? failures / rows.length : 0, rows.length, NEGATIVE_LEARNING.baselinePrior));
   }
-
   const groups = new Map<string, Group>();
   for (const e of recent) {
     for (const f of facetsFor(e.action_kind, e.subject_key, e.context)) {
@@ -179,20 +175,16 @@ export function deriveRules(events: NegativeEvent[], now: number = Date.now()): 
       groups.set(f.key, g);
     }
   }
-
   const rules: DraftRule[] = [];
   for (const g of groups.values()) {
     const failures = g.rows.filter((e) => isFailure(e.outcome));
     if (g.rows.length < NEGATIVE_LEARNING.minSamples || failures.length < NEGATIVE_LEARNING.minFailures) continue;
-
     const base = baseline.get(g.kind) ?? NEGATIVE_LEARNING.baselinePrior;
     const lift = shrink(failures.length / g.rows.length, g.rows.length, base) - base;
     if (lift < NEGATIVE_LEARNING.minLift) continue;
-
     const top = topOutcome(failures.map((e) => e.outcome));
     const topLabel = top ? OUTCOME_LABEL[top] : 'failed';
     const baselinePct = Math.round(base * 100);
-
     rules.push({
       facet: g.facet,
       action_kind: g.kind,
@@ -210,7 +202,6 @@ export function deriveRules(events: NegativeEvent[], now: number = Date.now()): 
       },
     });
   }
-
   return rules.sort(
     (a, b) => Number(b.severity === 'avoid') - Number(a.severity === 'avoid') || b.evidence.failure_pct - a.evidence.failure_pct,
   );
@@ -241,12 +232,118 @@ export function evaluateGuard(proposal: GuardProposal, rules: NegativeRule[]): G
     .filter((r) => r.status === 'active' && keys.has(r.facet))
     .sort((a, b) => Number(b.severity === 'avoid') - Number(a.severity === 'avoid'))
     .map(({ facet, severity, title, rationale }) => ({ facet, severity, title, rationale }));
-
   const decision: GuardResult['decision'] = warnings.some((w) => w.severity === 'avoid')
     ? 'avoid'
     : warnings.length > 0
       ? 'caution'
       : 'allow';
-
   return { decision, warnings };
+}
+
+// ==================================================================
+// Negative Knowledge Engine API (Supabase backed)
+// ==================================================================
+
+export type NegativeKnowledgeSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type NegativeKnowledgeConfidence = 'low' | 'medium' | 'high';
+export type NegativeKnowledgeStatus = 'active' | 'resolved' | 'superseded';
+export type NegativeKnowledgeSourceType = 'agent' | 'workflow' | 'integration' | 'human_decision';
+
+export const NEGATIVE_KNOWLEDGE_DOMAINS = [
+  'dispatch',
+  'pricing',
+  'outbound_calling',
+  'scheduling',
+  'workflow',
+  'vendor_procurement',
+  'customer_communication',
+] as const;
+
+export interface NegativeKnowledgeEntry {
+  id: string;
+  domain: string;
+  strategy: string;
+  action_description: string;
+  context_conditions: Record<string, unknown>;
+  failure_reason: string;
+  outcome_summary: string | null;
+  severity: NegativeKnowledgeSeverity;
+  confidence: NegativeKnowledgeConfidence;
+  business_impact_cents: number | null;
+  source_type: NegativeKnowledgeSourceType | null;
+  source_entity_key: string | null;
+  source_event_id: string | null;
+  status: NegativeKnowledgeStatus;
+  resolved_reason: string | null;
+  times_matched: number;
+  last_matched_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LogNegativeKnowledgeInput {
+  domain: string;
+  strategy: string;
+  actionDescription: string;
+  contextConditions?: Record<string, unknown>;
+  failureReason: string;
+  outcomeSummary?: string;
+  severity?: NegativeKnowledgeSeverity;
+  confidence?: NegativeKnowledgeConfidence;
+  businessImpactCents?: number;
+  sourceType?: NegativeKnowledgeSourceType;
+  sourceEntityKey?: string;
+  sourceEventId?: string;
+}
+
+export async function fetchNegativeKnowledgeEntries(filters?: {
+  domain?: string;
+  status?: NegativeKnowledgeStatus;
+}): Promise<NegativeKnowledgeEntry[]> {
+  let query = supabase.from('negative_knowledge_entries').select('*').order('created_at', { ascending: false }).limit(200);
+  if (filters?.domain) query = query.eq('domain', filters.domain);
+  if (filters?.status) query = query.eq('status', filters.status);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data as NegativeKnowledgeEntry[]) ?? [];
+}
+
+export async function logNegativeKnowledgeEntry(input: LogNegativeKnowledgeInput): Promise<void> {
+  const { error } = await supabase.from('negative_knowledge_entries').insert({
+    domain: input.domain,
+    strategy: input.strategy,
+    action_description: input.actionDescription,
+    context_conditions: input.contextConditions ?? {},
+    failure_reason: input.failureReason,
+    outcome_summary: input.outcomeSummary ?? null,
+    severity: input.severity ?? 'medium',
+    confidence: input.confidence ?? 'medium',
+    business_impact_cents: input.businessImpactCents ?? null,
+    source_type: input.sourceType ?? null,
+    source_entity_key: input.sourceEntityKey ?? null,
+    source_event_id: input.sourceEventId ?? null,
+  });
+  if (error) throw error;
+}
+
+export async function checkNegativeKnowledge(
+  domain: string,
+  context: Record<string, unknown> = {},
+): Promise<NegativeKnowledgeEntry[]> {
+  const { data, error } = await supabase.rpc('check_negative_knowledge', { p_domain: domain, p_context: context });
+  if (error) throw error;
+  return (data as NegativeKnowledgeEntry[]) ?? [];
+}
+
+export async function recordNegativeKnowledgeMatch(entryId: string): Promise<void> {
+  const { error } = await supabase.rpc('record_negative_knowledge_match', { p_entry_id: entryId });
+  if (error) console.warn('recordNegativeKnowledgeMatch failed:', error.message);
+}
+
+export async function resolveNegativeKnowledgeEntry(entryId: string, resolvedReason: string): Promise<void> {
+  const { error } = await supabase
+    .from('negative_knowledge_entries')
+    .update({ status: 'resolved', resolved_reason: resolvedReason })
+    .eq('id', entryId);
+  if (error) throw error;
 }
