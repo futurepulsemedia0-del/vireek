@@ -47,6 +47,7 @@ const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ 
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
+const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPage').then((m) => ({ default: m.BusinessDigitalTwinPage })));
 const BusinessRealityPage = lazy(() => import('@/pages/BusinessRealityPage').then((m) => ({ default: m.BusinessRealityPage })));
 const InvisibleRevenueMapPage = lazy(() => import('@/pages/InvisibleRevenueMapPage').then((m) => ({ default: m.InvisibleRevenueMapPage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
@@ -482,6 +483,14 @@ function App() {
           element={
             <ProtectedRoute>
               <RegretConsolePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/digital-twin"
+          element={
+            <ProtectedRoute>
+              <BusinessDigitalTwinPage />
             </ProtectedRoute>
           }
         />
