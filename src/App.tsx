@@ -39,6 +39,7 @@ const CustomerIntelligencePage = lazy(() => import('@/pages/CustomerIntelligence
 const TradePlaybooksPage = lazy(() => import('@/pages/TradePlaybooksPage').then((m) => ({ default: m.TradePlaybooksPage })));
 const PlaybooksPage = lazy(() => import('@/pages/PlaybooksPage').then((m) => ({ default: m.PlaybooksPage })));
 const AgentGovernancePage = lazy(() => import('@/pages/AgentGovernancePage').then((m) => ({ default: m.AgentGovernancePage })));
+const AutonomyBudgetPage = lazy(() => import('@/pages/AutonomyBudgetPage').then((m) => ({ default: m.AutonomyBudgetPage })));
 const ExecutionReliabilityPage = lazy(() => import('@/pages/ExecutionReliabilityPage').then((m) => ({ default: m.ExecutionReliabilityPage })));
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
@@ -910,6 +911,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AgentGovernancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/autonomy-budget"
+          element={
+            <ProtectedRoute>
+              <AutonomyBudgetPage />
             </ProtectedRoute>
           }
         />
