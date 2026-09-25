@@ -25,6 +25,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { getRescheduleLink } from '@/lib/reschedule';
+import { checkConstitution } from '@/lib/constitution';
 import { getTrackingLink, setJobEta, pushTechnicianLocation, QUICK_ETA_OPTIONS } from '@/lib/liveTracking';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
@@ -1022,6 +1023,18 @@ export function JobsPage() {
 
   // Mutations
   const updateJobStatus = async (jobId: string, status: JobStatus) => {
+    if (status === 'cancelled' && user) {
+      const job = allJobs.find((j) => j.id === jobId);
+      try {
+        const check = await checkConstitution(user.id, 'cancel_customer', { customer_phone: job?.customer_phone ?? '' });
+        if (!check.allowed) {
+          toast(check.reason ?? 'Blocked by your Business Constitution — a VIP customer needs recent human contact before cancelling.', 'error');
+          return;
+        }
+      } catch {
+        /* constitution check failing open is safer than silently blocking every cancellation */
+      }
+    }
     try {
       const { error } = await supabase.from('jobs').update({ job_status: status }).eq('id', jobId);
       if (error) throw error;
