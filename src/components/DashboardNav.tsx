@@ -91,6 +91,7 @@ import {
   Fingerprint,
   Crosshair,
   Microscope,
+  MessageCircle,
   Compass,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -203,6 +204,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
   { label: 'Business Contradictions', href: '/dashboard/contradictions', icon: AlertOctagon },
   { label: 'Counterfactual Library', href: '/dashboard/counterfactuals', icon: GitBranch },
+  { label: 'Community', href: '/dashboard/community', icon: MessageCircle },
   { label: 'Negative Knowledge Store', href: '/dashboard/negative-knowledge', icon: History },
   { label: 'Commitment Graph', href: '/dashboard/commitments', icon: ShieldCheck },
   { label: 'Evolution Roadmap', href: '/dashboard/roadmap', icon: Compass, requiresPermission: 'can_view_billing' },
