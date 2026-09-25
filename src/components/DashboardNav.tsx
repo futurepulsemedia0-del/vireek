@@ -143,6 +143,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Decision Engine', href: '/dashboard/decision-engine', icon: Cpu, requiresPermission: 'can_view_billing' },
+  { label: 'Causal World Simulator', href: '/dashboard/causal-simulator', icon: GitBranch, requiresPermission: 'can_view_billing' },
   { label: 'Regret Console', href: '/dashboard/regret-console', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Business Digital Twin', href: '/dashboard/digital-twin', icon: Layers, requiresPermission: 'can_view_billing' },
   { label: 'Business World Model', href: '/dashboard/world-model', icon: Network, requiresPermission: 'can_view_billing' },
