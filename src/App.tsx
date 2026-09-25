@@ -70,6 +70,7 @@ const ComplianceCenterPage = lazy(() => import('@/pages/ComplianceCenterPage').t
 const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage').then((m) => ({ default: m.CallbackRootCausePage })));
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
+const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
@@ -963,6 +964,14 @@ function App() {
   element={
     <ProtectedRoute>
       <AccountingPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/payroll"
+  element={
+    <ProtectedRoute>
+      <PayrollPage />
     </ProtectedRoute>
   }
 />
