@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StaffRoute } from '@/components/StaffRoute';
+import { PartnerRoute } from '@/components/PartnerRoute';
 import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { AriaLiveRegion } from '@/lib/a11y/announcer';
 
@@ -179,6 +180,14 @@ const PressPage = lazy(() => import('@/pages/PressPage').then((m) => ({ default:
 const BrandGuidelinesPage = lazy(() => import('@/pages/BrandGuidelinesPage').then((m) => ({ default: m.BrandGuidelinesPage })));
 const PartnersPage = lazy(() => import('@/pages/PartnersPage').then((m) => ({ default: m.PartnersPage })));
 const AffiliatePage = lazy(() => import('@/pages/AffiliatePage').then((m) => ({ default: m.AffiliatePage })));
+const PartnerApplyPage = lazy(() => import('@/pages/PartnerApplyPage').then((m) => ({ default: m.PartnerApplyPage })));
+const PartnerPortalDashboardPage = lazy(() => import('@/pages/PartnerPortalDashboardPage').then((m) => ({ default: m.PartnerPortalDashboardPage })));
+const PartnerPortalReferralsPage = lazy(() => import('@/pages/PartnerPortalReferralsPage').then((m) => ({ default: m.PartnerPortalReferralsPage })));
+const PartnerPortalResourcesPage = lazy(() => import('@/pages/PartnerPortalResourcesPage').then((m) => ({ default: m.PartnerPortalResourcesPage })));
+const PartnerPortalCertificationPage = lazy(() => import('@/pages/PartnerPortalCertificationPage').then((m) => ({ default: m.PartnerPortalCertificationPage })));
+const PartnerCertificatePage = lazy(() => import('@/pages/PartnerCertificatePage').then((m) => ({ default: m.PartnerCertificatePage })));
+const PartnerReferralRedirectPage = lazy(() => import('@/pages/PartnerReferralRedirectPage').then((m) => ({ default: m.PartnerReferralRedirectPage })));
+const PartnerApplicationsAdminPage = lazy(() => import('@/pages/admin/PartnerApplicationsAdminPage').then((m) => ({ default: m.PartnerApplicationsAdminPage })));
 const ReferralPage = lazy(() => import('@/pages/ReferralPage').then((m) => ({ default: m.ReferralPage })));
 const BetaProgramPage = lazy(() => import('@/pages/BetaProgramPage').then((m) => ({ default: m.BetaProgramPage })));
 const WebinarsPage = lazy(() => import('@/pages/WebinarsPage').then((m) => ({ default: m.WebinarsPage })));
@@ -252,6 +261,14 @@ function App() {
           element={
             <StaffRoute>
               <SupportInboxPage />
+            </StaffRoute>
+          }
+        />
+        <Route
+          path="/staff/partners"
+          element={
+            <StaffRoute>
+              <PartnerApplicationsAdminPage />
             </StaffRoute>
           }
         />
@@ -329,6 +346,41 @@ function App() {
         <Route path="/pay-result" element={<PaymentResultPage />} />
         <Route path="/affiliate" element={<AffiliatePage />} />
         <Route path="/referral" element={<ReferralPage />} />
+        <Route path="/r/:code" element={<PartnerReferralRedirectPage />} />
+        <Route path="/partner-portal/apply" element={<PartnerApplyPage />} />
+        <Route path="/partner-portal/certificate" element={<PartnerCertificatePage />} />
+        <Route
+          path="/partner-portal"
+          element={
+            <PartnerRoute>
+              <PartnerPortalDashboardPage />
+            </PartnerRoute>
+          }
+        />
+        <Route
+          path="/partner-portal/referrals"
+          element={
+            <PartnerRoute>
+              <PartnerPortalReferralsPage />
+            </PartnerRoute>
+          }
+        />
+        <Route
+          path="/partner-portal/resources"
+          element={
+            <PartnerRoute>
+              <PartnerPortalResourcesPage />
+            </PartnerRoute>
+          }
+        />
+        <Route
+          path="/partner-portal/certification"
+          element={
+            <PartnerRoute>
+              <PartnerPortalCertificationPage />
+            </PartnerRoute>
+          }
+        />
         <Route path="/beta" element={<BetaProgramPage />} />
         <Route path="/webinars" element={<WebinarsPage />} />
         <Route path="/roi" element={<CustomerRoiPage />} />
