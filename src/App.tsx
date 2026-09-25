@@ -53,6 +53,7 @@ const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEn
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
 const DecisionDebtPage = lazy(() => import('@/pages/DecisionDebtPage').then((m) => ({ default: m.DecisionDebtPage })));
+const OperationalEntropyPage = lazy(() => import('@/pages/OperationalEntropyPage').then((m) => ({ default: m.OperationalEntropyPage })));
 const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPage').then((m) => ({ default: m.BusinessDigitalTwinPage })));
 const BusinessWorldModelPage = lazy(() => import('@/pages/BusinessWorldModelPage').then((m) => ({ default: m.BusinessWorldModelPage })));
 const BusinessRealityPage = lazy(() => import('@/pages/BusinessRealityPage').then((m) => ({ default: m.BusinessRealityPage })));
@@ -558,6 +559,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DecisionDebtPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/entropy"
+          element={
+            <ProtectedRoute>
+              <OperationalEntropyPage />
             </ProtectedRoute>
           }
         />
