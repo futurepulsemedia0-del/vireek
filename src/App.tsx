@@ -91,6 +91,7 @@ const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').the
 const BusinessEvolutionRoadmapPage = lazy(() => import('@/pages/BusinessEvolutionRoadmapPage').then((m) => ({ default: m.BusinessEvolutionRoadmapPage })));
 const BusinessConstitutionPage = lazy(() => import('@/pages/BusinessConstitutionPage').then((m) => ({ default: m.BusinessConstitutionPage })));
 const ValueAtRiskPage = lazy(() => import('@/pages/ValueAtRiskPage').then((m) => ({ default: m.ValueAtRiskPage })));
+const UncertaintyMapPage = lazy(() => import('@/pages/UncertaintyMapPage').then((m) => ({ default: m.UncertaintyMapPage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
@@ -568,11 +569,19 @@ function App() {
             </ProtectedRoute>
           }
         />
-<Route
+        <Route
   path="/dashboard/value-at-risk"
   element={
     <ProtectedRoute>
       <ValueAtRiskPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/uncertainty-map"
+  element={
+    <ProtectedRoute>
+      <UncertaintyMapPage />
     </ProtectedRoute>
   }
 />
