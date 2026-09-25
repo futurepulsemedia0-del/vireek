@@ -85,6 +85,7 @@ import {
   Stethoscope,
   ClipboardCheck,
   Radar,
+  Fingerprint,
   Microscope,
   Compass,
 } from 'lucide-react';
@@ -196,6 +197,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Evolution Roadmap', href: '/dashboard/roadmap', icon: Compass, requiresPermission: 'can_view_billing' },
   { label: 'Business Constitution', href: '/dashboard/constitution', icon: Scale },
   { label: 'Value at Risk', href: '/dashboard/value-at-risk', icon: Radar, requiresPermission: 'can_view_billing' },
+  { label: 'Uncertainty & Evidence Map', href: '/dashboard/uncertainty-map', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trade Playbooks', href: '/dashboard/trade-playbooks', icon: ClipboardCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
