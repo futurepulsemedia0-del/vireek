@@ -311,6 +311,114 @@ export function downloadRoiCalculatorPdf(inputs: RoiCalculatorInputs, results: R
 
   doc.save('vireek-roi-report.pdf');
 }
+// ============================================================
+// ESTIMATE ROI CALCULATOR PDF
+// ============================================================
+
+export interface EstimateRoiCalculatorInputs {
+  technicians: number;
+  monthlyEstimates: number;
+  avgTicket: number;
+  coldRate: number;
+}
+
+export interface EstimateRoiCalculatorResults {
+  monthlyLoss: number;
+  annualLoss: number;
+  recoveredJobsPerMonth: number;
+  monthlyOpportunity: number;
+  perTechAnnual: number;
+}
+
+export function downloadEstimateRoiCalculatorPdf(
+  inputs: EstimateRoiCalculatorInputs,
+  results: EstimateRoiCalculatorResults
+): void {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  let y = drawHeader(doc, 'ROI Report', 'Estimate Recovery Calculator');
+
+  y = drawParagraph(
+    doc,
+    'Based on the numbers you entered, here is what stalled estimates are estimated to cost your business — and what Vireek could recover.',
+    y,
+    { color: MUTED }
+  );
+  y += 18;
+
+  y = drawSectionLabel(doc, 'Your inputs', y);
+  const inputRows: [string, string][] = [
+    ['Technicians on your team', `${inputs.technicians}`],
+    ['Estimates sent per month', `${inputs.monthlyEstimates} estimates`],
+    ['Average ticket value', currency(inputs.avgTicket)],
+    ['% of estimates that go cold', `${inputs.coldRate}%`],
+  ];
+  inputRows.forEach(([label, value], i) => {
+    const rowY = y + i * 20;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...MUTED);
+    doc.text(label, MARGIN, rowY);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...INK);
+    doc.text(value, PAGE_WIDTH - MARGIN, rowY, { align: 'right' });
+  });
+  y += inputRows.length * 20 + 20;
+
+  doc.setDrawColor(...LINE);
+  doc.line(MARGIN, y, PAGE_WIDTH - MARGIN, y);
+  y += 26;
+
+  y = drawSectionLabel(doc, 'Estimated revenue lost per year', y);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(30);
+  doc.setTextColor(...DANGER);
+  doc.text(currency(results.annualLoss), MARGIN, y + 16);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(...MUTED);
+  doc.text(`That's roughly ${currency(results.monthlyLoss)} every month.`, MARGIN, y + 36);
+  y += 60;
+
+  const cardWidth = CONTENT_WIDTH / 2 - 8;
+  const cardHeight = 66;
+  doc.setFillColor(232, 246, 240);
+  doc.roundedRect(MARGIN, y, cardWidth, cardHeight, 8, 8, 'F');
+  doc.setFillColor(234, 238, 253);
+  doc.roundedRect(MARGIN + cardWidth + 16, y, cardWidth, cardHeight, 8, 8, 'F');
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...MUTED);
+  doc.text('ESTIMATES RECOVERED / MO', MARGIN + 14, y + 20);
+  doc.text('MONTHLY OPPORTUNITY', MARGIN + cardWidth + 16 + 14, y + 20);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.setTextColor(...SUCCESS);
+  doc.text(String(results.recoveredJobsPerMonth), MARGIN + 14, y + 46);
+  doc.setTextColor(...ACCENT);
+  doc.text(currency(results.monthlyOpportunity), MARGIN + cardWidth + 16 + 14, y + 46);
+
+  y += cardHeight + 26;
+
+  doc.setFillColor(234, 238, 253);
+  const noteLines = doc.splitTextToSize(
+    `Vireek follows up on every stalled estimate automatically. That's roughly ${currency(results.perTechAnnual)} per technician, per year, left on the table.`,
+    CONTENT_WIDTH - 28
+  );
+  doc.roundedRect(MARGIN, y, CONTENT_WIDTH, noteLines.length * 13 + 24, 8, 8, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(...ACCENT);
+  doc.text(noteLines, MARGIN + 14, y + 18);
+
+  drawFooter(
+    doc,
+    'Estimate only, based on the figures you entered and industry benchmarks for estimate follow-up. Actual results depend on your trade, ticket size, and current follow-up process.'
+  );
+
+  doc.save('vireek-estimate-roi-report.pdf');
+}
 
 // ============================================================
 // INSURANCE CLAIM SUMMARY PDF
