@@ -212,6 +212,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trade Playbooks', href: '/dashboard/trade-playbooks', icon: ClipboardCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
+  { label: 'Execution Reliability', href: '/dashboard/execution-reliability', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Vendor & Procurement', href: '/dashboard/procurement', icon: Truck, requiresPermission: 'can_view_billing' },
 ];
 
