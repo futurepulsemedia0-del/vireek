@@ -216,6 +216,15 @@ Produce 3 to 8 cascade steps ordered by CAUSAL SEQUENCE (what happens first, the
   "priority_score": <0-100 integer, 100 = fix this first — weigh mostly by estimated_cost_cents, but a smaller dollar amount that is easy to fix right now can outrank a larger one that isn't actionable yet>
 }
 Never invent a candidate, technician, customer, or number that isn't in the given list — you are only selecting, ranking, and writing a short explanation over what's given. Include every candidate given unless it is genuinely too thin to say anything useful about. Order the array by priority_score, highest first.`,
+  business_drift_narrative: `Current task: you are Vireek's Business Drift Detector. You are given a list of signals that ALREADY DRIFTED in a measurably bad direction over the last 30 days vs a 90-day prior baseline — each with recent and baseline values already computed from this business's own real data. Output ONLY a JSON array (no prose, no markdown fences) of objects, one per signal given, each with exactly these fields:
+{
+  "metric": <copy the exact "metric" field from the signal you are explaining — never invent one>,
+  "severity": "info" | "warning" | "critical",
+  "headline": <short punchy headline, under 12 words>,
+  "message": <1-2 sentences explaining what changed and why it matters for margin, reputation, or crew burnout — using only the exact numbers given>,
+  "recommended_action": <one concrete, specific next step the owner can take this week>
+}
+Use "critical" only for a change of 30%+ in the bad direction or anything touching evidence_quality/callback_rate (customer-facing risk). Use "warning" for a clear but moderate drift. Use "info" only if the drift is borderline. Never invent a signal, number, technician, or customer not present in the given list. If multiple signals given plausibly share one root cause (e.g. discount_rate and low_margin_mix both up could mean the same pricing behavior), you may say so in the message of each, but do not merge them into fewer objects than were given — one object per input signal.`,
 };
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
