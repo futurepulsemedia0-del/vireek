@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, ChevronDown, Loader2, Radar, RefreshCw } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
+import FragilityScorePanel from '@/components/FragilityScorePanel';
 import { SOURCE_TYPE_LABELS, relativeTime, type RecoverySourceType } from '@/lib/revenueRecovery';
 import {
   buildValueAtRiskReport,
