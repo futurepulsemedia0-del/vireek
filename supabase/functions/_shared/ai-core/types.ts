@@ -31,6 +31,7 @@ export type TaskType =
   | "causal_shock_extract"
   | "causal_shock_cascade";
   | "opportunity_cost_ranking";
+  | "business_drift_narrative";
 
 export interface NormalizedChatRequest {
   system: string;
