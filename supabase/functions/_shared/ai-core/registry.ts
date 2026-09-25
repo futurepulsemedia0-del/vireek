@@ -54,6 +54,7 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   callback_root_cause: JSON_CHAIN,
   causal_shock_extract: JSON_CHAIN,
   causal_shock_cascade: JSON_CHAIN,
+  opportunity_cost_ranking: JSON_CHAIN,
 };
 export function getRouteForTask(task: TaskType): RouteEntry[] {
   return [...(TASK_ROUTES[task] ?? DEFAULT_CHAIN)].sort((a, b) => a.priority - b.priority);
