@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EnterpriseDemoBookingCalendar } from '@/components/EnterpriseDemoBookingCalendar';
+import { SecurityPrivacy } from '@/components/sections/SecurityPrivacy';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { PRICING_PLANS, SALES_EMAIL } from '@/lib/pricing';
@@ -344,7 +345,8 @@ export function EnterprisePage() {
             </div>
           </div>
         </section>
-
+        
+        <SecurityPrivacy />
         {/* Security & compliance cross-links */}
         <section className="px-6 pb-20 sm:pb-24">
           <div className="mx-auto max-w-5xl">
