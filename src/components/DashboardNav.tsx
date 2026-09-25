@@ -166,6 +166,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Callback Root-Cause', href: '/dashboard/callback-root-cause', icon: Microscope },
   { label: 'Autonomy Readiness', href: '/dashboard/autonomy-readiness', icon: Gauge },
   { label: 'Accounting', href: '/dashboard/accounting', icon: BookOpen },
+  { label: 'Payroll', href: '/dashboard/payroll', icon: DollarSign },
   { label: 'Job Quality Gate', href: '/dashboard/job-quality-gate', icon: ClipboardCheck },
   { label: 'Warranty Claim Recovery', href: '/dashboard/warranty-claims', icon: FileClock },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
