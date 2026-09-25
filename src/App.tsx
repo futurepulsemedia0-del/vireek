@@ -121,6 +121,7 @@ const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').the
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
 const EmergencyOperationsPage = lazy(() => import('@/pages/EmergencyOperationsPage').then((m) => ({ default: m.EmergencyOperationsPage })));
 const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m) => ({ default: m.ProfitabilityPage })));
+const EconomicAutopilotPage = lazy(() => import('@/pages/EconomicAutopilotPage').then((m) => ({ default: m.EconomicAutopilotPage })));
 const TeamPage = lazy(() => import('@/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
 const BillingPage = lazy(() => import('@/pages/BillingPage').then((m) => ({ default: m.BillingPage })));
 const UpdatePaymentMethodPage = lazy(() => import('@/pages/UpdatePaymentMethodPage').then((m) => ({ default: m.UpdatePaymentMethodPage })));
@@ -1270,6 +1271,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfitabilityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/economic-autopilot"
+          element={
+            <ProtectedRoute>
+              <EconomicAutopilotPage />
             </ProtectedRoute>
           }
         />
