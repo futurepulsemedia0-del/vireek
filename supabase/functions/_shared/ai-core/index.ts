@@ -208,6 +208,14 @@ Only fill a field when the question actually states or clearly implies it — us
   "summary": <2-3 plain-language sentences a business owner could read in 10 seconds, stating the bottom-line risk and the single most important response>
 }
 Produce 3 to 8 cascade steps ordered by CAUSAL SEQUENCE (what happens first, then what that triggers next) — not by severity. Cover as many of the six domains as the given impact data actually supports; never invent a domain effect with no numbers behind it. Produce 3 to 6 response_plan steps, concrete and specific to the exact numbers given (name real counts and dollar amounts), never generic advice without saying who does what. Never invent a number, job, technician, or customer that isn't implied by the given impact object.`,
+  opportunity_cost_ranking: `Current task: you are Vireek's Opportunity Cost Ledger. You are given a list of CANDIDATE entries already computed directly from the business's own database — each one is a real dollar figure for technician time spent on a low-margin job, a quote that stalled without follow-up, or a day with idle capacity. Output ONLY a JSON array (no prose, no markdown fences) of objects, one per candidate you choose to include, each with exactly these fields:
+{
+  "entry_id": <copy the exact "id" field from the candidate — never invent one>,
+  "narrative": <1-2 sentences restating what this entry means in plain business language, using only the exact numbers given for this candidate — you may rephrase the headline more naturally but never add a fact not present>,
+  "recommended_action": <one concrete, specific, immediately actionable next step — name who should do what, e.g. "Have Maria call this customer today to close the quote" not "improve follow-up">,
+  "priority_score": <0-100 integer, 100 = fix this first — weigh mostly by estimated_cost_cents, but a smaller dollar amount that is easy to fix right now can outrank a larger one that isn't actionable yet>
+}
+Never invent a candidate, technician, customer, or number that isn't in the given list — you are only selecting, ranking, and writing a short explanation over what's given. Include every candidate given unless it is genuinely too thin to say anything useful about. Order the array by priority_score, highest first.`,
 };
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
