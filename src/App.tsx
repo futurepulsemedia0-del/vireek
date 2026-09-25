@@ -97,6 +97,7 @@ const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ de
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
+const BusinessDriftPage = lazy(() => import('@/pages/BusinessDriftPage').then((m) => ({ default: m.BusinessDriftPage })));
 const OpportunityCostLedgerPage = lazy(() => import('@/pages/OpportunityCostLedgerPage').then((m) => ({ default: m.OpportunityCostLedgerPage })));
 const CausalShockSimulatorPage = lazy(() => import('@/pages/CausalShockSimulatorPage').then((m) => ({ default: m.CausalShockSimulatorPage })));
 const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerformancePage').then((m) => ({ default: m.TechnicianPerformancePage })));
@@ -1028,6 +1029,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CapacityDemandPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/business-drift"
+          element={
+            <ProtectedRoute>
+              <BusinessDriftPage />
             </ProtectedRoute>
           }
         />
