@@ -5,6 +5,16 @@ export interface IndustryFAQ {
   a: string;
 }
 
+/** Seed values for this trade's dedicated ROI calculator on the industry page. */
+export interface IndustryRoi {
+  avgJobValue: number;
+  callsPerWeek: number;
+  missedPerWeek: number;
+  closeRate: number;
+  /** What "urgent" looks like for this trade, e.g. "burst-pipe & backup calls" */
+  emergencyLabel: string;
+}
+
 export interface Industry {
   slug: string;
   name: string;
@@ -19,6 +29,8 @@ export interface Industry {
   /** How Vireek handles calls for this trade, specifically */
   capabilities: string[];
   faq: IndustryFAQ[];
+  /** Defaults that seed this trade's dedicated ROI calculator */
+  roi: IndustryRoi;
 }
 
 export const INDUSTRIES: Industry[] = [
@@ -39,6 +51,7 @@ export const INDUSTRIES: Industry[] = [
       'Books service appointments directly onto your calendar based on your real availability.',
       'Flags true no-heat/no-cool emergencies for immediate dispatch instead of sitting in a queue.',
     ],
+    roi: { avgJobValue: 450, callsPerWeek: 60, missedPerWeek: 15, closeRate: 35, emergencyLabel: 'no-heat / no-cool calls' },
     faq: [
       {
         q: 'Can it tell the difference between an emergency and a routine maintenance call?',
@@ -71,6 +84,7 @@ export const INDUSTRIES: Industry[] = [
       'Captures address, issue, and urgency, then books or escalates based on your rules.',
       'Syncs every call and booking straight into your CRM — no manual re-entry.',
     ],
+    roi: { avgJobValue: 380, callsPerWeek: 55, missedPerWeek: 14, closeRate: 35, emergencyLabel: 'burst-pipe & sewer-backup calls' },
     faq: [
       {
         q: 'Can Vireek prioritize a sewer backup over a slow drain?',
@@ -99,6 +113,7 @@ export const INDUSTRIES: Industry[] = [
       'Captures damage details and contact info consistently, ready for your estimating team.',
       'Books inspection appointments automatically based on real crew availability.',
     ],
+    roi: { avgJobValue: 650, callsPerWeek: 40, missedPerWeek: 12, closeRate: 25, emergencyLabel: 'storm-damage calls' },
     faq: [
       {
         q: 'Can it handle a sudden spike in calls after a storm?',
@@ -123,6 +138,7 @@ export const INDUSTRIES: Industry[] = [
       'Books estimates and service calls straight onto your calendar, any time of day.',
       'Gives you a clean, searchable log of every call and outcome.',
     ],
+    roi: { avgJobValue: 400, callsPerWeek: 45, missedPerWeek: 12, closeRate: 30, emergencyLabel: 'no-power / safety calls' },
     faq: [
       {
         q: 'Does it recognize an electrical emergency versus a routine request?',
@@ -147,6 +163,7 @@ export const INDUSTRIES: Industry[] = [
       'Flags active flooding, fire damage, or safety hazards for instant dispatch.',
       'Keeps a full record of every call for insurance and follow-up purposes.',
     ],
+    roi: { avgJobValue: 1800, callsPerWeek: 30, missedPerWeek: 8, closeRate: 40, emergencyLabel: 'active flood / fire calls' },
     faq: [
       {
         q: 'Can Vireek dispatch a crew immediately for active flooding?',
@@ -171,6 +188,7 @@ export const INDUSTRIES: Industry[] = [
       'Flags lockout and security emergencies for immediate dispatch.',
       'Books non-emergency appointments like rekeying and security upgrades directly to your calendar.',
     ],
+    roi: { avgJobValue: 150, callsPerWeek: 70, missedPerWeek: 20, closeRate: 45, emergencyLabel: 'lockout emergencies' },
     faq: [
       {
         q: 'Can Vireek handle after-hours lockout emergencies?',
@@ -195,6 +213,7 @@ export const INDUSTRIES: Industry[] = [
       'Books initial inspections and recurring treatment visits straight onto your calendar.',
       'Flags urgent infestations (active bed bugs, structural termite damage) for same-day follow-up.',
     ],
+    roi: { avgJobValue: 250, callsPerWeek: 60, missedPerWeek: 15, closeRate: 30, emergencyLabel: 'active infestation calls' },
     faq: [
       {
         q: 'Can it tell the difference between a routine quarterly visit and an urgent infestation?',
@@ -223,6 +242,7 @@ export const INDUSTRIES: Industry[] = [
       'Captures property size, service type, and frequency to route recurring vs. one-time requests correctly.',
       'Books mowing and maintenance visits directly, and flags larger design/install jobs for a callback with details already collected.',
     ],
+    roi: { avgJobValue: 120, callsPerWeek: 50, missedPerWeek: 12, closeRate: 25, emergencyLabel: 'seasonal booking calls' },
     faq: [
       {
         q: 'Can it handle the seasonal call spike in spring?',
@@ -251,6 +271,7 @@ export const INDUSTRIES: Industry[] = [
       'Captures property size, service type, and frequency to quote and book new recurring clients.',
       'Handles reschedule and skip-a-visit requests directly against your calendar.',
     ],
+    roi: { avgJobValue: 180, callsPerWeek: 55, missedPerWeek: 14, closeRate: 30, emergencyLabel: 'new-client booking calls' },
     faq: [
       {
         q: 'Can it quote a recurring cleaning plan on the call?',
@@ -279,6 +300,7 @@ export const INDUSTRIES: Industry[] = [
       'Books weekly service signups and one-time repair visits directly onto your calendar.',
       'Flags equipment failures that need same-day dispatch based on your escalation rules.',
     ],
+    roi: { avgJobValue: 220, callsPerWeek: 40, missedPerWeek: 10, closeRate: 30, emergencyLabel: 'green-pool / equipment calls' },
     faq: [
       {
         q: 'Can it tell a green pool emergency from a routine question?',
@@ -307,6 +329,7 @@ export const INDUSTRIES: Industry[] = [
       'Books diagnostic and repair visits directly onto your calendar based on real availability.',
       'Flags high-urgency situations like a fridge full of spoiling food for faster scheduling.',
     ],
+    roi: { avgJobValue: 280, callsPerWeek: 45, missedPerWeek: 12, closeRate: 30, emergencyLabel: 'no-fridge / no-washer calls' },
     faq: [
       {
         q: 'Can it capture the appliance brand and model over the phone?',
@@ -335,6 +358,7 @@ export const INDUSTRIES: Industry[] = [
       'Captures property and system details up front so your sales or service team gets a qualified handoff.',
       'Books site assessments and service visits directly onto your calendar.',
     ],
+    roi: { avgJobValue: 12000, callsPerWeek: 25, missedPerWeek: 8, closeRate: 15, emergencyLabel: 'system-down service calls' },
     faq: [
       {
         q: 'Can it separate a new sales lead from an existing customer service call?',
@@ -363,6 +387,7 @@ export const INDUSTRIES: Industry[] = [
       'Books in-person estimate appointments directly onto your calendar.',
       'Separates residential from commercial inquiries so each gets routed and qualified correctly.',
     ],
+    roi: { avgJobValue: 2200, callsPerWeek: 30, missedPerWeek: 10, closeRate: 20, emergencyLabel: 'estimate requests' },
     faq: [
       {
         q: 'Can it capture enough detail for a useful estimate appointment?',
