@@ -888,6 +888,36 @@ export interface CashFlowSnapshot {
   created_at: string;
 }
 
+export interface CashFlowWarRoomAction {
+  action_type: 'chase_invoice' | 'push_quote' | 'delay_expense';
+  title: string;
+  detail: string;
+  ref_table: 'payment_requests' | 'quotes' | 'cash_flow_fixed_expenses';
+  ref_id: string;
+  impact_amount: number;
+  priority: number;
+}
+
+export interface CashFlowWarRoomPlan {
+  id: string;
+  user_id: string;
+  snapshot_id: string | null;
+  severity: 'safe' | 'watch' | 'critical';
+  runway_weeks: number | null;
+  shortfall_amount: number;
+  ai_summary: string;
+  actions: CashFlowWarRoomAction[];
+  created_at: string;
+}
+
+export interface CashFlowWarRoomActionLog {
+  id: string;
+  user_id: string;
+  plan_id: string;
+  action_index: number;
+  status: 'pending' | 'done' | 'dismissed';
+  updated_at: string;
+}
 export interface BusinessDecisionSettings {
   user_id: string;
   autonomy_enabled: boolean;
