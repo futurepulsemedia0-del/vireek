@@ -651,6 +651,44 @@ export interface ServiceRecoverySignal {
   updated_at: string;
 }
 
+export interface BusinessImmuneSignal {
+  id: string;
+  user_id: string;
+  category: 'revenue_shock' | 'reputation_threat' | 'operational_overload' | 'financial_irregularity' | 'integration_failure';
+  detector: string;
+  severity_score: number;
+  title: string;
+  detail: string | null;
+  metric_snapshot: Record<string, unknown>;
+  recommended_actions: string[];
+  status: 'active' | 'acknowledged' | 'contained' | 'resolved' | 'dismissed';
+  resolved_outcome: 'true_positive' | 'false_positive' | null;
+  detected_at: string;
+  acknowledged_at: string | null;
+  contained_at: string | null;
+  resolved_at: string | null;
+  created_at: string;
+}
+
+export interface BusinessImmuneAction {
+  id: string;
+  user_id: string;
+  signal_id: string;
+  action_type: 'notified_owner' | 'paged_owner_sms' | 'automation_paused' | 'acknowledged' | 'contained' | 'resolved' | 'dismissed' | 'note_added';
+  actor: 'system' | 'user';
+  detail: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface BusinessImmuneSettings {
+  user_id: string;
+  enabled: boolean;
+  sensitivity: 'low' | 'standard' | 'high';
+  notify_critical_via_sms: boolean;
+  muted_categories: string[];
+  updated_at: string;
+}
 export interface BusinessProfileEscalationRule {
   id: string;
   trigger: 'emergency' | 'after_hours' | 'no_answer' | 'human_request';
