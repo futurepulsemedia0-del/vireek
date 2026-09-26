@@ -237,6 +237,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Commitment Graph', href: '/dashboard/commitments', icon: ShieldCheck },
   { label: 'Evolution Roadmap', href: '/dashboard/roadmap', icon: Compass, requiresPermission: 'can_view_billing' },
   { label: 'Business Constitution', href: '/dashboard/constitution', icon: Scale },
+  { label: 'Market Intelligence', href: '/dashboard/market-intelligence', icon: Network },
   { label: 'Identity Learner', href: '/dashboard/identity', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Governance Center', href: '/dashboard/governance', icon: ShieldAlert },
   { label: 'Value at Risk', href: '/dashboard/value-at-risk', icon: Radar, requiresPermission: 'can_view_billing' },
