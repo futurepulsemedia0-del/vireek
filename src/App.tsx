@@ -58,6 +58,7 @@ const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m
 const BusinessIdentityPage = lazy(() => import('@/pages/BusinessIdentityPage').then((m) => ({ default: m.BusinessIdentityPage })));
 const BusinessScientistPage = lazy(() => import('@/pages/BusinessScientistPage').then((m) => ({ default: m.BusinessScientistPage })));
 const DecisionDebtPage = lazy(() => import('@/pages/DecisionDebtPage').then((m) => ({ default: m.DecisionDebtPage })));
+const DecisionLedgerPage = lazy(() => import('@/pages/DecisionLedgerPage').then((m) => ({ default: m.DecisionLedgerPage })));
 const OperationalEntropyPage = lazy(() => import('@/pages/OperationalEntropyPage').then((m) => ({ default: m.OperationalEntropyPage })));
 const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPage').then((m) => ({ default: m.BusinessDigitalTwinPage })));
 const BusinessWorldModelPage = lazy(() => import('@/pages/BusinessWorldModelPage').then((m) => ({ default: m.BusinessWorldModelPage })));
@@ -623,6 +624,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DecisionDebtPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/decision-ledger"
+          element={
+            <ProtectedRoute>
+              <DecisionLedgerPage />
             </ProtectedRoute>
           }
         />
