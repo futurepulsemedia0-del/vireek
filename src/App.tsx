@@ -77,6 +77,7 @@ const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ defa
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
+const BusinessImmuneSystemPage = lazy(() => import('@/pages/BusinessImmuneSystemPage').then((m) => ({ default: m.BusinessImmuneSystemPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
 const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m) => ({ default: m.CustomerSitesPage })));
@@ -473,6 +474,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ServiceRecoveryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/immune-system"
+          element={
+            <ProtectedRoute>
+              <BusinessImmuneSystemPage />
             </ProtectedRoute>
           }
         />
