@@ -121,6 +121,7 @@ const MarketIntelligencePage = lazy(() => import('@/pages/MarketIntelligencePage
 const GovernanceCenterPage = lazy(() => import('@/pages/GovernanceCenterPage').then((m) => ({ default: m.GovernanceCenterPage })));
 const SelfEvolvingModelPage = lazy(() => import('@/pages/SelfEvolvingModelPage').then((m) => ({ default: m.SelfEvolvingModelPage })));
 const ValueAtRiskPage = lazy(() => import('@/pages/ValueAtRiskPage').then((m) => ({ default: m.ValueAtRiskPage })));
+const RevenueAutopsyPage = lazy(() => import('@/pages/RevenueAutopsyPage').then((m) => ({ default: m.RevenueAutopsyPage })));
 const BottleneckMarketMakerPage = lazy(() => import('@/pages/BottleneckMarketMakerPage').then((m) => ({ default: m.BottleneckMarketMakerPage })));
 const UncertaintyMapPage = lazy(() => import('@/pages/UncertaintyMapPage').then((m) => ({ default: m.UncertaintyMapPage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
@@ -828,6 +829,14 @@ function App() {
   element={
     <ProtectedRoute>
       <ValueAtRiskPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/revenue-autopsy"
+  element={
+    <ProtectedRoute>
+      <RevenueAutopsyPage />
     </ProtectedRoute>
   }
 />
