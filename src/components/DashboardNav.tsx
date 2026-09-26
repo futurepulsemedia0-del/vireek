@@ -100,11 +100,15 @@ import {
   MessageCircle,
   Compass,
   Receipt,
+  Monitor,
+  Moon,
+  Sun,
+  Check,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from '@/contexts/ThemeContext';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
 import { SurgeModeBanner } from '@/components/SurgeModeBanner';
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
@@ -255,6 +259,11 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
+const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: typeof Sun }[] = [
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'system', label: 'System', icon: Monitor },
+];
 function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions) {
   return items.filter((item) => {
     if (item.ownerOnly && !isOwner) return false;
@@ -269,6 +278,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const location = useLocation();
   const { isOwner, permissions, signOut } = useAuth();
   const { toast } = useToast();
+  const { preference, setThemePreference } = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
 
@@ -291,6 +301,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions);
   const accountActive = visibleAccount.some((item) => isActive(item.href));
   const [accountOpen, setAccountOpen] = useState(accountActive);
+  const [themeOpen, setThemeOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -352,6 +363,52 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           </AnimatePresence>
         </div>
       )}
+
+      <div className="mt-2">
+        <button
+          type="button"
+          onClick={() => setThemeOpen((v) => !v)}
+          className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
+        >
+          Appearance
+          <ChevronDown size={14} className={`transition-transform ${themeOpen ? 'rotate-180' : ''}`} />
+        </button>
+        <AnimatePresence initial={false}>
+          {themeOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="flex flex-col gap-1 pt-1">
+                {THEME_OPTIONS.map((option) => {
+                  const active = preference === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setThemePreference(option.value)}
+                      className={`focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                        active
+                          ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/15'
+                          : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+                      }`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <option.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
+                        {option.label}
+                      </span>
+                      {active && <Check size={16} className="text-accent" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </nav>
   );
 
@@ -375,17 +432,14 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           {navContent}
         </div>
         <div className="border-t border-border px-3 py-4">
-          <div className="flex items-center gap-3 px-3 pb-3">
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-primary text-text-secondary transition-colors hover:border-danger/40 hover:text-danger"
-              aria-label="Sign out"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+          >
+            <LogOut size={18} />
+            Sign out
+          </button>
         </div>
       </aside>
 
@@ -400,7 +454,6 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           </Link>
           <div className="flex items-center gap-2">
             <NotificationBell />
-            <ThemeToggle />
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
