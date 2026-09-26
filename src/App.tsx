@@ -82,6 +82,7 @@ const BusinessImmuneSystemPage = lazy(() => import('@/pages/BusinessImmuneSystem
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
 const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m) => ({ default: m.CustomerSitesPage })));
+const PropertyDigitalTwinPage = lazy(() => import('@/pages/PropertyDigitalTwinPage').then((m) => ({ default: m.PropertyDigitalTwinPage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
@@ -837,6 +838,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CustomerSitesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/customers/:customerId/sites/:siteId/twin"
+          element={
+            <ProtectedRoute>
+              <PropertyDigitalTwinPage />
             </ProtectedRoute>
           }
         />
