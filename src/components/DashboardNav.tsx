@@ -165,6 +165,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Business Scientist', href: '/dashboard/business-scientist', icon: FlaskConical, requiresPermission: 'can_view_billing' },
   { label: 'Self-Evolving Operating Model', href: '/dashboard/operating-model', icon: Sparkles, requiresPermission: 'can_view_billing' },
   { label: 'Decision Debt', href: '/dashboard/decision-debt', icon: Hourglass, requiresPermission: 'can_view_billing' },
+  { label: 'Operations Center', href: '/dashboard/operations-center', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Decision Ledger', href: '/dashboard/decision-ledger', icon: ScrollText, requiresPermission: 'can_view_billing' },
   { label: 'Operational Entropy', href: '/dashboard/entropy', icon: Activity, requiresPermission: 'can_view_billing' },
   { label: 'Business Digital Twin', href: '/dashboard/digital-twin', icon: Layers, requiresPermission: 'can_view_billing' },
