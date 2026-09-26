@@ -66,6 +66,14 @@ export async function submitRoadmapItem(input: {
   return data as RoadmapItem;
 }
 
+export async function requestIntegration(title: string, note?: string): Promise<RoadmapItem> {
+  const { data, error } = await supabase.rpc('request_marketplace_integration', {
+    p_title: title.trim(),
+    p_note: note?.trim() || null,
+  });
+  if (error) throw error;
+  return data as RoadmapItem;
+}
 export async function voteRoadmapItem(itemId: string, userId: string) {
   const { error } = await supabase.from('roadmap_votes').insert({ item_id: itemId, user_id: userId });
   if (error) throw error;
