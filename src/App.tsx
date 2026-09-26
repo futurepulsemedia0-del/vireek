@@ -117,6 +117,7 @@ const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').the
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
 const BusinessEvolutionRoadmapPage = lazy(() => import('@/pages/BusinessEvolutionRoadmapPage').then((m) => ({ default: m.BusinessEvolutionRoadmapPage })));
 const BusinessConstitutionPage = lazy(() => import('@/pages/BusinessConstitutionPage').then((m) => ({ default: m.BusinessConstitutionPage })));
+const MarketIntelligencePage = lazy(() => import('@/pages/MarketIntelligencePage').then((m) => ({ default: m.MarketIntelligencePage })));
 const GovernanceCenterPage = lazy(() => import('@/pages/GovernanceCenterPage').then((m) => ({ default: m.GovernanceCenterPage })));
 const SelfEvolvingModelPage = lazy(() => import('@/pages/SelfEvolvingModelPage').then((m) => ({ default: m.SelfEvolvingModelPage })));
 const ValueAtRiskPage = lazy(() => import('@/pages/ValueAtRiskPage').then((m) => ({ default: m.ValueAtRiskPage })));
@@ -803,6 +804,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BusinessConstitutionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/market-intelligence"
+          element={
+            <ProtectedRoute>
+              <MarketIntelligencePage />
             </ProtectedRoute>
           }
         />
