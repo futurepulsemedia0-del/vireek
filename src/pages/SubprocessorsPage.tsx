@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Building2, Mail, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { SUBPROCESSOR_CATEGORIES, SUBPROCESSORS_LAST_UPDATED } from '@/lib/subprocessors';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { BackButton } from '@/components/ui/BackButton';
@@ -21,150 +21,7 @@ import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion'
 //      in DpaContent.tsx Section 5 (Sub-processors) before the change
 //      goes live for their account.
 
-const LAST_UPDATED = 'September 12, 2026';
 const CONTACT_EMAIL = 'ali@vireek.com';
-
-interface Processor {
-  name: string;
-  purpose: string;
-  location: string;
-  dataTypes: string;
-}
-
-interface Category {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  processors: Processor[];
-}
-
-const CATEGORIES: Category[] = [
-  {
-    icon: Building2,
-    title: 'Infrastructure & Hosting',
-    description: 'Core systems every account runs on.',
-    processors: [
-      {
-        name: 'Supabase, Inc.',
-        purpose: 'Database, authentication, and backend (edge function) hosting',
-        location: 'United States',
-        dataTypes: 'All account, call, lead, and job data',
-      },
-      {
-        name: 'Vercel Inc.',
-        purpose: 'Frontend website and dashboard hosting',
-        location: 'United States',
-        dataTypes: 'Website traffic; no call content',
-      },
-    ],
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Voice & AI Processing',
-    description: 'Providers that power Sarah\u2019s call handling and AI features.',
-    processors: [
-      {
-        name: 'Vapi Inc.',
-        purpose: 'Voice AI and telephony infrastructure for answering and routing calls',
-        location: 'United States',
-        dataTypes: 'Call audio, call transcripts, caller phone numbers',
-      },
-      {
-        name: 'Google LLC (Gemini API)',
-        purpose: 'AI language model used for call understanding and summarization',
-        location: 'United States',
-        dataTypes: 'Call transcripts and text prompts (no raw audio)',
-      },
-      {
-        name: 'Groq, Inc.',
-        purpose: 'AI inference (fallback provider in the model routing chain)',
-        location: 'United States',
-        dataTypes: 'Call transcripts and text prompts',
-      },
-      {
-        name: 'Cerebras Systems Inc.',
-        purpose: 'AI inference (fallback provider in the model routing chain)',
-        location: 'United States',
-        dataTypes: 'Call transcripts and text prompts',
-      },
-      {
-        name: 'Cloudflare, Inc. (Workers AI)',
-        purpose: 'AI inference (fallback provider in the model routing chain)',
-        location: 'United States',
-        dataTypes: 'Call transcripts and text prompts',
-      },
-      {
-        name: 'OpenRouter, Inc.',
-        purpose: 'AI inference routing (fallback provider in the model routing chain)',
-        location: 'United States',
-        dataTypes: 'Call transcripts and text prompts',
-      },
-    ],
-  },
-  {
-    icon: Mail,
-    title: 'Payments & Communications',
-    description: 'Billing and transactional messages.',
-    processors: [
-      {
-        name: 'Stripe, Inc.',
-        purpose: 'Payment processing and subscription billing',
-        location: 'United States',
-        dataTypes: 'Billing name, email, and payment details',
-      },
-      {
-        name: 'Resend',
-        purpose: 'Transactional email delivery (e.g. team invites)',
-        location: 'United States',
-        dataTypes: 'Recipient name and email address',
-      },
-    ],
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Analytics & Monitoring',
-    description: 'Keeping the product reliable and the website measurable.',
-    processors: [
-      {
-        name: 'Sentry (Functional Software, Inc.)',
-        purpose: 'Application error monitoring',
-        location: 'United States',
-        dataTypes: 'Technical error data; PII stripped before it leaves the browser',
-      },
-      {
-        name: 'Google LLC (Google Analytics)',
-        purpose: 'Website analytics',
-        location: 'United States',
-        dataTypes: 'Website usage data; only active with cookie consent',
-      },
-    ],
-  },
-  {
-    icon: Building2,
-    title: 'Customer-Optional Integrations',
-    description: 'Only involved if you choose to connect them from your dashboard.',
-    processors: [
-      {
-        name: 'Google LLC (Google Calendar)',
-        purpose: 'Appointment scheduling sync',
-        location: 'United States',
-        dataTypes: 'Appointment details, when connected',
-      },
-      {
-        name: 'Intuit Inc. (QuickBooks)',
-        purpose: 'Accounting sync',
-        location: 'United States',
-        dataTypes: 'Invoice and job data, when connected',
-      },
-      {
-        name: 'Zapier, Inc.',
-        purpose: 'Workflow automation',
-        location: 'United States',
-        dataTypes: 'Whatever data your configured Zap passes through, when connected',
-      },
-    ],
-  },
-];
 
 export function SubprocessorsPage() {
   useSEO({
@@ -203,11 +60,11 @@ export function SubprocessorsPage() {
                 </a>
                 , at the level of individual vendors.
               </p>
-              <p className="mt-3 text-sm text-text-secondary/70">Last updated: {LAST_UPDATED}</p>
+              <p className="mt-3 text-sm text-text-secondary/70">Last updated: {SUBPROCESSORS_LAST_UPDATED}</p>
             </motion.div>
 
             <div className="mt-12 space-y-10">
-              {CATEGORIES.map((category, ci) => (
+              {SUBPROCESSOR_CATEGORIES.map((category, ci) => (
                 <motion.div
                   key={category.title}
                   initial={{ opacity: 0, y: 16 }}
