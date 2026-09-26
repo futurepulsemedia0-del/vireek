@@ -912,6 +912,18 @@ export interface BusinessDecision {
   created_at: string;
 }
 
+export interface IdentityDriftAlert {
+  id: string;
+  user_id: string;
+  dimension: 'growth_vs_stability' | 'risk_tolerance' | 'price_position' | 'automation_trust' | 'speed_vs_quality';
+  baseline_value: number;
+  recent_value: number;
+  shift_magnitude: number;
+  title: string;
+  summary: string;
+  status: 'open' | 'acknowledged' | 'dismissed';
+  created_at: string;
+}
 export interface AiInsight {
 export interface CausalScenario {
   id: string;
