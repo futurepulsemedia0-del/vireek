@@ -348,6 +348,13 @@ export function CustomerSitesPage() {
                   </div>
                 </button>
                 <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/dashboard/customers/${customerId}/sites/${site.id}/twin`)}
+                    className={smallBtn}
+                  >
+                    <Wrench size={12} /> Digital Twin
+                  </button>
                   <button type="button" onClick={() => setAddingBuildingFor(site.id)} className={smallBtn}>
                     <Plus size={12} /> Building
                   </button>
