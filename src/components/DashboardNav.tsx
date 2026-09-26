@@ -153,6 +153,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Decision Engine', href: '/dashboard/decision-engine', icon: Cpu, requiresPermission: 'can_view_billing' },
   { label: 'Causal World Simulator', href: '/dashboard/causal-simulator', icon: GitBranch, requiresPermission: 'can_view_billing' },
+  { label: 'Continual Identity Learner', href: '/dashboard/identity-learner', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Regret Console', href: '/dashboard/regret-console', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Business Scientist', href: '/dashboard/business-scientist', icon: FlaskConical, requiresPermission: 'can_view_billing' },
   { label: 'Self-Evolving Operating Model', href: '/dashboard/operating-model', icon: Sparkles, requiresPermission: 'can_view_billing' },
