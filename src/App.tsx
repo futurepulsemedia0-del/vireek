@@ -32,6 +32,7 @@ const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) 
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
+const UnifiedInboxPage = lazy(() => import('@/pages/UnifiedInboxPage').then((m) => ({ default: m.UnifiedInboxPage })));
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
 const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
@@ -563,6 +564,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CallsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/inbox"
+          element={
+            <ProtectedRoute>
+              <UnifiedInboxPage />
             </ProtectedRoute>
           }
         />
