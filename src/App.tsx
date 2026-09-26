@@ -99,6 +99,7 @@ const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCe
 const FranchiseGovernancePage = lazy(() => import('@/pages/FranchiseGovernancePage').then((m) => ({ default: m.FranchiseGovernancePage })));
 const BusinessContradictionsPage = lazy(() => import('@/pages/BusinessContradictionsPage').then((m) => ({ default: m.BusinessContradictionsPage })));
 const CounterfactualLibraryPage = lazy(() => import('@/pages/CounterfactualLibraryPage').then((m) => ({ default: m.CounterfactualLibraryPage })));
+const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
@@ -653,6 +654,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CounterfactualLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/reality-engine"
+          element={
+            <ProtectedRoute>
+              <CounterfactualRealityEnginePage />
             </ProtectedRoute>
           }
         />
