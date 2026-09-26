@@ -23,6 +23,7 @@ export type TaskType =
   | "causal_world_simulator"
   | "continual_identity_learner"
   | "cash_flow_narrative"
+  | "cash_flow_war_room_plan"
   | "regional_demand_narrative"
   | "dispatch_copilot"
   | "promise_extraction"
