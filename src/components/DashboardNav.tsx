@@ -219,6 +219,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
   { label: 'Capacity Demand Control', href: '/dashboard/capacity-demand', icon: Gauge },
+  { label: 'Workforce Equilibrium', href: '/dashboard/workforce-equilibrium', icon: Scale },
   { label: 'Business Drift Detector', href: '/dashboard/business-drift', icon: Compass },
   { label: 'Opportunity Cost Ledger', href: '/dashboard/opportunity-cost', icon: Hourglass },
   { label: 'Causal Shock Simulator', href: '/dashboard/causal-shock-simulator', icon: Waves },
