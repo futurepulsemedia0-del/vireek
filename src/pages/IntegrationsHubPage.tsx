@@ -1,13 +1,24 @@
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Plug, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Plug, ShieldCheck, Search, ChevronUp, Loader as Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useSEO } from '@/lib/seo';
 import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { INTEGRATIONS } from '@/lib/integrations';
+import {
+  fetchRoadmapItems,
+  fetchMyVotedItemIds,
+  requestIntegration,
+  voteRoadmapItem,
+  unvoteRoadmapItem,
+  type RoadmapItem,
+} from '@/lib/roadmap';
 
 export function IntegrationsHubPage() {
   useSEO({
@@ -16,6 +27,125 @@ export function IntegrationsHubPage() {
       'Connect Vireek to QuickBooks, Google Calendar, Stripe, and Zapier. Keep your books, calendar, billing, and other tools in sync with every call Sarah answers.',
     canonical: 'https://vireek.com/integrations',
   });
+
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  const categories = useMemo(
+    () => ['all', ...Array.from(new Set(INTEGRATIONS.map((i) => i.category))).sort()],
+    []
+  );
+
+  const filteredIntegrations = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return [...INTEGRATIONS]
+      .filter((i) => activeCategory === 'all' || i.category === activeCategory)
+      .filter(
+        (i) =>
+          !q ||
+          i.name.toLowerCase().includes(q) ||
+          i.tagline.toLowerCase().includes(q) ||
+          i.category.toLowerCase().includes(q)
+      )
+      .sort((a, b) => (a.status === b.status ? 0 : a.status === 'live' ? -1 : 1));
+  }, [search, activeCategory]);
+
+  const [requests, setRequests] = useState<RoadmapItem[]>([]);
+  const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
+  const [votingId, setVotingId] = useState<string | null>(null);
+  const [requestsLoading, setRequestsLoading] = useState(true);
+  const [requestTitle, setRequestTitle] = useState('');
+  const [submittingRequest, setSubmittingRequest] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const items = await fetchRoadmapItems();
+        if (active) setRequests(items.filter((i) => i.category === 'integration').slice(0, 6));
+      } catch {
+        // This section is a nice-to-have on a marketing page — fail quiet.
+      } finally {
+        if (active) setRequestsLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setVotedIds(new Set());
+      return;
+    }
+    let active = true;
+    fetchMyVotedItemIds(user.id)
+      .then((ids) => active && setVotedIds(ids))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
+  async function handleToggleVote(item: RoadmapItem) {
+    if (!user) {
+      toast('Sign in to vote for an integration', 'info');
+      return;
+    }
+    if (votingId) return;
+    setVotingId(item.id);
+    const alreadyVoted = votedIds.has(item.id);
+    try {
+      if (alreadyVoted) {
+        await unvoteRoadmapItem(item.id, user.id);
+        setVotedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(item.id);
+          return next;
+        });
+        setRequests((prev) =>
+          prev.map((r) => (r.id === item.id ? { ...r, votes_count: Math.max(r.votes_count - 1, 0) } : r))
+        );
+      } else {
+        await voteRoadmapItem(item.id, user.id);
+        setVotedIds((prev) => new Set(prev).add(item.id));
+        setRequests((prev) => prev.map((r) => (r.id === item.id ? { ...r, votes_count: r.votes_count + 1 } : r)));
+      }
+    } catch {
+      toast('Something went wrong — try again', 'error');
+    } finally {
+      setVotingId(null);
+    }
+  }
+
+  async function handleRequestSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!user) {
+      toast('Sign in to request an integration', 'info');
+      return;
+    }
+    const title = requestTitle.trim();
+    if (!title) return;
+    setSubmittingRequest(true);
+    try {
+      const item = await requestIntegration(title);
+      setRequests((prev) => {
+        const withoutDup = prev.filter((r) => r.id !== item.id);
+        return [...withoutDup, item].sort((a, b) => b.votes_count - a.votes_count).slice(0, 6);
+      });
+      setVotedIds((prev) => new Set(prev).add(item.id));
+      setRequestTitle('');
+      toast(`Thanks! "${title}" is now on our public roadmap — vote for it below.`, 'success');
+    } catch {
+      toast('Could not submit your request — try again', 'error');
+    } finally {
+      setSubmittingRequest(false);
+    }
+  }
 
   return (
     <>
@@ -68,6 +198,46 @@ export function IntegrationsHubPage() {
               <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl`}>Connect Your Stack</h2>
             </motion.div>
 
+            {/* Search + category filter */}
+            <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-4 sm:mt-10">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary/60" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search integrations (e.g. QuickBooks, calendar, CRM)…"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-3 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent sm:text-base"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setActiveCategory(cat)}
+                    className={`focus-ring rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors sm:text-sm ${
+                      activeCategory === cat
+                        ? 'border-accent bg-accent/10 text-accent'
+                        : 'border-border bg-bg-secondary text-text-secondary hover:border-accent/30 hover:text-text-primary'
+                    }`}
+                  >
+                    {cat === 'all' ? 'All categories' : cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {filteredIntegrations.length === 0 && (
+              <p className="mt-10 text-center text-sm text-text-secondary">
+                No integrations match &ldquo;{search}&rdquo; — try a different search, or{' '}
+                <a href="#request-integration" className="font-semibold text-accent hover:underline">
+                  request it below
+                </a>
+                .
+              </p>
+            )}
+
             <motion.div
               variants={staggerContainer}
               initial="initial"
@@ -75,7 +245,7 @@ export function IntegrationsHubPage() {
               viewport={viewport}
               className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2"
             >
-              {[...INTEGRATIONS].sort((a, b) => (a.status === b.status ? 0 : a.status === 'live' ? -1 : 1)).map((integration) => {
+              {filteredIntegrations.map((integration) => {
                 const Icon = integration.icon;
                 const isLive = integration.status === 'live';
                 return (
@@ -108,24 +278,80 @@ export function IntegrationsHubPage() {
           </div>
         </section>
 
-        {/* Final CTA */}
-        <section className="px-5 pb-16 sm:px-6 sm:pb-24">
-          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-accent/30 bg-bg-secondary p-6 text-center shadow-card dark:shadow-card-dark sm:rounded-3xl sm:p-12">
+        {/* Request an integration + community-voted requests */}
+        <section id="request-integration" className="px-5 pb-16 sm:px-6 sm:pb-24">
+          <div className="relative mx-auto max-w-3xl overflow-hidden rounded-2xl border border-accent/30 bg-bg-secondary p-6 shadow-card dark:shadow-card-dark sm:rounded-3xl sm:p-10">
             <div className="absolute inset-0 -z-10 bg-gradient-to-br from-accent/[0.04] via-transparent to-cta/[0.04]" />
-            <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl md:text-4xl">
-              Don&rsquo;t see the tool you use?
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-text-secondary sm:text-base">
-              Zapier alone connects Vireek to thousands of other apps. Reach out and we&rsquo;ll help you
-              wire up the rest.
-            </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-              <Link to="/contact" className="w-full sm:w-auto">
-                <Button variant="primary" size="lg" className="w-full sm:w-auto">
-                  Talk to Us
-                </Button>
-              </Link>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl md:text-4xl">
+                Don&rsquo;t see the tool you use?
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-text-secondary sm:text-base">
+                Tell us what to build next. Every request lands on our public roadmap, where anyone can
+                vote — the most-wanted integrations get built first.
+              </p>
             </div>
+
+            {user ? (
+              <form onSubmit={handleRequestSubmit} className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  value={requestTitle}
+                  onChange={(e) => setRequestTitle(e.target.value)}
+                  placeholder="Name the tool you want to connect (e.g. Xero, ServiceFusion…)"
+                  maxLength={200}
+                  className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent sm:text-base"
+                />
+                <Button type="submit" variant="primary" disabled={submittingRequest || !requestTitle.trim()}>
+                  {submittingRequest ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Request it'}
+                </Button>
+              </form>
+            ) : (
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+                <Link to="/login" className="w-full sm:w-auto">
+                  <Button variant="primary" size="lg" className="w-full sm:w-auto">
+                    Sign In To Request
+                  </Button>
+                </Link>
+                <Link
+                  to="/contact"
+                  className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-text-primary transition-colors hover:text-accent sm:w-auto"
+                >
+                  Or talk to us
+                </Link>
+              </div>
+            )}
+
+            {!requestsLoading && requests.length > 0 && (
+              <div className="mt-8 border-t border-border pt-6">
+                <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                  Most requested by customers
+                </p>
+                <ul className="flex flex-col gap-2">
+                  {requests.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-primary px-4 py-3"
+                    >
+                      <span className="text-sm font-medium text-text-primary">{item.title}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleVote(item)}
+                        disabled={votingId === item.id}
+                        className={`focus-ring flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                          votedIds.has(item.id)
+                            ? 'border-accent bg-accent/10 text-accent'
+                            : 'border-border text-text-secondary hover:border-accent/30 hover:text-text-primary'
+                        }`}
+                      >
+                        <ChevronUp className="h-3.5 w-3.5" />
+                        {item.votes_count}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </section>
       </main>
