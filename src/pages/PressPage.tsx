@@ -12,7 +12,9 @@ import {
   Globe,
   Copy,
   Check,
+  Linkedin,
 } from 'lucide-react';
+import { FOUNDER_NAME, FOUNDER_TITLE, FOUNDER_PHOTO_URL, FOUNDER_LINKEDIN_URL, FOUNDER_BIO } from '@/lib/founder';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
@@ -79,6 +81,14 @@ const BRAND_ASSETS: BrandAsset[] = [
   },
 ];
 
+const SCREENSHOTS: { title: string; description: string; src: string }[] = [
+  { title: 'Command Center', description: 'Live call activity, dispatch, and revenue at a glance.', src: '/command-center.png' },
+  { title: 'Missed-Call Revenue Recovery', description: 'How Vireek turns missed calls back into booked revenue.', src: '/revenue.png' },
+  { title: 'Call Coaching', description: 'AI-generated call coaching and QA reports.', src: '/call-coach.png' },
+  { title: 'Emergency Detection', description: 'Real-time emergency-call detection and escalation.', src: '/emergency.png' },
+  { title: 'AI Memory', description: 'Customer and job history the AI uses on every call.', src: '/ai-memory.png' },
+  { title: 'Product Hero', description: 'Primary marketing screenshot of the Vireek product.', src: '/hero.png' },
+];
 const PRESS_TOPICS = [
   {
     icon: Wrench,
@@ -268,6 +278,111 @@ export function PressPage() {
           </div>
         </section>
 
+        {/* Screenshots */}
+        <section id="screenshots" className="scroll-mt-24 px-6 py-20 sm:py-24">
+          <div className="mx-auto max-w-6xl">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="mx-auto max-w-2xl text-center"
+            >
+              <p className={`${eyebrowClass()} text-center`}>Product Screenshots</p>
+              <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>See Vireek in action</h2>
+              <p className={`${bodyClass()} mx-auto text-center`}>
+                High-resolution product screenshots, free to use in articles and coverage.
+              </p>
+            </motion.div>
+
+            <motion.div
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="whileInView"
+              viewport={viewport}
+              className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {SCREENSHOTS.map(({ title, description, src }) => (
+                <motion.div key={title} variants={fadeUpItem} transition={{ duration: 0.4, ease: EASE }}>
+                  <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:bg-bg-secondary/95 dark:shadow-card-dark dark:hover:shadow-card-hover-dark">
+                    <img src={src} alt={title} className="aspect-video w-full object-cover" loading="lazy" />
+                    <div className="flex flex-1 flex-col p-6">
+                      <h3 className="text-base font-semibold text-text-primary">{title}</h3>
+                      <p className="mt-2 flex-1 text-sm leading-relaxed text-text-secondary">{description}</p>
+                      <a href={src} download className="mt-5">
+                        <Button variant="secondary" size="sm" className="w-full">
+                          <Download size={15} />
+                          Download
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Founder & Company */}
+        <section id="founder" className="scroll-mt-24 px-6 py-20 sm:py-24">
+          <div className="mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="mx-auto max-w-2xl text-center"
+            >
+              <p className={`${eyebrowClass()} text-center`}>Founder &amp; Company</p>
+              <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>Who&apos;s behind Vireek</h2>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+              className="mt-12 flex flex-col items-center gap-6 rounded-2xl border border-border bg-bg-secondary p-8 text-center shadow-card dark:bg-bg-secondary/95 dark:shadow-card-dark sm:flex-row sm:text-left"
+            >
+              <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full ring-4 ring-accent/10">
+                <img src={FOUNDER_PHOTO_URL} alt={FOUNDER_NAME} className="h-full w-full object-cover" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-text-primary">{FOUNDER_NAME}</h3>
+                <p className="text-sm font-medium text-accent">{FOUNDER_TITLE}</p>
+                <p className="mt-3 text-sm leading-relaxed text-text-secondary">{FOUNDER_BIO}</p>
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-4 sm:justify-start">
+                  
+                    href={FOUNDER_PHOTO_URL}
+                    download
+                    className="focus-ring inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
+                  >
+                    <Download size={13} />
+                    Download headshot
+                  </a>
+                  {FOUNDER_LINKEDIN_URL && (
+                    
+                      href={FOUNDER_LINKEDIN_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="focus-ring inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
+                    >
+                      <Linkedin size={13} />
+                      LinkedIn
+                    </a>
+                  )}
+                  <Link
+                    to="/leadership"
+                    className="focus-ring inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
+                  >
+                    Full bio
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
         {/* In the News */}
         <section className="px-6 py-20 sm:py-24">
           <div className="mx-auto max-w-4xl">
