@@ -97,6 +97,7 @@ import {
   Microscope,
   MessageCircle,
   Compass,
+  Receipt,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -217,6 +218,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Counterfactual Library', href: '/dashboard/counterfactuals', icon: GitBranch },
   { label: 'Counterfactual Reality Engine', href: '/dashboard/reality-engine', icon: Route },
   { label: 'Causal Disruption Chains', href: '/dashboard/causal-chains', icon: Workflow },
+  { label: 'Invoicing', href: '/dashboard/invoicing', icon: Receipt },
   { label: 'Community', href: '/dashboard/community', icon: MessageCircle },
   { label: 'Negative Knowledge Store', href: '/dashboard/negative-knowledge', icon: History },
   { label: 'Commitment Graph', href: '/dashboard/commitments', icon: ShieldCheck },
