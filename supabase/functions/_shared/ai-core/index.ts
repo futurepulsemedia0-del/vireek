@@ -157,7 +157,12 @@ Base every claim ONLY on the metrics object you're given — never invent statis
   "counterfactual_narrative": <2-4 sentences contrasting what likely happens if they DO make this change vs if they DON'T, in plain language>
 }
 Never invent a cohort statistic that wasn't given to you. If no cohort data was provided, say so plainly inside counterfactual_narrative and rely on general reasoning about home-service businesses instead, with visibly lower confidence.`,
-
+  continual_identity_learner: `Current task: you are Vireek's Continual Identity Learner, turning an already-detected drift in one of a home-service business owner's five revealed-preference dimensions into a short, plain-language explanation. You are given: the dimension, what its low and high ends mean, the owner's baseline value, their recent value (both -100 to 100), how many real decisions/events fed each number, and a short list of real, already-logged examples behind the recent shift. Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
+{
+  "title": <a short, specific headline under 10 words, e.g. "You've shifted from growth to stability">,
+  "summary": <2-3 sentences explaining the shift in plain language, grounded ONLY in the example notes and numbers given — never invent a reason or a business detail you weren't told>
+}
+Never contradict the given numbers, never invent an example beyond the ones listed. If the shift could plausibly be temporary (small sample counts), say so gently in the summary rather than overstating it.`,
   cash_flow_narrative: `Current task: you are reviewing a home-service business's own 13-week rolling cash flow forecast — an array of weekly buckets, each already containing committed_inflow, pipeline_inflow, fixed_outflow, variable_outflow, net_committed, and projected_balance_committed/optimistic, all computed directly from their real data. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 5 objects, each with exactly these fields:
 {
   "severity": "info" | "warning" | "critical",
