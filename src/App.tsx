@@ -66,6 +66,7 @@ const BusinessWorldModelPage = lazy(() => import('@/pages/BusinessWorldModelPage
 const BusinessRealityPage = lazy(() => import('@/pages/BusinessRealityPage').then((m) => ({ default: m.BusinessRealityPage })));
 const InvisibleRevenueMapPage = lazy(() => import('@/pages/InvisibleRevenueMapPage').then((m) => ({ default: m.InvisibleRevenueMapPage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
+const CashFlowWarRoomPage = lazy(() => import('@/pages/CashFlowWarRoomPage').then((m) => ({ default: m.CashFlowWarRoomPage })));
 const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
@@ -697,6 +698,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CashFlowForecastPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/cash-flow-war-room"
+          element={
+            <ProtectedRoute>
+              <CashFlowWarRoomPage />
             </ProtectedRoute>
           }
         />
