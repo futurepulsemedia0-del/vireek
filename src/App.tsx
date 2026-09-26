@@ -68,6 +68,7 @@ const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then(
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
+const SignDocumentPage = lazy(() => import('@/pages/SignDocumentPage').then((m) => ({ default: m.SignDocumentPage })));
 const InvoicePage = lazy(() => import('@/pages/InvoicePage').then((m) => ({ default: m.InvoicePage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
@@ -978,6 +979,7 @@ function App() {
           }
         />
         <Route path="/quote/:token" element={<QuoteAcceptPage />} />
+        <Route path="/sign/:token" element={<SignDocumentPage />} />
         <Route path="/invoice/:token" element={<InvoicePage />} />
         <Route path="/invite/:token" element={<InviteAcceptPage />} />
                 <Route
