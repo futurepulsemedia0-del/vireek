@@ -237,6 +237,7 @@ Deno.serve(async (req: Request) => {
       const { data: simulation, error: simError } = await db.from("causal_simulations").insert({
         scenario_id: scenario.id,
         user_id: userId,
+        baseline_metrics: own_metrics,
         cohort_available: cohort.available,
         cohort_sample_size: cohort.sample_size,
         cohort_success_rate: cohort.success_rate,
