@@ -223,9 +223,17 @@ export interface RoiCalculatorResults {
   monthlyOpportunity: number;
 }
 
-export function downloadRoiCalculatorPdf(inputs: RoiCalculatorInputs, results: RoiCalculatorResults): void {
+export function downloadRoiCalculatorPdf(
+  inputs: RoiCalculatorInputs,
+  results: RoiCalculatorResults,
+  industryName?: string
+): void {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  let y = drawHeader(doc, 'ROI Report', 'Missed Call Revenue Calculator');
+  let y = drawHeader(
+    doc,
+    'ROI Report',
+    industryName ? `${industryName} Revenue Calculator` : 'Missed Call Revenue Calculator'
+  );
 
   y = drawParagraph(
     doc,
@@ -310,7 +318,11 @@ export function downloadRoiCalculatorPdf(inputs: RoiCalculatorInputs, results: R
     'Estimate only, based on the figures you entered and industry benchmarks for missed-call rates. Actual results depend on your call volume, trade, and current call-handling process.'
   );
 
-  doc.save('vireek-roi-report.pdf');
+    doc.save(
+    industryName
+      ? `vireek-${industryName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-roi-report.pdf`
+      : 'vireek-roi-report.pdf'
+  );
 }
 // ============================================================
 // ESTIMATE ROI CALCULATOR PDF
