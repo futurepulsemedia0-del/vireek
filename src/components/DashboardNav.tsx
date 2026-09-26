@@ -105,6 +105,7 @@ import {
   Moon,
   Sun,
   Check,
+  Skull,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -241,6 +242,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Identity Learner', href: '/dashboard/identity', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Governance Center', href: '/dashboard/governance', icon: ShieldAlert },
   { label: 'Value at Risk', href: '/dashboard/value-at-risk', icon: Radar, requiresPermission: 'can_view_billing' },
+  { label: 'Revenue Autopsy', href: '/dashboard/revenue-autopsy', icon: Skull, requiresPermission: 'can_view_billing' },
   { label: 'Bottleneck Market Maker', href: '/dashboard/bottleneck-market', icon: Crosshair, requiresPermission: 'can_view_billing' },
   { label: 'Uncertainty & Evidence Map', href: '/dashboard/uncertainty-map', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
