@@ -1388,6 +1388,14 @@ function App() {
           }
         />
         <Route
+          path="/dashboard/workforce-equilibrium"
+          element={
+            <ProtectedRoute>
+              <WorkforceEquilibriumPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/business-drift"
           element={
             <ProtectedRoute>
