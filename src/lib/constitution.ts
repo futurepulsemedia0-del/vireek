@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-export type RuleType = 'no_campaign_if_sla_at_risk' | 'no_vip_cancel_without_human_contact' | 'protect_margin_floor' | 'ai_cannot_handle_unhappy_alone' | 'custom';
+export type RuleType = 'no_campaign_if_sla_at_risk' | 'no_vip_cancel_without_human_contact' | 'protect_margin_floor' | 'ai_cannot_handle_unhappy_alone' | 'block_action_slug' | 'require_human_for_category' | 'max_daily_autonomous_actions' | 'custom';
 
 export interface ConstitutionArticle {
   id: string;
@@ -27,12 +27,59 @@ export interface ConstitutionCheckResult {
   reason: string | null;
 }
 
-export const RULE_TEMPLATES: { rule_type: RuleType; label: string; paramLabel?: string; paramKey?: string; defaultValue?: number }[] = [
-  { rule_type: 'no_campaign_if_sla_at_risk', label: 'Never increase demand campaigns while an SLA is at risk.' },
-  { rule_type: 'no_vip_cancel_without_human_contact', label: 'Never cancel a VIP customer without recent human contact.', paramLabel: 'Contact window (hours)', paramKey: 'contact_window_hours', defaultValue: 48 },
-  { rule_type: 'protect_margin_floor', label: 'Never discount more than X%, even to grow revenue.', paramLabel: 'Max discount (%)', paramKey: 'max_discount_pct', defaultValue: 15 },
-  { rule_type: 'ai_cannot_handle_unhappy_alone', label: 'AI may not handle an unhappy customer with automated messages alone.' },
+export interface RuleParamDef {
+  key: string;
+  label: string;
+  type: 'number' | 'select';
+  defaultValue?: number | string;
+  options?: { value: string; label: string }[];
+}
+
+const ACTION_CATEGORIES: { value: string; label: string }[] = [
+  { value: 'messaging', label: 'Messaging' },
+  { value: 'calling', label: 'Calling' },
+  { value: 'financial', label: 'Financial' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'other', label: 'Other' },
 ];
+
+export const RULE_TEMPLATES: { rule_type: RuleType; label: string; riskTier: 'red_line' | 'high_risk' | 'standard' | 'advisory'; params?: RuleParamDef[] }[] = [
+  { rule_type: 'no_campaign_if_sla_at_risk', label: 'Never increase demand campaigns while an SLA is at risk.', riskTier: 'standard' },
+  { rule_type: 'no_vip_cancel_without_human_contact', label: 'Never cancel a VIP customer without recent human contact.', riskTier: 'high_risk',
+    params: [{ key: 'contact_window_hours', label: 'Contact window (hours)', type: 'number', defaultValue: 48 }] },
+  { rule_type: 'protect_margin_floor', label: 'Never discount more than X%, even to grow revenue.', riskTier: 'high_risk',
+    params: [{ key: 'max_discount_pct', label: 'Max discount (%)', type: 'number', defaultValue: 15 }] },
+  { rule_type: 'ai_cannot_handle_unhappy_alone', label: 'AI may not handle an unhappy customer with automated messages alone.', riskTier: 'high_risk' },
+  { rule_type: 'require_human_for_category', label: 'Authority: an entire action category must always be human-approved.', riskTier: 'high_risk',
+    params: [{ key: 'category', label: 'Action category', type: 'select', defaultValue: 'financial', options: ACTION_CATEGORIES }] },
+  { rule_type: 'max_daily_autonomous_actions', label: 'Risk policy: cap autonomous actions of a category per day.', riskTier: 'standard',
+    params: [
+      { key: 'category', label: 'Action category', type: 'select', defaultValue: 'marketing', options: ACTION_CATEGORIES },
+      { key: 'max_count', label: 'Max per day', type: 'number', defaultValue: 20 },
+    ] },
+  { rule_type: 'block_action_slug', label: 'Red line: permanently disable one specific automated action.', riskTier: 'red_line',
+    params: [{ key: 'action_slug', label: 'Action', type: 'select', options: [] }] },
+];
+
+export interface AgentCatalogEntry { slug: string; agent_source: string; label: string; category: string }
+
+export async function fetchActionCatalog(): Promise<AgentCatalogEntry[]> {
+  const { data, error } = await supabase.from('agent_action_catalog').select('slug, agent_source, label, category').order('category');
+  if (error) throw error;
+  return (data as AgentCatalogEntry[]) ?? [];
+}
+
+export interface AuthorityMatrixRow {
+  action_slug: string; agent_source: string; label: string; category: string;
+  enabled: boolean; requires_approval: boolean; auto_approve_max_cents: number | null;
+  is_red_line: boolean; red_line_reason: string | null;
+}
+
+export async function fetchAuthorityMatrix(): Promise<AuthorityMatrixRow[]> {
+  const { data, error } = await supabase.rpc('get_agent_authority_matrix');
+  if (error) throw error;
+  return (data as AuthorityMatrixRow[]) ?? [];
+}
 
 export async function fetchArticles(): Promise<ConstitutionArticle[]> {
   const { data, error } = await supabase.from('constitution_articles').select('*').order('created_at', { ascending: false });
