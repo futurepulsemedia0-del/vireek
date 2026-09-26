@@ -19,6 +19,7 @@
 // lexical-only mode — never an error, never a broken call.
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { classifyEpistemicBoundary, recordEpistemicBoundary, type EpistemicTier } from "../ai-core/epistemicBoundary.ts";
 
 export const EMBEDDING_DIMENSIONS = 1024;
 
@@ -32,6 +33,7 @@ export interface KnowledgeHit {
   score: number;
   lexical_rank: number | null;
   semantic_rank: number | null;
+  semantic_similarity: number;
 }
 
 export interface KnowledgeSearchResult {
@@ -183,7 +185,11 @@ export async function recordKnowledgeGap(
  *    warranty length is far more expensive than "let me have someone
  *    confirm that for you."
  */
-export function formatKnowledgeForVoice(result: KnowledgeSearchResult, question: string): string {
+export function formatKnowledgeForVoice(
+  result: KnowledgeSearchResult,
+  question: string,
+  tier: EpistemicTier = result.hits.length === 0 ? "no_coverage" : "confident",
+): string {
   if (result.hits.length === 0) {
     return (
       `Nothing in this business's knowledge base answers "${question}". ` +
@@ -194,6 +200,15 @@ export function formatKnowledgeForVoice(result: KnowledgeSearchResult, question:
 
   const [best, ...rest] = result.hits;
   const primary = (best.summary || best.body).trim().slice(0, 600);
+
+  if (tier === "weak_match") {
+    return (
+      `The closest match in this business's knowledge base is "${best.title}": ${primary} ` +
+      `This is NOT a confident match — treat it as a possible lead, not a stated fact. ` +
+      `Tell the caller you believe that's right but you'll have someone confirm the exact details, ` +
+      `rather than stating it outright. This near-miss has been logged for the business to review.`
+    );
+  }
 
   let out = `Answer from this business's own knowledge base — "${best.title}": ${primary}`;
 
@@ -236,10 +251,8 @@ export async function toolSearchKnowledge(
   }
 
   const result = await searchKnowledge(admin, tenant.userId, question, { audience: "ai", limit: 3 });
+  const classification = classifyEpistemicBoundary(result, result.semantic);
+  await recordEpistemicBoundary(admin, tenant.userId, question, classification, "voice", callRowId);
 
-  if (result.hits.length === 0) {
-    await recordKnowledgeGap(admin, tenant.userId, question, "voice", callRowId);
-  }
-
-  return formatKnowledgeForVoice(result, question.trim());
+  return formatKnowledgeForVoice(result, question.trim(), classification.tier);
 }
