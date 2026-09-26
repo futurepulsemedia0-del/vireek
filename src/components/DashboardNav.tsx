@@ -177,6 +177,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Payroll', href: '/dashboard/payroll', icon: DollarSign },
   { label: 'Job Quality Gate', href: '/dashboard/job-quality-gate', icon: ClipboardCheck },
   { label: 'Warranty Claim Recovery', href: '/dashboard/warranty-claims', icon: FileClock },
+  { label: 'Business Immune System', href: '/dashboard/immune-system', icon: Siren },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
