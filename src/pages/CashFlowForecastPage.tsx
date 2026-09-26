@@ -168,9 +168,14 @@ export function CashFlowForecastPage() {
           {worstWeek && worstWeek.projected_balance_committed < 0 && (
             <div className="flex items-start gap-3 rounded-2xl border border-l-4 border-l-danger bg-danger/10 p-4">
               <AlertTriangle className="mt-0.5 shrink-0 text-danger" size={20} />
-              <p className="text-sm text-text-primary">
-                Projected cash goes negative ({money(worstWeek.projected_balance_committed)}) in the week of {worstWeek.week_start}. Review the pending decisions/collections below.
-              </p>
+              <div className="flex-1">
+                <p className="text-sm text-text-primary">
+                  Projected cash goes negative ({money(worstWeek.projected_balance_committed)}) in the week of {worstWeek.week_start}. Review the pending decisions/collections below.
+                </p>
+                <button onClick={() => navigate('/dashboard/cash-flow-war-room')} className="focus-ring mt-2 rounded-lg bg-danger px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
+                  Open Cash Flow War Room →
+                </button>
+              </div>
             </div>
           )}
 
