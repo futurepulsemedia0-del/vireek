@@ -918,6 +918,42 @@ export interface CashFlowWarRoomActionLog {
   status: 'pending' | 'done' | 'dismissed';
   updated_at: string;
 }
+export interface WorkforceAction {
+  action_type: 'cross_train' | 'hire' | 'reallocate_marketing';
+  title: string;
+  detail: string;
+  ref_table: 'team_members' | null;
+  ref_id: string | null;
+  impact_jobs_per_week: number;
+  priority: number;
+}
+
+export interface SkillGap {
+  skill: string;
+  weekly_demand: number;
+  weekly_supply: number;
+  gap: number;
+  status: 'shortage' | 'balanced' | 'surplus';
+}
+
+export interface WorkforceEquilibriumRun {
+  id: string;
+  user_id: string;
+  horizon_weeks: number;
+  skill_gaps: SkillGap[];
+  actions: WorkforceAction[];
+  ai_summary: string;
+  created_at: string;
+}
+
+export interface WorkforceEquilibriumActionLog {
+  id: string;
+  user_id: string;
+  run_id: string;
+  action_index: number;
+  status: 'pending' | 'done' | 'dismissed';
+  updated_at: string;
+}
 export interface BusinessDecisionSettings {
   user_id: string;
   autonomy_enabled: boolean;
