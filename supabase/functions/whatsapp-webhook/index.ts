@@ -69,7 +69,7 @@ Deno.serve(async (req: Request) => {
     const { data: conversation } = await admin
       .from("dm_conversations")
       .upsert(
-        { user_id: connection.user_id, channel: "whatsapp", customer_external_id: customerNumber, customer_name: customerName, last_message_at: new Date().toISOString() },
+        { user_id: connection.user_id, channel: "whatsapp", customer_external_id: customerNumber, customer_name: customerName, unread: true, last_message_at: new Date().toISOString() },
         { onConflict: "user_id,channel,customer_external_id" },
       )
       .select("id")
