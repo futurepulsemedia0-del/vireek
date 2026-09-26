@@ -43,6 +43,7 @@ export interface Profile {
   escalation_mode: 'warm_transfer' | 'barge_in';
   agent_orchestration_enabled: boolean;
   external_id: string | null;
+  inbound_email_token: string | null;
   customer_id: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
