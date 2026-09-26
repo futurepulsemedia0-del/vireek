@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   BellRing,
   Loader as Loader2,
+  Wrench,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -42,6 +43,11 @@ import { supabase } from '@/lib/supabase';
 //      "Resolved" update to the same incident entry (see the shape below).
 //   4. Optionally flip that day's entry in UPTIME_HISTORY (last item = today)
 //      from 'operational' to 'incident' so the 90-day bar reflects it.
+//
+// TO LOG MAINTENANCE:
+//   1. Before it starts, add an entry to the top of MAINTENANCE_LOG with
+//      status 'scheduled' and the planned window.
+//   2. Once it's done, flip that entry's status to 'completed'.
 //
 // If you later connect a real monitoring/status provider (Better Uptime,
 // Instatus, Statuspage.io, etc.), replace the three constants below with
@@ -113,6 +119,25 @@ interface Incident {
 // Empty by default — add the most recent incident to the top of this array.
 const INCIDENTS: Incident[] = [];
 
+interface MaintenanceEvent {
+  date: string; // e.g. 'Sep 20, 2026'
+  title: string;
+  window: string; // e.g. '11:00 PM – 1:00 AM PT'
+  systems: string; // which components were affected
+  status: 'scheduled' | 'completed';
+  summary: string;
+}
+
+// Empty by default — add the next scheduled maintenance to the top of this
+// array in advance (status: 'scheduled'), then flip it to 'completed' once
+// it's done. Never delete old entries — this is the permanent archive.
+const MAINTENANCE_LOG: MaintenanceEvent[] = [];
+
+const MAINTENANCE_STATUS_META: Record<MaintenanceEvent['status'], string> = {
+  scheduled: 'text-accent border-accent/25 bg-accent/10',
+  completed: 'text-success-500 border-success-500/25 bg-success-500/10',
+};
+
 // Last 90 days, oldest first. Defaults to fully operational. Flip an entry
 // to 'incident' for any day a real outage or degradation occurred.
 const UPTIME_HISTORY: ('operational' | 'incident')[] = Array.from({ length: 90 }, () => 'operational');
@@ -157,7 +182,7 @@ function SEO() {
   useEffect(() => {
     const title = 'System Status | Vireek';
     const description =
-      'Live status for Vireek\u2019s AI voice receptionist platform: call answering, dashboard, CRM sync, notifications, and API \u2014 plus uptime history and incident reports.';
+      'Live status for Vireek\u2019s AI voice receptionist platform: call answering, dashboard, CRM sync, notifications, and API \u2014 plus uptime history, incident reports, and a maintenance archive.';
     const previousTitle = document.title;
     let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     const previousContent = meta?.getAttribute('content') ?? null;
@@ -509,6 +534,67 @@ export function StatusPage() {
           </div>
         </section>
 
+        {/* Maintenance Archive */}
+        <section className="px-6 py-16 sm:py-20">
+          <div className="mx-auto max-w-4xl">
+            <p className={`${eyebrowClass()} text-center`}>Maintenance</p>
+            <h2 className={`${sectionHeadingClass()} text-center`}>Scheduled maintenance archive</h2>
+
+            {MAINTENANCE_LOG.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={viewport}
+                transition={{ duration: 0.5, ease: EASE }}
+                className="mt-10 flex flex-col items-center gap-3 rounded-2xl border border-border bg-bg-secondary/50 px-6 py-10 text-center"
+              >
+                <Wrench className="h-8 w-8 text-text-secondary" />
+                <p className="text-base font-semibold text-text-primary">
+                  No maintenance windows scheduled or completed yet.
+                </p>
+                <p className="max-w-md text-sm leading-relaxed text-text-secondary">
+                  When we schedule planned maintenance, it&rsquo;ll be listed here in advance with
+                  the exact window and affected systems, then marked complete once it&rsquo;s done.
+                </p>
+              </motion.div>
+            ) : (
+              <div className="mt-10 space-y-4">
+                {MAINTENANCE_LOG.map((m, i) => (
+                  <motion.div
+                    key={`${m.date}-${i}`}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={viewport}
+                    transition={{ duration: 0.45, ease: EASE, delay: Math.min(i * 0.06, 0.24) }}
+                    className="rounded-2xl border border-border bg-bg-secondary/90 p-6 shadow-card dark:shadow-card-dark"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Wrench className="h-4 w-4 text-accent" />
+                        <h3 className="text-base font-semibold text-text-primary">{m.title}</h3>
+                      </div>
+                      <span className="text-xs font-medium text-text-secondary/70">{m.date}</span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium capitalize ${MAINTENANCE_STATUS_META[m.status]}`}
+                      >
+                        {m.status}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-text-secondary">
+                        <Clock className="h-3 w-3" /> {m.window}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-text-secondary">
+                        {m.systems}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm leading-relaxed text-text-secondary">{m.summary}</p>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
         {/* FAQ */}
         <section className="px-6 py-16 sm:py-20">
           <div className="mx-auto max-w-4xl">
