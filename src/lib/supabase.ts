@@ -689,6 +689,30 @@ export interface BusinessImmuneSettings {
   muted_categories: string[];
   updated_at: string;
 }
+export interface FlywheelPromotion {
+  id: string;
+  user_id: string;
+  source_type: 'org_memory_entry' | 'business_immune_detector';
+  source_id: string | null;
+  source_key: string | null;
+  promoted_action: string;
+  next_best_action_id: string | null;
+  detail: string | null;
+  created_at: string;
+}
+
+export interface FlywheelSnapshot {
+  id: string;
+  user_id: string;
+  snapshot_date: string;
+  total_actions_logged: number;
+  total_active_lessons: number;
+  avg_lesson_confidence: number;
+  promotions_created: number;
+  promotions_acted_on: number;
+  compounding_score: number;
+  created_at: string;
+}
 export interface BusinessProfileEscalationRule {
   id: string;
   trigger: 'emergency' | 'after_hours' | 'no_answer' | 'human_request';
