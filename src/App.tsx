@@ -53,6 +53,7 @@ const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ 
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
+const IdentityLearnerPage = lazy(() => import('@/pages/IdentityLearnerPage').then((m) => ({ default: m.IdentityLearnerPage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
 const BusinessScientistPage = lazy(() => import('@/pages/BusinessScientistPage').then((m) => ({ default: m.BusinessScientistPage })));
 const DecisionDebtPage = lazy(() => import('@/pages/DecisionDebtPage').then((m) => ({ default: m.DecisionDebtPage })));
@@ -575,6 +576,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CausalWorldSimulatorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/identity-learner"
+          element={
+            <ProtectedRoute>
+              <IdentityLearnerPage />
             </ProtectedRoute>
           }
         />
