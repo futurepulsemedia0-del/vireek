@@ -226,6 +226,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
   { label: 'Business Contradictions', href: '/dashboard/contradictions', icon: AlertOctagon },
   { label: 'Counterfactual Library', href: '/dashboard/counterfactuals', icon: GitBranch },
+  { label: 'Causal ROI Attribution', href: '/dashboard/causal-roi', icon: FlaskConical },
   { label: 'Counterfactual Reality Engine', href: '/dashboard/reality-engine', icon: Route },
   { label: 'Causal Disruption Chains', href: '/dashboard/causal-chains', icon: Workflow },
   { label: 'Invoicing', href: '/dashboard/invoicing', icon: Receipt },
