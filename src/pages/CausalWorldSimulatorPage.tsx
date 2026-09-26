@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, GitBranch, Loader2, Plus, X as XIcon, TrendingUp, TrendingDown,
-  AlertTriangle, Users, CheckCircle2, Sparkles,
+  AlertTriangle, Users, CheckCircle2, Sparkles, DollarSign, Percent, ShieldCheck, Gauge,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -28,6 +28,40 @@ function ImpactBadge({ pct }: { pct: number }) {
     <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${color}`}>
       <Icon size={13} /> {positive ? '+' : ''}{pct}%
     </span>
+  );
+}
+
+// Reads the deterministic Revenue/Margin/SLA/Capacity baseline that the
+// edge function now stores alongside each simulation (causal_simulations.baseline_metrics).
+// A metric shows "n/a" rather than 0 when this account's schema doesn't
+// yet expose it (e.g. no job_profitability view) — never invents a number.
+function BusinessSnapshot({ metrics }: { metrics: Record<string, unknown> | null | undefined }) {
+  if (!metrics) return null;
+
+  const revenue = typeof metrics.revenue_last_30d === 'number' ? metrics.revenue_last_30d : null;
+  const margin = typeof metrics.gross_margin_pct === 'number' ? metrics.gross_margin_pct : null;
+  const sla = typeof metrics.sla_on_time_pct === 'number' ? metrics.sla_on_time_pct : null;
+  const capacity = typeof metrics.capacity_load_pct === 'number' ? metrics.capacity_load_pct : null;
+
+  const cells = [
+    { icon: DollarSign, label: 'Revenue (30d)', value: revenue !== null ? `$${Math.round(revenue).toLocaleString('en-US')}` : 'n/a' },
+    { icon: Percent, label: 'Gross margin', value: margin !== null ? `${margin}%` : 'n/a' },
+    { icon: ShieldCheck, label: 'On-time / SLA', value: sla !== null ? `${sla}%` : 'n/a' },
+    { icon: Gauge, label: 'Capacity load', value: capacity !== null ? `${capacity}%` : 'n/a' },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {cells.map((c) => (
+        <div key={c.label} className="rounded-lg border border-border bg-bg-primary p-2.5">
+          <div className="flex items-center gap-1.5 text-text-secondary">
+            <c.icon size={12} />
+            <span className="text-[11px] font-medium">{c.label}</span>
+          </div>
+          <p className="mt-1 text-sm font-semibold text-text-primary">{c.value}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -58,6 +92,8 @@ function ScenarioCard({ item, onMarkImplemented, index }: { item: ScenarioWithDa
 
       {sim && (
         <>
+          <BusinessSnapshot metrics={sim.baseline_metrics} />
+
           <p className="rounded-lg bg-bg-primary p-3 text-sm text-text-primary">{sim.counterfactual_narrative}</p>
 
           <div className="flex flex-wrap items-center gap-3 text-xs text-text-secondary">
