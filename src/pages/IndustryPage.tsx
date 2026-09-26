@@ -13,6 +13,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { getIndustryBySlug, INDUSTRIES } from '@/lib/industries';
+import { IndustryRoiCalculator } from '@/components/sections/IndustryRoiCalculator';
 import { useSEO } from '@/lib/seo';
 
 /* ------------------------------------------------------------------ */
@@ -253,6 +254,9 @@ export function IndustryPage() {
             </motion.div>
           </div>
         </section>
+
+        {/* Industry-specific ROI calculator */}
+        <IndustryRoiCalculator key={industry.slug} industry={industry} />
 
         {/* Common call types */}
         <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
