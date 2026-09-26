@@ -12,9 +12,16 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { fetchCommitments, fetchOverdueCommitments, fetchTrustScores, resolveCommitment, type Commitment, type TrustScore } from '@/lib/commitments';
 
 const SOURCE_LABELS: Record<Commitment['source_type'], string> = {
-  call: 'Call', sms: 'SMS', quote: 'Quote', job_note: 'Job note', manual: 'Manually logged',
+  call: 'Call', sms: 'SMS', chat: 'Chat', quote: 'Quote', job_note: 'Technician note', manual: 'Manually logged',
 };
 
+const ESCALATION_LABELS: Record<NonNullable<Commitment['escalation_stage']>, string> = {
+  due_soon: 'Due soon', overdue: 'Overdue', escalated: 'Escalated',
+};
+
+const ESCALATION_COLORS: Record<NonNullable<Commitment['escalation_stage']>, string> = {
+  due_soon: 'bg-warning-500/15 text-warning-500', overdue: 'bg-error-500/15 text-error-500', escalated: 'bg-error-500/25 text-error-500',
+};
 export function CommitmentGraphPage() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -106,7 +113,14 @@ function CommitmentRow({ c, onResolve }: { c: Commitment; onResolve: (id: string
   return (
     <div className="flex items-start justify-between gap-3 rounded-xl border border-border bg-bg-primary p-3 text-sm">
       <div className="min-w-0 flex-1">
-        <p className="text-text-primary">{c.commitment_text}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-text-primary">{c.commitment_text}</p>
+          {c.escalation_stage && (
+            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${ESCALATION_COLORS[c.escalation_stage]}`}>
+              {ESCALATION_LABELS[c.escalation_stage]}
+            </span>
+          )}
+        </div>
         <p className="mt-1 text-xs text-text-secondary">
           {SOURCE_LABELS[c.source_type]} · {c.owner_name ?? 'Unknown owner'} · {c.customer_name ?? 'Unknown customer'}
           {c.deadline_at && ` · Due ${new Date(c.deadline_at).toLocaleString()}`}
