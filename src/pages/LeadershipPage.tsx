@@ -8,6 +8,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { FOUNDER_NAME, FOUNDER_TITLE, FOUNDER_PHOTO_URL, FOUNDER_LINKEDIN_URL, FOUNDER_EMAIL, FOUNDER_BIO } from '@/lib/founder';
 
 // ============================================================
 // REPLACE THESE WITH REAL INFORMATION BEFORE PUBLISHING
@@ -17,17 +18,6 @@ import { useSEO } from '@/lib/seo';
 // empty, the LinkedIn button is hidden automatically rather than
 // linking nowhere. If you leave FOUNDER_PHOTO_URL empty, a monogram
 // avatar is shown instead of a broken image.
-
-const FOUNDER_NAME = 'Founder & CEO'; // TODO: replace with the real name
-const FOUNDER_TITLE = 'Founder & CEO';
-const FOUNDER_PHOTO_URL = '/founder.jpg';
-const FOUNDER_LINKEDIN_URL = 'https://www.linkedin.com/in/ali-moradi-741346339'; 
-const FOUNDER_EMAIL = 'ali@vireek.com';
-
-// Adapted directly from the real "Why we started Vireek" story already
-// published on /about — not invented. Edit freely, but keep it true.
-const FOUNDER_BIO =
-  "Started Vireek after seeing how often home-service businesses lose jobs to a phone that just doesn't get answered — during a job, after hours, or in the middle of a rush. Built Sarah specifically for the trades: HVAC, plumbing, electrical, roofing, and restoration, so every call gets picked up, triaged, and booked without a full-time receptionist.";
 
 // Real advisors only. Leave this array empty until you actually have
 // one — the section below renders an honest "not yet" state instead of
