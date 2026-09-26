@@ -94,7 +94,9 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   "upsell_opportunities": [<short strings naming a SPECIFIC add-on/upgrade this caller was a good fit for but was NOT offered or booked on this call — grounded only in what they actually said, e.g. "annual maintenance plan", "duct cleaning", "water heater flush", "smart thermostat upgrade", "extended warranty". Empty array if nothing genuinely fits>],
 
   "coaching_tip": <one short, concrete, actionable tip for handling the NEXT similar call better — e.g. how to answer this exact objection, or how to naturally pitch the upsell above — or null if the call was already handled well>
-}`,
+}
+
+Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly.`,
 
   promise_extraction: `Current task: read a completed phone call transcript for a home-service business and extract only CONCRETE COMMITMENTS the business (Sarah or a human) made to the caller — things like a callback, an arrival time, a promised discount, sending a document, or a specific follow-up action. Output ONLY a JSON object (no prose, no markdown fences):
 {
@@ -108,8 +110,6 @@ const TASK_INSTRUCTIONS: Record<TaskType, string> = {
   ]
 }
 Only include something a REASONABLE PERSON would consider a commitment — not vague chat like "we'll take care of you" or small talk. If the caller made a promise TO the business (e.g. "I'll pay when he arrives"), do not include it — this only tracks what the business owes the caller. Maximum 5 promises. If nothing was actually promised, return {"promises": []}.`,
-
-Base every field only on what's actually in the transcript — never invent details. If the transcript is too short or unclear to judge something, use reasonable neutral defaults (score 50, sentiment "neutral") rather than guessing wildly.`,
 
   business_insights: `Current task: you are analyzing a home-service business's own account metrics (computed directly from their database — calls, leads, jobs, usage) to surface genuinely useful operational insights. Output ONLY a JSON array (no prose, no markdown fences) of 1 to 4 objects, each with exactly these fields:
 
@@ -135,6 +135,7 @@ Base every number and claim ONLY on the metrics object you're given — never in
   "recommended_action": <one concrete, specific next step the dispatcher can take immediately>
 }
 Base every fact ONLY on the board state you're given — never invent a job, customer, or technician that isn't listed. Prioritize overdue unassigned jobs and jobs due within the next 3 hours above everything else. If nothing on the board needs attention, return an empty array. Order the array by priority, highest first.`,
+
   business_decision_engine: `Current task: you are Vireek's Autonomous Business Decision Engine, turning a home-service business's own grounded account metrics into concrete, categorized DECISIONS the owner can approve or reject. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 5 objects, each with exactly these fields:
 {
   "category": "pricing" | "dispatch" | "staffing" | "marketing" | "collections" | "retention" | "operations",
@@ -144,7 +145,9 @@ Base every fact ONLY on the board state you're given — never invent a job, cus
   "confidence_score": <0-100 integer, how confident you are this is correct and worth acting on>,
   "estimated_impact": <estimated dollar value of taking this action; 0 if not reasonably quantifiable from the given metrics — never invent a number>
 }
-Base every claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If nothing in the metrics justifies a real decision, return an empty array. Order the array by confidence_score, highest first. Be conservative with confidence_score — only use 85+ when the metrics are unambiguous.`,  causal_world_simulator: `Current task: you are Vireek's Causal World Simulator — a home-service business owner is asking "if I do X, what happens, and what would happen if I didn't?" You are given: the decision they're considering, their own ground-truth account metrics, and — when available — anonymized real-outcome statistics from at least 5 OTHER businesses who made a similar category of decision (never treat this as optional flavor text; if it is present, anchor your prediction to it). Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
+Base every claim ONLY on the metrics object you're given — never invent statistics, never contradict the given numbers. If nothing in the metrics justifies a real decision, return an empty array. Order the array by confidence_score, highest first. Be conservative with confidence_score — only use 85+ when the metrics are unambiguous.`,
+
+  causal_world_simulator: `Current task: you are Vireek's Causal World Simulator — a home-service business owner is asking "if I do X, what happens, and what would happen if I didn't?" You are given: the decision they're considering, their own ground-truth account metrics, and — when available — anonymized real-outcome statistics from at least 5 OTHER businesses who made a similar category of decision (never treat this as optional flavor text; if it is present, anchor your prediction to it). Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
 {
   "predicted_impact_pct": <number, estimated % change in the relevant metric over the timeframe; if cohort data was given, this MUST stay within or very close to its p25-p75 range unless you explain a specific reason in causal_factors why this business differs>,
   "predicted_confidence": <0-100 integer; cap yourself at 60 or below if no cohort data was given>,
@@ -154,6 +157,7 @@ Base every claim ONLY on the metrics object you're given — never invent statis
   "counterfactual_narrative": <2-4 sentences contrasting what likely happens if they DO make this change vs if they DON'T, in plain language>
 }
 Never invent a cohort statistic that wasn't given to you. If no cohort data was provided, say so plainly inside counterfactual_narrative and rely on general reasoning about home-service businesses instead, with visibly lower confidence.`,
+
   cash_flow_narrative: `Current task: you are reviewing a home-service business's own 13-week rolling cash flow forecast — an array of weekly buckets, each already containing committed_inflow, pipeline_inflow, fixed_outflow, variable_outflow, net_committed, and projected_balance_committed/optimistic, all computed directly from their real data. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 5 objects, each with exactly these fields:
 {
   "severity": "info" | "warning" | "critical",
@@ -161,6 +165,7 @@ Never invent a cohort statistic that wasn't given to you. If no cohort data was 
   "message": <1-2 sentences explaining the risk or opportunity in that week, using the exact numbers given>
 }
 Use "critical" ONLY for a week where projected_balance_committed goes negative. Use "warning" for a sharp drop or a balance getting uncomfortably close to zero. Use "info" for a notable positive trend. Never invent a number not present in the given data, never flag a week that looks healthy. If nothing is notable, return an empty array.`,
+
   regional_demand_narrative: `Current task: you are comparing a home-service business's OWN local call/lead volume this week to an anonymized aggregate signal from other similar businesses sharing the same self-reported service area and industry (computed from at least 5 distinct businesses — never a single competitor's raw data). Output ONLY a JSON array (no prose, no markdown fences) of 0 to 3 objects, each with exactly these fields:
 {
   "title": <short punchy headline, under 12 words>,
@@ -169,6 +174,7 @@ Use "critical" ONLY for a week where projected_balance_committed goes negative. 
   "priority": <1-5 integer, 5 = urgent>
 }
 If "region" is null, only reason over "my_local" (e.g. a week-over-week trend) — never invent a regional comparison that wasn't given. A common valuable pattern: if the region's call volume or emergency rate rose sharply but the business's own volume did NOT, flag that they may be missing calls during a shared local event (weather, seasonal demand). If the business is up but the region isn't, that's a positive differentiation worth naming. Never invent statistics. If nothing meaningful stands out, return an empty array.`,
+
   capacity_demand_narrative: `Current task: you are reviewing a home-service business's own AI Capacity-Based Demand Control status for today — day_load, day_capacity, load_pct, normal_slots_remaining, emergency_slots_remaining, status ("low"/"optimal"/"full"/"no_capacity"), and the deterministic action_taken, all already computed server-side. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 3 objects, each with exactly these fields:
 {
   "title": <short punchy headline, under 12 words>,
@@ -177,6 +183,7 @@ If "region" is null, only reason over "my_local" (e.g. a week-over-week trend) �
   "priority": <1-5 integer, 5 = urgent>
 }
 Never invent a number or contradict the given status. If status is "low", focus the recommendation on generating demand (outbound campaigns, promotions, regional marketing). If status is "full", focus on protecting the schedule (waitlist, emergency reserve, pausing non-essential outbound calls). If status is "no_capacity", say plainly that no dispatch-enabled technicians are configured. If status is "optimal", it's fine to return an empty array.`,
+
   next_best_action_engine: `Current task: you are Vireek's Proactive Customer Care / Next Best Action Engine. You are given a list of CANDIDATE items already computed directly from the business's own database — each one is a real estimate at risk, a real customer showing churn signals, a real invoice at risk of going uncollected, or a real day with open technician capacity. Output ONLY a JSON array (no prose, no markdown fences) of up to 8 objects, selecting and ranking the candidates that matter MOST today, each with exactly these fields:
 {
   "candidate_id": <copy the exact "id" field from the candidate you are ranking - never invent one>,
@@ -186,6 +193,7 @@ Never invent a number or contradict the given status. If status is "low", focus 
   "priority_score": <0-100 integer, 100 = act immediately or lose real money today>
 }
 Never invent a candidate, amount, name, or fact that isn't in the given list — you are only selecting, ranking and writing a short recommendation over what's given, never detecting new problems yourself. Order the array by priority_score, highest first. Favor larger dollar amounts and the longest-unresolved items, but blend across categories rather than returning 8 of the same type when other categories have real candidates too. If the given list is empty, return an empty array.`,
+
   causal_shock_extract: `Current task: read a home-service business owner's free-text hypothetical question about a potential operational shock (technician illness, payment system outage, demand surge, supply shortage, or anything else) and extract ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
 {
   "shock_type": "technician_unavailable" | "payment_outage" | "demand_surge" | "supply_shortage" | "other",
@@ -197,6 +205,7 @@ Never invent a candidate, amount, name, or fact that isn't in the given list —
   "restated_scenario": <one plain English sentence restating exactly what the question asked, for an internal log — never add detail the question didn't contain>
 }
 Only fill a field when the question actually states or clearly implies it — use null rather than guessing a plausible-sounding number. Classify shock_type as "other" if the scenario doesn't clearly match one of the four named categories.`,
+
   causal_shock_cascade: `Current task: you are Vireek's Causal Shock Simulator. You are given the business owner's original hypothetical question and an "impact" object of numbers ALREADY COMPUTED from this business's own real data (jobs, technicians, revenue, customers) — never recompute or contradict these numbers. Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
 {
   "cascade": [
@@ -217,6 +226,7 @@ Only fill a field when the question actually states or clearly implies it — us
   "summary": <2-3 plain-language sentences a business owner could read in 10 seconds, stating the bottom-line risk and the single most important response>
 }
 Produce 3 to 8 cascade steps ordered by CAUSAL SEQUENCE (what happens first, then what that triggers next) — not by severity. Cover as many of the six domains as the given impact data actually supports; never invent a domain effect with no numbers behind it. Produce 3 to 6 response_plan steps, concrete and specific to the exact numbers given (name real counts and dollar amounts), never generic advice without saying who does what. Never invent a number, job, technician, or customer that isn't implied by the given impact object.`,
+
   opportunity_cost_ranking: `Current task: you are Vireek's Opportunity Cost Ledger. You are given a list of CANDIDATE entries already computed directly from the business's own database — each one is a real dollar figure for technician time spent on a low-margin job, a quote that stalled without follow-up, or a day with idle capacity. Output ONLY a JSON array (no prose, no markdown fences) of objects, one per candidate you choose to include, each with exactly these fields:
 {
   "entry_id": <copy the exact "id" field from the candidate — never invent one>,
@@ -225,6 +235,7 @@ Produce 3 to 8 cascade steps ordered by CAUSAL SEQUENCE (what happens first, the
   "priority_score": <0-100 integer, 100 = fix this first — weigh mostly by estimated_cost_cents, but a smaller dollar amount that is easy to fix right now can outrank a larger one that isn't actionable yet>
 }
 Never invent a candidate, technician, customer, or number that isn't in the given list — you are only selecting, ranking, and writing a short explanation over what's given. Include every candidate given unless it is genuinely too thin to say anything useful about. Order the array by priority_score, highest first.`,
+
   business_drift_narrative: `Current task: you are Vireek's Business Drift Detector. You are given a list of signals that ALREADY DRIFTED in a measurably bad direction over the last 30 days vs a 90-day prior baseline — each with recent and baseline values already computed from this business's own real data. Output ONLY a JSON array (no prose, no markdown fences) of objects, one per signal given, each with exactly these fields:
 {
   "metric": <copy the exact "metric" field from the signal you are explaining — never invent one>,
@@ -234,7 +245,19 @@ Never invent a candidate, technician, customer, or number that isn't in the give
   "recommended_action": <one concrete, specific next step the owner can take this week>
 }
 Use "critical" only for a change of 30%+ in the bad direction or anything touching evidence_quality/callback_rate (customer-facing risk). Use "warning" for a clear but moderate drift. Use "info" only if the drift is borderline. Never invent a signal, number, technician, or customer not present in the given list. If multiple signals given plausibly share one root cause (e.g. discount_rate and low_margin_mix both up could mean the same pricing behavior), you may say so in the message of each, but do not merge them into fewer objects than were given — one object per input signal.`,
+
+  business_scientist_hypothesis: `Current task: you are Vireek's Autonomous Business Scientist. You are given ONE problem already identified from a home-service business's own grounded account metrics (title, category, reasoning, recommended_action, estimated_impact). Turn it into a single falsifiable hypothesis and a proposed intervention that could be tested on a SLICE of the business before rolling out everywhere. Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
+{
+  "hypothesis": <one sentence, falsifiable claim of the form "If we do X, then Y will happen, because Z">,
+  "proposed_intervention": <one concrete, specific change that could be tried on a subset of jobs/customers/technicians/days — not the whole business at once>,
+  "predicted_metric": <the single metric that would prove or disprove this, in plain words, e.g. "callback rate" or "quote acceptance rate">,
+  "predicted_direction": "increase" | "decrease",
+  "predicted_magnitude_pct": <your best-guess percentage change in that metric if the intervention works, as a positive number>,
+  "confidence_score": <0-100 integer, how confident you are this hypothesis is worth testing>
+}
+Base the hypothesis ONLY on the given problem — never invent facts not in it. Be conservative with confidence_score and predicted_magnitude_pct; this will gate whether a real experiment is run.`,
 };
+
 // Tasks where grounding in brand/product knowledge is worth it — short
 // back-and-forth chat where a visitor's next question is unpredictable.
 // `intent_classify` and `dashboard_answer` never need it: they answer
