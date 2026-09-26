@@ -77,6 +77,7 @@ const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ defa
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
+const CompoundingFlywheelPage = lazy(() => import('@/pages/CompoundingFlywheelPage').then((m) => ({ default: m.CompoundingFlywheelPage })));
 const BusinessImmuneSystemPage = lazy(() => import('@/pages/BusinessImmuneSystemPage').then((m) => ({ default: m.BusinessImmuneSystemPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
@@ -474,6 +475,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ServiceRecoveryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/flywheel"
+          element={
+            <ProtectedRoute>
+              <CompoundingFlywheelPage />
             </ProtectedRoute>
           }
         />
