@@ -53,6 +53,7 @@ const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedg
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
+const BusinessScientistPage = lazy(() => import('@/pages/BusinessScientistPage').then((m) => ({ default: m.BusinessScientistPage })));
 const DecisionDebtPage = lazy(() => import('@/pages/DecisionDebtPage').then((m) => ({ default: m.DecisionDebtPage })));
 const OperationalEntropyPage = lazy(() => import('@/pages/OperationalEntropyPage').then((m) => ({ default: m.OperationalEntropyPage })));
 const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPage').then((m) => ({ default: m.BusinessDigitalTwinPage })));
@@ -561,6 +562,14 @@ function App() {
           element={
             <ProtectedRoute>
               <RegretConsolePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/business-scientist"
+          element={
+            <ProtectedRoute>
+              <BusinessScientistPage />
             </ProtectedRoute>
           }
         />
