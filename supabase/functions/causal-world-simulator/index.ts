@@ -25,39 +25,95 @@ interface CohortRow {
 // Deterministic own-account baseline — the ONLY place that touches raw
 // rows. Mirrors the metric style used by business-decision-engine so
 // the AI is always reasoning over the same kind of ground truth.
+//
+// Now also covers Margin / SLA / Capacity (previously only Revenue and
+// Calls/Leads were computed here). Each of these three is best-effort
+// and wrapped in its own try/catch: if this account's schema doesn't
+// have job_profitability / job_schedule_changes / get_capacity_status
+// yet, that one metric comes back null instead of failing the whole
+// simulation.
 // ---------------------------------------------------------------------
 async function computeOwnBaseline(
   db: ReturnType<typeof createClient>,
   userId: string,
 ): Promise<{ metrics: Record<string, unknown>; revenue_30d: number }> {
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
-  const sixtyDaysAgo = new Date(Date.now() - 60 * 86400000).toISOString();
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 86400000).toISOString();
+  const sevenDaysAhead = new Date(now.getTime() + 7 * 86400000).toISOString();
 
-  const [recentJobs, priorJobs, callsRes, leadsRes] = await Promise.all([
+  const [recentJobs, priorJobs, callsRes, leadsRes, teamRes, upcomingRes] = await Promise.all([
     db.from("jobs").select("invoice_amount, job_status, created_at")
       .eq("user_id", userId).eq("job_status", "completed").gte("created_at", thirtyDaysAgo),
     db.from("jobs").select("invoice_amount, job_status, created_at")
       .eq("user_id", userId).eq("job_status", "completed").gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
     db.from("calls").select("is_emergency, status").eq("user_id", userId).gte("call_datetime", thirtyDaysAgo),
     db.from("leads").select("stage").eq("user_id", userId).gte("created_at", thirtyDaysAgo),
+    db.from("team_members").select("id").eq("account_owner_id", userId),
+    db.from("jobs").select("assigned_technician_id").eq("user_id", userId)
+      .in("job_status", ["scheduled", "in_progress"])
+      .gte("scheduled_datetime", now.toISOString()).lte("scheduled_datetime", sevenDaysAhead),
   ]);
 
   const recent = (recentJobs.data ?? []) as { invoice_amount: number | null }[];
   const prior = (priorJobs.data ?? []) as { invoice_amount: number | null }[];
   const calls = (callsRes.data ?? []) as { is_emergency: boolean | null; status: string | null }[];
   const leads = (leadsRes.data ?? []) as { stage: string }[];
+  const team = (teamRes.data ?? []) as { id: string }[];
+  const upcoming = (upcomingRes.data ?? []) as { assigned_technician_id: string | null }[];
 
   const revenue_30d = Math.round(recent.reduce((s, j) => s + (j.invoice_amount ?? 0), 0) * 100) / 100;
   const revenue_prior_30d = Math.round(prior.reduce((s, j) => s + (j.invoice_amount ?? 0), 0) * 100) / 100;
+  const avgJobValue = recent.length > 0 ? revenue_30d / recent.length : 0;
+
+  const activeTechIds = new Set(upcoming.map((j) => j.assigned_technician_id).filter((id): id is string => !!id));
+  const activeTechnicians = Math.max(activeTechIds.size, team.length, 1);
+
+  // ---- Margin: from the job_profitability view (revenue_cents, gross_profit_cents) ----
+  let marginPct: number | null = null;
+  try {
+    const { data } = await db.from("job_profitability")
+      .select("revenue_cents, gross_profit_cents")
+      .eq("user_id", userId).eq("job_status", "completed").gte("scheduled_datetime", sixtyDaysAgo);
+    const rows = (data ?? []) as { revenue_cents: number | null; gross_profit_cents: number | null }[];
+    const totalRevenue = rows.reduce((s, r) => s + (r.revenue_cents ?? 0), 0);
+    const totalProfit = rows.reduce((s, r) => s + (r.gross_profit_cents ?? 0), 0);
+    marginPct = totalRevenue > 0 ? Math.round((totalProfit / totalRevenue) * 1000) / 10 : null;
+  } catch { /* job_profitability view not available on this account's schema */ }
+
+  // ---- SLA: on-time proxy = 1 - (jobs rescheduled at least once / total jobs in window) ----
+  let slaOnTimePct: number | null = null;
+  try {
+    const [{ data: changed }, { data: windowJobs }] = await Promise.all([
+      db.from("job_schedule_changes").select("job_id").eq("user_id", userId).gte("changed_at", sixtyDaysAgo),
+      db.from("jobs").select("id").eq("user_id", userId).gte("created_at", sixtyDaysAgo),
+    ]);
+    const rescheduledCount = new Set(((changed ?? []) as { job_id: string }[]).map((c) => c.job_id)).size;
+    const totalWindowJobs = (windowJobs ?? []).length;
+    slaOnTimePct = totalWindowJobs > 0 ? Math.round((1 - rescheduledCount / totalWindowJobs) * 1000) / 10 : null;
+  } catch { /* job_schedule_changes table not available on this account's schema */ }
+
+  // ---- Capacity: today's load from the existing capacity-control RPC ----
+  let capacityLoadPct: number | null = null;
+  try {
+    const { data } = await db.rpc("get_capacity_status");
+    const loadPct = data && typeof data === "object" ? Number((data as Record<string, unknown>).load_pct) : NaN;
+    capacityLoadPct = Number.isFinite(loadPct) ? loadPct : null;
+  } catch { /* get_capacity_status RPC not available on this account's schema */ }
 
   const metrics: Record<string, unknown> = {
     completed_jobs_last_30d: recent.length,
     revenue_last_30d: revenue_30d,
     revenue_prior_30d: revenue_prior_30d,
+    avg_job_value_usd: Math.round(avgJobValue * 100) / 100,
     total_calls_last_30d: calls.length,
     missed_calls_last_30d: calls.filter((c) => c.status === "missed").length,
     emergency_calls_last_30d: calls.filter((c) => c.is_emergency).length,
     new_leads_last_30d: leads.length,
+    active_technicians: activeTechnicians,
+    gross_margin_pct: marginPct,
+    sla_on_time_pct: slaOnTimePct,
+    capacity_load_pct: capacityLoadPct,
   };
 
   return { metrics, revenue_30d };
