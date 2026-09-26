@@ -21,6 +21,7 @@ export type TaskType =
   | "business_insights"
   | "business_decision_engine"
   | "causal_world_simulator"
+  | "continual_identity_learner"
   | "cash_flow_narrative"
   | "regional_demand_narrative"
   | "dispatch_copilot"
