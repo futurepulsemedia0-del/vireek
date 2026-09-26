@@ -19,6 +19,7 @@
 // workflow-engine-executor / estimate-recovery-agent.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { claimCoordinationSlot } from "../_shared/ai-core/emergentCoordination.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,6 +50,13 @@ async function upsertSignal(admin: ReturnType<typeof createClient>, row: Record<
   });
 }
 
+const CONTACT_SEVERITY: Record<string, number> = {
+  "job.eta_missed": 45,
+  "job.technician_delayed": 40,
+  "call.negative_sentiment": 65,
+  "job.customer_disputed": 90,
+};
+
 async function enroll(
   admin: ReturnType<typeof createClient>,
   args: {
@@ -57,6 +65,22 @@ async function enroll(
     extra: Record<string, unknown>;
   },
 ) {
+  // Emergent coordination: this agent already decided FOR ITSELF that a
+  // recovery contact is warranted (that judgment happened above). Post a
+  // bid instead of enqueueing unconditionally — if another agent's bid
+  // currently outranks this one for the same customer this run, back off
+  // and let the next scheduled scan retry it.
+  const claim = await claimCoordinationSlot(admin, {
+    userId: args.userId,
+    agentSource: "service-recovery-agent",
+    actionCategory: "customer_contact",
+    targetTable: args.aggregateType,
+    targetId: args.aggregateId,
+    baseScore: CONTACT_SEVERITY[args.eventType] ?? 50,
+    reasoning: args.eventType,
+  });
+  if (claim.decision === "deferred") return;
+
   await admin.rpc("append_activity_event", {
     p_aggregate_type: args.aggregateType,
     p_aggregate_id: args.aggregateId,
