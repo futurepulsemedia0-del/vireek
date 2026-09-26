@@ -3,6 +3,7 @@ import type { CaseStudy } from '@/components/sections/CaseStudies';
 import type { InsuranceClaim } from '@/lib/supabase';
 import type { WarrantyClaim } from '@/lib/supabase';
 import type { CommercialContract, ContractSlaBreach } from '@/lib/supabase';
+import type { SignatureRequest, SignatureEvent } from '@/lib/signatures';
 
 // ============================================================
 // SHARED LAYOUT HELPERS
@@ -603,4 +604,75 @@ export function downloadContractPdf(contract: CommercialContract, breaches: Cont
 
   drawFooter(doc, `Contract status: ${contract.status.replace(/_/g, ' ')}. Generated for internal reference.`);
   doc.save(`contract-${contract.contract_name.trim().replace(/\s+/g, '-').toLowerCase() || 'summary'}.pdf`);
+}
+export function downloadSignatureCertificatePdf(request: SignatureRequest, events: SignatureEvent[] = []): void {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  let y = drawHeader(doc, 'Certificate of Completion', request.title);
+
+  y = drawSectionLabel(doc, 'Document', y);
+  y = drawParagraph(
+    doc,
+    `Type: ${request.document_type}\n` +
+      `Status: ${request.status.replace(/_/g, ' ')}\n` +
+      `Sent: ${request.sent_at ? new Date(request.sent_at).toLocaleString() : 'Not sent'}\n` +
+      `Completed: ${request.completed_at ? new Date(request.completed_at).toLocaleString() : 'Not yet completed'}`,
+    y
+  );
+
+  const signers = request.signers || [];
+  for (const signer of signers) {
+    y += 14;
+    if (y > 680) {
+      doc.addPage();
+      y = 60;
+    }
+    y = drawSectionLabel(doc, `Signer — ${signer.name}`, y);
+    y = drawParagraph(
+      doc,
+      `Role: ${signer.role.replace(/_/g, ' ')}\n` +
+        `Status: ${signer.status}${signer.signed_at ? ` · ${new Date(signer.signed_at).toLocaleString()}` : ''}\n` +
+        `IP address: ${signer.ip_address || 'Not recorded'}`,
+      y,
+      { size: 9.5, color: MUTED }
+    );
+
+    if (signer.signature_type === 'drawn' && signer.signature_data) {
+      try {
+        doc.addImage(signer.signature_data, 'PNG', MARGIN, y, 180, 60);
+        y += 70;
+      } catch {
+        y = drawParagraph(doc, '[signature image could not be rendered]', y, { color: MUTED });
+      }
+    } else if (signer.signature_type === 'typed' && signer.signed_name) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(20);
+      doc.setTextColor(...INK);
+      doc.text(signer.signed_name, MARGIN, y + 24);
+      y += 40;
+    }
+  }
+
+  if (events.length > 0) {
+    y += 10;
+    if (y > 640) {
+      doc.addPage();
+      y = 60;
+    }
+    y = drawSectionLabel(doc, 'Audit trail', y);
+    for (const e of events) {
+      if (y > 780) {
+        doc.addPage();
+        y = 60;
+      }
+      y = drawParagraph(
+        doc,
+        `${new Date(e.created_at).toLocaleString()} — ${e.event_type.replace(/_/g, ' ')}${e.ip_address ? ` (${e.ip_address})` : ''}`,
+        y,
+        { size: 9, color: MUTED }
+      );
+    }
+  }
+
+  drawFooter(doc, 'This certificate reflects Vireek e-signature audit data captured at the time each event occurred.');
+  doc.save(`signature-certificate-${request.title.trim().replace(/\s+/g, '-').toLowerCase() || 'document'}.pdf`);
 }
