@@ -44,6 +44,7 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   intent_classify: JSON_CHAIN,
   call_intelligence: JSON_CHAIN,
   business_decision_engine: JSON_CHAIN,
+  goal_decomposition: JSON_CHAIN,
   causal_world_simulator: JSON_CHAIN,
    continual_identity_learner: JSON_CHAIN,
   cash_flow_narrative: JSON_CHAIN,
