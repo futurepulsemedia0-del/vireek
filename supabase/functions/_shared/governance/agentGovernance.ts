@@ -140,3 +140,45 @@ export async function recordAgentActionOutcome(
     console.error(JSON.stringify({ event: "agent_governance_outcome_failed", log_id: logId, error: error.message }));
   }
 }
+
+export type AgentActionOutcome = "success" | "partial" | "failure" | "no_effect" | "unknown";
+
+/**
+ * Call this once you know whether an executed action actually worked —
+ * hours or days later, once the real-world result is known (the SMS led
+ * to a booked job, the financing offer was accepted, the campaign
+ * produced revenue, ...). This is what closes the Outcome-Based Learning
+ * Loop: without it, governance can gate actions but the system never
+ * learns whether gating them was the right call.
+ *
+ * financialImpactCents is SIGNED: positive = revenue gained / cost
+ * avoided, negative = cost incurred / value lost. Leave it undefined when
+ * there's no dollar figure to attach (e.g. a neutral outcome).
+ *
+ * A rollback (agent governance dashboard) is already auto-recorded as a
+ * failure by a DB trigger — you don't need to call this for those.
+ */
+export async function recordAgentActionBusinessOutcome(
+  admin: SupabaseClient,
+  logId: string,
+  outcome: {
+    result: AgentActionOutcome;
+    financialImpactCents?: number;
+    confidence?: number;
+    evidence?: Record<string, unknown>;
+    notes?: string;
+  },
+): Promise<void> {
+  const { error } = await admin.rpc("record_agent_action_business_outcome", {
+    p_log_id: logId,
+    p_outcome: outcome.result,
+    p_financial_impact_cents: outcome.financialImpactCents ?? null,
+    p_confidence: outcome.confidence ?? 1.0,
+    p_evidence: outcome.evidence ?? {},
+    p_notes: outcome.notes ?? null,
+    p_recorded_by: "system",
+  });
+  if (error) {
+    console.error(JSON.stringify({ event: "agent_learning_outcome_failed", log_id: logId, error: error.message }));
+  }
+}
