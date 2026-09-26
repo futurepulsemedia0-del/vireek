@@ -224,9 +224,9 @@ export function Hero() {
               </>
             ) : (
               <>
-                Every call answered.
+                Recover $10,000&ndash;30,000 in
                 <br />
-                Every job booked.
+                lost revenue every month.
               </>
             )}
           </motion.h1>
@@ -237,9 +237,8 @@ export function Hero() {
             transition={{ duration: 0.55, delay: 0.15, ease: EASE }}
             className="mx-auto mt-5 max-w-md text-[1.0625rem] leading-relaxed text-text-secondary lg:mx-0"
           >
-            Sarah answers calls 24/7, tells a burst pipe from a routine question, books the
-            job straight into your calendar, and syncs the record to your CRM — before you'd
-            have finished saying hello.
+            Every missed call is a job that walks to a competitor. Sarah answers in under two
+            rings, books it on the spot, and puts that revenue back on your calendar &mdash; 24/7.
           </motion.p>
 
           <motion.div
