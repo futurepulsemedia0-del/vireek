@@ -939,6 +939,7 @@ export interface CausalSimulation {
   id: string;
   scenario_id: string;
   user_id: string;
+  baseline_metrics: Record<string, unknown>;
   cohort_available: boolean;
   cohort_sample_size: number;
   cohort_success_rate: number | null;
