@@ -30,6 +30,7 @@
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { claimCoordinationSlot, recordCoordinationOutcome } from "../_shared/ai-core/emergentCoordination.ts";
 
 const BATCH_SIZE = 20;
 const MAX_ATTEMPTS_PER_STEP = 3;
@@ -353,6 +354,33 @@ Deno.serve(async (req: Request) => {
     const channel = step === "legacy_call" ? "call" : step.channel;
     const stepNumber = step === "legacy_call" ? 1 : step.step_number;
 
+    // Emergent coordination: bid for this exact lead/job before actually
+    // contacting them. Other independently-scheduled agents bid on the
+    // same slot from their own runs — whichever bid currently ranks
+    // highest (this agent's own urgency x its earned reputation) wins;
+    // this run backs off instead of double-texting the customer.
+    const coordinationTarget = enrollment.lead_id
+      ? { table: "leads", id: enrollment.lead_id }
+      : enrollment.job_id
+        ? { table: "jobs", id: enrollment.job_id }
+        : { table: "followup_agent_enrollments", id: enrollment.id };
+    const claim = await claimCoordinationSlot(admin, {
+      userId: enrollment.user_id,
+      agentSource: "followup-agent-dispatcher",
+      actionCategory: "customer_contact",
+      targetTable: coordinationTarget.table,
+      targetId: coordinationTarget.id,
+      baseScore: enrollment.campaign_type === "review_request_call" ? 30 : 40,
+      contactChannel: channel,
+      reasoning: `${enrollment.campaign_type} step ${stepNumber}`,
+    });
+    if (claim.decision === "deferred") {
+      await admin.from("followup_agent_enrollments").update({
+        next_action_at: new Date(Date.now() + 15 * 60_000).toISOString(),
+      }).eq("id", enrollment.id);
+      continue;
+    }
+
     let ok: boolean;
     if (channel === "call") {
       if (!vapiKey) {
@@ -364,6 +392,8 @@ Deno.serve(async (req: Request) => {
     } else {
       ok = await runSmsStep(admin, enrollment, step as Step);
     }
+
+    await recordCoordinationOutcome(admin, claim.bidId, ok ? "success" : "failed");
 
     if (ok) {
       sent += 1;
