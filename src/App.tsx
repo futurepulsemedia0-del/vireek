@@ -107,6 +107,7 @@ const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCe
 const FranchiseGovernancePage = lazy(() => import('@/pages/FranchiseGovernancePage').then((m) => ({ default: m.FranchiseGovernancePage })));
 const BusinessContradictionsPage = lazy(() => import('@/pages/BusinessContradictionsPage').then((m) => ({ default: m.BusinessContradictionsPage })));
 const CounterfactualLibraryPage = lazy(() => import('@/pages/CounterfactualLibraryPage').then((m) => ({ default: m.CounterfactualLibraryPage })));
+const OrganizationalMemoryPage = lazy(() => import('@/pages/OrganizationalMemoryPage').then((m) => ({ default: m.OrganizationalMemoryPage })));
 const CausalRoiAttributionPage = lazy(() => import('@/pages/CausalRoiAttributionPage').then((m) => ({ default: m.CausalRoiAttributionPage })));
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
@@ -706,6 +707,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CounterfactualLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/org-memory"
+          element={
+            <ProtectedRoute>
+              <OrganizationalMemoryPage />
             </ProtectedRoute>
           }
         />
