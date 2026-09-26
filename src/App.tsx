@@ -55,6 +55,7 @@ const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEn
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const IdentityLearnerPage = lazy(() => import('@/pages/IdentityLearnerPage').then((m) => ({ default: m.IdentityLearnerPage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
+const BusinessIdentityPage = lazy(() => import('@/pages/BusinessIdentityPage').then((m) => ({ default: m.BusinessIdentityPage })));
 const BusinessScientistPage = lazy(() => import('@/pages/BusinessScientistPage').then((m) => ({ default: m.BusinessScientistPage })));
 const DecisionDebtPage = lazy(() => import('@/pages/DecisionDebtPage').then((m) => ({ default: m.DecisionDebtPage })));
 const OperationalEntropyPage = lazy(() => import('@/pages/OperationalEntropyPage').then((m) => ({ default: m.OperationalEntropyPage })));
@@ -648,6 +649,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BusinessRealityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/identity"
+          element={
+            <ProtectedRoute>
+              <BusinessIdentityPage />
             </ProtectedRoute>
           }
         />
