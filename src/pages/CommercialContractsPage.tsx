@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
+  PenTool,
   FileSignature,
   Plus,
   Trash2,
@@ -18,6 +19,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { supabase, CommercialContract, ContractSlaBreach, Customer } from '@/lib/supabase';
 import { downloadContractPdf } from '@/lib/pdf';
+import { RequestSignatureModal } from '@/components/signatures/RequestSignatureModal';
 import {
   ContractType,
   ContractStatus,
@@ -521,6 +523,7 @@ export function CommercialContractsPage() {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [signingContract, setSigningContract] = useState<CommercialContract | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [loggingBreachFor, setLoggingBreachFor] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>('live');
@@ -803,6 +806,14 @@ export function CommercialContractsPage() {
                           </button>
                           <button
                             type="button"
+                            onClick={() => setSigningContract(contract)}
+                            className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+                            aria-label="Send for e-signature"
+                          >
+                            <PenTool size={14} />
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => setEditingId(contract.id)}
                             className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
                             aria-label="Edit contract"
@@ -907,6 +918,22 @@ export function CommercialContractsPage() {
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
       />
+
+      {signingContract && (
+        <RequestSignatureModal
+          open={Boolean(signingContract)}
+          onClose={() => setSigningContract(null)}
+          documentType="contract"
+          documentId={signingContract.id}
+          title={signingContract.contract_name}
+          documentSummary={`${CONTRACT_TYPE_LABELS[signingContract.contract_type]} · ${formatCents(signingContract.contract_value_cents ?? 0)}`}
+          customerId={signingContract.customer_id}
+          defaultSigner={(() => {
+            const c = customerOptions.find((c) => c.id === signingContract.customer_id);
+            return c ? { name: c.name, email: c.email || undefined, phone: c.phone || undefined } : undefined;
+          })()}
+        />
+      )}
     </DashboardLayout>
   );
 }
