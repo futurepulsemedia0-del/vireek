@@ -53,6 +53,7 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   onboarding_concierge: DEFAULT_CHAIN,
   next_best_action_engine: JSON_CHAIN,
   callback_root_cause: JSON_CHAIN,
+  business_scientist_hypothesis: JSON_CHAIN,
   causal_shock_extract: JSON_CHAIN,
   causal_shock_cascade: JSON_CHAIN,
   opportunity_cost_ranking: JSON_CHAIN,
