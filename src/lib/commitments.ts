@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase';
 
 export interface Commitment {
   id: string;
-  source_type: 'call' | 'sms' | 'quote' | 'job_note' | 'manual';
+  source_type: 'call' | 'sms' | 'quote' | 'job_note' | 'manual' | 'chat';
   owner_type: string;
   owner_team_member_id: string | null;
   owner_name: string | null;
@@ -14,8 +14,9 @@ export interface Commitment {
   status: 'open' | 'kept' | 'broken' | 'unclear';
   confidence: 'low' | 'medium' | 'high';
   detected_at: string;
+  escalation_stage: 'due_soon' | 'overdue' | 'escalated' | null;
+  escalation_alert_sent_at: string | null;
 }
-
 export interface TrustScore {
   owner_team_member_id: string | null;
   owner_name: string;
