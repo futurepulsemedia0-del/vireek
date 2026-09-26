@@ -19,6 +19,7 @@ import { CohortLtvSection } from '@/components/CohortLtvSection';
 import { ReworkIntelligence } from '@/components/ReworkIntelligence';
 import { WarrantyIntelligence } from '@/components/WarrantyIntelligence';
 import { ServiceRecoveryIntelligence } from '@/components/ServiceRecoveryIntelligence';
+import { CompoundingFlywheelWidget } from '@/components/CompoundingFlywheelWidget';
 import { BusinessImmuneSystem } from '@/components/BusinessImmuneSystem';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { Lock } from 'lucide-react';
@@ -1157,6 +1158,9 @@ export function AnalyticsPage() {
         {/* Service Recovery Intelligence */}
         <div className="mt-6">
           <ServiceRecoveryIntelligence />
+        </div>
+        <div className="mt-6">
+          <CompoundingFlywheelWidget />
         </div>
         <div className="mt-6">
           <BusinessImmuneSystem />
