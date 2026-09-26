@@ -64,6 +64,7 @@ const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then(
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
+const InvoicePage = lazy(() => import('@/pages/InvoicePage').then((m) => ({ default: m.InvoicePage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
@@ -101,6 +102,7 @@ const BusinessContradictionsPage = lazy(() => import('@/pages/BusinessContradict
 const CounterfactualLibraryPage = lazy(() => import('@/pages/CounterfactualLibraryPage').then((m) => ({ default: m.CounterfactualLibraryPage })));
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
+const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
@@ -675,6 +677,14 @@ function App() {
           }
         />
         <Route
+          path="/dashboard/invoicing"
+          element={
+            <ProtectedRoute>
+              <InvoicesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/community"
           element={
             <ProtectedRoute>
@@ -859,6 +869,7 @@ function App() {
           }
         />
         <Route path="/quote/:token" element={<QuoteAcceptPage />} />
+        <Route path="/invoice/:token" element={<InvoicePage />} />
         <Route path="/invite/:token" element={<InviteAcceptPage />} />
                 <Route
           path="/dashboard/knowledge"
