@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   ShieldCheck, Lock, Database, UserCog, FileText, Activity, Globe, Search,
-  ArrowRight, ExternalLink, type LucideIcon,
+  ArrowRight, ExternalLink, ChevronDown, Phone, Mic, Cpu, LayoutDashboard,
+  type LucideIcon,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -11,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSEO } from '@/lib/seo';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
+import { SUBPROCESSOR_CATEGORIES } from '@/lib/subprocessors';
 
 // ============================================================
 // CONTENT
@@ -52,18 +55,119 @@ const PILLARS: Pillar[] = [
   },
 ];
 
-interface SubProcessor {
-  name: string;
-  purpose: string;
-  href: string;
+interface FlowStage {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  badge: string;
 }
 
-const SUB_PROCESSORS: SubProcessor[] = [
-  { name: 'Stripe', purpose: 'Payment processing and subscription billing', href: '/integrations/stripe' },
-  { name: 'Google Calendar', purpose: 'Appointment scheduling, when connected by you', href: '/integrations/google-calendar' },
-  { name: 'QuickBooks', purpose: 'Accounting sync, when connected by you', href: '/integrations/quickbooks' },
-  { name: 'Zapier', purpose: 'Workflow automation, when connected by you', href: '/integrations/zapier' },
+const DATA_FLOW: FlowStage[] = [
+  { icon: Phone, title: 'Caller', description: 'A customer calls your Vireek business number.', badge: 'TLS-encrypted call' },
+  { icon: Mic, title: 'Vapi — Voice & Telephony', description: 'Answers the call and converts speech in real time.', badge: 'Audio + transcript' },
+  { icon: Cpu, title: 'AI Model Layer', description: 'Gemini (primary), with Groq, Cerebras, Workers AI, and OpenRouter as fallbacks, understands and responds.', badge: 'Transcript only — no raw audio' },
+  { icon: Database, title: 'Supabase Database', description: 'The conversation, lead, and job details are saved to your account.', badge: 'Row-level security, isolated per account' },
+  { icon: LayoutDashboard, title: 'Your Dashboard', description: 'You and your permitted team members see the call, transcript, and lead.', badge: 'Role-based access' },
 ];
+
+const OPTIONAL_BRANCH = [
+  { name: 'Stripe', purpose: 'Billing sync' },
+  { name: 'Google Calendar', purpose: 'Appointment sync' },
+  { name: 'QuickBooks', purpose: 'Accounting sync' },
+  { name: 'Zapier', purpose: 'Workflow automation' },
+];
+
+type SubprocessorFilter = 'all' | 'required' | 'optional';
+
+const SUBPROCESSOR_FILTERS: { key: SubprocessorFilter; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'required', label: 'Required' },
+  { key: 'optional', label: 'Customer-optional' },
+];
+
+function SubprocessorMap() {
+  const [filter, setFilter] = useState<SubprocessorFilter>('all');
+  const [openProcessor, setOpenProcessor] = useState<string | null>(null);
+
+  const categories = SUBPROCESSOR_CATEGORIES.filter((c) => {
+    if (filter === 'required') return c.required;
+    if (filter === 'optional') return !c.required;
+    return true;
+  });
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {SUBPROCESSOR_FILTERS.map((f) => (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => setFilter(f.key)}
+            className={`focus-ring rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors ${
+              filter === f.key
+                ? 'border-accent bg-accent/10 text-accent'
+                : 'border-border bg-bg-secondary text-text-secondary hover:border-accent/30'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-8 space-y-6">
+        {categories.map((category) => (
+          <div key={category.title}>
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <category.icon size={18} />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold text-text-primary">{category.title}</h3>
+                <p className="text-xs text-text-secondary">{category.description}</p>
+              </div>
+              {!category.required && (
+                <span className="ml-auto shrink-0 rounded-full border border-border px-2.5 py-0.5 text-[11px] font-semibold text-text-secondary">
+                  Optional
+                </span>
+              )}
+            </div>
+            <div className="mt-3 space-y-2">
+              {category.processors.map((p) => {
+                const isOpen = openProcessor === p.name;
+                return (
+                  <div
+                    key={p.name}
+                    className="overflow-hidden rounded-xl border border-border bg-bg-secondary/90 dark:bg-bg-secondary/95"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenProcessor(isOpen ? null : p.name)}
+                      className="focus-ring flex w-full items-center justify-between gap-3 p-4 text-left"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-text-primary">{p.name}</p>
+                        <p className="mt-0.5 text-xs text-text-secondary">{p.purpose}</p>
+                      </div>
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className="border-t border-border/60 px-4 py-3 text-xs text-text-secondary">
+                        <p><span className="font-semibold text-text-primary">Location: </span>{p.location}</p>
+                        <p className="mt-1"><span className="font-semibold text-text-primary">Data types: </span>{p.dataTypes}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const RESOURCES = [
   { label: 'Security overview', description: 'How call and customer data is protected.', href: '/security' },
@@ -135,6 +239,63 @@ export function TrustCenterPage() {
           </div>
         </section>
 
+        {/* Data Flow */}
+        <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-6xl">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="text-center"
+            >
+              <p className={eyebrowClass()}>Data Flow</p>
+              <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl`}>Where a call actually goes</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-base">
+                Every stage a call passes through, and the protection in place at each one.
+              </p>
+            </motion.div>
+
+            <div className="mt-10 flex flex-col items-stretch gap-2 sm:mt-14 sm:flex-row sm:items-center">
+              {DATA_FLOW.map((stage, i) => (
+                <div key={stage.title} className="flex flex-col items-center gap-2 sm:flex-1 sm:flex-row">
+                  <div className="flex w-full flex-col items-center rounded-2xl border border-border bg-bg-secondary p-5 text-center shadow-card dark:bg-bg-secondary/95 dark:shadow-card-dark">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                      <stage.icon size={20} />
+                    </span>
+                    <h3 className="mt-3 text-sm font-semibold text-text-primary">{stage.title}</h3>
+                    <p className="mt-1.5 text-xs leading-relaxed text-text-secondary">{stage.description}</p>
+                    <span className="mt-3 rounded-full border border-accent/20 bg-accent/5 px-2.5 py-1 text-[11px] font-semibold text-accent">
+                      {stage.badge}
+                    </span>
+                  </div>
+                  {i < DATA_FLOW.length - 1 && (
+                    <>
+                      <ChevronDown className="h-5 w-5 shrink-0 text-text-secondary/50 sm:hidden" />
+                      <ArrowRight className="hidden h-5 w-5 shrink-0 text-text-secondary/50 sm:block" />
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 rounded-2xl border border-dashed border-border bg-bg-secondary/50 p-5 sm:mt-10 sm:p-6">
+              <p className="text-center text-xs font-semibold uppercase tracking-wide text-text-secondary/70">
+                Only if you connect them from your dashboard
+              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                {OPTIONAL_BRANCH.map((b) => (
+                  <span
+                    key={b.name}
+                    className="rounded-full border border-border bg-bg-secondary px-3 py-1.5 text-xs font-medium text-text-secondary"
+                  >
+                    {b.name} <span className="text-text-secondary/60">— {b.purpose}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
         {/* Sub-processors */}
         <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-4xl">
@@ -153,20 +314,15 @@ export function TrustCenterPage() {
               </p>
             </motion.div>
 
-            <div className="mt-8 space-y-3 sm:mt-10 sm:space-y-4">
-              {SUB_PROCESSORS.map((sp) => (
-                <Link
-                  key={sp.name}
-                  to={sp.href}
-                  className="focus-ring flex items-center justify-between gap-4 rounded-2xl border border-border bg-bg-secondary/90 p-5 shadow-card transition-colors hover:border-accent/30 dark:shadow-card-dark sm:p-6"
-                >
-                  <div>
-                    <h3 className="text-base font-semibold text-text-primary">{sp.name}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-text-secondary">{sp.purpose}</p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-accent" />
-                </Link>
-              ))}
+            <div className="mt-8 sm:mt-10">
+              <SubprocessorMap />
+              <p className="mt-6 text-center text-sm text-text-secondary">
+                This is a simplified view. See the full{' '}
+                <Link to="/subprocessors" className="font-semibold text-accent hover:underline">
+                  Sub-processor List
+                </Link>{' '}
+                for the legal version referenced in our DPA.
+              </p>
             </div>
           </div>
         </section>
