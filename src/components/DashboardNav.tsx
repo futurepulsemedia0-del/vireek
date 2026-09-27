@@ -206,6 +206,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: MessageSquareWarning },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
+  { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
   { label: 'Equipment Health', href: '/dashboard/equipment-health', icon: HeartPulse },
