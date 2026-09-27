@@ -33,11 +33,12 @@ export type TaskType =
   | "callback_root_cause"
   | "trust_bank_intervention"
   | "next_best_action_engine"
-  | "business_scientist_hypothesis";
+  | "business_scientist_hypothesis"
   | "causal_shock_extract"
-  | "causal_shock_cascade";
-  | "opportunity_cost_ranking";
-  | "business_drift_narrative";
+  | "causal_shock_cascade"
+  | "opportunity_cost_ranking"
+  | "business_drift_narrative"
+  | "job_autopsy";
 
 export interface NormalizedChatRequest {
   system: string;
