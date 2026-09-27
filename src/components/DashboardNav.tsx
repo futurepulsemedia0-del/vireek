@@ -230,6 +230,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Technician Performance', href: '/dashboard/technician-performance', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Click-to-Cash', href: '/dashboard/click-to-cash', icon: MousePointerClick, requiresPermission: 'can_view_billing' },
   { label: 'Skill Graph', href: '/dashboard/skill-graph', icon: GitBranch, requiresPermission: 'can_view_billing' },
+  { label: 'Trust Passport', href: '/dashboard/trust-passport', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Weather Surge', href: '/dashboard/weather-surge', icon: CloudLightning },
   { label: 'Emergency Operations', href: '/dashboard/emergency-ops', icon: Siren },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
