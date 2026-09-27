@@ -191,6 +191,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Compliance Center', href: '/dashboard/compliance', icon: ShieldCheck },
   { label: 'Callback Root-Cause', href: '/dashboard/callback-root-cause', icon: Microscope },
+  { label: 'AI Job Autopsy', href: '/dashboard/job-autopsy', icon: Stethoscope },
   { label: 'Autonomy Readiness', href: '/dashboard/autonomy-readiness', icon: Gauge },
   { label: 'Accounting', href: '/dashboard/accounting', icon: BookOpen },
   { label: 'Payroll', href: '/dashboard/payroll', icon: DollarSign },
