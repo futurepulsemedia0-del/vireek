@@ -27,6 +27,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { getRescheduleLink } from '@/lib/reschedule';
 import { checkConstitution } from '@/lib/constitution';
 import { getTrackingLink, setJobEta, pushTechnicianLocation, QUICK_ETA_OPTIONS } from '@/lib/liveTracking';
+import { getJobRoomLink } from '@/lib/jobRoom';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { PriceBookItem } from '@/lib/priceBook';
@@ -430,6 +431,16 @@ function JobDetailPanel({
                 Copy tracking link
               </button>
             </div>
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard.writeText(getJobRoomLink(job.reschedule_token));
+            toast('Service room link copied', 'success');
+          }}
+          className="focus-ring mt-2 w-full rounded-lg border border-border py-2 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+        >
+          Copy service room link
+        </button>
           </div>
         )}
         {/* Invoice card */}
