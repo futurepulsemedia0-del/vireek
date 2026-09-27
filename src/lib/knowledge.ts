@@ -37,6 +37,10 @@ export interface KnowledgeArticle {
   usage_count: number;
   last_used_at: string | null;
   contributed_by: string | null;
+  confidence_score: number | null;
+  verified_by: string | null;
+  verified_at: string | null;
+  verification_note: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -436,6 +440,15 @@ export async function captureVoiceNote(audioPath: string | null, notes: string):
   return data as VoiceCaptureResult;
 }
 
+/** A different team member confirms a voice-note draft is correct — this also publishes it. */
+export async function verifyKnowledgeArticle(articleId: string, note?: string): Promise<KnowledgeArticle> {
+  const { data, error } = await supabase.rpc('verify_knowledge_article', {
+    p_article_id: articleId,
+    p_note: note ?? null,
+  });
+  if (error) throw error;
+  return data as KnowledgeArticle;
+}
 export interface ManualIngestResult {
   articlesCreated: number;
   message?: string;
