@@ -184,6 +184,16 @@ export function CustomerPortalPage() {
                 <h1 className="text-2xl font-bold tracking-tight text-text-primary">Hi {bundle.customer.name.split(' ')[0]},</h1>
                 <p className="mt-1 text-sm text-text-secondary">Your account with {bundle.business_name ?? 'us'}</p>
               </div>
+              
+                href={`/emergency/${token}`}
+                className="mb-6 flex items-center justify-between rounded-2xl border border-danger/30 bg-danger/5 p-4 transition-colors hover:border-danger/50"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-danger">Something is wrong?</p>
+                  <p className="text-xs text-text-secondary">Report an emergency and get immediate safety steps</p>
+                </div>
+                <span className="rounded-full bg-danger px-3 py-1.5 text-xs font-semibold text-white">Start now</span>
+              </a>
 
               {bundle.membership && (
                 <div className="mb-6 flex items-center gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-4">
