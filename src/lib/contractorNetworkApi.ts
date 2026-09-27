@@ -7,12 +7,15 @@
 
 import { supabase } from '@/lib/supabase';
 import type {
+  CapacityExchangeSummary,
   HandoffContact,
+  HandoffMatch,
+  MatchPipeline,
   NetworkHandoff,
   NetworkHubSummary,
   PostHandoffInput,
+  SetCapacityProfileInput,
 } from '@/lib/contractorNetwork';
-
 async function rpc<T>(fn: string, args?: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.rpc(fn, args);
   if (error) throw new Error(error.message);
@@ -51,6 +54,7 @@ export const networkApi = {
       p_customer_phone: i.customerPhone,
       p_customer_address: i.customerAddress,
       p_notes: i.notes,
+      p_smart_match: i.smartMatch ?? false,
     }),
 
   claim: (id: string) => rpc<string>('claim_network_handoff', { p_id: id }),
@@ -92,5 +96,53 @@ export const networkApi = {
       .maybeSingle();
     if (error || !data) return null;
     return data as JobPrefill;
+  },
+};
+
+
+// ---------------------------------------------------------------------------
+// Capacity Exchange — data access
+// ---------------------------------------------------------------------------
+
+export const capacityApi = {
+  summary: () => rpc<CapacityExchangeSummary>('get_capacity_exchange_summary'),
+  advanceExpired: () => rpc<number>('advance_expired_matches'),
+
+  setProfile: (i: SetCapacityProfileInput) =>
+    rpc<void>('set_capacity_profile', {
+      p_certified_trades: i.certifiedTrades,
+      p_weekly_capacity_hours: i.weeklyCapacityHours,
+      p_max_concurrent_handoffs: i.maxConcurrentHandoffs,
+      p_auto_match_enabled: i.autoMatchEnabled,
+    }),
+
+  computeMatches: (handoffId: string) =>
+    rpc<number>('compute_handoff_matches', { p_handoff_id: handoffId }),
+
+  respond: (matchId: string, accept: boolean) =>
+    rpc<string | null>('respond_to_match', { p_match_id: matchId, p_accept: accept }),
+
+  rate: (handoffId: string, rating: number, notes: string) =>
+    rpc<void>('rate_handoff', { p_handoff_id: handoffId, p_rating: rating, p_notes: notes }),
+
+  pipeline: (handoffId: string) =>
+    rpc<MatchPipeline>('get_handoff_match_pipeline', { p_handoff_id: handoffId }),
+
+  /** RLS returns only match rows where candidate_id = me. */
+  async listMyMatches(): Promise<HandoffMatch[]> {
+    const { data, error } = await supabase
+      .from('network_handoff_matches')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return (data ?? []) as HandoffMatch[];
+  },
+
+  /** Handoff ids I (as poster) have already rated — RLS returns only my own ratings. */
+  async listMyRatingsGiven(): Promise<Set<string>> {
+    const { data, error } = await supabase.from('network_handoff_ratings').select('handoff_id');
+    if (error) throw new Error(error.message);
+    return new Set((data ?? []).map((r) => r.handoff_id as string));
   },
 };
