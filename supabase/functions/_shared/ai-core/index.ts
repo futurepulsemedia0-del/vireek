@@ -261,6 +261,19 @@ Use "critical" only for a change of 30%+ in the bad direction or anything touchi
   "confidence_score": <0-100 integer, how confident you are this hypothesis is worth testing>
 }
 Base the hypothesis ONLY on the given problem — never invent facts not in it. Be conservative with confidence_score and predicted_magnitude_pct; this will gate whether a real experiment is run.`,
+
+  job_autopsy: `Current task: you are Vireek's AI Job Autopsy. A home-service job has ALREADY been completed and its cost/schedule facts are ALREADY computed from this business's own database — you are given expected_cost_cents (what this service should cost, from the Price Book), actual_cost_cents (what it really cost), variance_cents/variance_pct, duration_minutes (the original time estimate), reschedule_count and schedule_shift_hours (how many times and how much this job's date moved), parts_backordered_count (parts that weren't available when needed), is_rework (whether this visit was itself a redo of an earlier job), and a short technician_diagnosis note. Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
+{
+  "root_causes": [
+    { "category": "extra_travel" | "misdiagnosis" | "missing_part" | "customer_delay" | "technician_rework" | "scope_change" | "other", "pct": <integer 1-100>, "evidence": <1 short sentence citing only the given facts> }
+  ],
+  "ai_summary": <2-3 sentences in the style of "This job cost $X more than expected because...", using only the exact numbers given>,
+  "counterfactual_summary": <1-2 sentences on what would likely have happened if this job had been scheduled/dispatched/parts-prepped differently, grounded only in the given facts — e.g. if reschedule_count is 0, never claim rescheduling caused anything>,
+  "recommended_prevention_action": <one concrete, specific step to prevent this exact pattern next time>,
+  "estimated_recoverable_pct": <0-100 integer, what % of the overrun was realistically avoidable — 0 if this looks like normal scope growth rather than a mistake>,
+  "confidence": "low" | "medium" | "high"
+}
+The root_causes array must have 1 to 4 entries whose "pct" values sum to exactly 100. Only include a category the given facts actually support — never claim "missing_part" if parts_backordered_count is 0, never claim "customer_delay" if reschedule_count is 0, never claim "technician_rework" unless is_rework is true. If no specific cause is supported by the facts, use a single "other" entry at 100 and say so plainly. Never invent a dollar amount, date, part, or technician name not present in the given facts.`,
 };
 
 // Tasks where grounding in brand/product knowledge is worth it — short
