@@ -13,6 +13,7 @@ import {
   LifeBuoy,
   MapPin,
   Package,
+  Shuffle,
   Siren,
   type LucideIcon,
 } from 'lucide-react';
@@ -96,6 +97,7 @@ export interface PostHandoffInput {
   customerPhone: string;
   customerAddress: string;
   notes: string;
+  smartMatch?: boolean;
 }
 
 export const KIND_LABELS: Record<HandoffKind, string> = {
@@ -213,8 +215,9 @@ const ERROR_COPY: Record<string, string> = {
   INVALID_AMOUNT: 'Enter a valid final invoice amount.',
   INVALID_INPUT: 'Some fields are invalid. Check the form and try again.',
   INVALID_OUTCOME: 'Invalid fee action.',
+  MATCH_UNAVAILABLE: 'This offer is no longer available.',
+  MATCH_EXPIRED: 'The response window for this offer has closed.',
 };
-
 export function describeNetworkError(err: unknown): string {
   const message =
     err instanceof Error
@@ -303,4 +306,90 @@ export const NETWORK_CAPABILITIES: NetworkCapability[] = [
     href: '/dashboard/benchmarks',
     icon: BarChart3,
   },
+  {
+    id: 'capacity-exchange',
+    title: 'Capacity Exchange',
+    description:
+      'Post a job once — Vireek ranks certified, in-region capacity and offers it to the best match automatically.',
+    href: '/dashboard/network/capacity-exchange',
+    icon: Shuffle,
+    isNew: true,
+  },
 ];
+
+
+// ---------------------------------------------------------------------------
+// Capacity Exchange — automated matching layer on top of handoffs
+// ---------------------------------------------------------------------------
+
+export type CapacityMatchStatus =
+  | 'queued'
+  | 'offered'
+  | 'accepted'
+  | 'declined'
+  | 'expired'
+  | 'superseded';
+
+/** Mirrors public.network_handoff_matches — only rows where candidate = me are visible. */
+export interface HandoffMatch {
+  id: string;
+  handoff_id: string;
+  candidate_id: string;
+  rank: number;
+  score: number;
+  status: CapacityMatchStatus;
+  offered_at: string | null;
+  responds_by: string | null;
+  responded_at: string | null;
+  created_at: string;
+}
+
+/** Return shape of public.get_capacity_exchange_summary(). */
+export interface CapacityExchangeSummary {
+  has_profile: boolean;
+  certified_trades: string[];
+  weekly_capacity_hours: number;
+  max_concurrent_handoffs: number;
+  auto_match_enabled: boolean;
+  avg_rating: number;
+  ratings_count: number;
+  pending_offers: number;
+  accepted_matches: number;
+  my_open_smart_handoffs: number;
+}
+
+/** Return shape of public.get_handoff_match_pipeline(). Poster-side, anonymised. */
+export interface MatchPipeline {
+  total: number;
+  offered: number;
+  queued: number;
+  declined: number;
+  expired: number;
+  accepted: number;
+  current_offer_expires_at: string | null;
+}
+
+export interface SetCapacityProfileInput {
+  certifiedTrades: string[];
+  weeklyCapacityHours: number;
+  maxConcurrentHandoffs: number;
+  autoMatchEnabled: boolean;
+}
+
+export const MATCH_STATUS_LABELS: Record<CapacityMatchStatus, string> = {
+  queued: 'Waiting in line',
+  offered: 'Offered to you',
+  accepted: 'Accepted',
+  declined: 'Declined',
+  expired: 'Expired',
+  superseded: 'Filled by another match',
+};
+
+export const MATCH_STATUS_COLORS: Record<CapacityMatchStatus, string> = {
+  queued: 'bg-bg-tertiary text-text-secondary',
+  offered: 'bg-accent/10 text-accent',
+  accepted: 'bg-success-500/10 text-success-500',
+  declined: 'bg-bg-tertiary text-text-secondary',
+  expired: 'bg-danger/10 text-danger',
+  superseded: 'bg-bg-tertiary text-text-secondary',
+};
