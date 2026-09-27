@@ -208,6 +208,7 @@ const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
 const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
+const EmergencyTriagePage = lazy(() => import('@/pages/EmergencyTriagePage').then((m) => ({ default: m.EmergencyTriagePage })));
 const JobRoomPage = lazy(() => import('@/pages/JobRoomPage').then((m) => ({ default: m.JobRoomPage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
@@ -371,6 +372,7 @@ function App() {
         <Route path="/book/:slug" element={<BookingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
+        <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
