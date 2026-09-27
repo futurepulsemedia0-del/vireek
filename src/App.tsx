@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StaffRoute } from '@/components/StaffRoute';
+import { TechnicianRoute } from '@/components/TechnicianRoute';
 import { PartnerRoute } from '@/components/PartnerRoute';
 import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { AriaLiveRegion } from '@/lib/a11y/announcer';
@@ -94,6 +95,8 @@ const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m
 const PropertyDigitalTwinPage = lazy(() => import('@/pages/PropertyDigitalTwinPage').then((m) => ({ default: m.PropertyDigitalTwinPage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
+const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
+const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
 const MutualAidPage = lazy(() => import('@/pages/MutualAidPage').then((m) => ({ default: m.MutualAidPage })));
 const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => ({ default: m.NetworkHubPage })));
@@ -1246,6 +1249,22 @@ function App() {
             <ProtectedRoute>
               <MembershipsPage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tech/today"
+          element={
+            <TechnicianRoute>
+              <TechnicianTodayPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/tech/job/:jobId"
+          element={
+            <TechnicianRoute>
+              <TechnicianJobBriefPage />
+            </TechnicianRoute>
           }
         />
         <Route
