@@ -97,6 +97,8 @@ const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ defa
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
+const ExpertAssistInboxPage = lazy(() => import('@/pages/ExpertAssistInboxPage').then((m) => ({ default: m.ExpertAssistInboxPage })));
+const ExpertAssistThreadPage = lazy(() => import('@/pages/ExpertAssistThreadPage').then((m) => ({ default: m.ExpertAssistThreadPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
 const MutualAidPage = lazy(() => import('@/pages/MutualAidPage').then((m) => ({ default: m.MutualAidPage })));
 const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => ({ default: m.NetworkHubPage })));
@@ -1264,6 +1266,22 @@ function App() {
           element={
             <TechnicianRoute>
               <TechnicianJobBriefPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/dashboard/expert-assist"
+          element={
+            <TechnicianRoute>
+              <ExpertAssistInboxPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/dashboard/expert-assist/:requestId"
+          element={
+            <TechnicianRoute>
+              <ExpertAssistThreadPage />
             </TechnicianRoute>
           }
         />
