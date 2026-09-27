@@ -35,6 +35,7 @@ import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { JobQualityGatePanel } from '@/components/jobs/JobQualityGatePanel';
+import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
 
 // ============================================================
@@ -525,6 +526,7 @@ function JobDetailPanel({
             </div>
           )}
         </div>
+        <MissionBriefPanel job={job} />
         <JobQualityGatePanel job={job} />
         <Link
           to={`/dashboard/profitability?job=${job.id}`}
