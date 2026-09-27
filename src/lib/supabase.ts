@@ -297,6 +297,14 @@ export interface Job {
   invoice_reverse_charge: boolean;
   dispatch_note: string | null;
   reschedule_token: string;
+  diagnosis_notes: string | null;
+  work_performed_notes: string | null;
+  before_photos: string[];
+  after_photos: string[];
+  quality_check_passed: boolean | null;
+  next_maintenance_date: string | null;
+  documents: { name: string; url: string }[];
+  quote_id: string | null;
   rescheduled_by_customer_at: string | null;
   eta_minutes: number | null;
   eta_set_at: string | null;
