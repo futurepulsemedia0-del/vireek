@@ -5,6 +5,7 @@ import {
   fetchJobBrief, advanceJobStatus, setSafetyFlag, addJobNote,
   nextStatus, mapsLink, telLink, STATUS_LABELS, JobBrief, JobStatus,
 } from '@/lib/technicianOS';
+import { createExpertAssistRequest, snapshotFromBrief } from '@/lib/expertAssist';
 
 export function TechnicianJobBriefPage() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -12,6 +13,7 @@ export function TechnicianJobBriefPage() {
   const [brief, setBrief] = useState<JobBrief | null>(null);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const navigate2 = useNavigate();
 
   const load = () => {
     if (!jobId) return;
@@ -78,6 +80,20 @@ export function TechnicianJobBriefPage() {
             <Navigation className="h-4 w-4" /> Navigate
           </a>
         </div>
+        <button
+          onClick={async () => {
+            const requestId = await createExpertAssistRequest(
+              jobId ?? null,
+              null,
+              snapshotFromBrief(brief),
+              `Stuck on ${job.customer_name} — ${job.service_type || 'job'}`,
+            );
+            navigate(`/dashboard/expert-assist/${requestId}`);
+          }}
+          className="w-full rounded-lg border border-accent bg-accent/10 py-3 text-sm font-semibold text-accent"
+        >
+          🆘 Ask Vireek Expert
+        </button>
 
         {customer_preferences.length > 0 && (
           <section className="rounded-lg border border-border bg-bg-secondary p-3">
