@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Route, Wrench, Sparkles, Brain, X, PackageCheck } from 'lucide-react';
+import { Route, Wrench, Sparkles, Brain, X, PackageCheck, DollarSign, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { suggestTechnicians } from '@/lib/dispatch';
 import { buildStockFitMap, fetchStockFit, stockFitBonus, type StockFitRow } from '@/lib/truckStock';
+import { fetchTechnicianScorecards } from '@/lib/technicianPerformance';
+import { rankTechniciansByProfitability, formatProfitabilityCents } from '@/lib/dispatchProfitability';
 
 function formatTime(dateStr: string | null): string {
   if (!dateStr) return 'Unscheduled';
@@ -43,6 +45,8 @@ export function DispatchBoardPage() {
   const [technicians, setTechnicians] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [stockFit, setStockFit] = useState<Record<string, Record<string, StockFitRow>>>({});
+  const [firstTimeFixByTechnician, setFirstTimeFixByTechnician] = useState<Record<string, number | null>>({});
+  const [expandedProfitJob, setExpandedProfitJob] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<string | null>(null);
     const [aiDispatchEnabled, setAiDispatchEnabled] = useState(false);
   const [autoAssigning, setAutoAssigning] = useState(false);
@@ -71,6 +75,13 @@ export function DispatchBoardPage() {
         setStockFit(buildStockFitMap(rows)),
       );
       setTechnicians((teamRes.data as TeamMember[]) || []);
+      void fetchTechnicianScorecards().then((rows) => {
+        const map: Record<string, number | null> = {};
+        rows.forEach((r) => {
+          if (!(r.technician_id in map)) map[r.technician_id] = r.first_time_fix_rate;
+        });
+        setFirstTimeFixByTechnician(map);
+      });
     }
     setLoading(false);
   }, [toast]);
@@ -318,6 +329,92 @@ const handleAssign = async (job: Job, technicianId: string) => {
                                 )}
                             </button>
                           ))}
+                        </div>
+                      )}
+                      {suggestions.length > 0 && (
+                        <div className="mt-3">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedProfitJob(expandedProfitJob === job.id ? null : job.id)}
+                            className="focus-ring flex items-center gap-1 text-xs font-medium text-accent"
+                          >
+                            <DollarSign size={12} />
+                            Profitability before dispatch
+                            <ChevronDown
+                              size={12}
+                              className={`transition-transform ${expandedProfitJob === job.id ? 'rotate-180' : ''}`}
+                            />
+                          </button>
+
+                          {expandedProfitJob === job.id && (() => {
+                            const ranked = rankTechniciansByProfitability(
+                              job,
+                              technicians,
+                              jobsByTechnician,
+                              stockFit[job.id] ?? {},
+                              firstTimeFixByTechnician,
+                            );
+                            if (ranked.length === 0) return null;
+                            const best = ranked[0];
+                            return (
+                              <div className="mt-2 overflow-x-auto rounded-xl border border-border">
+                                <table className="w-full text-left text-xs">
+                                  <thead className="bg-bg-tertiary text-text-secondary">
+                                    <tr>
+                                      <th className="px-3 py-2 font-medium">Technician</th>
+                                      <th className="px-3 py-2 font-medium">Revenue</th>
+                                      <th className="px-3 py-2 font-medium">Labor</th>
+                                      <th className="px-3 py-2 font-medium">Parts</th>
+                                      <th className="px-3 py-2 font-medium">Travel</th>
+                                      <th className="px-3 py-2 font-medium">Risk</th>
+                                      <th className="px-3 py-2 font-medium">Gross Profit</th>
+                                      <th className="px-3 py-2 font-medium" />
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {ranked.map((r) => (
+                                      <tr key={r.technician.id} className="border-t border-border">
+                                        <td className="px-3 py-2 font-medium text-text-primary">
+                                          {r.technician.member_name ?? r.technician.member_email}
+                                          {r.technician.id === best.technician.id && (
+                                            <span className="ml-1.5 rounded-full bg-success-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-success-500">
+                                              Recommended
+                                            </span>
+                                          )}
+                                          <div className="mt-0.5 text-[10px] font-normal text-text-secondary">
+                                            {r.reasons.join(' · ')}
+                                          </div>
+                                        </td>
+                                        <td className="px-3 py-2 text-text-secondary">{formatProfitabilityCents(r.expectedRevenueCents)}</td>
+                                        <td className="px-3 py-2 text-text-secondary">{formatProfitabilityCents(r.expectedLaborCents)}</td>
+                                        <td className="px-3 py-2 text-text-secondary">{formatProfitabilityCents(r.expectedPartsCents)}</td>
+                                        <td className="px-3 py-2 text-text-secondary">{formatProfitabilityCents(r.expectedTravelCents)}</td>
+                                        <td className="px-3 py-2 text-text-secondary">{formatProfitabilityCents(r.expectedRiskCents)}</td>
+                                        <td
+                                          className={`px-3 py-2 font-semibold ${r.expectedGrossProfitCents >= 0 ? 'text-success-500' : 'text-danger'}`}
+                                        >
+                                          {formatProfitabilityCents(r.expectedGrossProfitCents)}
+                                          {r.expectedMarginPct !== null && (
+                                            <span className="ml-1 font-normal text-text-secondary">({r.expectedMarginPct}%)</span>
+                                          )}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                          <button
+                                            type="button"
+                                            disabled={assigning === job.id}
+                                            onClick={() => handleAssign(job, r.technician.id)}
+                                            className="focus-ring rounded-lg border border-border px-2 py-1 text-[11px] font-medium text-text-secondary hover:border-accent/40 hover:text-accent disabled:opacity-50"
+                                          >
+                                            Assign
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            );
+                          })()}
                         </div>
                       )}
                     </motion.div>
