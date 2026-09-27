@@ -62,7 +62,7 @@ export interface JobRoom {
   technician_lat: number | null;
   technician_lng: number | null;
 
-  diagnosis_notes: string | null;
+  diagnosis_notes: string | null; // sourced from jobs.technician_diagnosis
   work_performed_notes: string | null;
   before_photos: string[];
   after_photos: string[];
