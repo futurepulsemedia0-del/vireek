@@ -61,6 +61,7 @@ import {
   uploadTribalManualPdf,
   uploadTribalVoiceNote,
   captureVoiceNote,
+  verifyKnowledgeArticle,
   ingestManual,
   validateArticleForm,
 } from '@/lib/knowledge';
@@ -546,6 +547,15 @@ export function KnowledgeBasePage() {
     }
   };
 
+  const handleVerify = async (article: KnowledgeArticle) => {
+    try {
+      const updated = await verifyKnowledgeArticle(article.id);
+      setArticles((prev) => prev.map((a) => (a.id === article.id ? updated : a)));
+      toast('Verified and published', 'success');
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Could not verify this article', 'error');
+    }
+  };
   const handleToggleStatus = async (article: KnowledgeArticle) => {
     const next: KnowledgeStatus = article.status === 'published' ? 'draft' : 'published';
     try {
@@ -809,6 +819,20 @@ export function KnowledgeBasePage() {
                         Used {article.usage_count}× · last {relativeTime(article.last_used_at)}
                       </span>
                       {article.source !== 'manual' && <span>{SOURCE_LABELS[article.source]}</span>}
+                      {article.confidence_score != null && (
+                        <span
+                          className={
+                            article.confidence_score >= 75
+                              ? 'text-success-500'
+                              : article.confidence_score >= 45
+                              ? 'text-warning-500'
+                              : 'text-text-secondary'
+                          }
+                        >
+                          {article.confidence_score}% confidence
+                        </span>
+                      )}
+                      {article.verified_by && <span className="text-success-500">Verified</span>}
                       {article.embedding_stale && article.status === 'published' && (
                         <span className="text-warning-500">keyword-only</span>
                       )}
@@ -830,6 +854,15 @@ export function KnowledgeBasePage() {
                         {article.status === 'published' ? <X size={12} /> : <Check size={12} />}
                         {article.status === 'published' ? 'Unpublish' : 'Publish'}
                       </button>
+                      {article.source === 'voice_note' && article.status === 'draft' && !article.verified_by && (
+                        <button
+                          type="button"
+                          onClick={() => void handleVerify(article)}
+                          className="focus-ring flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-success-500 hover:bg-success-500/10"
+                        >
+                          <Check size={12} /> Verify
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => setHistoryFor(historyFor === article.id ? null : article.id)}
