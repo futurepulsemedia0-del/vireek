@@ -98,6 +98,7 @@ const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ defaul
 const MutualAidPage = lazy(() => import('@/pages/MutualAidPage').then((m) => ({ default: m.MutualAidPage })));
 const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => ({ default: m.NetworkHubPage })));
 const NetworkHandoffsPage = lazy(() => import('@/pages/NetworkHandoffsPage').then((m) => ({ default: m.NetworkHandoffsPage })));
+const CapacityExchangePage = lazy(() => import('@/pages/CapacityExchangePage').then((m) => ({ default: m.CapacityExchangePage })));
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
 const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
@@ -1274,6 +1275,14 @@ function App() {
           element={
             <ProtectedRoute>
               <NetworkHandoffsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/network/capacity-exchange"
+          element={
+            <ProtectedRoute>
+              <CapacityExchangePage />
             </ProtectedRoute>
           }
         />
