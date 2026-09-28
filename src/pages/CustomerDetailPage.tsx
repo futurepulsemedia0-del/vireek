@@ -29,6 +29,7 @@ import {
   type GraphLink,
 } from '@/components/customers/CustomerKnowledgeGraph';
 import { JobEquipmentLinker, type LinkedEquipment } from '@/components/customers/JobEquipmentLinker';
+import { HomeHealthCard } from '@/components/customers/HomeHealthCard';
 
 // ============================================================
 // TYPES — narrow, query-shaped (not the full app-wide Job/Call
@@ -411,6 +412,7 @@ export function CustomerDetailPage() {
           />
         </div>
 
+        {id && <HomeHealthCard customerId={id} />}
         {/* Equipment */}
         <div className="mb-6">
           <div className="mb-3 flex items-center justify-between">
