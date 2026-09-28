@@ -26,6 +26,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { formatSiteLocationLine, SITE_TYPE_LABELS } from '@/lib/siteHierarchy';
 import { formatCents } from '@/lib/agentGovernance';
+import { HomeHealthScoreCard } from '@/components/HomeHealthScoreCard';
 import {
   fetchPropertyTwin,
   serviceCountByEquipment,
@@ -113,7 +114,7 @@ export function PropertyDigitalTwinPage() {
           <StatCard icon={<Clock size={14} />} label="Last visit" value={summary.lastVisit ? new Date(summary.lastVisit).toLocaleDateString() : '—'} />
           <StatCard icon={<Wrench size={14} />} label="Equipment on site" value={String(equipment.length)} />
         </div>
-
+        <HomeHealthScoreCard twin={twin} />
         {/* Predictive signals — already-computed maintenance alerts, surfaced here in property context */}
         {maintenanceAlerts.length > 0 && (
           <div className="rounded-2xl border border-border bg-bg-secondary p-5">
