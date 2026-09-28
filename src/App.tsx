@@ -111,6 +111,7 @@ const CapacityExchangePage = lazy(() => import('@/pages/CapacityExchangePage').t
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
 const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
+const HomeHealthPage = lazy(() => import('@/pages/HomeHealthPage').then((m) => ({ default: m.HomeHealthPage })));
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
@@ -1394,6 +1395,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EquipmentLifecyclePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/home-health"
+          element={
+            <ProtectedRoute>
+              <HomeHealthPage />
             </ProtectedRoute>
           }
         />
