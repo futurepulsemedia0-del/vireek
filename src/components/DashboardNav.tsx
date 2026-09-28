@@ -213,6 +213,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
   { label: 'Equipment Health', href: '/dashboard/equipment-health', icon: HeartPulse },
+  { label: 'Home Health', href: '/dashboard/home-health', icon: Activity },
   { label: 'Fleet Economics', href: '/dashboard/fleet-economics', icon: Fuel },
   { label: 'Field Evidence', href: '/dashboard/field-evidence', icon: ScanEye },
   { label: 'Customer Trust Bank', href: '/dashboard/trust-bank', icon: ShieldCheck },
