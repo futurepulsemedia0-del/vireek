@@ -149,6 +149,7 @@ const CausalShockSimulatorPage = lazy(() => import('@/pages/CausalShockSimulator
 const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerformancePage').then((m) => ({ default: m.TechnicianPerformancePage })));
 const TechnicianSkillGraphPage = lazy(() => import('@/pages/TechnicianSkillGraphPage').then((m) => ({ default: m.TechnicianSkillGraphPage })));
 const TechnicianTrustPassportPage = lazy(() => import('@/pages/TechnicianTrustPassportPage').then((m) => ({ default: m.TechnicianTrustPassportPage })));
+const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPage').then((m) => ({ default: m.TechnicianSimulatorPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
@@ -1526,6 +1527,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianTrustPassportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/technician-simulator"
+          element={
+            <ProtectedRoute>
+              <TechnicianSimulatorPage />
             </ProtectedRoute>
           }
         />
