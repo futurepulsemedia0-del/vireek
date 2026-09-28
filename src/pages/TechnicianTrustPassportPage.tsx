@@ -18,12 +18,20 @@ import {
   DollarSign,
   AlertTriangle,
   RefreshCw,
+  FlaskConical,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { SkeletonCardList, FadeIn } from '@/components/Skeleton';
+import {
+  fetchSimulatorSummaries,
+  SIM_CERT_META,
+  SIM_TRADE_META,
+  SIM_TRADES,
+  type TechnicianSimulatorSummary,
+} from '@/lib/technicianSimulator';
 import {
   fetchTrustPassports,
   formatRate,
@@ -40,7 +48,7 @@ function StatBlock({ label, value, valueClass = 'text-text-primary' }: { label: 
   );
 }
 
-function PassportCard({ p }: { p: TechnicianTrustPassport }) {
+function PassportCard({ p, sim }: { p: TechnicianTrustPassport; sim?: TechnicianSimulatorSummary }) {
   return (
     <Card className="p-6">
       <div className="flex items-start justify-between gap-3">
@@ -97,6 +105,27 @@ function PassportCard({ p }: { p: TechnicianTrustPassport }) {
           {p.unresolved_complaint_count === 1 ? '' : 's'}
         </span>
       </div>
+      <div className="mt-4 border-t border-border/60 pt-3">
+        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">
+          <FlaskConical size={12} /> Simulator-verified (training, not real jobs)
+        </p>
+        {sim && sim.attempts_completed > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {SIM_TRADES.map((t) => {
+              const ts = sim.trades[t];
+              if (!ts) return null;
+              const meta = SIM_CERT_META[ts.level];
+              return (
+                <span key={t} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${meta.className}`}>
+                  {SIM_TRADE_META[t].label}: {meta.label} ({ts.passed}/{ts.attempts} passed)
+                </span>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-1 text-xs text-text-secondary">Simulator not started.</p>
+        )}
+      </div>
     </Card>
   );
 }
@@ -109,12 +138,18 @@ export function TechnicianTrustPassportPage() {
   const [passports, setPassports] = useState<TechnicianTrustPassport[]>([]);
   const [loading, setLoading] = useState(true);
   const [windowDays, setWindowDays] = useState(90);
+  const [simByTech, setSimByTech] = useState<Record<string, TechnicianSimulatorSummary>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const rows = await fetchTrustPassports(windowDays);
+      const [rows, sims] = await Promise.all([
+        fetchTrustPassports(windowDays),
+        fetchSimulatorSummaries().catch(() => [] as TechnicianSimulatorSummary[]),
+      ]);
       setPassports(rows);
+      setSimByTech(Object.fromEntries(sims.map((s) => [s.technician_id, s])));
     } finally {
       setLoading(false);
     }
@@ -196,7 +231,7 @@ export function TechnicianTrustPassportPage() {
       ) : (
         <FadeIn className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {passports.map((p) => (
-            <PassportCard key={p.technician_id} p={p} />
+            <PassportCard key={p.technician_id} p={p} sim={simByTech[p.technician_id]} />
           ))}
         </FadeIn>
       )}
