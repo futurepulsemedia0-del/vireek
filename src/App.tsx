@@ -64,6 +64,8 @@ const BusinessScientistPage = lazy(() => import('@/pages/BusinessScientistPage')
 const DecisionDebtPage = lazy(() => import('@/pages/DecisionDebtPage').then((m) => ({ default: m.DecisionDebtPage })));
 const OperationsCenterPage = lazy(() => import('@/pages/OperationsCenterPage').then((m) => ({ default: m.OperationsCenterPage })));
 const DecisionLedgerPage = lazy(() => import('@/pages/DecisionLedgerPage').then((m) => ({ default: m.DecisionLedgerPage })));
+const CustomerTrustLayerPage = lazy(() => import('@/pages/CustomerTrustLayerPage').then((m) => ({ default: m.CustomerTrustLayerPage })));
+const VerifiedServicePage = lazy(() => import('@/pages/VerifiedServicePage').then((m) => ({ default: m.VerifiedServicePage })));
 const OperationalEntropyPage = lazy(() => import('@/pages/OperationalEntropyPage').then((m) => ({ default: m.OperationalEntropyPage })));
 const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPage').then((m) => ({ default: m.BusinessDigitalTwinPage })));
 const BusinessWorldModelPage = lazy(() => import('@/pages/BusinessWorldModelPage').then((m) => ({ default: m.BusinessWorldModelPage })));
@@ -374,6 +376,7 @@ function App() {
         <Route path="/book/:slug" element={<BookingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
+        <Route path="/verified/:token" element={<VerifiedServicePage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
@@ -683,6 +686,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DecisionLedgerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/trust-layer"
+          element={
+            <ProtectedRoute>
+              <CustomerTrustLayerPage />
             </ProtectedRoute>
           }
         />
