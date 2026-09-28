@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   Lock,
@@ -29,6 +29,7 @@ import {
   type AssignmentSuggestion,
 } from '@/lib/technicianSkillGraph';
 import { EmptyState } from '@/components/EmptyState';
+import { tradeForServiceType } from '@/lib/technicianSimulator';
 import { SkeletonCardList, FadeIn } from '@/components/Skeleton';
 
 // ============================================================
@@ -222,6 +223,14 @@ export function TechnicianSkillGraphPage() {
                           ? `No one is currently proficient (${risk.jobVolume} jobs booked).`
                           : `Only 1 technician is proficient (${risk.jobVolume} jobs booked).`}
                       </p>
+                      {tradeForServiceType(risk.serviceType) && (
+                        <Link
+                          to={`/dashboard/technician-simulator?trade=${tradeForServiceType(risk.serviceType)}`}
+                          className="mt-2 inline-block text-xs font-semibold text-accent hover:underline"
+                        >
+                          Train backup coverage in the simulator
+                        </Link>
+                      )}
                     </div>
                   ))}
                 </div>
