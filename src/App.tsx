@@ -56,6 +56,7 @@ const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ 
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
+const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const IdentityLearnerPage = lazy(() => import('@/pages/IdentityLearnerPage').then((m) => ({ default: m.IdentityLearnerPage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
 const BusinessIdentityPage = lazy(() => import('@/pages/BusinessIdentityPage').then((m) => ({ default: m.BusinessIdentityPage })));
@@ -618,6 +619,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CausalWorldSimulatorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/parts-market"
+          element={
+            <ProtectedRoute>
+              <PartsMarketPage />
             </ProtectedRoute>
           }
         />
