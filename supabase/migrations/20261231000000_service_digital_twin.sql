@@ -297,8 +297,9 @@ BEGIN
     IF v_elapsed > v_exp_dur THEN
       v_proj_dur := v_elapsed + GREATEST(10, round(v_exp_dur * c_tail_share));
     END IF;
-    IF v_cl_total > 0 AND v_cl_done > 0 AND v_cl_done < v_cl_total THEN
-      v_proj_dur := GREATEST(v_proj_dur, v_elapsed * v_cl_total / v_cl_done);
+    -- Checklist velocity only counts with >= 2 items done, and never projects past 3x plan.
+    IF v_cl_total > 0 AND v_cl_done >= 2 AND v_cl_done < v_cl_total THEN
+      v_proj_dur := GREATEST(v_proj_dur, LEAST(v_elapsed * v_cl_total / v_cl_done, v_exp_dur * 3));
     END IF;
     v_proj_cost := GREATEST(v_rec_total - v_rec_labor, v_exp_nonlabor)
                  + GREATEST(v_rec_labor, v_accrued)
