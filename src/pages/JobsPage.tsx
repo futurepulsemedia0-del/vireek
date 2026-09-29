@@ -36,6 +36,7 @@ import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { JobQualityGatePanel } from '@/components/jobs/JobQualityGatePanel';
 import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
+  import { ServiceTwinPanel } from '@/components/jobs/ServiceTwinPanel';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
 
 // ============================================================
@@ -527,6 +528,7 @@ function JobDetailPanel({
           )}
         </div>
         <MissionBriefPanel job={job} />
+        <ServiceTwinPanel job={job} />
         <JobQualityGatePanel job={job} />
         <Link
           to={`/dashboard/profitability?job=${job.id}`}
