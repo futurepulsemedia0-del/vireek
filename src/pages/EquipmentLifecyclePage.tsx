@@ -64,6 +64,9 @@ export function EquipmentLifecyclePage() {
           <h1 className="text-xl font-bold text-text-primary">Equipment Lifecycle Intelligence</h1>
           <p className="text-sm text-text-secondary">Units flagged for aging out, overdue service, or a repair pattern that predicts failure.</p>
         </div>
+        <Link to="/dashboard/oem-intelligence" className="focus-ring ml-auto shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary">
+          OEM Intelligence →
+        </Link>
       </div>
 
       {loading ? (
