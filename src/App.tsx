@@ -65,6 +65,7 @@ const BusinessScientistPage = lazy(() => import('@/pages/BusinessScientistPage')
 const DecisionDebtPage = lazy(() => import('@/pages/DecisionDebtPage').then((m) => ({ default: m.DecisionDebtPage })));
 const OperationsCenterPage = lazy(() => import('@/pages/OperationsCenterPage').then((m) => ({ default: m.OperationsCenterPage })));
 const DecisionLedgerPage = lazy(() => import('@/pages/DecisionLedgerPage').then((m) => ({ default: m.DecisionLedgerPage })));
+const ServiceGraphPage = lazy(() => import('@/pages/ServiceGraphPage').then((m) => ({ default: m.ServiceGraphPage })));
 const CustomerTrustLayerPage = lazy(() => import('@/pages/CustomerTrustLayerPage').then((m) => ({ default: m.CustomerTrustLayerPage })));
 const VerifiedServicePage = lazy(() => import('@/pages/VerifiedServicePage').then((m) => ({ default: m.VerifiedServicePage })));
 const OperationalEntropyPage = lazy(() => import('@/pages/OperationalEntropyPage').then((m) => ({ default: m.OperationalEntropyPage })));
@@ -704,6 +705,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CustomerTrustLayerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/service-graph"
+          element={
+            <ProtectedRoute>
+              <ServiceGraphPage />
             </ProtectedRoute>
           }
         />
