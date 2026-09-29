@@ -27,6 +27,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { formatSiteLocationLine, SITE_TYPE_LABELS } from '@/lib/siteHierarchy';
 import { formatCents } from '@/lib/agentGovernance';
 import { HomeHealthScoreCard } from '@/components/HomeHealthScoreCard';
+import { HomeOperatingBudgetCard } from '@/components/HomeOperatingBudgetCard';
 import {
   fetchPropertyTwin,
   serviceCountByEquipment,
@@ -115,6 +116,7 @@ export function PropertyDigitalTwinPage() {
           <StatCard icon={<Wrench size={14} />} label="Equipment on site" value={String(equipment.length)} />
         </div>
         <HomeHealthScoreCard twin={twin} />
+        <HomeOperatingBudgetCard twin={twin} />
         {/* Predictive signals — already-computed maintenance alerts, surfaced here in property context */}
         {maintenanceAlerts.length > 0 && (
           <div className="rounded-2xl border border-border bg-bg-secondary p-5">
