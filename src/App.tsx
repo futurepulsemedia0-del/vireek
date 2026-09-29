@@ -57,6 +57,7 @@ const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedg
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
+const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
 const IdentityLearnerPage = lazy(() => import('@/pages/IdentityLearnerPage').then((m) => ({ default: m.IdentityLearnerPage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
 const BusinessIdentityPage = lazy(() => import('@/pages/BusinessIdentityPage').then((m) => ({ default: m.BusinessIdentityPage })));
@@ -631,6 +632,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PartsMarketPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/outcome-assurance"
+          element={
+            <ProtectedRoute>
+              <OutcomeAssurancePage />
             </ProtectedRoute>
           }
         />
