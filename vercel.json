@@ -20,7 +20,7 @@
         { "key": "X-Frame-Options", "value": "DENY" },
         {
           "key": "Permissions-Policy",
-          "value": "microphone=(self), camera=(), geolocation=(), payment=(), usb=(), midi=(), magnetometer=(), gyroscope=(), interest-cohort=()"
+          "value": "microphone=(self), camera=(self), geolocation=(), payment=(), usb=(), midi=(), magnetometer=(), gyroscope=(), interest-cohort=()"
         },
         {
           "key": "Content-Security-Policy",
