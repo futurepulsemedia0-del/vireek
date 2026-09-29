@@ -244,6 +244,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Skill Graph', href: '/dashboard/skill-graph', icon: GitBranch, requiresPermission: 'can_view_billing' },
   { label: 'Trust Passport', href: '/dashboard/trust-passport', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Technician Simulator', href: '/dashboard/technician-simulator', icon: FlaskConical },
+  { label: 'Apprenticeship Engine', href: '/dashboard/apprenticeship', icon: GraduationCap },
   { label: 'Weather Surge', href: '/dashboard/weather-surge', icon: CloudLightning },
   { label: 'Emergency Operations', href: '/dashboard/emergency-ops', icon: Siren },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
