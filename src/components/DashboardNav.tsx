@@ -207,6 +207,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Business Immune System', href: '/dashboard/immune-system', icon: Siren },
   { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: Sparkles },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
+  { label: 'Self-Healing', href: '/dashboard/self-healing', icon: Bot },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
