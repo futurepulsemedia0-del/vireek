@@ -35,6 +35,7 @@ import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { JobQualityGatePanel } from '@/components/jobs/JobQualityGatePanel';
+import { JobRiskPanel } from '@/components/jobs/JobRiskPanel';
 import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
 import { JobEvidenceChainPanel } from '@/components/jobs/JobEvidenceChainPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
@@ -534,6 +535,7 @@ function JobDetailPanel({
         <MissionBriefPanel job={job} /
         <PermitCompliancePanel job={job} />
         <ServiceTwinPanel job={job} />
+        <JobRiskPanel job={job} />
         <JobQualityGatePanel job={job} />
         <JobEvidenceChainPanel job={job} />
         <Link
