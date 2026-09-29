@@ -36,6 +36,8 @@ import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { JobQualityGatePanel } from '@/components/jobs/JobQualityGatePanel';
 import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
+import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
+import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
   import { ServiceTwinPanel } from '@/components/jobs/ServiceTwinPanel';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
 
@@ -527,7 +529,8 @@ function JobDetailPanel({
             </div>
           )}
         </div>
-        <MissionBriefPanel job={job} />
+        <MissionBriefPanel job={job} /
+        <PermitCompliancePanel job={job} />
         <ServiceTwinPanel job={job} />
         <JobQualityGatePanel job={job} />
         <Link
@@ -1037,7 +1040,9 @@ export function JobsPage() {
   };
 
   // Mutations
+  const { guardStart, complianceDialog } = useComplianceStartGuard();
   const updateJobStatus = async (jobId: string, status: JobStatus) => {
+    if ((status === 'en_route' || status === 'in_progress') && !(await guardStart(jobId))) return;
     if (status === 'cancelled' && user) {
       const job = allJobs.find((j) => j.id === jobId);
       try {
@@ -1580,6 +1585,7 @@ export function JobsPage() {
           />
         )}
       </AnimatePresence>
+      {complianceDialog}
     </DashboardLayout>
   );
 }
