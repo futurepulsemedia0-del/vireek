@@ -122,6 +122,7 @@ const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
 const NextBestActionsPage = lazy(() => import('@/pages/NextBestActionsPage').then((m) => ({ default: m.NextBestActionsPage })));
 const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').then((m) => ({ default: m.DiagnosisCopilotPage })));
+const LiveCopilotPage = lazy(() => import('@/pages/LiveCopilotPage').then((m) => ({ default: m.LiveCopilotPage })));
 const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
@@ -1475,6 +1476,14 @@ function App() {
             <ProtectedRoute>
               <DiagnosisCopilotPage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/live-copilot"
+          element={
+            <TechnicianRoute>
+              <LiveCopilotPage />
+            </TechnicianRoute>
           }
         />
         <Route
