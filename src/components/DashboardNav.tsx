@@ -274,6 +274,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Execution Reliability', href: '/dashboard/execution-reliability', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Vendor & Procurement', href: '/dashboard/procurement', icon: Truck, requiresPermission: 'can_view_billing' },
   { label: 'AI Parts Market', href: '/dashboard/parts-market', icon: Store, requiresPermission: 'can_view_billing' },
+  { label: 'Outcome Assurance', href: '/dashboard/outcome-assurance', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
 ];
 
 
