@@ -90,6 +90,7 @@ const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => (
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
+  const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
@@ -1256,6 +1257,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+  <Route
+    path="/dashboard/service-twin"
+    element={
+      <ProtectedRoute>
+        <ServiceTwinPage />
+      </ProtectedRoute>
+    }
+  />
         <Route
           path="/dashboard/warranty-claims"
           element={
