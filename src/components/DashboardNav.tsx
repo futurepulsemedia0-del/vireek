@@ -195,6 +195,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Job Handoffs', href: '/dashboard/network/handoffs', icon: ArrowRightLeft },
   { label: 'Capacity Exchange', href: '/dashboard/network/capacity-exchange', icon: Shuffle },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
+  { label: 'Risk Intelligence', href: '/dashboard/risk-intelligence', icon: Gauge },
   { label: 'Compliance Center', href: '/dashboard/compliance', icon: ShieldCheck },
   { label: 'Callback Root-Cause', href: '/dashboard/callback-root-cause', icon: Microscope },
   { label: 'AI Job Autopsy', href: '/dashboard/job-autopsy', icon: Stethoscope },
