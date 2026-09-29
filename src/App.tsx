@@ -90,11 +90,12 @@ const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => (
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
-  const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
+const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));|
 const EvidenceChainPage = lazy(() => import('@/pages/EvidenceChainPage').then((m) => ({ default: m.EvidenceChainPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
+const SelfHealingPage = lazy(() => import('@/pages/SelfHealingPage').then((m) => ({ default: m.SelfHealingPage })));
 const CompoundingFlywheelPage = lazy(() => import('@/pages/CompoundingFlywheelPage').then((m) => ({ default: m.CompoundingFlywheelPage })));
 const BusinessImmuneSystemPage = lazy(() => import('@/pages/BusinessImmuneSystemPage').then((m) => ({ default: m.BusinessImmuneSystemPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
@@ -520,6 +521,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/dashboard/self-healing"
+  element={
+    <ProtectedRoute>
+      <SelfHealingPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/flywheel"
           element={
