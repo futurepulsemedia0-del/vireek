@@ -225,6 +225,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Customer Trust Bank', href: '/dashboard/trust-bank', icon: ShieldCheck },
   { label: 'Next Best Actions', href: '/dashboard/next-best-actions', icon: Target },
   { label: 'Diagnosis Copilot', href: '/dashboard/diagnosis-copilot', icon: Stethoscope },
+  { label: 'Live Copilot', href: '/dashboard/live-copilot', icon: Radio },
   { label: 'Margin Guardrails', href: '/dashboard/margin-guardrails', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Company Reflexes', href: '/dashboard/reflexes', icon: Zap },
