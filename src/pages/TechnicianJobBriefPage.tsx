@@ -6,6 +6,8 @@ import {
   nextStatus, mapsLink, telLink, STATUS_LABELS, JobBrief, JobStatus,
 } from '@/lib/technicianOS';
 import { createExpertAssistRequest, snapshotFromBrief } from '@/lib/expertAssist';
+import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
+import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 
 export function TechnicianJobBriefPage() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -14,6 +16,7 @@ export function TechnicianJobBriefPage() {
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const navigate2 = useNavigate();
+  const { guardStart, complianceDialog } = useComplianceStartGuard();
 
   const load = () => {
     if (!jobId) return;
@@ -31,6 +34,7 @@ export function TechnicianJobBriefPage() {
 
   async function handleAdvance(status: JobStatus) {
     if (!jobId) return;
+    if ((status === 'en_route' || status === 'in_progress') && !(await guardStart(jobId))) return;
     setBusy(true);
     try {
       await advanceJobStatus(jobId, status);
@@ -56,6 +60,7 @@ export function TechnicianJobBriefPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary pb-24">
+    {complianceDialog}
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-bg-primary/95 px-4 py-4 backdrop-blur">
         <button onClick={() => navigate('/tech/today')}><ArrowLeft className="h-5 w-5" /></button>
         <div>
@@ -95,6 +100,7 @@ export function TechnicianJobBriefPage() {
           🆘 Ask Vireek Expert
         </button>
 
+        <PermitCompliancePanel job={job} />
         {customer_preferences.length > 0 && (
           <section className="rounded-lg border border-border bg-bg-secondary p-3">
             <h2 className="mb-2 text-sm font-semibold text-text-primary">Customer notes</h2>
