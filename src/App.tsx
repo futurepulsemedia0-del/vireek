@@ -158,6 +158,7 @@ const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerforman
 const TechnicianSkillGraphPage = lazy(() => import('@/pages/TechnicianSkillGraphPage').then((m) => ({ default: m.TechnicianSkillGraphPage })));
 const TechnicianTrustPassportPage = lazy(() => import('@/pages/TechnicianTrustPassportPage').then((m) => ({ default: m.TechnicianTrustPassportPage })));
 const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPage').then((m) => ({ default: m.TechnicianSimulatorPage })));
+const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
@@ -1520,6 +1521,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianCapacityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/apprenticeship"
+          element={
+            <ProtectedRoute>
+              <TechnicianApprenticeshipPage />
             </ProtectedRoute>
           }
         />
