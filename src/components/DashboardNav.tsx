@@ -160,6 +160,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Command Center', href: '/dashboard/command-center', icon: Radio },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Profitability', href: '/dashboard/profitability', icon: DollarSign },
+  { label: 'Live Service Twins', href: '/dashboard/service-twin', icon: Activity },
   { label: 'Economic Autopilot', href: '/dashboard/economic-autopilot', icon: Rocket, requiresPermission: 'can_view_billing' },
   { label: 'Parts & Inventory', href: '/dashboard/inventory', icon: Package },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
