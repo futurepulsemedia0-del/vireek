@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Phone, Navigation, AlertTriangle, ShieldAlert, PackageX, Wrench } from 'lucide-react';
 import {
   fetchJobBrief, advanceJobStatus, setSafetyFlag, addJobNote,
@@ -101,6 +101,7 @@ export function TechnicianJobBriefPage() {
         </button>
 
         <PermitCompliancePanel job={job} />
+        <Link to={`/dashboard/live-copilot?job=${jobId}`} className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white">Open Live Copilot</Link>
         {customer_preferences.length > 0 && (
           <section className="rounded-lg border border-border bg-bg-secondary p-3">
             <h2 className="mb-2 text-sm font-semibold text-text-primary">Customer notes</h2>
