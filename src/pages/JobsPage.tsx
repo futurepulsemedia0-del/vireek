@@ -36,10 +36,12 @@ import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { JobQualityGatePanel } from '@/components/jobs/JobQualityGatePanel';
 import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
+import { JobEvidenceChainPanel } from '@/components/jobs/JobEvidenceChainPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
   import { ServiceTwinPanel } from '@/components/jobs/ServiceTwinPanel';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
+import { isEvidenceChainError, parseEvidenceChainError } from '@/lib/jobEvidenceChain';
 
 // ============================================================
 // TYPES & CONSTANTS
@@ -533,6 +535,7 @@ function JobDetailPanel({
         <PermitCompliancePanel job={job} />
         <ServiceTwinPanel job={job} />
         <JobQualityGatePanel job={job} />
+        <JobEvidenceChainPanel job={job} />
         <Link
           to={`/dashboard/profitability?job=${job.id}`}
           className="focus-ring flex items-center justify-between gap-2 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 hover:text-accent"
@@ -1068,6 +1071,8 @@ export function JobsPage() {
       if (isQualityGateError(message)) {
         toast(`Can't close this job yet — missing: ${parseQualityGateError(message).join(', ')}.`, 'error');
       } else {
+             } else if (isEvidenceChainError(message)) {
+        toast(`Can't close this job yet — evidence chain incomplete: ${parseEvidenceChainError(message).join(', ')}.`, 'error');
         toast('Could not update job status.', 'error');
       }
     }
