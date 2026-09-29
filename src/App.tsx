@@ -84,6 +84,7 @@ const InvoicePage = lazy(() => import('@/pages/InvoicePage').then((m) => ({ defa
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
+const RiskIntelligencePage = lazy(() => import('@/pages/RiskIntelligencePage').then((m) => ({ default: m.RiskIntelligencePage })));
 const ComplianceCenterPage = lazy(() => import('@/pages/ComplianceCenterPage').then((m) => ({ default: m.ComplianceCenterPage })));
 const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage').then((m) => ({ default: m.CallbackRootCausePage })));
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
@@ -1211,6 +1212,14 @@ function App() {
           element={
             <ProtectedRoute>
               <InsuranceClaimsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/risk-intelligence"
+          element={
+            <ProtectedRoute>
+              <RiskIntelligencePage />
             </ProtectedRoute>
           }
         />
