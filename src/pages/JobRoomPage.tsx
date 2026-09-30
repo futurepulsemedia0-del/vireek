@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { NoSurpriseCustomerPanel } from '@/components/NoSurpriseCustomerPanel';
 import { minutesRemaining } from '@/lib/liveTracking';
 import { formatWarrantyStatus, formatPortalDate } from '@/lib/customerPortal';
 import {
@@ -166,6 +167,7 @@ export function JobRoomPage() {
                 </div>
               )}
 
+              {token && <NoSurpriseCustomerPanel token={token} />}
               {/* Quote / approval */}
               {room.quote && (
                 <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
