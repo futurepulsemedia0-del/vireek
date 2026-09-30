@@ -232,6 +232,7 @@ const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ defa
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
 const EmergencyTriagePage = lazy(() => import('@/pages/EmergencyTriagePage').then((m) => ({ default: m.EmergencyTriagePage })));
 const JobRoomPage = lazy(() => import('@/pages/JobRoomPage').then((m) => ({ default: m.JobRoomPage })));
+const NoSurpriseApprovePage = lazy(() => import('@/pages/NoSurpriseApprovePage').then((m) => ({ default: m.NoSurpriseApprovePage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
@@ -398,6 +399,7 @@ function App() {
         <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
+        <Route path="/approve/:token" element={<NoSurpriseApprovePage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
