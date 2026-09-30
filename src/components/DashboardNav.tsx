@@ -257,6 +257,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Emergency Operations', href: '/dashboard/emergency-ops', icon: Siren },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
+  { label: 'Revenue Protection', href: '/dashboard/revenue-protection', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
   { label: 'Business Contradictions', href: '/dashboard/contradictions', icon: AlertOctagon },
