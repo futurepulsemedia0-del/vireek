@@ -217,6 +217,11 @@ const ERROR_COPY: Record<string, string> = {
   INVALID_OUTCOME: 'Invalid fee action.',
   MATCH_UNAVAILABLE: 'This offer is no longer available.',
   MATCH_EXPIRED: 'The response window for this offer has closed.',
+  TOO_MANY_LISTINGS: 'You already have 5 live availability listings. Withdraw one first.',
+  TOO_MANY_CREDENTIALS: 'You can store up to 20 credentials. Remove one first.',
+  LISTING_UNAVAILABLE: 'This listing is no longer active.',
+  CREDENTIAL_UNAVAILABLE: 'This credential no longer exists.',
+  FORBIDDEN: 'You do not have permission to do that.',
 };
 export function describeNetworkError(err: unknown): string {
   const message =
@@ -341,6 +346,7 @@ export interface HandoffMatch {
   offered_at: string | null;
   responds_by: string | null;
   responded_at: string | null;
+  score_breakdown?: Record<string, number> | null;
   created_at: string;
 }
 
