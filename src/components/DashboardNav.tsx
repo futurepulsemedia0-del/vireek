@@ -114,6 +114,7 @@ import {
   Sun,
   Check,
   Skull,
+  FileSearch,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -211,6 +212,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Self-Healing', href: '/dashboard/self-healing', icon: Bot },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
+  { label: 'Contract Intelligence', href: '/dashboard/contract-intelligence', icon: FileSearch },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { label: 'Promise Tracker', href: '/dashboard/promises', icon: Handshake },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: MessageSquareWarning },
