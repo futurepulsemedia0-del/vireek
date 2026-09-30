@@ -253,6 +253,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Technician Identity Graph', href: '/dashboard/technician-identity', icon: Network },
   { label: 'Technician Simulator', href: '/dashboard/technician-simulator', icon: FlaskConical },
   { label: 'Apprenticeship Engine', href: '/dashboard/apprenticeship', icon: GraduationCap },
+  { label: 'First-Time-Fix Autopilot', href: '/dashboard/first-time-fix', icon: Crosshair },
   { label: 'Weather Surge', href: '/dashboard/weather-surge', icon: CloudLightning },
   { label: 'Emergency Operations', href: '/dashboard/emergency-ops', icon: Siren },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
