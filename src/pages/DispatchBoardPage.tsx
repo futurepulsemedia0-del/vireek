@@ -10,6 +10,8 @@ import { buildStockFitMap, fetchStockFit, stockFitBonus, type StockFitRow } from
 import { buildPassportFitMap, fetchPassportFit, passportFitHeadline, type PassportFitRow } from '@/lib/dispatchPassportFit';
 import { fetchTechnicianScorecards } from '@/lib/technicianPerformance';
 import { rankTechniciansByProfitability, formatProfitabilityCents } from '@/lib/dispatchProfitability';
+import { useFirstTimeFixGate } from '@/hooks/useFirstTimeFixGate';
+import { FirstTimeFixChip } from '@/components/jobs/FirstTimeFixChip';
 
 function formatTime(dateStr: string | null): string {
   if (!dateStr) return 'Unscheduled';
@@ -50,7 +52,8 @@ export function DispatchBoardPage() {
   const [firstTimeFixByTechnician, setFirstTimeFixByTechnician] = useState<Record<string, number | null>>({});
   const [expandedProfitJob, setExpandedProfitJob] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<string | null>(null);
-    const [aiDispatchEnabled, setAiDispatchEnabled] = useState(false);
+  const ftf = useFirstTimeFixGate();
+  const [aiDispatchEnabled, setAiDispatchEnabled] = useState(false);
   const [autoAssigning, setAutoAssigning] = useState(false);
   const [copilotLoading, setCopilotLoading] = useState(false);
   const [copilotRecommendations, setCopilotRecommendations] = useState<CopilotRecommendation[] | null>(null);
@@ -135,6 +138,11 @@ export function DispatchBoardPage() {
   };
 
 const handleAssign = async (job: Job, technicianId: string) => {
+  const ftfGate = ftf.gate(job, technicianId);
+  if (ftfGate.action === 'hold') {
+    toast(ftfGate.message, 'error');
+    return;
+  }
   setAssigning(job.id);
 
   const { data, error } = await supabase.rpc('assign_technician_to_job', {
@@ -153,6 +161,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
       )
     );
     toast('Job assigned', 'success');
+    if (ftfGate.action === 'warn') toast(ftfGate.message, 'info');
     const fit = stockFit[job.id]?.[technicianId];
     if (fit && fit.parts_on_van < fit.parts_required) {
       toast(`This technician's truck is missing ${fit.parts_required - fit.parts_on_van} required part(s). Check Parts & Inventory before dispatch.`, 'info');
@@ -329,6 +338,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
                               className="focus-ring rounded-xl border border-border bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-accent disabled:opacity-50"
                             >
                               {s.technician.member_name ?? s.technician.member_email}
+                              <FirstTimeFixChip chip={ftf.chipFor(job, s.technician.id)} />
                               {stockFitBonus(stockFit[job.id]?.[s.technician.id]) >= 12 && (
                                <PackageCheck size={12} className="ml-1 inline text-success-500" aria-label="Truck has all required parts" />
                                 )}
