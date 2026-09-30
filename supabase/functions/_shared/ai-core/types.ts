@@ -38,7 +38,8 @@ export type TaskType =
   | "causal_shock_cascade"
   | "opportunity_cost_ranking"
   | "business_drift_narrative"
-  | "job_autopsy";
+  | "job_autopsy"
+  | "switching_shield_plan";
 
 export interface NormalizedChatRequest {
   system: string;
