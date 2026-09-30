@@ -125,6 +125,7 @@ const HomeHealthPage = lazy(() => import('@/pages/HomeHealthPage').then((m) => (
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
+const SwitchingShieldPage = lazy(() => import('@/pages/SwitchingShieldPage').then((m) => ({ default: m.SwitchingShieldPage })));
 const NextBestActionsPage = lazy(() => import('@/pages/NextBestActionsPage').then((m) => ({ default: m.NextBestActionsPage })));
 const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').then((m) => ({ default: m.DiagnosisCopilotPage })));
 const LiveCopilotPage = lazy(() => import('@/pages/LiveCopilotPage').then((m) => ({ default: m.LiveCopilotPage })));
@@ -518,6 +519,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PromiseTrackerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/switching-shield"
+          element={
+            <ProtectedRoute>
+              <SwitchingShieldPage />
             </ProtectedRoute>
           }
         />
