@@ -115,6 +115,7 @@ import {
   Check,
   Skull,
   FileSearch,
+  UserMinus,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -210,6 +211,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: Sparkles },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
   { label: 'Self-Healing', href: '/dashboard/self-healing', icon: Bot },
+  { label: 'Switching Shield', href: '/dashboard/switching-shield', icon: UserMinus },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
   { label: 'Contract Intelligence', href: '/dashboard/contract-intelligence', icon: FileSearch },
