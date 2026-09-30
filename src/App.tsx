@@ -162,6 +162,8 @@ const CausalShockSimulatorPage = lazy(() => import('@/pages/CausalShockSimulator
 const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerformancePage').then((m) => ({ default: m.TechnicianPerformancePage })));
 const TechnicianSkillGraphPage = lazy(() => import('@/pages/TechnicianSkillGraphPage').then((m) => ({ default: m.TechnicianSkillGraphPage })));
 const TechnicianTrustPassportPage = lazy(() => import('@/pages/TechnicianTrustPassportPage').then((m) => ({ default: m.TechnicianTrustPassportPage })));
+const TechnicianIdentityGraphPage = lazy(() => import('@/pages/TechnicianIdentityGraphPage').then((m) => ({ default: m.TechnicianIdentityGraphPage })));
+const PublicTechnicianPassportPage = lazy(() => import('@/pages/PublicTechnicianPassportPage').then((m) => ({ default: m.PublicTechnicianPassportPage })));
 const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPage').then((m) => ({ default: m.TechnicianSimulatorPage })));
 const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
@@ -388,6 +390,7 @@ function App() {
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
+        <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
@@ -1646,6 +1649,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianTrustPassportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/technician-identity"
+          element={
+            <ProtectedRoute>
+              <TechnicianIdentityGraphPage />
             </ProtectedRoute>
           }
         />
