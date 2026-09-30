@@ -105,6 +105,28 @@ export interface ComplianceRule {
   is_blocking: boolean;
 }
 
+/** Learned duration correction from the Continuous Improvement Loop. Only owner-approved, active rows reach the engine. */
+export interface DurationCorrectionLite {
+  scope: 'job_type' | 'technician';
+  job_type_key: string | null;
+  technician_id: string | null;
+  factor: number;
+}
+
+export const CORRECTION_LIMITS = { min: 0.5, max: 2.0 } as const;
+
+/** Combined multiplier for a job: best-matching job-type factor x technician factor, clamped. */
+export function correctionFactorFor(
+  corrections: DurationCorrectionLite[] | undefined,
+  serviceType: string | null | undefined,
+  technicianId: string | null | undefined,
+): number {
+  if (!corrections || corrections.length === 0) return 1;
+  const jobType = corrections.find((c) => c.scope === 'job_type' && jobTypeMatches(serviceType, c.job_type_key));
+  const tech = technicianId ? corrections.find((c) => c.scope === 'technician' && c.technician_id === technicianId) : undefined;
+  const f = (jobType?.factor ?? 1) * (tech?.factor ?? 1);
+  return Math.min(CORRECTION_LIMITS.max, Math.max(CORRECTION_LIMITS.min, f));
+}
 export interface AssuranceContext {
   /** Epoch ms — injected so the engine stays deterministic and testable. */
   now: number;
@@ -115,6 +137,8 @@ export interface AssuranceContext {
   outcomes: OutcomeRow[];
   credentials: CredentialRow[];
   rules: ComplianceRule[];
+  /** Approved learned corrections (Continuous Improvement Loop). Optional. */
+  corrections?: DurationCorrectionLite[];
 }
 
 export interface AssuranceSettings {
@@ -673,7 +697,8 @@ export function evaluateJob(
 
   const base = effectiveJob.duration_minutes ?? typicalDuration(ctx.outcomes, effectiveJob.service_type) ?? ASSURANCE.defaultDurationMin;
   const partsDelay = Math.min(ASSURANCE.partsDelayCapMin, parts.shortLines.length * ASSURANCE.partsDelayPerShortLineMin);
-  const expectedResolutionMinutes = Math.round(base * (1 + (1 - p) * ASSURANCE.revisitFactor) + partsDelay);
+    const rawExpectedMinutes = base * (1 + (1 - p) * ASSURANCE.revisitFactor) + partsDelay;
+  const expectedResolutionMinutes = Math.round(rawExpectedMinutes * correctionFactorFor(ctx.corrections, effectiveJob.service_type, techId));
 
   const criticality = customerCriticality(effectiveJob);
   const risk = criticality * 0.6 + (1 - p) * 100 * 0.4;
@@ -1017,6 +1042,13 @@ export async function gatherAssuranceContext(): Promise<AssuranceContext> {
     soft<ComplianceRule>(supabase.from('compliance_requirements').select('service_type, credential_type, is_blocking')),
   ]);
 
+  const corrections = (
+    await soft<DurationCorrectionLite>(
+      supabase.from('improvement_corrections').select('scope, job_type_key, technician_id, factor').eq('status', 'active'),
+    )
+  )
+    .map((c) => ({ ...c, factor: Number(c.factor) }))
+    .filter((c) => Number.isFinite(c.factor));
   return {
     now,
     jobs,
