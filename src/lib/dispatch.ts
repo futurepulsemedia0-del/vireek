@@ -1,5 +1,6 @@
 import type { Job, TeamMember } from '@/lib/supabase';
 import { stockFitBonus, stockFitReason, type StockFitRow } from '@/lib/truckStock';
+import { passportFitBonus, passportFitReasons, type PassportFitRow } from '@/lib/dispatchPassportFit';
 
 export interface DispatchSuggestion {
   technician: TeamMember;
@@ -22,7 +23,8 @@ export function suggestTechnicians(
   job: Job,
   technicians: TeamMember[],
   jobsByTechnician: Record<string, Job[]>,
-  stockFit: Record<string, StockFitRow> = {}
+  stockFit: Record<string, StockFitRow> = {},
+  passportFit: Record<string, PassportFitRow> = {}
 ): DispatchSuggestion[] {
   const candidates = technicians.filter((t) => t.role === 'technician' && t.dispatch_enabled);
 
@@ -57,6 +59,9 @@ export function suggestTechnicians(
       score += stockFitBonus(fit);
       const stockReason = stockFitReason(fit);
       if (stockReason) reasons.push(stockReason);
+      const pFit = passportFit[tech.id];
+      score += passportFitBonus(pFit);
+      reasons.push(...passportFitReasons(pFit));
       return { technician: tech, score, reasons };
     })
     .filter((s) => s.score >= 0)
