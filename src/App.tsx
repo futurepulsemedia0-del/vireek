@@ -54,6 +54,7 @@ const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ defaul
 const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m) => ({ default: m.KnowledgeBasePage })));
 const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ default: m.WorkflowsPage })));
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
+const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
@@ -1129,6 +1130,14 @@ function App() {
           element={
             <ProtectedRoute>
               <RevenueRecoveryLedgerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/revenue-protection"
+          element={
+            <ProtectedRoute>
+              <RevenueProtectionPage />
             </ProtectedRoute>
           }
         />
