@@ -38,6 +38,7 @@ import { JobQualityGatePanel } from '@/components/jobs/JobQualityGatePanel';
 import { JobRiskPanel } from '@/components/jobs/JobRiskPanel';
 import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
 import { JobEvidenceChainPanel } from '@/components/jobs/JobEvidenceChainPanel';
+import { NoSurpriseJobPanel } from '@/components/jobs/NoSurpriseJobPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
   import { ServiceTwinPanel } from '@/components/jobs/ServiceTwinPanel';
@@ -537,6 +538,7 @@ function JobDetailPanel({
         <ServiceTwinPanel job={job} />
         <JobRiskPanel job={job} />
         <JobQualityGatePanel job={job} />
+        <NoSurpriseJobPanel job={job} />
         <JobEvidenceChainPanel job={job} />
         <Link
           to={`/dashboard/profitability?job=${job.id}`}
