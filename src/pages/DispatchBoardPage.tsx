@@ -10,6 +10,9 @@ import { buildStockFitMap, fetchStockFit, stockFitBonus, type StockFitRow } from
 import { buildPassportFitMap, fetchPassportFit, passportFitHeadline, type PassportFitRow } from '@/lib/dispatchPassportFit';
 import { fetchTechnicianScorecards } from '@/lib/technicianPerformance';
 import { rankTechniciansByProfitability, formatProfitabilityCents } from '@/lib/dispatchProfitability';
+import { DispatchIntelligencePanel } from '@/components/dispatch/DispatchIntelligencePanel';
+import { RiskChip } from '@/components/dispatch/RiskChip';
+import { useJobRiskMap } from '@/hooks/useJobRiskMap';
 import { useFirstTimeFixGate } from '@/hooks/useFirstTimeFixGate';
 import { FirstTimeFixChip } from '@/components/jobs/FirstTimeFixChip';
 
@@ -107,6 +110,7 @@ export function DispatchBoardPage() {
     return map;
   }, [jobs]);
 
+  const riskMap = useJobRiskMap(jobs);
   const unassignedJobs = jobs.filter((j) => !j.assigned_technician_id);
     const handleToggleAiDispatch = async () => {
     const next = !aiDispatchEnabled;
@@ -214,6 +218,9 @@ const handleAssign = async (job: Job, technicianId: string) => {
           </div>
         </div>
 
+        {(!loading || jobs.length > 0) && (
+          <DispatchIntelligencePanel jobs={jobs} technicians={technicians} riskMap={riskMap} onChanged={fetchAll} />
+        )}
         {copilotRecommendations !== null && (
           <div className="mb-8 rounded-2xl border border-border bg-bg-secondary p-5">
             <div className="mb-3 flex items-center justify-between">
@@ -311,6 +318,11 @@ const handleAssign = async (job: Job, technicianId: string) => {
                             {job.service_type ?? 'Unspecified service'} · {formatTime(job.scheduled_datetime)}
                           </p>
                           {job.address && <p className="text-xs text-text-secondary/70">{job.address}</p>}
+                          {riskMap[job.id] && (
+                            <div className="mt-1.5">
+                              <RiskChip report={riskMap[job.id]} />
+                            </div>
+                          )}
                                                     {job.dispatch_note && (
                             <p className="mt-1 text-xs italic text-accent/80">{job.dispatch_note}</p>
                           )}
