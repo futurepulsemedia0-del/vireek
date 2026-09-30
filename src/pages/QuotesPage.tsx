@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { checkMarginGuardrail } from '@/lib/marginGuardrail';
-import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send,   Copy, Eye, Images, Sparkles, Camera, Loader2 } from 'lucide-react';
+import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send,   Copy, Eye, Images, Sparkles, Camera, Loader2, Scale } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Lead, BusinessProfile, Quote } from '@/lib/supabase';
@@ -23,6 +23,7 @@ import {
 } from '@/components/quotes/TieredEstimateBuilder';
 import type { TieredEstimateDraft } from '@/components/quotes/TieredEstimateBuilder';
 import { describeEngagement, isTieredQuote } from '@/lib/estimates';
+import { QuoteTruthPanel } from '@/components/quotes/QuoteTruthReport';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
@@ -444,6 +445,7 @@ export function QuotesPage() {
   // edited, and `tieredQuoteId` the row it maps to (null for a new one).
   const [tieredDraft, setTieredDraft] = useState<TieredEstimateDraft | null>(null);
   const [tieredQuoteId, setTieredQuoteId] = useState<string | null>(null);
+  const [truthQuoteId, setTruthQuoteId] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
     if (!user) return;
@@ -825,6 +827,18 @@ export function QuotesPage() {
                           </button>
                         </>
                       )}
+                      {(quote.status === 'draft' || quote.status === 'sent') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTruthQuoteId(quote.id);
+                            window.setTimeout(() => document.getElementById('quote-truth-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+                          }}
+                          className="focus-ring flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary"
+                        >
+                          <Scale size={12} /> Truth Check
+                        </button>
+                      )}
                       {quote.status !== 'draft' && (
                         <button
                           type="button"
@@ -842,6 +856,23 @@ export function QuotesPage() {
           )}
         </div>
 
+        {truthQuoteId && (
+          <section id="quote-truth-panel" className="mb-8 rounded-2xl border border-border bg-bg-secondary p-5" aria-label="Quote Truth Check">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold text-text-primary">
+                Truth Check — {itemizedQuotes.find((q) => q.id === truthQuoteId)?.customer_name ?? 'Quote'}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setTruthQuoteId(null)}
+                className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary"
+              >
+                Close
+              </button>
+            </div>
+            <QuoteTruthPanel key={truthQuoteId} quoteId={truthQuoteId} />
+          </section>
+        )}
         {/* ================= Follow-up tracker (leads at "quoted") ================= */}
         <h2 className="mb-3 text-sm font-semibold text-text-primary">Quote follow-ups</h2>
 
