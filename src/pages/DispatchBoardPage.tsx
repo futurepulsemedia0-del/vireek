@@ -7,6 +7,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { suggestTechnicians } from '@/lib/dispatch';
 import { buildStockFitMap, fetchStockFit, stockFitBonus, type StockFitRow } from '@/lib/truckStock';
+import { buildPassportFitMap, fetchPassportFit, passportFitHeadline, type PassportFitRow } from '@/lib/dispatchPassportFit';
 import { fetchTechnicianScorecards } from '@/lib/technicianPerformance';
 import { rankTechniciansByProfitability, formatProfitabilityCents } from '@/lib/dispatchProfitability';
 
@@ -45,6 +46,7 @@ export function DispatchBoardPage() {
   const [technicians, setTechnicians] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [stockFit, setStockFit] = useState<Record<string, Record<string, StockFitRow>>>({});
+  const [passportFit, setPassportFit] = useState<Record<string, Record<string, PassportFitRow>>>({});
   const [firstTimeFixByTechnician, setFirstTimeFixByTechnician] = useState<Record<string, number | null>>({});
   const [expandedProfitJob, setExpandedProfitJob] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<string | null>(null);
@@ -73,6 +75,9 @@ export function DispatchBoardPage() {
       setJobs(loadedJobs);
       void fetchStockFit(loadedJobs.filter((j) => !j.assigned_technician_id).map((j) => j.id)).then((rows) =>
         setStockFit(buildStockFitMap(rows)),
+      );
+      void fetchPassportFit(loadedJobs.filter((j) => !j.assigned_technician_id).map((j) => j.id)).then((rows) =>
+        setPassportFit(buildPassportFitMap(rows)),
       );
       setTechnicians((teamRes.data as TeamMember[]) || []);
       void fetchTechnicianScorecards().then((rows) => {
@@ -281,7 +286,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
             ) : (
               <div className="space-y-3">
                 {unassignedJobs.map((job) => {
-                  const suggestions = suggestTechnicians(job, technicians, jobsByTechnician, stockFit[job.id] ?? {}); 
+                  const suggestions = suggestTechnicians(job, technicians, jobsByTechnician, stockFit[job.id] ?? {}, passportFit[job.id] ?? {});
                   const top = suggestions[0];
                   return (
                     <motion.div
@@ -327,6 +332,17 @@ const handleAssign = async (job: Job, technicianId: string) => {
                               {stockFitBonus(stockFit[job.id]?.[s.technician.id]) >= 12 && (
                                <PackageCheck size={12} className="ml-1 inline text-success-500" aria-label="Truck has all required parts" />
                                 )}
+                              {(() => {
+                                const conf = passportFitHeadline(passportFit[job.id]?.[s.technician.id]);
+                                return conf === null ? null : (
+                                  <span
+                                    className="ml-1.5 rounded-full bg-accent/10 px-1.5 py-0.5 text-[10px] font-semibold text-accent"
+                                    title="Passport skill confidence for this job"
+                                  >
+                                    {conf}%
+                                  </span>
+                                );
+                              })()}
                             </button>
                           ))}
                         </div>
