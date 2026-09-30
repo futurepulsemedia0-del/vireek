@@ -26,6 +26,18 @@ import { useToast } from '@/contexts/ToastContext';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { TRADE_CATEGORY_LABELS, TRADE_CATEGORY_OPTIONS, type TradeCategory } from '@/lib/laborMarketplace';
 import { networkApi, capacityApi } from '@/lib/contractorNetworkApi';
+import { CapabilityPanel } from '@/components/capacity/CapabilityPanel';
+import { JobRequirementsFields } from '@/components/capacity/JobRequirementsFields';
+import { MarketPulsePanel } from '@/components/capacity/MarketPulsePanel';
+import { MatchBreakdown } from '@/components/capacity/MatchBreakdown';
+import { SupplyListingsPanel } from '@/components/capacity/SupplyListingsPanel';
+import {
+  emptyRequirements,
+  liquidityApi,
+  parseRateToCents,
+  requirementsActive,
+  type JobRequirements,
+} from '@/lib/capacityLiquidity';
 import {
   DEFAULT_REFERRAL_FEE_PCT,
   MATCH_STATUS_COLORS,
@@ -239,6 +251,7 @@ function OfferCard({
       </div>
 
       {handoff?.summary && <p className="text-sm text-text-secondary">{handoff.summary}</p>}
+      <MatchBreakdown breakdown={match.score_breakdown} />
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
         <div className="flex items-center gap-3 text-xs text-text-secondary">
@@ -303,6 +316,7 @@ function PostToExchangeForm({ onPosted }: { onPosted: () => void }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<PostForm>(emptyPostForm);
+  const [req, setReq] = useState<JobRequirements>(emptyRequirements);
   const [submitting, setSubmitting] = useState(false);
   const set = <K extends keyof PostForm>(k: K, v: PostForm[K]) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -317,10 +331,13 @@ function PostToExchangeForm({ onPosted }: { onPosted: () => void }) {
     }
     const valueCents = form.value.trim() ? parseDollarsToCents(form.value) : null;
     if (form.value.trim() && valueCents === null) return toast('Enter a valid estimated value.', 'error');
+    if (req.maxHourlyRate.trim() && !Number.isFinite(parseRateToCents(req.maxHourlyRate) ?? 0)) {
+      return toast('Enter a valid max hourly rate.', 'error');
+    }
 
     setSubmitting(true);
     try {
-      await networkApi.post({
+      const handoffId = await networkApi.post({
         kind: form.kind,
         trade: form.trade,
         title: form.title.trim(),
@@ -333,9 +350,22 @@ function PostToExchangeForm({ onPosted }: { onPosted: () => void }) {
         customerPhone: form.customerPhone.trim(),
         customerAddress: form.customerAddress.trim(),
         notes: form.notes.trim(),
-        smartMatch: true,
+        smartMatch: false,
       });
-      toast('Posted. Vireek is ranking capacity and sending the first offer now.', 'success');
+      try {
+        if (requirementsActive(req)) await liquidityApi.setRequirements(handoffId, req);
+        const offered = await capacityApi.computeMatches(handoffId);
+        toast(
+          offered > 0
+            ? 'Posted. Vireek ranked eligible capacity and sent the first offer.'
+            : 'Posted, but no member qualifies right now. The job stays in the open Job Handoffs feed.',
+          'success',
+        );
+      } catch (err) {
+        await networkApi.cancel(handoffId).catch(() => undefined);
+        throw err;
+      }
+      <JobRequirementsFields value={req} onChange={setReq} />
       setForm(emptyPostForm);
       setOpen(false);
       onPosted();
@@ -621,9 +651,12 @@ export function CapacityExchangePage() {
 
         {summary && (
           <>
+            <MarketPulsePanel />
             <StatsRow summary={summary} />
             <PostToExchangeForm onPosted={() => void refresh()} />
             <ProfileCard summary={summary} onSaved={() => void refresh()} />
+            <SupplyListingsPanel />
+            <CapabilityPanel />
 
             {toRate.length > 0 && (
               <section className="space-y-3">
