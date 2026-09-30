@@ -233,6 +233,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Diagnosis Copilot', href: '/dashboard/diagnosis-copilot', icon: Stethoscope },
   { label: 'Live Copilot', href: '/dashboard/live-copilot', icon: Radio },
   { label: 'Margin Guardrails', href: '/dashboard/margin-guardrails', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+  { label: 'Quote Truth Engine', href: '/dashboard/quote-truth', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Company Reflexes', href: '/dashboard/reflexes', icon: Zap },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
