@@ -130,6 +130,7 @@ const NextBestActionsPage = lazy(() => import('@/pages/NextBestActionsPage').the
 const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').then((m) => ({ default: m.DiagnosisCopilotPage })));
 const LiveCopilotPage = lazy(() => import('@/pages/LiveCopilotPage').then((m) => ({ default: m.LiveCopilotPage })));
 const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
+const QuoteTruthEnginePage = lazy(() => import('@/pages/QuoteTruthEnginePage').then((m) => ({ default: m.QuoteTruthEnginePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
@@ -1549,6 +1550,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MarginGuardrailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/quote-truth"
+          element={
+            <ProtectedRoute>
+              <QuoteTruthEnginePage />
             </ProtectedRoute>
           }
         />
