@@ -29,6 +29,7 @@ import { formatCents } from '@/lib/agentGovernance';
 import { HomeHealthScoreCard } from '@/components/HomeHealthScoreCard';
 import { HomeOperatingBudgetCard } from '@/components/HomeOperatingBudgetCard';
 import { LifetimeServicePlanCard } from '@/components/LifetimeServicePlanCard';
+import { HomeIntelligenceGraphCard } from '@/components/HomeIntelligenceGraphCard';
 import {
   fetchPropertyTwin,
   serviceCountByEquipment,
@@ -116,6 +117,7 @@ export function PropertyDigitalTwinPage() {
           <StatCard icon={<Clock size={14} />} label="Last visit" value={summary.lastVisit ? new Date(summary.lastVisit).toLocaleDateString() : '—'} />
           <StatCard icon={<Wrench size={14} />} label="Equipment on site" value={String(equipment.length)} />
         </div>
+        <HomeIntelligenceGraphCard twin={twin} />
         <HomeHealthScoreCard twin={twin} />
         <HomeOperatingBudgetCard twin={twin} />
         <LifetimeServicePlanCard twin={twin} />
