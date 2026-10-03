@@ -124,6 +124,7 @@ const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ defaul
 const MutualAidPage = lazy(() => import('@/pages/MutualAidPage').then((m) => ({ default: m.MutualAidPage })));
 const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => ({ default: m.NetworkHubPage })));
 const NetworkHandoffsPage = lazy(() => import('@/pages/NetworkHandoffsPage').then((m) => ({ default: m.NetworkHandoffsPage })));
+const SkillMarketPage = lazy(() => import('@/pages/SkillMarketPage').then((m) => ({ default: m.SkillMarketPage })));
 const CapacityExchangePage = lazy(() => import('@/pages/CapacityExchangePage').then((m) => ({ default: m.CapacityExchangePage })));
 const ContextEnginePage = lazy(() => import('@/pages/ContextEnginePage').then((m) => ({ default: m.ContextEnginePage })));
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
@@ -1545,6 +1546,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CapacityExchangePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/network/skill-market"
+          element={
+            <ProtectedRoute>
+              <SkillMarketPage />
             </ProtectedRoute>
           }
         />
