@@ -1,14 +1,22 @@
 // Scheduled function (same idiom as check-warranty-alerts): scans active
 // equipment across all accounts and scores lifecycle risk deterministically
-// — age vs expected lifespan, overdue service interval, repair frequency
-// via job_equipment. Rule-based on purpose: a health score has to be
-// consistent and explainable, not an LLM guess.
+// — age vs expected lifespan, overdue service interval, repair frequency,
+// and (new) the sealed Equipment Passport history from EVERY verified
+// servicing company: repeat failures after repair, the same part replaced
+// again and again, accelerating repairs, many companies / no owner of the
+// root cause, repeated warranty claims. Rule-based on purpose: a health
+// score has to be consistent and explainable, not an LLM guess.
+// Scoring lives in _shared/equipment-lifecycle/score.ts (pure + unit-tested).
+//
+// Needs migration 20270210000100_equipment_passport_lifecycle_signals.sql.
+// If it is not applied yet the function falls back to the previous behaviour.
 //
 // Deploy: supabase functions deploy analyze-equipment-lifecycle --no-verify-jwt
 // Schedule it the same way check-warranty-alerts is documented to be
 // scheduled (pg_cron or an external scheduler), once a day.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { assessLifecycle, parseSignals, type PassportSignals } from "../_shared/equipment-lifecycle/score.ts";
 
 interface EquipmentRow {
   id: string;
@@ -22,9 +30,7 @@ interface EquipmentRow {
   service_interval_months: number;
 }
 
-function monthsBetween(a: Date, b: Date): number {
-  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
-}
+const CHUNK = 200;
 
 Deno.serve(async (_req: Request) => {
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
@@ -40,53 +46,53 @@ Deno.serve(async (_req: Request) => {
     return new Response(JSON.stringify({ error: "Could not load equipment." }), { status: 500 });
   }
 
+  const rows = equipment as EquipmentRow[];
+
+  // Passport signals in bulk (one RPC per CHUNK units). Failure is non-fatal: we simply score without them.
+  const signalsById = new Map<string, PassportSignals>();
+  let passportAvailable = true;
+  for (let i = 0; i < rows.length && passportAvailable; i += CHUNK) {
+    const ids = rows.slice(i, i + CHUNK).map((r) => r.id);
+    const { data, error: sigError } = await admin.rpc("lifecycle_passport_signals", { p_equipment_ids: ids });
+    if (sigError) {
+      console.warn("analyze-equipment-lifecycle: passport signals unavailable, using account-only history:", sigError.message);
+      passportAvailable = false;
+      break;
+    }
+    for (const [id, raw] of Object.entries((data ?? {}) as Record<string, unknown>)) {
+      const parsed = parseSignals(raw);
+      if (parsed) signalsById.set(id, parsed);
+    }
+  }
+
   let flagged = 0;
+  let withPassport = 0;
 
-  for (const eq of equipment as EquipmentRow[]) {
-    if (!eq.install_date) continue;
+  for (const eq of rows) {
+    const signals = signalsById.get(eq.id) ?? null;
+    if (!eq.install_date && !signals) continue; // nothing to reason about
 
-    const installDate = new Date(eq.install_date);
-    const ageYears = (now.getTime() - installDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
-    const lifespanUsedPct = eq.expected_lifespan_years > 0 ? ageYears / eq.expected_lifespan_years : 0;
-
-    const lastService = eq.last_service_date ? new Date(eq.last_service_date) : installDate;
-    const monthsSinceService = monthsBetween(lastService, now);
-    const overdueService = monthsSinceService > eq.service_interval_months;
-
-    const { count: repairCount12mo } = await admin
-      .from("job_equipment")
-      .select("job_id, jobs!inner(scheduled_datetime)", { count: "exact", head: true })
-      .eq("equipment_id", eq.id)
-      .gte("jobs.scheduled_datetime", new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString());
-
-    const repairs = repairCount12mo ?? 0;
-    const label = [eq.make, eq.model].filter(Boolean).join(" ") || eq.equipment_type;
-
-    let riskLevel: "low" | "medium" | "high" = "low";
-    let predictedIssue = `${label} is within its expected service life.`;
-    let recommendedAction: string | null = null;
-
-    if (lifespanUsedPct >= 1 || repairs >= 3) {
-      riskLevel = "high";
-      predictedIssue = lifespanUsedPct >= 1
-        ? `${label} has passed its expected ${eq.expected_lifespan_years}-year lifespan (${ageYears.toFixed(1)} years in service).`
-        : `${label} has needed ${repairs} repair visits in the last 12 months — a common pattern right before failure.`;
-      recommendedAction = "Offer the customer a replacement quote before the next breakdown — this unit is a strong candidate for proactive replacement.";
-    } else if (lifespanUsedPct >= 0.75 || overdueService || repairs >= 2) {
-      riskLevel = "medium";
-      predictedIssue = overdueService
-        ? `${label} is overdue for its ${eq.service_interval_months}-month service interval (${monthsSinceService} months since last service).`
-        : `${label} is at ${Math.round(lifespanUsedPct * 100)}% of its expected lifespan.`;
-      recommendedAction = "Schedule a routine maintenance visit and flag this unit for a replacement conversation within the next 6–12 months.";
+    // Legacy evidence (this account's own linked jobs); only needed when there is no passport history.
+    let localRepairs = 0;
+    if (!signals) {
+      const { count } = await admin
+        .from("job_equipment")
+        .select("job_id, jobs!inner(scheduled_datetime)", { count: "exact", head: true })
+        .eq("equipment_id", eq.id)
+        .gte("jobs.scheduled_datetime", new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString());
+      localRepairs = count ?? 0;
+    } else {
+      withPassport++;
     }
 
-    if (riskLevel === "low") continue;
+    const a = assessLifecycle(eq, now, localRepairs, signals);
+    if (a.riskLevel === "low") continue;
 
     const { data: recent } = await admin
       .from("equipment_maintenance_alerts")
       .select("id")
       .eq("equipment_id", eq.id)
-      .eq("risk_level", riskLevel)
+      .eq("risk_level", a.riskLevel)
       .eq("is_dismissed", false)
       .gte("created_at", new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString())
       .limit(1);
@@ -96,14 +102,17 @@ Deno.serve(async (_req: Request) => {
     await admin.from("equipment_maintenance_alerts").insert({
       user_id: eq.user_id,
       equipment_id: eq.id,
-      risk_level: riskLevel,
-      predicted_issue: predictedIssue,
-      recommended_action: recommendedAction,
-      predicted_service_due: new Date(lastService.getTime() + eq.service_interval_months * 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-      metric_snapshot: { age_years: Number(ageYears.toFixed(2)), lifespan_used_pct: Number(lifespanUsedPct.toFixed(2)), repairs_last_12mo: repairs, months_since_service: monthsSinceService },
+      risk_level: a.riskLevel,
+      predicted_issue: a.predictedIssue,
+      recommended_action: a.recommendedAction,
+      predicted_service_due: a.predictedServiceDue,
+      metric_snapshot: a.snapshot,
     });
     flagged++;
   }
 
-  return new Response(JSON.stringify({ scanned: equipment.length, flagged }), { headers: { "Content-Type": "application/json" } });
+  return new Response(
+    JSON.stringify({ scanned: rows.length, flagged, with_passport_history: withPassport, passport_signals: passportAvailable }),
+    { headers: { "Content-Type": "application/json" } },
+  );
 });
