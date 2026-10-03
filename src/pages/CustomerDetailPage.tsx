@@ -29,6 +29,7 @@ import {
   type GraphLink,
 } from '@/components/customers/CustomerKnowledgeGraph';
 import { JobEquipmentLinker, type LinkedEquipment } from '@/components/customers/JobEquipmentLinker';
+import { EquipmentPassportChip } from '@/components/passport/EquipmentPassportChip';
 import { HomeHealthCard } from '@/components/customers/HomeHealthCard';
 
 // ============================================================
@@ -161,6 +162,7 @@ function EquipmentCard({ eq, onDelete }: { eq: Equipment; onDelete: (eq: Equipme
         </div>
       )}
       {eq.warranty_notes && <p className="mt-1.5 text-[11px] text-text-secondary/80">{eq.warranty_notes}</p>}
+      <EquipmentPassportChip equipmentId={eq.id} />
       {eq.status !== 'active' && (
         <span className="mt-2 inline-block rounded-full bg-bg-tertiary px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-text-secondary">
           {eq.status}
