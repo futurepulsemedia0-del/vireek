@@ -661,3 +661,6 @@ export function computeLifetimeServicePlan(
     assumptions,
   };
 }
+
+// Shared with src/lib/homeIntelligenceGraph.ts so both models use one set of constants.
+export { SYSTEM_MODEL, CLIMATE_HAZARD, PROPERTY_HAZARD, UNKNOWN_AGE_RATIO, WARRANTY_COVERAGE, historyFactor, maintenanceFactor, alertFactor, readRepairVisits };
