@@ -148,6 +148,7 @@ const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) 
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
+const KnowledgeCapturePage = lazy(() => import('@/pages/KnowledgeCapturePage').then((m) => ({ default: m.KnowledgeCapturePage })));
 const FailureAtlasPage = lazy(() => import('@/pages/FailureAtlasPage').then((m) => ({ default: m.FailureAtlasPage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
@@ -923,6 +924,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CommunityThreadPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/knowledge-capture"
+          element={
+            <ProtectedRoute>
+              <KnowledgeCapturePage />
             </ProtectedRoute>
           }
         />
