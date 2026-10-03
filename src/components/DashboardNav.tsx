@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   BarChart3,
+  Globe,
   BookOpen,
   BookMarked,
   ClipboardCheck,
@@ -266,6 +267,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Revenue Protection', href: '/dashboard/revenue-protection', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
+  { label: 'Global Failure Atlas', href: '/dashboard/failure-atlas', icon: Globe },
   { label: 'Business Contradictions', href: '/dashboard/contradictions', icon: AlertOctagon },
   { label: 'Counterfactual Library', href: '/dashboard/counterfactuals', icon: GitBranch },
   { label: 'Organizational Memory', href: '/dashboard/org-memory', icon: Library },
