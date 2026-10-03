@@ -116,6 +116,7 @@ import {
   Skull,
   FileSearch,
   UserMinus,
+  BrainCircuit,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -231,6 +232,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Customer Trust Bank', href: '/dashboard/trust-bank', icon: ShieldCheck },
   { label: 'Next Best Actions', href: '/dashboard/next-best-actions', icon: Target },
   { label: 'Diagnosis Copilot', href: '/dashboard/diagnosis-copilot', icon: Stethoscope },
+  { label: 'Adaptive Diagnostics', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
   { label: 'Live Copilot', href: '/dashboard/live-copilot', icon: Radio },
   { label: 'Margin Guardrails', href: '/dashboard/margin-guardrails', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Quote Truth Engine', href: '/dashboard/quote-truth', icon: Scale, requiresPermission: 'can_view_billing' },
