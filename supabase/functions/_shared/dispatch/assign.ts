@@ -3,6 +3,7 @@
 // Keep in sync with src/lib/dispatch.ts if the ranking logic changes.
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { buildDispatchEvidence, recordAiDecision } from "../governance/aiDecisionRecorder.ts";
 
 interface TeamMemberRow {
   id: string;
@@ -43,9 +44,34 @@ export async function assignBestTechnician(admin: SupabaseClient, userId: string
     return { technicianId: null, technicianName: null, reason: result.reason ?? "No technician available." };
   }
 
-  return {
-    technicianId: result.technician_id ?? null,
-    technicianName: result.technician_name ?? null,
-    reason: result.reason ?? "Assigned by AI Dispatcher — best skill/service-area/capacity match.",
-  };
-}
+  const technicianId = result.technician_id ?? null;
+  const technicianName = result.technician_name ?? null;
+  const reason = result.reason ?? "Assigned by AI Dispatcher — best skill/service-area/capacity match.";
+
+  // AI governance audit trail — must never block or fail a dispatch.
+  if (technicianId) {
+    try {
+      const evidence = await buildDispatchEvidence(admin, userId, job, technicianId);
+      await recordAiDecision(admin, {
+        userId,
+        decisionType: "dispatch",
+        agentSource: "ai-dispatcher",
+        engineKind: "rules",
+        modelVersion: "assign_technician_to_job",
+        title: `Assigned ${technicianName ?? "technician"} to ${job.service_type ?? "job"}`,
+        decision: `Assign technician ${technicianName ?? technicianId} to job ${job.id}`,
+        reasoning: reason,
+        confidencePct: evidence.confidencePct,
+        reasonFactors: evidence.reasonFactors,
+        dataUsed: evidence.dataUsed,
+        subjectTable: "jobs",
+        subjectId: job.id,
+        enforcement: "post_execution",
+        executed: true,
+      });
+    } catch (e) {
+      console.error(JSON.stringify({ event: "ai_governance_dispatch_record_failed", error: e instanceof Error ? e.message : String(e) }));
+    }
+  }
+
+  return { technicianId, technicianName, reason };
