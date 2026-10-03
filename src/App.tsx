@@ -60,6 +60,7 @@ const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEn
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
+const AiReliabilityPage = lazy(() => import('@/pages/AiReliabilityPage').then((m) => ({ default: m.AiReliabilityPage })));
 const ServiceGuaranteePage = lazy(() => import('@/pages/ServiceGuaranteePage').then((m) => ({ default: m.ServiceGuaranteePage })));
 const ServiceGuaranteePublicPage = lazy(() => import('@/pages/ServiceGuaranteePublicPage').then((m) => ({ default: m.ServiceGuaranteePublicPage })));
 const ContinuousImprovementPage = lazy(() => import('@/pages/ContinuousImprovementPage').then((m) => ({ default: m.ContinuousImprovementPage })));
@@ -1262,6 +1263,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AgentGovernancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/ai-reliability"
+          element={
+            <ProtectedRoute>
+              <AiReliabilityPage />
             </ProtectedRoute>
           }
         />
