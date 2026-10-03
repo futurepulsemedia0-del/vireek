@@ -13,6 +13,7 @@ import {
   type ChainReport,
   type EvidenceEntry,
 } from '@/lib/jobEvidenceChain';
+import { drawPassportLabels, type PdfPassport } from '@/lib/passportLabelPdf';
 
 const ACCENT: [number, number, number] = [32, 58, 216];
 const INK: [number, number, number] = [23, 23, 23];
@@ -71,9 +72,10 @@ export async function exportEvidenceChainPdf(input: {
   entries: EvidenceEntry[];
   report: ChainReport;
   businessName?: string | null;
+  passports?: PdfPassport[];
 }): Promise<void> {
   const { jsPDF } = await import('jspdf');
-  const { job, entries, report, businessName } = input;
+  const { job, entries, report, businessName, passports = [] } = input;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const level = LEVEL_META[report.level];
   const byId = new Map(entries.map((e) => [e.id, e]));
@@ -157,6 +159,8 @@ export async function exportEvidenceChainPdf(input: {
   );
   y += 96;
 
+  // ---------- Equipment passport label(s): QR to the machine's lifetime history ----------
+  y = drawPassportLabels(doc, y, passports, { pageHeight: PAGE_H, margin: M, contentWidth: CW });
   // ---------- Stage table ----------
   write('Chain stages', { size: 12, bold: true, gap: 6 });
   for (const s of report.stages) {
