@@ -43,6 +43,7 @@ const TradePlaybooksPage = lazy(() => import('@/pages/TradePlaybooksPage').then(
 const PlaybooksPage = lazy(() => import('@/pages/PlaybooksPage').then((m) => ({ default: m.PlaybooksPage })));
 const AgentGovernancePage = lazy(() => import('@/pages/AgentGovernancePage').then((m) => ({ default: m.AgentGovernancePage })));
 const AgentCompanyPage = lazy(() => import('@/pages/AgentCompanyPage').then((m) => ({ default: m.AgentCompanyPage })));
+const AgentMarketplacePage = lazy(() => import('@/pages/AgentMarketplacePage').then((m) => ({ default: m.AgentMarketplacePage })));
 const AutonomyBudgetPage = lazy(() => import('@/pages/AutonomyBudgetPage').then((m) => ({ default: m.AutonomyBudgetPage })));
 const ExecutionReliabilityPage = lazy(() => import('@/pages/ExecutionReliabilityPage').then((m) => ({ default: m.ExecutionReliabilityPage })));
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
@@ -1240,6 +1241,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AgentCompanyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/agent-marketplace"
+          element={
+            <ProtectedRoute>
+              <AgentMarketplacePage />
             </ProtectedRoute>
           }
         />
