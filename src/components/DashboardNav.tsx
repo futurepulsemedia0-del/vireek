@@ -194,6 +194,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Cash Flow War Room', href: '/dashboard/cash-flow-war-room', icon: Flame, requiresPermission: 'can_view_billing' },
   { label: 'Regional Demand', href: '/dashboard/regional-demand', icon: MapPin, requiresPermission: 'can_view_billing' },
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
+  { label: 'Context Engine', href: '/dashboard/context-engine', icon: Radar },
   { label: 'Advanced Routing', href: '/dashboard/routing', icon: Navigation },
   { label: 'On-Call Rotation', href: '/dashboard/on-call', icon: AlarmClock },
   { label: 'Mutual Aid', href: '/dashboard/mutual-aid', icon: LifeBuoy },
