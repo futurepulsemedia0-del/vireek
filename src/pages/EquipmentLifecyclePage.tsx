@@ -4,6 +4,7 @@ import { HeartPulse, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase } from '@/lib/supabase';
+import { EquipmentPassportChip } from '@/components/passport/EquipmentPassportChip';
 
 interface AlertRow {
   id: string;
@@ -13,6 +14,7 @@ interface AlertRow {
   recommended_action: string | null;
   predicted_service_due: string | null;
   created_at: string;
+  metric_snapshot: { reasons?: string[]; passport?: { companies_24m?: number; events?: number } | null } | null;
   equipment: { equipment_type: string; make: string | null; model: string | null; customer_id: string } | null;
 }
 
@@ -33,7 +35,7 @@ export function EquipmentLifecyclePage() {
     setLoading(true);
     const { data } = await supabase
       .from('equipment_maintenance_alerts')
-      .select('id, equipment_id, risk_level, predicted_issue, recommended_action, predicted_service_due, created_at, equipment:equipment_id (equipment_type, make, model, customer_id)')
+      .select('id, equipment_id, risk_level, predicted_issue, recommended_action, predicted_service_due, created_at, metric_snapshot, equipment:equipment_id (equipment_type, make, model, customer_id)')
       .eq('is_dismissed', false)
       .order('risk_level', { ascending: true })
       .order('created_at', { ascending: false });
@@ -91,6 +93,20 @@ export function EquipmentLifecyclePage() {
                   </div>
                   <p className="mt-1.5 text-sm text-text-secondary">{a.predicted_issue}</p>
                   {a.recommended_action && <p className="mt-1 text-xs font-medium text-accent">{a.recommended_action}</p>}
+                  {a.metric_snapshot?.passport && (
+                    <p className="mt-1.5 text-[11px] text-text-secondary">
+                      Based on the sealed passport history — {a.metric_snapshot.passport.events ?? 0} entries
+                      {a.metric_snapshot.passport.companies_24m && a.metric_snapshot.passport.companies_24m > 1
+                        ? ` from ${a.metric_snapshot.passport.companies_24m} service companies`
+                        : ''}.
+                    </p>
+                  )}
+                  {(a.metric_snapshot?.reasons?.length ?? 0) > 1 && (
+                    <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-[11px] text-text-secondary">
+                      {a.metric_snapshot!.reasons!.slice(1, 4).map((r) => <li key={r}>{r}</li>)}
+                    </ul>
+                  )}
+                  <EquipmentPassportChip equipmentId={a.equipment_id} />
                 </div>
                 <button type="button" onClick={() => dismiss(a.id)} className="focus-ring shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary">
                   Dismiss
