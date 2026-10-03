@@ -36,6 +36,7 @@ import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { JobQualityGatePanel } from '@/components/jobs/JobQualityGatePanel';
 import { JobRiskPanel } from '@/components/jobs/JobRiskPanel';
+import { JobKnowledgePanel } from '@/components/jobs/JobKnowledgePanel';
 import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
 import { JobEvidenceChainPanel } from '@/components/jobs/JobEvidenceChainPanel';
 import { NoSurpriseJobPanel } from '@/components/jobs/NoSurpriseJobPanel';
@@ -537,6 +538,7 @@ function JobDetailPanel({
         <PermitCompliancePanel job={job} />
         <ServiceTwinPanel job={job} />
         <JobRiskPanel job={job} />
+        <JobKnowledgePanel job={job} />
         <JobQualityGatePanel job={job} />
         <NoSurpriseJobPanel job={job} />
         <JobEvidenceChainPanel job={job} />
