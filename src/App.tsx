@@ -61,6 +61,7 @@ const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulator
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
 const ContinuousImprovementPage = lazy(() => import('@/pages/ContinuousImprovementPage').then((m) => ({ default: m.ContinuousImprovementPage })));
+const OperationsLoopPage = lazy(() => import('@/pages/OperationsLoopPage').then((m) => ({ default: m.OperationsLoopPage })));
 const IdentityLearnerPage = lazy(() => import('@/pages/IdentityLearnerPage').then((m) => ({ default: m.IdentityLearnerPage })));
 const RegretConsolePage = lazy(() => import('@/pages/RegretConsolePage').then((m) => ({ default: m.RegretConsolePage })));
 const BusinessIdentityPage = lazy(() => import('@/pages/BusinessIdentityPage').then((m) => ({ default: m.BusinessIdentityPage })));
@@ -701,6 +702,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ContinuousImprovementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/operations-loop"
+          element={
+            <ProtectedRoute>
+              <OperationsLoopPage />
             </ProtectedRoute>
           }
         />
