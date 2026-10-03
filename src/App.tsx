@@ -141,6 +141,7 @@ const OrganizationalMemoryPage = lazy(() => import('@/pages/OrganizationalMemory
 const CausalRoiAttributionPage = lazy(() => import('@/pages/CausalRoiAttributionPage').then((m) => ({ default: m.CausalRoiAttributionPage })));
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
+const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
@@ -1536,6 +1537,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DiagnosisCopilotPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/adaptive-diagnostics"
+          element={
+            <ProtectedRoute>
+              <AdaptiveDiagnosticsPage />
             </ProtectedRoute>
           }
         />
