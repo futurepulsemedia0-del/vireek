@@ -269,6 +269,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Revenue Protection', href: '/dashboard/revenue-protection', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
+  { label: 'Data Exchange', href: '/dashboard/data-exchange', icon: Handshake, requiresPermission: 'can_view_billing' },
   { label: 'Global Failure Atlas', href: '/dashboard/failure-atlas', icon: Globe },
   { label: 'Business Contradictions', href: '/dashboard/contradictions', icon: AlertOctagon },
   { label: 'Counterfactual Library', href: '/dashboard/counterfactuals', icon: GitBranch },
