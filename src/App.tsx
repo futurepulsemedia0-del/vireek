@@ -60,6 +60,8 @@ const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEn
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
+const ServiceGuaranteePage = lazy(() => import('@/pages/ServiceGuaranteePage').then((m) => ({ default: m.ServiceGuaranteePage })));
+const ServiceGuaranteePublicPage = lazy(() => import('@/pages/ServiceGuaranteePublicPage').then((m) => ({ default: m.ServiceGuaranteePublicPage })));
 const ContinuousImprovementPage = lazy(() => import('@/pages/ContinuousImprovementPage').then((m) => ({ default: m.ContinuousImprovementPage })));
 const OperationsLoopPage = lazy(() => import('@/pages/OperationsLoopPage').then((m) => ({ default: m.OperationsLoopPage })));
 const PricingFlywheelPage = lazy(() => import('@/pages/PricingFlywheelPage').then((m) => ({ default: m.PricingFlywheelPage })));
@@ -407,6 +409,7 @@ function App() {
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
+        <Route path="/guarantee/:token" element={<ServiceGuaranteePublicPage />} />
         <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
         <Route path="/e/:code" element={<PublicEquipmentPassportPage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
@@ -695,6 +698,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OutcomeAssurancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/service-guarantee"
+          element={
+            <ProtectedRoute>
+              <ServiceGuaranteePage />
             </ProtectedRoute>
           }
         />
