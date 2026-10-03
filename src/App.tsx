@@ -80,6 +80,7 @@ const CashFlowWarRoomPage = lazy(() => import('@/pages/CashFlowWarRoomPage').the
 const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
+const ServiceDataExchangePage = lazy(() => import('@/pages/ServiceDataExchangePage').then((m) => ({ default: m.ServiceDataExchangePage })));
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
 const SignDocumentPage = lazy(() => import('@/pages/SignDocumentPage').then((m) => ({ default: m.SignDocumentPage })));
 const InvoicePage = lazy(() => import('@/pages/InvoicePage').then((m) => ({ default: m.InvoicePage })));
@@ -560,6 +561,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CompoundingFlywheelPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/data-exchange"
+          element={
+            <ProtectedRoute>
+              <ServiceDataExchangePage />
             </ProtectedRoute>
           }
         />
