@@ -27,6 +27,7 @@ export type TaskType =
   | "workforce_equilibrium_narrative"
   | "cash_flow_war_room_plan"
   | "regional_demand_narrative"
+  | "outcome_benchmark_advice"
   | "dispatch_copilot"
   | "promise_extraction"
   | "capacity_demand_narrative"
