@@ -4,6 +4,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { useEscapeToClose, useFocusTrap } from '@/lib/a11y/focusTrap';
 import { matchJobType, type TradePlaybook } from '@/lib/tradePlaybookCatalog';
 import { RESOLUTION_LABELS, recordJobOutcome, type AwaitingJob } from '@/lib/tradePlaybooks';
+import { ATLAS_DIAGNOSTIC_TESTS, ATLAS_SYMPTOMS } from '@/lib/failureAtlas';
 import type { Resolution } from '@/lib/outcomeLearning';
 
 interface JobOutcomeDialogProps {
@@ -29,6 +30,8 @@ export function JobOutcomeDialog({ job, playbook, ownerId, onClose, onSaved }: J
   const [jobTypeKey, setJobTypeKey] = useState(() => matchJobType(playbook, job.service_type)?.key ?? playbook.jobTypes[0].key);
   const [resolution, setResolution] = useState<Resolution>('fixed_first_visit');
   const [rootCause, setRootCause] = useState('');
+  const [symptom, setSymptom] = useState('');
+  const [diagnosticTest, setDiagnosticTest] = useState('');
   const [done, setDone] = useState<string[]>([]);
   const [parts, setParts] = useState('');
   const [rating, setRating] = useState('');
@@ -53,6 +56,8 @@ export function JobOutcomeDialog({ job, playbook, ownerId, onClose, onSaved }: J
         playbook,
         jobType,
         rootCauseKey: rootCause === '' ? null : rootCause,
+        symptomKey: symptom === '' ? null : symptom,
+        diagnosticTestKey: diagnosticTest === '' ? null : diagnosticTest,
         resolution,
         checklistDone: done,
         partsUsed: parts.split(',').map((p) => p.trim()).filter(Boolean).slice(0, 20),
@@ -127,6 +132,22 @@ export function JobOutcomeDialog({ job, playbook, ownerId, onClose, onSaved }: J
               </select>
             </div>
           )}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor="outcome-symptom" className="mb-1 block text-xs font-semibold text-text-primary">Main symptom reported</label>
+              <select id="outcome-symptom" value={symptom} onChange={(e) => setSymptom(e.target.value)} className={FIELD}>
+                <option value="">Not recorded</option>
+                {ATLAS_SYMPTOMS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="outcome-test" className="mb-1 block text-xs font-semibold text-text-primary">Test that found the cause</label>
+              <select id="outcome-test" value={diagnosticTest} onChange={(e) => setDiagnosticTest(e.target.value)} className={FIELD}>
+                <option value="">Not recorded</option>
+                {ATLAS_DIAGNOSTIC_TESTS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+              </select>
+            </div>
+          </div>
 
           <fieldset>
             <legend className="mb-1.5 text-xs font-semibold text-text-primary">Checklist steps completed</legend>
