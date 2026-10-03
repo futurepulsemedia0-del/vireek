@@ -85,6 +85,8 @@ export interface RecordOutcomeInput {
   partsUsed: string[];
   notes: string;
   customerRating: number | null;
+  symptomKey?: string | null;
+  diagnosticTestKey?: string | null;
 }
 
 export const RESOLUTION_LABELS: Record<Resolution, string> = {
@@ -282,6 +284,8 @@ export async function recordJobOutcome(ownerId: string, input: RecordOutcomeInpu
     is_rework: job.is_rework,
     technician_id: job.assigned_technician_id,
     customer_rating: input.customerRating,
+    symptom_key: input.symptomKey ?? null,
+    diagnostic_test_key: input.diagnosticTestKey ?? null,
   });
   if (error) {
     if ((error as { code?: string }).code === '23505') throw new Error('An outcome is already recorded for this job.');
