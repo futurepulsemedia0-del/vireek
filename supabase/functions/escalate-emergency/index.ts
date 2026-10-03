@@ -21,6 +21,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
 import { sendSms, sendVoiceCall } from "../_shared/notify/deliver.ts";
 import { isAutomationEnabled } from "../_shared/automation/gate.ts";
+import { startEmergencyIncident } from "../_shared/emergency/startIncident.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -194,6 +195,16 @@ Deno.serve(async (req: Request) => {
       Kept isolated so a Twilio failure never breaks the emergency DB
       workflow above.
     */
+        // Autonomous Emergency Network: no-op unless the owner switched it on; never breaks this flow.
+    await startEmergencyIncident(supabase, {
+      userId: updatedCall.user_id,
+      source: "call",
+      callId: payload.call_id,
+      customerName: payload.caller_name ?? null,
+      customerPhone: payload.caller_phone ?? null,
+      address: payload.address ?? null,
+      description: payload.issue_description ?? payload.summary ?? null,
+    });
     if (resolvedContactPhone) {
       const smsResult = await sendCompliantSms(
         admin,
