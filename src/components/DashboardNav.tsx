@@ -119,6 +119,7 @@ import {
   FileSearch,
   UserMinus,
   BrainCircuit,
+  Infinity as InfinityIcon,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -304,6 +305,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'AI Parts Market', href: '/dashboard/parts-market', icon: Store, requiresPermission: 'can_view_billing' },
   { label: 'Outcome Assurance', href: '/dashboard/outcome-assurance', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Continuous Improvement', href: '/dashboard/continuous-improvement', icon: RefreshCw, requiresPermission: 'can_view_billing' },
+  { label: 'Operations Loop', href: '/dashboard/operations-loop', icon: InfinityIcon, requiresPermission: 'can_view_billing' },
 ];
 
 
