@@ -198,6 +198,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'On-Call Rotation', href: '/dashboard/on-call', icon: AlarmClock },
   { label: 'Mutual Aid', href: '/dashboard/mutual-aid', icon: LifeBuoy },
   { label: 'Contractor Network', href: '/dashboard/network', icon: Network },
+  { label: 'Emergency Network', href: '/dashboard/emergency-network', icon: Siren },
   { label: 'Job Handoffs', href: '/dashboard/network/handoffs', icon: ArrowRightLeft },
   { label: 'Capacity Exchange', href: '/dashboard/network/capacity-exchange', icon: Shuffle },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
