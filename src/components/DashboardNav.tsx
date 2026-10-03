@@ -202,6 +202,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Emergency Network', href: '/dashboard/emergency-network', icon: Siren },
   { label: 'Job Handoffs', href: '/dashboard/network/handoffs', icon: ArrowRightLeft },
   { label: 'Capacity Exchange', href: '/dashboard/network/capacity-exchange', icon: Shuffle },
+  { label: 'Skill Market', href: '/dashboard/network/skill-market', icon: Globe2 },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Risk Intelligence', href: '/dashboard/risk-intelligence', icon: Gauge },
   { label: 'Compliance Center', href: '/dashboard/compliance', icon: ShieldCheck },
