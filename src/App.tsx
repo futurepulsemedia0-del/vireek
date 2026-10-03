@@ -177,6 +177,7 @@ const PublicTechnicianPassportPage = lazy(() => import('@/pages/PublicTechnician
 const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPage').then((m) => ({ default: m.TechnicianSimulatorPage })));
 const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
 const FirstTimeFixAutopilotPage = lazy(() => import('@/pages/FirstTimeFixAutopilotPage').then((m) => ({ default: m.FirstTimeFixAutopilotPage })));
+const OutcomeBenchmarkNetworkPage = lazy(() => import('@/pages/OutcomeBenchmarkNetworkPage').then((m) => ({ default: m.OutcomeBenchmarkNetworkPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
@@ -1663,6 +1664,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianApprenticeshipPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/outcome-benchmarks"
+          element={
+            <ProtectedRoute>
+              <OutcomeBenchmarkNetworkPage />
             </ProtectedRoute>
           }
         />
