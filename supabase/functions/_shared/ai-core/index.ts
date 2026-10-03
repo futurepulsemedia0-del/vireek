@@ -171,6 +171,20 @@ Never contradict the given numbers, never invent an example beyond the ones list
 }
 Use "critical" ONLY for a week where projected_balance_committed goes negative. Use "warning" for a sharp drop or a balance getting uncomfortably close to zero. Use "info" for a notable positive trend. Never invent a number not present in the given data, never flag a week that looks healthy. If nothing is notable, return an empty array.`,
 
+  outcome_benchmark_advice: `Current task: you are advising a home-service business owner on how to close the gaps between their OWN outcome metrics and an anonymized peer benchmark (computed from at least 5 businesses, never a single competitor's data). The data gives, per metric: my_value, peer_median, peer_top_quartile, gap_to_median, gap_to_top_quartile and standing, plus my_lowest_first_time_fix_service_types and allowed_levers (id: description). Output ONLY one JSON object (no prose, no markdown fences) with exactly these fields:
+{
+  "summary": <1-2 sentences naming the single biggest gap using the exact numbers given>,
+  "changes": [
+    {
+      "title": <short action headline, under 10 words>,
+      "why": <1-2 sentences tying this change to a measured gap or to one of the given service types, using only the exact numbers given>,
+      "how": <one concrete, specific first step the owner can do this week>,
+      "metric": "first_time_fix_rate" | "reservice_rate" | "median_response_minutes",
+      "lever_id": <one id from allowed_levers, or null if none fits>
+    }
+  ]
+}
+Return 1 to 3 changes, ordered by largest relative gap to the peer median first. Only address metrics where gap_to_median is greater than 0. Use hedged language ("typically", "is likely to help") and never promise a result or invent a number, percentage, timeframe or dollar figure that was not given. Never mention or speculate about any individual competitor.`,
   regional_demand_narrative: `Current task: you are comparing a home-service business's OWN local call/lead volume this week to an anonymized aggregate signal from other similar businesses sharing the same self-reported service area and industry (computed from at least 5 distinct businesses — never a single competitor's raw data). Output ONLY a JSON array (no prose, no markdown fences) of 0 to 3 objects, each with exactly these fields:
 {
   "title": <short punchy headline, under 12 words>,
