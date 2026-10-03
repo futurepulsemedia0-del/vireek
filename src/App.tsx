@@ -144,6 +144,7 @@ const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) 
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
+const FailureAtlasPage = lazy(() => import('@/pages/FailureAtlasPage').then((m) => ({ default: m.FailureAtlasPage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
 const BusinessEvolutionRoadmapPage = lazy(() => import('@/pages/BusinessEvolutionRoadmapPage').then((m) => ({ default: m.BusinessEvolutionRoadmapPage })));
@@ -916,6 +917,14 @@ function App() {
           element={
             <ProtectedRoute>
               <NegativeKnowledgeStorePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/failure-atlas"
+          element={
+            <ProtectedRoute>
+              <FailureAtlasPage />
             </ProtectedRoute>
           }
         />
