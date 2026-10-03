@@ -297,6 +297,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Trade Playbooks', href: '/dashboard/trade-playbooks', icon: ClipboardCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
   { label: 'Multi-Agent Company', href: '/dashboard/agent-company', icon: Users2, requiresPermission: 'can_manage_security' },
+  { label: 'Agent Marketplace', href: '/dashboard/agent-marketplace', icon: Store },
   { label: 'Autonomy Budget', href: '/dashboard/autonomy-budget', icon: Timer, requiresPermission: 'can_manage_security' },
   { label: 'Execution Reliability', href: '/dashboard/execution-reliability', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Vendor & Procurement', href: '/dashboard/procurement', icon: Truck, requiresPermission: 'can_view_billing' },
