@@ -757,11 +757,15 @@ export function JobEvidenceChainPanel({ job, defaultExpanded = false }: { job: J
     if (!report) return;
     setExporting(true);
     try {
-      const { exportEvidenceChainPdf } = await import('@/lib/jobEvidenceChainPdf');
+      const [{ exportEvidenceChainPdf }, { fetchJobPassports }] = await Promise.all([
+        import('@/lib/jobEvidenceChainPdf'),
+        import('@/lib/passportLabelPdf'),
+      ]);
       await exportEvidenceChainPdf({
         job: { id: job.id, customer_name: job.customer_name, service_type: job.service_type, address: job.address },
         entries,
         report,
+        passports: await fetchJobPassports(job.id),
       });
     } catch {
       toast('Could not export the evidence report.', 'error');
