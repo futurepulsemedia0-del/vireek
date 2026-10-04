@@ -98,7 +98,9 @@ export function PropertyDigitalTwinPage() {
         <Link to={`/dashboard/customers/${customerId}/sites`} className="focus-ring flex w-fit items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary">
           <ArrowLeft size={12} /> Back to sites
         </Link>
-
+        <Link to={`/dashboard/homes/${site.id}`} className="focus-ring flex w-fit items-center gap-1.5 text-xs font-medium text-cta hover:underline">
+          Open Home Lifetime Graph →
+        </Link>
         <div className="flex items-center gap-2">
           <Building2 className="text-cta" size={20} />
           <div>
