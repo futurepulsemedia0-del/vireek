@@ -311,6 +311,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Outcome Assurance', href: '/dashboard/outcome-assurance', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Verified Service', href: '/dashboard/service-guarantee', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Continuous Improvement', href: '/dashboard/continuous-improvement', icon: RefreshCw, requiresPermission: 'can_view_billing' },
+  { label: 'Operations Sandbox', href: '/dashboard/operations-sandbox', icon: FlaskConical, requiresPermission: 'can_view_billing' },
   { label: 'Operations Loop', href: '/dashboard/operations-loop', icon: InfinityIcon, requiresPermission: 'can_view_billing' },
   { label: 'Pricing Flywheel', href: '/dashboard/pricing-flywheel', icon: TrendingUp, requiresPermission: 'can_view_billing' },
 ];
