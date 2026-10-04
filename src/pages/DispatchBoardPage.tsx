@@ -10,6 +10,8 @@ import { buildStockFitMap, fetchStockFit, stockFitBonus, type StockFitRow } from
 import { buildPassportFitMap, fetchPassportFit, passportFitHeadline, type PassportFitRow } from '@/lib/dispatchPassportFit';
 import { fetchTechnicianScorecards } from '@/lib/technicianPerformance';
 import { rankTechniciansByProfitability, formatProfitabilityCents } from '@/lib/dispatchProfitability';
+import { rankTechniciansByProfitability, formatProfitabilityCents, type FleetDispatchSignal } from '@/lib/dispatchProfitability';
+import { fetchFleetDispatchSignals } from '@/lib/fleetIntelligence';
 import { DispatchIntelligencePanel } from '@/components/dispatch/DispatchIntelligencePanel';
 import { RiskChip } from '@/components/dispatch/RiskChip';
 import { useJobRiskMap } from '@/hooks/useJobRiskMap';
@@ -53,6 +55,7 @@ export function DispatchBoardPage() {
   const [stockFit, setStockFit] = useState<Record<string, Record<string, StockFitRow>>>({});
   const [passportFit, setPassportFit] = useState<Record<string, Record<string, PassportFitRow>>>({});
   const [firstTimeFixByTechnician, setFirstTimeFixByTechnician] = useState<Record<string, number | null>>({});
+  const [fleetSignals, setFleetSignals] = useState<Record<string, FleetDispatchSignal>>({});
   const [expandedProfitJob, setExpandedProfitJob] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<string | null>(null);
   const ftf = useFirstTimeFixGate();
@@ -86,6 +89,7 @@ export function DispatchBoardPage() {
         setPassportFit(buildPassportFitMap(rows)),
       );
       setTechnicians((teamRes.data as TeamMember[]) || []);
+      void fetchFleetDispatchSignals().then(setFleetSignals);
       void fetchTechnicianScorecards().then((rows) => {
         const map: Record<string, number | null> = {};
         rows.forEach((r) => {
@@ -391,6 +395,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
                               jobsByTechnician,
                               stockFit[job.id] ?? {},
                               firstTimeFixByTechnician,
+                              fleetSignals,
                             );
                             if (ranked.length === 0) return null;
                             const best = ranked[0];
