@@ -29,6 +29,7 @@ import { formatCents } from '@/lib/agentGovernance';
 import { HomeHealthScoreCard } from '@/components/HomeHealthScoreCard';
 import { HomeOperatingBudgetCard } from '@/components/HomeOperatingBudgetCard';
 import { LifetimeServicePlanCard } from '@/components/LifetimeServicePlanCard';
+import { ServiceFinanceDecisionPanel } from '@/components/ServiceFinanceDecisionPanel';
 import { HomeIntelligenceGraphCard } from '@/components/HomeIntelligenceGraphCard';
 import {
   fetchPropertyTwin,
@@ -123,6 +124,7 @@ export function PropertyDigitalTwinPage() {
         <HomeHealthScoreCard twin={twin} />
         <HomeOperatingBudgetCard twin={twin} />
         <LifetimeServicePlanCard twin={twin} />
+        <ServiceFinanceDecisionPanel twin={twin} />
         {/* Predictive signals — already-computed maintenance alerts, surfaced here in property context */}
         {maintenanceAlerts.length > 0 && (
           <div className="rounded-2xl border border-border bg-bg-secondary p-5">
