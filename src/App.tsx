@@ -63,6 +63,7 @@ const AskVireekPage = lazy(() => import('@/pages/AskVireekPage').then((m) => ({ 
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
+const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
 const EmergencyNetworkPage = lazy(() => import('@/pages/EmergencyNetworkPage').then((m) => ({ default: m.EmergencyNetworkPage })));
 const AiReliabilityPage = lazy(() => import('@/pages/AiReliabilityPage').then((m) => ({ default: m.AiReliabilityPage })));
 const ServiceGuaranteePage = lazy(() => import('@/pages/ServiceGuaranteePage').then((m) => ({ default: m.ServiceGuaranteePage })));
@@ -744,6 +745,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OutcomeAssurancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/truck-roll"
+          element={
+            <ProtectedRoute>
+              <TruckRollEliminationPage />
             </ProtectedRoute>
           }
         />
