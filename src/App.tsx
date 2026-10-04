@@ -76,6 +76,7 @@ const BusinessScientistPage = lazy(() => import('@/pages/BusinessScientistPage')
 const DecisionDebtPage = lazy(() => import('@/pages/DecisionDebtPage').then((m) => ({ default: m.DecisionDebtPage })));
 const OperationsCenterPage = lazy(() => import('@/pages/OperationsCenterPage').then((m) => ({ default: m.OperationsCenterPage })));
 const DecisionLedgerPage = lazy(() => import('@/pages/DecisionLedgerPage').then((m) => ({ default: m.DecisionLedgerPage })));
+const OutcomePricingPage = lazy(() => import('@/pages/OutcomePricingPage').then((m) => ({ default: m.OutcomePricingPage })));
 const ServiceGraphPage = lazy(() => import('@/pages/ServiceGraphPage').then((m) => ({ default: m.ServiceGraphPage })));
 const CustomerTrustLayerPage = lazy(() => import('@/pages/CustomerTrustLayerPage').then((m) => ({ default: m.CustomerTrustLayerPage })));
 const VerifiedServicePage = lazy(() => import('@/pages/VerifiedServicePage').then((m) => ({ default: m.VerifiedServicePage })));
@@ -809,6 +810,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DecisionLedgerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/outcome-pricing"
+          element={
+            <ProtectedRoute>
+              <OutcomePricingPage />
             </ProtectedRoute>
           }
         />
