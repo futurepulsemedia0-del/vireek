@@ -143,6 +143,7 @@ const OEMIntelligencePage = lazy(() => import('@/pages/OEMIntelligencePage').the
 const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const HomeHealthPage = lazy(() => import('@/pages/HomeHealthPage').then((m) => ({ default: m.HomeHealthPage })));
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
+const FleetIntelligencePage = lazy(() => import('@/pages/FleetIntelligencePage').then((m) => ({ default: m.FleetIntelligencePage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
 const SwitchingShieldPage = lazy(() => import('@/pages/SwitchingShieldPage').then((m) => ({ default: m.SwitchingShieldPage })));
@@ -1729,7 +1730,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/dashboard/fleet-intelligence"
+          element={
+            <ProtectedRoute>
+              <FleetIntelligencePage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/next-best-actions"
           element={
