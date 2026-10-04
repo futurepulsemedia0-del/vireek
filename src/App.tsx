@@ -121,6 +121,7 @@ const EvidenceChainPage = lazy(() => import('@/pages/EvidenceChainPage').then((m
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
 const SelfHealingPage = lazy(() => import('@/pages/SelfHealingPage').then((m) => ({ default: m.SelfHealingPage })));
+const TemporalRegulationPage = lazy(() => import('@/pages/TemporalRegulationPage').then((m) => ({ default: m.TemporalRegulationPage })));
 const CompoundingFlywheelPage = lazy(() => import('@/pages/CompoundingFlywheelPage').then((m) => ({ default: m.CompoundingFlywheelPage })));
 const BusinessImmuneSystemPage = lazy(() => import('@/pages/BusinessImmuneSystemPage').then((m) => ({ default: m.BusinessImmuneSystemPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
@@ -607,6 +608,14 @@ function App() {
     </ProtectedRoute>
   }
 />
+        <Route
+          path="/dashboard/regulation-graph"
+          element={
+            <ProtectedRoute>
+              <TemporalRegulationPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/flywheel"
           element={
