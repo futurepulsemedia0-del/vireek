@@ -137,6 +137,7 @@ const EquipmentPassportsPage = lazy(() => import('@/pages/EquipmentPassportsPage
 const EquipmentPassportDetailPage = lazy(() => import('@/pages/EquipmentPassportDetailPage').then((m) => ({ default: m.EquipmentPassportDetailPage })));
 const PublicEquipmentPassportPage = lazy(() => import('@/pages/PublicEquipmentPassportPage').then((m) => ({ default: m.PublicEquipmentPassportPage })));
 const OEMIntelligencePage = lazy(() => import('@/pages/OEMIntelligencePage').then((m) => ({ default: m.OEMIntelligencePage })));
+const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const HomeHealthPage = lazy(() => import('@/pages/HomeHealthPage').then((m) => ({ default: m.HomeHealthPage })));
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
@@ -1670,6 +1671,14 @@ function App() {
           element={
             <ProtectedRoute>
               <HomeHealthPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/property-intelligence"
+          element={
+            <ProtectedRoute>
+              <PropertyIntelligencePage />
             </ProtectedRoute>
           }
         />
