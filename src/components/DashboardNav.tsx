@@ -328,6 +328,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'AI Parts Market', href: '/dashboard/parts-market', icon: Store, requiresPermission: 'can_view_billing' },
   { label: 'Outcome Assurance', href: '/dashboard/outcome-assurance', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Truck-Roll Elimination', href: '/dashboard/truck-roll', icon: Ban, requiresPermission: 'can_view_billing' },
+  { label: 'Evidence Marketplace', href: '/dashboard/evidence-marketplace', icon: Network, requiresPermission: 'can_manage_security' },
   { label: 'Verified Service', href: '/dashboard/service-guarantee', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Continuous Improvement', href: '/dashboard/continuous-improvement', icon: RefreshCw, requiresPermission: 'can_view_billing' },
   { label: 'Operations Sandbox', href: '/dashboard/operations-sandbox', icon: FlaskConical, requiresPermission: 'can_view_billing' },
