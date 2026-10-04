@@ -59,6 +59,7 @@ const WorkflowCompilerPage = lazy(() => import('@/pages/WorkflowCompilerPage').t
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
+const AskVireekPage = lazy(() => import('@/pages/AskVireekPage').then((m) => ({ default: m.AskVireekPage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
@@ -705,6 +706,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BusinessDecisionEnginePage />
+            </ProtectedRoute>
+          }
+        />|
+        <Route
+          path="/dashboard/ask-vireek"
+          element={
+            <ProtectedRoute>
+              <AskVireekPage />
             </ProtectedRoute>
           }
         />
