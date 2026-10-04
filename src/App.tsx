@@ -47,6 +47,7 @@ const AgentMarketplacePage = lazy(() => import('@/pages/AgentMarketplacePage').t
 const AutonomyBudgetPage = lazy(() => import('@/pages/AutonomyBudgetPage').then((m) => ({ default: m.AutonomyBudgetPage })));
 const ExecutionReliabilityPage = lazy(() => import('@/pages/ExecutionReliabilityPage').then((m) => ({ default: m.ExecutionReliabilityPage })));
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
+const NeighborhoodRevenuePage = lazy(() => import('@/pages/NeighborhoodRevenuePage').then((m) => ({ default: m.NeighborhoodRevenuePage })));
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
@@ -1184,6 +1185,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OutboundCampaignsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/neighborhood-revenue"
+          element={
+            <ProtectedRoute>
+              <NeighborhoodRevenuePage />
             </ProtectedRoute>
           }
         />
