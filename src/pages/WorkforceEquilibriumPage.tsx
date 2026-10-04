@@ -16,6 +16,7 @@ const ACTION_ICON = {
   cross_train: GraduationCap,
   hire: UserPlus,
   reallocate_marketing: Megaphone,
+  rebalance_territory: Route,
 } as const;
 
 export function WorkforceEquilibriumPage() {
