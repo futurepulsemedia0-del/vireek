@@ -5,6 +5,9 @@
  * diagnosis -> confirmed cause -> repair -> verified outcome -> the model learns from it.
  * All probabilities come from the deterministic engine on the server; this page only
  * renders state and sends answers.
+ *
+ * Also hosts the "Customer intake learning" panel: measured accuracy and question value for the
+ * customer-facing Adaptive Customer Diagnostic (/diagnose/:token).
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -59,6 +62,14 @@ import {
   type AdnStats,
   type AdnSymptom,
 } from '@/lib/adaptiveDiagnostics';
+import {
+  LEARNING_MIN_SAMPLES,
+  TREND_MIN_BUCKET,
+  accuracyChange,
+  pct as intakePct,
+  type LearningSummary,
+} from '@/lib/adaptiveDiagnostic';
+import { fetchLearningSummary } from '@/lib/adaptiveDiagnosticApi';
 
 interface JobOption {
   id: string;
@@ -115,6 +126,95 @@ function DifferentialBars({ items }: { items: AdnState['decision']['differential
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * Measured learning of the customer-facing intake diagnostic. Renders nothing until the
+ * customer-intake migration is applied and at least one outcome exists, so it never shows
+ * invented numbers or an error to the user.
+ */
+function CustomerIntakeLearning() {
+  const [data, setData] = useState<LearningSummary | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchLearningSummary()
+      .then((s) => {
+        if (!cancelled) setData(s);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!data || (data.confirmed === 0 && data.awaiting_outcome === 0 && data.unmapped === 0)) {
+    return null;
+  }
+  const change = accuracyChange(data.trend);
+
+  return (
+    <section className="rounded-2xl border border-border bg-bg-secondary p-5">
+      <h2 className="mb-1 flex items-center gap-2 text-sm font-semibold text-text-primary">
+        <BrainCircuit size={15} className="text-accent" /> Customer intake learning
+      </h2>
+      <p className="mb-4 text-xs text-text-secondary">
+        Measured from confirmed jobs: how well the customer-facing questions predict the real cause.
+      </p>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile label="Confirmed" value={String(data.confirmed)} />
+        <StatTile label="Top-1 accuracy" value={intakePct(data.accuracy)} />
+        <StatTile label="Awaiting outcome" value={String(data.awaiting_outcome)} />
+        <StatTile label="Needs review" value={String(data.unmapped)} />
+      </div>
+
+      {data.trend.length > 0 && (
+        <div className="mt-4">
+          <div
+            className="flex h-24 items-end gap-2"
+            role="img"
+            aria-label="Intake diagnosis accuracy per group of ten confirmed jobs"
+          >
+            {data.trend.map((b) => (
+              <div key={b.bucket} className="flex flex-1 flex-col items-center gap-1">
+                <div className="flex h-full w-full items-end">
+                  <div
+                    className={`w-full rounded-t-md ${b.n >= TREND_MIN_BUCKET ? 'bg-accent' : 'bg-accent/30'}`}
+                    style={{ height: `${Math.max(4, Math.round(b.accuracy * 100))}%` }}
+                    title={`${intakePct(b.accuracy)} over ${b.n} jobs, ${b.avg_questions} questions on average`}
+                  />
+                </div>
+                <span className="text-[10px] tabular-nums text-text-secondary">
+                  {intakePct(b.accuracy)}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-text-secondary">
+            Each bar is ten confirmed jobs in order.{' '}
+            {change
+              ? `Accuracy moved ${change.deltaPp >= 0 ? '+' : ''}${change.deltaPp} points from the first group to the latest.`
+              : 'A trend appears once two groups have at least five jobs each.'}
+          </p>
+        </div>
+      )}
+
+      {data.questions.length > 0 && (
+        <ul className="mt-4 divide-y divide-border">
+          {data.questions.slice(0, 8).map((q) => (
+            <li key={q.code} className="flex items-center justify-between gap-3 py-2 text-xs">
+              <span className="text-text-primary">{q.text}</span>
+              <span className="shrink-0 tabular-nums text-text-secondary">
+                {q.asked_n < LEARNING_MIN_SAMPLES || q.avg_gain_pp == null
+                  ? `Learning (${q.asked_n}/${LEARNING_MIN_SAMPLES})`
+                  : `${q.avg_gain_pp >= 0 ? '+' : ''}${q.avg_gain_pp} pts · ${q.asked_n} jobs`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -199,11 +299,17 @@ export function AdaptiveDiagnosticsPage() {
       setEquipment([]);
       return;
     }
+    let cancelled = false;
     supabase
       .from('equipment')
       .select('id, equipment_type, make, model')
       .eq('customer_id', job.customer_id)
-      .then(({ data }) => setEquipment((data as EquipmentOption[]) ?? []));
+      .then(({ data }) => {
+        if (!cancelled) setEquipment((data as EquipmentOption[]) ?? []);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [jobId, jobs]);
 
   const groupedSymptoms = useMemo(() => {
@@ -280,40 +386,42 @@ export function AdaptiveDiagnosticsPage() {
 
   const onConfirm = async () => {
     if (!state || !confirmKey) return;
-    const ok = await run(async () => {
-      await confirmAdnCause(state.session.id, confirmKey);
-      return true;
+    const id = state.session.id;
+    const s = await run(async () => {
+      await confirmAdnCause(id, confirmKey);
+      return fetchAdnState(id);
     }, 'Could not confirm the cause.');
-    if (ok) {
-      applyState(await fetchAdnState(state.session.id));
+    if (s) {
+      applyState(s);
       refreshLists();
     }
   };
 
   const onRepaired = async () => {
     if (!state) return;
-    const r = await run(
-      () => completeAdnRepair(state.session.id, repairNotes),
-      'Could not save the repair.',
-    );
-    if (r) {
+    const id = state.session.id;
+    const res = await run(async () => {
+      const r = await completeAdnRepair(id, repairNotes);
+      return { r, s: await fetchAdnState(id) };
+    }, 'Could not save the repair.');
+    if (res) {
       toast(
-        `Repair logged. Vireek will verify it on ${new Date(r.verify_due_at).toLocaleDateString()}.`,
+        `Repair logged. Vireek will verify it on ${new Date(res.r.verify_due_at).toLocaleDateString()}.`,
         'success',
       );
-      applyState(await fetchAdnState(state.session.id));
+      applyState(res.s);
       refreshLists();
     }
   };
 
   const onOutcome = async (sessionId: string, outcome: AdnOutcome, corrected?: string) => {
-    const ok = await run(async () => {
+    const res = await run(async () => {
       await recordAdnOutcome(sessionId, outcome, corrected);
-      return true;
+      return { s: state?.session.id === sessionId ? await fetchAdnState(sessionId) : null };
     }, 'Could not record the outcome.');
-    if (ok) {
+    if (res) {
       toast('Outcome verified - the network just got smarter.', 'success');
-      if (state?.session.id === sessionId) applyState(await fetchAdnState(sessionId));
+      if (res.s) applyState(res.s);
       refreshLists();
     }
   };
@@ -868,6 +976,8 @@ export function AdaptiveDiagnosticsPage() {
                   </ul>
                 </section>
               )}
+
+              <CustomerIntakeLearning />
             </div>
 
             <div className="space-y-6">
