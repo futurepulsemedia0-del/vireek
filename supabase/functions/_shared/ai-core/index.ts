@@ -10,7 +10,7 @@ import type { ChatMessage, ChatStreamHandler, TaskType } from "./types.ts";
 import { AiCoreError } from "./types.ts";
 
 import { runInputGuardrails, runOutputGuardrails, createStreamGuard } from "./guardrails.ts";
-
+import { secureInput, secureOutput, createRehydrator, rehydrate, type AiSecurityContext } from "./aiSecurity.ts";
 import { routeChat, routeChatStream, type RouteChatResult } from "./router.ts";
 
 import {
@@ -372,6 +372,8 @@ export interface AskVireekAiOptions {
   jsonMode?: boolean;
   timeoutMs?: number;
   extraInstructions?: string;
+  /** Opt-in AI Security layer: tenant owner id + what data this call puts in the prompt. */
+  security?: AiSecurityContext;
 }
 
 export interface AskVireekAiResult {
@@ -389,31 +391,30 @@ export async function askVireekAi(
   opts: AskVireekAiOptions,
 ): Promise<AskVireekAiResult> {
   if (!opts.messages.length) {
-    throw new AiCoreError(
-      "INVALID_RESPONSE",
-      "No messages provided to askVireekAi.",
-    );
+    throw new AiCoreError("INVALID_RESPONSE", "No messages provided to askVireekAi.");
   }
 
   const guardCtx = { task: opts.task, jsonMode: opts.jsonMode };
-  const guardedMessages = runInputGuardrails(opts.messages, guardCtx);
+  const sec = opts.security ? await secureInput(opts.security, opts.task, opts.messages) : null;
+  const guardedMessages = runInputGuardrails(sec?.messages ?? opts.messages, guardCtx);
 
-  const system = await buildSystemPrompt(
+  const system = await buildSystemPrompt(opts.task, guardedMessages, opts.extraInstructions);
+
+  const result = await routeChat(
     opts.task,
-    guardedMessages,
-    opts.extraInstructions,
+    {
+      system,
+      messages: guardedMessages,
+      maxTokens: opts.maxTokens,
+      temperature: opts.temperature,
+      jsonMode: opts.jsonMode,
+      timeoutMs: opts.timeoutMs,
+    },
+    sec?.secured.policy.allowedProviders ?? undefined,
   );
 
-  const result = await routeChat(opts.task, {
-    system,
-    messages: guardedMessages,
-    maxTokens: opts.maxTokens,
-    temperature: opts.temperature,
-    jsonMode: opts.jsonMode,
-    timeoutMs: opts.timeoutMs,
-  });
-
-  const guardedOutput = runOutputGuardrails(result.response.text, guardCtx);
+  const safeText = sec ? await secureOutput(sec.secured, result.response.text) : result.response.text;
+  const guardedOutput = runOutputGuardrails(safeText, guardCtx);
 
   return {
     text: guardedOutput.text,
@@ -438,21 +439,16 @@ export async function askVireekAiStream(
   onDelta: ChatStreamHandler,
 ): Promise<AskVireekAiResult> {
   if (!opts.messages.length) {
-    throw new AiCoreError(
-      "INVALID_RESPONSE",
-      "No messages provided to askVireekAiStream.",
-    );
+    throw new AiCoreError("INVALID_RESPONSE", "No messages provided to askVireekAiStream.");
   }
 
   const guardCtx = { task: opts.task, jsonMode: opts.jsonMode };
-  const guardedMessages = runInputGuardrails(opts.messages, guardCtx);
+  const sec = opts.security ? await secureInput(opts.security, opts.task, opts.messages) : null;
+  const guardedMessages = runInputGuardrails(sec?.messages ?? opts.messages, guardCtx);
   const streamGuard = createStreamGuard(guardCtx);
+  const rehydrator = sec && sec.secured.vault.reverse.size ? createRehydrator(sec.secured.vault) : null;
 
-  const system = await buildSystemPrompt(
-    opts.task,
-    guardedMessages,
-    opts.extraInstructions,
-  );
+  const system = await buildSystemPrompt(opts.task, guardedMessages, opts.extraInstructions);
 
   const result = await routeChatStream(
     opts.task,
@@ -464,14 +460,20 @@ export async function askVireekAiStream(
       jsonMode: opts.jsonMode,
       timeoutMs: opts.timeoutMs,
     },
-        (delta: string) => {
+    (delta: string) => {
       const { forward } = streamGuard.check(delta);
-      if (forward) onDelta(forward);
+      if (!forward) return;
+      const out = rehydrator ? rehydrator.push(forward) : forward;
+      if (out) onDelta(out);
     },
+    sec?.secured.policy.allowedProviders ?? undefined,
   );
 
+  const tail = rehydrator?.flush();
+  if (tail) onDelta(tail);
+
   return {
-    text: result.response.text,
+    text: sec ? rehydrate(result.response.text, sec.secured.vault) : result.response.text,
     meta: {
       provider: result.response.provider,
       model: result.response.model,
