@@ -73,9 +73,42 @@ export const DEFAULT_RISK_FRACTION = 0.15;
  */
 export const REWORK_COST_FACTOR = 0.6;
 
+/** Sanity bounds so one bad GPS day can never wreck a ranking. */
+export const FLEET_MIN_SPEED_MPH = 12;
+export const FLEET_MAX_SPEED_MPH = 55;
+export const FLEET_MIN_COST_CENTS_PER_MILE = 20;
+export const FLEET_MAX_COST_CENTS_PER_MILE = 300;
+export const FLEET_MIN_ON_SITE_MINUTES = 20;
+export const FLEET_MAX_ON_SITE_MINUTES = 480;
+/** A truck GPS fix older than this is no longer "where the truck is". */
+export const FLEET_LIVE_POSITION_MAX_AGE_MINUTES = 20;
+
 // ============================================================
 // TYPES
 // ============================================================
+
+/**
+ * What real telematics history says about a technician + their truck
+ * (built from fleet_intelligence_profiles by src/lib/fleetIntelligence.ts).
+ * Every field is optional-by-null: a missing value simply falls back to the
+ * tunable defaults above, so dispatch keeps working with zero fleet data.
+ */
+export interface FleetDispatchSignal {
+  technicianId: string;
+  /** Live truck position; null when the truck has not reported recently. */
+  vehicleLocation: { lat: number; lng: number; ageMinutes: number } | null;
+  /** Average moving speed over recent trips. */
+  avgSpeedMph: number | null;
+  /** Marginal cost of one more mile (fuel + wear), in cents. */
+  costPerMileCents: number | null;
+  /** Average fuel burned idling per trip, in cents. */
+  idleCostPerTripCents: number | null;
+  /** service_type → typical on-site minutes for THIS technician. */
+  onSiteMinutesByService: Record<string, number>;
+  onTimePct: number | null;
+  sampleSize: number;
+  confidence: 'high' | 'medium' | 'low';
+}
 
 export interface TechnicianProfitabilityEstimate {
   technician: TeamMember;
@@ -90,6 +123,9 @@ export interface TechnicianProfitabilityEstimate {
   distanceMiles: number | null;
   firstTimeFixRate: number | null;
   missingPartsCount: number;
+  /** True when real telematics history changed at least one input of this estimate. */
+  usedFleetData: boolean;
+  onTimePct: number | null;
   reasons: string[];
 }
 
@@ -134,8 +170,10 @@ export function estimateTechnicianProfitability(
   jobsByTechnician: Record<string, Job[]>,
   stockFit: StockFitRow | undefined,
   firstTimeFixRate: number | null,
+  fleet: FleetDispatchSignal | null = null,
 ): TechnicianProfitabilityEstimate {
   const reasons: string[] = [];
+  let usedFleetData = false;
 
   const todaysJobs = (jobsByTechnician[tech.id] ?? []).filter((j) => isSameDay(j.scheduled_datetime, job.scheduled_datetime));
   const load = todaysJobs.length;
@@ -143,7 +181,13 @@ export function estimateTechnicianProfitability(
   const atCapacity = load >= capacity;
   reasons.push(`${load}/${capacity} jobs today`);
 
-  const durationMinutes = job.duration_minutes ?? DEFAULT_JOB_DURATION_MINUTES;
+  const fleetOnSite = job.service_type ? fleet?.onSiteMinutesByService[job.service_type] : undefined;
+  let durationMinutes = job.duration_minutes ?? DEFAULT_JOB_DURATION_MINUTES;
+  if (job.duration_minutes == null && fleetOnSite != null) {
+    durationMinutes = Math.min(FLEET_MAX_ON_SITE_MINUTES, Math.max(FLEET_MIN_ON_SITE_MINUTES, Math.round(fleetOnSite)));
+    usedFleetData = true;
+    reasons.push(`Typical ${job.service_type} time ${durationMinutes} min (fleet history)`);
+  }
   const hourlyCostCents = tech.hourly_cost_rate_cents ?? DEFAULT_HOURLY_COST_CENTS;
 
   // Revenue
@@ -161,18 +205,36 @@ export function estimateTechnicianProfitability(
   }
 
   // Travel
-  const loc = technicianLocation(tech);
+  const truck =
+    fleet?.vehicleLocation && fleet.vehicleLocation.ageMinutes <= FLEET_LIVE_POSITION_MAX_AGE_MINUTES
+      ? fleet.vehicleLocation
+      : null;
+  const loc = truck ?? technicianLocation(tech);
   let distanceMiles: number | null = null;
   if (loc && job.latitude != null && job.longitude != null) {
     distanceMiles = Math.round(haversineMiles(loc.lat, loc.lng, job.latitude, job.longitude) * 10) / 10;
-    reasons.push(`${distanceMiles} mi away`);
+    reasons.push(truck ? `${distanceMiles} mi away (live truck GPS)` : `${distanceMiles} mi away`);
+    if (truck) usedFleetData = true;
   } else {
     reasons.push('Location unknown — using default travel estimate');
   }
   const milesForCost = distanceMiles ?? DEFAULT_TRAVEL_MILES;
-  const travelMinutes = (milesForCost / AVG_TRAVEL_SPEED_MPH) * 60;
+  const speedMph =
+    fleet?.avgSpeedMph != null
+      ? Math.min(FLEET_MAX_SPEED_MPH, Math.max(FLEET_MIN_SPEED_MPH, fleet.avgSpeedMph))
+      : AVG_TRAVEL_SPEED_MPH;
+  const centsPerMile =
+    fleet?.costPerMileCents != null
+      ? Math.min(FLEET_MAX_COST_CENTS_PER_MILE, Math.max(FLEET_MIN_COST_CENTS_PER_MILE, fleet.costPerMileCents))
+      : MILEAGE_COST_CENTS_PER_MILE;
+  const idleCents = fleet?.idleCostPerTripCents != null ? Math.max(0, Math.round(fleet.idleCostPerTripCents)) : 0;
+  if (fleet && (fleet.avgSpeedMph != null || fleet.costPerMileCents != null)) {
+    usedFleetData = true;
+    reasons.push(`Real avg speed ${Math.round(speedMph)} mph · ${Math.round(centsPerMile)}¢/mi (${fleet.sampleSize} trips)`);
+  }
+  const travelMinutes = (milesForCost / speedMph) * 60;
   const expectedTravelCents =
-    Math.round((hourlyCostCents * travelMinutes) / 60) + Math.round(milesForCost * MILEAGE_COST_CENTS_PER_MILE);
+    Math.round((hourlyCostCents * travelMinutes) / 60) + Math.round(milesForCost * centsPerMile) + idleCents;
 
   // Risk (expected cost of a callback)
   const riskFraction = firstTimeFixRate != null ? (100 - firstTimeFixRate) / 100 : DEFAULT_RISK_FRACTION;
@@ -191,6 +253,7 @@ export function estimateTechnicianProfitability(
   if (job.service_type && tech.skills.includes(job.service_type)) {
     reasons.push(`Skilled in ${job.service_type}`);
   }
+  if (fleet?.onTimePct != null) reasons.push(`On-time arrival ${Math.round(fleet.onTimePct)}%`);
 
   return {
     technician: tech,
@@ -205,6 +268,8 @@ export function estimateTechnicianProfitability(
     distanceMiles,
     firstTimeFixRate,
     missingPartsCount,
+    usedFleetData,
+    onTimePct: fleet?.onTimePct ?? null,
     reasons,
   };
 }
@@ -222,6 +287,9 @@ export function estimateTechnicianProfitability(
  *
  * @param firstTimeFixByTechnician  technician_id → most recent
  *   first_time_fix_rate from technician_scorecards (null if none saved yet).
+ * @param fleetByTechnician  technician_id → real telematics signal (live truck
+ *   GPS, real speed, real cost/mile, typical on-site time). Optional: with no
+ *   entry the estimate uses the tunable defaults exactly as before.
  */
 export function rankTechniciansByProfitability(
   job: Job,
@@ -229,6 +297,7 @@ export function rankTechniciansByProfitability(
   jobsByTechnician: Record<string, Job[]>,
   stockFit: Record<string, StockFitRow>,
   firstTimeFixByTechnician: Record<string, number | null>,
+  fleetByTechnician: Record<string, FleetDispatchSignal> = {},
 ): TechnicianProfitabilityEstimate[] {
   return technicians
     .filter((t) => t.role === 'technician' && t.dispatch_enabled)
@@ -239,6 +308,7 @@ export function rankTechniciansByProfitability(
         jobsByTechnician,
         stockFit[tech.id],
         firstTimeFixByTechnician[tech.id] ?? null,
+        fleetByTechnician[tech.id] ?? null,
       ),
     )
     .filter((e) => !e.atCapacity)
