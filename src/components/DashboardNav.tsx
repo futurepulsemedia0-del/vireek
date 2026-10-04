@@ -299,6 +299,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Causal ROI Attribution', href: '/dashboard/causal-roi', icon: FlaskConical },
   { label: 'Counterfactual Reality Engine', href: '/dashboard/reality-engine', icon: Route },
   { label: 'Causal Disruption Chains', href: '/dashboard/causal-chains', icon: Workflow },
+  { label: 'Revenue Causality Graph', href: '/dashboard/revenue-causality', icon: Network, requiresPermission: 'can_view_billing' },
   { label: 'Invoicing', href: '/dashboard/invoicing', icon: Receipt },
   { label: 'Community', href: '/dashboard/community', icon: MessageCircle },
   { label: 'Negative Knowledge Store', href: '/dashboard/negative-knowledge', icon: History },
