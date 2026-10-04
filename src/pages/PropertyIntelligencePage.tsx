@@ -1,53 +1,100 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+/**
+ * Property Intelligence — two pages in one module:
+ *  - PropertyIntelligencePage       : account-wide live sensors -> failure prediction -> missions (Property Intelligence OS)
+ *  - PropertyIntelligenceGraphPage  : per-site building knowledge graph, /dashboard/customers/:customerId/sites/:siteId/intelligence
+ *                                     (location, parcel/building/unit graph, characteristics, climate, hazards,
+ *                                     permits/history, energy, area economics — every datum with provenance)
+ * Data layer: src/lib/propertyIntelligence.ts
+ */
+
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import {
   Activity,
+  ArrowLeft,
   BatteryLow,
+  Building2,
   CheckCircle2,
+  CloudSun,
   Copy,
   Cpu,
+  Home,
+  Landmark,
+  Lightbulb,
+  Loader2,
+  MapPin,
+  Network,
   Package,
   Plus,
   Radar,
   RefreshCw,
+  ShieldAlert,
+  Trash2,
   Wifi,
   WifiOff,
   Zap,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
-import { EmptyState } from '@/components/EmptyState';
+import { EmptyState, EmptyStateInline } from '@/components/EmptyState';
 import { LiveIndicator } from '@/components/LiveIndicator';
-import { SkeletonCardList, SkeletonStatGrid } from '@/components/Skeleton';
+import { SkeletonCard, SkeletonCardList, SkeletonStatGrid } from '@/components/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useRealtimeSubscription } from '@/lib/realtime';
+import { fetchPropertyTwin, type PropertyTwin } from '@/lib/propertyTwin';
+import { formatSiteLocationLine, SITE_TYPE_LABELS } from '@/lib/siteHierarchy';
 import {
+  addNode,
+  ALLOWED_PARENTS,
+  buildNodeTree,
+  CHARACTERISTIC_FIELDS,
+  computeCoverage,
   curlExample,
+  deleteNode,
+  deriveInsights,
   deviceIsOnline,
   dismissMission,
+  eligibleParents,
+  ENERGY_FIELDS,
+  enrichProperty,
   fetchDevices,
   fetchEquipmentOptions,
   fetchMissions,
   fetchPredictions,
+  fetchPropertyIntelligence,
+  fieldFormValues,
   formatRelative,
+  LAYER_LABELS,
+  NODE_KIND_LABELS,
+  numOf,
+  objOf,
+  parseFieldValues,
   PART_STATUS_LABEL,
   PART_STATUS_STYLE,
   PIPELINE,
   recordOutcome,
   registerDevice,
   runPropertyIntelligenceAgent,
+  saveManualLayer,
   setDeviceStatus,
   SEVERITY_STYLE,
   stageIndex,
+  strOf,
   type DeviceProtocol,
   type EquipmentOption,
+  type FieldDef,
+  type Insight,
+  type IntelLayer,
+  type IntelNodeKind,
+  type IntelTreeNode,
   type MissionOutcome,
   type PioDevice,
   type PioMission,
   type PioPrediction,
+  type PropertyIntelligence,
   type RegisteredDevice,
 } from '@/lib/propertyIntelligence';
 
@@ -509,6 +556,581 @@ export function PropertyIntelligencePage() {
           {tab === 'devices' && <DevicesPanel devices={devices} onChanged={load} />}
         </>
       )}
+    </DashboardLayout>
+  );
+}
+
+// =====================================================================================
+// PART 2 — Property Intelligence Graph (per site): /dashboard/customers/:customerId/sites/:siteId/intelligence
+// =====================================================================================
+
+const SEVERITY_STYLES: Record<Insight['severity'], string> = {
+  high: 'bg-danger-500/10 text-danger-500',
+  medium: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-bg-tertiary text-text-secondary',
+};
+
+const KIND_LABELS: Record<Insight['kind'], string> = {
+  risk: 'Risk',
+  opportunity: 'Opportunity',
+  compliance: 'Compliance',
+  data_quality: 'Data quality',
+};
+
+const panel = 'rounded-2xl border border-border bg-bg-secondary p-5';
+
+const fmt = (n: number | null, suffix = '') => (n === null ? '—' : `${n.toLocaleString('en-US')}${suffix}`);
+const usd = (n: number | null) => (n === null ? '—' : `$${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}`);
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 py-1.5 text-sm">
+      <span className="text-text-secondary">{label}</span>
+      <span className="text-right font-medium text-text-primary">{value}</span>
+    </div>
+  );
+}
+
+function Provenance({ layer }: { layer: IntelLayer | undefined }) {
+  if (!layer) return null;
+  const tone =
+    layer.status === 'ok' || layer.status === 'manual'
+      ? 'bg-success-500/10 text-success-500'
+      : layer.status === 'partial'
+        ? 'bg-warning-500/10 text-warning-500'
+        : 'bg-danger-500/10 text-danger-500';
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border pt-3 text-[11px] text-text-secondary">
+      <span className={`rounded-full px-2 py-0.5 font-medium ${tone}`}>{layer.status === 'manual' ? 'verified by you' : layer.status}</span>
+      <span>{layer.source}</span>
+      {layer.as_of && <span>· as of {layer.as_of}</span>}
+      {layer.status !== 'manual' && <span>· confidence {Math.round(layer.confidence * 100)}%</span>}
+    </div>
+  );
+}
+
+function LayerPanel({ icon, title, layer, hint, children }: { icon: ReactNode; title: string; layer: IntelLayer | undefined; hint: string; children: ReactNode }) {
+  const usable = layer && (layer.status === 'ok' || layer.status === 'partial' || layer.status === 'manual');
+  return (
+    <div className={panel}>
+      <div className="mb-2 flex items-center gap-2 text-text-primary">
+        <span className="text-cta">{icon}</span>
+        <p className="text-sm font-semibold">{title}</p>
+      </div>
+      {usable ? children : <EmptyStateInline text={layer?.error ?? hint} />}
+      <Provenance layer={layer} />
+    </div>
+  );
+}
+
+function ClimateBody({ d }: { d: Record<string, unknown> }) {
+  const profile = strOf(d, 'climate_profile');
+  return (
+    <div>
+      <Row label="Profile" value={profile ? profile.replace(/_/g, ' ') : '—'} />
+      <Row label="Average temperature" value={fmt(numOf(d, 'avg_temp_f'), '°F')} />
+      <Row label="Heating degree-days / yr" value={fmt(numOf(d, 'hdd65_f'))} />
+      <Row label="Cooling degree-days / yr" value={fmt(numOf(d, 'cdd65_f'))} />
+      <Row label="Days ≥ 95°F / yr" value={fmt(numOf(d, 'heat_days_95f'))} />
+      <Row label="Days ≤ 32°F / yr" value={fmt(numOf(d, 'freeze_days_32f'))} />
+      <Row label="Precipitation / yr" value={fmt(numOf(d, 'precip_in'), ' in')} />
+    </div>
+  );
+}
+
+function HazardsBody({ d }: { d: Record<string, unknown> }) {
+  const flood = objOf(d, 'flood');
+  const seismic = objOf(d, 'seismic');
+  const notCovered = Array.isArray(d.not_covered) ? (d.not_covered as string[]) : [];
+  return (
+    <div>
+      {flood ? (
+        <Row
+          label="FEMA flood zone"
+          value={flood.mapped === false ? 'Not mapped' : `${strOf(flood, 'zone') ?? '—'}${flood.sfha === true ? ' (high-risk area)' : ''}`}
+        />
+      ) : (
+        notCovered.includes('flood') && <Row label="FEMA flood zone" value="US only" />
+      )}
+      {seismic && (
+        <Row
+          label={`Quakes M4+ within 100 km (${numOf(seismic, 'window_years') ?? 10} yr)`}
+          value={fmt(numOf(seismic, 'events_m4_100km'))}
+        />
+      )}
+    </div>
+  );
+}
+
+function EconomicBody({ d }: { d: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="Median home value" value={usd(numOf(d, 'median_home_value_usd'))} />
+      <Row label="Median household income" value={usd(numOf(d, 'median_household_income_usd'))} />
+      <Row label="Median year built" value={fmt(numOf(d, 'median_year_built'))} />
+      <Row label="Owner-occupied" value={fmt(numOf(d, 'owner_occupied_pct'), '%')} />
+      <p className="mt-2 text-[11px] text-text-secondary">Census-tract statistics for the surrounding area — not about the occupants.</p>
+    </div>
+  );
+}
+
+function FieldsEditor({
+  icon,
+  title,
+  layerKey,
+  fields,
+  layer,
+  profileId,
+  onSaved,
+}: {
+  icon: ReactNode;
+  title: string;
+  layerKey: 'characteristics' | 'energy';
+  fields: FieldDef[];
+  layer: IntelLayer | undefined;
+  profileId: string;
+  onSaved: () => Promise<void>;
+}) {
+  const { toast } = useToast();
+  const [values, setValues] = useState<Record<string, string>>(() => fieldFormValues(fields, layer?.data));
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    const { data, errors: found } = parseFieldValues(fields, values);
+    setErrors(found);
+    if (Object.keys(found).length) return;
+    if (Object.keys(data).length === 0) {
+      toast('Enter at least one value to save.', 'info');
+      return;
+    }
+    setSaving(true);
+    try {
+      await saveManualLayer(profileId, layerKey, data);
+      toast(`${title} saved.`, 'success');
+      await onSaved();
+    } catch {
+      toast(`Could not save ${title.toLowerCase()}.`, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={panel}>
+      <div className="mb-3 flex items-center gap-2 text-text-primary">
+        <span className="text-cta">{icon}</span>
+        <p className="text-sm font-semibold">{title}</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {fields.map((f) =>
+          f.type === 'select' ? (
+            <div key={f.key}>
+              <label htmlFor={`${layerKey}-${f.key}`} className="mb-1.5 block text-sm font-medium text-text-primary">
+                {f.label}
+              </label>
+              <select
+                id={`${layerKey}-${f.key}`}
+                className={selectClass}
+                value={values[f.key] ?? ''}
+                onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+              >
+                <option value="">—</option>
+                {f.options?.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              {errors[f.key] && <p className="mt-1 text-xs text-danger">{errors[f.key]}</p>}
+            </div>
+          ) : (
+            <Input
+              key={f.key}
+              id={`${layerKey}-${f.key}`}
+              label={f.unit ? `${f.label} (${f.unit})` : f.label}
+              type={f.type === 'number' ? 'number' : 'text'}
+              inputMode={f.type === 'number' ? 'decimal' : undefined}
+              value={values[f.key] ?? ''}
+              error={errors[f.key]}
+              onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+            />
+          ),
+        )}
+      </div>
+      <div className="mt-4">
+        <Button size="sm" onClick={() => void save()} disabled={saving}>
+          {saving && <Loader2 size={14} className="animate-spin" />} Save
+        </Button>
+      </div>
+      <Provenance layer={layer} />
+    </div>
+  );
+}
+
+function TreeItem({ node, depth, onDelete }: { node: IntelTreeNode; depth: number; onDelete: (n: IntelTreeNode) => void }) {
+  const notes = strOf(node.attributes, 'notes');
+  return (
+    <li>
+      <div className="flex items-start justify-between gap-3 rounded-xl px-2 py-1.5 hover:bg-bg-tertiary" style={{ marginLeft: depth * 16 }}>
+        <div className="min-w-0">
+          <p className="text-sm text-text-primary">
+            <span className="mr-2 rounded-full bg-bg-tertiary px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-text-secondary">
+              {NODE_KIND_LABELS[node.kind]}
+            </span>
+            {node.name}
+            {node.occurred_on && <span className="ml-2 text-xs text-text-secondary">{node.occurred_on}</span>}
+          </p>
+          {notes && <p className="mt-0.5 text-xs text-text-secondary">{notes}</p>}
+        </div>
+        <button
+          type="button"
+          aria-label={`Delete ${node.name}`}
+          onClick={() => onDelete(node)}
+          className="focus-ring shrink-0 rounded-lg p-1.5 text-text-secondary hover:bg-danger/10 hover:text-danger"
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
+      {node.children.length > 0 && (
+        <ul>
+          {node.children.map((c) => (
+            <TreeItem key={c.id} node={c} depth={depth + 1} onDelete={onDelete} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+const KINDS = Object.keys(ALLOWED_PARENTS) as IntelNodeKind[];
+
+function GraphPanel({ intel, onChanged }: { intel: PropertyIntelligence; onChanged: () => Promise<void> }) {
+  const { toast } = useToast();
+  const [kind, setKind] = useState<IntelNodeKind>('permit');
+  const [name, setName] = useState('');
+  const [parentId, setParentId] = useState('');
+  const [date, setDate] = useState('');
+  const [notes, setNotes] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const tree = useMemo(() => buildNodeTree(intel.nodes), [intel.nodes]);
+  const parents = useMemo(() => eligibleParents(kind, intel.nodes), [kind, intel.nodes]);
+
+  const submit = async () => {
+    if (!name.trim()) {
+      toast('Give the record a name.', 'info');
+      return;
+    }
+    setBusy(true);
+    try {
+      await addNode({ profile_id: intel.profile.id, kind, name, parent_id: parentId || null, occurred_on: date || null, notes: notes || null });
+      setName('');
+      setNotes('');
+      setDate('');
+      await onChanged();
+    } catch {
+      toast('Could not add the record. Check the parent selection.', 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async (n: IntelTreeNode) => {
+    const extra = n.children.length ? ` This also removes ${n.children.length} nested record(s).` : '';
+    if (!window.confirm(`Delete "${n.name}"?${extra}`)) return;
+    try {
+      await deleteNode(n.id);
+      await onChanged();
+    } catch {
+      toast('Could not delete the record.', 'error');
+    }
+  };
+
+  return (
+    <div className={panel}>
+      <div className="mb-3 flex items-center gap-2 text-text-primary">
+        <Network size={16} className="text-cta" />
+        <p className="text-sm font-semibold">Property graph — parcel, buildings, permits, history</p>
+      </div>
+
+      {tree.length === 0 ? (
+        <EmptyStateInline text="Add the parcel, buildings, permits and construction events you know about." />
+      ) : (
+        <ul className="mb-4 space-y-0.5">
+          {tree.map((n) => (
+            <TreeItem key={n.id} node={n} depth={0} onDelete={(x) => void remove(x)} />
+          ))}
+        </ul>
+      )}
+
+      <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="pin-kind" className="mb-1.5 block text-sm font-medium text-text-primary">Type</label>
+          <select
+            id="pin-kind"
+            className={selectClass}
+            value={kind}
+            onChange={(e) => {
+              setKind(e.target.value as IntelNodeKind);
+              setParentId('');
+            }}
+          >
+            {KINDS.map((k) => (
+              <option key={k} value={k}>{NODE_KIND_LABELS[k]}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="pin-parent" className="mb-1.5 block text-sm font-medium text-text-primary">
+            Belongs to (optional)
+          </label>
+          <select id="pin-parent" className={selectClass} value={parentId} onChange={(e) => setParentId(e.target.value)} disabled={ALLOWED_PARENTS[kind].length === 0}>
+            <option value="">—</option>
+            {parents.map((p) => (
+              <option key={p.id} value={p.id}>{`${NODE_KIND_LABELS[p.kind]}: ${p.name}`}</option>
+            ))}
+          </select>
+        </div>
+        <Input id="pin-name" label="Name / permit number" value={name} maxLength={160} onChange={(e) => setName(e.target.value)} />
+        <Input id="pin-date" label="Date (permit issued, work done)" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <div className="sm:col-span-2">
+          <Input id="pin-notes" label="Notes" value={notes} maxLength={1000} onChange={(e) => setNotes(e.target.value)} />
+        </div>
+      </div>
+      <div className="mt-4">
+        <Button size="sm" variant="secondary" onClick={() => void submit()} disabled={busy}>
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Add record
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export function PropertyIntelligenceGraphPage() {
+  const { customerId, siteId } = useParams<{ customerId: string; siteId: string }>();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [enriching, setEnriching] = useState(false);
+  const [intel, setIntel] = useState<PropertyIntelligence | null>(null);
+  const [twin, setTwin] = useState<PropertyTwin | null>(null);
+  const reqRef = useRef(0);
+
+  const load = useCallback(
+    async (silent = false) => {
+      if (!customerId || !siteId) return;
+      const req = ++reqRef.current;
+      if (!silent) setLoading(true);
+      try {
+        const [i, t] = await Promise.all([fetchPropertyIntelligence(siteId, true), fetchPropertyTwin(customerId, siteId)]);
+        if (req !== reqRef.current) return;
+        setIntel(i);
+        setTwin(t);
+      } catch {
+        if (req === reqRef.current) toast('Could not load property intelligence.', 'error');
+      } finally {
+        if (req === reqRef.current && !silent) setLoading(false);
+      }
+    },
+    [customerId, siteId, toast],
+  );
+
+  useEffect(() => {
+    void load();
+    return () => {
+      reqRef.current += 1; // invalidate in-flight loads on unmount / route change
+    };
+  }, [load]);
+
+  const refreshQuiet = useCallback(() => load(true), [load]);
+
+  const handleEnrich = async () => {
+    if (!siteId || enriching) return;
+    setEnriching(true);
+    try {
+      const r = await enrichProperty(siteId);
+      if (r.status === 'failed') toast('No data source could be refreshed right now.', 'error');
+      else if (r.status === 'partial') toast('Refreshed. Some sources were unavailable.', 'info');
+      else toast('Property data refreshed.', 'success');
+      await load(true);
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Refresh failed.', 'error');
+    } finally {
+      setEnriching(false);
+    }
+  };
+
+  const equipment = twin?.equipment;
+  const coverage = useMemo(() => (intel ? computeCoverage(intel, equipment?.length ?? 0) : null), [intel, equipment]);
+  const insights = useMemo(() => (intel ? deriveInsights(intel, equipment ?? []) : []), [intel, equipment]);
+
+  if (loading || !intel || !twin || !coverage) {
+    return (
+      <DashboardLayout activeLabel="Sites">
+        <div className="space-y-6 p-6">
+          <SkeletonStatGrid count={4} />
+          <SkeletonCard rows={4} />
+          <SkeletonCard rows={4} />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!twin.site) {
+    return (
+      <DashboardLayout activeLabel="Sites">
+        <div className="p-6"><p className="text-sm text-text-secondary">This property could not be found.</p></div>
+      </DashboardLayout>
+    );
+  }
+
+  const { site } = twin;
+  const { profile, layers } = intel;
+  const stale = profile.last_enriched_at ? new Date(profile.last_enriched_at).toLocaleString() : null;
+
+  return (
+    <DashboardLayout activeLabel="Sites">
+      <div className="space-y-6 p-6">
+        <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
+          <Link to={`/dashboard/customers/${customerId}/sites`} className="focus-ring flex items-center gap-1.5 text-text-secondary hover:text-text-primary">
+            <ArrowLeft size={12} /> Back to sites
+          </Link>
+          <Link to={`/dashboard/customers/${customerId}/sites/${siteId}/twin`} className="focus-ring text-text-secondary hover:text-text-primary">
+            Open Digital Twin
+          </Link>
+        </div>
+
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Building2 className="text-cta" size={20} />
+            <div>
+              <p className="text-sm font-semibold text-text-primary">{site.name} — Property Intelligence</p>
+              <p className="text-xs text-text-secondary">
+                {SITE_TYPE_LABELS[site.site_type]}
+                {formatSiteLocationLine(site) ? ` · ${formatSiteLocationLine(site)}` : ''}
+                {profile.normalized_address ? ` · ${profile.normalized_address}` : site.address ? ` · ${site.address}` : ''}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {stale && <span className="text-[11px] text-text-secondary">Last refreshed {stale}</span>}
+            <Button size="sm" onClick={() => void handleEnrich()} disabled={enriching || profile.enrichment_status === 'running'}>
+              {enriching ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+              {profile.enrichment_status === 'never' ? 'Build intelligence' : 'Refresh data'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Completeness */}
+        <div className={panel}>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-semibold text-text-primary">Data completeness</p>
+            <p className="text-2xl font-semibold text-text-primary">{coverage.score}%</p>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-bg-tertiary" role="progressbar" aria-valuenow={coverage.score} aria-valuemin={0} aria-valuemax={100} aria-label="Data completeness">
+            <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${coverage.score}%` }} />
+          </div>
+          <p className="mt-2 text-xs text-text-secondary">
+            Weighted by source quality. It measures what Vireek knows about this property, not the property's condition.
+          </p>
+          {coverage.gaps.length > 0 && (
+            <p className="mt-2 text-xs text-text-secondary">
+              Biggest gaps: {coverage.gaps.slice(0, 4).map((g) => g.label).join(' · ')}
+            </p>
+          )}
+        </div>
+
+        {/* Insights */}
+        <div className={panel}>
+          <div className="mb-3 flex items-center gap-2 text-text-primary">
+            <Lightbulb size={16} className="text-cta" />
+            <p className="text-sm font-semibold">Insights</p>
+          </div>
+          {insights.length === 0 ? (
+            <EmptyStateInline text="Insights appear as location, characteristics, permits and equipment data fill in." />
+          ) : (
+            <ul className="space-y-3">
+              {insights.map((i) => (
+                <li key={i.id} className="rounded-xl border border-border p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${SEVERITY_STYLES[i.severity]}`}>{i.severity}</span>
+                    <span className="text-[10px] uppercase tracking-wide text-text-secondary">{KIND_LABELS[i.kind]}</span>
+                    <p className="text-sm font-medium text-text-primary">{i.title}</p>
+                  </div>
+                  <p className="mt-1.5 text-xs text-text-secondary">{i.detail}</p>
+                  <ul className="mt-1.5 list-disc pl-4 text-[11px] text-text-secondary">
+                    {i.evidence.map((e) => (
+                      <li key={e}>{e}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* External layers */}
+        <div className="grid gap-4 lg:grid-cols-3">
+          <LayerPanel icon={<CloudSun size={16} />} title={LAYER_LABELS.climate} layer={layers.climate} hint="Run “Build intelligence” to load 5-year climate normals.">
+            <ClimateBody d={layers.climate?.data ?? {}} />
+          </LayerPanel>
+          <LayerPanel icon={<ShieldAlert size={16} />} title={LAYER_LABELS.hazards} layer={layers.hazards} hint="Run “Build intelligence” to load flood and seismic context.">
+            <HazardsBody d={layers.hazards?.data ?? {}} />
+          </LayerPanel>
+          <LayerPanel icon={<Landmark size={16} />} title={LAYER_LABELS.economic} layer={layers.economic} hint="Area statistics are available for US addresses.">
+            <EconomicBody d={layers.economic?.data ?? {}} />
+          </LayerPanel>
+        </div>
+
+        {/* Location + twin join */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className={panel}>
+            <div className="mb-2 flex items-center gap-2 text-text-primary">
+              <MapPin size={16} className="text-cta" />
+              <p className="text-sm font-semibold">Location</p>
+            </div>
+            <Row label="Coordinates" value={profile.latitude !== null && profile.longitude !== null ? `${profile.latitude.toFixed(5)}, ${profile.longitude.toFixed(5)}` : '—'} />
+            <Row label="Country" value={profile.country_code ?? '—'} />
+            <Row label="Census tract" value={profile.census_geoid ?? '—'} />
+            <Row label="Geocode confidence" value={profile.geocode_confidence !== null ? `${Math.round(profile.geocode_confidence * 100)}%` : '—'} />
+          </div>
+          <div className={panel}>
+            <div className="mb-2 flex items-center gap-2 text-text-primary">
+              <Home size={16} className="text-cta" />
+              <p className="text-sm font-semibold">From the Digital Twin</p>
+            </div>
+            <Row label="Equipment on site" value={String(twin.equipment.length)} />
+            <Row label="Service visits" value={String(twin.jobs.length)} />
+            <Row label="Open maintenance alerts" value={String(twin.maintenanceAlerts.length)} />
+          </div>
+        </div>
+
+        {/* Manual layers */}
+        <div className="grid gap-4 lg:grid-cols-2">
+          <FieldsEditor
+            icon={<Building2 size={16} />}
+            title="Building characteristics"
+            key={layers.characteristics?.fetched_at ?? 'characteristics-new'}
+            layerKey="characteristics"
+            fields={CHARACTERISTIC_FIELDS}
+            layer={layers.characteristics}
+            profileId={profile.id}
+            onSaved={refreshQuiet}
+          />
+          <FieldsEditor
+            icon={<Zap size={16} />}
+            title="Energy"
+            key={layers.energy?.fetched_at ?? 'energy-new'}
+            layerKey="energy"
+            fields={ENERGY_FIELDS}
+            layer={layers.energy}
+            profileId={profile.id}
+            onSaved={refreshQuiet}
+          />
+        </div>
+
+        <GraphPanel intel={intel} onChanged={refreshQuiet} />
+      </div>
     </DashboardLayout>
   );
 }
