@@ -191,6 +191,7 @@ const LtvAutopilotPage = lazy(() => import('@/pages/LtvAutopilotPage').then((m) 
 const BottleneckMarketMakerPage = lazy(() => import('@/pages/BottleneckMarketMakerPage').then((m) => ({ default: m.BottleneckMarketMakerPage })));
 const UncertaintyMapPage = lazy(() => import('@/pages/UncertaintyMapPage').then((m) => ({ default: m.UncertaintyMapPage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
+const EventPredictionMeshPage = lazy(() => import('@/pages/EventPredictionMeshPage').then((m) => ({ default: m.EventPredictionMeshPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
@@ -1908,6 +1909,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EventBusPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/event-prediction-mesh"
+          element={
+            <ProtectedRoute>
+              <EventPredictionMeshPage />
             </ProtectedRoute>
           }
         />
