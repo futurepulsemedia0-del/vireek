@@ -50,12 +50,13 @@ async function attemptOnce(
   }
 }
 
-export async function routeChat(task: TaskType, req: NormalizedChatRequest): Promise<RouteChatResult> {
+export async function routeChat(task: TaskType, req: NormalizedChatRequest , allowedProviders?: readonly string[]): Promise<RouteChatResult> {
   const route = getRouteForTask(task);
   const attempts: RouteAttemptLog[] = [];
   let isFirstAttempt = true;
 
   for (const entry of route) {
+    if (allowedProviders && !allowedProviders.includes(entry.provider)) continue;
     const adapter = ALL_ADAPTERS[entry.provider];
     if (!adapter || !adapter.isConfigured()) continue; // no key set -> skip silently, no crash
 
@@ -111,12 +112,14 @@ export async function routeChatStream(
   task: TaskType,
   req: NormalizedChatRequest,
   onDelta: ChatStreamHandler,
+  allowedProviders?: readonly string[],
 ): Promise<RouteChatResult> {
   const route = getRouteForTask(task);
   const attempts: RouteAttemptLog[] = [];
   let isFirstAttempt = true;
 
   for (const entry of route) {
+    if (allowedProviders && !allowedProviders.includes(entry.provider)) continue;
     const adapter = ALL_ADAPTERS[entry.provider];
     if (!adapter || !adapter.isConfigured()) continue;
 
