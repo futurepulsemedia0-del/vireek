@@ -246,7 +246,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Company Reflexes', href: '/dashboard/reflexes', icon: Zap },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
-  { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
+  { label: 'Workflow Compiler', href: '/dashboard/workflow-compiler', icon: Sparkles },
   { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
   { label: 'Franchise Governance', href: '/dashboard/franchise/governance', icon: Gavel },
   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
