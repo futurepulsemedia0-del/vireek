@@ -37,7 +37,7 @@ export interface GraphEdge {
   from_node: string;
   to_node: string;
   relation: string;
-  source: 'system' | 'staff' | 'ai';
+  source: 'system' | 'staff' | 'ai' | 'fabric';
   evidence: Record<string, unknown>;
   last_seen_at: string;
 }
