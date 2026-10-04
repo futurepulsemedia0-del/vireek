@@ -207,6 +207,7 @@ const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPa
 const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
 const AdoptionOSPage = lazy(() => import('@/pages/AdoptionOSPage').then((m) => ({ default: m.AdoptionOSPage })));
 const FirstTimeFixAutopilotPage = lazy(() => import('@/pages/FirstTimeFixAutopilotPage').then((m) => ({ default: m.FirstTimeFixAutopilotPage })));
+const OpsExperimentsPage = lazy(() => import('@/pages/OpsExperimentsPage').then((m) => ({ default: m.OpsExperimentsPage })));
 const OutcomeBenchmarkNetworkPage = lazy(() => import('@/pages/OutcomeBenchmarkNetworkPage').then((m) => ({ default: m.OutcomeBenchmarkNetworkPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
@@ -1963,6 +1964,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FirstTimeFixAutopilotPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/experiments"
+          element={
+            <ProtectedRoute>
+              <OpsExperimentsPage />
             </ProtectedRoute>
           }
         />
