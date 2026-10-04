@@ -21,6 +21,7 @@ export type TaskType =
   | "business_insights"
   | "business_decision_engine"
   | "goal_decomposition"
+  | "workflow_compiler"
   | "causal_world_simulator"
   | "continual_identity_learner"
   | "cash_flow_narrative"
