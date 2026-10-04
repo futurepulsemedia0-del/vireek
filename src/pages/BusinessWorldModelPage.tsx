@@ -13,11 +13,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowRight, Check, Clock, FileText, GitBranch, Loader2, Network, Phone,
-  Plus, Search, Trash2, UserCog, UserRound, Wrench, X, Zap, Home, Sparkles,
+  Plus, Search, Trash2, UserCog, UserRound, Wrench, X, Zap, Home, Sparkles, Globe,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { ExternalWorldTab } from '@/components/world/ExternalWorldTab';
 import {
   buildWorldModel,
   EDGE_RELATION_LABELS,
@@ -414,7 +415,7 @@ function CausalGraphTab({
 export function BusinessWorldModelPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [tab, setTab] = useState<'graph' | 'causal'>('graph');
+  const [tab, setTab] = useState<'graph' | 'causal' | 'external'>('graph');
   const [model, setModel] = useState<WorldModel | null>(null);
   const [causalEdges, setCausalEdges] = useState<CausalEdge[]>([]);
   const [loading, setLoading] = useState(true);
@@ -488,6 +489,12 @@ export function BusinessWorldModelPage() {
           >
             <GitBranch className="h-4 w-4" /> Causal Graph
             {candidates.length > 0 && <span className="rounded-full bg-accent px-1.5 text-[10px] text-white">{candidates.length}</span>}
+          </button>
+          <button
+            onClick={() => setTab('external')}
+            className={`focus-ring flex items-center gap-1.5 rounded-t-xl px-4 py-2 text-sm font-medium ${tab === 'external' ? 'border-b-2 border-accent text-accent' : 'text-text-secondary hover:text-text-primary'}`}
+          >
+            <Globe className="h-4 w-4" /> External World
           </button>
         </div>
 
