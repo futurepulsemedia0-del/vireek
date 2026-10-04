@@ -78,6 +78,7 @@ const OperationsCenterPage = lazy(() => import('@/pages/OperationsCenterPage').t
 const DecisionLedgerPage = lazy(() => import('@/pages/DecisionLedgerPage').then((m) => ({ default: m.DecisionLedgerPage })));
 const OutcomePricingPage = lazy(() => import('@/pages/OutcomePricingPage').then((m) => ({ default: m.OutcomePricingPage })));
 const ServiceGraphPage = lazy(() => import('@/pages/ServiceGraphPage').then((m) => ({ default: m.ServiceGraphPage })));
+const DataFabricPage = lazy(() => import('@/pages/DataFabricPage').then((m) => ({ default: m.DataFabricPage })));
 const CustomerTrustLayerPage = lazy(() => import('@/pages/CustomerTrustLayerPage').then((m) => ({ default: m.CustomerTrustLayerPage })));
 const VerifiedServicePage = lazy(() => import('@/pages/VerifiedServicePage').then((m) => ({ default: m.VerifiedServicePage })));
 const OperationalEntropyPage = lazy(() => import('@/pages/OperationalEntropyPage').then((m) => ({ default: m.OperationalEntropyPage })));
@@ -847,6 +848,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ServiceGraphPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/data-fabric"
+          element={
+            <ProtectedRoute>
+              <DataFabricPage />
             </ProtectedRoute>
           }
         />
