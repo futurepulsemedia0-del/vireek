@@ -144,6 +144,7 @@ const OEMIntelligencePage = lazy(() => import('@/pages/OEMIntelligencePage').the
 const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const HomeHealthPage = lazy(() => import('@/pages/HomeHealthPage').then((m) => ({ default: m.HomeHealthPage })));
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
+const TelematicsOSPage = lazy(() => import('@/pages/TelematicsOSPage').then((m) => ({ default: m.TelematicsOSPage })));
 const FleetIntelligencePage = lazy(() => import('@/pages/FleetIntelligencePage').then((m) => ({ default: m.FleetIntelligencePage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
@@ -1736,6 +1737,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FleetEconomicsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/telematics"
+          element={
+            <ProtectedRoute>
+              <TelematicsOSPage />
             </ProtectedRoute>
           }
         />
