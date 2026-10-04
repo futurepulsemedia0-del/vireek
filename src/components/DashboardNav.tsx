@@ -187,6 +187,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Outcome Pricing', href: '/dashboard/outcome-pricing', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Customer Trust Layer', href: '/dashboard/trust-layer', icon: ShieldCheck },
   { label: 'Service Graph', href: '/dashboard/service-graph', icon: Network, requiresPermission: 'can_view_billing' },
+  { label: 'Data Fabric', href: '/dashboard/data-fabric', icon: Layers, requiresPermission: 'can_view_billing' },
   { label: 'Operational Entropy', href: '/dashboard/entropy', icon: Activity, requiresPermission: 'can_view_billing' },
   { label: 'Business Digital Twin', href: '/dashboard/digital-twin', icon: Layers, requiresPermission: 'can_view_billing' },
   { label: 'Business World Model', href: '/dashboard/world-model', icon: Network, requiresPermission: 'can_view_billing' },
