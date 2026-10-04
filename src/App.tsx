@@ -54,6 +54,7 @@ const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ de
 const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ default: m.QuotesPage })));
 const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m) => ({ default: m.KnowledgeBasePage })));
 const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ default: m.WorkflowsPage })));
+const WorkflowCompilerPage = lazy(() => import('@/pages/WorkflowCompilerPage').then((m) => ({ default: m.WorkflowCompilerPage })));
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
@@ -1235,6 +1236,14 @@ function App() {
           element={
             <ProtectedRoute>
               <WorkflowsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/workflow-compiler"
+          element={
+            <ProtectedRoute>
+              <WorkflowCompilerPage />
             </ProtectedRoute>
           }
         />
