@@ -44,6 +44,7 @@ import { NoSurpriseJobPanel } from '@/components/jobs/NoSurpriseJobPanel';
 import { AdaptiveDiagnosticJobPanel } from '@/components/jobs/AdaptiveDiagnosticJobPanel';
 import { JobContextPanel } from '@/components/jobs/JobContextPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
+import { JobRegulationSnapshotPanel } from '@/components/jobs/JobRegulationSnapshotPanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
 import { ServiceTwinPanel } from '@/components/jobs/ServiceTwinPanel';
 import { TelemetryPrepPanel } from '@/components/jobs/TelemetryPrepPanel';
@@ -540,6 +541,7 @@ function JobDetailPanel({
         </div>
         <MissionBriefPanel job={job} /
         <PermitCompliancePanel job={job} />
+        <JobRegulationSnapshotPanel job={job} />
         <ServiceTwinPanel job={job} />
         <TelemetryPrepPanel job={job} />
         <JobRiskPanel job={job} />
