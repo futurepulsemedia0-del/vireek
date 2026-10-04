@@ -91,6 +91,7 @@ const InvisibleRevenueMapPage = lazy(() => import('@/pages/InvisibleRevenueMapPa
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
 const BusinessForecastPage = lazy(() => import('@/pages/BusinessForecastPage').then((m) => ({ default: m.BusinessForecastPage })));
 const CashFlowWarRoomPage = lazy(() => import('@/pages/CashFlowWarRoomPage').then((m) => ({ default: m.CashFlowWarRoomPage })));
+const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
@@ -942,6 +943,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CashFlowWarRoomPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/bank-intelligence"
+          element={
+            <ProtectedRoute>
+              <BankIntelligencePage />
             </ProtectedRoute>
           }
         />
