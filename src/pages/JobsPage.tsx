@@ -39,6 +39,7 @@ import { JobRiskPanel } from '@/components/jobs/JobRiskPanel';
 import { JobKnowledgePanel } from '@/components/jobs/JobKnowledgePanel';
 import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
 import { JobEvidenceChainPanel } from '@/components/jobs/JobEvidenceChainPanel';
+import { JobTelematicsPanel } from '@/components/jobs/JobTelematicsPanel';
 import { NoSurpriseJobPanel } from '@/components/jobs/NoSurpriseJobPanel';
 import { AdaptiveDiagnosticJobPanel } from '@/components/jobs/AdaptiveDiagnosticJobPanel';
 import { JobContextPanel } from '@/components/jobs/JobContextPanel';
@@ -546,6 +547,7 @@ function JobDetailPanel({
         <AdaptiveDiagnosticJobPanel job={job} />
         <NoSurpriseJobPanel job={job} />
         <JobEvidenceChainPanel job={job} />
+        <JobTelematicsPanel job={job} />
         <Link
           to={`/dashboard/profitability?job=${job.id}`}
           className="focus-ring flex items-center justify-between gap-2 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-colors hover:border-accent/40 hover:text-accent"
