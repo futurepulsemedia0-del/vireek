@@ -46,6 +46,7 @@ import { JobContextPanel } from '@/components/jobs/JobContextPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
 import { ServiceTwinPanel } from '@/components/jobs/ServiceTwinPanel';
+import { TelemetryPrepPanel } from '@/components/jobs/TelemetryPrepPanel';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
 import { isEvidenceChainError, parseEvidenceChainError } from '@/lib/jobEvidenceChain';
 
@@ -540,6 +541,7 @@ function JobDetailPanel({
         <MissionBriefPanel job={job} /
         <PermitCompliancePanel job={job} />
         <ServiceTwinPanel job={job} />
+        <TelemetryPrepPanel job={job} />
         <JobRiskPanel job={job} />
         <JobKnowledgePanel job={job} />
         <JobQualityGatePanel job={job} />
