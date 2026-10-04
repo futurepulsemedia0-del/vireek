@@ -32,6 +32,7 @@ const AmbassadorPage = lazy(() => import('@/pages/AmbassadorPage').then((m) => (
 const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
 const UnifiedInboxPage = lazy(() => import('@/pages/UnifiedInboxPage').then((m) => ({ default: m.UnifiedInboxPage })));
 const GoalOrchestratorPage = lazy(() => import('@/pages/GoalOrchestratorPage').then((m) => ({ default: m.GoalOrchestratorPage })));
@@ -1259,6 +1260,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PropertyDigitalTwinPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/customers/:customerId/sites/:siteId/intelligence"
+          element={
+            <ProtectedRoute>
+              <PropertyIntelligencePage />
             </ProtectedRoute>
           }
         />
