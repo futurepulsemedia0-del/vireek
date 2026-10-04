@@ -363,6 +363,13 @@ export function CustomerSitesPage() {
                     <Wrench size={12} /> Home Graph
                   </button>
                   <button type="button" onClick={() => setAddingBuildingFor(site.id)} className={smallBtn}>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/dashboard/customers/${customerId}/sites/${site.id}/intelligence`)}
+                    className={smallBtn}
+                  >
+                    <Network size={12} /> Intelligence
+                  </button>
                     <Plus size={12} /> Building
                   </button>
                   <button
