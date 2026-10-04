@@ -197,6 +197,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Business Reality', href: '/dashboard/reality', icon: Telescope, requiresPermission: 'can_view_billing' },
   { label: 'Revenue Map', href: '/dashboard/revenue-map', icon: MapPinned, requiresPermission: 'can_view_billing' },
   { label: 'Cash Flow Forecast', href: '/dashboard/cash-flow', icon: PiggyBank, requiresPermission: 'can_view_billing' },
+  { label: 'Business Forecast', href: '/dashboard/business-forecast', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Cash Flow War Room', href: '/dashboard/cash-flow-war-room', icon: Flame, requiresPermission: 'can_view_billing' },
   { label: 'Regional Demand', href: '/dashboard/regional-demand', icon: MapPin, requiresPermission: 'can_view_billing' },
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
