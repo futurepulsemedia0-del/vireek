@@ -233,6 +233,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Adaptive Diagnostic', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
   { label: 'Self-Healing', href: '/dashboard/self-healing', icon: Bot },
+  { label: 'Regulation Graph', href: '/dashboard/regulation-graph', icon: Landmark },
   { label: 'Switching Shield', href: '/dashboard/switching-shield', icon: UserMinus },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
