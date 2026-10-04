@@ -190,6 +190,7 @@ const TechnicianIdentityGraphPage = lazy(() => import('@/pages/TechnicianIdentit
 const PublicTechnicianPassportPage = lazy(() => import('@/pages/PublicTechnicianPassportPage').then((m) => ({ default: m.PublicTechnicianPassportPage })));
 const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPage').then((m) => ({ default: m.TechnicianSimulatorPage })));
 const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
+const AdoptionOSPage = lazy(() => import('@/pages/AdoptionOSPage').then((m) => ({ default: m.AdoptionOSPage })));
 const FirstTimeFixAutopilotPage = lazy(() => import('@/pages/FirstTimeFixAutopilotPage').then((m) => ({ default: m.FirstTimeFixAutopilotPage })));
 const OutcomeBenchmarkNetworkPage = lazy(() => import('@/pages/OutcomeBenchmarkNetworkPage').then((m) => ({ default: m.OutcomeBenchmarkNetworkPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
@@ -1803,6 +1804,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianApprenticeshipPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/adoption"
+          element={
+            <ProtectedRoute>
+              <AdoptionOSPage />
             </ProtectedRoute>
           }
         />
