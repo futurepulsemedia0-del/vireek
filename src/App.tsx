@@ -159,6 +159,7 @@ const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage')
 const SwitchingShieldPage = lazy(() => import('@/pages/SwitchingShieldPage').then((m) => ({ default: m.SwitchingShieldPage })));
 const NextBestActionsPage = lazy(() => import('@/pages/NextBestActionsPage').then((m) => ({ default: m.NextBestActionsPage })));
 const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').then((m) => ({ default: m.DiagnosisCopilotPage })));
+const FailureGenomePage = lazy(() => import('@/pages/FailureGenomePage').then((m) => ({ default: m.FailureGenomePage })));
 const LiveCopilotPage = lazy(() => import('@/pages/LiveCopilotPage').then((m) => ({ default: m.LiveCopilotPage })));
 const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
 const QuoteTruthEnginePage = lazy(() => import('@/pages/QuoteTruthEnginePage').then((m) => ({ default: m.QuoteTruthEnginePage })));
@@ -1854,6 +1855,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DiagnosisCopilotPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/failure-genome"
+          element={
+            <ProtectedRoute>
+              <FailureGenomePage />
             </ProtectedRoute>
           }
         />
