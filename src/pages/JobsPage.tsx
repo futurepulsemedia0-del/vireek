@@ -40,6 +40,7 @@ import { JobKnowledgePanel } from '@/components/jobs/JobKnowledgePanel';
 import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
 import { JobEvidenceChainPanel } from '@/components/jobs/JobEvidenceChainPanel';
 import { NoSurpriseJobPanel } from '@/components/jobs/NoSurpriseJobPanel';
+import { AdaptiveDiagnosticJobPanel } from '@/components/jobs/AdaptiveDiagnosticJobPanel';
 import { JobContextPanel } from '@/components/jobs/JobContextPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
@@ -542,6 +543,7 @@ function JobDetailPanel({
         <JobKnowledgePanel job={job} />
         <JobQualityGatePanel job={job} />
         <JobContextPanel job={job} />
+        <AdaptiveDiagnosticJobPanel job={job} />
         <NoSurpriseJobPanel job={job} />
         <JobEvidenceChainPanel job={job} />
         <Link
