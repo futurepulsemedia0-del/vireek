@@ -38,6 +38,7 @@ const DEFAULT_CHAIN: RouteEntry[] = [
 const JSON_CHAIN: RouteEntry[] = DEFAULT_CHAIN.filter((e) => e.provider !== "cloudflare");
 
 export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
+  ask_vireek: JSON_CHAIN,
   demo_chat: DEFAULT_CHAIN,
   general: DEFAULT_CHAIN,
   dashboard_answer: DEFAULT_CHAIN,
