@@ -28,7 +28,7 @@ interface SkillGap {
 }
 
 interface WorkforceAction {
-  action_type: "cross_train" | "hire" | "reallocate_marketing";
+  action_type: "cross_train" | "hire" | "reallocate_marketing" | "rebalance_territory";
   title: string;
   detail: string;
   ref_table: "team_members" | null;
@@ -162,6 +162,31 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // Fleet Intelligence: drive-heavy technicians are hidden capacity.
+    try {
+      const { data: fleetProfiles } = await db
+        .from("fleet_intelligence_profiles")
+        .select("technician_id, sample_size, avg_drive_minutes, avg_on_site_minutes, windshield_share_pct")
+        .eq("user_id", userId).eq("scope", "technician")
+        .gte("sample_size", 5).gte("windshield_share_pct", 40)
+        .order("windshield_share_pct", { ascending: false }).limit(3);
+      for (const p of fleetProfiles ?? []) {
+        const tech = techs.find((t) => t.id === p.technician_id);
+        const drive = Number(p.avg_drive_minutes) || 0;
+        const onSite = Number(p.avg_on_site_minutes) || 0;
+        if (!tech || drive <= 0) continue;
+        const weeklyJobs = (tech.max_jobs_per_day ?? 0) * WORKDAYS_PER_WEEK;
+        const extraJobs = round1((drive * 0.25 * weeklyJobs) / (drive * 0.75 + onSite || 1));
+        if (extraJobs <= 0) continue;
+        actions.push({
+          action_type: "rebalance_territory",
+          title: `Cut ${tech.member_name ?? "a technician"}'s drive time`,
+          detail: `${Math.round(Number(p.windshield_share_pct))}% of ${tech.member_name ?? "this technician"}'s job time is driving (${Math.round(drive)} min driving vs ${Math.round(onSite)} min on site). Tighter zones or batching nearby jobs could free about ${extraJobs} job${extraJobs === 1 ? "" : "s"}/week.`,
+          ref_table: "team_members", ref_id: tech.id, impact_jobs_per_week: extraJobs, priority: 0,
+        });
+      }
+    } catch { /* fleet tables not migrated yet */ }
+    
     actions.sort((a, b) => b.impact_jobs_per_week - a.impact_jobs_per_week);
     actions.forEach((a, i) => { a.priority = i + 1; });
 
