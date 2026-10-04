@@ -125,6 +125,7 @@ import {
   Infinity as InfinityIcon,
   BrainCircuit,
   Satellite,
+  Beaker
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -284,6 +285,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Apprenticeship Engine', href: '/dashboard/apprenticeship', icon: GraduationCap },
   { label: 'Adoption OS', href: '/dashboard/adoption', icon: Activity },
   { label: 'First-Time-Fix Autopilot', href: '/dashboard/first-time-fix', icon: Crosshair },
+  { label: 'Experimentation', href: '/dashboard/experiments', icon: Beaker, requiresPermission: 'can_view_billing' },
   { label: 'Weather Surge', href: '/dashboard/weather-surge', icon: CloudLightning },
   { label: 'Emergency Operations', href: '/dashboard/emergency-ops', icon: Siren },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
