@@ -55,6 +55,7 @@ import {
   markVendorBillPaid,
 } from '@/lib/jobCosting';
 import { supabase } from '@/lib/supabase';
+import { FleetJobCostCard } from '@/components/fleet/FleetJobCostCard';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
@@ -521,7 +522,8 @@ function JobRow({
                   <Plus size={14} /> Add cost
                 </button>
               )}
-
+    
+              <FleetJobCostCard jobId={row.job_id} />
               <div className="mt-4 border-t border-border pt-4">
                 <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-text-secondary">
                   <Receipt size={12} /> Vendor bills
