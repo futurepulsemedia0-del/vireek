@@ -72,6 +72,7 @@ const AiReliabilityPage = lazy(() => import('@/pages/AiReliabilityPage').then((m
 const ServiceGuaranteePage = lazy(() => import('@/pages/ServiceGuaranteePage').then((m) => ({ default: m.ServiceGuaranteePage })));
 const ServiceGuaranteePublicPage = lazy(() => import('@/pages/ServiceGuaranteePublicPage').then((m) => ({ default: m.ServiceGuaranteePublicPage })));
 const ContinuousImprovementPage = lazy(() => import('@/pages/ContinuousImprovementPage').then((m) => ({ default: m.ContinuousImprovementPage })));
+const LearningCompilerPage = lazy(() => import('@/pages/LearningCompilerPage').then((m) => ({ default: m.LearningCompilerPage })));
 const OperationsSandboxPage = lazy(() => import('@/pages/OperationsSandboxPage').then((m) => ({ default: m.OperationsSandboxPage })));
 const OperationsLoopPage = lazy(() => import('@/pages/OperationsLoopPage').then((m) => ({ default: m.OperationsLoopPage })));
 const PricingFlywheelPage = lazy(() => import('@/pages/PricingFlywheelPage').then((m) => ({ default: m.PricingFlywheelPage })));
@@ -801,6 +802,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ContinuousImprovementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/learning-compiler"
+          element={
+            <ProtectedRoute>
+              <LearningCompilerPage />
             </ProtectedRoute>
           }
         />
