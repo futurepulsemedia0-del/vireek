@@ -166,6 +166,7 @@ const OrganizationalMemoryPage = lazy(() => import('@/pages/OrganizationalMemory
 const CausalRoiAttributionPage = lazy(() => import('@/pages/CausalRoiAttributionPage').then((m) => ({ default: m.CausalRoiAttributionPage })));
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
+const RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
@@ -1015,6 +1016,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CausalChainsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/revenue-causality"
+          element={
+            <ProtectedRoute>
+              <RevenueCausalityGraphPage />
             </ProtectedRoute>
           }
         />
