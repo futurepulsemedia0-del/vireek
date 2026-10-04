@@ -11,6 +11,7 @@ import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
+import { SinceYesterdayCard } from '@/components/SinceYesterdayCard';
 import { AttributionReport, AttributionRow } from '@/components/AttributionReport';
 
 // ============================================================
@@ -741,6 +742,12 @@ export function DashboardPage() {
           )}
         </div>
 
+        {/* SINCE YESTERDAY — only the changes that matter */}
+        {!profileLoading && (
+          <div className="mb-6">
+            <SinceYesterdayCard />
+          </div>
+        )}
         {/* REVENUE RECOVERED — the number that actually proves Vireek's value */}
         {!profileLoading && !dataLoading && (
           <div className="mb-6">
