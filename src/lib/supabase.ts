@@ -928,7 +928,7 @@ export interface CashFlowWarRoomActionLog {
   updated_at: string;
 }
 export interface WorkforceAction {
-  action_type: 'cross_train' | 'hire' | 'reallocate_marketing';
+action_type: 'cross_train' | 'hire' | 'reallocate_marketing' | 'rebalance_territory';
   title: string;
   detail: string;
   ref_table: 'team_members' | null;
