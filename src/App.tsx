@@ -125,6 +125,7 @@ const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPa
 const ContractIntelligencePage = lazy(() => import('@/pages/ContractIntelligencePage').then((m) => ({ default: m.ContractIntelligencePage })));
 const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m) => ({ default: m.CustomerSitesPage })));
 const PropertyDigitalTwinPage = lazy(() => import('@/pages/PropertyDigitalTwinPage').then((m) => ({ default: m.PropertyDigitalTwinPage })));
+const HomeLifetimeGraphPage = lazy(() => import('@/pages/HomeLifetimeGraphPage').then((m) => ({ default: m.HomeLifetimeGraphPage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
@@ -1236,6 +1237,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PropertyDigitalTwinPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/homes/:siteId"
+          element={
+            <ProtectedRoute>
+              <HomeLifetimeGraphPage />
             </ProtectedRoute>
           }
         />
