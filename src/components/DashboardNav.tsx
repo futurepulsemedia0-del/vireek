@@ -245,6 +245,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Equipment Health', href: '/dashboard/equipment-health', icon: HeartPulse },
   { label: 'Equipment Passports', href: '/dashboard/equipment-passports', icon: QrCode },
   { label: 'OEM Intelligence', href: '/dashboard/oem-intelligence', icon: Factory },
+  { label: 'Field Intelligence', href: '/dashboard/field-intelligence', icon: Brain },
   { label: 'Home Health', href: '/dashboard/home-health', icon: Activity },
   { label: 'Property Intelligence', href: '/dashboard/property-intelligence', icon: Radar },
   { label: 'Fleet Economics', href: '/dashboard/fleet-economics', icon: Fuel },
