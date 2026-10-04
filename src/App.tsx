@@ -145,6 +145,7 @@ const ContextEnginePage = lazy(() => import('@/pages/ContextEnginePage').then((m
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
 const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
+const BuildingTelemetryPage = lazy(() => import('@/pages/BuildingTelemetryPage').then((m) => ({ default: m.BuildingTelemetryPage })));
 const EquipmentPassportsPage = lazy(() => import('@/pages/EquipmentPassportsPage').then((m) => ({ default: m.EquipmentPassportsPage })));
 const EquipmentPassportDetailPage = lazy(() => import('@/pages/EquipmentPassportDetailPage').then((m) => ({ default: m.EquipmentPassportDetailPage })));
 const PublicEquipmentPassportPage = lazy(() => import('@/pages/PublicEquipmentPassportPage').then((m) => ({ default: m.PublicEquipmentPassportPage })));
@@ -1776,6 +1777,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EquipmentLifecyclePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/building-telemetry"
+          element={
+            <ProtectedRoute>
+              <BuildingTelemetryPage />
             </ProtectedRoute>
           }
         />
