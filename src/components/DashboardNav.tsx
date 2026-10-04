@@ -300,6 +300,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trade Playbooks', href: '/dashboard/trade-playbooks', icon: ClipboardCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
+  { label: 'AI Security Center', href: '/dashboard/security-center', icon: LockKeyhole, requiresPermission: 'can_manage_security' },
   { label: 'AI Reliability', href: '/dashboard/ai-reliability', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
   { label: 'Multi-Agent Company', href: '/dashboard/agent-company', icon: Users2, requiresPermission: 'can_manage_security' },
   { label: 'Agent Marketplace', href: '/dashboard/agent-marketplace', icon: Store },
