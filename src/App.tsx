@@ -63,6 +63,8 @@ const AskVireekPage = lazy(() => import('@/pages/AskVireekPage').then((m) => ({ 
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
+const EvidenceMarketplacePage = lazy(() => import('@/pages/EvidenceMarketplacePage').then((m) => ({ default: m.EvidenceMarketplacePage })));
+const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartnersAdminPage').then((m) => ({ default: m.EvidencePartnersAdminPage })));
 const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
 const EmergencyNetworkPage = lazy(() => import('@/pages/EmergencyNetworkPage').then((m) => ({ default: m.EmergencyNetworkPage })));
 const AiReliabilityPage = lazy(() => import('@/pages/AiReliabilityPage').then((m) => ({ default: m.AiReliabilityPage })));
@@ -376,6 +378,15 @@ function App() {
             </StaffRoute>
           }
         />
+        <Route
+          path="/staff/evidence-partners"
+          element={
+            <StaffRoute>
+              <EvidencePartnersAdminPage />
+            </StaffRoute>
+          }
+        />
+        
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/cookies" element={<CookiePolicyPage />} />
         <Route path="/terms" element={<TermsPage />} />
@@ -753,6 +764,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TruckRollEliminationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/evidence-marketplace"
+          element={
+            <ProtectedRoute>
+              <EvidenceMarketplacePage />
             </ProtectedRoute>
           }
         />
