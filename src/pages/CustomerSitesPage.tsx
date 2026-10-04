@@ -355,6 +355,13 @@ export function CustomerSitesPage() {
                   >
                     <Wrench size={12} /> Digital Twin
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/dashboard/homes/${site.id}`)}
+                    className={smallBtn}
+                  >
+                    <Wrench size={12} /> Home Graph
+                  </button>
                   <button type="button" onClick={() => setAddingBuildingFor(site.id)} className={smallBtn}>
                     <Plus size={12} /> Building
                   </button>
