@@ -168,6 +168,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Customers', href: '/dashboard/customers', icon: BookUser },
   { label: 'Equipment Intelligence', href: '/dashboard/equipment', icon: Wrench },
+  { label: 'Building Telemetry', href: '/dashboard/building-telemetry', icon: Cpu },
   { label: 'Customer Intelligence', href: '/dashboard/customer-intelligence', icon: Brain, requiresPermission: 'can_view_billing' },
   { label: 'Quotes', href: '/dashboard/quotes', icon: FileText },
   { label: 'Outbound Campaigns', href: '/dashboard/outbound-campaigns', icon: PhoneOutgoing },
