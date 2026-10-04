@@ -268,6 +268,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
   { label: 'Franchise Governance', href: '/dashboard/franchise/governance', icon: Gavel },
   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
+  { label: 'Event Prediction Mesh', href: '/dashboard/event-prediction-mesh', icon: Radar },
   { label: 'Reliability & Observability', href: '/dashboard/reliability', icon: Activity },
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
