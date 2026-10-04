@@ -13,6 +13,7 @@ export type ProviderId =
   | "anthropic";
 
 export type TaskType =
+  | "ask_vireek"
   | "demo_chat"
   | "intent_classify"
   | "dashboard_answer"
