@@ -183,6 +183,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Decision Debt', href: '/dashboard/decision-debt', icon: Hourglass, requiresPermission: 'can_view_billing' },
   { label: 'Operations Center', href: '/dashboard/operations-center', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Decision Ledger', href: '/dashboard/decision-ledger', icon: ScrollText, requiresPermission: 'can_view_billing' },
+  { label: 'Outcome Pricing', href: '/dashboard/outcome-pricing', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Customer Trust Layer', href: '/dashboard/trust-layer', icon: ShieldCheck },
   { label: 'Service Graph', href: '/dashboard/service-graph', icon: Network, requiresPermission: 'can_view_billing' },
   { label: 'Operational Entropy', href: '/dashboard/entropy', icon: Activity, requiresPermission: 'can_view_billing' },
