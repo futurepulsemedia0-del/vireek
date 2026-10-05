@@ -292,6 +292,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Apprenticeship Engine', href: '/dashboard/apprenticeship', icon: GraduationCap },
   { label: 'Adoption OS', href: '/dashboard/adoption', icon: Activity },
   { label: 'First-Time-Fix Autopilot', href: '/dashboard/first-time-fix', icon: Crosshair },
+  { label: 'Resolution Probability', href: '/dashboard/resolution-probability', icon: Target },
   { label: 'Experimentation', href: '/dashboard/experiments', icon: Beaker, requiresPermission: 'can_view_billing' },
   { label: 'Weather Surge', href: '/dashboard/weather-surge', icon: CloudLightning },
   { label: 'Emergency Operations', href: '/dashboard/emergency-ops', icon: Siren },
