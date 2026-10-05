@@ -31,6 +31,7 @@ import { HomeOperatingBudgetCard } from '@/components/HomeOperatingBudgetCard';
 import { LifetimeServicePlanCard } from '@/components/LifetimeServicePlanCard';
 import { ServiceFinanceDecisionPanel } from '@/components/ServiceFinanceDecisionPanel';
 import { HomeIntelligenceGraphCard } from '@/components/HomeIntelligenceGraphCard';
+import { HomeGenomeCard } from '@/components/HomeGenomeCard';
 import {
   fetchPropertyTwin,
   serviceCountByEquipment,
@@ -120,6 +121,7 @@ export function PropertyDigitalTwinPage() {
           <StatCard icon={<Clock size={14} />} label="Last visit" value={summary.lastVisit ? new Date(summary.lastVisit).toLocaleDateString() : '—'} />
           <StatCard icon={<Wrench size={14} />} label="Equipment on site" value={String(equipment.length)} />
         </div>
+        <HomeGenomeCard twin={twin} />
         <HomeIntelligenceGraphCard twin={twin} />
         <HomeHealthScoreCard twin={twin} />
         <HomeOperatingBudgetCard twin={twin} />
