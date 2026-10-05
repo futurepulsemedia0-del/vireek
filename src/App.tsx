@@ -181,6 +181,7 @@ const CounterfactualRealityEnginePage = lazy(() => import('@/pages/Counterfactua
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
 const RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
+const VerificationNetworkPage = lazy(() => import('@/pages/VerificationNetworkPage').then((m) => ({ default: m.VerificationNetworkPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
 const KnowledgeCapturePage = lazy(() => import('@/pages/KnowledgeCapturePage').then((m) => ({ default: m.KnowledgeCapturePage })));
@@ -632,6 +633,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AdaptiveDiagnosticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/verification-network"
+          element={
+            <ProtectedRoute>
+              <VerificationNetworkPage />
             </ProtectedRoute>
           }
         />
