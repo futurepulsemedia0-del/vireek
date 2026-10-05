@@ -110,6 +110,7 @@ const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ 
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
 const RiskIntelligencePage = lazy(() => import('@/pages/RiskIntelligencePage').then((m) => ({ default: m.RiskIntelligencePage })));
 const ComplianceCenterPage = lazy(() => import('@/pages/ComplianceCenterPage').then((m) => ({ default: m.ComplianceCenterPage })));
+const PermitCenterPage = lazy(() => import('@/pages/PermitCenterPage').then((m) => ({ default: m.PermitCenterPage })));
 const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage').then((m) => ({ default: m.CallbackRootCausePage })));
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
@@ -1540,6 +1541,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ComplianceCenterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/permits"
+          element={
+            <ProtectedRoute>
+              <PermitCenterPage />
             </ProtectedRoute>
           }
         />
