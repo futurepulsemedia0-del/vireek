@@ -266,6 +266,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Customer Trust Bank', href: '/dashboard/trust-bank', icon: ShieldCheck },
   { label: 'Next Best Actions', href: '/dashboard/next-best-actions', icon: Target },
   { label: 'Diagnosis Copilot', href: '/dashboard/diagnosis-copilot', icon: Stethoscope },
+  { label: 'Service Intelligence Loop', href: '/dashboard/service-intelligence-loop', icon: Network },
   { label: 'Failure Genome', href: '/dashboard/failure-genome', icon: Dna },
   { label: 'Adaptive Diagnostics', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
   { label: 'Live Copilot', href: '/dashboard/live-copilot', icon: Radio },
