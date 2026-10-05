@@ -10,12 +10,14 @@ export interface ProbableCause {
   cause: string;
   likelihood: number;
   reasoning: string;
+  cause_key?: string | null;
 }
 
 export interface TestStep {
   step: string;
   tool_needed: string;
   expected_result: string;
+
 }
 
 export interface PartNeeded {
@@ -90,7 +92,7 @@ function normalizeCause(raw: Loose): ProbableCause | null {
   if (!raw || typeof raw !== "object") return null;
   const cause = str(raw.cause, 160);
   if (!cause) return null;
-  return { cause, likelihood: num01(raw.likelihood, 0.5), reasoning: str(raw.reasoning, 300) };
+  return { cause, likelihood: num01(raw.likelihood, 0.5), reasoning: str(raw.reasoning, 300), cause_key: str(raw.cause_key, 48) || null };
 }
 
 function normalizeStep(raw: Loose): TestStep | null {
