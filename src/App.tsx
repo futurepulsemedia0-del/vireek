@@ -166,6 +166,7 @@ const FailureGenomePage = lazy(() => import('@/pages/FailureGenomePage').then((m
 const LiveCopilotPage = lazy(() => import('@/pages/LiveCopilotPage').then((m) => ({ default: m.LiveCopilotPage })));
 const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
 const QuoteTruthEnginePage = lazy(() => import('@/pages/QuoteTruthEnginePage').then((m) => ({ default: m.QuoteTruthEnginePage })));
+const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').then((m) => ({ default: m.IncentiveEnginePage })));
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
@@ -1922,6 +1923,14 @@ function App() {
           element={
             <ProtectedRoute>
               <QuoteTruthEnginePage />
+            </ProtectedRoute>
+          }
+        />
+            <Route
+          path="/dashboard/incentives"
+          element={
+            <ProtectedRoute>
+              <IncentiveEnginePage />
             </ProtectedRoute>
           }
         />
