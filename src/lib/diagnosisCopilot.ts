@@ -7,10 +7,11 @@
  * warnings and a repair path. Every run is saved to `diagnosis_sessions`.
  *
  * Server counterpart: supabase/functions/diagnosis-copilot (index.ts,
- * normalize.ts). Keep the types below in sync with normalize.ts.
+ * normalize.ts, loop.ts). Keep the types below in sync with normalize.ts.
  */
 
 import { supabase } from '@/lib/supabase';
+import type { DiagnosisLoopSummary, LoopContextInput } from '@/lib/serviceIntelligenceLoop';
 
 export type DiagnosisSeverity = 'low' | 'medium' | 'high' | 'emergency';
 export type PartNecessity = 'likely' | 'possible' | 'if_confirmed';
@@ -19,6 +20,8 @@ export interface ProbableCause {
   cause: string;
   likelihood: number;
   reasoning: string;
+  /** Playbook catalog cause key when the model matched one (Service Intelligence Loop). */
+  cause_key?: string | null;
 }
 
 export interface DiagnosticTestStep {
@@ -48,6 +51,8 @@ export interface DiagnosisResult {
   session_id: string | null;
   model: string;
   inputs: { photos: number };
+  /** Present when the Service Intelligence Loop re-ranked the causes; null/undefined otherwise. */
+  loop?: DiagnosisLoopSummary | null;
 }
 
 export interface DiagnosisSessionRow {
@@ -99,6 +104,8 @@ export async function analyzeDiagnosis(input: {
   jobId?: string | null;
   equipmentId?: string | null;
   photoPaths?: string[];
+  /** Service Intelligence Loop context (trade + job type + catalog cause keys). */
+  loop?: LoopContextInput | null;
 }): Promise<DiagnosisResult> {
   const { data, error } = await supabase.functions.invoke('diagnosis-copilot', {
     body: {
@@ -108,6 +115,7 @@ export async function analyzeDiagnosis(input: {
       jobId: input.jobId ?? null,
       equipmentId: input.equipmentId ?? null,
       photoPaths: (input.photoPaths ?? []).slice(0, DIAGNOSIS_LIMITS.photos),
+      loop: input.loop ?? null,
     },
   });
   if (error) {
