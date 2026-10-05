@@ -214,6 +214,7 @@ const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPa
 const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
 const AdoptionOSPage = lazy(() => import('@/pages/AdoptionOSPage').then((m) => ({ default: m.AdoptionOSPage })));
 const FirstTimeFixAutopilotPage = lazy(() => import('@/pages/FirstTimeFixAutopilotPage').then((m) => ({ default: m.FirstTimeFixAutopilotPage })));
+const ResolutionProbabilityPage = lazy(() => import('@/pages/ResolutionProbabilityPage').then((m) => ({ default: m.ResolutionProbabilityPage })));
 const OpsExperimentsPage = lazy(() => import('@/pages/OpsExperimentsPage').then((m) => ({ default: m.OpsExperimentsPage })));
 const OutcomeBenchmarkNetworkPage = lazy(() => import('@/pages/OutcomeBenchmarkNetworkPage').then((m) => ({ default: m.OutcomeBenchmarkNetworkPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
@@ -2030,6 +2031,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/resolution-probability"
+  element={
+    <ProtectedRoute>
+      <ResolutionProbabilityPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/experiments"
           element={
