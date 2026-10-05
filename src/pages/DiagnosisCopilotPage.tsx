@@ -11,6 +11,8 @@ import {
   DIAGNOSIS_LIMITS, DIAGNOSIS_SEVERITY_META, analyzeDiagnosis, fetchDiagnosisHistory,
   uploadDiagnosisPhoto, type DiagnosisResult, type DiagnosisSessionRow,
 } from '@/lib/diagnosisCopilot';
+  import { LoopContextPicker, LoopPriorsPanel } from '@/components/diagnosis/ServiceLoopPanels';
+  import type { LoopContextInput } from '@/lib/serviceIntelligenceLoop';
 
 interface JobOption { id: string; customer_name: string; customer_id: string | null; service_type: string | null }
 interface EquipmentOption { id: string; equipment_type: string; make: string | null; model: string | null; serial_number: string | null }
@@ -30,6 +32,7 @@ export function DiagnosisCopilotPage() {
   const [equipmentLabel, setEquipmentLabel] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
+  const [loopCtx, setLoopCtx] = useState<LoopContextInput | null>(null);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
 
   const [history, setHistory] = useState<DiagnosisSessionRow[]>([]);
@@ -87,6 +90,7 @@ export function DiagnosisCopilotPage() {
         meterReadings,
         equipmentLabel,
         jobId: selectedJobId || null,
+        loop: loopCtx,
         equipmentId: selectedEquipmentId || null,
         photoPaths,
       });
@@ -142,6 +146,7 @@ export function DiagnosisCopilotPage() {
           </div>
         )}
 
+          <LoopContextPicker serviceType={jobs.find((j) => j.id === selectedJobId)?.service_type} onChange={setLoopCtx} />
         <div className="mt-3">
           <label className="mb-1 block text-xs font-medium text-text-secondary">Symptoms *</label>
           <textarea value={symptoms} onChange={(e) => setSymptoms(e.target.value)} rows={3} placeholder="e.g. Outdoor unit runs but no cold air inside, compressor cycles every 90 seconds, light frost on the suction line." className="w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm" />
@@ -190,6 +195,7 @@ export function DiagnosisCopilotPage() {
               )}
             </div>
             <p className="text-sm text-text-primary">{result.summary}</p>
+              {result.loop && <LoopPriorsPanel loop={result.loop} />}
 
             {result.safety_warnings.length > 0 && (
               <div className="rounded-lg border border-danger-500/30 bg-danger-500/5 p-3">
