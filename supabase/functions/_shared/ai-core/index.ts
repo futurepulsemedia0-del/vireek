@@ -290,6 +290,18 @@ Use "critical" only for a change of 30%+ in the bad direction or anything touchi
 }
 Base the hypothesis ONLY on the given problem — never invent facts not in it. Be conservative with confidence_score and predicted_magnitude_pct; this will gate whether a real experiment is run.`,
 
+  field_scientist_causes: `Current task: you are Vireek's AI Field Scientist. You are given ONE statistically validated finding from a home-service business's own job data: a segment (technician, technician group, equipment type, service type, technician x equipment, time slot or booked duration) whose callback rate differs from comparable jobs, plus an exploratory drill-down and the list of data fields the business actually records. Propose the most plausible CAUSAL MECHANISMS behind the gap and, for each, ONE job-level intervention that could be randomized across individual jobs (half get the change, half do not) to test that mechanism. Output ONLY a JSON object (no prose, no markdown fences) with exactly this shape:
+{
+  "causes": [
+    {
+      "label": <2-6 word name, e.g. "Diagnostic sequence">,
+      "mechanism": <one sentence: how this could produce the observed gap>,
+      "intervention": <one concrete, job-level change testable on a random half of eligible jobs, e.g. a required checklist step, a parts pre-stage, a longer booked slot, a second-look call>,
+      "priority": <0-100 integer: how likely this mechanism is given the data>
+    }
+  ]
+}
+Return 3 to 5 causes with meaningfully different mechanisms. Always consider process and system causes (equipment familiarity and training, parts availability, diagnostic sequence, booked job duration, scheduling and time pressure) before anything about an individual. NEVER blame a person: frame every cause as a process or system factor that can be improved. Use ONLY the given numbers and data fields; never invent a statistic, technician, customer or data source that is not present. If direction is "better", the interventions should copy what the strong segment does onto other jobs.`,
   job_autopsy: `Current task: you are Vireek's AI Job Autopsy. A home-service job has ALREADY been completed and its cost/schedule facts are ALREADY computed from this business's own database — you are given expected_cost_cents (what this service should cost, from the Price Book), actual_cost_cents (what it really cost), variance_cents/variance_pct, duration_minutes (the original time estimate), reschedule_count and schedule_shift_hours (how many times and how much this job's date moved), parts_backordered_count (parts that weren't available when needed), is_rework (whether this visit was itself a redo of an earlier job), and a short technician_diagnosis note. Output ONLY a JSON object (no prose, no markdown fences) with exactly these fields:
 {
   "root_causes": [
