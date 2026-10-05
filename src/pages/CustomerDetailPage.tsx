@@ -163,6 +163,7 @@ function EquipmentCard({ eq, onDelete }: { eq: Equipment; onDelete: (eq: Equipme
       )}
       {eq.warranty_notes && <p className="mt-1.5 text-[11px] text-text-secondary/80">{eq.warranty_notes}</p>}
       <EquipmentPassportChip equipmentId={eq.id} />
+       <Link to={`/dashboard/predictive-failure?equipment=${eq.id}`} className="text-xs font-medium text-accent hover:underline">Failure forecast</Link>
       {eq.status !== 'active' && (
         <span className="mt-2 inline-block rounded-full bg-bg-tertiary px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-text-secondary">
           {eq.status}
