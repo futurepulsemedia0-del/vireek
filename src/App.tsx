@@ -178,6 +178,7 @@ const BusinessContradictionsPage = lazy(() => import('@/pages/BusinessContradict
 const CounterfactualLibraryPage = lazy(() => import('@/pages/CounterfactualLibraryPage').then((m) => ({ default: m.CounterfactualLibraryPage })));
 const OrganizationalMemoryPage = lazy(() => import('@/pages/OrganizationalMemoryPage').then((m) => ({ default: m.OrganizationalMemoryPage })));
 const CausalRoiAttributionPage = lazy(() => import('@/pages/CausalRoiAttributionPage').then((m) => ({ default: m.CausalRoiAttributionPage })));
+const FieldScientistPage = lazy(() => import('@/pages/FieldScientistPage').then((m) => ({ default: m.FieldScientistPage })));
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
 const RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
@@ -892,6 +893,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BusinessScientistPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/field-scientist"
+          element={
+            <ProtectedRoute>
+              <FieldScientistPage />
             </ProtectedRoute>
           }
         />
