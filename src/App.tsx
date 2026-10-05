@@ -181,6 +181,7 @@ const CounterfactualRealityEnginePage = lazy(() => import('@/pages/Counterfactua
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
 const RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
+const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
 const VerificationNetworkPage = lazy(() => import('@/pages/VerificationNetworkPage').then((m) => ({ default: m.VerificationNetworkPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
@@ -633,6 +634,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AdaptiveDiagnosticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/predictive-failure"
+          element={
+            <ProtectedRoute>
+              <PredictiveFailurePage />
             </ProtectedRoute>
           }
         />
