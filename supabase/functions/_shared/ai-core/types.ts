@@ -38,6 +38,7 @@ export type TaskType =
   | "trust_bank_intervention"
   | "next_best_action_engine"
   | "business_scientist_hypothesis"
+  | "field_scientist_causes"
   | "causal_shock_extract"
   | "causal_shock_cascade"
   | "opportunity_cost_ranking"
