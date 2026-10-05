@@ -234,6 +234,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Business Immune System', href: '/dashboard/immune-system', icon: Siren },
   { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: Sparkles },
   { label: 'Adaptive Diagnostic', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
+  { label: 'Predictive Failure', href: '/dashboard/predictive-failure', icon: Radar },
   { label: 'Verification Network', href: '/dashboard/verification-network', icon: BadgeCheck },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
   { label: 'Self-Healing', href: '/dashboard/self-healing', icon: Bot },
