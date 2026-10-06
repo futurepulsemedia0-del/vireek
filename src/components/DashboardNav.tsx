@@ -229,6 +229,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'AI Job Autopsy', href: '/dashboard/job-autopsy', icon: Stethoscope },
   { label: 'Autonomy Readiness', href: '/dashboard/autonomy-readiness', icon: Gauge },
   { label: 'Accounting', href: '/dashboard/accounting', icon: BookOpen },
+  { label: 'Bank Intelligence', href: '/dashboard/bank-intelligence', icon: Landmark },
   { label: 'Payroll', href: '/dashboard/payroll', icon: DollarSign },
   { label: 'Job Quality Gate', href: '/dashboard/job-quality-gate', icon: ClipboardCheck },
   { label: 'Evidence Chain', href: '/dashboard/evidence-chain', icon: Link2 },
