@@ -129,6 +129,7 @@ import {
   BrainCircuit,
   Satellite,
   Beaker
+  Landmark,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -323,6 +324,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Causal Disruption Chains', href: '/dashboard/causal-chains', icon: Workflow },
   { label: 'Revenue Causality Graph', href: '/dashboard/revenue-causality', icon: Network, requiresPermission: 'can_view_billing' },
   { label: 'Invoicing', href: '/dashboard/invoicing', icon: Receipt },
+  { label: 'Receivables Intelligence', href: '/dashboard/receivables', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Community', href: '/dashboard/community', icon: MessageCircle },
   { label: 'Negative Knowledge Store', href: '/dashboard/negative-knowledge', icon: History },
   { label: 'Commitment Graph', href: '/dashboard/commitments', icon: ShieldCheck },
