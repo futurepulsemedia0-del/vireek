@@ -115,6 +115,7 @@ const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage')
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
+const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));|
@@ -1635,6 +1636,14 @@ function App() {
   element={
     <ProtectedRoute>
       <AccountingPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/bank-intelligence"
+  element={
+    <ProtectedRoute>
+      <BankIntelligencePage />
     </ProtectedRoute>
   }
 />
