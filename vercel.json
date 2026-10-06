@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/.well-known/agent-card.json",
+      "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/mcp-server/a2a/agent-card"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
