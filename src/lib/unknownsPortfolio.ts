@@ -12,6 +12,7 @@
  */
 
 import { supabase } from '@/lib/supabase';
+import { fetchNetworkEvidence } from '@/lib/unknownsNetworkApi';
 import {
   DIMENSION_ORDER,
   UNKNOWNS_ELIGIBLE_STATUSES,
@@ -162,7 +163,7 @@ export async function fetchUnknownsPortfolio(): Promise<PortfolioResult> {
   const ids = jobRows.map((j) => String(j.id));
   const siteIds = [...new Set(jobRows.map((j) => str(j.site_id)).filter((s): s is string => s !== null))];
 
-  const [diagnosis, equipment, parts, sites, compliance, noSurprise, resolutions] = await Promise.all([
+    const [diagnosis, equipment, parts, sites, compliance, noSurprise, network, resolutions] = await Promise.all([
     safe(
       async () =>
         groupBy(
@@ -244,6 +245,7 @@ export async function fetchUnknownsPortfolio(): Promise<PortfolioResult> {
         return null;
       }
     })(),
+    fetchNetworkEvidence(ids),
     (async () => {
       try {
         return groupBy(
@@ -358,6 +360,7 @@ export async function fetchUnknownsPortfolio(): Promise<PortfolioResult> {
       site,
       compliance: comp,
       noSurprise: noSurprise ? (noSurprise.get(id) ?? { pending: 0, approved: 0 }) : null,
+      network: network.get(id) ?? null,
       resolutions: (resolutions.get(id) ?? []) as unknown as RawResolution[],
     };
 
