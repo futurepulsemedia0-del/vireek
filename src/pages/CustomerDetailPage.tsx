@@ -31,6 +31,7 @@ import {
 import { JobEquipmentLinker, type LinkedEquipment } from '@/components/customers/JobEquipmentLinker';
 import { EquipmentPassportChip } from '@/components/passport/EquipmentPassportChip';
 import { HomeHealthCard } from '@/components/customers/HomeHealthCard';
+import { PropertyVisionCard } from '@/components/customers/PropertyVisionCard';
 
 // ============================================================
 // TYPES — narrow, query-shaped (not the full app-wide Job/Call
@@ -416,6 +417,7 @@ export function CustomerDetailPage() {
         </div>
 
         {id && <HomeHealthCard customerId={id} />}
+        {id && <PropertyVisionCard customerId={id} />}
         {/* Equipment */}
         <div className="mb-6">
           <div className="mb-3 flex items-center justify-between">
