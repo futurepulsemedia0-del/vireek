@@ -183,7 +183,8 @@ const CausalRoiAttributionPage = lazy(() => import('@/pages/CausalRoiAttribution
 const FieldScientistPage = lazy(() => import('@/pages/FieldScientistPage').then((m) => ({ default: m.FieldScientistPage })));
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
-const RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
+const ReceivablesIntelligencePage = lazy(() => import('@/pages/ReceivablesIntelligencePage').then((m) => ({ default: m.ReceivablesIntelligencePage })));
+onst RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
 const VerificationNetworkPage = lazy(() => import('@/pages/VerificationNetworkPage').then((m) => ({ default: m.VerificationNetworkPage })));
@@ -1117,6 +1118,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CausalChainsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/receivables"
+          element={
+            <ProtectedRoute>
+              <ReceivablesIntelligencePage />
             </ProtectedRoute>
           }
         />
