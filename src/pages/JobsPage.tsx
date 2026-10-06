@@ -45,6 +45,7 @@ import { RemoteResolutionJobPanel } from '@/components/jobs/RemoteResolutionJobP
 import { AdaptiveDiagnosticJobPanel } from '@/components/jobs/AdaptiveDiagnosticJobPanel';
 import { JobContextPanel } from '@/components/jobs/JobContextPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
+import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { PermitTransactionPanel } from '@/components/jobs/PermitTransactionPanel';
 import { JobRegulationSnapshotPanel } from '@/components/jobs/JobRegulationSnapshotPanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
@@ -543,6 +544,7 @@ function JobDetailPanel({
         </div>
         <MissionBriefPanel job={job} /
         <PermitCompliancePanel job={job} />
+        <JobUnknownsPanel job={job} />
         <PermitTransactionPanel job={job} />
         <JobRegulationSnapshotPanel job={job} />
         <ServiceTwinPanel job={job} />
