@@ -258,6 +258,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'OEM Intelligence Graph', href: '/dashboard/oem-graph', icon: Network },
   { label: 'Field Intelligence', href: '/dashboard/field-intelligence', icon: Brain },
   { label: 'Home Health', href: '/dashboard/home-health', icon: Activity },
+  { label: 'Home Service Passport', href: '/dashboard/home-passport', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Property Intelligence', href: '/dashboard/property-intelligence', icon: Radar },
   { label: 'Fleet Economics', href: '/dashboard/fleet-economics', icon: Fuel },
   { label: 'Telematics OS', href: '/dashboard/telematics', icon: Satellite },
