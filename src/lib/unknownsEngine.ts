@@ -110,6 +110,21 @@ export interface RawNoSurprise {
   approved: number;
 }
 
+/**
+ * Network / catalog evidence for a job's linked equipment (OEM intelligence layer today,
+ * Failure Atlas tomorrow). Optional signal: absent or failed load simply means "no signal".
+ */
+export interface RawNetworkEvidence {
+  model_label: string | null;
+  /** 'oem_api' = real manufacturer data; 'internal' = self-seeded from our own history (weaker). */
+  model_source: 'oem_api' | 'internal' | null;
+  match_confidence: number | null;
+  /** Job part rows (all of them, with or without a part number). */
+  parts_total: number;
+  /** Job parts whose part number appears in the linked model's catalog. */
+  parts_catalog_matched: number;
+  failure_patterns: { failure_mode: string; sample_size: number }[];
+}
 export interface UnknownsInput {
   job: {
     id: string;
@@ -134,6 +149,8 @@ export interface UnknownsInput {
   compliance: Loaded<RawComplianceReview | null>;
   /** Optional signal: a failed load is simply skipped, never reported as certainty or doubt. */
   noSurprise: RawNoSurprise | null;
+  /** Optional: omit or null when there is no network signal. */
+  network?: RawNetworkEvidence | null;
   resolutions: RawResolution[];
 }
 
@@ -184,6 +201,13 @@ export const UNKNOWNS_ASSUMPTIONS = {
   siteConditionAutoCap: 85,
   partFitmentAutoCap: 85,
   machineEvidenceCap: 95,
+  /** Part numbers all found in a real manufacturer catalog: strong but not human-confirmed (serial ranges, substitutions). */
+  catalogFitmentCap: 89,
+  /** Minimum OEM match confidence (0-1) before catalog evidence is trusted. */
+  networkMinMatchConfidence: 0.8,
+  /** Minimum observations before a network failure pattern counts as corroboration. */
+  networkMinSample: 20,
+  networkCorroborationBonus: 5,
   /** Two diagnoses (or AI vs technician) agree when this share of the shorter cause's keywords overlap. */
   causeAgreementMin: 0.34,
   /** Both causes must carry at least this confidence (0-1) before disagreement counts as a contradiction. */
@@ -369,11 +393,30 @@ function assessDiagnosis(input: UnknownsInput): Draft {
     }
   }
 
+  // Network corroboration: the linked model is known to fail this way (never a contradiction when absent).
+  let networkBonus = 0;
+  const net = input.network;
+  if (net && (net.match_confidence ?? 0) >= A.networkMinMatchConfidence) {
+    const candidates = [latest?.top_cause ?? null, humanDx];
+    const hit = net.failure_patterns.find(
+      (p) =>
+        p.sample_size >= A.networkMinSample &&
+        candidates.some((c) => {
+          const ov = causeOverlap(c, p.failure_mode);
+          return ov !== null && ov >= A.causeAgreementMin;
+        }),
+    );
+    if (hit) {
+      networkBonus = A.networkCorroborationBonus;
+      evidence.push(`Network history: “${hit.failure_mode}” is a recorded failure mode for ${net.model_label ?? 'this model'} (n=${hit.sample_size}).`);
+    }
+  }
   let conf: number;
   if (humanDx && latest) conf = humanAgrees ? Math.max(aiPct ?? 70, 70) + 12 : Math.min(aiPct ?? 45, 45);
   else if (humanDx) conf = 72;
   else conf = aiPct ?? 50;
   conf -= Math.min(16, (latest?.missing_info.length ?? 0) * 4);
+  conf += networkBonus;
 
   return {
     confidencePct: clamp(conf, 0, A.machineEvidenceCap),
@@ -489,14 +532,47 @@ function assessParts(input: UnknownsInput, equipmentConf: number): Draft | null 
     gaps.push('Parts are allocated but no unit is linked to check them against.');
   }
 
-  gaps.push('Fitment has not been checked against a manufacturer cross-reference.');
+  // Catalog cross-reference: the one check that can actually confirm fitment without a person.
+  const net = input.network;
+  const trusted = net !== null && net !== undefined && (net.match_confidence ?? 0) >= A.networkMinMatchConfidence && net.parts_total > 0;
+  let cap: number = A.partFitmentAutoCap;
+  let machineOnly = true;
+  let summary = 'Parts are listed, but nobody has confirmed they fit this exact unit.';
+  let resolveWith = 'Match each part number to the unit’s model/serial in the manufacturer catalog and record the result.';
+
+  if (trusted && net) {
+    const model = net.model_label ?? 'the linked model';
+    const unmatched = net.parts_total - net.parts_catalog_matched;
+    const official = net.model_source === 'oem_api';
+    if (unmatched === 0) {
+      evidence.push(`All ${net.parts_total} job part(s) appear in the ${official ? 'manufacturer' : 'internal'} catalog for ${model}.`);
+      if (official) {
+        conf += 15;
+        cap = A.catalogFitmentCap;
+        machineOnly = false;
+        summary = 'Every part number is in the manufacturer catalog for this model.';
+        resolveWith = 'Confirm the serial-number range and any superseded part numbers, then record it.';
+        gaps.push('Catalog match does not cover serial-range revisions or supersessions.');
+      } else {
+        conf += 5;
+        gaps.push('The catalog is built from internal history, not the manufacturer — fitment is still unconfirmed.');
+      }
+    } else {
+      conf -= 10;
+      gaps.push(`${unmatched} of ${net.parts_total} job part(s) are not in the catalog for ${model} — possible wrong part or missing part number.`);
+      resolveWith = 'Check the unmatched part numbers against the unit’s model and serial before ordering or installing.';
+    }
+  } else {
+    gaps.push('Fitment has not been checked against a manufacturer cross-reference.');
+  }
+
   return {
-    confidencePct: clamp(conf, 0, A.partFitmentAutoCap),
-    machineOnly: true,
-    summary: 'Parts are listed, but nobody has confirmed they fit this exact unit.',
+    confidencePct: clamp(conf, 0, cap),
+    machineOnly,
+    summary,
     evidence,
     gaps,
-    resolveWith: 'Match each part number to the unit’s model/serial in the manufacturer catalog and record the result.',
+    resolveWith,
   };
 }
 
