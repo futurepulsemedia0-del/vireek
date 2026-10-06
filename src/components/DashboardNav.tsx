@@ -298,6 +298,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Causal Shock Simulator', href: '/dashboard/causal-shock-simulator', icon: Waves },
   { label: 'Technician Performance', href: '/dashboard/technician-performance', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Click-to-Cash', href: '/dashboard/click-to-cash', icon: MousePointerClick, requiresPermission: 'can_view_billing' },
+  { label: 'Demand OS', href: '/dashboard/demand-os', icon: Megaphone, requiresPermission: 'can_view_billing' },
   { label: 'Skill Graph', href: '/dashboard/skill-graph', icon: GitBranch, requiresPermission: 'can_view_billing' },
   { label: 'Trust Passport', href: '/dashboard/trust-passport', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Technician Identity Graph', href: '/dashboard/technician-identity', icon: Network },
