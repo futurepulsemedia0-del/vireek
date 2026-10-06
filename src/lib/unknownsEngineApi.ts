@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Job } from '@/lib/supabase';
 import { fetchComplianceReview } from '@/lib/permitCompliance';
+import { fetchNetworkEvidence } from '@/lib/unknownsNetworkApi';
 import {
   assessJobUnknowns,
   type Loaded,
@@ -156,6 +157,7 @@ export async function fetchUnknownsInput(job: Job): Promise<UnknownsInput> {
     safe(() => loadSite(job.site_id ?? null), null as RawSite | null),
     safe(() => loadCompliance(job.id), null as RawComplianceReview | null),
     loadNoSurprise(job.id),
+      fetchNetworkEvidence([job.id]),
     // Resolutions only ever add confidence, so on failure we fall back to none and stay conservative.
     fetchResolutions(job.id).catch(() => [] as RawResolution[]),
   ]);
@@ -186,7 +188,7 @@ export async function fetchUnknownsInput(job: Job): Promise<UnknownsInput> {
     resolutions,
   };
 }
-
+network: network.get(job.id) ?? null,
 export async function resolveUnknown(
   jobId: string,
   dimension: UnknownDimensionKey,
