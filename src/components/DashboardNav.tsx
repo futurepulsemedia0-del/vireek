@@ -348,6 +348,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'AI Security Center', href: '/dashboard/security-center', icon: LockKeyhole, requiresPermission: 'can_manage_security' },
   { label: 'AI Reliability', href: '/dashboard/ai-reliability', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
   { label: 'Multi-Agent Company', href: '/dashboard/agent-company', icon: Users2, requiresPermission: 'can_manage_security' },
+  { label: 'Agent Network', href: '/dashboard/agent-network', icon: Network, requiresPermission: 'can_manage_security' },
   { label: 'Evaluation Plane', href: '/dashboard/evaluation-plane', icon: Microscope, requiresPermission: 'can_view_billing' },
   { label: 'Agent Marketplace', href: '/dashboard/agent-marketplace', icon: Store },
   { label: 'Autonomy Budget', href: '/dashboard/autonomy-budget', icon: Timer, requiresPermission: 'can_manage_security' },
