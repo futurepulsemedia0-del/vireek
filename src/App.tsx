@@ -217,6 +217,8 @@ const TechnicianSkillGraphPage = lazy(() => import('@/pages/TechnicianSkillGraph
 const TechnicianTrustPassportPage = lazy(() => import('@/pages/TechnicianTrustPassportPage').then((m) => ({ default: m.TechnicianTrustPassportPage })));
 const TechnicianIdentityGraphPage = lazy(() => import('@/pages/TechnicianIdentityGraphPage').then((m) => ({ default: m.TechnicianIdentityGraphPage })));
 const PublicTechnicianPassportPage = lazy(() => import('@/pages/PublicTechnicianPassportPage').then((m) => ({ default: m.PublicTechnicianPassportPage })));
+const HomeServicePassportPage = lazy(() => import('@/pages/HomeServicePassportPage').then((m) => ({ default: m.HomeServicePassportPage })));
+const PublicHomePassportPage = lazy(() => import('@/pages/PublicHomePassportPage').then((m) => ({ default: m.PublicHomePassportPage })));
 const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPage').then((m) => ({ default: m.TechnicianSimulatorPage })));
 const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
 const AdoptionOSPage = lazy(() => import('@/pages/AdoptionOSPage').then((m) => ({ default: m.AdoptionOSPage })));
@@ -465,6 +467,7 @@ function App() {
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
         <Route path="/guarantee/:token" element={<ServiceGuaranteePublicPage />} />
         <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
+        <Route path="/verify/home/:token" element={<PublicHomePassportPage />} />
         <Route path="/e/:code" element={<PublicEquipmentPassportPage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
@@ -1886,6 +1889,14 @@ function App() {
           element={
             <ProtectedRoute>
               <HomeHealthPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/home-passport"
+          element={
+            <ProtectedRoute>
+              <HomeServicePassportPage />
             </ProtectedRoute>
           }
         />
