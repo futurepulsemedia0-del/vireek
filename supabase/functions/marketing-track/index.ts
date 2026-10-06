@@ -33,6 +33,12 @@ interface TrackPayload {
   campaign?: string;
   utm_content?: string;
   utm_term?: string;
+  gclid?: string;
+  gbraid?: string;
+  wbraid?: string;
+  fbclid?: string;
+  fbc?: string;
+  fbp?: string;
   referrer?: string;
   landing_page?: string;
   ref_code?: string; // referral link, e.g. vireek.com/?ref=ABC123
@@ -75,6 +81,12 @@ Deno.serve(async (req: Request) => {
       campaign: body.campaign ?? null,
       utm_content: body.utm_content ?? null,
       utm_term: body.utm_term ?? null,
+          gclid: body.gclid?.slice(0, 300) ?? null,
+      gbraid: body.gbraid?.slice(0, 300) ?? null,
+      wbraid: body.wbraid?.slice(0, 300) ?? null,
+      fbclid: body.fbclid?.slice(0, 300) ?? null,
+      fbc: body.fbc?.slice(0, 300) ?? null,
+      fbp: body.fbp?.slice(0, 300) ?? null,
       referrer: body.referrer ?? null,
       landing_page: body.landing_page ?? null,
       is_first_touch: !existingTouch,
