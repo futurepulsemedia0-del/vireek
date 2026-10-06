@@ -41,6 +41,7 @@ import { MissionBriefPanel } from '@/components/jobs/MissionBriefPanel';
 import { JobEvidenceChainPanel } from '@/components/jobs/JobEvidenceChainPanel';
 import { JobTelematicsPanel } from '@/components/jobs/JobTelematicsPanel';
 import { NoSurpriseJobPanel } from '@/components/jobs/NoSurpriseJobPanel';
+import { RemoteResolutionJobPanel } from '@/components/jobs/RemoteResolutionJobPanel';
 import { AdaptiveDiagnosticJobPanel } from '@/components/jobs/AdaptiveDiagnosticJobPanel';
 import { JobContextPanel } from '@/components/jobs/JobContextPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
@@ -551,6 +552,7 @@ function JobDetailPanel({
         <JobQualityGatePanel job={job} />
         <JobContextPanel job={job} />
         <AdaptiveDiagnosticJobPanel job={job} />
+        <RemoteResolutionJobPanel job={job} />
         <NoSurpriseJobPanel job={job} />
         <JobEvidenceChainPanel job={job} />
         <JobTelematicsPanel job={job} />
