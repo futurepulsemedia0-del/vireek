@@ -266,6 +266,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Telematics OS', href: '/dashboard/telematics', icon: Satellite },
   { label: 'Fleet Intelligence', href: '/dashboard/fleet-intelligence', icon: Radar },
   { label: 'Field Evidence', href: '/dashboard/field-evidence', icon: ScanEye },
+  { label: 'Property Vision', href: '/dashboard/property-vision', icon: ScanEye },
   { label: 'Customer Trust Bank', href: '/dashboard/trust-bank', icon: ShieldCheck },
   { label: 'Next Best Actions', href: '/dashboard/next-best-actions', icon: Target },
   { label: 'Diagnosis Copilot', href: '/dashboard/diagnosis-copilot', icon: Stethoscope },
