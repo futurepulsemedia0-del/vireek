@@ -231,6 +231,7 @@ const ResolutionProbabilityPage = lazy(() => import('@/pages/ResolutionProbabili
 const OpsExperimentsPage = lazy(() => import('@/pages/OpsExperimentsPage').then((m) => ({ default: m.OpsExperimentsPage })));
 const OutcomeBenchmarkNetworkPage = lazy(() => import('@/pages/OutcomeBenchmarkNetworkPage').then((m) => ({ default: m.OutcomeBenchmarkNetworkPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
+const DemandOsPage = lazy(() => import('@/pages/DemandOsPage').then((m) => ({ default: m.DemandOsPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
 const EmergencyOperationsPage = lazy(() => import('@/pages/EmergencyOperationsPage').then((m) => ({ default: m.EmergencyOperationsPage })));
@@ -2221,6 +2222,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ClickToCashAttributionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/demand-os"
+          element={
+            <ProtectedRoute>
+              <DemandOsPage />
             </ProtectedRoute>
           }
         />
