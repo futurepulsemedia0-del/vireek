@@ -19,7 +19,7 @@ import { supabase } from '@/lib/supabase';
 
 export type GraphNodeType =
   | 'customer' | 'property' | 'equipment' | 'failure' | 'technician' | 'part' | 'job'
-  | 'outcome' | 'warranty' | 'vendor' | 'call' | 'payment' | 'contractor' | 'knowledge' | 'agent';
+  | 'outcome' | 'warranty' | 'vendor' | 'call' | 'payment' | 'contractor' | 'knowledge' | 'agent' | 'component' | 'hazard' | 'capture';
 
 export interface GraphNode {
   id: string;
@@ -120,6 +120,7 @@ export interface GraphInsights {
 export const NODE_TYPES: GraphNodeType[] = [
   'customer', 'property', 'equipment', 'failure', 'technician', 'part', 'job',
   'outcome', 'warranty', 'vendor', 'call', 'payment', 'contractor', 'knowledge', 'agent',
+  'component', 'hazard', 'capture',
 ];
 
 export const NODE_LABELS: Record<GraphNodeType, string> = {
@@ -138,6 +139,9 @@ export const NODE_LABELS: Record<GraphNodeType, string> = {
   contractor: 'Contractor',
   knowledge: 'Knowledge',
   agent: 'Agent',
+  component: 'Component',
+  hazard: 'Hazard',
+  capture: 'Photo',
 };
 
 export const NODE_COLORS: Record<GraphNodeType, string> = {
@@ -156,6 +160,9 @@ export const NODE_COLORS: Record<GraphNodeType, string> = {
   contractor: '#f97316',
   knowledge: '#6366f1',
   agent: '#d946ef',
+  component: '#eab308',
+  hazard: '#dc2626',
+  capture: '#94a3b8',
 };
 
 const RELATION_LABELS: Record<string, string> = {
@@ -184,6 +191,10 @@ const RELATION_LABELS: Record<string, string> = {
 
 export function relationLabel(relation: string): string {
   return RELATION_LABELS[relation] ?? relation.replace(/_/g, ' ');
+  has_component: 'has component',
+  has_hazard: 'has hazard',
+  depicts: 'depicts',
+  documented: 'documented',
 }
 
 /** Equipment risk formula — mirrors service_graph_insights() in SQL. */
