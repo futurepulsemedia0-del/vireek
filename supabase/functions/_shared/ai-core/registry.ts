@@ -51,6 +51,7 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   causal_world_simulator: JSON_CHAIN,
    continual_identity_learner: JSON_CHAIN,
   cash_flow_narrative: JSON_CHAIN,
+  bank_categorization: JSON_CHAIN,
   regional_demand_narrative: JSON_CHAIN,
   outcome_benchmark_advice: JSON_CHAIN,
   business_insights: JSON_CHAIN,
