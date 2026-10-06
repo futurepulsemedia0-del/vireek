@@ -204,6 +204,7 @@ const RevenueAutopsyPage = lazy(() => import('@/pages/RevenueAutopsyPage').then(
 const LtvAutopilotPage = lazy(() => import('@/pages/LtvAutopilotPage').then((m) => ({ default: m.LtvAutopilotPage })));
 const BottleneckMarketMakerPage = lazy(() => import('@/pages/BottleneckMarketMakerPage').then((m) => ({ default: m.BottleneckMarketMakerPage })));
 const UncertaintyMapPage = lazy(() => import('@/pages/UncertaintyMapPage').then((m) => ({ default: m.UncertaintyMapPage })));
+   const UnknownsEnginePage = lazy(() => import('@/pages/UnknownsEnginePage').then((m) => ({ default: m.UnknownsEnginePage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const EventPredictionMeshPage = lazy(() => import('@/pages/EventPredictionMeshPage').then((m) => ({ default: m.EventPredictionMeshPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
@@ -1273,6 +1274,14 @@ function App() {
     </ProtectedRoute>
   }
 />
+   <Route
+     path="/dashboard/unknowns"
+     element={
+       <ProtectedRoute>
+         <UnknownsEnginePage />
+       </ProtectedRoute>
+     }
+   />
         <Route
           path="/dashboard/voicemails"
           element={
