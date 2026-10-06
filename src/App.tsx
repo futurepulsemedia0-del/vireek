@@ -288,6 +288,8 @@ const JobRoomPage = lazy(() => import('@/pages/JobRoomPage').then((m) => ({ defa
 const DiagnosePage = lazy(() => import('@/pages/DiagnosePage').then((m) => ({ default: m.DiagnosePage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const NoSurpriseApprovePage = lazy(() => import('@/pages/NoSurpriseApprovePage').then((m) => ({ default: m.NoSurpriseApprovePage })));
+const RemoteResolutionRoomPage = lazy(() => import('@/pages/RemoteResolutionRoomPage').then((m) => ({ default: m.RemoteResolutionRoomPage })));
+const RemoteResolutionPage = lazy(() => import('@/pages/RemoteResolutionPage').then((m) => ({ default: m.RemoteResolutionPage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
@@ -467,6 +469,7 @@ function App() {
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
         <Route path="/approve/:token" element={<NoSurpriseApprovePage />} />
+        <Route path="/resolve/:token" element={<RemoteResolutionRoomPage />} />
         <Route path="/diagnose/:token" element={<DiagnosePage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
@@ -1931,6 +1934,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DiagnosisCopilotPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/remote-resolution"
+          element={
+            <ProtectedRoute>
+              <RemoteResolutionPage />
             </ProtectedRoute>
           }
         />
