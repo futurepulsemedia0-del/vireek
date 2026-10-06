@@ -86,6 +86,7 @@ const OperationsCenterPage = lazy(() => import('@/pages/OperationsCenterPage').t
 const DecisionLedgerPage = lazy(() => import('@/pages/DecisionLedgerPage').then((m) => ({ default: m.DecisionLedgerPage })));
 const OutcomePricingPage = lazy(() => import('@/pages/OutcomePricingPage').then((m) => ({ default: m.OutcomePricingPage })));
 const ServiceGraphPage = lazy(() => import('@/pages/ServiceGraphPage').then((m) => ({ default: m.ServiceGraphPage })));
+const PropertyVisionPage = lazy(() => import('@/pages/PropertyVisionPage').then((m) => ({ default: m.PropertyVisionPage })));
 const DataFabricPage = lazy(() => import('@/pages/DataFabricPage').then((m) => ({ default: m.DataFabricPage })));
 const CustomerTrustLayerPage = lazy(() => import('@/pages/CustomerTrustLayerPage').then((m) => ({ default: m.CustomerTrustLayerPage })));
 const VerifiedServicePage = lazy(() => import('@/pages/VerifiedServicePage').then((m) => ({ default: m.VerifiedServicePage })));
@@ -615,6 +616,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ServiceRecoveryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/property-vision"
+          element={
+            <ProtectedRoute>
+              <PropertyVisionPage />
             </ProtectedRoute>
           }
         />
