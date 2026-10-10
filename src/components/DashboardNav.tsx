@@ -129,6 +129,7 @@ import {
   Infinity as InfinityIcon,
   BrainCircuit,
   Satellite,
+  Navigation,
   Beaker
   Landmark,
 } from 'lucide-react';
@@ -266,6 +267,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Property Intelligence', href: '/dashboard/property-intelligence', icon: Radar },
   { label: 'Fleet Economics', href: '/dashboard/fleet-economics', icon: Fuel },
   { label: 'Telematics OS', href: '/dashboard/telematics', icon: Satellite },
+  { label: 'Live Map', href: '/dashboard/live-map', icon: Navigation, requiresPermission: 'can_view_all_jobs' },
   { label: 'Fleet Intelligence', href: '/dashboard/fleet-intelligence', icon: Radar },
   { label: 'Field Evidence', href: '/dashboard/field-evidence', icon: ScanEye },
   { label: 'Property Vision', href: '/dashboard/property-vision', icon: ScanEye },
