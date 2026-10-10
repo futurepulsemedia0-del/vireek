@@ -7,6 +7,36 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Stripe-Signature",
 };
 
+// Activates a membership created by the public /join page once its Checkout
+// payment lands. Idempotent: only an "offered" row is touched, so Stripe
+// retries and renewal payments (which carry no membership_signup flag) are no-ops.
+async function activateSignupMembership(admin: any, membershipId: string) {
+  const { data: membership } = await admin
+    .from("memberships")
+    .select("id, status, membership_plans:plan_id(billing_interval, visits_included_per_period)")
+    .eq("id", membershipId)
+    .maybeSingle();
+  if (!membership || membership.status !== "offered") return;
+
+  const plan = membership.membership_plans as { billing_interval: "monthly" | "yearly"; visits_included_per_period: number } | null;
+  const start = new Date();
+  const end = new Date(start);
+  if (plan?.billing_interval === "monthly") end.setMonth(end.getMonth() + 1);
+  else end.setFullYear(end.getFullYear() + 1);
+
+  await admin
+    .from("memberships")
+    .update({
+      status: "active",
+      started_at: start.toISOString(),
+      current_period_start: start.toISOString(),
+      current_period_end: end.toISOString(),
+      visits_included_current_period: plan?.visits_included_per_period ?? 0,
+      visits_used_current_period: 0,
+    })
+    .eq("id", membershipId)
+    .eq("status", "offered");
+}
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
@@ -35,6 +65,9 @@ Deno.serve(async (req: Request) => {
             .select("job_id")
             .maybeSingle();
           if (request?.job_id) await admin.from("jobs").update({ invoice_status: "paid" }).eq("id", request.job_id);
+          if (session.metadata?.membership_signup === "true" && session.metadata?.membership_id) {
+            await activateSignupMembership(admin, session.metadata.membership_id);
+          }
         }
         break;
       }
