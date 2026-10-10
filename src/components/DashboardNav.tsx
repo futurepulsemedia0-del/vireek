@@ -243,6 +243,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
   { label: 'Self-Healing', href: '/dashboard/self-healing', icon: Bot },
   { label: 'Regulation Graph', href: '/dashboard/regulation-graph', icon: Landmark },
+  { label: 'Permit Intelligence', href: '/dashboard/permit-intelligence', icon: ClipboardCheck },
   { label: 'Switching Shield', href: '/dashboard/switching-shield', icon: UserMinus },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
