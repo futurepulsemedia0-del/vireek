@@ -28,12 +28,19 @@ Deno.serve(async (req: Request) => {
       auth: { persistSession: false },
     });
 
+    const { data: liveCampaigns, error: liveError } = await admin
+      .from("marketing_campaigns")
+      .select("id")
+      .eq("status", "active");
+    if (liveError) throw liveError;
+    const liveIds = (liveCampaigns ?? []).map((c: { id: string }) => c.id);
     const nowIso = new Date().toISOString();
     const { data: due, error: dueError } = await admin
       .from("marketing_campaign_enrollments")
       .select("id, campaign_id, user_id, customer_id, lead_id, contact_email, contact_phone, current_step")
       .eq("status", "active")
       .lte("next_send_at", nowIso)
+      .in("campaign_id", liveIds)
       .limit(200);
     if (dueError) throw dueError;
 
