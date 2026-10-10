@@ -15,6 +15,7 @@ import { AriaLiveRegion } from '@/lib/a11y/announcer';
 // stays small regardless of how large the app grows. Named exports are kept
 // consistent across pages specifically so this mapping stays mechanical.
 const MarketingPage = lazy(() => import('@/pages/MarketingPage'));
+const CampaignDetailPage = lazy(() => import('@/pages/CampaignDetailPage').then((m) => ({ default: m.CampaignDetailPage })));
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })));
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })));
@@ -1410,6 +1411,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MarketingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/campaigns/:id"
+          element={
+            <ProtectedRoute>
+              <CampaignDetailPage />
             </ProtectedRoute>
           }
         />
