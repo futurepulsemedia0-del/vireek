@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { PlanPublicLink } from '@/components/memberships/PlanPublicLink';
 import { supabase, MembershipPlan, Membership } from '@/lib/supabase';
 import {
   formatPrice,
@@ -332,6 +333,7 @@ export function MembershipsPage() {
                                 ))}
                               </ul>
                             )}
+                            <PlanPublicLink plan={plan} />
                           </div>
                           <div className="flex shrink-0 items-center gap-1">
                             <button
