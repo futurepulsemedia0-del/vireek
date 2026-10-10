@@ -297,7 +297,15 @@ function JobDetailPanel({
       className="fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto border-l border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
     >
       <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary/95 px-6 py-4 backdrop-blur-md">
-        <h2 className="text-base font-semibold text-text-primary">Job Details</h2>
+       <div className="flex items-center gap-3">
+  <h2 className="text-base font-semibold text-text-primary">Job Details</h2>
+  <Link
+    to={`/dashboard/jobs/${job.id}`}
+    className="focus-ring text-xs font-medium text-accent hover:underline"
+  >
+    Open full job
+  </Link>
+</div>
         <button
           type="button"
           onClick={onClose}
