@@ -105,6 +105,7 @@ Deno.serve(async (req: Request) => {
     if (insertError || !offer) throw insertError || new Error("Could not create the financing offer.");
 
     const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
+    const offerPageUrl = `${siteUrl}/financing/${offer.public_token}`;
     const description = job.service_type ? `${job.service_type} — ${job.customer_name}` : `Financing for ${job.customer_name}`;
 
     let created;
@@ -116,8 +117,8 @@ Deno.serve(async (req: Request) => {
         customerEmail,
         customerPhone,
         description,
-        successUrl: `${siteUrl}/financing-result?status=success&offer=${offer.id}`,
-        cancelUrl: `${siteUrl}/financing-result?status=cancel&offer=${offer.id}`,
+        successUrl: `${offerPageUrl}?returned=success`,
+        cancelUrl: `${offerPageUrl}?returned=cancel`,
         referenceId: offer.id,
       });
     } catch (providerError) {
@@ -136,7 +137,7 @@ Deno.serve(async (req: Request) => {
 
     const amountLabel = `$${(amountCents / 100).toFixed(2)}`;
     if (customerPhone) {
-      await sendSms(customerPhone, `Hi ${job.customer_name}, you can finance your ${amountLabel} job over time. Apply here (soft credit check, no obligation): ${created.applicationUrl}`);
+      await sendSms(customerPhone, `Hi ${job.customer_name}, you can finance your ${amountLabel} job over time. Apply here (soft credit check, no obligation): ${offerPageUrl}`);
     }
     if (customerEmail) {
       await sendEmail(
@@ -146,9 +147,9 @@ Deno.serve(async (req: Request) => {
           <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">Financing available</p>
           <h1 style="font-size: 22px; margin: 0 0 16px;">Pay ${amountLabel} over time instead of all at once</h1>
           <p style="font-size: 14px; color: #4b5563;">Check your rate in about a minute — a soft credit check that won't affect your score.</p>
-          <a href="${created.applicationUrl}" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Check my rate</a>
+          <a href="${offerPageUrl}" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Check my rate</a>
         </div>`,
-        `Finance your ${amountLabel} job: ${created.applicationUrl}`,
+        `Finance your ${amountLabel} job: ${offerPageUrl}`,
       );
     }
 
