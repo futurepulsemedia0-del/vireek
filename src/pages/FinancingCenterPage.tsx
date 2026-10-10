@@ -295,6 +295,7 @@ export function FinancingCenterPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [launchRow, setLaunchRow] = useState<EligibilityRow | null>(null);
   const [showBlocked, setShowBlocked] = useState(false);
+  const closeDrawer = useCallback(() => setSelectedId(null), []);
 
   const load = useCallback(async (mode: 'initial' | 'manual' | 'poll') => {
     if (mode === 'manual') setRefreshing(true);
@@ -619,7 +620,7 @@ export function FinancingCenterPage() {
       </div>
 
       {data && selected && (
-        <OfferDrawer offer={selected} job={selected.job_id ? jobsById.get(selected.job_id) ?? null : null} data={data} onClose={() => setSelectedId(null)} />
+        <OfferDrawer offer={selected} job={selected.job_id ? jobsById.get(selected.job_id) ?? null : null} data={data} onClose={closeDrawer} />
       )}
       {launchRow && (
         <LaunchModal row={launchRow} onClose={() => setLaunchRow(null)}
