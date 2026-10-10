@@ -78,6 +78,7 @@ const EmergencyNetworkPage = lazy(() => import('@/pages/EmergencyNetworkPage').t
 const AiReliabilityPage = lazy(() => import('@/pages/AiReliabilityPage').then((m) => ({ default: m.AiReliabilityPage })));
 const ServiceGuaranteePage = lazy(() => import('@/pages/ServiceGuaranteePage').then((m) => ({ default: m.ServiceGuaranteePage })));
 const ServiceGuaranteePublicPage = lazy(() => import('@/pages/ServiceGuaranteePublicPage').then((m) => ({ default: m.ServiceGuaranteePublicPage })));
+const FinancingOfferPage = lazy(() => import('@/pages/FinancingOfferPage').then((m) => ({ default: m.FinancingOfferPage })));
 const ContinuousImprovementPage = lazy(() => import('@/pages/ContinuousImprovementPage').then((m) => ({ default: m.ContinuousImprovementPage })));
 const LearningCompilerPage = lazy(() => import('@/pages/LearningCompilerPage').then((m) => ({ default: m.LearningCompilerPage })));
 const OperationsSandboxPage = lazy(() => import('@/pages/OperationsSandboxPage').then((m) => ({ default: m.OperationsSandboxPage })));
@@ -481,6 +482,7 @@ function App() {
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
         <Route path="/guarantee/:token" element={<ServiceGuaranteePublicPage />} />
+        <Route path="/financing/:token" element={<FinancingOfferPage />} />
         <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
         <Route path="/verify/home/:token" element={<PublicHomePassportPage />} />
         <Route path="/e/:code" element={<PublicEquipmentPassportPage />} />
