@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Megaphone, Users, Gift, Flame, Plus, Play, Pause, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -216,7 +217,7 @@ export default function MarketingPage() {
                         <div className="flex items-center gap-3">
                           <config.icon className="w-5 h-5 text-accent" />
                           <div>
-                            <h3 className="font-semibold text-text-primary">{c.name}</h3>
+                            <Link to={`/dashboard/campaigns/${c.id}`} className="font-semibold text-text-primary hover:text-accent">{c.name}</Link>
                             <p className="text-sm text-text-secondary">{config.label} · {c.status} · trigger: {c.trigger_type}</p>
                           </div>
                         </div>
