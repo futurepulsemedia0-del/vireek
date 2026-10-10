@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   Award,
   Check,
@@ -1129,6 +1130,9 @@ export function ProcurementPage() {
 
             {tab === 'vendors' && (
               <div className="space-y-2">
+                <Link to="/dashboard/vendors" className="focus-ring inline-block text-xs font-medium text-accent hover:underline">
+                  Open Vendor Management →
+                </Link>
                 {scorecard.length === 0 && (
                   <p className="py-10 text-center text-sm text-text-secondary">
                     No vendors yet — add one to get started.
