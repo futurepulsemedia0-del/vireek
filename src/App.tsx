@@ -59,6 +59,7 @@ const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ de
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
 const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ default: m.InsightsPage })));
 const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ default: m.QuotesPage })));
+const QuoteDetailPage = lazy(() => import('@/pages/QuoteDetailPage').then((m) => ({ default: m.QuoteDetailPage })));
 const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m) => ({ default: m.KnowledgeBasePage })));
 const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ default: m.WorkflowsPage })));
 const WorkflowCompilerPage = lazy(() => import('@/pages/WorkflowCompilerPage').then((m) => ({ default: m.WorkflowCompilerPage })));
@@ -1513,6 +1514,14 @@ function App() {
           element={
             <ProtectedRoute>
               <QuotesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/quotes/:id"
+          element={
+            <ProtectedRoute>
+              <QuoteDetailPage />
             </ProtectedRoute>
           }
         />
