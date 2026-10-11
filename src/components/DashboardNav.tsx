@@ -187,6 +187,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Live Service Twins', href: '/dashboard/service-twin', icon: Activity },
   { label: 'Economic Autopilot', href: '/dashboard/economic-autopilot', icon: Rocket, requiresPermission: 'can_view_billing' },
   { label: 'Parts & Inventory', href: '/dashboard/inventory', icon: Package },
+  { label: 'Cycle Counts', href: '/dashboard/inventory/counts', icon: ClipboardCheck },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
@@ -428,6 +429,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return location.pathname === '/dashboard';
+    if (href === '/dashboard/inventory') return location.pathname === '/dashboard/inventory';
     return location.pathname.startsWith(href);
   };
 
