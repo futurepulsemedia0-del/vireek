@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect, useCallback } from 'react';
+import { useState, FormEvent, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Mail, Lock, MailCheck, KeyRound, Sparkles } from 'lucide-react';
@@ -20,6 +20,8 @@ import {
   AuthIconBadge,
 } from '@/components/auth/AuthParts';
 import { OtpEntry } from '@/components/auth/OtpEntry';
+import { AppleButton, PasskeyButton } from '@/components/auth/SocialAuthButtons';
+import { PasskeyError, isConditionalUiAvailable, isPasskeySupported, signInWithPasskey } from '@/lib/passkeys';
 import { checkDeviceTrusted, registerTrustedDevice } from '@/lib/deviceTrust';
 import { consumePostAuthRedirect } from '@/lib/inviteRedirect';
 
@@ -53,6 +55,11 @@ export function LoginPage() {
   const [deviceChecking, setDeviceChecking] = useState(false);
   const [signInMode, setSignInMode] = useState<'password' | 'magic-link'>('password');
   const [magicLinkSending, setMagicLinkSending] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [conditionalNonce, setConditionalNonce] = useState(0);
+  const conditionalAbortRef = useRef<AbortController | null>(null);
+  const passkeysAvailable = isPasskeySupported();
   // Only auto-redirect on an existing session while on the plain sign-in
   // step (the confirm-email / device-otp steps handle their own
   // navigation once their success animation settles).
@@ -66,6 +73,25 @@ export function LoginPage() {
       navigate(consumePostAuthRedirect(), { replace: true });
     }
   }, [session, loading, step, navigate]);
+  // Passkey autofill (conditional UI): browser offers passkeys in the email field.
+  useEffect(() => {
+    if (loading || session || step !== 'signin') return;
+    const controller = new AbortController();
+    conditionalAbortRef.current = controller;
+    (async () => {
+      if (!(await isConditionalUiAvailable()) || controller.signal.aborted) return;
+      for (let attempt = 0; attempt < 3 && !controller.signal.aborted; attempt++) {
+        try {
+          await signInWithPasskey({ mediation: 'conditional', signal: controller.signal });
+          setShowSuccess(true);
+          return;
+        } catch (err) {
+          if (!(err instanceof PasskeyError && err.kind === 'expired')) return;
+        }
+      }
+    })();
+    return () => controller.abort();
+  }, [loading, session, step, conditionalNonce]);
   // Show a one-time confirmation banner after a successful password reset
   // on /reset-password, then scrub the query param so it doesn't persist
   // across refreshes or get shared if the URL is copied.
@@ -207,6 +233,44 @@ export function LoginPage() {
     }
   }, [pendingEmail]);
 
+  const handlePasskeySignIn = async () => {
+    setAuthError('');
+    conditionalAbortRef.current?.abort();
+    setPasskeyLoading(true);
+    try {
+      await signInWithPasskey();
+      setShowSuccess(true);
+    } catch (err) {
+      if (!(err instanceof PasskeyError)) {
+        setAuthError('Passkey sign-in failed. Please try again.');
+      } else if (err.kind !== 'cancelled') {
+        setAuthError(err.message);
+      }
+    } finally {
+      setPasskeyLoading(false);
+      setConditionalNonce((n) => n + 1);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    setAuthError('');
+    setAppleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo: `${window.location.origin}/dashboard` },
+      });
+      if (error) throw error;
+    } catch (err) {
+      setAppleLoading(false);
+      const msg = err instanceof Error ? err.message : 'Apple sign-in failed.';
+      setAuthError(
+        msg.toLowerCase().includes('provider') || msg.toLowerCase().includes('not')
+          ? 'Apple sign-in is not configured. Please use another sign-in method.'
+          : msg
+      );
+    }
+  };
   const handleGoogleSignIn = async () => {
     setAuthError('');
     setGoogleLoading(true);
@@ -407,13 +471,30 @@ export function LoginPage() {
               </p>
             </div>
 
-            {/* Google */}
-            <GoogleButton
-              onClick={handleGoogleSignIn}
-              loading={googleLoading}
-              disabled={submitting}
-              label="Continue with Google"
-            />
+                       {passkeysAvailable && (
+              <div className="mb-3">
+                <PasskeyButton
+                  onClick={handlePasskeySignIn}
+                  loading={passkeyLoading}
+                  disabled={submitting || googleLoading || appleLoading}
+                  label="Sign in with a passkey"
+                />
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <GoogleButton
+                onClick={handleGoogleSignIn}
+                loading={googleLoading}
+                disabled={submitting || passkeyLoading || appleLoading}
+                label="Google"
+              />
+              <AppleButton
+                onClick={handleAppleSignIn}
+                loading={appleLoading}
+                disabled={submitting || passkeyLoading || googleLoading}
+                label="Apple"
+              />
+            </div>
 
             <AuthDivider />
 
@@ -441,7 +522,7 @@ export function LoginPage() {
                 type="email"
                 label="Email address"
                 icon={<Mail size={18} />}
-                autoComplete="email"
+                autoComplete={passkeysAvailable ? 'username webauthn' : 'email'}
                 autoFocus
                 value={email}
                 onChange={(e) => {
