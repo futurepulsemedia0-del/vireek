@@ -55,26 +55,39 @@ Deno.serve(async (req: Request) => {
 
   try {
     switch (event.type) {
+      case "checkout.session.async_payment_succeeded":
       case "checkout.session.completed": {
         const session = event.data.object;
         const requestId = session.metadata?.payment_request_id;
-        if (requestId) {
-          const { data: request } = await admin
-            .from("payment_requests")
-            .update({ status: "paid", paid_at: new Date().toISOString(), stripe_payment_intent_id: session.payment_intent ?? null })
-            .eq("id", requestId)
-            .select("job_id")
-            .maybeSingle();
-          if (request?.job_id) await admin.from("jobs").update({ invoice_status: "paid" }).eq("id", request.job_id);
-          if (session.metadata?.membership_signup === "true" && session.metadata?.membership_id) {
-            await activateSignupMembership(admin, session.metadata.membership_id);
-          }
+        if (!requestId || session.payment_status !== "paid") break;
+        const tipCents = Number.parseInt(session.metadata?.tip_cents ?? "0", 10) || 0;
+        const { data: result, error: finalizeError } = await admin.rpc("finalize_paid_payment_request", {
+          p_request_id: requestId,
+          p_session_id: session.id,
+          p_payment_intent_id: typeof session.payment_intent === "string" ? session.payment_intent : null,
+          p_amount_total_cents: session.amount_total,
+          p_tip_cents: tipCents,
+        });
+        if (finalizeError) throw finalizeError;
+        if (result?.status === "amount_mismatch") {
+          // Money moved but amounts disagree: never auto-fix silently — surface it for a human.
+          console.error(JSON.stringify({ event: "payment_amount_mismatch", requestId, sessionId: session.id, result }));
         }
         break;
       }
       case "checkout.session.expired": {
-        const requestId = event.data.object.metadata?.payment_request_id;
-        if (requestId) await admin.from("payment_requests").update({ status: "failed" }).eq("id", requestId).eq("status", "sent");
+        const meta = event.data.object.metadata;
+        // tip_v1 links are reusable (a fresh session per attempt), so an expired session no longer fails the request.
+        if (meta?.payment_request_id && meta?.flow !== "tip_v1") {
+          await admin.from("payment_requests").update({ status: "failed" }).eq("id", meta.payment_request_id).eq("status", "sent");
+        }
+        break;
+      }
+      case "charge.refunded": {
+        const charge = event.data.object;
+        if (charge.refunded === true && typeof charge.payment_intent === "string") {
+          await admin.rpc("mark_tip_refunded", { p_payment_intent_id: charge.payment_intent });
+        }
         break;
       }
       case "payment_intent.succeeded":
