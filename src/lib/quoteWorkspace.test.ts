@@ -1,191 +1,328 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { ReactNode } from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { parseWorkspace } from '@/lib/quoteWorkspace';
-import { QuoteDetailPage } from './QuoteDetailPage';
+import { describe, expect, it } from 'vitest';
+import {
+  buildFollowUpPlan,
+  buildTimeline,
+  canConvertToJob,
+  canSchedulePlan,
+  depositCentsFor,
+  diffSnapshots,
+  followUpDueState,
+  formatSignedUsd,
+  formatUsd,
+  headlineTotalCents,
+  parseSnapshot,
+  parseWorkspace,
+  validityState,
+  type QuoteSnapshot,
+  type QuoteWorkspace,
+} from './quoteWorkspace';
 
-const QUOTE_ID = '11111111-1111-4111-8111-111111111111';
+const NOW = new Date('2026-10-07T12:00:00.000Z');
+const DAY = 86_400_000;
 
-const { auth, api } = vi.hoisted(() => ({
-  auth: {
-    accountOwnerId: 'owner-1' as string | null,
-    permissions: { can_view_billing: true },
-    loading: false,
-    profileLoading: false,
-  },
-  api: {
-    fetchQuoteWorkspace: vi.fn(),
-    scheduleQuoteFollowUps: vi.fn(),
-    completeQuoteFollowUp: vi.fn(),
-    convertQuoteToJob: vi.fn(),
-  },
-}));
-
-vi.mock('@/contexts/AuthContext', () => ({ useAuth: () => auth }));
-vi.mock('@/contexts/ToastContext', () => ({ useToast: () => ({ toast: vi.fn() }) }));
-vi.mock('@/components/DashboardNav', () => ({
-  DashboardLayout: ({ children }: { children: ReactNode }) => children,
-}));
-vi.mock('@/lib/quoteWorkspaceApi', () => api);
-
-function rawWorkspace(quote: Record<string, unknown> = {}, rest: Record<string, unknown> = {}) {
+function snap(overrides: Partial<QuoteSnapshot> = {}): QuoteSnapshot {
   return {
-    quote: {
-      id: QUOTE_ID,
-      user_id: 'owner-1',
-      customer_name: 'Dana Whitfield',
-      status: 'sent',
-      quote_token: '22222222-2222-4222-8222-222222222222',
-      tax_percent: 0,
-      deposit_percent: 0,
-      view_count: 2,
-      created_at: '2026-09-30T12:00:00.000Z',
-      updated_at: '2026-10-01T12:00:00.000Z',
-      sent_at: '2026-10-01T12:00:00.000Z',
-      line_items: [{ description: 'Water heater install', quantity: 1, unit_price_cents: 120_000 }],
-      options: [],
-      ...quote,
-    },
-    versions: [],
-    events: [],
-    followups: [],
-    job: null,
-    lead: null,
-    ...rest,
+    customer_name: 'Dana Whitfield',
+    customer_phone: '+15550100',
+    customer_email: null,
+    line_items: [{ description: 'Water heater install', quantity: 1, unit_price_cents: 120_000 }],
+    options: [],
+    recommended_option_id: null,
+    tax_percent: 0,
+    deposit_percent: 0,
+    valid_until: null,
+    presentation_note: null,
+    ...overrides,
   };
 }
 
-function renderPage() {
-  return render(
-    <MemoryRouter initialEntries={[`/dashboard/quotes/${QUOTE_ID}`]}>
-      <Routes>
-        <Route path="/dashboard/quotes/:id" element={<QuoteDetailPage />} />
-      </Routes>
-    </MemoryRouter>,
-  );
+function option(id: string, name: string, items: [string, number, number][], recommended = false) {
+  return {
+    id,
+    tier: 'good',
+    name,
+    summary: '',
+    warranty_label: null,
+    recommended,
+    line_items: items.map(([description, quantity, unit_price_cents]) => ({ description, quantity, unit_price_cents })),
+  };
 }
 
-function mockLoad(raw: ReturnType<typeof rawWorkspace>) {
-  const data = parseWorkspace(raw);
-  api.fetchQuoteWorkspace.mockResolvedValue({ ok: true, data });
+function workspace(overrides: Partial<QuoteWorkspace['quote']> = {}, rest: Partial<QuoteWorkspace> = {}): QuoteWorkspace {
+  return {
+    quote: {
+      id: 'q1', user_id: 'owner-1', lead_id: null, customer_name: 'Dana Whitfield', customer_phone: null,
+      customer_email: null, line_items: [], options: [], recommended_option_id: null, selected_option_id: null,
+      accepted_total_cents: null, presentation_note: null, deposit_percent: 0, tax_percent: 0, status: 'sent',
+      quote_token: 't', valid_until: null, sent_at: '2026-10-01T12:00:00.000Z', responded_at: null,
+      first_viewed_at: null, last_viewed_at: null, view_count: 0,
+      created_at: '2026-09-30T12:00:00.000Z', updated_at: '2026-10-01T12:00:00.000Z',
+      ...overrides,
+    },
+    versions: [], events: [], followups: [], job: null, lead: null, ...rest,
+  };
 }
 
-describe('QuoteDetailPage', () => {
-  beforeEach(() => {
-    cleanup();
-    vi.clearAllMocks();
-    auth.accountOwnerId = 'owner-1';
-    auth.permissions = { can_view_billing: true };
-    auth.loading = false;
-    auth.profileLoading = false;
+describe('parseWorkspace', () => {
+  it('returns null for unusable payloads', () => {
+    expect(parseWorkspace(null)).toBeNull();
+    expect(parseWorkspace('nope')).toBeNull();
+    expect(parseWorkspace({ quote: { id: 5 } })).toBeNull();
   });
 
-  it('blocks users without billing access and never requests the quote', async () => {
-    auth.permissions = { can_view_billing: false };
-    renderPage();
-    expect(await screen.findByText(/don.t have access to quote details/i)).toBeInTheDocument();
-    expect(api.fetchQuoteWorkspace).not.toHaveBeenCalled();
-  });
-
-  it('shows a loading state first, then the quote', async () => {
-    mockLoad(rawWorkspace());
-    renderPage();
-    expect(screen.getByRole('status', { name: /loading quote/i })).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { level: 1, name: 'Dana Whitfield' })).toBeInTheDocument();
-    expect(screen.getByText('Water heater install')).toBeInTheDocument();
-    expect(api.fetchQuoteWorkspace).toHaveBeenCalledWith(QUOTE_ID);
-  });
-
-  it('refuses to render a quote that belongs to another account', async () => {
-    mockLoad(rawWorkspace({ user_id: 'someone-else' }));
-    renderPage();
-    expect(await screen.findByText('Quote not found')).toBeInTheDocument();
-    expect(screen.queryByText('Dana Whitfield')).not.toBeInTheDocument();
-  });
-
-  it('shows not-found when the server returns nothing', async () => {
-    api.fetchQuoteWorkspace.mockResolvedValue({ ok: false, reason: 'not_found' });
-    renderPage();
-    expect(await screen.findByText('Quote not found')).toBeInTheDocument();
-  });
-
-  it('shows a retry action when loading fails, and retries', async () => {
-    api.fetchQuoteWorkspace.mockResolvedValueOnce({ ok: false, reason: 'failed' });
-    renderPage();
-    const retry = await screen.findByRole('button', { name: /try again/i });
-    mockLoad(rawWorkspace());
-    fireEvent.click(retry);
-    expect(await screen.findByRole('heading', { level: 1, name: 'Dana Whitfield' })).toBeInTheDocument();
-  });
-
-  it('marks the option the customer chose and shows the version diff', async () => {
-    const snap = (price: number) => ({
-      customer_name: 'Dana Whitfield',
-      line_items: [{ description: 'Repair', quantity: 1, unit_price_cents: price }],
-      options: [],
-      tax_percent: 0,
+  it('survives malformed jsonb without throwing', () => {
+    const ws = parseWorkspace({
+      quote: { id: 'q1', user_id: 'u1', status: 'weird', line_items: 'x', options: [null, 3, { id: 'o1' }], view_count: '4' },
+      versions: [{ id: 'v1', version_number: 'abc' }, { id: 'v2', version_number: 2, snapshot: 'bad', total_cents: '1500' }],
+      events: [{ id: 'e1', event_type: 'hacked' }, { id: 'e2', event_type: 'viewed', metadata: null }],
+      followups: [{ id: 'f1', channel: 'pigeon' }],
+      job: { nope: true },
+      lead: [],
     });
-    mockLoad(
-      rawWorkspace(
-        {
-          status: 'accepted',
-          selected_option_id: 'opt-b',
-          accepted_total_cents: 50_000,
-          options: [
-            { id: 'opt-a', tier: 'good', name: 'Essential fix', line_items: [{ description: 'Patch', quantity: 1, unit_price_cents: 20_000 }] },
-            { id: 'opt-b', tier: 'better', name: 'Full repair', recommended: true, line_items: [{ description: 'Repair', quantity: 1, unit_price_cents: 50_000 }] },
-          ],
-          recommended_option_id: 'opt-b',
-        },
-        {
-          versions: [
-            { id: 'v2', version_number: 2, snapshot: snap(55_000), total_cents: 55_000, created_at: '2026-10-02T12:00:00.000Z' },
-            { id: 'v1', version_number: 1, snapshot: snap(50_000), total_cents: 50_000, created_at: '2026-09-30T12:00:00.000Z' },
-          ],
-        },
-      ),
+    expect(ws).not.toBeNull();
+    expect(ws?.quote.status).toBe('draft');
+    expect(ws?.quote.line_items).toEqual([]);
+    expect(ws?.quote.options).toHaveLength(1);
+    expect(ws?.quote.view_count).toBe(4);
+    expect(ws?.versions).toHaveLength(1);
+    expect(ws?.versions[0].total_cents).toBe(1500);
+    expect(ws?.events).toHaveLength(1);
+    expect(ws?.followups).toHaveLength(0);
+    expect(ws?.job).toBeNull();
+    expect(ws?.lead).toBeNull();
+  });
+
+  it('orders versions newest first', () => {
+    const ws = parseWorkspace({
+      quote: { id: 'q1', user_id: 'u1' },
+      versions: [
+        { id: 'a', version_number: 1, snapshot: {} },
+        { id: 'c', version_number: 3, snapshot: {} },
+        { id: 'b', version_number: 2, snapshot: {} },
+      ],
+    });
+    expect(ws?.versions.map((v) => v.version_number)).toEqual([3, 2, 1]);
+  });
+});
+
+describe('money', () => {
+  it('uses the recommended option for tiered quotes and rounds tax to cents', () => {
+    const s = snap({
+      tax_percent: 8.25,
+      options: [option('a', 'Good', [['Patch', 1, 10_000]]), option('b', 'Better', [['Replace', 1, 12_345]], true)],
+      recommended_option_id: 'b',
+    });
+    expect(headlineTotalCents(s)).toBe(12_345 + Math.round((12_345 * 8.25) / 100));
+  });
+
+  it('falls back to the first option when the recommended id is stale', () => {
+    const s = snap({ options: [option('a', 'Good', [['Patch', 2, 5_000]])], recommended_option_id: 'gone' });
+    expect(headlineTotalCents(s)).toBe(10_000);
+  });
+
+  it('clamps negative quantities and prices to zero, like the database does', () => {
+    const s = parseSnapshot({ line_items: [{ description: 'x', quantity: -3, unit_price_cents: 500 }] });
+    expect(headlineTotalCents(s)).toBe(0);
+  });
+
+  it('formats and signs amounts', () => {
+    expect(formatUsd(123_456)).toBe('$1,234.56');
+    expect(formatSignedUsd(-5_000)).toBe('\u2212$50.00');
+    expect(formatSignedUsd(5_000)).toBe('+$50.00');
+    expect(depositCentsFor(100_000, 25)).toBe(25_000);
+    expect(depositCentsFor(100_000, 0)).toBe(0);
+  });
+});
+
+describe('diffSnapshots — flat quotes', () => {
+  it('reports no changes for identical snapshots', () => {
+    const d = diffSnapshots(snap(), snap());
+    expect(d.hasChanges).toBe(false);
+    expect(d.totalDeltaCents).toBe(0);
+  });
+
+  it('detects a price change, an added item and a removed item with correct deltas', () => {
+    const before = snap({
+      line_items: [
+        { description: 'Water heater install', quantity: 1, unit_price_cents: 120_000 },
+        { description: 'Disposal fee', quantity: 1, unit_price_cents: 5_000 },
+      ],
+    });
+    const after = snap({
+      line_items: [
+        { description: 'water heater  INSTALL', quantity: 1, unit_price_cents: 130_000 },
+        { description: 'Permit', quantity: 1, unit_price_cents: 9_000 },
+      ],
+    });
+    const d = diffSnapshots(before, after);
+    const kinds = d.changes.map((c) => `${c.kind}:${c.label}`);
+    expect(kinds).toContain('changed:water heater  INSTALL');
+    expect(kinds).toContain('added:Permit');
+    expect(kinds).toContain('removed:Disposal fee');
+    expect(d.totalBeforeCents).toBe(125_000);
+    expect(d.totalAfterCents).toBe(139_000);
+    expect(d.totalDeltaCents).toBe(14_000);
+    expect(d.changes.find((c) => c.kind === 'changed')?.deltaCents).toBe(10_000);
+  });
+
+  it('keeps duplicate descriptions apart instead of merging them', () => {
+    const line = { description: 'Labour hour', quantity: 1, unit_price_cents: 9_000 };
+    const d = diffSnapshots(snap({ line_items: [line] }), snap({ line_items: [line, line] }));
+    expect(d.changes).toHaveLength(1);
+    expect(d.changes[0].kind).toBe('added');
+  });
+
+  it('reports term changes', () => {
+    const d = diffSnapshots(snap({ tax_percent: 0 }), snap({ tax_percent: 7, valid_until: '2026-11-01' }));
+    const labels = d.changes.map((c) => c.label);
+    expect(labels).toContain('Tax rate');
+    expect(labels).toContain('Valid until');
+  });
+});
+
+describe('diffSnapshots — tiered quotes', () => {
+  const good = option('a', 'Essential fix', [['Patch', 1, 20_000]]);
+  const better = option('b', 'Full repair', [['Repair', 1, 50_000]], true);
+
+  it('detects an edit inside one option and does not double-count mirrored flat items', () => {
+    const before = snap({ options: [good, better], recommended_option_id: 'b', line_items: better.line_items });
+    const edited = { ...better, line_items: [{ description: 'Repair', quantity: 1, unit_price_cents: 55_000 }] };
+    const after = snap({ options: [good, edited], recommended_option_id: 'b', line_items: edited.line_items });
+    const d = diffSnapshots(before, after);
+    expect(d.changes).toHaveLength(1);
+    expect(d.changes[0].scope).toBe('Full repair');
+    expect(d.totalDeltaCents).toBe(5_000);
+  });
+
+  it('detects options added, removed and a moved recommendation', () => {
+    const best = option('c', 'Replacement', [['New unit', 1, 90_000]]);
+    const before = snap({ options: [good, better], recommended_option_id: 'b' });
+    const after = snap({ options: [better, best], recommended_option_id: 'c' });
+    const labels = diffSnapshots(before, after).changes.map((c) => `${c.kind}:${c.label}`);
+    expect(labels).toContain('added:Option added');
+    expect(labels).toContain('removed:Option removed');
+    expect(labels).toContain('changed:Recommended option');
+  });
+
+  it('flags a switch between single price and options', () => {
+    const d = diffSnapshots(snap(), snap({ options: [good, better] }));
+    expect(d.changes.some((c) => c.label === 'Estimate format')).toBe(true);
+  });
+});
+
+describe('buildFollowUpPlan', () => {
+  const base = { customerName: 'Dana Whitfield', validUntil: null as string | null, now: NOW };
+
+  it('spaces touches 1, 3, 7 and 14 days after the send date', () => {
+    const sentAt = new Date(NOW.getTime() - 0).toISOString();
+    const plan = buildFollowUpPlan({ ...base, sentAt, viewCount: 0 });
+    expect(plan.map((s) => s.channel)).toEqual(['sms', 'call', 'sms', 'call']);
+    expect(plan.map((s) => Date.parse(s.due_at) - NOW.getTime())).toEqual([1 * DAY, 3 * DAY, 7 * DAY, 14 * DAY]);
+  });
+
+  it('adapts wording to whether the customer opened the estimate', () => {
+    const sentAt = NOW.toISOString();
+    const unopened = buildFollowUpPlan({ ...base, sentAt, viewCount: 0 })[0].message;
+    const opened = buildFollowUpPlan({ ...base, sentAt, viewCount: 3 })[0].message;
+    expect(unopened).toContain('reached you');
+    expect(opened).toContain('questions');
+    expect(opened).toContain('Dana');
+  });
+
+  it('compresses overdue steps to one per day instead of dumping them all on today', () => {
+    const sentAt = new Date(NOW.getTime() - 10 * DAY).toISOString();
+    const due = buildFollowUpPlan({ ...base, sentAt, viewCount: 1 }).map((s) => Date.parse(s.due_at));
+    expect(due[0]).toBe(NOW.getTime());
+    expect(due[1]).toBe(NOW.getTime() + DAY);
+    expect(due[2]).toBe(NOW.getTime() + 2 * DAY);
+    for (let i = 1; i < due.length; i++) expect(due[i]).toBeGreaterThan(due[i - 1]);
+  });
+
+  it('never schedules past the valid-until date', () => {
+    const sentAt = NOW.toISOString();
+    const plan = buildFollowUpPlan({ ...base, sentAt, viewCount: 0, validUntil: '2026-10-12' });
+    expect(plan).toHaveLength(2);
+  });
+
+  it('returns nothing once the quote is past its valid-until date', () => {
+    expect(buildFollowUpPlan({ ...base, sentAt: NOW.toISOString(), viewCount: 0, validUntil: '2026-10-01' })).toEqual([]);
+  });
+
+  it('copes with a missing send date', () => {
+    expect(buildFollowUpPlan({ ...base, sentAt: null, viewCount: 0 })).toHaveLength(4);
+  });
+});
+
+describe('followUpDueState', () => {
+  it('classifies pending and closed steps', () => {
+    expect(followUpDueState({ status: 'done', due_at: NOW.toISOString() }, NOW)).toBe('done');
+    expect(followUpDueState({ status: 'pending', due_at: new Date(NOW.getTime() - 2 * DAY).toISOString() }, NOW)).toBe('overdue');
+    expect(followUpDueState({ status: 'pending', due_at: new Date(NOW.getTime() + 2 * DAY).toISOString() }, NOW)).toBe('upcoming');
+    expect(followUpDueState({ status: 'pending', due_at: NOW.toISOString() }, NOW)).toBe('today');
+  });
+});
+
+describe('buildTimeline', () => {
+  it('orders newest first, hides v1, and adds the answer for quotes that pre-date the event trail', () => {
+    const ws = workspace(
+      { status: 'accepted', responded_at: '2026-10-03T12:00:00.000Z' },
+      {
+        versions: [
+          { id: 'v2', version_number: 2, snapshot: snap(), total_cents: 150_000, created_at: '2026-10-01T09:00:00.000Z' },
+          { id: 'v1', version_number: 1, snapshot: snap(), total_cents: 120_000, created_at: '2026-09-30T12:00:00.000Z' },
+        ],
+        events: [{ id: 'e1', event_type: 'viewed', option_id: null, metadata: { first_view: true }, created_at: '2026-10-02T08:00:00.000Z' }],
+      },
     );
-    renderPage();
-    expect(await screen.findByText('Chosen')).toBeInTheDocument();
-    expect(screen.getByText('Full repair')).toBeInTheDocument();
-    expect(screen.getAllByText(/\+\$50\.00/).length).toBeGreaterThan(0);
+    const items = buildTimeline(ws);
+    expect(items.map((i) => i.id)).toEqual(['responded', 'e:e1', 'sent', 'v:v2', 'created']);
+    expect(items[0].title).toBe('Customer accepted');
+    expect(items.find((i) => i.id === 'e:e1')?.title).toBe('Customer opened the estimate');
   });
 
-  it('converts an accepted quote to a job once, ignoring a double click', async () => {
-    mockLoad(rawWorkspace({ status: 'accepted', accepted_total_cents: 120_000 }));
-    let release: (v: unknown) => void = () => undefined;
-    api.convertQuoteToJob.mockReturnValue(new Promise((resolve) => { release = resolve; }));
-
-    renderPage();
-    const button = await screen.findByRole('button', { name: 'Convert to job' });
-    fireEvent.click(button);
-    fireEvent.click(button);
-    expect(api.convertQuoteToJob).toHaveBeenCalledTimes(1);
-    expect(api.convertQuoteToJob).toHaveBeenCalledWith(QUOTE_ID, { scheduledAt: null, address: null });
-
-    mockLoad(rawWorkspace({ status: 'accepted' }, { job: { id: 'job-1', job_status: 'scheduled', created_at: '2026-10-07T12:00:00.000Z' } }));
-    release({ ok: true, jobId: 'job-1' });
-    await waitFor(() => expect(screen.queryByRole('button', { name: 'Convert to job' })).not.toBeInTheDocument());
-    expect(screen.getByRole('link', { name: /open jobs board/i })).toBeInTheDocument();
+  it('does not duplicate the answer when an accept event exists, and names the chosen option', () => {
+    const ws = workspace(
+      { status: 'accepted', responded_at: '2026-10-03T12:00:00.000Z', options: [option('a', 'Full repair', [['Repair', 1, 50_000]])] },
+      { events: [{ id: 'e9', event_type: 'accepted', option_id: 'a', metadata: { total_cents: 50_000 }, created_at: '2026-10-03T12:00:00.000Z' }] },
+    );
+    const answers = buildTimeline(ws).filter((i) => i.kind === 'accepted');
+    expect(answers).toHaveLength(1);
+    expect(answers[0].detail).toBe('Full repair \u00b7 $500.00');
   });
 
-  it('does not offer conversion for a quote that is not accepted', async () => {
-    mockLoad(rawWorkspace({ status: 'sent' }));
-    renderPage();
-    await screen.findByRole('heading', { level: 1, name: 'Dana Whitfield' });
-    expect(screen.queryByRole('button', { name: 'Convert to job' })).not.toBeInTheDocument();
-    expect(screen.getByText(/available as soon as the customer accepts/i)).toBeInTheDocument();
+  it('includes completed follow-ups and the converted job', () => {
+    const ws = workspace(
+      { status: 'accepted' },
+      {
+        followups: [{ id: 'f1', step_number: 1, channel: 'call', due_at: '2026-10-02T00:00:00.000Z', status: 'done', suggested_message: null, outcome: 'Left voicemail', completed_at: '2026-10-02T10:00:00.000Z' }],
+        job: { id: 'j1', job_status: 'scheduled', scheduled_datetime: null, created_at: '2026-10-04T10:00:00.000Z' },
+      },
+    );
+    const titles = buildTimeline(ws).map((i) => i.title);
+    expect(titles).toContain('Call follow-up done');
+    expect(titles).toContain('Converted to a job');
+  });
+});
+
+describe('state helpers', () => {
+  it('only allows converting an accepted quote that has no job yet', () => {
+    const job = { id: 'j', job_status: 'scheduled', scheduled_datetime: null, created_at: '' };
+    expect(canConvertToJob({ status: 'accepted' }, null)).toBe(true);
+    expect(canConvertToJob({ status: 'accepted' }, job)).toBe(false);
+    expect(canConvertToJob({ status: 'sent' }, null)).toBe(false);
+    expect(canConvertToJob({ status: 'declined' }, null)).toBe(false);
   });
 
-  it('creates a follow-up plan for a sent quote', async () => {
-    mockLoad(rawWorkspace({ status: 'sent', valid_until: null }));
-    api.scheduleQuoteFollowUps.mockResolvedValue({ ok: true });
-    renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /create plan/i }));
-    await waitFor(() => expect(api.scheduleQuoteFollowUps).toHaveBeenCalledTimes(1));
-    const [quoteId, steps] = api.scheduleQuoteFollowUps.mock.calls[0];
-    expect(quoteId).toBe(QUOTE_ID);
-    expect(steps).toHaveLength(4);
+  it('only schedules plans for sent quotes', () => {
+    expect(canSchedulePlan({ status: 'sent' })).toBe(true);
+    expect(canSchedulePlan({ status: 'draft' })).toBe(false);
+    expect(canSchedulePlan({ status: 'accepted' })).toBe(false);
+  });
+
+  it('classifies validity', () => {
+    expect(validityState(null, NOW)).toBe('none');
+    expect(validityState('2026-10-01', NOW)).toBe('expired');
+    expect(validityState('2026-10-09', NOW)).toBe('expiring_soon');
+    expect(validityState('2026-12-01', NOW)).toBe('valid');
   });
 });
