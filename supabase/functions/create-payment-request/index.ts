@@ -41,13 +41,15 @@ Deno.serve(async (req: Request) => {
     const jobId = body.job_id as string | undefined;
     const customerEmail = (body.customer_email as string | undefined)?.trim() || undefined;
     const customerPhoneInput = (body.customer_phone as string | undefined)?.trim() || undefined;
+    const collectedVia = body.collected_via === "technician" ? "technician" : "office";
+    const sendNotifications = collectedVia !== "technician" || body.send_link === true;
     if (!jobId) return jsonResponse({ error: "job_id is required." }, 400);
 
     const ownerId = await resolveAccountOwnerId(admin, caller);
 
     const { data: job } = await admin
       .from("jobs")
-      .select("id, user_id, customer_name, customer_phone, service_type, invoice_amount")
+      .select("id, user_id, customer_name, customer_phone, service_type, invoice_amount, assigned_technician_id")
       .eq("id", jobId)
       .eq("user_id", ownerId)
       .maybeSingle();
@@ -57,7 +59,7 @@ Deno.serve(async (req: Request) => {
     const payableAmount = Number(bal?.balance_cents ?? Math.round(Number(job.invoice_amount) * 100)) / 100;
     if (payableAmount <= 0) return jsonResponse({ error: "This job is already paid in full." }, 400);
     const customerPhone = customerPhoneInput || job.customer_phone || undefined;
-    if (!customerEmail && !customerPhone) {
+    if (!customerEmail && !customerPhone && collectedVia !== "technician") {
       return jsonResponse({ error: "Add a customer email or phone number to send the payment request to." }, 400);
     }
 
@@ -70,24 +72,45 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: "Connect and finish verifying your Stripe account before sending payment requests." }, 400);
     }
 
+    // Who is collecting? Owner, or a technician on the team (technician flow requires being assigned).
+    const { data: callerMember } = await admin
+      .from("team_members").select("id").eq("account_owner_id", ownerId).eq("member_email", caller.email ?? "").maybeSingle();
+    if (collectedVia === "technician" && ownerId !== caller.id && job.assigned_technician_id !== callerMember?.id) {
+      return jsonResponse({ error: "You can only collect payment on jobs assigned to you." }, 403);
+    }
+    const technicianId: string | null = job.assigned_technician_id ?? (collectedVia === "technician" ? callerMember?.id ?? null : null);
     const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
     const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
     if (!secretKey) return jsonResponse({ error: "Payments aren't configured on this server yet (missing STRIPE_SECRET_KEY)." }, 500);
 
-    const { data: paymentRequest, error: insertError } = await admin
-      .from("payment_requests")
-      .insert({
-        user_id: ownerId,
-        job_id: job.id,
-        customer_name: job.customer_name,
-        customer_email: customerEmail ?? null,
-        customer_phone: customerPhone ?? null,
-        amount: job.invoice_amount,
-        status: "pending",
-      })
-      .select()
-      .single();
-    if (insertError || !paymentRequest) throw insertError || new Error("Could not create the payment request.");
+    // Technician flow: tapping twice must not create duplicate requests — reuse the open one.
+    let paymentRequest: any = null;
+    if (collectedVia === "technician") {
+      const { data: existingOpen } = await admin
+        .from("payment_requests").select("*").eq("job_id", job.id).eq("user_id", ownerId)
+        .in("status", ["pending", "sent", "overdue"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      paymentRequest = existingOpen ?? null;
+    }
+    if (!paymentRequest) {
+      const { data, error: insertError } = await admin
+        .from("payment_requests")
+        .insert({
+          user_id: ownerId,
+          job_id: job.id,
+          customer_name: job.customer_name,
+          customer_email: customerEmail ?? null,
+          customer_phone: customerPhone ?? null,
+          amount: job.invoice_amount,
+          status: "pending",
+          technician_id: technicianId,
+          collected_via: collectedVia,
+        })
+        .select()
+        .single();
+      if (insertError || !data) throw insertError || new Error("Could not create the payment request.");
+      paymentRequest = data;
+    }
+    const payUrl = `${siteUrl}/pay/${paymentRequest.public_token}`;
 
     const description = job.service_type ? `${job.service_type} — ${job.customer_name}` : `Invoice for ${job.customer_name}`;
 
