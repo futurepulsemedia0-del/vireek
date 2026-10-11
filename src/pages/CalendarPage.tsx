@@ -21,6 +21,10 @@ import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
+import { ScheduleDndProvider } from '@/components/schedule/ScheduleDnd';
+import { WeekGrid, DayLanes, UnscheduledStrip, CalendarJobCard } from '@/components/schedule/CalendarBoard';
+import { useScheduleBoard } from '@/hooks/useScheduleBoard';
+import { toDateKey, type MoveTargetOption } from '@/lib/scheduleDnd';
 
 // ============================================================
 // New: Dispatch Calendar — visual week/day scheduling board.
@@ -680,6 +684,7 @@ export function CalendarPage() {
     onChange: (payload) => {
       if (payload.eventType === 'INSERT') {
         const row = payload.new as Job;
+        if (board.moves.isPending(row.id)) return;
         if (!canViewAll && teamMember && row.assigned_technician_id !== teamMember.id) return;
         setAllJobs((prev) => (prev.some((j) => j.id === row.id) ? prev : [row, ...prev]));
       } else if (payload.eventType === 'UPDATE') {
@@ -840,65 +845,37 @@ const updateJob = useCallback(
 );
 
   // ------------------------------------------------------------
-  // Drag and drop
-  // ------------------------------------------------------------
+   const syncSelected = useCallback(
+    (row: Job) => setSelectedJob((prev) => (prev?.id === row.id ? { ...prev, ...row } : prev)),
+    []
+  );
 
-  const handleDragStart = (e: React.DragEvent, jobId: string) => {
-    setDraggingId(jobId);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', jobId);
-  };
+  const board = useScheduleBoard({
+    jobs: allJobs,
+    setJobs: setAllJobs,
+    technicians,
+    canManage: canViewAll,
+    viewDay: toDateKey(anchorDate),
+    onJobSynced: syncSelected,
+  });
 
-  const handleDragEnd = () => {
-    setDraggingId(null);
-    setDragOverKey(null);
-  };
-
-  const handleDragOverKey = (e: React.DragEvent, key: string) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverKey(key);
-  };
-
-  const handleDropOnDay = async (e: React.DragEvent, day: Date) => {
-    e.preventDefault();
-    const jobId = e.dataTransfer.getData('text/plain');
-    setDraggingId(null);
-    setDragOverKey(null);
-    if (!jobId) return;
-    const job = allJobs.find((j) => j.id === jobId);
-    if (!job) return;
-    if (job.scheduled_datetime && isSameDay(new Date(job.scheduled_datetime), day)) return;
-    const newIso = reDateKeepTime(day, job.scheduled_datetime);
-    await updateJob(jobId, { scheduled_datetime: newIso }, `Moved to ${day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.`);
-  };
-
-  const handleDropOnLane = async (e: React.DragEvent, techId: string | null) => {
-    e.preventDefault();
-    const jobId = e.dataTransfer.getData('text/plain');
-    setDraggingId(null);
-    setDragOverKey(null);
-    if (!jobId) return;
-    const job = allJobs.find((j) => j.id === jobId);
-    if (!job || job.assigned_technician_id === techId) return;
-    const tech = techId ? technicians.find((t) => t.id === techId) : null;
-    await updateJob(
-      jobId,
-      { assigned_technician_id: techId },
-      techId ? `Reassigned to ${tech?.member_name ?? tech?.member_email ?? 'technician'}.` : 'Unassigned.'
-    );
-  };
-
-  const handleDropOnUnscheduled = async (e: React.DragEvent) => {
-    e.preventDefault();
-    const jobId = e.dataTransfer.getData('text/plain');
-    setDraggingId(null);
-    setDragOverKey(null);
-    if (!jobId) return;
-    const job = allJobs.find((j) => j.id === jobId);
-    if (!job || !job.scheduled_datetime) return;
-    await updateJob(jobId, { scheduled_datetime: null }, 'Removed from schedule.');
-  };
+  const moveTargetsFor = useCallback((): MoveTargetOption[] => {
+    const unscheduled: MoveTargetOption = { key: 'unscheduled', label: 'Needs scheduling', group: 'Other', target: { kind: 'unscheduled' } };
+    const techTargets = lanes.map((l): MoveTargetOption => ({
+      key: `lane-${l.key}`,
+      label: l.technician ? l.technician.member_name ?? l.technician.member_email : 'Unassigned',
+      group: 'Technician',
+      target: { kind: 'lane', technicianId: l.technician?.id ?? null },
+    }));
+    if (viewMode === 'day') return [...techTargets, unscheduled];
+    const dayTargets = weekDays.map((d): MoveTargetOption => ({
+      key: `day-${toDateKey(d)}`,
+      label: d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+      group: 'Day',
+      target: { kind: 'day', date: toDateKey(d) },
+    }));
+    return [...dayTargets, ...techTargets, unscheduled];
+  }, [viewMode, weekDays, lanes]);
 
   const handleDrawerSave = async (updates: Partial<Job>) => {
     if (!selectedJob) return false;
@@ -930,6 +907,22 @@ const updateJob = useCallback(
 
   return (
     <DashboardLayout activeLabel="Calendar">
+    <ScheduleDndProvider
+  plan={board.plan}
+  onMove={board.handleMove}
+  describeJob={(id) => {
+    const j = allJobs.find((x) => x.id === id);
+    return j ? `${j.customer_name}${j.service_type ? `, ${j.service_type}` : ''}` : 'job';
+  }}
+  renderOverlay={(id) => {
+    const j = allJobs.find((x) => x.id === id);
+    return j ? (
+      <div className="w-60">
+        <CalendarJobCard job={j} technician={technicians.find((t) => t.id === j.assigned_technician_id) ?? null} color={getColor(j.assigned_technician_id)} onClick={() => undefined} />
+      </div>
+    ) : null;
+  }}
+>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-3">
