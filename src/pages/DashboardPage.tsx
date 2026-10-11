@@ -14,6 +14,10 @@ import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
 import { SinceYesterdayCard } from '@/components/SinceYesterdayCard';
 import { AttributionReport, AttributionRow } from '@/components/AttributionReport';
 
+import { OverviewGrid } from '@/components/overview/OverviewGrid';
+import { OverviewCustomizeBar } from '@/components/overview/OverviewCustomizeBar';
+import { useOverviewLayout } from '@/hooks/useOverviewLayout';
+import { hiddenItems, resolveRolePreset, visibleItems, type OverviewWidgetId, type PermissionKey } from '@/lib/overviewLayout';
 // ============================================================
 // SHARED UI PRIMITIVES
 // ============================================================
@@ -704,6 +708,195 @@ export function DashboardPage() {
 
   const dailyDigest = insights.find((i) => i.insight_type === 'pattern');
 
+  // ------------------------------------------------------------
+  // Customizable Overview: per-user layout saved in Supabase
+  // ------------------------------------------------------------
+  const can = (p: PermissionKey) => permissions[p];
+  const [editingLayout, setEditingLayout] = useState(false);
+  const overview = useOverviewLayout({
+    userId: profileLoading ? undefined : user?.id,
+    defaultPreset: resolveRolePreset({
+      isOwner,
+      teamRole: teamMember?.role,
+      dispatchEnabled: teamMember?.dispatch_enabled,
+    }),
+    can,
+  });
+
+  const toggleEditingLayout = () => {
+    if (editingLayout) void overview.flush();
+    setEditingLayout((v) => !v);
+  };
+
+  const handleResetLayout = async () => {
+    try {
+      await overview.reset();
+      toast('Overview reset to default.', 'info');
+    } catch {
+      toast('Could not reset your layout. Please try again.', 'error');
+    }
+  };
+
+  const busy = profileLoading || dataLoading;
+  const otherInsights = insights.filter((i) => i.id !== dailyDigest?.id);
+
+  const quickActions: { to: string; icon: typeof Phone; title: string; sub: string; show: boolean }[] = [
+    { to: '/dashboard/analytics', icon: TrendingUp, title: 'Analytics', sub: 'Deep dive into performance', show: isOwner || permissions.can_view_billing },
+    { to: '/dashboard/calls', icon: Phone, title: 'Call History', sub: 'Review and manage calls', show: true },
+    { to: '/dashboard/leads', icon: User, title: 'Leads', sub: 'Kanban board & pipeline', show: true },
+    { to: '/dashboard/jobs', icon: Wrench, title: isOwner || permissions.can_view_all_jobs ? 'Jobs' : 'My Jobs', sub: 'Work orders & invoicing', show: true },
+    { to: '/dashboard/business-profile', icon: Settings, title: 'Business Profile', sub: 'Services, hours & FAQs', show: isOwner || permissions.can_edit_business_profile },
+    { to: '/dashboard/insights', icon: Lightbulb, title: 'Insights', sub: 'AI smart suggestions', show: true },
+    { to: '/dashboard/team', icon: ShieldCheck, title: 'Team', sub: 'Manage members & permissions', show: isOwner || permissions.can_manage_team },
+    { to: '/dashboard/billing', icon: CreditCard, title: 'Billing', sub: 'Plan & customer invoices', show: isOwner || permissions.can_view_billing },
+    { to: '/dashboard/integrations', icon: Plug, title: 'Integrations', sub: 'Connect your tools', show: true },
+  ];
+
+  const renderWidget = (id: OverviewWidgetId): React.ReactNode => {
+    switch (id) {
+      case 'since_yesterday':
+        return profileLoading ? <SkeletonBlock className="h-40 w-full" /> : <SinceYesterdayCard />;
+      case 'revenue_recovered':
+        return busy ? (
+          <SkeletonBlock className="h-40 w-full" />
+        ) : (
+          <RevenueRecoveredCard
+            calls={allCalls}
+            jobs={allJobs}
+            businessHours={businessProfile?.business_hours ?? null}
+            planId={profile?.plan}
+          />
+        );
+      case 'kpi_calls':
+        return busy ? <KpiSkeleton /> : (
+          <KpiCard icon={Phone} label="Calls This Month" value={String(metrics.callsThisMonthCount)} sub="Total inbound calls" accentColor="bg-accent/10 text-accent" delay={0} />
+        );
+      case 'kpi_emergency':
+        return busy ? <KpiSkeleton /> : (
+          <KpiCard
+            icon={AlertTriangle}
+            label="Emergency Calls"
+            value={String(metrics.emergencyCallsCount)}
+            sub={`${metrics.emergencyCallsCount === 1 ? 'Call' : 'Calls'} needing urgent response`}
+            accentColor="bg-danger/10 text-danger"
+            delay={0.05}
+          />
+        );
+      case 'kpi_jobs':
+        return busy ? <KpiSkeleton /> : (
+          <KpiCard icon={CheckCircle2} label="Jobs Completed" value={String(metrics.jobsCompletedCount)} sub="This month" accentColor="bg-success-500/10 text-success-500" delay={0.1} />
+        );
+      case 'kpi_revenue':
+        return busy ? <KpiSkeleton /> : (
+          <KpiCard icon={DollarSign} label="Revenue This Month" value={formatCurrency(metrics.revenueThisMonth)} sub="From paid invoices" accentColor="bg-cta/10 text-cta" delay={0.15} />
+        );
+      case 'metric_minutes':
+        return busy ? <MetricSkeleton /> : (
+          <MetricCard icon={Clock} label="Minutes Used" value={`${metrics.minutesUsed} / ${metrics.minutesIncluded}`} delay={0.2}>
+            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-bg-tertiary">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${metrics.usagePercent}%` }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className={`h-full rounded-full ${
+                  metrics.usagePercent > 80 ? 'bg-cta' : metrics.usagePercent > 50 ? 'bg-accent' : 'bg-success-500'
+                }`}
+              />
+            </div>
+            <p className="mt-1.5 text-xs text-text-secondary">
+              {metrics.minutesRemaining} minutes remaining
+              {metrics.usagePercent > 80 && <span className="ml-1 font-medium text-cta">· approaching limit</span>}
+            </p>
+          </MetricCard>
+        );
+      case 'metric_sentiment':
+        return busy ? <MetricSkeleton /> : <MetricCard icon={Activity} label="Avg Response Sentiment" value={metrics.avgSentiment} delay={0.25} />;
+      case 'metric_conversion':
+        return busy ? <MetricSkeleton /> : (
+          <MetricCard icon={TrendingUp} label="Conversion Rate" value={metrics.conversionRate} delay={0.3}>
+            <p className="mt-1 text-xs text-text-secondary">
+              {leads.filter((l) => l.stage === 'won').length} won / {leads.length} total leads
+            </p>
+          </MetricCard>
+        );
+      case 'metric_missed':
+        return busy ? <MetricSkeleton /> : <MetricCard icon={XCircle} label="Missed Call Rate" value={metrics.missedCallRate} delay={0.35} />;
+      case 'call_volume':
+        return dataLoading ? <ChartSkeleton /> : <CallVolumeChart data={metrics.chartData} />;
+      case 'needs_attention':
+        return <NeedsAttention items={metrics.attentionItems} onInsightClick={() => navigate('/dashboard/insights')} />;
+      case 'attribution':
+        return !dataLoading && metrics.attributionRows.length > 0 ? <AttributionReport rows={metrics.attributionRows} /> : null;
+      case 'ai_insights':
+        return !dataLoading && otherInsights.length > 0 ? (
+          <div>
+            <h2 className="text-lg font-semibold text-text-primary">AI Insights</h2>
+            <div className="mt-4 grid gap-4">
+              {otherInsights.map((insight, i) => {
+                const Icon = insight.insight_type === 'pattern' ? TrendingUp : insight.insight_type === 'suggestion' ? Lightbulb : AlertTriangle;
+                const colorClass = insight.insight_type === 'pattern' ? 'bg-accent/10 text-accent' : insight.insight_type === 'suggestion' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500';
+                return (
+                  <motion.div
+                    key={insight.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                    className="flex items-start gap-4 rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark"
+                  >
+                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${colorClass}`}>
+                      <Icon size={20} />
+                    </span>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-text-primary">{insight.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-text-secondary">{insight.description}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDismissInsight(insight.id)}
+                      className="focus-ring shrink-0 rounded text-text-secondary transition-colors hover:text-text-primary"
+                      aria-label="Dismiss insight"
+                    >
+                      <XCircle size={18} />
+                    </button>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        ) : null;
+      case 'quick_actions':
+        return (
+          <div>
+            <h2 className="text-lg font-semibold text-text-primary">Quick Actions</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {quickActions
+                .filter((a) => a.show)
+                .map(({ to, icon: Icon, title, sub }) => (
+                  <button
+                    key={to}
+                    type="button"
+                    onClick={() => navigate(to)}
+                    className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
+                  >
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                      <Icon size={20} />
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-text-primary">{title}</p>
+                      <p className="text-xs text-text-secondary">{sub}</p>
+                    </div>
+                    <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                ))}
+            </div>
+          </div>
+        );
+      case 'recent_activity':
+        return <RecentActivity items={metrics.activityItems} highlightId={newlyArrivedId ? `call-${newlyArrivedId}` : null} />;
+      default:
+        return null;
+    }
+  };
   return (
     <DashboardLayout activeLabel="Overview">
       {/* Usage alert banner */}
@@ -742,339 +935,26 @@ export function DashboardPage() {
           )}
         </div>
 
-        {/* SINCE YESTERDAY — only the changes that matter */}
-        {!profileLoading && (
-          <div className="mb-6">
-            <SinceYesterdayCard />
-          </div>
-        )}
-        {/* REVENUE RECOVERED — the number that actually proves Vireek's value */}
-        {!profileLoading && !dataLoading && (
-          <div className="mb-6">
-            <RevenueRecoveredCard
-              calls={allCalls}
-              jobs={allJobs}
-              businessHours={businessProfile?.business_hours ?? null}
-              planId={profile?.plan}
-            />
-          </div>
-        )}
-
-        {/* PRIMARY KPI ROW */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {profileLoading || dataLoading ? (
-            <>
-              <KpiSkeleton />
-              <KpiSkeleton />
-              <KpiSkeleton />
-              <KpiSkeleton />
-            </>
-          ) : (
-            <>
-              <KpiCard
-                icon={Phone}
-                label="Calls This Month"
-                value={String(metrics.callsThisMonthCount)}
-                sub="Total inbound calls"
-                accentColor="bg-accent/10 text-accent"
-                delay={0}
-              />
-              <KpiCard
-                icon={AlertTriangle}
-                label="Emergency Calls"
-                value={String(metrics.emergencyCallsCount)}
-                sub={`${metrics.emergencyCallsCount === 1 ? 'Call' : 'Calls'} needing urgent response`}
-                accentColor="bg-danger/10 text-danger"
-                delay={0.05}
-              />
-              <KpiCard
-                icon={CheckCircle2}
-                label="Jobs Completed"
-                value={String(metrics.jobsCompletedCount)}
-                sub="This month"
-                accentColor="bg-success-500/10 text-success-500"
-                delay={0.1}
-              />
-              <KpiCard
-                icon={DollarSign}
-                label="Revenue This Month"
-                value={formatCurrency(metrics.revenueThisMonth)}
-                sub="From paid invoices"
-                accentColor="bg-cta/10 text-cta"
-                delay={0.15}
-              />
-            </>
-          )}
-        </div>
-
-        {/* SECONDARY METRICS ROW */}
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {profileLoading || dataLoading ? (
-            <>
-              <MetricSkeleton />
-              <MetricSkeleton />
-              <MetricSkeleton />
-              <MetricSkeleton />
-            </>
-          ) : (
-            <>
-              <MetricCard
-                icon={Clock}
-                label="Minutes Used"
-                value={`${metrics.minutesUsed} / ${metrics.minutesIncluded}`}
-                delay={0.2}
-              >
-                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-bg-tertiary">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${metrics.usagePercent}%` }}
-                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                    className={`h-full rounded-full ${
-                      metrics.usagePercent > 80
-                        ? 'bg-cta'
-                        : metrics.usagePercent > 50
-                          ? 'bg-accent'
-                          : 'bg-success-500'
-                    }`}
-                  />
-                </div>
-                <p className="mt-1.5 text-xs text-text-secondary">
-                  {metrics.minutesRemaining} minutes remaining
-                  {metrics.usagePercent > 80 && (
-                    <span className="ml-1 text-cta font-medium">· approaching limit</span>
-                  )}
-                </p>
-              </MetricCard>
-
-              <MetricCard
-                icon={Activity}
-                label="Avg Response Sentiment"
-                value={metrics.avgSentiment}
-                delay={0.25}
-              />
-
-              <MetricCard
-                icon={TrendingUp}
-                label="Conversion Rate"
-                value={metrics.conversionRate}
-                delay={0.3}
-              >
-                <p className="mt-1 text-xs text-text-secondary">
-                  {leads.filter((l) => l.stage === 'won').length} won / {leads.length} total leads
-                </p>
-              </MetricCard>
-
-              <MetricCard
-                icon={XCircle}
-                label="Missed Call Rate"
-                value={metrics.missedCallRate}
-                delay={0.35}
-              />
-            </>
-          )}
-        </div>
-
-        {/* CHART + NEEDS ATTENTION */}
-        <div className="mt-5 grid gap-5 lg:grid-cols-2">
-          {dataLoading ? <ChartSkeleton /> : <CallVolumeChart data={metrics.chartData} />}
-          <NeedsAttention items={metrics.attentionItems} onInsightClick={() => navigate('/dashboard/insights')} />
-        </div>
-
-        {/* LEAD SOURCE ATTRIBUTION */}
-        {!dataLoading && metrics.attributionRows.length > 0 && (
-          <div className="mt-5">
-            <AttributionReport rows={metrics.attributionRows} />
-          </div>
-        )}
-
-        {/* AI INSIGHTS (if any non-digest insights exist) */}
-        {!dataLoading && insights.filter((i) => i.id !== dailyDigest?.id).length > 0 && (
-          <div className="mt-5">
-            <h2 className="text-lg font-semibold text-text-primary">AI Insights</h2>
-            <div className="mt-4 grid gap-4">
-              {insights
-                .filter((i) => i.id !== dailyDigest?.id)
-                .map((insight, i) => {
-                  const Icon = insight.insight_type === 'pattern' ? TrendingUp : insight.insight_type === 'suggestion' ? Lightbulb : AlertTriangle;
-                  const colorClass = insight.insight_type === 'pattern' ? 'bg-accent/10 text-accent' : insight.insight_type === 'suggestion' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500';
-                  return (
-                    <motion.div
-                      key={insight.id}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: i * 0.05 }}
-                      className="flex items-start gap-4 rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark"
-                    >
-                      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${colorClass}`}>
-                        <Icon size={20} />
-                      </span>
-                      <div className="flex-1">
-                        <h3 className="text-sm font-semibold text-text-primary">{insight.title}</h3>
-                        <p className="mt-1 text-sm leading-relaxed text-text-secondary">{insight.description}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleDismissInsight(insight.id)}
-                        className="focus-ring shrink-0 rounded text-text-secondary transition-colors hover:text-text-primary"
-                        aria-label="Dismiss insight"
-                      >
-                        <XCircle size={18} />
-                      </button>
-                    </motion.div>
-                  );
-                })}
-            </div>
-          </div>
-        )}
-
-        {/* QUICK ACTIONS */}
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold text-text-primary">Quick Actions</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {(isOwner || permissions.can_view_billing) && (
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard/analytics')}
-                className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <TrendingUp size={20} />
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-text-primary">Analytics</p>
-                  <p className="text-xs text-text-secondary">Deep dive into performance</p>
-                </div>
-                <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard/calls')}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Phone size={20} />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Call History</p>
-                <p className="text-xs text-text-secondary">Review and manage calls</p>
-              </div>
-              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard/leads')}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <User size={20} />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Leads</p>
-                <p className="text-xs text-text-secondary">Kanban board & pipeline</p>
-              </div>
-              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard/jobs')}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Wrench size={20} />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">{isOwner || permissions.can_view_all_jobs ? 'Jobs' : 'My Jobs'}</p>
-                <p className="text-xs text-text-secondary">Work orders & invoicing</p>
-              </div>
-              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-            </button>
-            {(isOwner || permissions.can_edit_business_profile) && (
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard/business-profile')}
-                className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <Settings size={20} />
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-text-primary">Business Profile</p>
-                  <p className="text-xs text-text-secondary">Services, hours & FAQs</p>
-                </div>
-                <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard/insights')}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Lightbulb size={20} />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Insights</p>
-                <p className="text-xs text-text-secondary">AI smart suggestions</p>
-              </div>
-              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-            </button>
-            {(isOwner || permissions.can_manage_team) && (
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard/team')}
-                className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <ShieldCheck size={20} />
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-text-primary">Team</p>
-                  <p className="text-xs text-text-secondary">Manage members & permissions</p>
-                </div>
-                <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-              </button>
-            )}
-            {(isOwner || permissions.can_view_billing) && (
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard/billing')}
-                className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <CreditCard size={20} />
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-text-primary">Billing</p>
-                  <p className="text-xs text-text-secondary">Plan & customer invoices</p>
-                </div>
-                <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard/integrations')}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Plug size={20} />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary">Integrations</p>
-                <p className="text-xs text-text-secondary">Connect your tools</p>
-              </div>
-              <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* RECENT ACTIVITY */}
-        <div className="mt-8">
-          <RecentActivity
-            items={metrics.activityItems}
-            highlightId={newlyArrivedId ? `call-${newlyArrivedId}` : null}
-          />
-        </div>
-    </DashboardLayout>
+        {/* CUSTOMIZABLE OVERVIEW — layout saved per user in Supabase */}
+        <OverviewCustomizeBar
+          editing={editingLayout}
+          preset={overview.layout.preset}
+          hidden={hiddenItems(overview.layout, can).map((i) => i.id)}
+          saveState={overview.saveState}
+          onToggleEditing={toggleEditingLayout}
+          onApplyPreset={overview.applyPreset}
+          onReset={handleResetLayout}
+          onShow={overview.show}
+        />
+        <OverviewGrid
+          items={visibleItems(overview.layout, can)}
+          editing={editingLayout}
+          loading={!overview.ready}
+          renderWidget={renderWidget}
+          onMove={overview.move}
+          onMoveBy={overview.moveBy}
+          onResize={overview.resize}
+          onHide={overview.hide}
+        />
   );
 }
