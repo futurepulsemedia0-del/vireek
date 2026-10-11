@@ -350,25 +350,22 @@ export function CustomerSitesPage() {
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => navigate(`/dashboard/customers/${customerId}/sites/${site.id}/twin`)}
-                    className={smallBtn}
-                  >
-                    <Wrench size={12} /> Digital Twin
-                  </button>
                   <button
                     type="button"
-                    onClick={() => navigate(`/dashboard/homes/${site.id}`)}
+                    onClick={() => navigate(`/dashboard/homes/${site.id}/passport`)}
                     className={smallBtn}
                   >
-                    <Wrench size={12} /> Home Graph
+                    <Fingerprint size={12} /> Passport
                   </button>
-                  <button type="button" onClick={() => setAddingBuildingFor(site.id)} className={smallBtn}>
                   <button
                     type="button"
                     onClick={() => navigate(`/dashboard/customers/${customerId}/sites/${site.id}/intelligence`)}
                     className={smallBtn}
                   >
                     <Network size={12} /> Intelligence
+                  </button>
+                  <button type="button" onClick={() => setAddingBuildingFor(site.id)} className={smallBtn}>
+                    <Plus size={12} /> Building
                   </button>
                     <Plus size={12} /> Building
                   </button>
