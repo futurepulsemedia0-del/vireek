@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { HomePassportChip } from '@/components/home-passport/HomePassportChip';
 import { HomeHealthScoreCard } from '@/components/HomeHealthScoreCard';
 import { LifetimeServicePlanCard } from '@/components/LifetimeServicePlanCard';
 import { formatCents } from '@/lib/agentGovernance';
@@ -653,7 +654,7 @@ export function HomeLifetimeGraphPage() {
         <Link to={`/dashboard/customers/${graph.currentCustomerId}/sites`} className="focus-ring flex w-fit items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary">
           <ArrowLeft size={12} /> Back to sites
         </Link>
-
+        <HomePassportChip siteId={graph.siteId} />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Network className="text-cta" size={20} />
