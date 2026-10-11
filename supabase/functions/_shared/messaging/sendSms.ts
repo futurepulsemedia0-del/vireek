@@ -16,16 +16,32 @@
 import { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { checkA2pApproved } from "../compliance/a2pGate.ts";
 import { isDncSuppressed, normalizePhone } from "../compliance/dncCheck.ts";
+import { gateOutbound, deferMessage, type Purpose } from "./quietHours.ts";
 
 export type SendSmsResult =
-  | { ok: true; sid: string }
-  | { ok: false; reason: "A2P_NOT_APPROVED" | "OPTED_OUT" | "NOT_CONFIGURED" | "TWILIO_ERROR"; detail?: string };
+  | { ok: true; sid: string; deferred?: false }
+  | { ok: true; sid: string; deferred: true; sendAt: string }
+  | { ok: false; reason: "QUIET_HOURS"; sendAt: string; detail?: string }
+  | { ok: false; reason: "A2P_NOT_APPROVED" | "OPTED_OUT" | "NOT_CONFIGURED" | "TWILIO_ERROR" | "QUEUE_ERROR"; detail?: string };
+
+export interface SendSmsOptions {
+  purpose?: Purpose;
+  customerId?: string | null;
+  override?: { reason: string } | null;
+  source?: string;
+  dedupeKey?: string;
+  /** "queue" (default) holds the message here; "caller" returns QUIET_HOURS so the caller reschedules its own row. */
+  onQuiet?: "queue" | "caller";
+  /** ONLY for deferred-message-dispatcher, which already re-ran the gate. */
+  skipQuietHours?: boolean;
+}
 
 export async function sendCompliantSms(
   admin: SupabaseClient,
   userId: string,
   to: string,
   body: string,
+  opts: SendSmsOptions = {},
 ): Promise<SendSmsResult> {
   const a2p = await checkA2pApproved(admin, userId);
   if (!a2p.approved) {
@@ -36,6 +52,16 @@ export async function sendCompliantSms(
     return { ok: false, reason: "OPTED_OUT" };
   }
 
+  if (!opts.skipQuietHours) {
+    const input = { channel: "sms" as const, to, purpose: opts.purpose, customerId: opts.customerId, override: opts.override, source: opts.source };
+    const outcome = await gateOutbound(admin, userId, input);
+    if (!outcome.proceed) {
+      if (opts.onQuiet === "caller") return { ok: false, reason: "QUIET_HOURS", sendAt: outcome.sendAt, detail: outcome.decision.detail };
+      const queued = await deferMessage(admin, userId, input, { bodyText: body, dedupeKey: opts.dedupeKey, transport: "a2p" }, outcome);
+      if (!queued.queued) return { ok: false, reason: "QUEUE_ERROR", detail: queued.error };
+      return { ok: true, sid: `deferred:${queued.queueId}`, deferred: true, sendAt: queued.sendAt };
+    }
+  }
   const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
   const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
   const messagingServiceSid = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
