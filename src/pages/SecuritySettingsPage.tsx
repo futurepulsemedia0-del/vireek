@@ -10,6 +10,7 @@ import { listTrustedDevices, revokeTrustedDevice, TrustedDeviceRow } from '@/lib
 import { listOwnSessions, revokeOwnSession, getCurrentSessionId, describeUserAgent, OwnSessionRow } from '@/lib/sessions';
 import { buildMyDataExport, downloadDataExport, deleteMyAccount } from '@/lib/accountData';
 import { EnterpriseDataExportPanel } from '@/components/settings/EnterpriseDataExportPanel';
+import { PasskeysCard } from '@/components/settings/PasskeysCard';
 
 interface AuditLogRow {
   id: string;
@@ -392,7 +393,7 @@ export function SecuritySettingsPage() {
           )}
         </div>
       </div>
-
+      <PasskeysCard />
       {/* Sessions */}
       <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
         <div className="flex items-center gap-3">
