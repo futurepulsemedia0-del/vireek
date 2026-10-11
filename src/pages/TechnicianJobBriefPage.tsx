@@ -9,6 +9,7 @@ import { createExpertAssistRequest, snapshotFromBrief } from '@/lib/expertAssist
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
+import { JobPaymentPanel } from '@/components/technician/JobPaymentPanel';
 
 export function TechnicianJobBriefPage() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -103,6 +104,7 @@ export function TechnicianJobBriefPage() {
 
         <PermitCompliancePanel job={job} />
         <JobUnknownsPanel job={job} />
+        <JobPaymentPanel jobId={job.id} />
         <Link to={`/dashboard/live-copilot?job=${jobId}`} className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white">Open Live Copilot</Link>
         {customer_preferences.length > 0 && (
           <section className="rounded-lg border border-border bg-bg-secondary p-3">
