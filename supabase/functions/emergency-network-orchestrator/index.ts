@@ -235,7 +235,10 @@ async function textCustomer(c: Ctx, flag: string, kind: CustomerMessageKind, ext
     trackingUrl: extra.trackingUrl === undefined ? trackingUrl(c, job) : extra.trackingUrl,
     ...extra,
   });
-  const result = await sendCompliantSms(c.admin, c.inc.user_id, c.inc.customer_phone, body);
+  const result = await sendCompliantSms(c.admin, c.inc.user_id, c.inc.customer_phone, body, {
+  purpose: "emergency",
+  source: "emergency-network-orchestrator",
+});
   await mark(c, flag); // never retry-storm a customer, whatever the outcome
   if (result.ok) await log(c, "customer_updates", "ok", `Customer texted (${kind})`);
   else await log(c, "customer_updates", "failed", `Customer text not sent (${kind}): ${result.reason}`, { reason: result.reason });
