@@ -669,6 +669,7 @@ export function HomeLifetimeGraphPage() {
           </div>
           <div className="flex items-center gap-2">
             {current && <Chip>Owner: {current.ownerName ?? 'Customer'}</Chip>}
+            <Link to={`/dashboard/homes/${graph.siteId}/passport`} className={smallBtn}><Fingerprint size={12} /> Home Passport</Link>
             {graph.schemaReady && <button type="button" className={smallBtn} onClick={() => setTransferOpen(true)}><KeyRound size={12} /> Transfer ownership</button>}
           </div>
         </div>
