@@ -16,6 +16,11 @@ export interface Invoice {
   customer_phone: string | null;
   line_items: QuoteLineItem[];
   tax_percent: number;
+  customer_id: string | null;
+  service_address: import('@/lib/salesTax').ServiceAddress | null;
+  tax_breakdown: import('@/lib/salesTax').TaxBreakdownLine[];
+  tax_cents: number | null;
+  tax_exempt: boolean;
   notes: string | null;
   status: InvoiceStatus;
   due_date: string | null;
@@ -38,6 +43,10 @@ export interface PublicInvoiceInfo {
   due_date: string | null;
   notes: string | null;
   business_name: string | null;
+  tax_breakdown?: import('@/lib/salesTax').TaxBreakdownLine[];
+  tax_cents?: number | null;
+  tax_exempt?: boolean;
+  service_address?: import('@/lib/salesTax').ServiceAddress | null;
 }
 
 export function isOverdue(invoice: Pick<Invoice, 'due_date' | 'status'>): boolean {
@@ -64,6 +73,8 @@ export async function createInvoice(input: {
   tax_percent?: number;
   due_date?: string;
   notes?: string;
+  tax_percent?: number;
+} & Partial<import('@/lib/salesTax').TaxDocumentColumns>): Promise<Invoice> {
 }): Promise<Invoice> {
   const { data, error } = await supabase.from('invoices').insert(input).select().single();
   if (error) throw error;
