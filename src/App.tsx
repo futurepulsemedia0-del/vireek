@@ -149,6 +149,7 @@ const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ defa
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
+const TechnicianDepositsPage = lazy(() => import('@/pages/TechnicianDepositsPage').then((m) => ({ default: m.TechnicianDepositsPage })));
 const ExpertAssistInboxPage = lazy(() => import('@/pages/ExpertAssistInboxPage').then((m) => ({ default: m.ExpertAssistInboxPage })));
 const ExpertAssistThreadPage = lazy(() => import('@/pages/ExpertAssistThreadPage').then((m) => ({ default: m.ExpertAssistThreadPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
@@ -1863,6 +1864,14 @@ function App() {
           element={
             <TechnicianRoute>
               <TechnicianJobBriefPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/tech/deposits"
+          element={
+            <TechnicianRoute>
+              <TechnicianDepositsPage />
             </TechnicianRoute>
           }
         />
