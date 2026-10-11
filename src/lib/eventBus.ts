@@ -19,7 +19,8 @@ export type EventType =
   | 'quote.sent'
   | 'quote.accepted'
   | 'review.completed'
-  | 'automation.installed';
+  | 'automation.installed'
+  | 'home_passport.updated';
 
 export interface EventCatalogEntry {
   type: EventType;
@@ -38,7 +39,9 @@ export const EVENT_CATALOG: EventCatalogEntry[] = [
   { type: 'quote.accepted', category: 'Quotes', label: 'Quote accepted', description: 'Fires when a customer accepts a quote.' },
   { type: 'review.completed', category: 'Reviews', label: 'Review submitted', description: 'Fires when a customer completes a requested review.' },
   { type: 'automation.installed', category: 'Automations', label: 'Automation installed', description: 'Fires when an Automation Marketplace recipe is installed.' },
+  { type: 'home_passport.updated', category: 'Home Passport', label: 'Home Passport updated', description: 'Fires when your company adds a record to a property\u2019s permanent history.' },
 ];
+
 
 export const EVENT_CATEGORIES: string[] = Array.from(new Set(EVENT_CATALOG.map((e) => e.category)));
 
