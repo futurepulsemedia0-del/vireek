@@ -81,6 +81,11 @@ const handleRespond = async (
                 ))}
               </div>
 
+              {quote.tax_cents != null || (quote.tax_breakdown?.length ?? 0) > 0 || quote.tax_exempt ? (
+                <div className="mb-2 px-1">
+                  <TaxBreakdownLines breakdown={quote.tax_breakdown} taxCents={totals?.taxCents ?? 0} taxPercent={quote.tax_percent} taxExempt={quote.tax_exempt} />
+                </div>
+              ) : null}
               {totals && (
                 <div className="mb-4 flex items-center justify-between rounded-xl bg-bg-tertiary px-4 py-3">
                   <span className="text-sm font-medium text-text-primary">Total</span>
