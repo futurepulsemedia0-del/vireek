@@ -25,7 +25,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
-import { sendEmail } from "../_shared/notify/deliver.ts";
+import { sendGatedEmail } from "../_shared/messaging/gatedSend.ts";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import {
   type EquipmentHealth,
@@ -296,12 +296,15 @@ async function processAccount(admin: Admin, userId: string, equipment: Row[], si
 
         let delivered = false; let failure = "";
         if (customer.phone) {
-          const res = await sendCompliantSms(admin, userId, customer.phone, sms);
+          const res = await sendCompliantSms(admin, userId, customer.phone, sms, {
+  purpose: "marketing",
+  source: "home-health-agent",
+});
           delivered = res.ok; if (!res.ok) failure = `${res.reason}${res.detail ? `: ${res.detail}` : ""}`;
         }
         if (!delivered && customer.email) {
           const html = `<p>Hi ${first},</p><p>${action.explanation}</p><p><a href="${link}">View your proactive quote</a> — valid ${QUOTE_VALID_DAYS} days.</p><p>${business}</p>`;
-          const res = await sendEmail(customer.email, `${business}: your ${friendly} health check`, html, `${action.explanation}\n\nView your quote: ${link}\n\n${business}`);
+          const res = await sendGatedEmail(admin, userId, customer.email, `${business}: your ${friendly} health check`, html, `${action.explanation}\n\nView your quote: ${link}\n\n${business}`);{ purpose: "marketing", source: "home-health-agent" }
           delivered = res.ok; if (!res.ok) failure = res.error ?? failure;
         }
 
