@@ -156,6 +156,7 @@ const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => (
 const NetworkHandoffsPage = lazy(() => import('@/pages/NetworkHandoffsPage').then((m) => ({ default: m.NetworkHandoffsPage })));
 const SkillMarketPage = lazy(() => import('@/pages/SkillMarketPage').then((m) => ({ default: m.SkillMarketPage })));
 const CapacityExchangePage = lazy(() => import('@/pages/CapacityExchangePage').then((m) => ({ default: m.CapacityExchangePage })));
+const HomeDemandExchangePage = lazy(() => import('@/pages/HomeDemandExchangePage').then((m) => ({ default: m.HomeDemandExchangePage })));
 const ContextEnginePage = lazy(() => import('@/pages/ContextEnginePage').then((m) => ({ default: m.ContextEnginePage })));
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
@@ -1895,6 +1896,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CapacityExchangePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/demand-exchange"
+          element={
+            <ProtectedRoute>
+              <HomeDemandExchangePage />
             </ProtectedRoute>
           }
         />
