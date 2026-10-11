@@ -9,6 +9,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendEmail } from "../_shared/notify/deliver.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -47,6 +48,7 @@ Deno.serve(async (req: Request) => {
     let sent = 0;
     let failed = 0;
     let completed = 0;
+    let held = 0;
 
     for (const enrollment of due ?? []) {
       const nextStepOrder = enrollment.current_step + 1;
@@ -67,12 +69,27 @@ Deno.serve(async (req: Request) => {
       const vars = { name: name ?? "there" };
       const body = fillTemplate(step.body, vars);
 
+      const gateTo = step.channel === "email" ? enrollment.contact_email : step.channel === "sms" ? enrollment.contact_phone : null;
+      if (gateTo) {
+        const gate = await gateOutbound(admin, enrollment.user_id, {
+          channel: step.channel, to: gateTo, purpose: "marketing", customerId: enrollment.customer_id, source: "marketing-campaign-dispatcher",
+        });
+        if (!gate.proceed) {
+          await admin.from("marketing_campaign_enrollments").update({ next_send_at: gate.sendAt }).eq("id", enrollment.id);
+          held += 1;
+          continue;
+        }
+      }
       let sendResult: { ok: boolean; error?: string } | { ok: true; sid: string } | { ok: false; reason: string; detail?: string };
 
       if (step.channel === "email" && enrollment.contact_email) {
         sendResult = await sendEmail(enrollment.contact_email, fillTemplate(step.subject ?? "", vars), `<p>${body}</p>`, body);
       } else if (step.channel === "sms" && enrollment.contact_phone) {
-        sendResult = await sendCompliantSms(admin, enrollment.user_id, enrollment.contact_phone, body);
+        sendResult = await sendCompliantSms(admin, enrollment.user_id, enrollment.contact_phone, body, {
+  purpose: "marketing",
+  skipQuietHours: true,
+  source: "marketing-campaign-dispatcher"
+});
       } else {
         sendResult = { ok: false, error: `No ${step.channel} contact info on this enrollment` };
       }
@@ -111,7 +128,7 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    return new Response(JSON.stringify({ ok: true, processed: due?.length ?? 0, sent, failed, completed }), {
+    return new Response(JSON.stringify({ ok: true, processed: due?.length ?? 0, sent, failed, completed, held }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
