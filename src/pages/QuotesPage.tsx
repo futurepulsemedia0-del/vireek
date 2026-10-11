@@ -24,6 +24,9 @@ import {
 import type { TieredEstimateDraft } from '@/components/quotes/TieredEstimateBuilder';
 import { describeEngagement, isTieredQuote } from '@/lib/estimates';
 import { QuoteTruthPanel } from '@/components/quotes/QuoteTruthReport';
+import { SalesTaxPanel } from '@/components/tax/SalesTaxPanel';
+import { TaxClassSelect } from '@/components/tax/TaxClassSelect';
+import { emptyTaxSelection, selectionFromDocument, taxColumnsFromSelection, type TaxSelection } from '@/lib/salesTax';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
@@ -121,7 +124,7 @@ interface QuoteFormState {
   customer_name: string;
   customer_phone: string;
   customer_email: string;
-  tax_percent: string;
+    tax: TaxSelection;
   valid_until: string;
   line_items: QuoteLineItem[];
   ai_generated: boolean;
@@ -134,7 +137,7 @@ const EMPTY_FORM: QuoteFormState = {
   customer_name: '',
   customer_phone: '',
   customer_email: '',
-  tax_percent: '0',
+  tax: emptyTaxSelection(),
   valid_until: '',
   line_items: [{ ...EMPTY_LINE_ITEM }],
   ai_generated: false,
