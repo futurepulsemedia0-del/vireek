@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, MapPin } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AlertTriangle, ChevronRight, Landmark, MapPin } from 'lucide-react';
 import { fetchTodayJobs, formatTime, STATUS_LABELS, TechnicianJob } from '@/lib/technicianOS';
 
 const STATUS_DOT: Record<string, string> = {
