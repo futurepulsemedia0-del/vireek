@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyStripeSignature } from "../_shared/stripe/client.ts";
+import { applyPaymentIntentResult } from "../_shared/stripe/terminalPayments.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -74,6 +75,12 @@ Deno.serve(async (req: Request) => {
       case "checkout.session.expired": {
         const requestId = event.data.object.metadata?.payment_request_id;
         if (requestId) await admin.from("payment_requests").update({ status: "failed" }).eq("id", requestId).eq("status", "sent");
+        break;
+      }
+      case "payment_intent.succeeded":
+      case "payment_intent.payment_failed":
+      case "payment_intent.canceled": {
+        await applyPaymentIntentResult(admin, event.data.object, Deno.env.get("STRIPE_SECRET_KEY") ?? undefined);
         break;
       }
       case "account.updated": {
