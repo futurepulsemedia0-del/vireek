@@ -2,6 +2,7 @@ import { uploadEstimatePhoto, getVisualEstimate, severityLabel, MAX_ESTIMATE_PHO
 import { useAuth } from '@/contexts/AuthContext';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { checkMarginGuardrail } from '@/lib/marginGuardrail';
 import { FileText, Phone, RefreshCw, Check, X, CreditCard, Pencil, Plus, Trash2, Send,   Copy, Eye, Images, Sparkles, Camera, Loader2, Scale } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
@@ -867,6 +868,12 @@ export function QuotesPage() {
               )}
             </div>
           )}
+                      <Link
+                        to={`/dashboard/quotes/${quote.id}`}
+                        className="focus-ring flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary"
+                      >
+                        Details
+                      </Link>
         </div>
 
         {truthQuoteId && (
