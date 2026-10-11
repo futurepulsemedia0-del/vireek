@@ -177,6 +177,8 @@ const HomeHealthPage = lazy(() => import('@/pages/HomeHealthPage').then((m) => (
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
 const TelematicsOSPage = lazy(() => import('@/pages/TelematicsOSPage').then((m) => ({ default: m.TelematicsOSPage })));
 const FleetIntelligencePage = lazy(() => import('@/pages/FleetIntelligencePage').then((m) => ({ default: m.FleetIntelligencePage })));
+const TechnicianDvirPage = lazy(() => import('@/pages/TechnicianDvirPage').then((m) => ({ default: m.TechnicianDvirPage })));
+const FleetDvirPage = lazy(() => import('@/pages/FleetDvirPage').then((m) => ({ default: m.FleetDvirPage })));
 const LiveMapPage = lazy(() => import('@/pages/LiveMapPage').then((m) => ({ default: m.LiveMapPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
@@ -1849,6 +1851,14 @@ function App() {
           }
         />
         <Route
+          path="/tech/dvir"
+          element={
+            <TechnicianRoute>
+              <TechnicianDvirPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
           path="/tech/job/:jobId"
           element={
             <TechnicianRoute>
@@ -2093,6 +2103,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FleetIntelligencePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/fleet-dvir"
+          element={
+            <ProtectedRoute>
+              <FleetDvirPage />
             </ProtectedRoute>
           }
         />
