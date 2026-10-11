@@ -8,6 +8,7 @@ import {
 import { createExpertAssistRequest, snapshotFromBrief } from '@/lib/expertAssist';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
+import { CollectPaymentPanel } from '@/components/technician/CollectPaymentPanel';
 import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { JobPaymentPanel } from '@/components/technician/JobPaymentPanel';
 
@@ -167,7 +168,7 @@ export function TechnicianJobBriefPage() {
             ))}
           </section>
         )}
-
+        <CollectPaymentPanel jobId={brief.job.id} invoiceAmount={brief.job.invoice_amount} customerPhone={brief.customer?.phone ?? null} />
         <section className="rounded-lg border border-border bg-bg-secondary p-3">
           <h2 className="mb-2 text-sm font-semibold text-text-primary">Add note from the field</h2>
           <textarea
