@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -136,6 +136,7 @@ import {
   Landmark,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { rememberDashboardPath } from '@/lib/helpCenter';
 import { useToast } from '@/contexts/ToastContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -392,6 +393,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { label: 'Help', href: '/dashboard/help', icon: LifeBuoy },
 ];
 
 const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: typeof Sun }[] = [
@@ -411,6 +413,9 @@ function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/
 export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const navigate = useNavigate();
   const location = useLocation();
+  useEffect(() => {
+    rememberDashboardPath(location.pathname);
+  }, [location.pathname]);
   const { isOwner, permissions, signOut } = useAuth();
   const { toast } = useToast();
   const { preference, setThemePreference } = useTheme();
