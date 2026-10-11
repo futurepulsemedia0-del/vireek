@@ -4,6 +4,7 @@ export interface QuoteLineItem {
   description: string;
   quantity: number;
   unit_price_cents: number;
+  tax_class?: string;
 }
 
 export interface PublicQuoteInfo {
@@ -22,6 +23,9 @@ export interface PublicQuoteInfo {
   business_name: string | null;
   financing_partner_name: string | null;
   financing_note: string | null;
+  tax_breakdown?: import('@/lib/salesTax').TaxBreakdownLine[];
+  tax_cents?: number | null;
+  tax_exempt?: boolean;
 }
 
 export function calculateQuoteTotals(lineItems: QuoteLineItem[], taxPercent: number) {
