@@ -549,6 +549,12 @@ export interface Quote {
   last_viewed_at: string | null;
   view_count: number;
   tax_percent: number;
+  customer_id: string | null;
+  service_address: import('@/lib/salesTax').ServiceAddress | null;
+  tax_breakdown: import('@/lib/salesTax').TaxBreakdownLine[];
+  tax_cents: number | null;
+  tax_exempt: boolean;
+  tax_calculated_at: string | null;
   status: 'draft' | 'sent' | 'accepted' | 'declined' | 'expired';
   quote_token: string;
   valid_until: string | null;
