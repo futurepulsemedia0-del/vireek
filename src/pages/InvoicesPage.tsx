@@ -3,6 +3,9 @@ import { Receipt, Loader2, Plus, Send, CheckCircle2, Copy, Trash2, X } from 'luc
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { calculateQuoteTotals, formatCents, type QuoteLineItem } from '@/lib/invoices';
+import { SalesTaxPanel } from '@/components/tax/SalesTaxPanel';
+import { TaxClassSelect } from '@/components/tax/TaxClassSelect';
+import { emptyTaxSelection, getDocumentTotals, taxColumnsFromSelection } from '@/lib/salesTax';
 import { createInvoice, deleteInvoice, fetchInvoices, getInvoiceLink, isOverdue, markInvoicePaid, markInvoiceSent, type Invoice, type InvoiceStatus } from '@/lib/invoices';
 
 const STATUS_STYLES: Record<InvoiceStatus, string> = {
@@ -23,12 +26,14 @@ function InvoiceForm({ onClose, onCreated }: { onClose: () => void; onCreated: (
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [items, setItems] = useState<QuoteLineItem[]>([emptyLineItem()]);
-  const [taxPercent, setTaxPercent] = useState(0);
+  const [tax, setTax] = useState(emptyTaxSelection());
   const [dueDate, setDueDate] = useState('');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const totals = calculateQuoteTotals(items, taxPercent);
+  const subtotalCents = calculateQuoteTotals(items, 0).subtotalCents;
+  const taxCents = tax.mode === 'auto' ? tax.calculation?.taxCents ?? 0 : Math.round((subtotalCents * tax.manualPercent) / 100);
+  const totals = { totalCents: subtotalCents + taxCents };
   const updateItem = (i: number, patch: Partial<QuoteLineItem>) =>
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
 
@@ -121,7 +126,7 @@ function InvoiceForm({ onClose, onCreated }: { onClose: () => void; onCreated: (
           className="mt-1 w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" />
       </label>
 
-      <button disabled={saving} onClick={submit}
+      <button disabled={saving || tax.pending} onClick={submit}
         className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-cta px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">
         {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Create invoice
       </button>
@@ -219,7 +224,7 @@ export function InvoicesPage() {
 
         <div className="space-y-2">
           {invoices.map((inv) => {
-            const totals = calculateQuoteTotals(inv.line_items, inv.tax_percent);
+            const totals = getDocumentTotals(inv);
             const overdue = isOverdue(inv);
             return (
               <div key={inv.id} className="rounded-2xl border border-border bg-bg-secondary p-4">
