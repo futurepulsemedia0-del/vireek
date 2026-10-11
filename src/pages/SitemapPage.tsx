@@ -115,6 +115,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'State of Home Service Calls Report', href: '/report' },
           { label: 'Podcast', href: '/podcast' },
           { label: 'Glossary', href: '/glossary' },
+          { label: 'Events Calendar', href: '/events' },
           { label: 'Case Studies', href: '/case-studies' },
           { label: 'Testimonials', href: '/testimonials' },
           { label: 'Onboarding Guide', href: '/onboarding-guide' },
