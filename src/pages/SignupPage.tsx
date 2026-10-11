@@ -262,6 +262,25 @@ export function SignupPage() {
     navigate('/onboarding', { replace: true });
   }, [navigate]);
 
+  const handleAppleSignUp = async () => {
+    setAuthError('');
+    setAppleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo: `${window.location.origin}/dashboard` },
+      });
+      if (error) throw error;
+    } catch (err) {
+      setAppleLoading(false);
+      const msg = err instanceof Error ? err.message : 'Apple sign-up failed.';
+      setAuthError(
+        msg.toLowerCase().includes('provider') || msg.toLowerCase().includes('not')
+          ? 'Apple sign-up is not configured. Please use email and password.'
+          : msg
+      );
+    }
+  };
   const handleGoogleSignUp = async () => {
     setAuthError('');
     setGoogleLoading(true);
@@ -325,13 +344,10 @@ export function SignupPage() {
         </p>
       </div>
 
-      {/* Google */}
-      <GoogleButton
-        onClick={handleGoogleSignUp}
-        loading={googleLoading}
-        disabled={submitting}
-        label="Sign up with Google"
-      />
+      <div className="grid grid-cols-2 gap-3">
+        <GoogleButton onClick={handleGoogleSignUp} loading={googleLoading} disabled={submitting || appleLoading} label="Google" />
+        <AppleButton onClick={handleAppleSignUp} loading={appleLoading} disabled={submitting || googleLoading} label="Apple" />
+      </div>
 
       <AuthDivider />
 
