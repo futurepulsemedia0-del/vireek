@@ -53,6 +53,9 @@ import { ServiceTwinPanel } from '@/components/jobs/ServiceTwinPanel';
 import { TelemetryPrepPanel } from '@/components/jobs/TelemetryPrepPanel';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
 import { isEvidenceChainError, parseEvidenceChainError } from '@/lib/jobEvidenceChain';
+import { ScheduleDndProvider, DraggableJob, DropZone } from '@/components/schedule/ScheduleDnd';
+import { useScheduleBoard } from '@/hooks/useScheduleBoard';
+import type { MoveTargetOption } from '@/lib/scheduleDnd';
 
 // ============================================================
 // TYPES & CONSTANTS
@@ -1074,6 +1077,25 @@ export function JobsPage() {
 
   // Mutations
   const { guardStart, complianceDialog } = useComplianceStartGuard();
+  const board = useScheduleBoard({
+    jobs: allJobs,
+    setJobs: setAllJobs,
+    technicians,
+    canManage: canViewAll,
+    onJobSynced: (row) => setSelectedJob((prev) => (prev?.id === row.id ? { ...prev, ...row } : prev)),
+    beforeCommit: async (job, patch) =>
+      patch.job_status === 'en_route' || patch.job_status === 'in_progress' ? guardStart(job.id) : true,
+    mapError: (err) => {
+      const m = (err as { message?: string })?.message ?? '';
+      if (isQualityGateError(m)) return `Can't close this job yet — missing: ${parseQualityGateError(m).join(', ')}.`;
+      if (isEvidenceChainError(m)) return `Can't close this job yet — evidence chain incomplete: ${parseEvidenceChainError(m).join(', ')}.`;
+      return null;
+    },
+  });
+
+  const statusTargets: MoveTargetOption[] = BOARD_STAGES.map((s) => ({
+    key: s.key, label: s.label, group: 'Status', target: { kind: 'status', status: s.key },
+  }));
   const updateJobStatus = async (jobId: string, status: JobStatus) => {
     if ((status === 'en_route' || status === 'in_progress') && !(await guardStart(jobId))) return;
     if (status === 'cancelled' && user) {
