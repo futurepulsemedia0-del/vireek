@@ -210,7 +210,7 @@ Deno.serve(async (req: Request) => {
         admin,
         updatedCall.user_id,
         resolvedContactPhone,
-        `EMERGENCY: ${payload.caller_phone ?? 'Unknown caller'} — ${payload.issue_description ?? payload.summary ?? 'no details'}. Reply for details.`,
+        `EMERGENCY: ${payload.caller_phone ?? 'Unknown caller'} — ${payload.issue_description ?? payload.summary ?? 'no details'}. Reply for details.`, { purpose: "emergency", source: "escalate-emergency" },
       );
       if (!smsResult.ok) {
         console.warn(JSON.stringify({ event: "emergency_sms_not_sent", requestId, reason: smsResult.reason, detail: smsResult.detail }));
