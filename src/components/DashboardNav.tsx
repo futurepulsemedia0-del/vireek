@@ -221,6 +221,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Contractor Network', href: '/dashboard/network', icon: Network },
   { label: 'Emergency Network', href: '/dashboard/emergency-network', icon: Siren },
   { label: 'Job Handoffs', href: '/dashboard/network/handoffs', icon: ArrowRightLeft },
+  { label: 'Home Demand Exchange', href: '/dashboard/demand-exchange', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Capacity Exchange', href: '/dashboard/network/capacity-exchange', icon: Shuffle },
   { label: 'Skill Market', href: '/dashboard/network/skill-market', icon: Globe2 },
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
