@@ -137,6 +137,7 @@ export function PaymentsPage() {
   return (
     <DashboardLayout activeLabel="Payments">
       <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6">
+            {connected && <TippingToggle initial={connect?.tip_enabled ?? true} />}
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Smart Payment Collection</h1>
           <p className="mt-1 text-sm text-text-secondary">Send secure payment links for completed jobs and get paid faster.</p>
