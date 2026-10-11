@@ -33,7 +33,7 @@ Deno.serve(async (req: Request) => {
   if (userError || !userData?.user) return json({ error: "Invalid or expired session" }, 401);
   const userId = userData.user.id;
 
-  const { conversationId, body } = await req.json().catch(() => ({}));
+const { conversationId, body, overrideReason } = await req.json().catch(() => ({}));
   if (!conversationId || !body?.trim()) return json({ error: "conversationId and body are required" }, 400);
 
   const { data: conversation } = await admin
@@ -44,7 +44,13 @@ Deno.serve(async (req: Request) => {
     .maybeSingle();
   if (!conversation) return json({ error: "Conversation not found" }, 404);
 
-  const result = await sendCompliantSms(admin, userId, conversation.customer_phone, body.trim());
+  const result = await sendCompliantSms(admin, userId, conversation.customer_phone, body.trim(), {
+  purpose: "service",
+  source: "sms-send",
+  override: typeof overrideReason === "string" && overrideReason.trim()
+    ? { reason: overrideReason.trim() }
+    : null,
+});
   if (!result.ok) return json({ error: result.reason, detail: result.detail }, 422);
 
   const { data: message } = await admin
@@ -55,5 +61,9 @@ Deno.serve(async (req: Request) => {
 
   await admin.from("sms_conversations").update({ last_message_at: new Date().toISOString() }).eq("id", conversation.id);
 
-  return json({ message });
+return json({
+  message,
+  deferred: result.deferred === true,
+  sendAt: result.deferred ? result.sendAt : null,
+});
 });
