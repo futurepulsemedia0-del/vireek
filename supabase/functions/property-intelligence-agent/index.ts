@@ -26,7 +26,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
-import { sendEmail } from "../_shared/notify/deliver.ts";
+import { sendGatedEmail } from "../_shared/messaging/gatedSend.ts";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import {
   calibrationFactor,
@@ -377,12 +377,15 @@ async function processAccount(admin: Admin, userId: string, siteUrl: string, cou
 
           let delivered = false; let failure = "";
           if (customer.phone) {
-            const res = await sendCompliantSms(admin, userId, customer.phone, sms);
+            const res = await sendCompliantSms(admin, userId, customer.phone, sms, {
+  purpose: "marketing",
+  source: "property-intelligence-agent",
+});
             delivered = res.ok; if (!res.ok) failure = `${res.reason}${res.detail ? `: ${res.detail}` : ""}`;
           }
           if (!delivered && customer.email) {
             const html = `<p>Hi ${first},</p><p>${mission.explanation}</p>${partLine ? `<p>${partLine.trim()}</p>` : ""}<p><a href="${link}">Review and approve the repair</a> — quote valid ${QUOTE_VALID_DAYS} days.</p><p>${business}</p>`;
-            const res = await sendEmail(customer.email, `${business}: your ${friendly} needs attention soon`, html, `${mission.explanation}\n\nReview and approve: ${link}\n\n${business}`);
+            const res = await sendGatedEmail(admin, userId, customer.email, `${business}: your ${friendly} needs attention soon`, html, `${mission.explanation}\n\nReview and approve: ${link}\n\n${business}`);
             delivered = res.ok; if (!res.ok) failure = res.error ?? failure;
           }
           if (!delivered) {
