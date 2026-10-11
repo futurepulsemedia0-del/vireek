@@ -166,6 +166,9 @@ const BuildingTelemetryPage = lazy(() => import('@/pages/BuildingTelemetryPage')
 const EquipmentPassportsPage = lazy(() => import('@/pages/EquipmentPassportsPage').then((m) => ({ default: m.EquipmentPassportsPage })));
 const EquipmentPassportDetailPage = lazy(() => import('@/pages/EquipmentPassportDetailPage').then((m) => ({ default: m.EquipmentPassportDetailPage })));
 const PublicEquipmentPassportPage = lazy(() => import('@/pages/PublicEquipmentPassportPage').then((m) => ({ default: m.PublicEquipmentPassportPage })));
+const PublicHomePassportPage = lazy(() => import('@/pages/PublicHomePassportPage').then((m) => ({ default: m.PublicHomePassportPage })));
+const HomePassportsPage = lazy(() => import('@/pages/HomePassportsPage').then((m) => ({ default: m.HomePassportsPage })));
+const HomePassportDetailPage = lazy(() => import('@/pages/HomePassportDetailPage').then((m) => ({ default: m.HomePassportDetailPage })));
 const OEMIntelligencePage = lazy(() => import('@/pages/OEMIntelligencePage').then((m) => ({ default: m.OEMIntelligencePage })));
 const OemGraphPage = lazy(() => import('@/pages/OemGraphPage').then((m) => ({ default: m.OemGraphPage })));
 const FieldIntelligencePage = lazy(() => import('@/pages/FieldIntelligencePage').then((m) => ({ default: m.FieldIntelligencePage })));
@@ -492,6 +495,7 @@ function App() {
         <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
         <Route path="/verify/home/:token" element={<PublicHomePassportPage />} />
         <Route path="/e/:code" element={<PublicEquipmentPassportPage />} />
+        <Route path="/h/:code" element={<PublicHomePassportPage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
         <Route path="/approve/:token" element={<NoSurpriseApprovePage />} />
@@ -2001,6 +2005,22 @@ function App() {
           element={
             <ProtectedRoute>
               <EquipmentPassportDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/home-passports"
+          element={
+            <ProtectedRoute>
+              <HomePassportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/home-passports/:code"
+          element={
+            <ProtectedRoute>
+              <HomePassportDetailPage />
             </ProtectedRoute>
           }
         />
