@@ -245,7 +245,11 @@ function QuoteBuilderForm({
 }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
-  const totals = calculateQuoteTotals(form.line_items, Number(form.tax_percent) || 0);
+  const subtotalCents = calculateQuoteTotals(form.line_items, 0).subtotalCents;
+  const totals =
+    form.tax.mode === 'auto' && form.tax.calculation
+      ? { subtotalCents, taxCents: form.tax.calculation.taxCents, totalCents: subtotalCents + form.tax.calculation.taxCents }
+      : calculateQuoteTotals(form.line_items, form.tax.mode === 'manual' ? form.tax.manualPercent : 0);
 
   const updateLineItem = (index: number, patch: Partial<QuoteLineItem>) => {
     setForm((f) => ({ ...f, line_items: f.line_items.map((li, i) => (i === index ? { ...li, ...patch } : li)) }));
@@ -379,6 +383,11 @@ function QuoteBuilderForm({
         </button>
       </div>
 
+      <SalesTaxPanel
+        lines={form.line_items}
+        value={form.tax}
+        onChange={(tax) => setForm((f) => ({ ...f, tax }))}
+      />
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs text-text-secondary">Tax %</label>
@@ -415,7 +424,7 @@ function QuoteBuilderForm({
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving || !form.customer_name.trim()}
+            disabled={saving || form.tax.pending || !form.customer_name.trim()}
             className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
           >
             Save quote
@@ -552,7 +561,8 @@ export function QuotesPage() {
 
   const handleSaveItemizedQuote = async (form: QuoteFormState, quoteId?: string) => {
     if (!user) return;
-    const totals = calculateQuoteTotals(form.line_items, Number(form.tax_percent) || 0);
+    const taxColumns = taxColumnsFromSelection(form.tax);
+    const totals = calculateQuoteTotals(form.line_items, taxColumns.tax_percent);
     const payload = {
       user_id: user.id,
       lead_id: form.lead_id,
@@ -766,7 +776,7 @@ export function QuotesPage() {
                       customer_name: quote.customer_name,
                       customer_phone: quote.customer_phone ?? '',
                       customer_email: quote.customer_email ?? '',
-                      tax_percent: String(quote.tax_percent),
+                      tax: selectionFromDocument(quote),
                       valid_until: quote.valid_until ?? '',
                       line_items: quote.line_items.length > 0 ? quote.line_items : [{ ...EMPTY_LINE_ITEM }],
                       ai_generated: quote.ai_generated ?? false,
