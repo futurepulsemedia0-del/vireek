@@ -53,7 +53,9 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
     if (!job) return jsonResponse({ error: "Job not found." }, 404);
     if (!job.invoice_amount || job.invoice_amount <= 0) return jsonResponse({ error: "Set an invoice amount on this job first." }, 400);
-
+    const { data: bal } = await admin.rpc("_job_balance", { p_job_id: job.id });
+    const payableAmount = Number(bal?.balance_cents ?? Math.round(Number(job.invoice_amount) * 100)) / 100;
+    if (payableAmount <= 0) return jsonResponse({ error: "This job is already paid in full." }, 400);
     const customerPhone = customerPhoneInput || job.customer_phone || undefined;
     if (!customerEmail && !customerPhone) {
       return jsonResponse({ error: "Add a customer email or phone number to send the payment request to." }, 400);
