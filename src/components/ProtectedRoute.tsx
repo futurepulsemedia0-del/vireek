@@ -2,6 +2,7 @@ import { ReactNode, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { useLoginAlert } from '@/hooks/useLoginAlert';
 import { trackActivity, getIdleMinutes, getSessionAgeHours, clearSessionStart } from '@/lib/enterpriseSecurity';
 
 /** Enforces the account's session policy (idle timeout / max session
@@ -64,6 +65,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   useSessionPolicyEnforcement(Boolean(session));
+  useLoginAlert(Boolean(session));
 
   if (loading) {
     return (
