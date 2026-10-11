@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { stripeRequest } from "../_shared/stripe/client.ts";
-import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
+import { sendGatedSms, sendGatedEmail } from "../_shared/messaging/gatedSend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -151,7 +151,7 @@ Deno.serve(async (req: Request) => {
 
     const amountLabel = `$${Number(job.invoice_amount).toFixed(2)}`;
     if (customerPhone) {
-      await sendSms(customerPhone, `Hi ${job.customer_name}, your invoice for ${amountLabel} is ready. Pay securely: ${session.url}`);
+      await sendGatedSms(admin, ownerId, customerPhone, `Hi ${job.customer_name}, your invoice for ${amountLabel} is ready. Pay securely: ${session.url}`);
     }
     if (customerEmail) {
       await sendEmail(
