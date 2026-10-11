@@ -11,6 +11,7 @@ import { supabase, BusinessProfile, BusinessProfileHoliday, BusinessProfileEscal
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { EscalationSettings } from '@/components/settings/EscalationSettings';
 import { AgentOrchestrationSettings } from '@/components/settings/AgentOrchestrationSettings';
+import { QuietHoursSettings } from '@/components/settings/QuietHoursSettings';
 import { VoiceCloningCard } from '@/components/settings/VoiceCloningCard';
 import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
 import { BookingLinkCard } from '@/components/settings/BookingLinkCard';
@@ -1090,6 +1091,7 @@ export function BusinessProfilePage() {
             <div className="mt-6">
               <EscalationSettings />
               <AgentOrchestrationSettings />
+              <QuietHoursSettings />
             </div>
 
             <div className="mt-6">
