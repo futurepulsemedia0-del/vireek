@@ -360,6 +360,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Vendor & Procurement', href: '/dashboard/procurement', icon: Truck, requiresPermission: 'can_view_billing' },
   { label: 'Vendor Management', href: '/dashboard/vendors', icon: Building2, requiresPermission: 'can_view_billing' },
   { label: 'AI Parts Market', href: '/dashboard/parts-market', icon: Store, requiresPermission: 'can_view_billing' },
+  { label: 'Supplier Intelligence', href: '/dashboard/supplier-intelligence', icon: Handshake, requiresPermission: 'can_view_billing' },
   { label: 'Supply Chain Outcomes', href: '/dashboard/supply-chain-outcomes', icon: GitBranch, requiresPermission: 'can_view_billing' },
   { label: 'Outcome Assurance', href: '/dashboard/outcome-assurance', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Outcome Intelligence Network', href: '/dashboard/outcome-network', icon: Network },
