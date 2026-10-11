@@ -18,6 +18,11 @@ import { RiskChip } from '@/components/dispatch/RiskChip';
 import { useJobRiskMap } from '@/hooks/useJobRiskMap';
 import { useFirstTimeFixGate } from '@/hooks/useFirstTimeFixGate';
 import { FirstTimeFixChip } from '@/components/jobs/FirstTimeFixChip';
+import { useRealtimeSubscription } from '@/lib/realtime';
+import { LiveIndicator } from '@/components/LiveIndicator';
+import { ScheduleDndProvider, DraggableJob, DropZone } from '@/components/schedule/ScheduleDnd';
+import { useScheduleBoard } from '@/hooks/useScheduleBoard';
+import type { MoveTargetOption } from '@/lib/scheduleDnd';
 
 function formatTime(dateStr: string | null): string {
   if (!dateStr) return 'Unscheduled';
@@ -116,6 +121,54 @@ export function DispatchBoardPage() {
   }, [jobs]);
 
   const riskMap = useJobRiskMap(jobs);
+  const canManage = isOwner || permissions.can_view_all_jobs;
+  const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
+  const OPEN = ['scheduled', 'en_route', 'in_progress'];
+
+  const board = useScheduleBoard({
+    jobs,
+    setJobs,
+    technicians,
+    canManage,
+    beforeCommit: async (job, patch) => {
+      if (!patch.assigned_technician_id) return true;
+      const gate = ftf.gate(job, patch.assigned_technician_id);
+      if (gate.action === 'hold') {
+        toast(gate.message, 'error');
+        return false;
+      }
+      if (gate.action === 'warn') toast(gate.message, 'info');
+      return true;
+    },
+  });
+
+  const liveStatus = useRealtimeSubscription<Job>({
+    channelName: `dispatch-jobs-${accountOwnerId ?? 'anon'}`,
+    table: 'jobs',
+    event: '*',
+    filter: accountOwnerId ? `user_id=eq.${accountOwnerId}` : undefined,
+    enabled: !!accountOwnerId,
+    onChange: (payload) => {
+      if (payload.eventType === 'DELETE') {
+        const row = payload.old as Job;
+        setJobs((prev) => prev.filter((j) => j.id !== row.id));
+        return;
+      }
+      const row = payload.new as Job;
+      if (board.moves.isPending(row.id)) return;
+      setJobs((prev) => {
+        const without = prev.filter((j) => j.id !== row.id);
+        return OPEN.includes(row.job_status) ? [...without, row] : without;
+      });
+    },
+  });
+
+  const techTargets: MoveTargetOption[] = technicians.map((t) => ({
+    key: t.id,
+    label: t.member_name ?? t.member_email,
+    group: 'Assign to',
+    target: { kind: 'technician', technicianId: t.id },
+  }));
   const unassignedJobs = jobs.filter((j) => !j.assigned_technician_id);
     const handleToggleAiDispatch = async () => {
     const next = !aiDispatchEnabled;
