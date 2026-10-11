@@ -13,6 +13,9 @@ export interface PaymentRequest {
   payment_link_url: string | null;
   reminder_count: number;
   paid_at: string | null;
+  tip_cents: number;
+  technician_id: string | null;
+  collected_via: 'office' | 'technician';
   created_at: string;
 }
 
@@ -21,6 +24,7 @@ export interface StripeConnectStatus {
   charges_enabled: boolean;
   payouts_enabled: boolean;
   details_submitted: boolean;
+  tip_enabled: boolean;
 }
 
 export const PAYMENT_STATUS_META: Record<PaymentStatus, { label: string; tone: 'neutral' | 'accent' | 'success' | 'danger' }> = {
@@ -55,8 +59,14 @@ export async function createPaymentRequest(input: {
   job_id: string;
   customer_email?: string;
   customer_phone?: string;
+  collected_via?: 'office' | 'technician';
+  send_link?: boolean;
 }): Promise<{ payment_request_id: string; payment_link_url: string }> {
   const { data, error } = await supabase.functions.invoke('create-payment-request', { body: input });
   if (error) throw error;
   return data as { payment_request_id: string; payment_link_url: string };
+}
+export async function setTippingEnabled(enabled: boolean): Promise<void> {
+  const { error } = await supabase.rpc('set_tipping_enabled', { p_enabled: enabled });
+  if (error) throw error;
 }
