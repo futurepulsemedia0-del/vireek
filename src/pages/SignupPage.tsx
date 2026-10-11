@@ -21,6 +21,7 @@ import {
   AuthIconBadge,
 } from '@/components/auth/AuthParts';
 import { OtpEntry } from '@/components/auth/OtpEntry';
+import { AppleButton } from '@/components/auth/SocialAuthButtons';
 import { registerTrustedDevice } from '@/lib/deviceTrust';
 import { consumePostAuthRedirect } from '@/lib/inviteRedirect';
 
@@ -69,6 +70,7 @@ export function SignupPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
