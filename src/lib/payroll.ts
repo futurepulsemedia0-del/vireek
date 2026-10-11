@@ -76,6 +76,7 @@ export interface PayRunItem {
   overtime_pay_cents: number;
   salary_pay_cents: number;
   commission_cents: number;
+  tip_cents: number;
   bonus_cents: number;
   gross_pay_cents: number;
   tax_withholding_cents: number;
