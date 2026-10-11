@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@sentry/react": "^10.74.0",
-    "@supabase/supabase-js": "^2.57.4",
+    "@supabase/supabase-js": "^2.105.0",
     "@vapi-ai/web": "^2.7.0",
     "framer-motion": "^11.18.2",
     "i18next": "^23.16.4",
