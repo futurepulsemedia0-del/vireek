@@ -167,7 +167,7 @@ function PayRunDetail({ run, employees }: { run: PayRun; employees: Employee[] }
           <div key={i.id} className="flex justify-between text-xs">
             <span className="text-text-primary">{nameFor(i.employee_id)}</span>
             <span className="text-text-secondary">
-              gross {formatCents(i.gross_pay_cents)} &middot; tax {formatCents(i.tax_withholding_cents)} &middot; net {formatCents(i.net_pay_cents)}
+              gross {formatCents(i.gross_pay_cents)} &middot; tips {formatCents(i.tip_cents)} &middot; tax
             </span>
           </div>
         ))}
@@ -395,7 +395,7 @@ export function PayrollPage() {
             <div key={row.employee_id} className="flex items-center justify-between border-b border-border-primary px-4 py-2 text-sm last:border-b-0">
               <span className="text-text-primary">{row.full_name}</span>
               <span className="text-xs text-text-secondary">
-                gross {formatCents(row.gross_cents)} &middot; commission {formatCents(row.commission_cents)} &middot; tax {formatCents(row.tax_cents)} &middot; net {formatCents(row.net_cents)}
+                gross {formatCents(row.gross_cents)} &middot; commission {formatCents(row.commission_cents)} &middot; tips {formatCents(row.tip_cents)} &middot; tax
               </span>
             </div>
           ))}
