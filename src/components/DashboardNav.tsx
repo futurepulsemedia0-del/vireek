@@ -272,6 +272,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Telematics OS', href: '/dashboard/telematics', icon: Satellite },
   { label: 'Live Map', href: '/dashboard/live-map', icon: Navigation, requiresPermission: 'can_view_all_jobs' },
   { label: 'Fleet Intelligence', href: '/dashboard/fleet-intelligence', icon: Radar },
+  { label: 'Vehicle Inspections (DVIR)', href: '/dashboard/fleet-dvir', icon: ClipboardCheck },
   { label: 'Field Evidence', href: '/dashboard/field-evidence', icon: ScanEye },
   { label: 'Property Vision', href: '/dashboard/property-vision', icon: ScanEye },
   { label: 'Customer Trust Bank', href: '/dashboard/trust-bank', icon: ShieldCheck },
