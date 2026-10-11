@@ -5,6 +5,7 @@
 // email-webhook into this same conversation.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,7 +33,7 @@ Deno.serve(async (req: Request) => {
   if (userError || !userData?.user) return json({ error: "Invalid or expired session" }, 401);
   const userId = userData.user.id;
 
-  const { conversationId, subject, body } = await req.json().catch(() => ({}));
+const { conversationId, subject, body, overrideReason } = await req.json();
   if (!conversationId || !body?.trim()) return json({ error: "conversationId and body are required" }, 400);
 
   const { data: conversation } = await admin
@@ -49,6 +50,23 @@ Deno.serve(async (req: Request) => {
     .eq("id", userId)
     .maybeSingle();
 
+  const gate = await gateOutbound(admin, userId, {
+    channel: "email",
+    to: conversation.customer_email,
+    purpose: "service",
+    source: "email-send",
+    override: typeof overrideReason === "string" && overrideReason.trim()
+      ? { reason: overrideReason.trim() }
+      : null,
+  });
+
+  if (!gate.proceed) {
+    return json({
+      error: "QUIET_HOURS",
+      sendAt: gate.sendAt,
+      detail: gate.decision.detail,
+    }, 409);
+  }
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const fromAddress = Deno.env.get("RESEND_FROM_EMAIL") || "Vireek <onboarding@resend.dev>";
   const inboundDomain = Deno.env.get("INBOUND_EMAIL_DOMAIN");
