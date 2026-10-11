@@ -12,6 +12,7 @@ import { fetchTechnicianScorecards } from '@/lib/technicianPerformance';
 import { rankTechniciansByProfitability, formatProfitabilityCents } from '@/lib/dispatchProfitability';
 import { rankTechniciansByProfitability, formatProfitabilityCents, type FleetDispatchSignal } from '@/lib/dispatchProfitability';
 import { fetchFleetDispatchSignals } from '@/lib/fleetIntelligence';
+import { friendlyDispatchError } from '@/lib/dvir';
 import { DispatchIntelligencePanel } from '@/components/dispatch/DispatchIntelligencePanel';
 import { RiskChip } from '@/components/dispatch/RiskChip';
 import { useJobRiskMap } from '@/hooks/useJobRiskMap';
@@ -159,7 +160,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
   });
 
   if (error || data?.status !== 'assigned') {
-    toast(data?.reason || 'Could not assign this job', 'error');
+    toast(friendlyDispatchError(error?.message) ?? data?.reason ?? 'Could not assign this job', 'error');
   } else {
     setJobs((prev) =>
       prev.map((j) =>
