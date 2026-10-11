@@ -68,6 +68,7 @@ const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEn
 const AskVireekPage = lazy(() => import('@/pages/AskVireekPage').then((m) => ({ default: m.AskVireekPage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
+const SupplierIntelligencePage = lazy(() => import('@/pages/SupplierIntelligencePage').then((m) => ({ default: m.SupplierIntelligencePage })));
 const SupplyChainOutcomePage = lazy(() => import('@/pages/SupplyChainOutcomePage').then((m) => ({ default: m.SupplyChainOutcomePage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
 const OutcomeIntelligenceNetworkPage = lazy(() => import('@/pages/OutcomeIntelligenceNetworkPage').then((m) => ({ default: m.OutcomeIntelligenceNetworkPage })));
@@ -834,6 +835,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PartsMarketPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/supplier-intelligence"
+          element={
+            <ProtectedRoute>
+              <SupplierIntelligencePage />
             </ProtectedRoute>
           }
         />
