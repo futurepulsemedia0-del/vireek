@@ -45,6 +45,7 @@ export type TaskType =
   | "opportunity_cost_ranking"
   | "business_drift_narrative"
   | "job_autopsy"
+  | "inbound_auto_reply"
   | "switching_shield_plan"
   | "bank_categorization";
 
