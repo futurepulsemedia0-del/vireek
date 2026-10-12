@@ -26,6 +26,7 @@ export interface UnifiedMessage {
   direction: 'inbound' | 'outbound';
   body: string;
   createdAt: string;
+  sentBy?: string;
 }
 
 export function formatMessageTime(iso: string): string {
@@ -113,6 +114,7 @@ export async function fetchMessages(channel: Channel, conversationId: string): P
     direction: (row.direction as string) === 'staff' || (row.direction as string) === 'outbound' || row.sender_type === 'staff' ? 'outbound' : 'inbound',
     body: (row.body ?? row.body_text) as string,
     createdAt: row.created_at as string,
+    sentBy: row.sent_by as string | undefined,
   }));
 }
 
