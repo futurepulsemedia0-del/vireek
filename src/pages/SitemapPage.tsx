@@ -153,6 +153,7 @@ function useSiteSections(): SiteSection[] {
         links: [
                     { label: 'Privacy Policy', href: '/privacy' },
           { label: 'Terms of Service', href: '/terms' },
+          { label: 'Master Services Agreement', href: '/msa' },
           { label: 'Cookie Policy', href: '/cookies' },
           { label: 'DPA', href: '/dpa' },
           { label: 'GDPR Addendum', href: '/gdpr-dpa' },
