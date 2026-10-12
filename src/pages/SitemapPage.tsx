@@ -165,6 +165,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'Responsible AI Policy', href: '/responsible-ai' },
           { label: 'AI Call Disclosure & Recording', href: '/ai-disclosure' },
           { label: 'CCPA Rights', href: '/ccpa' },
+          { label: 'SMS Terms', href: '/sms-terms' },
         ],
       },
     ],
