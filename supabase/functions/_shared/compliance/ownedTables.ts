@@ -22,6 +22,8 @@ export interface OwnedTable {
 
 export const OWNED_TABLES: OwnedTable[] = [
   { table: "jobs", dateColumn: "created_at" },
+  { table: "lead_marketplace_events", pii: ["raw_payload", "parsed"], dateColumn: "received_at" },
+  { table: "lead_marketplace_sources" },
   { table: "leads", pii: ["name", "phone", "email"], dateColumn: "created_at" },
   { table: "calls", pii: ["caller_number", "recording_url", "transcript"], dateColumn: "created_at" },
   { table: "quotes", dateColumn: "created_at" },
