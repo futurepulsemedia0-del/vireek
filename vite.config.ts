@@ -9,6 +9,21 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     exclude: ['**/node_modules/**', '**/e2e/**', '**/*.live.test.ts'],
     css: false,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'json-summary', 'lcov'],
+      reportsDirectory: 'coverage',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/**/*.d.ts', 'src/main.tsx', 'src/locales/**', 'src/i18n/**'],
+      // Ratchet: raise these after reading the summary from `npm run test -- --coverage`.
+      thresholds: {
+        statements: Number(process.env.COV_STATEMENTS ?? 10),
+        branches: Number(process.env.COV_BRANCHES ?? 10),
+        functions: Number(process.env.COV_FUNCTIONS ?? 10),
+        lines: Number(process.env.COV_LINES ?? 10),
+      },
+    },
+  },
   },
   resolve: {
     alias: {
