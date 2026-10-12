@@ -353,6 +353,8 @@ const PartnerApplicationsAdminPage = lazy(() => import('@/pages/admin/PartnerApp
 const ReferralPage = lazy(() => import('@/pages/ReferralPage').then((m) => ({ default: m.ReferralPage })));
 const BetaProgramPage = lazy(() => import('@/pages/BetaProgramPage').then((m) => ({ default: m.BetaProgramPage })));
 const WebinarsPage = lazy(() => import('@/pages/WebinarsPage').then((m) => ({ default: m.WebinarsPage })));
+const ResourcesPage = lazy(() => import('@/pages/ResourcesPage').then((m) => ({ default: m.ResourcesPage })));
+const ResourcePage = lazy(() => import('@/pages/ResourcePage').then((m) => ({ default: m.ResourcePage })));
 const EventsPage = lazy(() => import('@/pages/EventsPage').then((m) => ({ default: m.EventsPage })));
 const CustomerRoiPage = lazy(() => import('@/pages/CustomerRoiPage').then((m) => ({ default: m.CustomerRoiPage })));
 const SystemRequirementsPage = lazy(() => import('@/pages/SystemRequirementsPage').then((m) => ({ default: m.SystemRequirementsPage })));
@@ -571,6 +573,8 @@ function AppRoutes() {
         />
         <Route path="/beta" element={<BetaProgramPage />} />
         <Route path="/webinars" element={<WebinarsPage />} />
+        <Route path="/resources" element={<ResourcesPage />} />
+        <Route path="/resources/:slug" element={<ResourcePage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/roi" element={<CustomerRoiPage />} />
         <Route path="/system-requirements" element={<SystemRequirementsPage />} />
