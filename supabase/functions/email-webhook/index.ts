@@ -14,6 +14,8 @@
 // reply gets matched back to the right business.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { handleMarketplaceEmail } from "../_shared/lead-marketplace/emailEntry.ts";
+import { createDeps } from "../_shared/lead-marketplace/runtime.ts";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -39,7 +41,8 @@ Deno.serve(async (req: Request) => {
     const html = payload.html ? String(payload.html) : null;
     // ---- end provider adapter ----
 
-    const token = to.split("@")[0];
+    const localPart = to.split("@")[0] ?? "";
+    const token = localPart.split("+")[0];
     if (!token || !from) return json({ received: true });
 
     const { data: profile } = await admin
@@ -53,6 +56,16 @@ Deno.serve(async (req: Request) => {
       return json({ received: true });
     }
 
+    const marketplace = await handleMarketplaceEmail(createDeps(admin), {
+      userId: profile.id,
+      toLocalPart: localPart,
+      from,
+      subject,
+      text: text || null,
+      html,
+      receivedAtMs: Date.now(),
+    });
+    if (marketplace.handled) return json({ received: true });
     const { data: conversation } = await admin
       .from("email_conversations")
       .upsert(
