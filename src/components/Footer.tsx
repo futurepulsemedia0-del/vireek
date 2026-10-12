@@ -183,6 +183,7 @@ const FOOTER_COLUMNS = [
     links: [
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
+      { label: 'MSA', href: '/msa' },
       { label: 'Cookie Policy', href: '/cookies' },
       { label: 'DPA', href: '/dpa' },
       { label: 'GDPR Addendum', href: '/gdpr-dpa' },
