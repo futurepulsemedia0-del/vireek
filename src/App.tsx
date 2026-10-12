@@ -1,3 +1,4 @@
+import { CustomDomainGate } from '@/components/CustomDomainGate';
 import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
@@ -315,6 +316,8 @@ const IndustryPage = lazy(() => import('@/pages/IndustryPage').then((m) => ({ de
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
 const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
+const LandingPagesPage = lazy(() => import('@/pages/LandingPagesPage').then((m) => ({ default: m.LandingPagesPage })));
+const PublicLandingPage = lazy(() => import('@/pages/PublicLandingPage').then((m) => ({ default: m.PublicLandingPage })));
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
 const EmergencyTriagePage = lazy(() => import('@/pages/EmergencyTriagePage').then((m) => ({ default: m.EmergencyTriagePage })));
 const JobRoomPage = lazy(() => import('@/pages/JobRoomPage').then((m) => ({ default: m.JobRoomPage })));
@@ -392,7 +395,7 @@ function RouteLoadingFallback() {
   );
 }
 
-function App() {
+function AppRoutes() {
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
@@ -494,6 +497,7 @@ function App() {
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
         <Route path="/book/:slug" element={<BookingPage />} />
+        <Route path="/lp/:slug" element={<PublicLandingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
@@ -770,6 +774,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ApiKeysPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/landing-pages"
+          element={
+            <ProtectedRoute>
+              <LandingPagesPage />
             </ProtectedRoute>
           }
         />
@@ -2567,4 +2579,11 @@ function App() {
   );
 }
 
+function App() {
+  return (
+    <CustomDomainGate>
+      <AppRoutes />
+    </CustomDomainGate>
+  );
+}
 export default App;
