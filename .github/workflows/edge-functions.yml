@@ -1,0 +1,122 @@
+name: Edge Functions
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/functions/**', '.github/workflows/edge-functions.yml']
+  pull_request:
+    branches: [main]
+    paths: ['supabase/functions/**', '.github/workflows/edge-functions.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: edge-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    name: Typecheck (deno check)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/deno
+          key: deno-${{ runner.os }}-${{ hashFiles('supabase/functions/**/*.ts') }}
+          restore-keys: deno-${{ runner.os }}-
+
+      - name: Select functions to check
+        id: select
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          all() { for d in supabase/functions/*/; do n=$(basename "$d"); if [ "$n" != "_shared" ] && [ -f "$d/index.ts" ]; then echo "$n"; fi; done; }
+          if [ "$EVENT" = "pull_request" ] || { [ "$EVENT" = "push" ] && [ -n "${BASE_SHA:-}" ] && ! [[ "$BASE_SHA" =~ ^0+$ ]]; }; then
+            changed=$(git diff --name-only "$BASE_SHA" HEAD -- supabase/functions || true)
+            if echo "$changed" | grep -q '^supabase/functions/_shared/'; then
+              all > functions.txt   # shared code changed -> check everything
+            else
+              echo "$changed" | awk -F/ 'NF>=4 {print $3}' | sort -u | while read -r n; do if [ -f "supabase/functions/$n/index.ts" ]; then echo "$n"; fi; done > functions.txt || true
+            fi
+          else
+            all > functions.txt
+          fi
+          echo "count=$(wc -l < functions.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          echo "Functions to check:"; cat functions.txt
+
+      - name: deno check
+        if: steps.select.outputs.count != '0'
+        # PR / incremental pushes: blocking. Full runs (manual or no base): report-only unless
+        # repo variable EDGE_TYPECHECK_STRICT=true (flip it on once the baseline is clean).
+        env:
+          EVENT: ${{ github.event_name }}
+          STRICT: ${{ vars.EDGE_TYPECHECK_STRICT }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set +e
+          : > failed.txt
+          xargs -a functions.txt -P 4 -I{} sh -c \
+            'out=$(deno check --quiet "supabase/functions/{}/index.ts" 2>&1) || { echo "::error title=Typecheck failed::{}"; echo "{}" >> failed.txt; echo "---- {} ----"; echo "$out" | head -30; }'
+          if [ -s failed.txt ]; then
+            incremental=false
+            if [ "$EVENT" = "pull_request" ] || { [ -n "${BASE_SHA:-}" ] && ! [[ "$BASE_SHA" =~ ^0+$ ]]; }; then incremental=true; fi
+            echo "Failed: $(wc -l < failed.txt) function(s)"
+            if [ "$incremental" = "true" ] || [ "$STRICT" = "true" ]; then exit 1; fi
+            echo "::warning::Full typecheck is report-only (set repo variable EDGE_TYPECHECK_STRICT=true to enforce)."
+          fi
+
+  deploy:
+    name: Deploy changed functions
+    runs-on: ubuntu-latest
+    needs: typecheck
+    # OFF by default. Enable with repo variable EDGE_DEPLOY_ENABLED=true AFTER
+    # supabase/config.toml lists verify_jwt = false for every webhook/public function.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.EDGE_DEPLOY_ENABLED == 'true'
+    environment: production
+    timeout-minutes: 20
+    concurrency:
+      group: edge-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require supabase/config.toml (verify_jwt settings)
+        run: test -f supabase/config.toml || { echo "::error::supabase/config.toml missing — deploying would reset verify_jwt on webhooks/public functions."; exit 1; }
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          all() { for d in supabase/functions/*/; do n=$(basename "$d"); if [ "$n" != "_shared" ] && [ -f "$d/index.ts" ]; then echo "$n"; fi; done; }
+          if [[ "$BEFORE" =~ ^0+$ ]] || git diff --name-only "$BEFORE" HEAD -- supabase/functions/_shared | grep -q .; then
+            names=$(all)
+          else
+            names=$(git diff --name-only "$BEFORE" HEAD -- supabase/functions | awk -F/ 'NF>=4 {print $3}' | sort -u | while read -r n; do if [ -f "supabase/functions/$n/index.ts" ]; then echo "$n"; fi; done)
+          fi
+          if [ -z "$names" ]; then echo "Nothing to deploy."; exit 0; fi
+          for n in $names; do
+            echo "Deploying $n"
+            supabase functions deploy "$n" --project-ref "$SUPABASE_PROJECT_REF" --use-api
+          done
