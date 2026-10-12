@@ -142,6 +142,7 @@ const CompoundingFlywheelPage = lazy(() => import('@/pages/CompoundingFlywheelPa
 const BusinessImmuneSystemPage = lazy(() => import('@/pages/BusinessImmuneSystemPage').then((m) => ({ default: m.BusinessImmuneSystemPage })));
 const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').then((m) => ({ default: m.LaborMarketplacePage })));
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
+const WorkOrdersPage = lazy(() => import('@/pages/WorkOrdersPage').then((m) => ({ default: m.WorkOrdersPage })));
 const ContractIntelligencePage = lazy(() => import('@/pages/ContractIntelligencePage').then((m) => ({ default: m.ContractIntelligencePage })));
 const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m) => ({ default: m.CustomerSitesPage })));
 const PropertyDigitalTwinPage = lazy(() => import('@/pages/PropertyDigitalTwinPage').then((m) => ({ default: m.PropertyDigitalTwinPage })));
@@ -1856,6 +1857,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CommercialContractsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/work-orders"
+          element={
+            <ProtectedRoute>
+              <WorkOrdersPage />
             </ProtectedRoute>
           }
         />
