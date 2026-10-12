@@ -10,6 +10,7 @@
     "lint:design": "node scripts/check-design-system.mjs",
     "lint:migrations": "node scripts/lint-migrations.mjs",
     "check:bundle": "node scripts/check-bundle-size.mjs",
+    "docs:inventory": "node scripts/gen-docs-inventory.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",
