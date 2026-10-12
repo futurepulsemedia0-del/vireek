@@ -1,4 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Receipt, Loader2, Plus, Send, CheckCircle2, Copy, Trash2, X, Search } from 'lucide-react';
+import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
+import { SortSelect, type SortOption } from '@/components/SortSelect';
+import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
 import { Receipt, Loader2, Plus, Send, CheckCircle2, Copy, Trash2, X } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -16,6 +20,20 @@ const STATUS_STYLES: Record<InvoiceStatus, string> = {
   void: 'bg-bg-tertiary text-text-secondary line-through',
 };
 
+const STATUS_FILTERS = ['all', 'draft', 'sent', 'viewed', 'paid', 'void', 'overdue'] as const;
+type StatusFilter = (typeof STATUS_FILTERS)[number];
+const INVOICE_SORT_OPTIONS: SortOption[] = [
+  { key: 'created_at', label: 'Date created', defaultDir: 'desc' },
+  { key: 'due_date', label: 'Due date' },
+  { key: 'customer_name', label: 'Customer' },
+  { key: 'total', label: 'Total', defaultDir: 'desc' },
+];
+const INVOICE_SORT_ACCESSORS: Record<string, (i: Invoice) => SortValue> = {
+  created_at: (i) => new Date(i.created_at).getTime(),
+  due_date: (i) => (i.due_date ? new Date(i.due_date).getTime() : null),
+  customer_name: (i) => i.customer_name,
+  total: (i) => calculateQuoteTotals(i.line_items, i.tax_percent).totalCents,
+};
 function emptyLineItem(): QuoteLineItem {
   return { description: '', quantity: 1, unit_price_cents: 0 };
 }
@@ -153,6 +171,30 @@ export function InvoicesPage() {
   }, [toast]);
 
   useEffect(() => { void load(); }, [load]);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [sort, setSort] = useState<ViewSort | null>(null);
+
+  const visibleInvoices = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const base = invoices.filter((inv) => {
+      if (statusFilter === 'overdue' ? !isOverdue(inv) : statusFilter !== 'all' && inv.status !== statusFilter) return false;
+      return (
+        !q ||
+        inv.invoice_number.toLowerCase().includes(q) ||
+        inv.customer_name.toLowerCase().includes(q) ||
+        (inv.customer_email?.toLowerCase().includes(q) ?? false)
+      );
+    });
+    return sortRows(base, sort, INVOICE_SORT_ACCESSORS);
+  }, [invoices, search, statusFilter, sort]);
+
+  const currentFilters = { search, statusFilter };
+  const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
+    setSearch(typeof f.search === 'string' ? f.search : '');
+    setStatusFilter(STATUS_FILTERS.includes(f.statusFilter as StatusFilter) ? (f.statusFilter as StatusFilter) : 'all');
+    setSort(coerceSort(extras.sort, INVOICE_SORT_OPTIONS.map((o) => o.key), null));
+  };
 
   const send = async (inv: Invoice) => {
     setBusyId(inv.id);
@@ -215,6 +257,36 @@ export function InvoicesPage() {
         </div>
 
         {showForm && <InvoiceForm onClose={() => setShowForm(false)} onCreated={load} />}
+                {invoices.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[12rem] flex-1">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search invoices…"
+                aria-label="Search invoices"
+                className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+              aria-label="Filter by status"
+              className="focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm text-text-primary"
+            >
+              {STATUS_FILTERS.map((s) => (
+                <option key={s} value={s}>{s === 'all' ? 'All statuses' : s.charAt(0).toUpperCase() + s.slice(1)}</option>
+              ))}
+            </select>
+            <SortSelect value={sort} options={INVOICE_SORT_OPTIONS} onChange={setSort} />
+            <SavedViewsBar page="invoices" currentFilters={currentFilters} currentSort={sort} onApply={applyView} />
+          </div>
+        )}
+        {invoices.length > 0 && visibleInvoices.length === 0 && (
+          <p className="text-center text-sm text-text-secondary">Nothing matches these filters.</p>
+        )}
 
         {invoices.length === 0 && !showForm && (
           <div className="rounded-2xl border border-border bg-bg-secondary p-8 text-center text-sm text-text-secondary">
@@ -223,7 +295,7 @@ export function InvoicesPage() {
         )}
 
         <div className="space-y-2">
-          {invoices.map((inv) => {
+          {visibleInvoices.map((inv) => {
             const totals = getDocumentTotals(inv);
             const overdue = isOverdue(inv);
             return (
