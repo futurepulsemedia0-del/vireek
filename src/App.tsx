@@ -358,6 +358,7 @@ const ResourcePage = lazy(() => import('@/pages/ResourcePage').then((m) => ({ de
 const EventsPage = lazy(() => import('@/pages/EventsPage').then((m) => ({ default: m.EventsPage })));
 const CustomerRoiPage = lazy(() => import('@/pages/CustomerRoiPage').then((m) => ({ default: m.CustomerRoiPage })));
 const SystemRequirementsPage = lazy(() => import('@/pages/SystemRequirementsPage').then((m) => ({ default: m.SystemRequirementsPage })));
+const MaintenancePage = lazy(() => import('@/pages/MaintenancePage').then((m) => ({ default: m.MaintenancePage })));
 const CustomerDetailPage = lazy(() => import('@/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
@@ -522,6 +523,7 @@ function AppRoutes() {
         <Route path="/integrations/:slug" element={<IntegrationDetailPage />} />
         <Route path="/status" element={<StatusPage />} />
         <Route path="/status/unsubscribe" element={<StatusUnsubscribePage />} />
+        <Route path="/maintenance" element={<MaintenancePage />} />
         <Route path="/case-studies" element={<CaseStudiesPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/roadmap" element={<RoadmapPage />} />
