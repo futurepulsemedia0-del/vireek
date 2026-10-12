@@ -1,0 +1,91 @@
+name: Quality Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  migration-lint:
+    name: Migration lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint migrations (new files strict, legacy warn)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: node scripts/lint-migrations.mjs
+
+  bundle-size:
+    name: Bundle-size budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Check budgets
+        run: node scripts/check-bundle-size.mjs
+        env:
+          BUDGET_INITIAL_JS_KB: ${{ vars.BUDGET_INITIAL_JS_KB }}
+          BUDGET_CHUNK_JS_KB: ${{ vars.BUDGET_CHUNK_JS_KB }}
+          BUDGET_TOTAL_JS_KB: ${{ vars.BUDGET_TOTAL_JS_KB }}
+          BUDGET_TOTAL_CSS_KB: ${{ vars.BUDGET_TOTAL_CSS_KB }}
+
+  lighthouse:
+    name: Lighthouse CI (public pages)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Lighthouse CI
+        run: npx --yes @lhci/cli@0.14.0 autorun --config=lighthouserc.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          retention-days: 14
