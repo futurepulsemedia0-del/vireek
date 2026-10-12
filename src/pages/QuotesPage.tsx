@@ -25,6 +25,9 @@ import {
 import type { TieredEstimateDraft } from '@/components/quotes/TieredEstimateBuilder';
 import { describeEngagement, isTieredQuote } from '@/lib/estimates';
 import { QuoteTruthPanel } from '@/components/quotes/QuoteTruthReport';
+import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
+import { SortSelect, type SortOption } from '@/components/SortSelect';
+import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
 import { SalesTaxPanel } from '@/components/tax/SalesTaxPanel';
 import { TaxClassSelect } from '@/components/tax/TaxClassSelect';
 import { emptyTaxSelection, selectionFromDocument, taxColumnsFromSelection, type TaxSelection } from '@/lib/salesTax';
@@ -41,6 +44,18 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'All' },
 ];
 
+const QUOTE_SORT_OPTIONS: SortOption[] = [
+  { key: 'quote_amount', label: 'Amount', defaultDir: 'desc' },
+  { key: 'quote_sent_at', label: 'Date sent', defaultDir: 'desc' },
+  { key: 'follow_up_count', label: 'Follow-ups', defaultDir: 'desc' },
+  { key: 'name', label: 'Name' },
+];
+const QUOTE_SORT_ACCESSORS: Record<string, (l: Lead) => SortValue> = {
+  quote_amount: (l) => l.quote_amount,
+  quote_sent_at: (l) => (l.quote_sent_at ? new Date(l.quote_sent_at).getTime() : null),
+  follow_up_count: (l) => l.follow_up_count,
+  name: (l) => l.name,
+};
 function formatMoney(amount: number | null | undefined): string {
   if (amount === null || amount === undefined) return 'No amount set';
   return `$${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
@@ -449,6 +464,7 @@ export function QuotesPage() {
   const [financing, setFinancing] = useState<{ name: string | null; note: string | null }>({ name: null, note: null });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterKey>('open');
+  const [sort, setSort] = useState<ViewSort | null>(null);
 
   const [itemizedQuotes, setItemizedQuotes] = useState<Quote[]>([]);
   const [quotesLoading, setQuotesLoading] = useState(true);
@@ -507,11 +523,16 @@ export function QuotesPage() {
   }, [fetchAll, fetchItemizedQuotes]);
 
   const filtered = useMemo(() => {
-    if (filter === 'all') return leads;
-    if (filter === 'open') return leads.filter((l) => l.stage === 'quoted');
-    return leads.filter((l) => l.stage === filter);
-  }, [leads, filter]);
+    const base =
+      filter === 'all' ? leads : filter === 'open' ? leads.filter((l) => l.stage === 'quoted') : leads.filter((l) => l.stage === filter);
+    return sortRows(base, sort, QUOTE_SORT_ACCESSORS);
+  }, [leads, filter, sort]);
 
+  const currentFilters = { filter };
+  const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
+    setFilter(FILTERS.some((x) => x.key === f.filter) ? (f.filter as FilterKey) : 'open');
+    setSort(coerceSort(extras.sort, QUOTE_SORT_OPTIONS.map((o) => o.key), null));
+  };
   const stats = useMemo(() => {
     const open = leads.filter((l) => l.stage === 'quoted');
     const openValue = open.reduce((sum, l) => sum + (l.quote_amount ?? 0), 0);
@@ -949,6 +970,10 @@ export function QuotesPage() {
               {f.label}
             </button>
           ))}
+          <div className="ml-auto flex items-center gap-2">
+            <SortSelect value={sort} options={QUOTE_SORT_OPTIONS} onChange={setSort} />
+            <SavedViewsBar page="quotes" currentFilters={currentFilters} currentSort={sort} onApply={applyView} />
+          </div>
         </div>
 
         {loading ? (
