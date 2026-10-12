@@ -324,6 +324,12 @@ export function PrivacyContent() {
                         • SMS opt-in information is never shared with third parties for marketing
                         purposes.
                       </li>
+                      <li>
+                        • Full program terms:{' '}
+                        <Link to="/sms-terms" className="font-semibold text-accent hover:underline">
+                          SMS Terms &amp; Conditions
+                        </Link>
+                      </li>
                     </ul>
                   </div>
                 </CalloutCard>
