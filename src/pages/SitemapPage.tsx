@@ -27,6 +27,7 @@ import { EASE, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { SARAH_PHONE } from '@/lib/site';
 import { BLOG_POSTS } from '@/lib/blog';
+import { publishedResources, resourcePath } from '@/lib/resources';
 import { INDUSTRIES } from '@/lib/industries';
 import { INTEGRATIONS } from '@/lib/integrations';
 import { COMPETITORS } from '@/lib/competitors';
@@ -111,6 +112,8 @@ function useSiteSections(): SiteSection[] {
         icon: BookOpen,
         links: [
           { label: 'Blog Home', href: '/blog' },
+          { label: 'Free Resources', href: '/resources' },
+          ...publishedResources().map((r) => ({ label: r.title, href: resourcePath(r.slug) })),
           ...BLOG_POSTS.map((p) => ({ label: p.title, href: `/blog/${p.slug}` })),
           { label: 'State of Home Service Calls Report', href: '/report' },
           { label: 'Podcast', href: '/podcast' },
