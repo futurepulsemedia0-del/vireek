@@ -280,6 +280,7 @@ const RefundPolicyPage = lazy(() => import('@/pages/RefundPolicyPage').then((m) 
 const SlaPage = lazy(() => import('@/pages/SlaPage').then((m) => ({ default: m.SlaPage })));
 const AcceptableUsePage = lazy(() => import('@/pages/AcceptableUsePage').then((m) => ({ default: m.AcceptableUsePage })));
 const ResponsibleAiPage = lazy(() => import('@/pages/ResponsibleAiPage').then((m) => ({ default: m.ResponsibleAiPage })));
+const MsaPage = lazy(() => import('@/pages/MsaPage').then((m) => ({ default: m.MsaPage })));
 const AiDisclosurePage = lazy(() => import('@/pages/AiDisclosurePage').then((m) => ({ default: m.AiDisclosurePage })));
 const TrademarkPolicyPage = lazy(() => import('@/pages/TrademarkPolicyPage').then((m) => ({ default: m.TrademarkPolicyPage })));
 const VulnerabilityDisclosurePage = lazy(() => import('@/pages/VulnerabilityDisclosurePage').then((m) => ({ default: m.VulnerabilityDisclosurePage })));
@@ -460,6 +461,7 @@ function AppRoutes() {
         <Route path="/sla" element={<SlaPage />} />
         <Route path="/acceptable-use-policy" element={<AcceptableUsePage />} />
         <Route path="/responsible-ai" element={<ResponsibleAiPage />} />
+        <Route path="/msa" element={<MsaPage />} />
         <Route path="/ai-disclosure" element={<AiDisclosurePage />} />
         <Route path="/trademark-policy" element={<TrademarkPolicyPage />} />
         <Route path="/vulnerability-disclosure" element={<VulnerabilityDisclosurePage />} />
