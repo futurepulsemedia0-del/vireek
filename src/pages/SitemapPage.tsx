@@ -162,6 +162,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'Acceptable Use Policy', href: '/acceptable-use-policy' },
           { label: 'Vulnerability Disclosure', href: '/vulnerability-disclosure' },
           { label: 'Responsible AI Policy', href: '/responsible-ai' },
+          { label: 'AI Call Disclosure & Recording', href: '/ai-disclosure' },
           { label: 'CCPA Rights', href: '/ccpa' },
         ],
       },
