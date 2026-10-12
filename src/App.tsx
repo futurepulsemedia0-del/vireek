@@ -256,6 +256,7 @@ const ResolutionProbabilityPage = lazy(() => import('@/pages/ResolutionProbabili
 const OpsExperimentsPage = lazy(() => import('@/pages/OpsExperimentsPage').then((m) => ({ default: m.OpsExperimentsPage })));
 const OutcomeBenchmarkNetworkPage = lazy(() => import('@/pages/OutcomeBenchmarkNetworkPage').then((m) => ({ default: m.OutcomeBenchmarkNetworkPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
+const LeadMarketplacesPage = lazy(() => import('@/pages/LeadMarketplacesPage').then((m) => ({ default: m.LeadMarketplacesPage })));
 const DemandOsPage = lazy(() => import('@/pages/DemandOsPage').then((m) => ({ default: m.DemandOsPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
@@ -2441,6 +2442,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TechnicianPerformancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/lead-marketplaces"
+          element={
+            <ProtectedRoute>
+              <LeadMarketplacesPage />
             </ProtectedRoute>
           }
         />
