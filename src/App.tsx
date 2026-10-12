@@ -285,6 +285,7 @@ const AiDisclosurePage = lazy(() => import('@/pages/AiDisclosurePage').then((m) 
 const TrademarkPolicyPage = lazy(() => import('@/pages/TrademarkPolicyPage').then((m) => ({ default: m.TrademarkPolicyPage })));
 const VulnerabilityDisclosurePage = lazy(() => import('@/pages/VulnerabilityDisclosurePage').then((m) => ({ default: m.VulnerabilityDisclosurePage })));
 const CcpaPage = lazy(() => import('@/pages/CcpaPage').then((m) => ({ default: m.CcpaPage })));
+const DataRequestPage = lazy(() => import('@/pages/DataRequestPage').then((m) => ({ default: m.DataRequestPage })));
 const AccessibilityStatementPage = lazy(() => import('@/pages/AccessibilityStatementPage').then((m) => ({ default: m.AccessibilityStatementPage })));
 const GdprDpaPage = lazy(() => import('@/pages/GdprDpaPage').then((m) => ({ default: m.GdprDpaPage })));
 const FAQPage = lazy(() => import('@/pages/FAQPage').then((m) => ({ default: m.FAQPage })));
@@ -466,6 +467,7 @@ function AppRoutes() {
         <Route path="/trademark-policy" element={<TrademarkPolicyPage />} />
         <Route path="/vulnerability-disclosure" element={<VulnerabilityDisclosurePage />} />
         <Route path="/ccpa" element={<CcpaPage />} />
+        <Route path="/data-request" element={<DataRequestPage />} />
         <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
         <Route path="/gdpr-dpa" element={<GdprDpaPage />} />
         <Route path="/faq" element={<FAQPage />} />
