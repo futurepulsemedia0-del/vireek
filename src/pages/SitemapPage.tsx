@@ -139,6 +139,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'Culture & Values', href: '/culture' },
           { label: 'Contact', href: '/contact' },
           { label: 'Status', href: '/status' },
+          { label: 'Maintenance Schedule', href: '/maintenance' },
           { label: 'Changelog', href: '/changelog' },
           { label: 'Roadmap', href: '/roadmap' },
           { label: 'Accessibility', href: '/accessibility' },
