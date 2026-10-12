@@ -1,0 +1,43 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "npm run preview -- --port 4173 --strictPort",
+      "startServerReadyPattern": "Local",
+      "startServerReadyTimeout": 60000,
+      "url": [
+        "http://localhost:4173/",
+        "http://localhost:4173/pricing",
+        "http://localhost:4173/login",
+        "http://localhost:4173/signup",
+        "http://localhost:4173/faq",
+        "http://localhost:4173/security",
+        "http://localhost:4173/privacy"
+      ],
+      "numberOfRuns": 2,
+      "settings": {
+        "preset": "desktop",
+        "chromeFlags": "--no-sandbox --disable-dev-shm-usage",
+        "skipAudits": ["uses-http2"]
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:accessibility": ["error", { "minScore": 0.9 }],
+        "categories:best-practices": ["warn", { "minScore": 0.9 }],
+        "categories:seo": ["warn", { "minScore": 0.9 }],
+        "categories:performance": ["warn", { "minScore": 0.7 }],
+        "is-crawlable": "error",
+        "document-title": "error",
+        "meta-description": "warn",
+        "viewport": "error",
+        "html-has-lang": "error",
+        "color-contrast": "warn",
+        "errors-in-console": "warn"
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}
