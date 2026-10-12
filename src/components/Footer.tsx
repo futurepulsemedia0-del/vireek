@@ -196,6 +196,7 @@ const FOOTER_COLUMNS = [
       { label: 'Responsible AI', href: '/responsible-ai' },
       { label: 'AI Call Disclosure', href: '/ai-disclosure' },
       { label: 'CCPA Rights', href: '/ccpa' },
+      { label: 'Data Request', href: '/data-request' },
       { label: 'Accessibility', href: '/accessibility-statement' },
       { label: 'Accessibility', href: '/accessibility' },
     ],
