@@ -4,6 +4,7 @@ import { Send, Inbox as InboxIcon, MessageSquare, Phone as PhoneIcon, Mail, Mess
 import { useAuth } from '@/contexts/AuthContext';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { AiAssistPanel } from '@/components/inbox/AiAssistPanel';
 import {
   Channel,
   UnifiedConversation,
@@ -182,6 +183,13 @@ export function UnifiedInboxPage() {
                 )}
               </div>
 
+              {(selected.channel === 'sms' || selected.channel === 'email') && (
+                <AiAssistPanel
+                  channel={selected.channel}
+                  conversationId={selected.id}
+                  onChanged={async () => setMessages(await fetchMessages(selected.channel, selected.id))}
+                />
+              )}
               <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
                 {messages.map((m) => (
                   <div key={m.id} className={`flex ${m.direction === 'inbound' ? 'justify-start' : 'justify-end'}`}>
@@ -192,6 +200,9 @@ export function UnifiedInboxPage() {
                           : 'rounded-br-sm bg-gradient-to-br from-accent to-accent-600 text-white'
                       }`}
                     >
+                      {m.sentBy?.startsWith('ai') && (
+                        <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wide text-white/80">AI</span>
+                      )}
                       {m.body}
                       <span className={`mt-1 block text-[10px] ${m.direction === 'inbound' ? 'text-text-secondary' : 'text-white/70'}`}>
                         {formatMessageTime(m.createdAt)}
