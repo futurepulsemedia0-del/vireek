@@ -15,6 +15,7 @@
 // going live.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { normalizePhone } from "../_shared/compliance/dncCheck.ts";
 
 const STOP_WORDS = new Set(["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"]);
@@ -73,12 +74,24 @@ Deno.serve(async (req: Request) => {
 
     if (!conversation) throw new Error("Failed to upsert sms_conversations");
 
-    await admin.from("sms_messages").insert({
+    const { data: dupe } = await admin
+      .from("sms_messages").select("id")
+      .eq("conversation_id", conversation.id).eq("provider_sid", providerSid ?? "").maybeSingle();
+    if (providerSid && dupe) return emptyTwiml(); // Twilio retry, already stored
+
+    const { data: inboundMsg } = await admin.from("sms_messages").insert({
       conversation_id: conversation.id,
       direction: "inbound",
       body: body || "(empty message)",
       provider_sid: providerSid,
-    });
+    }).select("id").single();
+
+    if (inboundMsg) {
+      await runAutoReplyInBackground(admin, {
+        userId, channel: "sms", conversationId: conversation.id,
+        inboundMessageId: inboundMsg.id, text: body, customerLabel: from,
+      });
+    }
 
     return emptyTwiml();
   } catch (error) {
