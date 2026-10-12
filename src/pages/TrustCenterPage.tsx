@@ -181,6 +181,7 @@ const RESOURCES = [
   { label: 'Acceptable Use Policy', description: 'Rules for lawful use of the platform.', href: '/acceptable-use-policy' },
   { label: 'Vulnerability Disclosure', description: 'How to report a security issue.', href: '/vulnerability-disclosure' },
   { label: 'Responsible AI Policy', description: 'How we disclose, oversee, and govern AI in the product.', href: '/responsible-ai' },
+  { label: 'AI Call Disclosure & Recording', description: 'How callers are told they are speaking with an AI, and how calls are recorded and retained.', href: '/ai-disclosure' },
   { label: 'Refund & Cancellation Policy', description: 'How billing and cancellation work.', href: '/refund-policy' },
 ];
 
