@@ -255,6 +255,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Switching Shield', href: '/dashboard/switching-shield', icon: UserMinus },
   { label: 'Labor Marketplace', href: '/dashboard/labor-marketplace', icon: HandHelping },
   { label: 'Commercial Contracts', href: '/dashboard/contracts', icon: FileSignature },
+  { label: 'Work Orders', href: '/dashboard/work-orders', icon: ClipboardList, requiresPermission: 'can_view_billing' },
   { label: 'Contract Intelligence', href: '/dashboard/contract-intelligence', icon: FileSearch },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { label: 'Promise Tracker', href: '/dashboard/promises', icon: Handshake },
