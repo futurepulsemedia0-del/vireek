@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
+import { ColumnPicker } from '@/components/ColumnPicker';
 import {
   ArrowLeft,
   Search,
@@ -66,6 +68,22 @@ type InvoiceStatus = Job['invoice_status'];
 type ViewMode = 'board' | 'list';
 type SortKey = 'customer_name' | 'service_type' | 'scheduled_datetime' | 'job_status' | 'invoice_status';
 type SortDir = 'asc' | 'desc';
+const JOB_COLUMNS = [
+  { key: 'service', label: 'Service' },
+  { key: 'scheduled', label: 'Scheduled' },
+  { key: 'technician', label: 'Technician' },
+  { key: 'invoice', label: 'Invoice' },
+] as const;
+const DEFAULT_JOB_COLUMNS: string[] = JOB_COLUMNS.map((c) => c.key);
+const JOB_SORT_KEYS: SortKey[] = ['customer_name', 'service_type', 'scheduled_datetime', 'job_status', 'invoice_status'];
+const LIST_HEADERS: { col: string; sort: SortKey | null; label: string; always?: boolean }[] = [
+  { col: 'customer', sort: 'customer_name', label: 'Customer', always: true },
+  { col: 'service', sort: 'service_type', label: 'Service' },
+  { col: 'scheduled', sort: 'scheduled_datetime', label: 'Scheduled' },
+  { col: 'technician', sort: null, label: 'Technician' },
+  { col: 'status', sort: 'job_status', label: 'Status', always: true },
+  { col: 'invoice', sort: 'invoice_status', label: 'Invoice' },
+];
 
 const BOARD_STAGES: { key: JobStatus; label: string; dotColor: string; borderColor: string }[] = [
   { key: 'scheduled', label: 'Scheduled', dotColor: 'bg-accent', borderColor: 'border-t-accent' },
@@ -878,6 +896,7 @@ export function JobsPage() {
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'all'>('all');
   const [sortKey, setSortKey] = useState<SortKey>('scheduled_datetime');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
+  const [visibleCols, setVisibleCols] = useState<string[]>(DEFAULT_JOB_COLUMNS);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverStage, setDragOverStage] = useState<JobStatus | null>(null);
 
@@ -1256,6 +1275,24 @@ export function JobsPage() {
     return sortDir === 'asc' ? <ChevronUp size={14} className="text-accent" /> : <ChevronDown size={14} className="text-accent" />;
   };
 
+  const showCol = (key: string) => visibleCols.includes(key);
+  const currentFilters = { search, techFilter, statusFilter, viewMode };
+  const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
+    setSearch(typeof f.search === 'string' ? f.search : '');
+    setTechFilter(typeof f.techFilter === 'string' ? f.techFilter : 'all');
+    setStatusFilter(ALL_STATUSES.some((s) => s.key === f.statusFilter) ? (f.statusFilter as JobStatus) : 'all');
+    setViewMode(f.viewMode === 'list' ? 'list' : 'board');
+    const s = extras.sort;
+    if (s && JOB_SORT_KEYS.includes(s.key as SortKey)) {
+      setSortKey(s.key as SortKey);
+      setSortDir(s.dir);
+    } else {
+      setSortKey('scheduled_datetime');
+      setSortDir('asc');
+    }
+    const cols = extras.columns;
+    setVisibleCols(cols ? JOB_COLUMNS.map((c) => c.key).filter((k) => cols.includes(k)) : DEFAULT_JOB_COLUMNS);
+  };
   const hasActiveFilters = search || techFilter !== 'all' || statusFilter !== 'all';
 
   return (
@@ -1327,7 +1364,7 @@ export function JobsPage() {
               className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <select
               value={techFilter}
               onChange={(e) => setTechFilter(e.target.value)}
@@ -1353,6 +1390,16 @@ export function JobsPage() {
                 </option>
               ))}
             </select>
+            <SavedViewsBar
+              page="jobs"
+              currentFilters={currentFilters}
+              currentSort={{ key: sortKey, dir: sortDir }}
+              currentColumns={visibleCols}
+              onApply={applyView}
+            />
+            {viewMode === 'list' && (
+              <ColumnPicker options={JOB_COLUMNS} selected={visibleCols} onChange={setVisibleCols} />
+            )}
             {hasActiveFilters && (
               <button
                 type="button"
@@ -1502,52 +1549,24 @@ export function JobsPage() {
             <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b border-border bg-bg-tertiary/50">
-                  <th className="px-4 py-3 text-left">
-                    <button
-                      type="button"
-                      onClick={() => handleSort('customer_name')}
-                      className="focus-ring flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-text-primary"
-                    >
-                      Customer <SortIcon col="customer_name" />
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-left">
-                    <button
-                      type="button"
-                      onClick={() => handleSort('service_type')}
-                      className="focus-ring flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-text-primary"
-                    >
-                      Service <SortIcon col="service_type" />
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-left">
-                    <button
-                      type="button"
-                      onClick={() => handleSort('scheduled_datetime')}
-                      className="focus-ring flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-text-primary"
-                    >
-                      Scheduled <SortIcon col="scheduled_datetime" />
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary">Technician</th>
-                  <th className="px-4 py-3 text-left">
-                    <button
-                      type="button"
-                      onClick={() => handleSort('job_status')}
-                      className="focus-ring flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-text-primary"
-                    >
-                      Status <SortIcon col="job_status" />
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-left">
-                    <button
-                      type="button"
-                      onClick={() => handleSort('invoice_status')}
-                      className="focus-ring flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-text-primary"
-                    >
-                      Invoice <SortIcon col="invoice_status" />
-                    </button>
-                  </th>
+                  {LIST_HEADERS.filter((h) => h.always || showCol(h.col)).map((h) => {
+                    const sk = h.sort;
+                    return (
+                      <th key={h.col} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary">
+                        {sk ? (
+                          <button
+                            type="button"
+                            onClick={() => handleSort(sk)}
+                            className="focus-ring flex items-center gap-1 text-xs font-semibold text-text-secondary hover:text-text-primary"
+                          >
+                            {h.label} <SortIcon col={sk} />
+                          </button>
+                        ) : (
+                          h.label
+                        )}
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
@@ -1569,35 +1588,41 @@ export function JobsPage() {
                           )}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-text-secondary whitespace-nowrap">
-                        {job.service_type || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-text-secondary whitespace-nowrap">
-                        {formatDateTime(job.scheduled_datetime)}
-                      </td>
-                      <td className="px-4 py-3">
-                        {tech ? (
-                          <div className="flex items-center gap-2">
-                            <TechnicianAvatar name={tech.member_name ?? tech.member_email} />
-                            <span className="text-sm text-text-secondary">{tech.member_name ?? tech.member_email}</span>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-text-secondary/60">Unassigned</span>
-                        )}
-                      </td>
+                      {showCol('service') && (
+                        <td className="px-4 py-3 text-sm text-text-secondary whitespace-nowrap">{job.service_type || '—'}</td>
+                      )}
+                      {showCol('scheduled') && (
+                        <td className="px-4 py-3 text-sm text-text-secondary whitespace-nowrap">
+                          {formatDateTime(job.scheduled_datetime)}
+                        </td>
+                      )}
+                      {showCol('technician') && (
+                        <td className="px-4 py-3">
+                          {tech ? (
+                            <div className="flex items-center gap-2">
+                              <TechnicianAvatar name={tech.member_name ?? tech.member_email} />
+                              <span className="text-sm text-text-secondary">{tech.member_name ?? tech.member_email}</span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-text-secondary/60">Unassigned</span>
+                          )}
+                        </td>
+                      )}
                       <td className="px-4 py-3">
                         <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ALL_STATUSES.find((s) => s.key === job.job_status)?.color ?? 'bg-bg-tertiary'} text-white`}>
                           {ALL_STATUSES.find((s) => s.key === job.job_status)?.label ?? job.job_status}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <InvoiceBadge status={job.invoice_status} />
-                          {job.invoice_amount !== null && (
-                            <span className="text-sm text-text-secondary">{formatCurrency(job.invoice_amount)}</span>
-                          )}
-                        </div>
-                      </td>
+                      {showCol('invoice') && (
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <InvoiceBadge status={job.invoice_status} />
+                            {job.invoice_amount !== null && (
+                              <span className="text-sm text-text-secondary">{formatCurrency(job.invoice_amount)}</span>
+                            )}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
