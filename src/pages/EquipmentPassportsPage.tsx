@@ -3,6 +3,9 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
+import { SortSelect, type SortOption } from '@/components/SortSelect';
+import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, QrCode, Search, ShieldCheck } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -21,6 +24,25 @@ import { formatDate } from '@/lib/technicianIdentity';
 
 const WARRANTY_DOT = { active: 'bg-success-500', expiring: 'bg-warning-500', expired: 'bg-text-secondary/40', unknown: 'bg-text-secondary/20' } as const;
 
+const WARRANTY_FILTERS = ['all', 'active', 'expiring', 'expired', 'unknown'] as const;
+type WarrantyFilter = (typeof WARRANTY_FILTERS)[number];
+const VERIFIED_FILTERS = ['all', 'verified', 'unverified'] as const;
+type VerifiedFilter = (typeof VERIFIED_FILTERS)[number];
+const EQUIPMENT_SORT_OPTIONS: SortOption[] = [
+  { key: 'title', label: 'Make / model' },
+  { key: 'customer_name', label: 'Customer' },
+  { key: 'last_service_at', label: 'Last service', defaultDir: 'desc' },
+  { key: 'warranty_expires_at', label: 'Warranty expiry' },
+  { key: 'linked_at', label: 'Date added', defaultDir: 'desc' },
+];
+const EQUIPMENT_SORT_ACCESSORS: Record<string, (i: PassportListItem) => SortValue> = {
+  title: (i) => equipmentTitle(i),
+  customer_name: (i) => i.customer_name,
+  last_service_at: (i) => (i.last_service_at ? new Date(i.last_service_at).getTime() : null),
+  warranty_expires_at: (i) => (i.warranty_expires_at ? new Date(i.warranty_expires_at).getTime() : null),
+  linked_at: (i) => new Date(i.linked_at).getTime(),
+};
+
 export function EquipmentPassportsPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -28,6 +50,9 @@ export function EquipmentPassportsPage() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [codeInput, setCodeInput] = useState('');
+    const [warrantyFilter, setWarrantyFilter] = useState<WarrantyFilter>('all');
+  const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>('all');
+  const [sort, setSort] = useState<ViewSort | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -44,18 +69,24 @@ export function EquipmentPassportsPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((i) =>
-      [i.make, i.model, i.serial_number, i.equipment_type, i.customer_name, i.code].filter(Boolean).join(' ').toLowerCase().includes(q),
-    );
-  }, [items, query]);
+    const base = items.filter((i) => {
+      if (warrantyFilter !== 'all' && warrantyState(i.warranty_expires_at).state !== warrantyFilter) return false;
+      if (verifiedFilter === 'verified' && !i.verified) return false;
+      if (verifiedFilter === 'unverified' && i.verified) return false;
+      return (
+        !q ||
+        [i.make, i.model, i.serial_number, i.equipment_type, i.customer_name, i.code].filter(Boolean).join(' ').toLowerCase().includes(q)
+      );
+    });
+    return sortRows(base, sort, EQUIPMENT_SORT_ACCESSORS);
+  }, [items, query, warrantyFilter, verifiedFilter, sort]);
 
-  const openCode = () => {
-    if (!isValidPassportCode(codeInput)) {
-      toast('That is not a valid passport code. Scan the QR label or type the VEQ code.', 'error');
-      return;
-    }
-    navigate(`/dashboard/equipment-passports/${normalizePassportCode(codeInput)}`);
+  const currentFilters = { query, warrantyFilter, verifiedFilter };
+  const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
+    setQuery(typeof f.query === 'string' ? f.query : '');
+    setWarrantyFilter(WARRANTY_FILTERS.includes(f.warrantyFilter as WarrantyFilter) ? (f.warrantyFilter as WarrantyFilter) : 'all');
+    setVerifiedFilter(VERIFIED_FILTERS.includes(f.verifiedFilter as VerifiedFilter) ? (f.verifiedFilter as VerifiedFilter) : 'all');
+    setSort(coerceSort(extras.sort, EQUIPMENT_SORT_OPTIONS.map((o) => o.key), null));
   };
 
   const verifiedCount = items.filter((i) => i.verified).length;
@@ -102,6 +133,30 @@ export function EquipmentPassportsPage() {
             className="focus-ring w-full rounded-lg border border-border bg-bg-secondary py-2 pl-9 pr-3 text-sm text-text-primary"
           />
         </div>
+        <select
+          value={warrantyFilter}
+          onChange={(e) => setWarrantyFilter(e.target.value as WarrantyFilter)}
+          aria-label="Filter by warranty"
+          className="focus-ring rounded-lg border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary"
+        >
+          <option value="all">All warranties</option>
+          <option value="active">Active</option>
+          <option value="expiring">Expiring soon</option>
+          <option value="expired">Expired</option>
+          <option value="unknown">No warranty on file</option>
+        </select>
+        <select
+          value={verifiedFilter}
+          onChange={(e) => setVerifiedFilter(e.target.value as VerifiedFilter)}
+          aria-label="Filter by verification"
+          className="focus-ring rounded-lg border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary"
+        >
+          <option value="all">All machines</option>
+          <option value="verified">Verified</option>
+          <option value="unverified">Unverified</option>
+        </select>
+        <SortSelect value={sort} options={EQUIPMENT_SORT_OPTIONS} onChange={setSort} />
+        <SavedViewsBar page="equipment" currentFilters={currentFilters} currentSort={sort} onApply={applyView} />
         <p className="text-xs text-text-secondary">{items.length} machine{items.length === 1 ? '' : 's'} · {verifiedCount} verified</p>
       </div>
 
