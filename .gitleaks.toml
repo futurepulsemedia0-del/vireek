@@ -1,0 +1,18 @@
+title = "Vireek gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known-safe files and public values"
+paths = [
+  '''(^|/)package-lock\.json$''',
+  '''(^|/)\.env\.example$''',
+  '''(^|/)public/.*\.(png|jpg|jpeg|webp|ico|svg)$''',
+]
+regexes = [
+  # CSP script hashes in vercel.json (public, not secrets)
+  '''sha256-[A-Za-z0-9+/]{43}=''',
+  # Placeholders used in docs/examples
+  '''YOUR_[A-Z0-9_]+''',
+]
