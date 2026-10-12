@@ -132,6 +132,7 @@ const FOOTER_COLUMNS = [
   {
     title: 'Resources',
     links: [
+      { label: 'Free Resources', href: '/resources' },
       { label: 'State of Home Service Calls Report', href: '/report' },
       { label: 'Customer ROI', href: '/roi' },
       { label: 'Case Studies', href: '/case-studies' },
