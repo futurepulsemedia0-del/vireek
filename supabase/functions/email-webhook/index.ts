@@ -14,6 +14,7 @@
 // reply gets matched back to the right business.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { handleMarketplaceEmail } from "../_shared/lead-marketplace/emailEntry.ts";
 import { createDeps } from "../_shared/lead-marketplace/runtime.ts";
 
@@ -77,13 +78,23 @@ Deno.serve(async (req: Request) => {
 
     if (!conversation) throw new Error("Failed to upsert email_conversations");
 
-    await admin.from("email_messages").insert({
+    const { data: inboundMsg } = await admin.from("email_messages").insert({
       conversation_id: conversation.id,
       direction: "inbound",
       subject,
       body_text: text || "(no text content)",
       body_html: html,
-    });
+    }).select("id").single();
+
+    const ownDomain = Deno.env.get("INBOUND_EMAIL_DOMAIN");
+    if (inboundMsg && !(ownDomain && from.endsWith(`@${ownDomain.toLowerCase()}`))) {
+      await runAutoReplyInBackground(admin, {
+        userId: profile.id, channel: "email", conversationId: conversation.id,
+        inboundMessageId: inboundMsg.id, text, subject, senderAddress: from,
+        headers: payload.headers && typeof payload.headers === "object" ? payload.headers : null,
+        customerLabel: fromName || from,
+      });
+    }
 
     return json({ received: true });
   } catch (error) {
