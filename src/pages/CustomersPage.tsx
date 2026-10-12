@@ -1,6 +1,9 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
+import { SortSelect, type SortOption } from '@/components/SortSelect';
+import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
 import {
   ArrowLeft,
   Search,
@@ -37,6 +40,16 @@ const LIFECYCLE_STAGES: { key: Customer['lifecycle_stage']; label: string; dotCo
 ];
 
 const TAG_SUGGESTIONS = ['repeat-customer', 'referral', 'financing', 'commercial-account', 'high-value'];
+const CUSTOMER_SORT_OPTIONS: SortOption[] = [
+  { key: 'name', label: 'Name' },
+  { key: 'created_at', label: 'Date added', defaultDir: 'desc' },
+  { key: 'last_contacted_at', label: 'Last contacted', defaultDir: 'desc' },
+];
+const CUSTOMER_SORT_ACCESSORS: Record<string, (c: Customer) => SortValue> = {
+  name: (c) => c.name,
+  created_at: (c) => new Date(c.created_at).getTime(),
+  last_contacted_at: (c) => (c.last_contacted_at ? new Date(c.last_contacted_at).getTime() : null),
+};
 
 function lifecycleMeta(stage: Customer['lifecycle_stage']) {
   return LIFECYCLE_STAGES.find((s) => s.key === stage) ?? LIFECYCLE_STAGES[0];
@@ -343,16 +356,25 @@ export function CustomersPage() {
     let list = customers;
     if (stageFilter !== 'all') list = list.filter((c) => c.lifecycle_stage === stageFilter);
     const q = search.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        (c.phone?.toLowerCase().includes(q) ?? false) ||
-        (c.email?.toLowerCase().includes(q) ?? false) ||
-        (c.address?.toLowerCase().includes(q) ?? false) ||
-        c.tags.some((t) => t.includes(q))
-    );
-  }, [customers, search, stageFilter]);
+    const matched = !q
+      ? list
+      : list.filter(
+          (c) =>
+            c.name.toLowerCase().includes(q) ||
+            (c.phone?.toLowerCase().includes(q) ?? false) ||
+            (c.email?.toLowerCase().includes(q) ?? false) ||
+            (c.address?.toLowerCase().includes(q) ?? false) ||
+            c.tags.some((t) => t.includes(q))
+        );
+    return sortRows(matched, sort, CUSTOMER_SORT_ACCESSORS);
+  }, [customers, search, stageFilter, sort]);
+
+  const currentFilters = { search, stageFilter };
+  const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
+    setSearch(typeof f.search === 'string' ? f.search : '');
+    setStageFilter(LIFECYCLE_STAGES.some((s) => s.key === f.stageFilter) ? (f.stageFilter as Customer['lifecycle_stage']) : 'all');
+    setSort(coerceSort(extras.sort, CUSTOMER_SORT_OPTIONS.map((o) => o.key), null));
+  };
 
   const openNewDrawer = () => {
     setEditingCustomer(null);
@@ -496,6 +518,10 @@ export function CustomersPage() {
                               {t}
                             </span>
                           ))}
+                                  <div className="ml-auto flex items-center gap-2">
+          <SortSelect value={sort} options={CUSTOMER_SORT_OPTIONS} onChange={setSort} />
+          <SavedViewsBar page="customers" currentFilters={currentFilters} currentSort={sort} onApply={applyView} />
+        </div>
                         </div>
                       )}
                     </td>
