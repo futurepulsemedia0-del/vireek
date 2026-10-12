@@ -38,6 +38,7 @@ const DEFAULT_MAINTENANCE: MaintenanceInfo = {
 export const MAINTENANCE_ALLOWLIST: string[] = [
   '/status',
   '/status/unsubscribe',
+  '/maintenance',
   '/privacy',
   '/terms',
   '/security',
