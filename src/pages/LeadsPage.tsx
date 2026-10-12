@@ -1,6 +1,9 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
+import { SortSelect, type SortOption } from '@/components/SortSelect';
+import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
 import {
   Phone,
   ArrowLeft,
@@ -25,6 +28,18 @@ import { useKeyboardShortcut } from '@/lib/hooks';
 // ============================================================
 
 type Stage = Lead['stage'];
+const LEAD_SORT_OPTIONS: SortOption[] = [
+  { key: 'created_at', label: 'Date added', defaultDir: 'desc' },
+  { key: 'name', label: 'Name' },
+  { key: 'quote_amount', label: 'Quote amount', defaultDir: 'desc' },
+  { key: 'follow_up_count', label: 'Follow-ups', defaultDir: 'desc' },
+];
+const LEAD_SORT_ACCESSORS: Record<string, (l: Lead) => SortValue> = {
+  created_at: (l) => new Date(l.created_at).getTime(),
+  name: (l) => l.name,
+  quote_amount: (l) => l.quote_amount,
+  follow_up_count: (l) => l.follow_up_count,
+};
 
 const STAGES: { key: Stage; label: string; color: string; dotColor: string }[] = [
   { key: 'new', label: 'New', color: 'border-t-accent', dotColor: 'bg-accent' },
@@ -326,6 +341,7 @@ export function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [search, setSearch] = useState('');
   const [mobileStage, setMobileStage] = useState<Stage | 'all'>('all');
+  const [sort, setSort] = useState<ViewSort | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverStage, setDragOverStage] = useState<Stage | null>(null);
 
@@ -375,75 +391,25 @@ export function LeadsPage() {
   });
 
   const filteredLeads = useMemo(() => {
-    if (!search.trim()) return allLeads;
-    const q = search.toLowerCase();
-    return allLeads.filter(
-      (l) =>
-        l.name.toLowerCase().includes(q) ||
-        (l.phone?.toLowerCase().includes(q) ?? false) ||
-        (l.email?.toLowerCase().includes(q) ?? false) ||
-        (l.service_interested?.toLowerCase().includes(q) ?? false) ||
-        (l.notes?.toLowerCase().includes(q) ?? false)
-    );
-  }, [allLeads, search]);
+    const q = search.trim().toLowerCase();
+    const base = !q
+      ? allLeads
+      : allLeads.filter(
+          (l) =>
+            l.name.toLowerCase().includes(q) ||
+            (l.phone?.toLowerCase().includes(q) ?? false) ||
+            (l.email?.toLowerCase().includes(q) ?? false) ||
+            (l.service_interested?.toLowerCase().includes(q) ?? false) ||
+            (l.notes?.toLowerCase().includes(q) ?? false)
+        );
+    return sortRows(base, sort, LEAD_SORT_ACCESSORS);
+  }, [allLeads, search, sort]);
 
-  const leadsByStage = useMemo(() => {
-    const map: Record<Stage, Lead[]> = {
-      new: [],
-      contacted: [],
-      quoted: [],
-      won: [],
-      lost: [],
-    };
-    filteredLeads.forEach((l) => {
-      if (map[l.stage]) map[l.stage].push(l);
-    });
-    return map;
-  }, [filteredLeads]);
-
-  const mobileFilteredLeads = useMemo(() => {
-    if (mobileStage === 'all') return filteredLeads;
-    return filteredLeads.filter((l) => l.stage === mobileStage);
-  }, [filteredLeads, mobileStage]);
-
-  const handleDragStart = (e: React.DragEvent, lead: Lead) => {
-    setDraggingId(lead.id);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', lead.id);
-  };
-
-  const handleDragEnd = () => {
-    setDraggingId(null);
-    setDragOverStage(null);
-  };
-
-  const handleDragOver = (e: React.DragEvent, stage: Stage) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverStage(stage);
-  };
-
-  const handleDrop = async (e: React.DragEvent, stage: Stage) => {
-    e.preventDefault();
-    const leadId = e.dataTransfer.getData('text/plain');
-    setDraggingId(null);
-    setDragOverStage(null);
-    if (!leadId) return;
-
-    const lead = allLeads.find((l) => l.id === leadId);
-    if (!lead || lead.stage === stage) return;
-
-    try {
-      const { error } = await supabase.from('leads').update({ stage }).eq('id', leadId);
-      if (error) throw error;
-      setAllLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, stage } : l)));
-      if (selectedLead?.id === leadId) {
-        setSelectedLead((prev) => (prev ? { ...prev, stage } : null));
-      }
-      toast(`Lead moved to ${STAGES.find((s) => s.key === stage)?.label}.`, 'success');
-    } catch {
-      toast('Could not update lead stage.', 'error');
-    }
+  const currentFilters = { search, mobileStage };
+  const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
+    setSearch(typeof f.search === 'string' ? f.search : '');
+    setMobileStage(STAGES.some((s) => s.key === f.mobileStage) ? (f.mobileStage as Stage) : 'all');
+    setSort(coerceSort(extras.sort, LEAD_SORT_OPTIONS.map((o) => o.key), null));
   };
 
   const handleUpdateNotes = async (notes: string) => {
@@ -506,7 +472,7 @@ export function LeadsPage() {
   return (
     <DashboardLayout activeLabel="Leads">
       {/* Page header */}
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-6 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
@@ -523,6 +489,8 @@ export function LeadsPage() {
             </p>
           </div>
           <div className="relative flex-1 max-w-xs">
+          <SortSelect value={sort} options={LEAD_SORT_OPTIONS} onChange={setSort} />
+          <SavedViewsBar page="leads" currentFilters={currentFilters} currentSort={sort} onApply={applyView} />
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary" />
             <input
               ref={searchRef}
