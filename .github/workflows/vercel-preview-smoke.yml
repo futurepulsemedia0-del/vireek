@@ -1,0 +1,74 @@
+name: Vercel Preview Smoke Test
+
+# Runs when Vercel reports a successful PREVIEW deployment.
+# NOTE: deployment_status workflows run from the default branch's copy of this file.
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  smoke:
+    name: Smoke test preview
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      startsWith(github.event.deployment_status.environment, 'Preview')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PREVIEW_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+      BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - name: Run smoke checks
+        shell: bash
+        run: |
+          set -uo pipefail
+          URL="${PREVIEW_URL%/}"
+          [[ "$URL" =~ ^https://[A-Za-z0-9.-]+$ ]] || { echo "::error::Unexpected preview URL"; exit 1; }
+          H=(); [ -n "${BYPASS:-}" ] && H=(-H "x-vercel-protection-bypass: $BYPASS")
+          fail=0
+          bad() { echo "::error title=Smoke failed::$1"; fail=1; }
+          get() { curl -sS -L --max-time 30 --retry 4 --retry-delay 5 --retry-all-errors "${H[@]}" "$@"; }
+
+          code=$(get -o /dev/null -w '%{http_code}' "$URL/")
+          if [ "$code" = "401" ] || [ "$code" = "403" ]; then
+            echo "::error::Preview is protected ($code). Add repo secret VERCEL_AUTOMATION_BYPASS_SECRET (Vercel > Settings > Deployment Protection)."; exit 1
+          fi
+
+          # 1. Pages (SPA rewrite) return 200 with the app shell
+          for p in / /login /signup /pricing /faq /security /privacy /terms /status /this-route-does-not-exist; do
+            body=$(get -w '\n%{http_code}' "$URL$p")
+            c=${body##*$'\n'}
+            [ "$c" = "200" ] || bad "$p -> HTTP $c"
+            echo "$body" | grep -q 'id="root"' || bad "$p missing app root"
+          done
+
+          # 2. Security headers on the app
+          hdr=$(get -D - -o /dev/null "$URL/" | tr -d '\r' | tr 'A-Z' 'a-z')
+          for k in 'strict-transport-security:' 'x-content-type-options: nosniff' 'x-frame-options: deny' 'referrer-policy:' "frame-ancestors 'none'" 'permissions-policy:'; do
+            echo "$hdr" | grep -qF "$k" || bad "missing header: $k"
+          done
+
+          # 3. /badge must stay embeddable (frame-ancestors *, no X-Frame-Options)
+          bh=$(get -D - -o /dev/null "$URL/badge" | tr -d '\r' | tr 'A-Z' 'a-z')
+          echo "$bh" | grep -q 'x-frame-options' && bad "/badge must not send X-Frame-Options"
+          echo "$bh" | grep -qF 'frame-ancestors *' || bad "/badge CSP must allow frame-ancestors *"
+
+          # 4. Static assets
+          for p in /robots.txt /sitemap.xml /site.webmanifest; do
+            [ "$(get -o /dev/null -w '%{http_code}' "$URL$p")" = "200" ] || bad "$p not 200"
+          done
+          js=$(get "$URL/" | grep -oE '/assets/[^"]+\.js' | head -1)
+          if [ -z "$js" ]; then bad "no JS bundle referenced in index.html"; else
+            ct=$(get -o /dev/null -w '%{content_type}' "$URL$js")
+            echo "$ct" | grep -qi javascript || bad "bundle content-type: $ct"
+          fi
+
+          # 5. A2A agent card rewrite (depends on Supabase -> warning only)
+          ac=$(get -o /dev/null -w '%{http_code}' "$URL/.well-known/agent-card.json")
+          [ "$ac" = "200" ] || echo "::warning::agent-card.json returned $ac"
+
+          [ "$fail" = "0" ] && echo "Smoke test passed for $URL"
+          exit $fail
