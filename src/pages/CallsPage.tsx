@@ -29,6 +29,7 @@ import { supabase, Call } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { TagEditor } from '@/components/TagEditor';
 import { SavedViewsBar } from '@/components/SavedViewsBar';
+import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { exportToCsv } from '@/lib/csvExport';
 
 // ============================================================
@@ -682,7 +683,7 @@ const updateCall = useCallback(
 
     const hasActiveFilters = search || statusFilter !== 'all' || sentimentFilter !== 'all' || emergencyOnly || dateFrom || dateTo || tagFilter !== 'all' || sourceFilter !== 'all';
       const currentFilters = { search, statusFilter, sentimentFilter, emergencyOnly, dateFrom, dateTo, tagFilter, sourceFilter };
-  const applyFilters = (f: Record<string, unknown>) => {
+    const applyFilters = (f: Record<string, unknown>, extras?: AppliedViewExtras) => {
     setSearch((f.search as string) ?? '');
     setStatusFilter((f.statusFilter as StatusFilter) ?? 'all');
     setSentimentFilter((f.sentimentFilter as SentimentFilter) ?? 'all');
@@ -691,6 +692,14 @@ const updateCall = useCallback(
     setDateTo((f.dateTo as string) ?? '');
     setTagFilter((f.tagFilter as string) ?? 'all');
     setSourceFilter((f.sourceFilter as string) ?? 'all');
+      const s = extras?.sort;
+    if (s && ['call_datetime', 'duration_seconds', 'caller_name', 'status', 'sentiment'].includes(s.key)) {
+      setSortKey(s.key as SortKey);
+      setSortDir(s.dir);
+    } else {
+      setSortKey('call_datetime');
+      setSortDir('desc');
+    }
   };
   const handleExportCsv = () => {
     exportToCsv(
