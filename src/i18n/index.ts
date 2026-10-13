@@ -25,6 +25,8 @@ import deCommon from '@/locales/de/common.json';
 import arCommon from '@/locales/ar/common.json';
 import faCommon from '@/locales/fa/common.json';
 import jaCommon from '@/locales/ja/common.json';
+import enDashboard from '@/locales/en/dashboard.json';
+import { registerLazyLocales } from '@/i18n/lazyLocales';
 
 const LANG_KEY = 'vireek-a11y-lang';
 
@@ -43,7 +45,7 @@ function getInitialLanguage(): string {
 
 void i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon },
+    en: { common: enCommon, dashboard: enDashboard },
     es: { common: esCommon },
     zh: { common: zhCommon },
     hi: { common: hiCommon },
@@ -56,11 +58,14 @@ void i18n.use(initReactI18next).init({
   lng: getInitialLanguage(),
   fallbackLng: 'en',
   ns: ['common'],
+  ns: ['common', 'dashboard'],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false, // React already escapes
   },
   returnEmptyString: false,
+  react: { bindI18nStore: 'added' },
 });
 
+registerLazyLocales(i18n);
 export default i18n;
