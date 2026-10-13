@@ -325,6 +325,7 @@ const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ defa
 const LandingPagesPage = lazy(() => import('@/pages/LandingPagesPage').then((m) => ({ default: m.LandingPagesPage })));
 const PublicLandingPage = lazy(() => import('@/pages/PublicLandingPage').then((m) => ({ default: m.PublicLandingPage })));
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
+const CustomerPortalHistoryPage = lazy(() => import('@/pages/CustomerPortalHistoryPage').then((m) => ({ default: m.CustomerPortalHistoryPage })));
 const EmergencyTriagePage = lazy(() => import('@/pages/EmergencyTriagePage').then((m) => ({ default: m.EmergencyTriagePage })));
 const JobRoomPage = lazy(() => import('@/pages/JobRoomPage').then((m) => ({ default: m.JobRoomPage })));
 const DiagnosePage = lazy(() => import('@/pages/DiagnosePage').then((m) => ({ default: m.DiagnosePage })));
@@ -513,6 +514,7 @@ function AppRoutes() {
         <Route path="/lp/:slug" element={<PublicLandingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
+        <Route path="/portal/:token/history" element={<CustomerPortalHistoryPage />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
         <Route path="/guarantee/:token" element={<ServiceGuaranteePublicPage />} />
         <Route path="/join/:planSlug" element={<JoinMembershipPage />} />
