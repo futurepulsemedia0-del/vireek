@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   AlertCircle,
   Briefcase,
@@ -14,6 +14,7 @@ import {
   CalendarClock,
   Gift,
   CreditCard,
+  History as HistoryIcon,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -184,6 +185,18 @@ export function CustomerPortalPage() {
                 <h1 className="text-2xl font-bold tracking-tight text-text-primary">Hi {bundle.customer.name.split(' ')[0]},</h1>
                 <p className="mt-1 text-sm text-text-secondary">Your account with {bundle.business_name ?? 'us'}</p>
               </div>
+                            <Link
+                to={`/portal/${token}/history`}
+                className="focus-ring mb-6 flex min-h-[44px] items-center gap-3 rounded-2xl border border-border bg-bg-secondary p-4 transition-colors hover:bg-bg-tertiary"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <HistoryIcon size={18} aria-hidden="true" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-text-primary">Full service history</span>
+                  <span className="block text-xs text-text-secondary">Past visits, invoices, membership &amp; equipment</span>
+                </span>
+              </Link>
               
                 href={`/emergency/${token}`}
                 className="mb-6 flex items-center justify-between rounded-2xl border border-danger/30 bg-danger/5 p-4 transition-colors hover:border-danger/50"
