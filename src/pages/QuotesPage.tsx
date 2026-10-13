@@ -34,6 +34,9 @@ import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewS
 import { SalesTaxPanel } from '@/components/tax/SalesTaxPanel';
 import { TaxClassSelect } from '@/components/tax/TaxClassSelect';
 import { emptyTaxSelection, selectionFromDocument, taxColumnsFromSelection, type TaxSelection } from '@/lib/salesTax';
+// PROMO CODES
+import { PromoCodePanel } from '@/components/promos/PromoCodePanel';
+import { repriceDocumentPromos } from '@/lib/promoCodes';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
@@ -254,21 +257,33 @@ function PhotoEstimatePanel({ onResult }: { onResult: (r: { line_items: QuoteLin
 function QuoteBuilderForm({
   initial,
   leadOptions,
+  quoteId,
   onCancel,
   onSave,
 }: {
   initial: QuoteFormState;
   leadOptions: Lead[];
+  /** PROMO CODES: set when editing a saved quote; promo codes need a saved document. */
+  quoteId?: string | null;
   onCancel: () => void;
   onSave: (form: QuoteFormState) => Promise<void>;
 }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
+  // PROMO CODES: server-computed pre-tax discount, reported by <PromoCodePanel>.
+  const [promoDiscountCents, setPromoDiscountCents] = useState(0);
   const subtotalCents = calculateQuoteTotals(form.line_items, 0).subtotalCents;
-  const totals =
+  const discountCents = Math.min(Math.max(0, promoDiscountCents), subtotalCents);
+  const taxableCents = subtotalCents - discountCents;
+  // Tax applies to the discounted amount. For auto-calculated tax the engine's tax is
+  // scaled proportionally (final tax is recomputed from the saved percent everywhere else).
+  const taxCents =
     form.tax.mode === 'auto' && form.tax.calculation
-      ? { subtotalCents, taxCents: form.tax.calculation.taxCents, totalCents: subtotalCents + form.tax.calculation.taxCents }
-      : calculateQuoteTotals(form.line_items, form.tax.mode === 'manual' ? form.tax.manualPercent : 0);
+      ? subtotalCents > 0
+        ? Math.round((form.tax.calculation.taxCents * taxableCents) / subtotalCents)
+        : 0
+      : Math.round((taxableCents * (form.tax.mode === 'manual' ? form.tax.manualPercent : 0)) / 100);
+  const totals = { subtotalCents, discountCents, taxCents, totalCents: taxableCents + taxCents };
 
   const updateLineItem = (index: number, patch: Partial<QuoteLineItem>) => {
     setForm((f) => ({ ...f, line_items: f.line_items.map((li, i) => (i === index ? { ...li, ...patch } : li)) }));
@@ -407,18 +422,9 @@ function QuoteBuilderForm({
         value={form.tax}
         onChange={(tax) => setForm((f) => ({ ...f, tax }))}
       />
+      {/* The old standalone "Tax %" input was removed here: it read form.tax_percent, which
+          no longer exists on QuoteFormState (tax is now form.tax via SalesTaxPanel). */}
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-xs text-text-secondary">Tax %</label>
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={form.tax_percent}
-            onChange={(e) => setForm((f) => ({ ...f, tax_percent: e.target.value }))}
-            className={inputClass}
-          />
-        </div>
         <div>
           <label className="mb-1 block text-xs text-text-secondary">Valid until</label>
           <input
@@ -430,8 +436,31 @@ function QuoteBuilderForm({
         </div>
       </div>
 
+      {/* PROMO CODES */}
+      {quoteId ? (
+        <div className="mt-4">
+          <PromoCodePanel
+            kind="quote"
+            docId={quoteId}
+            customerPhone={form.customer_phone}
+            customerEmail={form.customer_email}
+            onChanged={setPromoDiscountCents}
+          />
+          <p className="mt-1 text-[11px] text-text-secondary">
+            Edited the line items? Save the quote to re-check the discount against the new total.
+          </p>
+        </div>
+      ) : (
+        <p className="mt-4 text-xs text-text-secondary">Save the quote first, then add a promo code.</p>
+      )}
+
       <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
-        <p className="text-sm font-semibold text-text-primary">Total: {formatCents(totals.totalCents)}</p>
+        <p className="text-sm font-semibold text-text-primary">
+          Total: {formatCents(totals.totalCents)}
+          {totals.discountCents > 0 && (
+            <span className="ml-2 text-xs font-normal text-success-500">(−{formatCents(totals.discountCents)} promo)</span>
+          )}
+        </p>
         <div className="flex gap-2">
           <button
             type="button"
@@ -594,7 +623,6 @@ export function QuotesPage() {
   const handleSaveItemizedQuote = async (form: QuoteFormState, quoteId?: string) => {
     if (!user) return;
     const taxColumns = taxColumnsFromSelection(form.tax);
-    const totals = calculateQuoteTotals(form.line_items, taxColumns.tax_percent);
     const payload = {
       user_id: user.id,
       lead_id: form.lead_id,
@@ -602,7 +630,9 @@ export function QuotesPage() {
       customer_phone: form.customer_phone.trim() || null,
       customer_email: form.customer_email.trim() || null,
       line_items: form.line_items.filter((li) => li.description.trim()),
-      tax_percent: Number(form.tax_percent) || 0,
+      // Was `tax_percent: Number(form.tax_percent) || 0` — form.tax_percent no longer exists, so
+      // it always saved 0. The tax columns now come from the selection (same source as the total).
+      ...taxColumns,
       valid_until: form.valid_until || null,
       ai_generated: form.ai_generated,
       ai_detected_issue: form.ai_detected_issue,
@@ -618,6 +648,18 @@ export function QuotesPage() {
       toast('Could not save the quote', 'error');
       return;
     }
+
+    // PROMO CODES: line items may have changed, so let the server re-check min-spend /
+    // service scope and recompute every stacked discount (no-op when no code is applied).
+    let promoDiscountCents = 0;
+    if (quoteId) {
+      try {
+        promoDiscountCents = await repriceDocumentPromos('quote', quoteId);
+      } catch {
+        toast('Saved, but promo discounts could not be re-checked. Reopen the quote to verify.', 'info');
+      }
+    }
+    const totals = calculateQuoteTotals(form.line_items, taxColumns.tax_percent, promoDiscountCents);
 
     // Keep the follow-up tracker below in sync: an itemized quote linked to
     // a lead marks that lead "quoted" with this total.
@@ -736,7 +778,8 @@ export function QuotesPage() {
       { header: 'Phone', accessor: (q) => q.customer_phone },
       { header: 'Email', accessor: (q) => q.customer_email },
       { header: 'Status', accessor: (q) => q.status },
-      { header: 'Total', accessor: (q) => formatCents(calculateQuoteTotals(q.line_items, q.tax_percent).totalCents) },
+      { header: 'Total', accessor: (q) => formatCents(calculateQuoteTotals(q.line_items, q.tax_percent, q.promo_discount_cents ?? 0).totalCents) },
+      { header: 'Promo codes', accessor: (q) => (q.promo_codes ?? []).join(' ') },
       { header: 'Valid until', accessor: (q) => q.valid_until },
       { header: 'Sent at', accessor: (q) => q.sent_at },
       { header: 'Created', accessor: (q) => q.created_at },
@@ -842,6 +885,7 @@ export function QuotesPage() {
                       source_photo_paths: quote.source_photo_paths ?? [],
                     }}
                     leadOptions={allLeads}
+                    quoteId={quote.id}
                     onCancel={() => setEditingQuoteId(null)}
                     onSave={(form) => handleSaveItemizedQuote(form, quote.id)}
                   />
@@ -859,7 +903,11 @@ export function QuotesPage() {
                           {quote.customer_name}
                         </p>
                         <p className="text-xs text-text-secondary">
-                          {formatCents(calculateQuoteTotals(quote.line_items, quote.tax_percent).totalCents)} ·{' '}
+                          {formatCents(calculateQuoteTotals(quote.line_items, quote.tax_percent, quote.promo_discount_cents ?? 0).totalCents)}
+                          {(quote.promo_codes?.length ?? 0) > 0 && (
+                            <span className="text-success-500"> ({quote.promo_codes.join(', ')})</span>
+                          )}{' '}
+                          ·{' '}
                           {isTieredQuote(quote)
                             ? `${quote.options.length} options · ${quote.photos.length} photo${quote.photos.length === 1 ? '' : 's'}`
                             : `${quote.line_items.length} item${quote.line_items.length === 1 ? '' : 's'}`}
@@ -922,18 +970,19 @@ export function QuotesPage() {
                           <Copy size={12} /> Copy link
                         </button>
                       )}
-                    </div>
-                  </motion.div>
-                )
-              )}
-            </div>
-          )}
+                      {/* Moved here from outside the .map(): it referenced `quote`, which only exists inside this card. */}
                       <Link
                         to={`/dashboard/quotes/${quote.id}`}
                         className="focus-ring flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary"
                       >
                         Details
                       </Link>
+                    </div>
+                  </motion.div>
+                )
+              )}
+            </div>
+          )}
         </div>
 
         {truthQuoteId && (
