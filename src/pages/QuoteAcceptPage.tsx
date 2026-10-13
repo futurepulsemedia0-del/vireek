@@ -35,7 +35,7 @@ const handleRespond = async (
   setSubmitting(false);
 };
 
-  const totals = quote ? calculateQuoteTotals(quote.line_items, quote.tax_percent) : null;
+  const totals = quote ? calculateQuoteTotals(quote.line_items, quote.tax_percent, quote.promo_discount_cents ?? 0): null;
   const tiered = Boolean(quote && isTieredQuote(quote));
 
   return (
@@ -86,6 +86,12 @@ const handleRespond = async (
                   <TaxBreakdownLines breakdown={quote.tax_breakdown} taxCents={totals?.taxCents ?? 0} taxPercent={quote.tax_percent} taxExempt={quote.tax_exempt} />
                 </div>
               ) : null}
+              {totals && totals.discountCents > 0 && (
+           <div className="mb-2 flex items-center justify-between px-1 text-sm text-success-500">
+             <span>Discount{quote.promo_codes?.length ? ` (${quote.promo_codes.join(', ')})` : ''}</span>
+            <span>−{formatCents(totals.discountCents)}</span>
+          </div>
+           )}
               {totals && (
                 <div className="mb-4 flex items-center justify-between rounded-xl bg-bg-tertiary px-4 py-3">
                   <span className="text-sm font-medium text-text-primary">Total</span>
