@@ -129,6 +129,7 @@ const FOOTER_COLUMNS = [
       { label: 'Restoration', href: '/industries/restoration' },
       { label: 'Locksmith', href: '/industries/locksmith' },
       { label: 'All Industries', href: '/industries' },
+      { label: 'Service Areas', href: '/locations' },
     ],
   },
   {
