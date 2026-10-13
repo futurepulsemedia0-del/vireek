@@ -972,6 +972,20 @@ export function JobsPage() {
     },
   });
 
+  // Cmd+K deep link: /dashboard/jobs?job=<id> opens that job's drawer.
+  useEffect(() => {
+    const id = new URLSearchParams(location.search).get('job');
+    if (!id) return;
+    void supabase
+      .from('jobs')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setSelectedJob(data as Job);
+      });
+    navigate(location.pathname, { replace: true });
+  }, [location.search, location.pathname, navigate]);
   // Handle prefill from Leads page navigation
   useEffect(() => {
     const state = location.state as { prefill?: PrefillData } | null;
