@@ -1,3 +1,4 @@
+import { getActiveLocale } from '@/lib/format';
 /* ------------------------------------------------------------------ */
 /*  currency — Multi-currency display for pricing                      */
 /*                                                                      */
@@ -69,7 +70,7 @@ export function formatPrice(usdAmount: number, currency: CurrencyCode): string {
   const c = CURRENCIES[currency] ?? CURRENCIES[DEFAULT_CURRENCY];
   const rounded = Math.round(convert(usdAmount, currency));
   try {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(getActiveLocale(), {
       style: 'currency',
       currency: c.code,
       minimumFractionDigits: 0,
@@ -89,7 +90,7 @@ export function formatPrice(usdAmount: number, currency: CurrencyCode): string {
 export function formatMoney(amount: number, currency: CurrencyCode): string {
   const c = CURRENCIES[currency] ?? CURRENCIES[DEFAULT_CURRENCY];
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: c.code }).format(amount);
+    return new Intl.NumberFormat(getActiveLocale(), { style: 'currency', currency: c.code }).format(amount);
   } catch {
     return `${c.symbol}${amount.toFixed(2)}`;
   }
