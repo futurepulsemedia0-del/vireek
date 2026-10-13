@@ -22,6 +22,8 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Lead, Call } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { useBulkTable } from '@/hooks/useBulkTable';
+import { applyRowPatches } from '@/lib/bulk/engine';
 
 // ============================================================
 // TYPES
@@ -90,12 +92,16 @@ function LeadCard({
   onDragStart,
   onDragEnd,
   isDragging,
+  checkbox,
+  selected,
 }: {
   lead: Lead;
   onClick: () => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: (e: React.DragEvent) => void;
   isDragging: boolean;
+  checkbox?: React.ReactNode;
+  selected?: boolean;
 }) {
   return (
     <div
@@ -105,9 +111,10 @@ function LeadCard({
       onClick={onClick}
       className={`group cursor-pointer rounded-xl border border-border bg-bg-primary p-3.5 shadow-sm transition-all hover:border-accent/40 hover:shadow-card ${
         isDragging ? 'opacity-40' : ''
-      }`}
+      } ${selected ? 'ring-2 ring-accent/50' : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
+        {checkbox && <div className="mt-0.5 shrink-0">{checkbox}</div>}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-text-primary truncate">{lead.name}</p>
           {lead.service_interested && (
@@ -405,6 +412,97 @@ export function LeadsPage() {
     return sortRows(base, sort, LEAD_SORT_ACCESSORS);
   }, [allLeads, search, sort]);
 
+  const leadsByStage = useMemo(() => {
+    const map: Record<Stage, Lead[]> = {
+      new: [],
+      contacted: [],
+      quoted: [],
+      won: [],
+      lost: [],
+    };
+    filteredLeads.forEach((l) => {
+      if (map[l.stage]) map[l.stage].push(l);
+    });
+    return map;
+  }, [filteredLeads]);
+
+  const mobileFilteredLeads = useMemo(() => {
+    if (mobileStage === 'all') return filteredLeads;
+    return filteredLeads.filter((l) => l.stage === mobileStage);
+  }, [filteredLeads, mobileStage]);
+
+  // ---------- Bulk actions (desktop Kanban; order = visual column order) ----------
+  const bulkLeadRows = useMemo(() => STAGES.flatMap((s) => leadsByStage[s.key]), [leadsByStage]);
+  const bulk = useBulkTable<Lead>({
+    table: 'leads',
+    rows: bulkLeadRows,
+    noun: { singular: 'lead', plural: 'leads' },
+    getLabel: (l) => l.name,
+    exportFilename: 'leads',
+    exportColumns: [
+      { header: 'Name', accessor: (l) => l.name },
+      { header: 'Phone', accessor: (l) => l.phone },
+      { header: 'Email', accessor: (l) => l.email },
+      { header: 'Service', accessor: (l) => l.service_interested },
+      { header: 'Stage', accessor: (l) => l.stage },
+      { header: 'Quote amount', accessor: (l) => l.quote_amount },
+      { header: 'Tags', accessor: (l) => (l.tags ?? []).join('; ') },
+      { header: 'Notes', accessor: (l) => l.notes },
+      { header: 'Created', accessor: (l) => l.created_at },
+    ],
+    statusField: 'stage',
+    statusOptions: STAGES.map((s) => ({ value: s.key, label: s.label })),
+    assignField: 'assigned_to',
+    onRowsChanged: (u) => {
+      setAllLeads((prev) => applyRowPatches(prev, u));
+      setSelectedLead((prev) => (prev ? applyRowPatches([prev], u)[0] : null));
+    },
+    onRowsRemoved: (ids) => {
+      setAllLeads((prev) => prev.filter((l) => !ids.includes(l.id)));
+      setSelectedLead((prev) => (prev && ids.includes(prev.id) ? null : prev));
+    },
+  });
+
+  const handleDragStart = (e: React.DragEvent, lead: Lead) => {
+    setDraggingId(lead.id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', lead.id);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
+    setDragOverStage(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, stage: Stage) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverStage(stage);
+  };
+
+  const handleDrop = async (e: React.DragEvent, stage: Stage) => {
+    e.preventDefault();
+    const leadId = e.dataTransfer.getData('text/plain');
+    setDraggingId(null);
+    setDragOverStage(null);
+    if (!leadId) return;
+
+    const lead = allLeads.find((l) => l.id === leadId);
+    if (!lead || lead.stage === stage) return;
+
+    try {
+      const { error } = await supabase.from('leads').update({ stage }).eq('id', leadId);
+      if (error) throw error;
+      setAllLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, stage } : l)));
+      if (selectedLead?.id === leadId) {
+        setSelectedLead((prev) => (prev ? { ...prev, stage } : null));
+      }
+      toast(`Lead moved to ${STAGES.find((s) => s.key === stage)?.label}.`, 'success');
+    } catch {
+      toast('Could not update lead stage.', 'error');
+    }
+  };
+
   const currentFilters = { search, mobileStage };
   const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
     setSearch(typeof f.search === 'string' ? f.search : '');
@@ -563,6 +661,8 @@ export function LeadsPage() {
                         onDragStart={(e) => handleDragStart(e, lead)}
                         onDragEnd={handleDragEnd}
                         isDragging={draggingId === lead.id}
+                        checkbox={bulk.rowCheckbox(lead.id, lead.name)}
+                        selected={bulk.selection.isSelected(lead.id)}
                       />
                     ))}
                     {leadsByStage[stage.key].length === 0 && (
@@ -655,6 +755,9 @@ export function LeadsPage() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Bulk action bar + confirm dialog */}
+      {bulk.bar}
     </DashboardLayout>
   );
 }
