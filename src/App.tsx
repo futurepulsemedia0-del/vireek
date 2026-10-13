@@ -265,6 +265,7 @@ const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m
 const EconomicAutopilotPage = lazy(() => import('@/pages/EconomicAutopilotPage').then((m) => ({ default: m.EconomicAutopilotPage })));
 const TeamPage = lazy(() => import('@/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
 const BillingPage = lazy(() => import('@/pages/BillingPage').then((m) => ({ default: m.BillingPage })));
+const CancelSubscriptionPage = lazy(() => import('@/pages/CancelSubscriptionPage').then((m) => ({ default: m.CancelSubscriptionPage })));
 const FinancingCenterPage = lazy(() => import('@/pages/FinancingCenterPage').then((m) => ({ default: m.FinancingCenterPage })));
 const UpdatePaymentMethodPage = lazy(() => import('@/pages/UpdatePaymentMethodPage').then((m) => ({ default: m.UpdatePaymentMethodPage })));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })));
@@ -2566,6 +2567,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <UpdatePaymentMethodPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/billing/cancel"
+          element={
+            <ProtectedRoute>
+              <CancelSubscriptionPage />
             </ProtectedRoute>
           }
         />
