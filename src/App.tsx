@@ -283,6 +283,7 @@ const ResponsibleAiPage = lazy(() => import('@/pages/ResponsibleAiPage').then((m
 const MsaPage = lazy(() => import('@/pages/MsaPage').then((m) => ({ default: m.MsaPage })));
 const AiDisclosurePage = lazy(() => import('@/pages/AiDisclosurePage').then((m) => ({ default: m.AiDisclosurePage })));
 const TrademarkPolicyPage = lazy(() => import('@/pages/TrademarkPolicyPage').then((m) => ({ default: m.TrademarkPolicyPage })));
+const DmcaPage = lazy(() => import('@/pages/DmcaPage').then((m) => ({ default: m.DmcaPage })));
 const VulnerabilityDisclosurePage = lazy(() => import('@/pages/VulnerabilityDisclosurePage').then((m) => ({ default: m.VulnerabilityDisclosurePage })));
 const CcpaPage = lazy(() => import('@/pages/CcpaPage').then((m) => ({ default: m.CcpaPage })));
 const SmsTermsPage = lazy(() => import('@/pages/SmsTermsPage').then((m) => ({ default: m.SmsTermsPage })));
@@ -467,6 +468,7 @@ function AppRoutes() {
         <Route path="/msa" element={<MsaPage />} />
         <Route path="/ai-disclosure" element={<AiDisclosurePage />} />
         <Route path="/trademark-policy" element={<TrademarkPolicyPage />} />
+        <Route path="/dmca" element={<DmcaPage />} />
         <Route path="/vulnerability-disclosure" element={<VulnerabilityDisclosurePage />} />
         <Route path="/ccpa" element={<CcpaPage />} />
         <Route path="/sms-terms" element={<SmsTermsPage />} />
