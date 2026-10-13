@@ -387,8 +387,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.setAttribute('dir', rtl ? 'rtl' : 'ltr');
     root.setAttribute('lang', language);
-    if (rtl) root.classList.add('a11y-rtl');
-    else root.classList.remove('a11y-rtl');
+    root.classList.remove('a11y-rtl');
 
     if (i18n.language !== language) {
       void i18n.changeLanguage(language);
