@@ -358,77 +358,24 @@ html {
 .a11y-widget * {
   filter: none !important;
 }
+/* RTL & language support (fa, ar) — mirroring is native: dir="rtl" + Tailwind logical utilities */
+html[dir='rtl'] [class*='space-x-'] > :not([hidden]) ~ :not([hidden]) { --tw-space-x-reverse: 1; }
+html[dir='rtl'] [class*='divide-x'] > :not([hidden]) ~ :not([hidden]) { --tw-divide-x-reverse: 1; }
 
-/* ------------------------------------------------------------------ */
-/*  RTL Language Support                                               */
-/* ------------------------------------------------------------------ */
+html[dir='rtl'] svg.lucide-arrow-right,
+html[dir='rtl'] svg.lucide-arrow-left,
+html[dir='rtl'] svg.lucide-chevron-right,
+html[dir='rtl'] svg.lucide-chevron-left,
+html[dir='rtl'] svg.lucide-arrow-up-right,
+html[dir='rtl'] svg.lucide-corner-down-right,
+html[dir='rtl'] svg.lucide-log-out,
+html[dir='rtl'] .rtl-mirror { scale: -1 1; }
 
-.a11y-rtl {
-  direction: rtl;
-}
+.ltr-isolate { direction: ltr; unicode-bidi: isolate; text-align: start; }
 
-.a11y-rtl body {
-  text-align: right;
-}
+html:lang(ar) *, html:lang(fa) * { letter-spacing: 0 !important; }
 
-/* Mirror flexbox and grid layouts */
-.a11y-rtl .flex,
-.a11y-rtl .inline-flex {
-  flex-direction: row-reverse;
-}
-
-/* Mirror fixed positioning */
-.a11y-rtl .fixed.right-0,
-.a11y-rtl .fixed.right-5 {
-  right: auto;
-  left: 0;
-}
-
-.a11y-rtl .fixed.right-5 {
-  left: 1.25rem;
-}
-
-.a11y-rtl .fixed.left-0,
-.a11y-rtl .fixed.left-5 {
-  left: auto;
-  right: 0;
-}
-
-.a11y-rtl .fixed.left-5 {
-  right: 1.25rem;
-}
-
-/* Mirror margins */
-.a11y-rtl .ml-auto {
-  margin-left: 0;
-  margin-right: auto;
-}
-
-.a11y-rtl .mr-auto {
-  margin-right: 0;
-  margin-left: auto;
-}
-
-/* Mirror the mobile drawer */
-.a11y-rtl .fixed.right-0.top-0 {
-  right: auto;
-  left: 0;
-  border-left: none;
-  border-right: 1px solid rgb(var(--border-default));
-}
-
-/* Mirror text alignment helpers */
-.a11y-rtl .text-left {
-  text-align: right;
-}
-
-.a11y-rtl .text-right {
-  text-align: left;
-}
-
-/* Preserve icon and number direction */
-.a11y-rtl [dir="ltr"],
-.a11y-rtl input[type="range"],
-.a11y-rtl .a11y-widget {
-  direction: ltr;
-}
+html:lang(fa) body, html:lang(ar) body { font-family: 'Vazirmatn', 'Noto Sans Arabic', Tahoma, 'Segoe UI', system-ui, sans-serif; }
+html:lang(ja) body { font-family: 'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', Meiryo, system-ui, sans-serif; }
+html:lang(zh) body { font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif; }
+html:lang(hi) body { font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', system-ui, sans-serif; }
