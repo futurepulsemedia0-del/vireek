@@ -15,6 +15,7 @@ import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, 
 import { getIndustryBySlug, INDUSTRIES } from '@/lib/industries';
 import { IndustryRoiCalculator } from '@/components/sections/IndustryRoiCalculator';
 import { useSEO } from '@/lib/seo';
+import { LocalAreaLinks } from '@/components/sections/LocalAreaLinks';
 
 /* ------------------------------------------------------------------ */
 /*  SEO                                                                */
@@ -296,6 +297,7 @@ export function IndustryPage() {
           </section>
         )}
 
+        <LocalAreaLinks industry={industry} />
         {/* Explore other trades */}
         <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-5xl">
