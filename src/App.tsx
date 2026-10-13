@@ -76,6 +76,7 @@ const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').t
 const OutcomeIntelligenceNetworkPage = lazy(() => import('@/pages/OutcomeIntelligenceNetworkPage').then((m) => ({ default: m.OutcomeIntelligenceNetworkPage })));
 const EvidenceMarketplacePage = lazy(() => import('@/pages/EvidenceMarketplacePage').then((m) => ({ default: m.EvidenceMarketplacePage })));
 const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartnersAdminPage').then((m) => ({ default: m.EvidencePartnersAdminPage })));
+const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
 const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
 const EmergencyNetworkPage = lazy(() => import('@/pages/EmergencyNetworkPage').then((m) => ({ default: m.EmergencyNetworkPage })));
 const AiReliabilityPage = lazy(() => import('@/pages/AiReliabilityPage').then((m) => ({ default: m.AiReliabilityPage })));
@@ -455,6 +456,14 @@ function AppRoutes() {
           element={
             <StaffRoute>
               <EvidencePartnersAdminPage />
+            </StaffRoute>
+          }
+        />
+        <Route
+          path="/staff/feature-flags"
+          element={
+            <StaffRoute>
+              <FeatureFlagsAdminPage />
             </StaffRoute>
           }
         />
