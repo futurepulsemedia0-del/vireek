@@ -25,6 +25,8 @@ import {
 import type { TieredEstimateDraft } from '@/components/quotes/TieredEstimateBuilder';
 import { describeEngagement, isTieredQuote } from '@/lib/estimates';
 import { QuoteTruthPanel } from '@/components/quotes/QuoteTruthReport';
+import { useBulkTable } from '@/hooks/useBulkTable';
+import { applyRowPatches } from '@/lib/bulk/engine';
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { SortSelect, type SortOption } from '@/components/SortSelect';
 import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
@@ -715,7 +717,33 @@ export function QuotesPage() {
     await navigator.clipboard.writeText(getQuoteLink(quote.quote_token));
     toast('Quote link copied', 'success');
   };
-
+  const bulk = useBulkTable<Quote>({
+    table: 'quotes',
+    rows: itemizedQuotes,
+    noun: { singular: 'quote', plural: 'quotes' },
+    getLabel: (q) => q.customer_name,
+    exportFilename: 'quotes',
+    exportColumns: [
+      { header: 'Customer', accessor: (q) => q.customer_name },
+      { header: 'Phone', accessor: (q) => q.customer_phone },
+      { header: 'Email', accessor: (q) => q.customer_email },
+      { header: 'Status', accessor: (q) => q.status },
+      { header: 'Total', accessor: (q) => formatCents(calculateQuoteTotals(q.line_items, q.tax_percent).totalCents) },
+      { header: 'Valid until', accessor: (q) => q.valid_until },
+      { header: 'Sent at', accessor: (q) => q.sent_at },
+      { header: 'Created', accessor: (q) => q.created_at },
+    ],
+    statusField: 'status',
+    // "Sent" and "Accepted" are deliberately NOT bulk options: sending runs the margin guardrail per quote.
+    statusOptions: [
+      { value: 'expired', label: 'Mark expired', confirm: 'Mark the selected quotes as expired? Customers will no longer be able to accept them.' },
+      { value: 'declined', label: 'Mark declined', confirm: 'Mark the selected quotes as declined?' },
+    ],
+    assignField: 'assigned_to',
+    canDelete: (q) => (q.status === 'accepted' ? 'Accepted quotes are kept for your records.' : null),
+    onRowsChanged: (u) => setItemizedQuotes((prev) => applyRowPatches(prev, u)),
+    onRowsRemoved: (ids) => setItemizedQuotes((prev) => prev.filter((q) => !ids.includes(q.id))),
+  });
   return (
     <DashboardLayout activeLabel="Quotes">
       <div className="mx-auto max-w-4xl">
@@ -818,7 +846,10 @@ export function QuotesPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-text-primary">{quote.customer_name}</p>
+                        <p className="flex items-center gap-2.5 text-sm font-semibold text-text-primary">
+                          {bulk.rowCheckbox(quote.id, quote.customer_name)}
+                          {quote.customer_name}
+                        </p>
                         <p className="text-xs text-text-secondary">
                           {formatCents(calculateQuoteTotals(quote.line_items, quote.tax_percent).totalCents)} ·{' '}
                           {isTieredQuote(quote)
