@@ -378,6 +378,10 @@ export function TrustCenterPage() {
                     SOC 2 report) here as soon as they&rsquo;re formally completed &mdash; if your business
                     needs a specific certification before signing up, tell us on a call and we&rsquo;ll
                     give you a straight answer.
+                    {' '}
+<Link to="/trust/compliance" className="font-semibold text-accent hover:text-cta">
+  See our current status &rarr;
+</Link>
                   </p>
                 </div>
               </div>
