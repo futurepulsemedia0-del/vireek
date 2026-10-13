@@ -97,6 +97,7 @@ import {
   Fuel,
   ScanEye,
   ClipboardList,
+  ListChecks,
   Navigation,
   Siren,
   Layers,
@@ -148,6 +149,7 @@ import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AiAssistant } from '@/components/AiAssistant';
 import { CommandPalette } from '@/components/CommandPalette';
+import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
 import { useKeyboardShortcuts, DEFAULT_SHORTCUTS } from '@/lib/keyboardShortcuts';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 
@@ -168,6 +170,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
+  { label: 'Tasks', href: '/dashboard/tasks', icon: ListChecks },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Goals', href: '/dashboard/goals', icon: Target },
@@ -703,6 +706,7 @@ export function DashboardLayout({
           </main>
         </div>
         <div className="no-print">
+        <TaskReminderWatcher />
           <CommandPalette />
           <AiAssistant />
         </div>
