@@ -27,6 +27,7 @@ export type TaskType =
   | "causal_world_simulator"
   | "continual_identity_learner"
   | "cash_flow_narrative"
+  | "executive_report_commentary"
   | "workforce_equilibrium_narrative"
   | "cash_flow_war_room_plan"
   | "bank_transaction_categorization"
