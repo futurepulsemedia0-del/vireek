@@ -72,6 +72,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'Trademark Policy', href: '/trademark-policy' },
           { label: 'Enterprise', href: '/enterprise' },
           { label: 'Trust Center', href: '/trust' },
+          { label: 'Compliance Status', href: '/trust/compliance' },
         ],
       },
       {
