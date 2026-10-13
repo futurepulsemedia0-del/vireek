@@ -148,7 +148,7 @@ import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AiAssistant } from '@/components/AiAssistant';
-import { CommandPalette } from '@/components/CommandPalette';
+import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
 import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
 import { useKeyboardShortcuts, DEFAULT_SHORTCUTS } from '@/lib/keyboardShortcuts';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
