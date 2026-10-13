@@ -390,6 +390,7 @@ const BadgePage = lazy(() => import('@/pages/BadgePage').then((m) => ({ default:
 const IntegrationsHubPage = lazy(() => import('@/pages/IntegrationsHubPage').then((m) => ({ default: m.IntegrationsHubPage })));
 const IntegrationDetailPage = lazy(() => import('@/pages/IntegrationDetailPage').then((m) => ({ default: m.IntegrationDetailPage })));
 const TrustCenterPage = lazy(() => import('@/pages/TrustCenterPage').then((m) => ({ default: m.TrustCenterPage })));
+const ComplianceStatusPage = lazy(() => import('@/pages/ComplianceStatusPage').then((m) => ({ default: m.ComplianceStatusPage })));
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
 const CommandCenterPage = lazy(() => import('@/pages/CommandCenterPage').then((m) => ({ default: m.CommandCenterPage })));
 const PhoneNumbersPage = lazy(() => import('@/pages/PhoneNumbersPage').then((m) => ({ default: m.PhoneNumbersPage })));
@@ -550,6 +551,7 @@ function AppRoutes() {
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/security/whitepaper" element={<SecurityWhitepaperPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
+        <Route path="/trust/compliance" element={<ComplianceStatusPage />} />
         <Route path="/integrations" element={<IntegrationsHubPage />} />
         <Route path="/integrations/:slug" element={<IntegrationDetailPage />} />
         <Route path="/status" element={<StatusPage />} />
