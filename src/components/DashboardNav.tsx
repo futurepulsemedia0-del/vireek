@@ -267,6 +267,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
+  { label: 'Service Catalog', href: '/dashboard/service-catalog', icon: ClipboardList, requiresPermission: 'can_view_billing' },
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
   { label: 'Equipment Health', href: '/dashboard/equipment-health', icon: HeartPulse },
   { label: 'Equipment Passports', href: '/dashboard/equipment-passports', icon: QrCode },
