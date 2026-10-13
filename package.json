@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "lint:design": "node scripts/check-design-system.mjs",
+    "sitemap:locations": "node scripts/generate-locations-sitemap.mjs",
     "lint:migrations": "node scripts/lint-migrations.mjs",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "docs:inventory": "node scripts/gen-docs-inventory.mjs",
