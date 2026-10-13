@@ -340,6 +340,7 @@ const RemoteResolutionRoomPage = lazy(() => import('@/pages/RemoteResolutionRoom
 const RemoteResolutionPage = lazy(() => import('@/pages/RemoteResolutionPage').then((m) => ({ default: m.RemoteResolutionPage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
+const SecurityWhitepaperPage = lazy(() => import('@/pages/SecurityWhitepaperPage').then((m) => ({ default: m.SecurityWhitepaperPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
 const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
@@ -547,6 +548,7 @@ function AppRoutes() {
         <Route path="/diagnose/:token" element={<DiagnosePage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
+        <Route path="/security/whitepaper" element={<SecurityWhitepaperPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
         <Route path="/integrations" element={<IntegrationsHubPage />} />
         <Route path="/integrations/:slug" element={<IntegrationDetailPage />} />
