@@ -1,5 +1,7 @@
 import { Component, ReactNode, ErrorInfo } from 'react';
-import { captureError } from '@/lib/sentry';
+import { generateIncidentId } from '@/lib/incident';
+import { captureIncident } from '@/lib/incidentReporting';
+import { ServerErrorView } from '@/components/system/ServerErrorView';
 
 interface Props {
   children: ReactNode;
@@ -9,6 +11,8 @@ interface State {
   hasError: boolean;
   error: Error | null;
   componentStack: string | null;
+  incidentId: string | null;
+  eventId: string | null;
 }
 
 /**
@@ -27,14 +31,15 @@ interface State {
  * broken" into an instantly actionable bug report.
  */
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, error: null, componentStack: null };
+  state: State = { hasError: false, error: null, componentStack: null, incidentId: null, eventId: null };
 
   static getDerivedStateFromError(error: Error): Partial<State> {
-    return { hasError: true, error };
+    return { hasError: true, error, incidentId: generateIncidentId() };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    this.setState({ componentStack: info.componentStack ?? null });
+    const { eventId } = captureIncident(error, { incidentId: this.state.incidentId, componentStack: info.componentStack });
+    this.setState({ componentStack: info.componentStack ?? null, eventId });
     if (import.meta.env.DEV) {
       // Dev-only: keep the browser console quiet for real users in
       // production (avoids dumping stack/component-tree details into
@@ -43,30 +48,22 @@ export class ErrorBoundary extends Component<Props, State> {
       // eslint-disable-next-line no-console
       console.error('Unhandled error caught by ErrorBoundary:', error, info);
     }
-    captureError(error, { componentStack: info.componentStack ?? undefined });
   }
 
-  handleReload = () => {
-    this.setState({ hasError: false, error: null, componentStack: null });
-    window.location.href = '/dashboard';
-  };
-
-  handleCopyDetails = () => {
-    const { error, componentStack } = this.state;
-    const details = [
-      `Message: ${error?.message ?? 'unknown'}`,
-      error?.stack ? `Stack:\n${error.stack}` : null,
-      componentStack ? `Component stack:${componentStack}` : null,
-      `URL: ${window.location.href}`,
-      `Time: ${new Date().toISOString()}`,
-    ]
-      .filter(Boolean)
-      .join('\n\n');
-    navigator.clipboard?.writeText(details).catch(() => {
-      /* Clipboard access can fail silently (permissions/insecure context) —
-         the details are still visible on screen to copy by hand. */
-    });
-  };
+  render() {
+    if (this.state.hasError) {
+      return (
+        <ServerErrorView
+          incidentId={this.state.incidentId ?? 'INC-UNKNOWN'}
+          eventId={this.state.eventId}
+          error={this.state.error}
+          componentStack={this.state.componentStack}
+        />
+      );
+    }
+    return this.props.children;
+  }
+}
 
   render() {
     if (this.state.hasError) {
