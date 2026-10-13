@@ -11,6 +11,8 @@ import { SalesTaxPanel } from '@/components/tax/SalesTaxPanel';
 import { TaxClassSelect } from '@/components/tax/TaxClassSelect';
 import { emptyTaxSelection, getDocumentTotals, taxColumnsFromSelection } from '@/lib/salesTax';
 import { createInvoice, deleteInvoice, fetchInvoices, getInvoiceLink, isOverdue, markInvoicePaid, markInvoiceSent, type Invoice, type InvoiceStatus } from '@/lib/invoices';
+import { useBulkTable } from '@/hooks/useBulkTable';
+import { applyRowPatches } from '@/lib/bulk/engine';
 
 const STATUS_STYLES: Record<InvoiceStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
@@ -238,6 +240,39 @@ export function InvoicesPage() {
     toast('Link copied.', 'success');
   };
 
+  const bulk = useBulkTable<Invoice>({
+    table: 'invoices',
+    rows: invoices,
+    noun: { singular: 'invoice', plural: 'invoices' },
+    getLabel: (i) => `${i.invoice_number} · ${i.customer_name}`,
+    exportFilename: 'invoices',
+    exportColumns: [
+      { header: 'Invoice #', accessor: (i) => i.invoice_number },
+      { header: 'Customer', accessor: (i) => i.customer_name },
+      { header: 'Email', accessor: (i) => i.customer_email },
+      { header: 'Status', accessor: (i) => i.status },
+      { header: 'Total', accessor: (i) => formatCents(calculateQuoteTotals(i.line_items, i.tax_percent).totalCents) },
+      { header: 'Due date', accessor: (i) => i.due_date },
+      { header: 'Paid at', accessor: (i) => i.paid_at },
+      { header: 'Created', accessor: (i) => i.created_at },
+    ],
+    statusField: 'status',
+    statusOptions: [
+      { value: 'sent', label: 'Mark sent' },
+      { value: 'paid', label: 'Mark paid', confirm: 'Mark the selected invoices as paid (manual payment)? This affects your revenue figures.' },
+      { value: 'void', label: 'Void', confirm: 'Void the selected invoices? Voided invoices can no longer be paid.' },
+    ],
+    statusExtras: (v) =>
+      v === 'sent'
+        ? { sent_at: new Date().toISOString() }
+        : v === 'paid'
+          ? { paid_at: new Date().toISOString(), payment_method: 'manual' }
+          : {},
+    assignField: 'assigned_to',
+    canDelete: (i) => (i.status === 'paid' ? 'Paid invoices are kept for your records.' : null),
+    onRowsChanged: (u) => setInvoices((prev) => applyRowPatches(prev, u)),
+    onRowsRemoved: (ids) => setInvoices((prev) => prev.filter((i) => !ids.includes(i.id))),
+  });
   if (loading) {
     return <DashboardLayout activeLabel="Invoicing"><div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin" /></div></DashboardLayout>;
   }
@@ -302,7 +337,10 @@ export function InvoicesPage() {
               <div key={inv.id} className="rounded-2xl border border-border bg-bg-secondary p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="text-sm font-semibold text-text-primary">{inv.invoice_number} · {inv.customer_name}</p>
+                    <p className="flex items-center gap-2.5 text-sm font-semibold text-text-primary">
+                      {bulk.rowCheckbox(inv.id, inv.invoice_number)}
+                      {inv.invoice_number} · {inv.customer_name}
+                    </p>
                     <p className="text-xs text-text-secondary">
                       {formatCents(totals.totalCents)}
                       {inv.due_date && ` · due ${new Date(inv.due_date).toLocaleDateString()}`}
