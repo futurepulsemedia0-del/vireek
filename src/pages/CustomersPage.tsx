@@ -27,6 +27,8 @@ import { TagEditor } from '@/components/TagEditor';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { SkeletonTable } from '@/components/Skeleton';
+import { useBulkTable } from '@/hooks/useBulkTable';
+import { applyRowPatches } from '@/lib/bulk/engine';
 
 // ============================================================
 // CONSTANTS
@@ -369,6 +371,34 @@ export function CustomersPage() {
     return sortRows(matched, sort, CUSTOMER_SORT_ACCESSORS);
   }, [customers, search, stageFilter, sort]);
 
+  const bulk = useBulkTable<Customer>({
+    table: 'customers',
+    rows: filteredCustomers,
+    noun: { singular: 'customer', plural: 'customers' },
+    getLabel: (c) => c.name,
+    exportFilename: 'customers',
+    exportColumns: [
+      { header: 'Name', accessor: (c) => c.name },
+      { header: 'Phone', accessor: (c) => c.phone },
+      { header: 'Email', accessor: (c) => c.email },
+      { header: 'Address', accessor: (c) => c.address },
+      { header: 'Type', accessor: (c) => c.customer_type },
+      { header: 'Stage', accessor: (c) => c.lifecycle_stage },
+      { header: 'Tags', accessor: (c) => c.tags.join('; ') },
+      { header: 'Last contacted', accessor: (c) => c.last_contacted_at },
+      { header: 'Created', accessor: (c) => c.created_at },
+    ],
+    statusField: 'lifecycle_stage',
+    statusOptions: [
+      { value: 'lead', label: 'Lead' },
+      { value: 'active', label: 'Active' },
+      { value: 'vip', label: 'VIP' },
+      { value: 'inactive', label: 'Inactive' },
+    ],
+    assignField: 'assigned_to',
+    onRowsChanged: (u) => setCustomers((prev) => applyRowPatches(prev, u)),
+    onRowsRemoved: (ids) => setCustomers((prev) => prev.filter((c) => !ids.includes(c.id))),
+  });
   const currentFilters = { search, stageFilter };
   const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
     setSearch(typeof f.search === 'string' ? f.search : '');
@@ -493,6 +523,7 @@ export function CustomersPage() {
                 <th className="px-4 py-3 font-medium">Contact</th>
                 <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">Stage</th>
+                <th className="w-10 px-4 py-3">{bulk.headerCheckbox()}</th>
                 <th className="px-4 py-3 font-medium">Last contact</th>
               </tr>
             </thead>
@@ -506,6 +537,7 @@ export function CustomersPage() {
                     className="cursor-pointer border-b border-border/60 last:border-0 transition-colors hover:bg-bg-tertiary/60"
                   >
                     <td className="px-4 py-3">
+                    <td className="w-10 px-4 py-3">{bulk.rowCheckbox(c.id, c.name)}</td>
                       <div className="font-medium text-text-primary">{c.name}</div>
                       {c.tags.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
@@ -580,6 +612,7 @@ export function CustomersPage() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
       />
+      {bulk.bar}
     </DashboardLayout>
   );
 }
