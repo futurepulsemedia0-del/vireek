@@ -12,6 +12,7 @@ import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
 import { SinceYesterdayCard } from '@/components/SinceYesterdayCard';
+import { TodayTasksCard } from '@/components/TodayTasksCard';
 import { AttributionReport, AttributionRow } from '@/components/AttributionReport';
 
 import { OverviewGrid } from '@/components/overview/OverviewGrid';
