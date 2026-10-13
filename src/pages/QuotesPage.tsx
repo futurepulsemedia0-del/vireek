@@ -1,6 +1,7 @@
 import { uploadEstimatePhoto, getVisualEstimate, severityLabel, MAX_ESTIMATE_PHOTOS } from '@/lib/visualEstimate';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { checkMarginGuardrail } from '@/lib/marginGuardrail';
@@ -477,6 +478,13 @@ export function QuotesPage() {
   const [tieredDraft, setTieredDraft] = useState<TieredEstimateDraft | null>(null);
   const [tieredQuoteId, setTieredQuoteId] = useState<string | null>(null);
   const [truthQuoteId, setTruthQuoteId] = useState<string | null>(null);
+    // Cmd+K quick action: /dashboard/quotes?new=1 opens the quote builder.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('new') !== '1') return;
+    setCreatingQuote(true);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const fetchAll = useCallback(async () => {
     if (!user) return;
