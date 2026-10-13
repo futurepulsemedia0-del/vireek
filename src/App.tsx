@@ -37,6 +37,7 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ 
 const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const ProcurementPage = lazy(() => import('@/pages/ProcurementPage').then((m) => ({ default: m.ProcurementPage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
+const CallDetailPage = lazy(() => import('@/pages/CallDetailPage').then((m) => ({ default: m.CallDetailPage })));
 const UnifiedInboxPage = lazy(() => import('@/pages/UnifiedInboxPage').then((m) => ({ default: m.UnifiedInboxPage })));
 const GoalOrchestratorPage = lazy(() => import('@/pages/GoalOrchestratorPage').then((m) => ({ default: m.GoalOrchestratorPage })));
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
@@ -866,6 +867,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CallsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/calls/:id"
+          element={
+            <ProtectedRoute>
+              <CallDetailPage />
             </ProtectedRoute>
           }
         />
