@@ -708,7 +708,7 @@ export function DashboardLayout({
         </div>
         <div className="no-print">
         <TaskReminderWatcher />
-          <CommandPalette />
+          <GlobalSearchPalette />
           <AiAssistant />
         </div>
       </div>
