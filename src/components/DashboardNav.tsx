@@ -152,6 +152,9 @@ import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
 import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
 import { useKeyboardShortcuts, DEFAULT_SHORTCUTS } from '@/lib/keyboardShortcuts';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from '@/hooks/useDirection';
+import { navLabelKey } from '@/lib/navLabel';
 
 interface NavItem {
   label: string;
@@ -428,6 +431,9 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const { isOwner, permissions, signOut } = useAuth();
   const { toast } = useToast();
   const { preference, setThemePreference } = useTheme();
+  const { t } = useTranslation('dashboard');
+  const { isRtl } = useDirection();
+  const label = (text: string) => t(navLabelKey(text), { defaultValue: text });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
 
@@ -455,7 +461,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
 
   const handleSignOut = async () => {
     await signOut();
-    toast('Signed out successfully.', 'info');
+    toast(t('nav.signedOut'), 'info');
     navigate('/login', { replace: true });
   };
 
@@ -473,13 +479,13 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         }`}
       >
         <item.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
-        {item.label}
+        {label(item.label)}
       </Link>
     );
   }
 
   const navContent = (
-    <nav className="flex flex-col gap-1">
+    <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-1">
       {visiblePrimary.map((item) => (
         <NavLink key={item.href} item={item} />
       ))}
@@ -488,7 +494,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         <div className="mt-2">
           <button
             type="button"
-            onClick={() => setAccountOpen((v) => !v)}
+            onClick={() => {t('nav.account')}((v) => !v)}
             className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
           >
             Account
@@ -520,7 +526,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           onClick={() => setThemeOpen((v) => !v)}
           className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
         >
-          Appearance
+          {t('nav.appearance')}
           <ChevronDown size={14} className={`transition-transform ${themeOpen ? 'rotate-180' : ''}`} />
         </button>
         <AnimatePresence initial={false}>
@@ -548,7 +554,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
                     >
                       <span className="flex items-center gap-3">
                         <option.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
-                        {option.label}
+                        {label(option.label)}
                       </span>
                       {active && <Check size={16} className="text-accent" />}
                     </button>
@@ -588,7 +594,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             className="focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
           >
             <LogOut size={18} />
-            Sign out
+            {t('nav.signOut')}
           </button>
         </div>
       </aside>
@@ -607,7 +613,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              aria-label="Open menu"
+              aria-label={t('nav.openMenu')}
               className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-primary"
             >
               <Menu size={18} />
@@ -629,9 +635,9 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
               className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm lg:hidden"
             />
             <motion.aside
-              initial={{ x: '-100%' }}
+            initial={{ x: isRtl ? '100%' : '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
+              exit={{ x: isRtl ? '100%' : '-100%' }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               className="fixed left-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-bg-secondary lg:hidden"
             >
@@ -645,7 +651,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
                 <button
                   type="button"
                   onClick={() => setDrawerOpen(false)}
-                  aria-label="Close menu"
+                  aria-label={t('nav.closeMenu')}
                   className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border text-text-secondary hover:text-text-primary"
                 >
                   <X size={18} />
@@ -661,7 +667,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
                   className="focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
                 >
                   <LogOut size={18} />
-                  Sign out
+                  {t('nav.signOut')}
                 </button>
               </div>
             </motion.aside>
@@ -686,6 +692,7 @@ export function DashboardLayout({
   activeLabel: string;
   children: React.ReactNode;
 }) {
+  const { i18n } = useTranslation('dashboard');
   return (
     // NotificationsProvider wraps everything here (not just <DashboardNav>)
     // because DashboardNav itself renders TWO <NotificationBell /> instances
@@ -704,7 +711,9 @@ export function DashboardLayout({
               <PaymentFailedBanner />
               <UsageLimitBanner />             
             </div>
-            {children}
+            <div key={i18n.language} className="contents">
+  {children}
+</div>
           </main>
         </div>
         <div className="no-print">
