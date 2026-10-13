@@ -192,6 +192,7 @@ const FOOTER_COLUMNS = [
       { label: 'SLA', href: '/sla' },
       { label: 'Acceptable Use', href: '/acceptable-use-policy' },
       { label: 'Trademark Policy', href: '/trademark-policy' },
+      { label: 'DMCA & Copyright', href: '/dmca' },
       { label: 'Vulnerability Disclosure', href: '/vulnerability-disclosure' },
       { label: 'Responsible AI', href: '/responsible-ai' },
       { label: 'AI Call Disclosure', href: '/ai-disclosure' },
