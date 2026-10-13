@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /portal/
 Sitemap: https://vireek.com/sitemap.xml
 Sitemap: https://vireek.com/sitemap-locations.xml
