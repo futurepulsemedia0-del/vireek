@@ -77,7 +77,7 @@ Deno.serve(async (req: Request) => {
     // RLS already scopes both to the account, so a stranger's quoteId 404s.
     const { data: quote, error: quoteError } = await callerClient
       .from("quotes")
-      .select("id, user_id, line_items, tax_percent, discount_type, discount_value")
+      .select("id, user_id, line_items, tax_percent, discount_type, discount_value, promo_discount_cents"))
       .eq("id", quoteId)
       .maybeSingle();
     if (quoteError || !quote) return json({ error: "Quote not found." }, 404);
@@ -146,6 +146,7 @@ Deno.serve(async (req: Request) => {
     } else if (effectiveDiscountType === "flat" && effectiveDiscountValue > 0) {
       revenueCents -= Math.round(effectiveDiscountValue * 100);
     }
+    revenueCents -= Math.max(0, Number(quote.promo_discount_cents ?? 0));
     revenueCents = Math.max(0, revenueCents);
 
     const marginPct = revenueCents > 0 ? Number((((revenueCents - costCents) / revenueCents) * 100).toFixed(1)) : null;
