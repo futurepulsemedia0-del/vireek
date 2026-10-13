@@ -198,6 +198,7 @@ function CallDetailPanel({
   tagSuggestions: string[];
 }) {
   const sentimentCfg = call.sentiment ? sentimentConfig[call.sentiment] : null;
+  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -380,6 +381,13 @@ function CallDetailPanel({
         )}
         {/* AI interaction satisfaction (NPS/CSAT) */}
         <CallSatisfactionWidget callId={call.id} userId={call.user_id} />
+        <button
+          type="button"
+          onClick={() => navigate(`/dashboard/calls/${call.id}`)}
+          className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-colors hover:border-accent/40"
+        >
+          Open full call page →
+        </button>
 
         {/* Quick actions */}
         <div className="space-y-2 border-t border-border pt-4">
