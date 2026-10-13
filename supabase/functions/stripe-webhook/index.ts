@@ -40,6 +40,7 @@
 import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
+import { minutesForPlan, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -296,6 +297,7 @@ Deno.serve(async (req: Request) => {
           .update({
             stripe_subscription_id: subscriptionId,
             plan: planId ?? undefined,
+            minutes_included: planId ? (minutesForPlan(planId) ?? undefined) : undefined,
             subscription_status: "active",
             status: "active",
             dunning_stage: 0,
@@ -312,10 +314,17 @@ Deno.serve(async (req: Request) => {
         // profiles.plan رو هم‌سو نگه می‌داره.
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
-        const planId = subscription.metadata?.plan_id as string | undefined;
+        // The price on the subscription is the source of truth: it also covers
+        // scheduled downgrades, which flip the price (not the metadata) at renewal.
+        const planId =
+          planIdFromPriceId(subscription.items.data[0]?.price.id, (key) => Deno.env.get(key)) ??
+          (subscription.metadata?.plan_id as string | undefined);
         if (!customerId || !planId) break;
 
-        await admin.from("profiles").update({ plan: planId }).eq("stripe_customer_id", customerId);
+                await admin
+          .from("profiles")
+          .update({ plan: planId, minutes_included: minutesForPlan(planId) ?? undefined })
+          .eq("stripe_customer_id", customerId);
         break;
       }
       default:
