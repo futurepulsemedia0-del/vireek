@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   Home, Wrench, FileText, HardHat, ShieldCheck, DollarSign, AlertTriangle, CalendarClock, Users,
-  History, Loader2, ArrowLeft, Plus, Trash2, Network, KeyRound, Sparkles,
+  History, Loader2, ArrowLeft, Plus, Trash2, Network, KeyRound, Sparkles, Gauge,
 } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -671,6 +671,7 @@ export function HomeLifetimeGraphPage() {
           <div className="flex items-center gap-2">
             {current && <Chip>Owner: {current.ownerName ?? 'Customer'}</Chip>}
             <Link to={`/dashboard/homes/${graph.siteId}/passport`} className={smallBtn}><Fingerprint size={12} /> Home Passport</Link>
+            <Link to={`/dashboard/homes/${graph.siteId}/capital-plan`} className={smallBtn}><Gauge size={12} /> Risk & Capital Plan</Link>
             {graph.schemaReady && <button type="button" className={smallBtn} onClick={() => setTransferOpen(true)}><KeyRound size={12} /> Transfer ownership</button>}
           </div>
         </div>
