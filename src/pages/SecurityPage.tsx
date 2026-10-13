@@ -164,6 +164,33 @@ export function SecurityPage() {
         </section>
 
         <section className="px-6 pb-4">
+          <div className="mx-auto mb-6 max-w-4xl rounded-2xl border border-accent/30 bg-accent/5 p-6 text-center">
+            <h3 className="text-base font-semibold text-text-primary">Security whitepaper</h3>
+            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+              Architecture, data flow, encryption, access control and AI data handling in one document for security reviewers.
+            </p>
+            <p className="mt-3 text-sm">
+              <Link to="/security/whitepaper" className="font-semibold text-accent hover:text-cta">
+                Read the whitepaper or download the PDF &rarr;
+              </Link>
+            </p>
+          </div>
+        </section>
+        <section className="px-6 pb-4">
+          <div className="mx-auto mb-6 max-w-4xl rounded-2xl border border-accent/30 bg-accent/5 p-6 text-center">
+            <h3 className="text-base font-semibold text-text-primary">Security whitepaper</h3>
+            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+              Architecture, data flow, encryption, access control and AI data handling in one document for security reviewers.
+            </p>
+            <p className="mt-3 text-sm">
+              <Link to="/security/whitepaper" className="font-semibold text-accent hover:text-cta">
+                Read the whitepaper or download the PDF &rarr;
+              </Link>
+            </p>
+          </div>
+        </section>
+        
+        <section className="px-6 pb-4">
           <div className="mx-auto max-w-4xl rounded-2xl border border-border bg-bg-secondary/90 p-6 text-center shadow-card dark:shadow-card-dark">
             <h3 className="text-base font-semibold text-text-primary">Found a security vulnerability?</h3>
             <p className="mt-2 text-sm leading-relaxed text-text-secondary">
