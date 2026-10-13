@@ -1211,6 +1211,18 @@ async function toolBookAppointment(
     ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
     : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
 
+      const promoCode = typeof args.promo_code === "string" ? args.promo_code.trim() : "";
+  if (promoCode) {
+    const { data: promoRes } = await admin.rpc("promo_reserve_for_job", {
+      p_user_id: tenant.userId, p_job_id: job.id, p_code: promoCode, p_service: serviceType,
+      p_phone: jobPayload.customer_phone, p_email: null, p_customer_id: null, p_channel: "voice",
+      p_client_key: callerNumber ? `voice:${callerNumber}` : null,
+    });
+    baseMessage += promoRes?.ok
+      ? ` The promo code ${promoRes.code} (${promoRes.label}) is applied to this appointment; the final price is confirmed on the written estimate.`
+      : ` The promo code could not be applied: ${promoReasonForVoice(promoRes?.reason)} The appointment is still booked at the regular price.`;
+  }
+
   const { data: profile } = await admin
     .from("business_profile")
     .select("ai_dispatch_enabled")
@@ -1226,6 +1238,35 @@ async function toolBookAppointment(
   }
 
   return baseMessage;
+}
+
+function promoReasonForVoice(reason: string | undefined): string {
+  switch (reason) {
+    case "expired": return "that code has expired.";
+    case "not_started": return "that code isn't active yet.";
+    case "exhausted": return "that code has reached its limit.";
+    case "customer_limit": return "that code was already used by this customer.";
+    case "not_first_time": return "that code is for first-time customers only.";
+    case "identity_required": return "I need the caller's phone number to confirm that offer.";
+    case "min_subtotal": return "the job doesn't meet the minimum spend for that code.";
+    case "rate_limited": return "too many attempts — ask them to call back later or check the code.";
+    case "not_applicable": return "that code doesn't apply to this service.";
+    default: return "that code isn't valid.";
+  }
+}
+
+async function toolValidatePromoCode(admin: SupabaseClient, tenant: TenantContext, args: Record<string, unknown>, callerNumber: string | null): Promise<string> {
+  const code = typeof args.code === "string" ? args.code.trim() : "";
+  if (!code) return "I need the promo code the caller mentioned before I can check it.";
+  const phone = (typeof args.phone === "string" && args.phone.trim()) || callerNumber || null;
+  const { data, error } = await admin.rpc("promo_evaluate_booking", {
+    p_user_id: tenant.userId, p_code: code, p_service: typeof args.service === "string" ? args.service : null,
+    p_phone: phone, p_email: null, p_channel: "voice", p_client_key: callerNumber ? `voice:${callerNumber}` : null, p_record: true,
+  });
+  if (error || !data) return "I couldn't check that promo code right now — tell the caller the office will confirm it.";
+  if (!data.valid) return `That promo code can't be used: ${promoReasonForVoice(data.reason)}`;
+  const est = typeof data.estimated_discount_cents === "number" ? ` That's roughly $${(data.estimated_discount_cents / 100).toFixed(2)} off the listed starting price.` : "";
+  return `The code ${data.code} is valid: ${data.label}.${est} Do not promise a final price — the discount is applied on the written estimate. Pass promo_code to book_appointment to attach it.`;
 }
 
 async function toolCheckWeather(args: Record<string, unknown>): Promise<string> {
@@ -1670,6 +1711,9 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "book_appointment":
             result = await toolBookAppointment(admin, tenant, args, vapiCallId, callerNumber);
+            break;
+          case "validate_promo_code":
+            result = await toolValidatePromoCode(admin, tenant, args, callerNumber);
             break;
           case "check_weather":
             result = await toolCheckWeather(args);
