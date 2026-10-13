@@ -51,6 +51,8 @@ import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { PermitTransactionPanel } from '@/components/jobs/PermitTransactionPanel';
 import { JobRegulationSnapshotPanel } from '@/components/jobs/JobRegulationSnapshotPanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
+import { useBulkTable } from '@/hooks/useBulkTable';
+import { applyRowPatches } from '@/lib/bulk/engine';
 import { ServiceTwinPanel } from '@/components/jobs/ServiceTwinPanel';
 import { TelemetryPrepPanel } from '@/components/jobs/TelemetryPrepPanel';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
@@ -877,6 +879,7 @@ function CreateJobModal({
 // MAIN JOBS PAGE
 // ============================================================
 
+const NO_ROWS: Job[] = [];
 export function JobsPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -1050,6 +1053,47 @@ export function JobsPage() {
     });
     return result;
   }, [filteredJobs, sortKey, sortDir]);
+  const bulk = useBulkTable<Job>({
+    table: 'jobs',
+    rows: viewMode === 'list' ? sortedJobs : NO_ROWS,
+    noun: { singular: 'job', plural: 'jobs' },
+    getLabel: (j) => `${j.customer_name}${j.service_type ? ` — ${j.service_type}` : ''}`,
+    exportFilename: 'jobs',
+    exportColumns: [
+      { header: 'Customer', accessor: (j) => j.customer_name },
+      { header: 'Phone', accessor: (j) => j.customer_phone },
+      { header: 'Service', accessor: (j) => j.service_type },
+      { header: 'Address', accessor: (j) => j.address },
+      { header: 'Scheduled', accessor: (j) => j.scheduled_datetime },
+      { header: 'Status', accessor: (j) => j.job_status },
+      { header: 'Invoice status', accessor: (j) => j.invoice_status },
+      { header: 'Invoice amount', accessor: (j) => j.invoice_amount },
+      { header: 'Technician', accessor: (j) => technicians.find((t) => t.id === j.assigned_technician_id)?.member_name ?? '' },
+      { header: 'Tags', accessor: (j) => (j.tags ?? []).join('; ') },
+    ],
+    statusField: 'job_status',
+    // en_route / in_progress are intentionally not offered in bulk: they require the per-job compliance dialog.
+    statusOptions: [
+      { value: 'scheduled', label: 'Scheduled' },
+      { value: 'completed', label: 'Completed' },
+      { value: 'no_show', label: 'No-show', confirm: 'Mark the selected jobs as no-show?' },
+      { value: 'cancelled', label: 'Cancelled', confirm: 'Cancel the selected jobs? VIP customers protected by your Business Constitution are skipped.' },
+    ],
+    perRowStatus: true, // DB quality-gate / evidence-chain triggers validate each job individually
+    beforeStatus: async (job, opt) => {
+      if (opt.value !== 'cancelled' || !user) return null;
+      try {
+        const check = await checkConstitution(user.id, 'cancel_customer', { customer_phone: job.customer_phone ?? '' });
+        return check.allowed ? null : (check.reason ?? 'Blocked by your Business Constitution.');
+      } catch {
+        return null; // same fail-open behavior as the single-job path
+      }
+    },
+    assignField: 'assigned_technician_id',
+    assignees: technicians.map((t) => ({ id: t.id, name: t.member_name ?? t.member_email })),
+    onRowsChanged: (u) => setAllJobs((prev) => applyRowPatches(prev, u)),
+    onRowsRemoved: (ids) => setAllJobs((prev) => prev.filter((j) => !ids.includes(j.id))),
+  });
 
   const jobsByStatus = useMemo(() => {
     const map: Record<JobStatus, Job[]> = {
@@ -1549,6 +1593,7 @@ export function JobsPage() {
             <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b border-border bg-bg-tertiary/50">
+                  <th className="w-10 px-4 py-3">{bulk.headerCheckbox()}</th>
                   {LIST_HEADERS.filter((h) => h.always || showCol(h.col)).map((h) => {
                     const sk = h.sort;
                     return (
@@ -1578,6 +1623,7 @@ export function JobsPage() {
                       onClick={() => setSelectedJob(job)}
                       className="cursor-pointer border-b border-border transition-colors last:border-0 hover:bg-bg-tertiary/50"
                     >
+                      <td className="w-10 px-4 py-3">{bulk.rowCheckbox(job.id, job.customer_name)}</td>
                       <td className="px-4 py-3 text-sm font-medium text-text-primary whitespace-nowrap">
                         <span className="flex items-center gap-1.5">
                           {job.customer_name}
@@ -1668,6 +1714,7 @@ export function JobsPage() {
         )}
       </AnimatePresence>
       {complianceDialog}
+      {bulk.bar}
     </DashboardLayout>
   );
 }
