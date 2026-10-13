@@ -23,15 +23,20 @@ export interface PublicQuoteInfo {
   business_name: string | null;
   financing_partner_name: string | null;
   financing_note: string | null;
+  promo_discount_cents: number;
+  promo_codes: string[];
   tax_breakdown?: import('@/lib/salesTax').TaxBreakdownLine[];
   tax_cents?: number | null;
   tax_exempt?: boolean;
 }
 
-export function calculateQuoteTotals(lineItems: QuoteLineItem[], taxPercent: number) {
+export function calculateQuoteTotals(lineItems: QuoteLineItem[], taxPercent: number, promoDiscountCents = 0) {
   const subtotalCents = lineItems.reduce((sum, li) => sum + li.quantity * li.unit_price_cents, 0);
-  const taxCents = Math.round((subtotalCents * taxPercent) / 100);
-  return { subtotalCents, taxCents, totalCents: subtotalCents + taxCents };
+  // Promo discount is pre-tax and can never exceed the subtotal.
+  const discountCents = Math.min(Math.max(0, Math.round(promoDiscountCents)), Math.max(0, subtotalCents));
+  const taxableCents = subtotalCents - discountCents;
+  const taxCents = Math.round((taxableCents * taxPercent) / 100);
+  return { subtotalCents, discountCents, taxCents, totalCents: taxableCents + taxCents };
 }
 
 export function formatCents(cents: number): string {
