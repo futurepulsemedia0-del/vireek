@@ -299,7 +299,7 @@ export function BillingPage() {
   return (
     <DashboardLayout activeLabel="Billing">
       {/* Usage alert banner */}
-      <UsageAlertBanner onUpgrade={() => setShowPlans(true)} />
+      <UsageAlertBanner onUpgrade={() => navigate('/dashboard/billing/plans')} />
 
       {/* Page header */}
       <div className="mb-6 flex items-center gap-3">
@@ -387,7 +387,7 @@ export function BillingPage() {
 
             <button
               type="button"
-              onClick={() => setShowPlans(true)}
+              onClick={() => navigate('/dashboard/billing/plans')}
               className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
             >
               <TrendingUp size={16} />
