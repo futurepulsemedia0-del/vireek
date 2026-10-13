@@ -196,6 +196,7 @@ const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').t
 const FailureGenomePage = lazy(() => import('@/pages/FailureGenomePage').then((m) => ({ default: m.FailureGenomePage })));
 const LiveCopilotPage = lazy(() => import('@/pages/LiveCopilotPage').then((m) => ({ default: m.LiveCopilotPage })));
 const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
+const PromoCodesPage = lazy(() => import('@/pages/PromoCodesPage').then((m) => ({ default: m.PromoCodesPage })));
 const QuoteTruthEnginePage = lazy(() => import('@/pages/QuoteTruthEnginePage').then((m) => ({ default: m.QuoteTruthEnginePage })));
 const OperationalTruthPage = lazy(() => import('@/pages/OperationalTruthPage').then((m) => ({ default: m.OperationalTruthPage })));
 const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').then((m) => ({ default: m.IncentiveEnginePage })));
@@ -2311,6 +2312,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <MarginGuardrailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/promo-codes"
+          element={
+            <ProtectedRoute>
+              <PromoCodesPage />
             </ProtectedRoute>
           }
         />
