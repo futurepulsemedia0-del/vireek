@@ -324,6 +324,9 @@ const FeatureMatrixPage = lazy(() => import('@/pages/FeatureMatrixPage').then((m
 const AIReceptionistVsHumanPage = lazy(() => import('@/pages/AIReceptionistVsHumanPage').then((m) => ({ default: m.AIReceptionistVsHumanPage })));
 const IndustriesPage = lazy(() => import('@/pages/IndustriesPage').then((m) => ({ default: m.IndustriesPage })));
 const IndustryPage = lazy(() => import('@/pages/IndustryPage').then((m) => ({ default: m.IndustryPage })));
+const LocationsPage = lazy(() => import('@/pages/LocationsPage').then((m) => ({ default: m.LocationsPage })));
+const LocationCityPage = lazy(() => import('@/pages/LocationCityPage').then((m) => ({ default: m.LocationCityPage })));
+const LocationTradePage = lazy(() => import('@/pages/LocationTradePage').then((m) => ({ default: m.LocationTradePage })));
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
 const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
@@ -521,6 +524,9 @@ function AppRoutes() {
         <Route path="/ai-receptionist-vs-human-receptionist" element={<AIReceptionistVsHumanPage />} />
         <Route path="/industries" element={<IndustriesPage />} />
         <Route path="/industries/:slug" element={<IndustryPage />} />
+        <Route path="/locations" element={<LocationsPage />} />
+        <Route path="/locations/:city" element={<LocationCityPage />} />
+        <Route path="/locations/:city/:trade" element={<LocationTradePage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/enterprise" element={<EnterprisePage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
