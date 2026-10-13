@@ -393,6 +393,15 @@ export function BillingPage() {
               <TrendingUp size={16} />
               {profile?.plan && profile.plan !== PLANS[0].id ? 'Change Plan' : 'Upgrade'}
             </button>
+            {hasStripeCustomer && isOwner && profile?.plan && profile.plan !== PLANS[0].id && (
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/billing/cancel')}
+                className="focus-ring min-h-[44px] shrink-0 rounded-lg text-sm font-medium text-text-secondary underline-offset-4 transition-colors hover:text-danger hover:underline"
+              >
+                Cancel subscription
+              </button>
+            )}
           </div>
         </motion.div>
 
