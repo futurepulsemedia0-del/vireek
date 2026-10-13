@@ -13,6 +13,7 @@ import { emptyTaxSelection, getDocumentTotals, taxColumnsFromSelection } from '@
 import { createInvoice, deleteInvoice, fetchInvoices, getInvoiceLink, isOverdue, markInvoicePaid, markInvoiceSent, type Invoice, type InvoiceStatus } from '@/lib/invoices';
 import { useBulkTable } from '@/hooks/useBulkTable';
 import { applyRowPatches } from '@/lib/bulk/engine';
+import { PromoCodePanel } from '@/components/promos/PromoCodePanel';
 
 const STATUS_STYLES: Record<InvoiceStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
@@ -157,6 +158,7 @@ function InvoiceForm({ onClose, onCreated }: { onClose: () => void; onCreated: (
 export function InvoicesPage() {
   const { toast } = useToast();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [promoOpenId, setPromoOpenId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
