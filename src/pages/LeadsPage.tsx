@@ -159,6 +159,7 @@ function LeadDetailPanel({
   const [notes, setNotes] = useState(lead.notes ?? '');
   const [editingNotes, setEditingNotes] = useState(false);
   const notesRef = useRef<HTMLTextAreaElement>(null);
+  const navigate = useNavigate();
 
   const saveNotes = () => {
     setEditingNotes(false);
@@ -336,7 +337,14 @@ function LeadDetailPanel({
 // ============================================================
 // MAIN LEADS PAGE
 // ============================================================
-
+          <button
+            type="button"
+            onClick={() => navigate(`/dashboard/leads/${lead.id}`)}
+            className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-colors hover:border-accent/40"
+          >
+            Open full lead page
+            <ArrowRight size={14} />
+          </button>
 export function LeadsPage() {
   const navigate = useNavigate();
   const { user, profile, profileLoading } = useAuth();
