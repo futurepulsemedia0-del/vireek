@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, KeyRound, ShieldCheck, Settings as SettingsIcon, ChevronRight, Pencil } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { User, Mail, KeyRound, ShieldCheck, Settings as SettingsIcon, ChevronRight, Pencil } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { LanguagePreferences } from '@/components/settings/LanguagePreferences';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
@@ -33,6 +35,7 @@ export function AccountPage() {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
 
   const [fullName, setFullName] = useState(profile?.full_name ?? '');
   const [phone, setPhone] = useState(profile?.phone ?? '');
@@ -59,10 +62,10 @@ export function AccountPage() {
       .eq('id', profile.id);
 
     if (error) {
-      toast('Could not save that change. Please try again.', 'error');
+      toast(t('account.toast.saveFailed'), 'error');
     } else {
       await refreshProfile();
-      toast('Saved.', 'success');
+      toast(t('account.toast.saved'), 'success');
     }
     setSavingField(null);
   };
@@ -77,31 +80,31 @@ export function AccountPage() {
     const { error } = await supabase.auth.updateUser({ email: trimmed });
     setSavingEmail(false);
     if (error) {
-      toast(`Could not update email: ${error.message}`, 'error');
+      toast(t('account.toast.emailFailed', { message: error.message }), 'error');
       return;
     }
-    toast('Check both your old and new inbox to confirm the email change.', 'success');
+    toast(t('account.toast.emailConfirm'), 'success');
     setEditingEmail(false);
     setNewEmail('');
   };
 
   const handleChangePassword = async () => {
     if (newPassword.length < 8) {
-      toast('Password must be at least 8 characters.', 'error');
+      toast(t('account.toast.passwordShort'), 'error');
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast('Passwords do not match.', 'error');
+      toast(t('account.toast.passwordMismatch'), 'error');
       return;
     }
     setSavingPassword(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSavingPassword(false);
     if (error) {
-      toast(`Could not update password: ${error.message}`, 'error');
+      toast(t('account.toast.passwordFailed', { message: error.message }), 'error');
       return;
     }
-    toast('Password updated.', 'success');
+    toast(t('account.toast.passwordUpdated'), 'success');
     setNewPassword('');
     setConfirmPassword('');
   };
@@ -113,8 +116,10 @@ export function AccountPage() {
           <User size={24} />
         </span>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">My Account</h1>
-          <p className="mt-1 text-sm text-text-secondary">Your profile, sign-in email, and password.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
+            {t('nav.items.my_account')}
+          </h1>
+          <p className="mt-1 text-sm text-text-secondary">{t('account.subtitle')}</p>
         </div>
       </div>
 
@@ -125,38 +130,46 @@ export function AccountPage() {
             {initialsFor(profile?.full_name ?? null, user?.email ?? null)}
           </span>
           <div>
-            <h2 className="text-base font-semibold text-text-primary">Profile</h2>
-            <p className="text-xs text-text-secondary">This is how your name appears across Vireek.</p>
+            <h2 className="text-base font-semibold text-text-primary">{t('account.profile.title')}</h2>
+            <p className="text-xs text-text-secondary">{t('account.profile.subtitle')}</p>
           </div>
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="text-sm">
-            <span className="mb-1.5 block text-xs font-medium text-text-secondary">Full name</span>
+            <span className="mb-1.5 block text-xs font-medium text-text-secondary">
+              {t('account.profile.fullName')}
+            </span>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               onBlur={(e) => saveProfileField('full_name', e.target.value)}
               disabled={savingField === 'full_name'}
-              placeholder="Your name"
+              placeholder={t('account.profile.fullNamePlaceholder')}
               className="w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary focus-ring disabled:opacity-60"
             />
           </label>
           <label className="text-sm">
-            <span className="mb-1.5 block text-xs font-medium text-text-secondary">Phone</span>
+            <span className="mb-1.5 block text-xs font-medium text-text-secondary">
+              {t('account.profile.phone')}
+            </span>
             <input
               type="tel"
+              dir="ltr"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               onBlur={(e) => saveProfileField('phone', e.target.value)}
               disabled={savingField === 'phone'}
-              placeholder="e.g. +1 555 123 4567"
+              placeholder={t('account.profile.phonePlaceholder')}
               className="w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary focus-ring disabled:opacity-60"
             />
           </label>
         </div>
       </div>
+
+      {/* Language & region */}
+      <LanguagePreferences className="mt-4" />
 
       {/* Email */}
       <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
@@ -165,8 +178,8 @@ export function AccountPage() {
             <Mail size={18} />
           </span>
           <div>
-            <h2 className="text-base font-semibold text-text-primary">Sign-in email</h2>
-            <p className="text-xs text-text-secondary">Used to sign in and to receive account notices.</p>
+            <h2 className="text-base font-semibold text-text-primary">{t('account.email.title')}</h2>
+            <p className="text-xs text-text-secondary">{t('account.email.subtitle')}</p>
           </div>
         </div>
 
@@ -175,9 +188,10 @@ export function AccountPage() {
             <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="email"
+                dir="ltr"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="new@email.com"
+                placeholder={t('account.email.placeholder')}
                 className="w-full flex-1 rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary focus-ring"
               />
               <div className="flex gap-2">
@@ -187,7 +201,7 @@ export function AccountPage() {
                   disabled={savingEmail || !newEmail.trim()}
                   className="focus-ring rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
                 >
-                  {savingEmail ? 'Saving…' : 'Save'}
+                  {savingEmail ? t('account.email.saving') : t('account.email.save')}
                 </button>
                 <button
                   type="button"
@@ -197,13 +211,15 @@ export function AccountPage() {
                   }}
                   className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-text-primary"
                 >
-                  Cancel
+                  {t('account.email.cancel')}
                 </button>
               </div>
             </div>
           ) : (
             <div className="flex items-center justify-between rounded-xl border border-border/60 bg-bg-primary px-4 py-3">
-              <span className="text-sm text-text-primary">{user?.email}</span>
+              <span dir="ltr" className="text-sm text-text-primary">
+                {user?.email}
+              </span>
               <button
                 type="button"
                 onClick={() => {
@@ -213,13 +229,11 @@ export function AccountPage() {
                 className="focus-ring flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-accent hover:bg-accent/10"
               >
                 <Pencil size={13} />
-                Change
+                {t('account.email.change')}
               </button>
             </div>
           )}
-          <p className="mt-2 text-xs text-text-secondary">
-            Changing your email requires confirming the change from both your old and new inbox.
-          </p>
+          <p className="mt-2 text-xs text-text-secondary">{t('account.email.note')}</p>
         </div>
       </div>
 
@@ -230,8 +244,8 @@ export function AccountPage() {
             <KeyRound size={18} />
           </span>
           <div>
-            <h2 className="text-base font-semibold text-text-primary">Password</h2>
-            <p className="text-xs text-text-secondary">Choose a new password. At least 8 characters.</p>
+            <h2 className="text-base font-semibold text-text-primary">{t('account.password.title')}</h2>
+            <p className="text-xs text-text-secondary">{t('account.password.subtitle')}</p>
           </div>
         </div>
 
@@ -240,7 +254,7 @@ export function AccountPage() {
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="New password"
+            placeholder={t('account.password.new')}
             autoComplete="new-password"
             className="w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary focus-ring"
           />
@@ -248,7 +262,7 @@ export function AccountPage() {
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm new password"
+            placeholder={t('account.password.confirm')}
             autoComplete="new-password"
             className="w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary focus-ring"
           />
@@ -259,7 +273,7 @@ export function AccountPage() {
           disabled={savingPassword || !newPassword || !confirmPassword}
           className="focus-ring mt-4 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {savingPassword ? 'Updating…' : 'Update password'}
+          {savingPassword ? t('account.password.updating') : t('account.password.update')}
         </button>
       </div>
 
@@ -267,17 +281,15 @@ export function AccountPage() {
       <button
         type="button"
         onClick={() => navigate('/dashboard/settings/security')}
-        className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+        className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-start shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
       >
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
             <ShieldCheck size={20} />
           </span>
           <div>
-            <p className="text-sm font-semibold text-text-primary">Security &amp; sessions</p>
-            <p className="mt-0.5 text-xs text-text-secondary">
-              Two-factor authentication, active sessions, trusted devices, and the audit log.
-            </p>
+            <p className="text-sm font-semibold text-text-primary">{t('account.security.title')}</p>
+            <p className="mt-0.5 text-xs text-text-secondary">{t('account.security.description')}</p>
           </div>
         </div>
         <ChevronRight size={18} className="text-text-secondary" />
@@ -287,17 +299,15 @@ export function AccountPage() {
       <button
         type="button"
         onClick={() => navigate('/dashboard/settings')}
-        className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+        className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-start shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
       >
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
             <SettingsIcon size={20} />
           </span>
           <div>
-            <p className="text-sm font-semibold text-text-primary">Workspace settings</p>
-            <p className="mt-0.5 text-xs text-text-secondary">
-              Notification preferences, tax &amp; invoicing, and your AI assistant's voice.
-            </p>
+            <p className="text-sm font-semibold text-text-primary">{t('account.workspace.title')}</p>
+            <p className="mt-0.5 text-xs text-text-secondary">{t('account.workspace.description')}</p>
           </div>
         </div>
         <ChevronRight size={18} className="text-text-secondary" />
