@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, TriangleAlert as AlertTriangle, Scale, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { EASE, viewport } from '@/lib/motion';
 
 const CONTACT_EMAIL = 'ali@vireek.com';
@@ -385,6 +386,13 @@ export function TermsContent() {
             <SectionBody>
               <ul className="ml-1 space-y-2">
                 <li>
+                <li>
+                  • If you believe content on Vireek infringes your copyright, see our{' '}
+                  <Link to="/dmca" className="font-semibold text-accent hover:underline">
+                    DMCA &amp; Copyright Complaints
+                  </Link>{' '}
+                  page.
+                </li>
                   • Vireek owns all rights to its{' '}
                   <strong className="text-text-primary">software, brand, AI technology, and platform</strong>.
                   Customers receive a limited, revocable license to use the service during their
