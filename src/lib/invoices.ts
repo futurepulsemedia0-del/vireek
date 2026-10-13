@@ -18,6 +18,8 @@ export interface Invoice {
   tax_percent: number;
   promo_discount_cents: number;
   promo_codes: string[];
+  promo_discount_cents: number;
+  promo_codes: string[];
   customer_id: string | null;
   service_address: import('@/lib/salesTax').ServiceAddress | null;
   tax_breakdown: import('@/lib/salesTax').TaxBreakdownLine[];
