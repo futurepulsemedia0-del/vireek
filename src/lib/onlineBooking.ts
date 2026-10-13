@@ -33,6 +33,7 @@ export async function fetchBookedWindow(slug: string, start: Date, end: Date): P
 export interface SubmitBookingInput {
   slug: string; customerName: string; customerPhone: string; customerEmail: string;
   serviceType: string; scheduledDatetime: Date; notes: string; channel: string; refCode?: string;
+promoCode?: string;
 }
 
 export async function submitPublicBooking(input: SubmitBookingInput): Promise<{ ok: true } | { ok: false; reason: string }> {
@@ -46,11 +47,13 @@ export async function submitPublicBooking(input: SubmitBookingInput): Promise<{ 
     p_notes: input.notes.trim() || null,
     p_channel: input.channel,
     p_ref_code: input.refCode?.trim() || null,
+    p_promo_code: input.promoCode?.trim() || null,
   });
   if (error) {
     if (error.message.includes('slot_taken')) return { ok: false, reason: 'slot_taken' };
     if (error.message.includes('too_soon')) return { ok: false, reason: 'too_soon' };
     if (error.message.includes('booking_not_available')) return { ok: false, reason: 'unavailable' };
+    if (error.message.includes('promo_invalid')) return { ok: false, reason: 'promo_invalid' };
     return { ok: false, reason: 'unknown' };
   }
   return { ok: true };
