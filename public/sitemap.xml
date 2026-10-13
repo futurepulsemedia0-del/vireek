@@ -234,6 +234,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://vireek.com/security</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vireek.com/security/whitepaper</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://vireek.com/compare</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
