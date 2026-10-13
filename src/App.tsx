@@ -243,6 +243,7 @@ const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
 const WorkforceEquilibriumPage = lazy(() => import('@/pages/WorkforceEquilibriumPage').then((m) => ({ default: m.WorkforceEquilibriumPage })));
 const BusinessDriftPage = lazy(() => import('@/pages/BusinessDriftPage').then((m) => ({ default: m.BusinessDriftPage })));
+const ExecutiveReportsPage = lazy(() => import('@/pages/ExecutiveReportsPage').then((m) => ({ default: m.ExecutiveReportsPage })));
 const OpportunityCostLedgerPage = lazy(() => import('@/pages/OpportunityCostLedgerPage').then((m) => ({ default: m.OpportunityCostLedgerPage })));
 const CausalShockSimulatorPage = lazy(() => import('@/pages/CausalShockSimulatorPage').then((m) => ({ default: m.CausalShockSimulatorPage })));
 const TechnicianPerformancePage = lazy(() => import('@/pages/TechnicianPerformancePage').then((m) => ({ default: m.TechnicianPerformancePage })));
@@ -2491,6 +2492,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <BusinessDriftPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/reports/executive"
+          element={
+            <ProtectedRoute>
+              <ExecutiveReportsPage />
             </ProtectedRoute>
           }
         />
