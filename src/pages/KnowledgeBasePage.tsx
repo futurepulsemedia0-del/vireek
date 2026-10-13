@@ -12,6 +12,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -498,6 +499,20 @@ export function KnowledgeBasePage() {
     });
   }, [articles, query, statusFilter]);
 
+  // Cmd+K deep links: ?article=<id> opens that article, ?new=1 opens a blank editor.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (loading) return;
+    const articleId = searchParams.get('article');
+    const wantsNew = searchParams.get('new') === '1';
+    if (!articleId && !wantsNew) return;
+    const article = articleId ? articles.find((a) => a.id === articleId) : undefined;
+    if (article) openEdit(article);
+    else if (wantsNew) openNew();
+    setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, articles, searchParams]);
+  
   // --- actions -------------------------------------------------
 
   const openNew = () => {
