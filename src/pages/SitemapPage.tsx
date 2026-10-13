@@ -29,6 +29,7 @@ import { SARAH_PHONE } from '@/lib/site';
 import { BLOG_POSTS } from '@/lib/blog';
 import { publishedResources, resourcePath } from '@/lib/resources';
 import { INDUSTRIES } from '@/lib/industries';
+import { USE_CASES } from '@/lib/useCases';
 import { INTEGRATIONS } from '@/lib/integrations';
 import { COMPETITORS } from '@/lib/competitors';
 
@@ -98,6 +99,13 @@ function useSiteSections(): SiteSection[] {
         ],
       },
       {
+              {
+        id: 'use-cases',
+        title: 'Use Cases',
+        description: 'Real scenarios: missed calls, emergencies, after hours and estimates.',
+        icon: Rocket,
+        links: USE_CASES.map((u) => ({ label: u.name, href: `/use-cases/${u.slug}` })),
+      },
         id: 'integrations',
         title: 'Integrations',
         description: 'The tools Vireek connects to in your existing stack.',
