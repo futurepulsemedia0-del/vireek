@@ -23,6 +23,8 @@ import {
   Download,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useBulkTable } from '@/hooks/useBulkTable';
+import { applyRowPatches } from '@/lib/bulk/engine';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call } from '@/lib/supabase';
@@ -597,6 +599,37 @@ const updateCall = useCallback(
 
   const totalPages = Math.ceil(filteredCalls.length / pageSize);
   const paginatedCalls = filteredCalls.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const bulk = useBulkTable<Call>({
+    table: 'calls',
+    rows: filteredCalls,
+    pageIds: paginatedCalls.map((c) => c.id),
+    noun: { singular: 'call', plural: 'calls' },
+    getLabel: (c) => `${c.caller_name || 'Unknown'} (${c.caller_phone ?? 'no number'})`,
+    exportFilename: 'calls',
+    exportColumns: [
+      { header: 'Date', accessor: (c) => c.call_datetime },
+      { header: 'Caller', accessor: (c) => c.caller_name },
+      { header: 'Phone', accessor: (c) => c.caller_phone },
+      { header: 'Duration (s)', accessor: (c) => c.duration_seconds },
+      { header: 'Status', accessor: (c) => c.status },
+      { header: 'Sentiment', accessor: (c) => c.sentiment },
+      { header: 'Emergency', accessor: (c) => c.is_emergency },
+      { header: 'Summary', accessor: (c) => c.summary },
+      { header: 'Tags', accessor: (c) => (c.tags ?? []).join('; ') },
+    ],
+    statusField: 'status',
+    statusOptions: [
+      { value: 'new_lead', label: 'New lead' },
+      { value: 'booked', label: 'Booked' },
+      { value: 'missed', label: 'Missed' },
+      { value: 'callback_requested', label: 'Callback requested' },
+      { value: 'spam', label: 'Spam', confirm: 'Mark the selected calls as spam?' },
+    ],
+    assignField: 'assigned_to',
+    canDelete: (c) => (c.is_emergency ? 'Emergency calls are protected from bulk deletion.' : null),
+    onRowsChanged: (u) => setAllCalls((prev) => applyRowPatches(prev, u)),
+    onRowsRemoved: (ids) => setAllCalls((prev) => prev.filter((c) => !ids.includes(c.id))),
+  });
 
   // Reset page when filters change
   useEffect(() => {
@@ -901,6 +934,7 @@ const updateCall = useCallback(
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border bg-bg-tertiary/50">
+                    <th className="w-10 px-4 py-3">{bulk.headerCheckbox()}</th>
                     <th className="px-4 py-3 text-left">
                       <button
                         type="button"
@@ -961,6 +995,7 @@ const updateCall = useCallback(
                           newlyArrivedId === call.id ? 'bg-accent/5' : ''
                         }`}
                       >
+                        <td className="w-10 px-4 py-3">{bulk.rowCheckbox(call.id, call.caller_name || 'Unknown caller')}</td>
                         <td className="px-4 py-3 text-sm text-text-secondary whitespace-nowrap">
                           {formatDateTime(call.call_datetime)}
                         </td>
