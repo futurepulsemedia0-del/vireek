@@ -91,6 +91,7 @@ const FOOTER_COLUMNS = [
       { label: 'Revenue Calculator', href: '/calculator' },
       { label: 'Book a Demo', href: '/demo' },
       { label: 'Security', href: '/security' },
+      { label: 'Security Whitepaper', href: '/security/whitepaper' },
       { label: 'Enterprise', href: '/enterprise' },
       { label: 'Switch Guides', href: '/switch' },
       { label: 'Services', href: '/services' },
