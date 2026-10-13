@@ -106,6 +106,7 @@ const FOOTER_COLUMNS = [
       { label: 'Stripe', href: '/integrations/stripe' },
       { label: 'Zapier', href: '/integrations/zapier' },
       { label: 'Trust Center', href: '/trust' },
+      { label: 'Compliance Status', href: '/trust/compliance' },
     ],
   },
   {
