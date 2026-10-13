@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CalendarClock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
+import { validateBookingPromo, promoReasonMessage, type BookingPromoResult } from '@/lib/promoCodes';
 import { Footer } from '@/components/Footer';
 import { fetchBookingBusiness, fetchBookedWindow, submitPublicBooking, generateAvailableSlots, BookingBusinessInfo } from '@/lib/onlineBooking';
 
@@ -16,7 +17,6 @@ export function BookingPage() {
   const embed = searchParams.get('embed') === '1';
   const channel = searchParams.get('src') || 'direct_link';
   const refCode = searchParams.get('ref') || undefined;
-
   const [business, setBusiness] = useState<BookingBusinessInfo | null | undefined>(undefined);
   const [slots, setSlots] = useState<Date[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
@@ -28,6 +28,9 @@ export function BookingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [promoInput, setPromoInput] = useState('');
+  const [promo, setPromo] = useState<BookingPromoResult | null>(null);
+  const [promoChecking, setPromoChecking] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -45,6 +48,12 @@ export function BookingPage() {
   }, [slug]);
 
   const canSubmit = useMemo(() => Boolean(selectedSlot && name.trim().length > 1), [selectedSlot, name]);
+  const checkPromo = async () => {
+    if (!slug || !promoInput.trim()) return;
+    setPromoChecking(true);
+    setPromo(await validateBookingPromo({ slug, code: promoInput, service, phone, email }));
+    setPromoChecking(false);
+  };
 
   const handleSubmit = async () => {
     if (!slug || !selectedSlot) return;
@@ -108,6 +117,22 @@ export function BookingPage() {
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary" />
               <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" type="tel" className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary" />
               <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (optional)" type="email" className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary" />
+              <div>
+  <div className="flex gap-2">
+    <input value={promoInput} onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setPromo(null); }}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void checkPromo(); } }}
+      placeholder="Promo code (optional)" aria-label="Promo code" autoCapitalize="characters" autoComplete="off"
+      className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary" />
+    <button type="button" disabled={promoChecking || !promoInput.trim()} onClick={checkPromo}
+      className="focus-ring shrink-0 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-text-primary disabled:opacity-50">
+      {promoChecking ? 'Checking…' : 'Apply'}
+    </button>
+  </div>
+  <div aria-live="polite" className="mt-1.5 min-h-[1rem] text-xs">
+    {promo?.valid && <p className="flex items-center gap-1 text-success-500"><Tag size={12} aria-hidden /> {promo.code} applied — {promo.label}{promo.estimated_discount_cents ? ` (about $${(promo.estimated_discount_cents / 100).toFixed(2)} off)` : ''}. Final pricing is confirmed on your estimate.</p>}
+    {promo && !promo.valid && <p className="text-danger">{promoReasonMessage(promo.reason)}</p>}
+  </div>
+</div>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything we should know? (optional)" rows={2} className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary" />
               <button type="button" disabled={!canSubmit || submitting} onClick={handleSubmit} className="focus-ring w-full rounded-xl bg-cta px-4 py-2.5 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50">
                 {submitting ? 'Booking…' : `Confirm ${formatSlot(selectedSlot)}`}
