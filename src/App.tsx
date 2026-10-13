@@ -383,6 +383,7 @@ const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ defa
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
+const ServerErrorPage = lazy(() => import('@/pages/ServerErrorPage').then((m) => ({ default: m.ServerErrorPage })));
 const BadgePage = lazy(() => import('@/pages/BadgePage').then((m) => ({ default: m.BadgePage })));
 const IntegrationsHubPage = lazy(() => import('@/pages/IntegrationsHubPage').then((m) => ({ default: m.IntegrationsHubPage })));
 const IntegrationDetailPage = lazy(() => import('@/pages/IntegrationDetailPage').then((m) => ({ default: m.IntegrationDetailPage })));
@@ -500,6 +501,7 @@ function AppRoutes() {
         <Route path="/glossary" element={<GlossaryPage />} />
         <Route path="/testimonials" element={<TestimonialsPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/error" element={<ServerErrorPage />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/solutions" element={<ServicesPage />} />
         <Route path="/features" element={<FeaturesPage />} />
