@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { type LanguageCode, type TranslationKey, TRANSLATIONS, isRTL } from '@/lib/i18n';
 import i18n from '@/i18n';
+import { applyDocumentLanguage, clearUrlLanguage, resolveInitialLanguage, storeLanguage } from '@/lib/languageSync';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -209,7 +210,6 @@ const AccessibilityContext = createContext<AccessibilityContextValue | undefined
 
 const STORAGE_KEY = 'vireek-a11y-settings';
 const ONBOARD_KEY = 'vireek-a11y-onboarded';
-const LANG_KEY = 'vireek-a11y-lang';
 const RECENT_LANG_KEY = 'vireek-a11y-recent-langs';
 
 function loadSettings(): AccessibilitySettings {
@@ -227,14 +227,7 @@ function loadOnboarded(): boolean {
 }
 
 function loadLanguage(): LanguageCode {
-  try {
-    const stored = localStorage.getItem(LANG_KEY) as LanguageCode | null;
-    if (stored) return stored;
-    const browser = navigator.language.slice(0, 2) as LanguageCode;
-    const valid: LanguageCode[] = ['en','es','zh','hi','fr','de','ar','fa','ja'];
-    if (valid.includes(browser)) return browser;
-  } catch { /* noop */ }
-  return 'en';
+  return resolveInitialLanguage();
 }
 
 function loadRecentLanguages(): LanguageCode[] {
@@ -349,7 +342,8 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = useCallback((code: LanguageCode) => {
     setLanguageState(code);
-    localStorage.setItem(LANG_KEY, code);
+    storeLanguage(code);
+    clearUrlLanguage();
     setRecentLanguages((prev) => {
       const updated = [code, ...prev.filter((l) => l !== code)].slice(0, 3);
       localStorage.setItem(RECENT_LANG_KEY, JSON.stringify(updated));
@@ -381,18 +375,13 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     }
   }, [settings]);
 
-  // Apply RTL/LTR direction, and keep react-i18next (site-wide content)
-  // in sync with the same language state used by the Accessibility widget.
+    // Keep <html lang/dir> and react-i18next in sync with the single language state.
   useEffect(() => {
-    const root = document.documentElement;
-    root.setAttribute('dir', rtl ? 'rtl' : 'ltr');
-    root.setAttribute('lang', language);
-    root.classList.remove('a11y-rtl');
-
+    applyDocumentLanguage(language);
     if (i18n.language !== language) {
       void i18n.changeLanguage(language);
     }
-  }, [language, rtl]);
+  }, [language]);
 
   const score = calculateScore(settings);
   const activeProfile = detectActiveProfile(settings);
