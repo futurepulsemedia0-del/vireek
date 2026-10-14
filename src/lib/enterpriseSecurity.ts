@@ -27,6 +27,7 @@ export const ROLE_PERMISSION_LABELS: Record<keyof UserPermissions, string> = {
   can_view_all_jobs: 'View all jobs',
   can_view_audit_log: 'View audit log',
   can_manage_security: 'Manage security settings',
+  can_export_data: 'Export data',
 };
 
 export async function fetchCustomRoles(): Promise<CustomRole[]> {
