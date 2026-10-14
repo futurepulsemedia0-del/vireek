@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
+import { Link } from 'react-router-dom';
 import type { Job } from '@/lib/supabase';
 import {
   EVIDENCE_STAGES,
@@ -818,7 +819,12 @@ export function JobEvidenceChainPanel({ job, defaultExpanded = false }: { job: J
           Missing: {blocking.map((g) => GAP_LABELS[g.key] ?? g.key).join(' · ')}
         </p>
       )}
-
+      <Link
+        to={`/dashboard/outcome-clearinghouse?job=${job.id}`}
+        className="focus-ring mt-2 inline-block text-xs font-medium text-cta hover:underline"
+      >
+        Outcome Clearinghouse →
+      </Link>
       {expanded && (
         <div className="mt-3 space-y-4 border-t border-border/60 pt-3">
           {/* Stage rail */}
