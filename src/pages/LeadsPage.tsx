@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { SortSelect, type SortOption } from '@/components/SortSelect';
 import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
+import { CustomFieldsPanel, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
+import { useCustomFieldDefs, useCustomDataSync } from '@/lib/customFieldsApi';
+import { matchesCustomFilters, type CustomFilters } from '@/lib/customFields';
 import {
   Phone,
   ArrowLeft,
@@ -405,7 +408,12 @@ export function LeadsPage() {
       }
     },
   });
-
+   const { defs: cfDefs } = useCustomFieldDefs('lead');
+   const [cfFilters, setCfFilters] = useState<CustomFilters>({});
+   useCustomDataSync('lead', (id, data) => {
+     setAllLeads((prev) => prev.map((l) => (l.id === id ? { ...l, custom_data: data } : l)));
+     setSelectedLead((prev) => (prev && prev.id === id ? { ...prev, custom_data: data } : prev));
+   });
   const filteredLeads = useMemo(() => {
     const q = search.trim().toLowerCase();
     const base = !q
