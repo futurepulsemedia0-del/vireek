@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ExportMenu } from '@/components/exports/ExportMenu';
 import {
   Search,
   LayoutDashboard,
@@ -35,6 +36,7 @@ const PAGES: StaticPage[] = [
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+{ label: 'Exports', href: '/dashboard/exports', icon: FolderDown, keywords: 'export csv excel xlsx pdf download' },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, keywords: 'settings' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
