@@ -134,6 +134,7 @@ export interface Customer {
   last_contacted_at: string | null;
   created_at: string;
   updated_at: string;
+  custom_data?: Record<string, unknown> | null;
 }
 
 export interface CommercialContract {
@@ -253,6 +254,7 @@ export interface EquipmentMaintenanceAlert {
   created_at: string;
 }
 export interface Lead {
+  created_at: string;
   id: string;
   user_id: string;
   call_id: string | null;
