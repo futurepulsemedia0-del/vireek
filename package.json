@@ -14,6 +14,7 @@
     "docs:inventory": "node scripts/gen-docs-inventory.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "sitemap:help": "node scripts/generate-help-sitemap.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "vitest run",
