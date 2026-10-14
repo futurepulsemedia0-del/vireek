@@ -285,6 +285,7 @@ const EmergencyOperationsPage = lazy(() => import('@/pages/EmergencyOperationsPa
 const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m) => ({ default: m.ProfitabilityPage })));
 const EconomicAutopilotPage = lazy(() => import('@/pages/EconomicAutopilotPage').then((m) => ({ default: m.EconomicAutopilotPage })));
 const TeamPage = lazy(() => import('@/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
+const TechnicianDetailPage = lazy(() => import('@/pages/TechnicianDetailPage').then((m) => ({ default: m.TechnicianDetailPage })));
 const BillingPage = lazy(() => import('@/pages/BillingPage').then((m) => ({ default: m.BillingPage })));
 const BillingPlansPage = lazy(() => import('@/pages/BillingPlansPage').then((m) => ({ default: m.BillingPlansPage })));
 const CancelSubscriptionPage = lazy(() => import('@/pages/CancelSubscriptionPage').then((m) => ({ default: m.CancelSubscriptionPage })));
@@ -2370,6 +2371,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TelematicsOSPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/team/:id"
+          element={
+            <ProtectedRoute>
+              <TechnicianDetailPage />
             </ProtectedRoute>
           }
         />
