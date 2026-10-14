@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ToastProvider } from '@/contexts/ToastContext';
+import { UndoProvider } from '@/contexts/UndoContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { CurrencyProvider } from '@/contexts/CurrencyContext';
 import { ExperimentProvider } from '@/contexts/ExperimentContext';
@@ -42,6 +43,13 @@ createRoot(document.getElementById('root')!).render(
           <ExperimentProvider>
             <CurrencyProvider>
               <ToastProvider>
+<ToastProvider>
+  <UndoProvider>
+    <ConnectivityProvider>
+      {/* ...همان چیزی که الان هست، بدون تغییر... */}
+    </ConnectivityProvider>
+  </UndoProvider>
+</ToastProvider>
                 <ConnectivityProvider>
                   <AuthProvider>
                     <ErrorBoundary>
