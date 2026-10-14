@@ -19,6 +19,7 @@ export interface UserPermissions {
   can_view_all_jobs: boolean;
   can_view_audit_log: boolean;
   can_manage_security: boolean;
+  can_export_data: boolean;
 }
 
 interface AuthContextValue {
@@ -42,6 +43,7 @@ const OWNER_PERMISSIONS: UserPermissions = {
   can_view_all_jobs: true,
   can_view_audit_log: true,
   can_manage_security: true,
+  can_export_data: true,
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -179,6 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     can_view_all_jobs: false,
     can_view_audit_log: false,
     can_manage_security: false,
+    can_export_data: false,
   };
   // A custom role (Enterprise RBAC) overrides the base team_members
   // permission flags wherever it defines a value.
