@@ -243,6 +243,7 @@ const UncertaintyMapPage = lazy(() => import('@/pages/UncertaintyMapPage').then(
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const EventPredictionMeshPage = lazy(() => import('@/pages/EventPredictionMeshPage').then((m) => ({ default: m.EventPredictionMeshPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
+const TrashPage = lazy(() => import('@/pages/TrashPage').then((m) => ({ default: m.TrashPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
 const WorkforceEquilibriumPage = lazy(() => import('@/pages/WorkforceEquilibriumPage').then((m) => ({ default: m.WorkforceEquilibriumPage })));
@@ -2440,6 +2441,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ActivityLedgerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/trash"
+          element={
+            <ProtectedRoute>
+              <TrashPage />
             </ProtectedRoute>
           }
         />
