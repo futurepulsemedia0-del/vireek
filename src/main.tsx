@@ -11,6 +11,7 @@ import { ExperimentProvider } from '@/contexts/ExperimentContext';
 import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
 import { ConnectivityProvider } from '@/contexts/ConnectivityContext';
 import { AccessibilityWidget } from '@/components/AccessibilityWidget';
+import { LanguagePersistenceSync } from '@/components/LanguagePersistenceSync';
 import { SiteAssistant } from '@/components/SiteAssistant';
 import { LiveChatWidget } from '@/components/LiveChatWidget';
 import { ScrollToTop } from '@/components/ScrollToTop';
@@ -57,6 +58,7 @@ createRoot(document.getElementById('root')!).render(
                         <App />
                       </ConnectivityShell>
                       <AccessibilityWidget />
+                      <LanguagePersistenceSync />
                       <SiteAssistant />
                       <LiveChatWidget />
                     </ErrorBoundary>
