@@ -1191,6 +1191,7 @@ export function JobsPage() {
     },
   });
 
+  const undoable = useUndoableActions();
   const statusTargets: MoveTargetOption[] = BOARD_STAGES.map((s) => ({
     key: s.key, label: s.label, group: 'Status', target: { kind: 'status', status: s.key },
   }));
@@ -1215,7 +1216,26 @@ export function JobsPage() {
       if (selectedJob?.id === jobId) {
         setSelectedJob((prev) => (prev ? { ...prev, job_status: status } : null));
       }
-      toast(`Job moved to ${ALL_STATUSES.find((s) => s.key === status)?.label}.`, 'success');
+      const previous = allJobs.find((j) => j.id === jobId);
+      const statusLabel = ALL_STATUSES.find((s) => s.key === status)?.label;
+      if (previous) {
+        undoable.updateOne({
+          table: 'jobs',
+          row: previous,
+          patch: { job_status: status },
+          guard: { column: 'job_status', value: status },
+          noun: { singular: 'job', plural: 'jobs' },
+          message: `Job moved to ${statusLabel}.`,
+          audit: 'status_change',
+          onReverted: (b) => {
+            const prevStatus = b.job_status as JobStatus;
+            setAllJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, job_status: prevStatus } : j)));
+            setSelectedJob((prev) => (prev && prev.id === jobId ? { ...prev, job_status: prevStatus } : prev));
+          },
+        });
+      } else {
+        toast(`Job moved to ${statusLabel}.`, 'success');
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : '';
       if (isQualityGateError(message)) {
@@ -1319,14 +1339,18 @@ export function JobsPage() {
 
   const handleDelete = async () => {
     if (!selectedJob) return;
-    try {
-      await softDeleteRecords('jobs', [selectedJob.id]);
-      setAllJobs((prev) => prev.filter((j) => j.id !== selectedJob.id));
-      setSelectedJob(null);
-      toast('Job moved to trash.', 'success');
-    } catch {
-      toast('Could not delete job.', 'error');
-    }
+    const job = selectedJob;
+    await undoable.deleteOne({
+      table: 'jobs',
+      row: job,
+      noun: { singular: 'job', plural: 'jobs' },
+      label: `${job.customer_name}${job.service_type ? ` — ${job.service_type}` : ''}`,
+      onRemoved: () => {
+        setAllJobs((prev) => prev.filter((j) => j.id !== job.id));
+        setSelectedJob(null);
+      },
+      onRestored: (row) => setAllJobs((prev) => mergeRestored(prev, [row], 'created_at')),
+    });
   };
 
   const handleJobCreated = () => {
