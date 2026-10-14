@@ -610,13 +610,23 @@ export function QuotesPage() {
     fetchAll();
   };
 
+  const undoable = useUndoableActions();
   const handleSetOutcome = async (lead: Lead, outcome: 'won' | 'lost') => {
     const { error } = await supabase.from('leads').update({ stage: outcome }).eq('id', lead.id);
     if (error) {
       toast('Could not update this quote', 'error');
       return;
     }
-    toast(outcome === 'won' ? 'Marked as won' : 'Marked as lost', 'success');
+      undoable.updateOne({
+      table: 'leads',
+      row: lead,
+      patch: { stage: outcome },
+      guard: { column: 'stage', value: outcome },
+      noun: { singular: 'lead', plural: 'leads' },
+      message: outcome === 'won' ? 'Marked as won' : 'Marked as lost',
+      audit: 'status_change',
+      onReverted: () => void fetchAll(),
+    });
     fetchAll();
   };
 
