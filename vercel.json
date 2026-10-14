@@ -1,4 +1,5 @@
 {
+  "installCommand": "npm ci && npx playwright install chromium",
   "rewrites": [
     {
       "source": "/.well-known/agent-card.json",
@@ -6,7 +7,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+     "destination": "/_spa.html"
     }
   ],
   "headers": [
