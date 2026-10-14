@@ -36,6 +36,7 @@ const PAGES: StaticPage[] = [
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+{ label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, keywords: 'salesforce pipedrive zoho crm sync' },
 { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, keywords: 'fields custom properties' },
 { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, keywords: 'export csv excel xlsx pdf download' },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, keywords: 'settings' },
