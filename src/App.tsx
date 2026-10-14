@@ -160,6 +160,7 @@ const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ defa
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
+const TechnicianSchedulePage = lazy(() => import('@/pages/TechnicianSchedulePage').then((m) => ({ default: m.TechnicianSchedulePage })));
 const TruckStockPage = lazy(() => import('@/pages/TruckStockPage').then((m) => ({ default: m.TruckStockPage })));
 const TechEarningsPage = lazy(() => import('@/pages/TechEarningsPage').then((m) => ({ default: m.TechEarningsPage })));
 const TechnicianDepositsPage = lazy(() => import('@/pages/TechnicianDepositsPage').then((m) => ({ default: m.TechnicianDepositsPage })));
@@ -2046,6 +2047,14 @@ function AppRoutes() {
           element={
             <TechnicianRoute>
               <TechnicianJobBriefPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/tech/schedule"
+          element={
+            <TechnicianRoute>
+              <TechnicianSchedulePage />
             </TechnicianRoute>
           }
         />
