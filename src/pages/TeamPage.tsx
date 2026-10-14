@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Trash2, ShieldCheck, Mail, Check, Lock, Eye, CreditCard, Users, Settings, Wrench, Loader as Loader2, CircleUser as UserCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -754,9 +754,9 @@ export function TeamPage() {
                 {(member.member_name ?? member.member_email ?? '?')[0]?.toUpperCase()}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-text-primary">
+                <Link to={`/dashboard/team/${member.id}`} className="focus-ring rounded text-sm font-semibold text-text-primary hover:text-accent">
                   {member.member_name ?? member.member_email}
-                </p>
+                </Link>
                 <p className="text-xs text-text-secondary">{member.member_email}</p>
               </div>
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium capitalize ${ROLE_TAGS[member.role]?.color ?? ROLE_TAGS.member.color}`}>
