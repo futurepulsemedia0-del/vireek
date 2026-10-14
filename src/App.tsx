@@ -77,6 +77,8 @@ const SupplierIntelligencePage = lazy(() => import('@/pages/SupplierIntelligence
 const SupplyChainOutcomePage = lazy(() => import('@/pages/SupplyChainOutcomePage').then((m) => ({ default: m.SupplyChainOutcomePage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
 const OutcomeIntelligenceNetworkPage = lazy(() => import('@/pages/OutcomeIntelligenceNetworkPage').then((m) => ({ default: m.OutcomeIntelligenceNetworkPage })));
+const OutcomeClearinghousePage = lazy(() => import('@/pages/OutcomeClearinghousePage').then((m) => ({ default: m.OutcomeClearinghousePage })));
+const OutcomeVerifyPage = lazy(() => import('@/pages/OutcomeVerifyPage').then((m) => ({ default: m.OutcomeVerifyPage })));
 const EvidenceMarketplacePage = lazy(() => import('@/pages/EvidenceMarketplacePage').then((m) => ({ default: m.EvidenceMarketplacePage })));
 const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartnersAdminPage').then((m) => ({ default: m.EvidencePartnersAdminPage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
@@ -560,6 +562,7 @@ function AppRoutes() {
         <Route path="/portal/:token/history" element={<CustomerPortalHistoryPage />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
         <Route path="/guarantee/:token" element={<ServiceGuaranteePublicPage />} />
+        <Route path="/outcome/:token" element={<OutcomeVerifyPage />} />
         <Route path="/join/:planSlug" element={<JoinMembershipPage />} />
         <Route path="/financing/:token" element={<FinancingOfferPage />} />
         <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
@@ -1801,6 +1804,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AgentMarketplacePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/outcome-clearinghouse/:recordId?"
+          element={
+            <ProtectedRoute>
+              <OutcomeClearinghousePage />
             </ProtectedRoute>
           }
         />
