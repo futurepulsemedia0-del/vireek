@@ -212,6 +212,7 @@ const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').the
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
 const EnergyIntelligencePage = lazy(() => import('@/pages/EnergyIntelligencePage').then((m) => ({ default: m.EnergyIntelligencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
+const JobTemplatesPage = lazy(() => import('@/pages/JobTemplatesPage').then((m) => ({ default: m.JobTemplatesPage })));
 const ServiceCatalogPage = lazy(() => import('@/pages/ServiceCatalogPage').then((m) => ({ default: m.ServiceCatalogPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
@@ -2156,6 +2157,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PriceBookPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/job-templates"
+          element={
+            <ProtectedRoute>
+              <JobTemplatesPage />
             </ProtectedRoute>
           }
         />
