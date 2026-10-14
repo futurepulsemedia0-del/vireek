@@ -13,7 +13,11 @@ export type BulkAuditAction =
   | 'bulk_assign'
   | 'bulk_tag_add'
   | 'bulk_tag_remove'
-  | 'bulk_export';
+  | 'bulk_export'
+  | 'status_change'
+  | 'undo_status_change'
+  | 'undo_assign'
+  | 'undo_tags';
 
 export interface BulkAuditInput {
   action: BulkAuditAction;
