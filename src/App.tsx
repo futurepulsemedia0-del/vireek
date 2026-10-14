@@ -244,6 +244,7 @@ const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ de
 const EventPredictionMeshPage = lazy(() => import('@/pages/EventPredictionMeshPage').then((m) => ({ default: m.EventPredictionMeshPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TrashPage = lazy(() => import('@/pages/TrashPage').then((m) => ({ default: m.TrashPage })));
+const DuplicatesPage = lazy(() => import('@/pages/DuplicatesPage').then((m) => ({ default: m.DuplicatesPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
 const WorkforceEquilibriumPage = lazy(() => import('@/pages/WorkforceEquilibriumPage').then((m) => ({ default: m.WorkforceEquilibriumPage })));
@@ -2449,6 +2450,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TrashPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/duplicates"
+          element={
+            <ProtectedRoute>
+              <DuplicatesPage />
             </ProtectedRoute>
           }
         />
