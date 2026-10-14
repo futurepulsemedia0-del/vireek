@@ -207,6 +207,7 @@ const QuoteTruthEnginePage = lazy(() => import('@/pages/QuoteTruthEnginePage').t
 const OperationalTruthPage = lazy(() => import('@/pages/OperationalTruthPage').then((m) => ({ default: m.OperationalTruthPage })));
 const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').then((m) => ({ default: m.IncentiveEnginePage })));
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
+const EnergyIntelligencePage = lazy(() => import('@/pages/EnergyIntelligencePage').then((m) => ({ default: m.EnergyIntelligencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const ServiceCatalogPage = lazy(() => import('@/pages/ServiceCatalogPage').then((m) => ({ default: m.ServiceCatalogPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
@@ -2412,6 +2413,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <RebateIntelligencePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/energy-intelligence"
+          element={
+            <ProtectedRoute>
+              <EnergyIntelligencePage />
             </ProtectedRoute>
           }
         />
