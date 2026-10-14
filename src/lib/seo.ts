@@ -67,12 +67,20 @@ function upsertLink(rel: string, href: string): () => void {
   };
 }
 
+let prerenderedHeadCleared = false;
+/** Prerendered hreflang/og-alternate/JSON-LD tags are replaced by the live ones exactly once. */
+function clearPrerenderedHead() {
+  if (prerenderedHeadCleared) return;
+  prerenderedHeadCleared = true;
+  document.head.querySelectorAll('[data-ssg]').forEach((el) => el.remove());
+}
 /** Page-specific SEO metadata for the SPA. Restores previous values on unmount. */
 export function useSEO({ title, description, canonical, type = 'website', jsonLd }: SEOConfig) {
   const { language } = useAccessibility();
 
   useEffect(() => {
     const previousTitle = document.title;
+    clearPrerenderedHead();
     const currentLocale = OG_LOCALE_MAP[language] ?? 'en_US';
     const pageUrl = localizedUrl(canonical, language);
     
@@ -130,7 +138,7 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
       document.head.appendChild(script);
       return script;
     });
-
+    [...alternateEls, ...hreflangEls, ...jsonLdEls].forEach((el) => el.setAttribute('data-seo-managed', '1'));
     return () => {
       document.title = previousTitle;
       cleanups.forEach((fn) => fn());
