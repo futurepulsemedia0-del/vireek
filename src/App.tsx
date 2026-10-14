@@ -391,6 +391,7 @@ const SystemRequirementsPage = lazy(() => import('@/pages/SystemRequirementsPage
 const MaintenancePage = lazy(() => import('@/pages/MaintenancePage').then((m) => ({ default: m.MaintenancePage })));
 const CustomerDetailPage = lazy(() => import('@/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
+  const CustomFieldsPage = lazy(() => import('@/pages/CustomFieldsPage').then((m) => ({ default: m.CustomFieldsPage })));
 const ExportsPage = lazy(() => import('@/pages/ExportsPage').then((m) => ({ default: m.ExportsPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const SecuritySettingsPage = lazy(() => import('@/pages/SecuritySettingsPage').then((m) => ({ default: m.SecuritySettingsPage })));
@@ -685,6 +686,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+  <Route
+    path="/dashboard/custom-fields"
+    element={
+      <ProtectedRoute>
+        <CustomFieldsPage />
+      </ProtectedRoute>
+    }
+  />
   <Route
     path="/dashboard/exports"
     element={
