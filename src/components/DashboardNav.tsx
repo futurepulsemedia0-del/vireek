@@ -365,7 +365,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Counterfactual Reality Engine', href: '/dashboard/reality-engine', icon: Route },
   { label: 'Causal Disruption Chains', href: '/dashboard/causal-chains', icon: Workflow },
   { label: 'Revenue Causality Graph', href: '/dashboard/revenue-causality', icon: Network, requiresPermission: 'can_view_billing' },
-  { label: 'Invoicing', href: '/dashboard/invoicing', icon: Receipt },
+  { label: 'Invoicing', href: '/dashboard/invoicing', icon: Receipt, requiresPermission: 'can_view_billing' },
   { label: 'Sales Tax', href: '/dashboard/tax', icon: Percent, requiresPermission: 'can_view_billing' },
   { label: 'Receivables Intelligence', href: '/dashboard/receivables', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Community', href: '/dashboard/community', icon: MessageCircle },
