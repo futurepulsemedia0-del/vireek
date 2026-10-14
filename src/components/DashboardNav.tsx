@@ -277,6 +277,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: MessageSquareWarning },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
+  { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'Form Builder', href: '/dashboard/form-builder', icon: ClipboardList, requiresPermission: 'can_edit_business_profile' },
