@@ -62,6 +62,7 @@ export interface Profile {
   notify_job_update?: boolean;
   notify_new_lead?: boolean;
   notify_missed_call?: boolean;
+  preferred_language?: string | null;
   created_at: string;
 }
 
