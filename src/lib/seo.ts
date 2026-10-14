@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { LANGUAGES, type LanguageCode } from '@/lib/i18n';
+import type { LanguageCode } from '@/lib/i18n';
+import { buildHreflangLinks, localizedUrl } from '@/lib/languageSync';
 
 export interface SEOConfig {
   title: string;
@@ -73,7 +74,8 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
   useEffect(() => {
     const previousTitle = document.title;
     const currentLocale = OG_LOCALE_MAP[language] ?? 'en_US';
-
+    const pageUrl = localizedUrl(canonical, language);
+    
     document.title = title;
 
     const cleanups = [
