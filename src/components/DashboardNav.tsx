@@ -282,6 +282,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Home Passports', href: '/dashboard/home-passports', icon: Home },
   { label: 'OEM Intelligence', href: '/dashboard/oem-intelligence', icon: Factory },
   { label: 'OEM Intelligence Graph', href: '/dashboard/oem-graph', icon: Network },
+  { label: 'Universal Identity', href: '/dashboard/identity-graph', icon: Fingerprint },
   { label: 'Field Intelligence', href: '/dashboard/field-intelligence', icon: Brain },
   { label: 'Home Health', href: '/dashboard/home-health', icon: Activity },
   { label: 'Home Service Passport', href: '/dashboard/home-passport', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
