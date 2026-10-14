@@ -8,7 +8,6 @@ import { BulkCheckbox } from '@/components/bulk/BulkCheckbox';
 import { useBulkSelection } from '@/hooks/useBulkSelection';
 import { exportToCsv, type CsvColumn } from '@/lib/csvExport';
 import {
-  bulkDelete,
   bulkTags,
   bulkUpdate,
   summarize,
@@ -18,6 +17,20 @@ import {
   type RowUpdate,
 } from '@/lib/bulk/engine';
 import { logBulkAudit, type AuditRpc, type BulkAuditAction } from '@/lib/bulk/audit';
+import { useUndo } from '@/contexts/UndoContext';
+import {
+  planRevert,
+  restoreSoftDeleted,
+  revertUpdates,
+  snapshotRows,
+  softDeleteRecords,
+  summarizeRestore,
+  summarizeRevert,
+  type RevertClient,
+  type RevertGuard,
+  type RpcFn,
+  type UndoOutcome,
+} from '@/lib/undo/undoEngine';
 
 type BulkRow = { id: string; tags?: string[] | null };
 
@@ -47,16 +60,21 @@ export interface BulkTableConfig<T extends BulkRow> {
   pageIds?: string[];
   onRowsChanged: (updates: RowUpdate[]) => void;
   onRowsRemoved: (ids: string[]) => void;
+  /** Undo of a delete: put these rows back into the page's list (see `mergeRestored`). */
+  onRowsRestored: (rows: T[]) => void;
 }
 
 type Pending = { kind: 'delete' } | { kind: 'status'; option: BulkStatusOption } | null;
 
 const client = supabase as unknown as BulkClient;
 const rpc: AuditRpc = (fn, args) => supabase.rpc(fn, args) as unknown as ReturnType<AuditRpc>;
+const rpcFn: RpcFn = (fn, args) => supabase.rpc(fn, args) as unknown as ReturnType<RpcFn>;
+const revertClient = supabase as unknown as RevertClient;
 
 export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { offerUndo } = useUndo();
   const selection = useBulkSelection(config.rows);
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<Pending>(null);
@@ -73,17 +91,49 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
     [toast, user?.id],
   );
 
+  /**
+   * `undo` (optional) turns the summary toast into a 10-second Undo toast.
+   * `audited` = the server already wrote the audit row (soft delete does), so don't double-log.
+   */
   const finish = useCallback(
-    async (result: BulkResult, verb: string, action: BulkAuditAction, metadata: Record<string, unknown>) => {
+    async (
+      result: BulkResult,
+      verb: string,
+      action: BulkAuditAction,
+      metadata: Record<string, unknown>,
+      undo?: () => Promise<UndoOutcome>,
+      audited = false,
+    ) => {
       const c = cfg.current;
-      if (result.succeeded.length) {
+      if (result.succeeded.length && !audited) {
         await audit(action, result.succeeded, { ...metadata, requested: result.requested, failed: result.failed.length, skipped: result.skipped.length });
       }
       selection.remove(result.succeeded);
       const ok = result.succeeded.length > 0;
-      toast(summarize(result, verb, c.noun), ok && !result.failed.length ? 'success' : 'error');
+      const clean = ok && !result.failed.length;
+      const message = summarize(result, verb, c.noun);
+      if (undo && ok) offerUndo({ message, undo, tone: clean ? 'success' : 'error' });
+      else toast(message, clean ? 'success' : 'error');
     },
-    [audit, selection, toast],
+    [audit, offerUndo, selection, toast],
+  );
+
+  /** Builds the inverse for an update: snapshot the rows NOW, revert later (only rows still holding our value). */
+  const makeRevert = useCallback(
+    (rows: T[], ids: string[], keys: string[], guard: RevertGuard | undefined, action: BulkAuditAction) => {
+      const done = new Set(ids);
+      const snaps = snapshotRows(rows.filter((r) => done.has(r.id)), keys);
+      const groups = planRevert(snaps);
+      const beforeById = new Map(snaps.map((s) => [s.id, s.before]));
+      return async (): Promise<UndoOutcome> => {
+        const c = cfg.current;
+        const r = await revertUpdates(revertClient, c.table, groups, guard);
+        c.onRowsChanged(r.reverted.map((id) => ({ id, patch: beforeById.get(id) ?? {} })));
+        if (r.reverted.length) await audit(action, r.reverted, { conflicts: r.conflicts.length, failed: r.failed.length });
+        return summarizeRevert(r, c.noun);
+      };
+    },
+    [audit],
   );
 
   const guarded = useCallback(async (fn: () => Promise<void>) => {
@@ -109,9 +159,10 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
           guard: c.beforeStatus ? (id) => c.beforeStatus!(byId.get(id) as T, option) : undefined,
         });
         c.onRowsChanged(result.succeeded.map((id) => ({ id, patch })));
-        await finish(result, 'Updated', 'bulk_status_change', { field: c.statusField, to: option.value });
+        const undo = makeRevert(rows, result.succeeded, Object.keys(patch), { column: c.statusField, value: option.value }, 'undo_status_change');
+        await finish(result, 'Updated', 'bulk_status_change', { field: c.statusField, to: option.value }, undo);
       }),
-    [finish, guarded, selection.selectedRows],
+    [finish, guarded, makeRevert, selection.selectedRows],
   );
 
   const runAssign = useCallback(
@@ -123,9 +174,10 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
         const patch = { [c.assignField]: assigneeId };
         const result = await bulkUpdate(client, c.table, rows.map((r) => r.id), patch);
         c.onRowsChanged(result.succeeded.map((id) => ({ id, patch })));
-        await finish(result, assigneeId ? 'Assigned' : 'Unassigned', 'bulk_assign', { field: c.assignField, to: assigneeId });
+        const undo = makeRevert(rows, result.succeeded, [c.assignField], { column: c.assignField, value: assigneeId }, 'undo_assign');
+        await finish(result, assigneeId ? 'Assigned' : 'Unassigned', 'bulk_assign', { field: c.assignField, to: assigneeId }, undo);
       }),
-    [finish, guarded, selection.selectedRows],
+    [finish, guarded, makeRevert, selection.selectedRows],
   );
 
   const runTags = useCallback(
@@ -134,9 +186,10 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
         const c = cfg.current;
         const result = await bulkTags(client, c.table, selection.selectedRows, mode, tags);
         c.onRowsChanged(result.updates);
-        await finish(result, mode === 'add' ? 'Tagged' : 'Untagged', mode === 'add' ? 'bulk_tag_add' : 'bulk_tag_remove', { tags });
+        const undo = makeRevert(selection.selectedRows, result.succeeded, ['tags'], undefined, 'undo_tags');
+        await finish(result, mode === 'add' ? 'Tagged' : 'Untagged', mode === 'add' ? 'bulk_tag_add' : 'bulk_tag_remove', { tags }, undo);
       }),
-    [finish, guarded, selection.selectedRows],
+    [finish, guarded, makeRevert, selection.selectedRows],
   );
 
   const runDelete = useCallback(
@@ -150,13 +203,22 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
           if (reason) protectedRows.push({ id: r.id, reason });
           return !reason;
         });
-        const result = await bulkDelete(client, c.table, deletable.map((r) => r.id));
+        const result = await softDeleteRecords(rpcFn, c.table, deletable.map((r) => ({ id: r.id, label: c.getLabel(r) })));
         result.skipped = protectedRows;
         result.requested = rows.length;
         c.onRowsRemoved(result.succeeded);
         const gone = new Set(result.succeeded);
-        const labels = deletable.filter((r) => gone.has(r.id)).slice(0, 50).map((r) => c.getLabel(r));
-        await finish(result, 'Deleted', 'bulk_delete', { labels });
+        const removed = deletable.filter((r) => gone.has(r.id));
+        const undo = result.undoIds.length
+          ? async (): Promise<UndoOutcome> => {
+              const r = await restoreSoftDeleted(rpcFn, result.undoIds);
+              const back = new Set(r.restored);
+              cfg.current.onRowsRestored(removed.filter((x) => back.has(x.id)));
+              return summarizeRestore(r, cfg.current.noun);
+            }
+          : undefined;
+        // The server already wrote the audit row (with labels + undo id) — don't log twice.
+        await finish(result, 'Deleted', 'bulk_delete', {}, undo, true);
       }),
     [finish, guarded, selection.selectedRows],
   );
@@ -202,7 +264,7 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
       return {
         title: `Delete ${count} ${label}?`,
         description:
-          `This permanently removes the selected ${label}. It cannot be undone and is recorded in your audit log.` +
+          `This removes the selected ${label} from your workspace and records it in your audit log. You'll have 10 seconds to undo.` +
           (protectedCount ? ` ${protectedCount} protected record${protectedCount === 1 ? '' : 's'} will be skipped.` : ''),
         confirmPhrase: count >= 10 ? 'delete' : undefined,
         confirmLabel: `Yes, delete ${count} ${label}`,
