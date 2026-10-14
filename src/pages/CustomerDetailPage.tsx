@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -32,6 +32,7 @@ import { JobEquipmentLinker, type LinkedEquipment } from '@/components/customers
 import { EquipmentPassportChip } from '@/components/passport/EquipmentPassportChip';
 import { HomeHealthCard } from '@/components/customers/HomeHealthCard';
 import { PropertyVisionCard } from '@/components/customers/PropertyVisionCard';
+import { CustomerTimeline } from '@/components/customers/CustomerTimeline';
 
 // ============================================================
 // TYPES — narrow, query-shaped (not the full app-wide Job/Call
@@ -520,7 +521,7 @@ export function CustomerDetailPage() {
             </div>
           )}
         </div>
-
+        {id && <CustomerTimeline customerId={id} phone={customer.phone} email={customer.email} />}
         {/* Jobs + Calls timelines */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div>
