@@ -22,6 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Customer } from '@/lib/supabase';
+import { softDeleteRecords } from '@/lib/trash';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { TagEditor } from '@/components/TagEditor';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -424,12 +425,13 @@ export function CustomersPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    const { error } = await supabase.from('customers').delete().eq('id', deleteTarget.id);
-    if (error) {
+    try {
+      await softDeleteRecords('customers', [deleteTarget.id]);
+    } catch {
       toast('Could not delete this customer.', 'error');
       return;
     }
-    toast('Customer deleted.', 'success');
+    toast('Customer moved to trash.', 'success');
     setDeleteTarget(null);
     setDrawerOpen(false);
     loadData();
@@ -607,7 +609,7 @@ export function CustomersPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         title="Delete customer?"
-        description={`This removes ${deleteTarget?.name ?? 'this customer'} permanently. Linked calls, leads, and jobs are kept — only the customer record is removed.`}
+description={`This moves ${deleteTarget?.name ?? 'this customer'} to the trash, where you can restore it for 30 days. Linked calls, leads, and jobs are kept.`}
         confirmLabel="Yes, delete this customer"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
