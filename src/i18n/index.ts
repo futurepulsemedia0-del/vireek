@@ -25,22 +25,12 @@ import deCommon from '@/locales/de/common.json';
 import arCommon from '@/locales/ar/common.json';
 import faCommon from '@/locales/fa/common.json';
 import jaCommon from '@/locales/ja/common.json';
+import { resolveInitialLanguage } from '@/lib/languageSync';
 import enDashboard from '@/locales/en/dashboard.json';
 import { registerLazyLocales } from '@/i18n/lazyLocales';
 
-const LANG_KEY = 'vireek-a11y-lang';
-
 function getInitialLanguage(): string {
-  try {
-    const stored = localStorage.getItem(LANG_KEY);
-    if (stored) return stored;
-    const browser = navigator.language.slice(0, 2);
-    const supported = ['en', 'es', 'zh', 'hi', 'fr', 'de', 'ar', 'fa', 'ja'];
-    if (supported.includes(browser)) return browser;
-  } catch {
-    /* noop — SSR / privacy mode */
-  }
-  return 'en';
+  return resolveInitialLanguage();
 }
 
 void i18n.use(initReactI18next).init({
