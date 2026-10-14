@@ -10,7 +10,7 @@ import { calculateQuoteTotals, formatCents, type QuoteLineItem } from '@/lib/inv
 import { SalesTaxPanel } from '@/components/tax/SalesTaxPanel';
 import { TaxClassSelect } from '@/components/tax/TaxClassSelect';
 import { emptyTaxSelection, getDocumentTotals, taxColumnsFromSelection } from '@/lib/salesTax';
-import { createInvoice, deleteInvoice, fetchInvoices, getInvoiceLink, isOverdue, markInvoicePaid, markInvoiceSent, type Invoice, type InvoiceStatus } from '@/lib/invoices';
+import { createInvoice, fetchInvoices, getInvoiceLink, isOverdue, markInvoicePaid, markInvoiceSent, type Invoice, type InvoiceStatus } from '@/lib/invoices';
 import { useBulkTable } from '@/hooks/useBulkTable';
 import { applyRowPatches } from '@/lib/bulk/engine';
 import { PromoCodePanel } from '@/components/promos/PromoCodePanel';
@@ -200,12 +200,22 @@ export function InvoicesPage() {
     setSort(coerceSort(extras.sort, INVOICE_SORT_OPTIONS.map((o) => o.key), null));
   };
 
+  const undoable = useUndoableActions();
   const send = async (inv: Invoice) => {
     setBusyId(inv.id);
     try {
       await markInvoiceSent(inv.id);
       await navigator.clipboard.writeText(getInvoiceLink(inv.invoice_token));
-      toast('Marked as sent — link copied to clipboard.', 'success');
+      undoable.updateOne({
+        table: 'invoices',
+        row: inv,
+        patch: { status: 'sent', sent_at: new Date().toISOString() },
+        guard: { column: 'status', value: 'sent' },
+        noun: { singular: 'invoice', plural: 'invoices' },
+        message: 'Marked as sent — link copied to clipboard.',
+        audit: 'status_change',
+        onReverted: () => void load(),
+      });
       await load();
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Could not send this invoice.', 'error');
@@ -218,7 +228,16 @@ export function InvoicesPage() {
     setBusyId(inv.id);
     try {
       await markInvoicePaid(inv.id, 'manual');
-      toast('Marked as paid.', 'success');
+      undoable.updateOne({
+        table: 'invoices',
+        row: inv,
+        patch: { status: 'paid', paid_at: new Date().toISOString(), payment_method: 'manual' },
+        guard: { column: 'status', value: 'paid' },
+        noun: { singular: 'invoice', plural: 'invoices' },
+        message: 'Marked as paid.',
+        audit: 'status_change',
+        onReverted: () => void load(),
+      });
       await load();
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Could not update this invoice.', 'error');
@@ -228,6 +247,17 @@ export function InvoicesPage() {
   };
 
   const remove = async (id: string) => {
+    const inv = invoices.find((i) => i.id === id);
+    if (!inv) return;
+    await undoable.deleteOne({
+      table: 'invoices',
+      row: inv,
+      noun: { singular: 'invoice', plural: 'invoices' },
+      label: inv.invoice_number ?? inv.customer_name,
+      onRemoved: () => void load(),
+      onRestored: () => void load(),
+    });
+  };
     try {
       await deleteInvoice(id);
       toast('Invoice deleted.', 'success');
