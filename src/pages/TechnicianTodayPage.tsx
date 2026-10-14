@@ -31,12 +31,20 @@ export function TechnicianTodayPage() {
             <h1 className="text-lg font-semibold text-text-primary">Today</h1>
             <p className="text-sm text-text-secondary">{jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled</p>
           </div>
-          <Link
-            to="/tech/truck-stock"
-            className="flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
-          >
-            <Truck className="h-4 w-4" aria-hidden /> Truck stock
-          </Link>
+          <div className="flex gap-2">
+  <Link
+    to="/tech/earnings"
+    className="flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
+  >
+    <Wallet className="h-4 w-4" aria-hidden /> Earnings
+  </Link>
+  <Link
+    to="/tech/truck-stock"
+    className="flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
+  >
+    <Truck className="h-4 w-4" aria-hidden /> Truck stock
+  </Link>
+</div>
         </div>
         <p className="text-sm text-text-secondary">{jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled</p>
       </header>
