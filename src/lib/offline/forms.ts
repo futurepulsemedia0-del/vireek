@@ -5,17 +5,10 @@
 
 import { supabase } from '@/lib/supabase';
 import { getMeta, notifyData, setMeta } from './db';
+import { normalizeField } from './formSchema';
+import type { FieldType, FormField } from './formSchema';
+export type { FieldType, FormField };
 
-export type FieldType = 'text' | 'textarea' | 'number' | 'checkbox' | 'select' | 'yes_no';
-
-export interface FormField {
-  id: string;
-  type: FieldType;
-  label: string;
-  required?: boolean;
-  options?: string[];
-  help?: string;
-}
 
 export interface FormTemplate {
   id: string;
@@ -32,7 +25,6 @@ export type FormValues = Record<string, FormValue>;
 export type FormAnswers = Record<string, string | number | boolean>;
 
 const META_KEY = 'form_templates';
-const FIELD_TYPES: FieldType[] = ['text', 'textarea', 'number', 'checkbox', 'select', 'yes_no'];
 
 export const BUILTIN_TEMPLATES: FormTemplate[] = [
   {
@@ -71,22 +63,6 @@ export const BUILTIN_TEMPLATES: FormTemplate[] = [
 // ------------------------------------------------------------
 // Parsing (server data is untrusted until normalized)
 // ------------------------------------------------------------
-
-function normalizeField(raw: unknown): FormField | null {
-  if (!raw || typeof raw !== 'object') return null;
-  const f = raw as Record<string, unknown>;
-  if (typeof f.id !== 'string' || typeof f.label !== 'string' || !FIELD_TYPES.includes(f.type as FieldType)) return null;
-  const options = Array.isArray(f.options) ? f.options.filter((o): o is string => typeof o === 'string') : undefined;
-  if (f.type === 'select' && (!options || options.length === 0)) return null;
-  return {
-    id: f.id,
-    type: f.type as FieldType,
-    label: f.label,
-    required: f.required === true,
-    options,
-    help: typeof f.help === 'string' ? f.help : undefined,
-  };
-}
 
 export function normalizeTemplates(raw: unknown): FormTemplate[] {
   if (!Array.isArray(raw)) return [];
