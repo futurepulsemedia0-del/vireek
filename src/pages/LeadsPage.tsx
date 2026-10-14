@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Lead, Call } from '@/lib/supabase';
+import { softDeleteRecords } from '@/lib/trash';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useBulkTable } from '@/hooks/useBulkTable';
 import { applyRowPatches } from '@/lib/bulk/engine';
@@ -547,11 +548,10 @@ export function LeadsPage() {
   const handleDelete = async () => {
     if (!selectedLead) return;
     try {
-      const { error } = await supabase.from('leads').delete().eq('id', selectedLead.id);
-      if (error) throw error;
+      await softDeleteRecords('leads', [selectedLead.id]);
       setAllLeads((prev) => prev.filter((l) => l.id !== selectedLead.id));
       setSelectedLead(null);
-      toast('Lead deleted.', 'success');
+      toast('Lead moved to trash.', 'success');
     } catch {
       toast('Could not delete lead.', 'error');
     }
