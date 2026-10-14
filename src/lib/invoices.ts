@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { softDeleteRecords } from '@/lib/trash';
 import { calculateQuoteTotals, formatCents, type QuoteLineItem } from '@/lib/quotes';
 
 export { calculateQuoteTotals, formatCents };
@@ -97,8 +98,8 @@ async function updateInvoice(id: string, patch: Record<string, unknown>): Promis
 }
 
 export async function deleteInvoice(id: string): Promise<void> {
-  const { error } = await supabase.from('invoices').delete().eq('id', id);
-  if (error) throw error;
+  // Moves to the trash (restorable for 30 days) instead of a hard delete.
+  await softDeleteRecords('invoices', [id]);
 }
 
 export async function markInvoiceSent(id: string): Promise<void> {
