@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/generate-rss.mjs && vite build && node scripts/seo/build-seo.mjs && node scripts/seo/prerender.mjs",
+    "build:app": "vite build",
+    "test:built": "vitest run -c vitest.built.config.ts",
     "lint": "eslint .",
     "lint:design": "node scripts/check-design-system.mjs",
     "sitemap:locations": "node scripts/generate-locations-sitemap.mjs",
