@@ -12,7 +12,7 @@ import {
   startVoiceRecording, type VoiceRecording,
 } from '@/lib/offline/capture';
 import { detectCapabilities, ensureTrailPermission, readTag, scanCode } from '@/lib/native/capabilities';
-import { FieldFormsCard } from '@/components/technician/FieldFormsCard';
+import { FieldFormsPanel } from '@/components/technician/FieldFormsPanel';
 import type { OutboxOp } from '@/lib/offline/db';
 import { dismissOp, enqueue, listOutboxForJob } from '@/lib/offline/outbox';
 import { MAX_EVIDENCE_PHOTOS, verifyJobEvidence, type JobEvidenceVerdict } from '@/lib/jobEvidence';
@@ -342,7 +342,7 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
         </div>
       </details>
 
-      <FieldFormsCard jobId={jobId} />
+      <FieldFormsPanel jobId={jobId} />
 
       {queued.length > 0 && (
         <ul className="space-y-1">
