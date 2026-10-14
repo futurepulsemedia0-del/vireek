@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutTemplate } from 'lucide-react';
+import { ClipboardList } from 'lucide-react';
 import {
   BarChart3,
   LayoutTemplate,
@@ -278,6 +279,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
+  { label: 'Form Builder', href: '/dashboard/form-builder', icon: ClipboardList, requiresPermission: 'can_edit_business_profile' },
   { label: 'Job Templates', href: '/dashboard/job-templates', icon: LayoutTemplate, requiresPermission: 'can_view_billing' },
   { label: 'Service Catalog', href: '/dashboard/service-catalog', icon: ClipboardList, requiresPermission: 'can_view_billing' },
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
