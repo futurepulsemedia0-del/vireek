@@ -139,6 +139,7 @@ import {
   Beaker
   Landmark,
   FileBarChart,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
@@ -411,6 +412,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Financing Center', href: '/dashboard/financing', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
+  { label: 'Trash', href: '/dashboard/trash', icon: Trash2, requiresPermission: 'can_view_billing' },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   { label: 'Help', href: '/dashboard/help', icon: LifeBuoy },
 ];
