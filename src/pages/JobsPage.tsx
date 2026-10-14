@@ -2,6 +2,9 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
+import { CustomFieldsEditor, CustomFieldsPanel, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
+import { useCustomFieldDefs, useCustomDataSync } from '@/lib/customFieldsApi';
+import { matchesCustomFilters, sanitizeCustomData, validateCustomData, type CustomData, type CustomFilters } from '@/lib/customFields';
 import { ColumnPicker } from '@/components/ColumnPicker';
 import {
   ArrowLeft,
@@ -585,6 +588,7 @@ function JobDetailPanel({
         <JobKnowledgePanel job={job} />
         <JobQualityGatePanel job={job} />
         <JobContextPanel job={job} />
+         <CustomFieldsPanel entity="job" recordId={job.id} value={job.custom_data as CustomData | undefined} />
         <AdaptiveDiagnosticJobPanel job={job} />
         <RemoteResolutionJobPanel job={job} />
         <NoSurpriseJobPanel job={job} />
@@ -673,11 +677,19 @@ function CreateJobModal({
   const [customerType, setCustomerType] = useState<'residential' | 'commercial'>('residential');
   const [slaResponseHours, setSlaResponseHours] = useState('');
   const [contractReference, setContractReference] = useState('');
+   const { defs: cfDefs } = useCustomFieldDefs('job');
+   const [customData, setCustomData] = useState<CustomData>({});
+   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName.trim()) return;
+     const cfErrors = validateCustomData(cfDefs, customData);
+   if (cfErrors.length) {
+     toast(cfErrors[0], 'error');
+     return;
+   }
     setSubmitting(true);
     try {
       const insert: Record<string, unknown> = {
@@ -692,6 +704,7 @@ function CreateJobModal({
         sla_response_hours: customerType === 'commercial' && slaResponseHours ? Number(slaResponseHours) : null,
         contract_reference: customerType === 'commercial' && contractReference.trim() ? contractReference.trim() : null,
       };
+      if (cfDefs.length) insert.custom_data = sanitizeCustomData(cfDefs, customData);
       if (prefill?.lead_id) insert.lead_id = prefill.lead_id;
       if (prefill?.call_id) insert.call_id = prefill.call_id;
       if (scheduledDate) insert.scheduled_datetime = new Date(scheduledDate).toISOString();
@@ -853,6 +866,7 @@ function CreateJobModal({
               </div>
             </div>
           )}
+             <CustomFieldsEditor defs={cfDefs} value={customData} onChange={setCustomData} />
           <div className="flex items-center gap-3 pt-2">
             <button
               type="submit"
@@ -1028,8 +1042,14 @@ export function JobsPage() {
     return m;
   }, [technicians]);
 
+   const { defs: cfDefs } = useCustomFieldDefs('job');
+   const [cfFilters, setCfFilters] = useState<CustomFilters>({});
+   useCustomDataSync('job', (id, data) => {
+     setAllJobs((prev) => prev.map((j) => (j.id === id ? { ...j, custom_data: data } : j)));
+     setSelectedJob((prev) => (prev && prev.id === id ? { ...prev, custom_data: data } : prev));
+   });
   const filteredJobs = useMemo(() => {
-    let result = [...allJobs];
+   let result = allJobs.filter((j) => matchesCustomFilters(j.custom_data as CustomData | undefined, cfDefs, cfFilters));
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
