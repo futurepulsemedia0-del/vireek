@@ -159,6 +159,7 @@ const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) =>
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
 const TruckStockPage = lazy(() => import('@/pages/TruckStockPage').then((m) => ({ default: m.TruckStockPage })));
+const TechEarningsPage = lazy(() => import('@/pages/TechEarningsPage').then((m) => ({ default: m.TechEarningsPage })));
 const TechnicianDepositsPage = lazy(() => import('@/pages/TechnicianDepositsPage').then((m) => ({ default: m.TechnicianDepositsPage })));
 const ExpertAssistInboxPage = lazy(() => import('@/pages/ExpertAssistInboxPage').then((m) => ({ default: m.ExpertAssistInboxPage })));
 const ExpertAssistThreadPage = lazy(() => import('@/pages/ExpertAssistThreadPage').then((m) => ({ default: m.ExpertAssistThreadPage })));
@@ -2011,6 +2012,14 @@ function AppRoutes() {
           element={
             <TechnicianRoute>
               <TruckStockPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/tech/earnings"
+          element={
+            <TechnicianRoute>
+              <TechEarningsPage />
             </TechnicianRoute>
           }
         />
