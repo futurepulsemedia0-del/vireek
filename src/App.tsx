@@ -212,6 +212,7 @@ const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').the
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
 const EnergyIntelligencePage = lazy(() => import('@/pages/EnergyIntelligencePage').then((m) => ({ default: m.EnergyIntelligencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
+const FormBuilderPage = lazy(() => import('@/pages/FormBuilderPage').then((m) => ({ default: m.FormBuilderPage })));
 const JobTemplatesPage = lazy(() => import('@/pages/JobTemplatesPage').then((m) => ({ default: m.JobTemplatesPage })));
 const ServiceCatalogPage = lazy(() => import('@/pages/ServiceCatalogPage').then((m) => ({ default: m.ServiceCatalogPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
@@ -2157,6 +2158,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PriceBookPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/form-builder"
+          element={
+            <ProtectedRoute>
+              <FormBuilderPage />
             </ProtectedRoute>
           }
         />
