@@ -37,6 +37,9 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { softDeleteRecords } from '@/lib/trash';
 import { PriceBookItem } from '@/lib/priceBook';
+import { JobTemplatePicker } from '@/components/jobs/JobTemplatePicker';
+import { JobTemplatePanel } from '@/components/jobs/JobTemplatePanel';
+import { JobTemplateSummary, applyJobTemplate, describeTemplateError } from '@/lib/jobTemplates';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
@@ -586,6 +589,7 @@ function JobDetailPanel({
         <TelemetryPrepPanel job={job} />
         <JobRiskPanel job={job} />
         <JobKnowledgePanel job={job} />
+        <JobTemplatePanel job={job} />
         <JobQualityGatePanel job={job} />
         <JobContextPanel job={job} />
          <CustomFieldsPanel entity="job" recordId={job.id} value={job.custom_data as CustomData | undefined} />
@@ -665,7 +669,7 @@ function CreateJobModal({
   priceBookItems: PriceBookItem[];
   prefill: PrefillData | null;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (warning?: string) => void;
 }) {
   const [customerName, setCustomerName] = useState(prefill?.customer_name ?? '');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -677,6 +681,7 @@ function CreateJobModal({
   const [customerType, setCustomerType] = useState<'residential' | 'commercial'>('residential');
   const [slaResponseHours, setSlaResponseHours] = useState('');
   const [contractReference, setContractReference] = useState('');
+  const [template, setTemplate] = useState<JobTemplateSummary | null>(null);
    const { defs: cfDefs } = useCustomFieldDefs('job');
    const [customData, setCustomData] = useState<CustomData>({});
    const { toast } = useToast();
@@ -713,7 +718,15 @@ function CreateJobModal({
       if (technicianId && created) {
         await supabase.rpc('assign_technician_to_job', { p_job_id: created.id, p_technician_id: technicianId });
       }
-      onCreated();
+      let warning: string | undefined;
+      if (template && created) {
+        try {
+          await applyJobTemplate(created.id, template.id);
+        } catch (applyErr) {
+          warning = `Job created, but the template could not be applied: ${describeTemplateError(applyErr)}`;
+        }
+      }
+      onCreated(warning);
     } catch {
       // parent handles toast
     } finally {
@@ -742,6 +755,14 @@ function CreateJobModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <JobTemplatePicker
+            value={template}
+            disabled={submitting}
+            onChange={(t) => {
+              setTemplate(t);
+              if (t?.service_type && !serviceType.trim()) setServiceType(t.service_type);
+            }}
+          />
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text-primary">Customer Name</label>
             <input
@@ -1353,14 +1374,14 @@ export function JobsPage() {
     });
   };
 
-  const handleJobCreated = () => {
+  const handleJobCreated = (warning?: string) => {
     setShowCreateModal(false);
     if (prefill?.lead_id) {
       supabase.from('leads').update({ stage: 'won' }).eq('id', prefill.lead_id).then();
     }
     setPrefill(null);
     loadData();
-    toast('Job created.', 'success');
+    toast(warning ?? 'Job created.', warning ? 'info' : 'success');
   };
 
   const handleSort = (key: SortKey) => {
