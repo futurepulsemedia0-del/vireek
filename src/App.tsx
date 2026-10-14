@@ -314,6 +314,7 @@ const AccessibilityStatementPage = lazy(() => import('@/pages/AccessibilityState
 const GdprDpaPage = lazy(() => import('@/pages/GdprDpaPage').then((m) => ({ default: m.GdprDpaPage })));
 const FAQPage = lazy(() => import('@/pages/FAQPage').then((m) => ({ default: m.FAQPage })));
 const HelpCenterPage = lazy(() => import('@/pages/HelpCenterPage').then((m) => ({ default: m.HelpCenterPage })));
+const HelpArticlePage = lazy(() => import('@/pages/HelpArticlePage').then((m) => ({ default: m.HelpArticlePage })));
 const HelpPage = lazy(() => import('@/pages/HelpPage').then((m) => ({ default: m.HelpPage })));
 const AboutPage = lazy(() => import('@/pages/AboutPage').then((m) => ({ default: m.AboutPage })));
 const ManifestoPage = lazy(() => import('@/pages/ManifestoPage').then((m) => ({ default: m.ManifestoPage })));
@@ -518,6 +519,7 @@ function AppRoutes() {
         <Route path="/gdpr-dpa" element={<GdprDpaPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
+        <Route path="/help/:slug" element={<HelpArticlePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/manifesto" element={<ManifestoPage />} />
         <Route path="/leadership" element={<LeadershipPage />} />
