@@ -10,6 +10,7 @@ import {
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, Profile, TeamMember } from '@/lib/supabase';
 import { clearSessionStart } from '@/lib/enterpriseSecurity';
+import { clearScheduleCache } from '@/lib/technicianSchedule';
 
 export interface UserPermissions {
   can_view_billing: boolean;
@@ -162,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     clearSessionStart();
     await supabase.auth.signOut();
+    clearScheduleCache();
     setProfile(null);
     setTeamMember(null);
     setSession(null);
