@@ -232,6 +232,7 @@ const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPa
 const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
 const VerificationNetworkPage = lazy(() => import('@/pages/VerificationNetworkPage').then((m) => ({ default: m.VerificationNetworkPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
+const InvoiceDetailPage = lazy(() => import('@/pages/InvoiceDetailPage').then((m) => ({ default: m.InvoiceDetailPage })));
 const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
 const KnowledgeCapturePage = lazy(() => import('@/pages/KnowledgeCapturePage').then((m) => ({ default: m.KnowledgeCapturePage })));
@@ -1341,6 +1342,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <InvoicesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/invoicing/:id"
+          element={
+            <ProtectedRoute>
+              <InvoiceDetailPage />
             </ProtectedRoute>
           }
         />
