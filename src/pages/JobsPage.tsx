@@ -32,6 +32,7 @@ import { getTrackingLink, setJobEta, pushTechnicianLocation, QUICK_ETA_OPTIONS }
 import { getJobRoomLink } from '@/lib/jobRoom';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
+import { softDeleteRecords } from '@/lib/trash';
 import { PriceBookItem } from '@/lib/priceBook';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
@@ -1299,11 +1300,10 @@ export function JobsPage() {
   const handleDelete = async () => {
     if (!selectedJob) return;
     try {
-      const { error } = await supabase.from('jobs').delete().eq('id', selectedJob.id);
-      if (error) throw error;
+      await softDeleteRecords('jobs', [selectedJob.id]);
       setAllJobs((prev) => prev.filter((j) => j.id !== selectedJob.id));
       setSelectedJob(null);
-      toast('Job deleted.', 'success');
+      toast('Job moved to trash.', 'success');
     } catch {
       toast('Could not delete job.', 'error');
     }
