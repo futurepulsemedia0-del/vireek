@@ -1,3 +1,6 @@
+import { CustomFieldsEditor, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
+import { useCustomFieldDefs } from '@/lib/customFieldsApi';
+import { matchesCustomFilters, sanitizeCustomData, validateCustomData, type CustomData, type CustomFilters } from '@/lib/customFields';
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -98,10 +101,13 @@ function CustomerDrawer({
 }) {
   const { toast } = useToast();
   const [draft, setDraft] = useState<DraftCustomer>(EMPTY_DRAFT);
+   const { defs: cfDefs } = useCustomFieldDefs('customer');
+   const [customData, setCustomData] = useState<CustomData>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (customer) {
+    setCustomData((customer.custom_data as CustomData) ?? {});
       setDraft({
         name: customer.name,
         phone: customer.phone ?? '',
@@ -114,6 +120,7 @@ function CustomerDrawer({
       });
     } else {
       setDraft(EMPTY_DRAFT);
+      setCustomData({});
     }
   }, [customer, open]);
 
@@ -122,6 +129,11 @@ function CustomerDrawer({
       toast('Customer name is required.', 'error');
       return;
     }
+   const cfErrors = validateCustomData(cfDefs, customData);
+   if (cfErrors.length) {
+     toast(cfErrors[0], 'error');
+     return;
+   }
     setSaving(true);
     try {
       const payload = {
@@ -133,6 +145,7 @@ function CustomerDrawer({
         lifecycle_stage: draft.lifecycle_stage,
         tags: draft.tags,
         notes: draft.notes?.trim() || null,
+   ...(cfDefs.length ? { custom_data: sanitizeCustomData(cfDefs, customData) } : {}),
       };
       const { error } = customer
         ? await supabase.from('customers').update(payload).eq('id', customer.id)
@@ -282,7 +295,7 @@ function CustomerDrawer({
                 />
               </div>
             </div>
-
+   <CustomFieldsEditor defs={cfDefs} value={customData} onChange={setCustomData} />
             <div className="mt-6 flex gap-2">
               <button
                 type="button"
@@ -323,6 +336,8 @@ export function CustomersPage() {
   const [dataLoading, setDataLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState<Customer['lifecycle_stage'] | 'all'>('all');
+   const { defs: cfDefs } = useCustomFieldDefs('customer');
+   const [cfFilters, setCfFilters] = useState<CustomFilters>({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
@@ -356,7 +371,7 @@ export function CustomersPage() {
   useKeyboardShortcut({ key: '/', handler: () => searchRef.current?.focus() });
 
   const filteredCustomers = useMemo(() => {
-    let list = customers;
+   let list = customers.filter((c) => matchesCustomFilters(c.custom_data, cfDefs, cfFilters));
     if (stageFilter !== 'all') list = list.filter((c) => c.lifecycle_stage === stageFilter);
     const q = search.trim().toLowerCase();
     const matched = !q
@@ -477,6 +492,7 @@ export function CustomersPage() {
         </button>
       </div>
 
+   <CustomFilterBar defs={cfDefs} value={cfFilters} onChange={setCfFilters} className="mb-4" />
       {/* Stage filter pills */}
       <div className="mb-4 flex flex-wrap gap-2">
         <button
@@ -541,6 +557,7 @@ export function CustomersPage() {
                     <td className="px-4 py-3">
                     <td className="w-10 px-4 py-3">{bulk.rowCheckbox(c.id, c.name)}</td>
                       <div className="font-medium text-text-primary">{c.name}</div>
+          <CustomFieldBadgesAuto entity="customer" data={c.custom_data} />
                       {c.tags.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {c.tags.slice(0, 3).map((t) => (
