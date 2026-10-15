@@ -150,6 +150,8 @@ const LaborMarketplacePage = lazy(() => import('@/pages/LaborMarketplacePage').t
 const CommercialContractsPage = lazy(() => import('@/pages/CommercialContractsPage').then((m) => ({ default: m.CommercialContractsPage })));
 const WorkOrdersPage = lazy(() => import('@/pages/WorkOrdersPage').then((m) => ({ default: m.WorkOrdersPage })));
 const ContractIntelligencePage = lazy(() => import('@/pages/ContractIntelligencePage').then((m) => ({ default: m.ContractIntelligencePage })));
+const ServiceAgreementsPage = lazy(() => import('@/pages/ServiceAgreementsPage').then((m) => ({ default: m.ServiceAgreementsPage })));
+const ServiceAgreementDetailPage = lazy(() => import('@/pages/ServiceAgreementDetailPage').then((m) => ({ default: m.ServiceAgreementDetailPage })));
 const CustomerSitesPage = lazy(() => import('@/pages/CustomerSitesPage').then((m) => ({ default: m.CustomerSitesPage })));
 const PropertyDigitalTwinPage = lazy(() => import('@/pages/PropertyDigitalTwinPage').then((m) => ({ default: m.PropertyDigitalTwinPage })));
 const HomeLifetimeGraphPage = lazy(() => import('@/pages/HomeLifetimeGraphPage').then((m) => ({ default: m.HomeLifetimeGraphPage })));
@@ -2032,6 +2034,22 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/agreements"
+  element={
+    <ProtectedRoute>
+      <ServiceAgreementsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/agreements/:id"
+  element={
+    <ProtectedRoute>
+      <ServiceAgreementDetailPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/contract-intelligence"
           element={
