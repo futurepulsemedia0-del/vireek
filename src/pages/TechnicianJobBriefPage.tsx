@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Phone, Navigation, AlertTriangle, ShieldAlert, PackageX, Wrench } from 'lucide-react';
+import { ArrowLeft, Phone, Navigation, AlertTriangle, ShieldAlert, PackageX, Wrench, MessageSquare } from 'lucide-react';
 import {
   fetchJobBrief, advanceJobStatus, setSafetyFlag, addJobNote,
   nextStatus, mapsLink, telLink, STATUS_LABELS, JobBrief, JobStatus,
@@ -70,6 +70,9 @@ export function TechnicianJobBriefPage() {
           <h1 className="font-semibold text-text-primary">{job.customer_name}</h1>
           <p className="text-xs text-text-secondary">{STATUS_LABELS[job.job_status]} · {job.service_type || '—'}</p>
         </div>
+        <Link to={`/tech/messages/${job.id}`} className="focus-ring ml-auto inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium text-accent">
+          <MessageSquare className="h-4 w-4" aria-hidden="true" /> Message office
+        </Link>
       </header>
 
       <main className="mx-auto max-w-lg space-y-4 px-4 py-4">
