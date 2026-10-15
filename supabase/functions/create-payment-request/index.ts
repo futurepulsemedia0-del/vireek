@@ -1,5 +1,4 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { stripeRequest } from "../_shared/stripe/client.ts";
 import { sendGatedSms, sendGatedEmail } from "../_shared/messaging/gatedSend.ts";
 
 const corsHeaders = {
