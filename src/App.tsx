@@ -207,6 +207,7 @@ const HomePassportsPage = lazy(() => import('@/pages/HomePassportsPage').then((m
 const HomePassportDetailPage = lazy(() => import('@/pages/HomePassportDetailPage').then((m) => ({ default: m.HomePassportDetailPage })));
 const OEMIntelligencePage = lazy(() => import('@/pages/OEMIntelligencePage').then((m) => ({ default: m.OEMIntelligencePage })));
 const OemGraphPage = lazy(() => import('@/pages/OemGraphPage').then((m) => ({ default: m.OemGraphPage })));
+const TemplatesPage = lazy(() => import('@/pages/TemplatesPage').then((m) => ({ default: m.TemplatesPage })));
 const UniversalIdentityPage = lazy(() => import('@/pages/UniversalIdentityPage').then((m) => ({ default: m.UniversalIdentityPage })));
 const FieldIntelligencePage = lazy(() => import('@/pages/FieldIntelligencePage').then((m) => ({ default: m.FieldIntelligencePage })));
 const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
@@ -2631,6 +2632,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <OemGraphPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/templates"
+          element={
+            <ProtectedRoute>
+              <TemplatesPage />
             </ProtectedRoute>
           }
         />
