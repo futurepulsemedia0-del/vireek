@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Check, Mail, MapPin, Navigation, Phone, RotateCcw, StickyNote, User as UserIcon, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
+import { isWorkflowStatus } from '@/lib/jobWorkflow';
 import type { Job } from '@/lib/supabase';
 import {
   STATUS_BADGE,
@@ -42,7 +43,7 @@ export function JobStatusTimeline({
 }) {
   const { steps, terminal } = buildStatusTimeline(job);
   const next = nextStatus(job.job_status);
-  const active = job.job_status === 'scheduled' || job.job_status === 'en_route' || job.job_status === 'in_progress';
+  const active = job.job_status === 'scheduled'|| isWorkflowStatus(job.job_status) || job.job_status === 'en_route' || job.job_status === 'in_progress';
 
   return (
     <JobSection
