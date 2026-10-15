@@ -131,6 +131,7 @@ const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').the
 const RiskIntelligencePage = lazy(() => import('@/pages/RiskIntelligencePage').then((m) => ({ default: m.RiskIntelligencePage })));
 const ComplianceCenterPage = lazy(() => import('@/pages/ComplianceCenterPage').then((m) => ({ default: m.ComplianceCenterPage })));
 const PermitCenterPage = lazy(() => import('@/pages/PermitCenterPage').then((m) => ({ default: m.PermitCenterPage })));
+const DocumentsPage = lazy(() => import('@/pages/DocumentsPage').then((m) => ({ default: m.DocumentsPage })));
 const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage').then((m) => ({ default: m.CallbackRootCausePage })));
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
@@ -1903,6 +1904,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ComplianceCenterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/documents"
+          element={
+            <ProtectedRoute>
+              <DocumentsPage />
             </ProtectedRoute>
           }
         />
