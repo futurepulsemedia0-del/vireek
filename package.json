@@ -10,6 +10,8 @@
     "test:built": "vitest run -c vitest.built.config.ts",
     "lint": "eslint .",
     "lint:design": "node scripts/check-design-system.mjs",
+    "migrations:check": "node scripts/migrations-dedupe.mjs check",
+    "migrations:plan": "node scripts/migrations-dedupe.mjs plan",
     "sitemap:locations": "node scripts/generate-locations-sitemap.mjs",
     "lint:migrations": "node scripts/lint-migrations.mjs",
     "check:bundle": "node scripts/check-bundle-size.mjs",
