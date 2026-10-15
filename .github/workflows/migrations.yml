@@ -1,0 +1,45 @@
+name: Migrations
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/migrations/**', 'scripts/migrations-dedupe.mjs', '.github/workflows/migrations.yml']
+  pull_request:
+    paths: ['supabase/migrations/**', 'scripts/migrations-dedupe.mjs', '.github/workflows/migrations.yml']
+
+concurrency:
+  group: migrations-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  version-check:
+    name: Unique migration versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Fail on duplicate / non-canonical / ignored migration files
+        run: node scripts/migrations-dedupe.mjs check
+
+  db-reset:
+    name: supabase db reset (clean replay)
+    runs-on: ubuntu-latest
+    needs: version-check
+    timeout-minutes: 25
+    # Non-blocking until the baseline replays cleanly; remove this line to make it required.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local stack
+        run: supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector
+      - name: Replay every migration from scratch
+        run: supabase db reset --local --no-seed
+      - name: Stop
+        if: always()
+        run: supabase stop --no-backup
