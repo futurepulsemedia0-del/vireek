@@ -9,6 +9,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { parseCsv } from "../_shared/data-import/csv.ts";
 import { upsertCustomerRow, upsertJobRow } from "../_shared/data-import/upsert.ts";
+import { handleImportV2 } from "../_shared/data-import/handler.ts";
+import type { ImportRequestV2 } from "../_shared/data-import/v2types.ts";
 import type { RunImportRequest, RunImportResult, RowErrorSummary } from "../_shared/data-import/types.ts";
 
 const corsHeaders = {
@@ -43,6 +45,12 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Invalid JSON body" }, 400);
   }
 
+  // Import wizard (validate / run / rollback) — see _shared/data-import/handler.ts.
+  const action = (body as unknown as { action?: string }).action;
+  if (action === "validate" || action === "run" || action === "rollback") {
+    return handleImportV2(client, body as unknown as ImportRequestV2, jsonResponse);
+  }
+  
   if (body.source !== "csv") {
     return jsonResponse({ error: `Unsupported source "${body.source}". Only "csv" is available today.` }, 400);
   }
