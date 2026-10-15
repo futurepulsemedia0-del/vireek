@@ -60,6 +60,53 @@ function useSessionPolicyEnforcement(enabled: boolean) {
   }, [enabled]);
 }
 
+/** true = signed in at AAL1 but the account has a verified authenticator, so /mfa must run first. null = still checking. */
+function useMfaPending(userId: string | null): boolean | null {
+  const [pending, setPending] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!userId) {
+      setPending(null);
+      return;
+    }
+    let cancelled = false;
+    supabase.auth.mfa
+      .getAuthenticatorAssuranceLevel()
+      .then(({ data }) => {
+        if (!cancelled) setPending(!!data && data.nextLevel === 'aal2' && data.currentLevel !== 'aal2');
+      })
+      .catch(() => {
+        if (!cancelled) setPending(false); // fail open on a network blip, like the policy checks above
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+  return pending;
+}
+/** true = signed in at AAL1 but the account has a verified authenticator, so /mfa must run first. null = still checking. */
+function useMfaPending(userId: string | null): boolean | null {
+  const [pending, setPending] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!userId) {
+      setPending(null);
+      return;
+    }
+    let cancelled = false;
+    supabase.auth.mfa
+      .getAuthenticatorAssuranceLevel()
+      .then(({ data }) => {
+        if (!cancelled) setPending(!!data && data.nextLevel === 'aal2' && data.currentLevel !== 'aal2');
+      })
+      .catch(() => {
+        if (!cancelled) setPending(false); // fail open on a network blip, like the policy checks above
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+  return pending;
+}
+
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading } = useAuth();
   const location = useLocation();
