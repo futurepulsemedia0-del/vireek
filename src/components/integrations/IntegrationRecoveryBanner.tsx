@@ -4,6 +4,7 @@ import { getIntegrationHealth, listUnhealthyIntegrations } from '@/lib/integrati
 
 const TYPE_LABELS: Record<string, string> = {
   google_calendar: 'Google Calendar',
+  microsoft_calendar: 'Microsoft 365 Calendar',
   hubspot: 'HubSpot',
   zapier: 'Zapier',
   webhook: 'Webhook',
