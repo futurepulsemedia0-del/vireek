@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, Landmark, MapPin } from 'lucide-react';
+import { AlertTriangle, ChevronRight, MapPin, Truck, UserRound, Wallet } from 'lucide-react';
 import { fetchTodayJobs, formatTime, STATUS_LABELS, TechnicianJob } from '@/lib/technicianOS';
-import { Search, Plus, Edit, Truck } from 'lucide-react';
 
 const STATUS_DOT: Record<string, string> = {
   scheduled: 'bg-accent',
@@ -25,28 +24,35 @@ export function TechnicianTodayPage() {
   return (
     <div className="min-h-screen bg-bg-primary pb-10">
       <header className="sticky top-0 z-10 border-b border-border bg-bg-primary/95 px-4 py-4 backdrop-blur">
-        <h1 className="text-lg font-semibold text-text-primary">Today</h1>
-                <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-lg font-semibold text-text-primary">Today</h1>
-            <p className="text-sm text-text-secondary">{jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled</p>
+            <p className="text-sm text-text-secondary">
+              {jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled
+            </p>
           </div>
-          <div className="flex gap-2">
-  <Link
-    to="/tech/earnings"
-    className="flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
-  >
-    <Wallet className="h-4 w-4" aria-hidden /> Earnings
-  </Link>
-  <Link
-    to="/tech/truck-stock"
-    className="flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
-  >
-    <Truck className="h-4 w-4" aria-hidden /> Truck stock
-  </Link>
-</div>
+          <nav className="flex items-center gap-2" aria-label="Technician shortcuts">
+            <Link
+              to="/tech/earnings"
+              className="focus-ring flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
+            >
+              <Wallet className="h-4 w-4" aria-hidden /> Earnings
+            </Link>
+            <Link
+              to="/tech/truck-stock"
+              className="focus-ring flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
+            >
+              <Truck className="h-4 w-4" aria-hidden /> Truck stock
+            </Link>
+            <Link
+              to="/tech/profile"
+              aria-label="My profile"
+              className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-primary active:scale-[0.98]"
+            >
+              <UserRound className="h-4 w-4" aria-hidden />
+            </Link>
+          </nav>
         </div>
-        <p className="text-sm text-text-secondary">{jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled</p>
       </header>
 
       <main className="mx-auto max-w-lg px-4 py-4">
