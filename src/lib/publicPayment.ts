@@ -9,6 +9,7 @@ export interface PublicPaymentSummary {
   technician_first_name?: string | null;
   tip_enabled?: boolean;
   presets?: number[];
+  publishable_key?: string | null;
 }
 
 async function readError(error: unknown): Promise<string> {
@@ -35,4 +36,12 @@ export async function startPublicCheckout(token: string, tip: TipSelection): Pro
   if (error) throw new Error(await readError(error));
   if (!data?.url) throw new Error('Could not start checkout.');
   return data.url as string;
+}
+
+/** Creates (or re-uses) the PaymentIntent for this link and returns its client secret for Stripe.js. */
+export async function createPublicPaymentIntent(token: string, tip: TipSelection): Promise<string> {
+  const { data, error } = await supabase.functions.invoke('public-payment', { body: { action: 'intent', token, tip } });
+  if (error) throw new Error(await readError(error));
+  if (!data?.client_secret) throw new Error('Could not start the payment.');
+  return data.client_secret as string;
 }
