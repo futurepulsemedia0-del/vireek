@@ -1,3 +1,4 @@
+import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 // supabase/functions/vapi-webhook/index.ts
 //
 // Server URL for the Vapi "Vireek Receptionist" production assistant(s).
@@ -629,7 +630,16 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     logEvent("assistant_request_no_tenant", requestId, {});
     return jsonResponse({});
   }
-
+  const blockDecision = await checkInboundBlock(
+    admin,
+    tenant.userId,
+    message.call?.customer?.number ?? null,
+    message.call?.phoneNumber?.number ?? null,
+  );
+  if (blockDecision.blocked) {
+    logEvent("assistant_request_caller_blocked", requestId, { user_id: tenant.userId, reason: blockDecision.reason });
+    return jsonResponse({ error: "Caller blocked." });
+  }
   // Hard stop before the AI connects. past_due is intentionally allowed
   // (grace period); only suspended/canceled cut service and avoid Vapi/LLM cost.
   if (tenant.isSuspended) {
