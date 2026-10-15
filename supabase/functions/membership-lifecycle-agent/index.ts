@@ -29,7 +29,6 @@
 // --no-verify-jwt, then point your cron at it once a day.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { stripeRequest } from "../_shared/stripe/client.ts";
 import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, X-Cron-Secret" };
@@ -141,18 +140,8 @@ Deno.serve(async (req: Request) => {
       }).select().single();
       if (!paymentRequest) continue;
 
-      const description = `${plan.name} membership renewal — ${m.customer_name}`;
-      const session = await stripeRequest("checkout/sessions", {
-        mode: "payment",
-        success_url: `${siteUrl}/pay-result?status=success`,
-        cancel_url: `${siteUrl}/pay-result?status=cancel`,
-        customer_email: m.customer_email ?? undefined,
-        line_items: [{ quantity: 1, price_data: { currency: "usd", unit_amount: plan.price_cents, product_data: { name: description } } }],
-        payment_intent_data: { transfer_data: { destination: connect.stripe_account_id } },
-        metadata: { payment_request_id: paymentRequest.id, membership_id: m.id, user_id: m.user_id },
-      }, secretKey);
-
-      await admin.from("payment_requests").update({ status: "sent", stripe_checkout_session_id: session.id, payment_link_url: session.url, last_reminder_sent_at: now.toISOString() }).eq("id", paymentRequest.id);
+      const payUrl = `${siteUrl}/pay/${paymentRequest.public_token}`;
+      await admin.from("payment_requests").update({ status: "sent", payment_link_url: payUrl, last_reminder_sent_at: now.toISOString() }).eq("id", paymentRequest.id);
       await admin.from("memberships").update({ last_payment_request_id: paymentRequest.id, renewal_alert_stage: "sent", renewal_alert_sent_at: now.toISOString() }).eq("id", m.id);
 
       const amountLabel = `$${(plan.price_cents / 100).toFixed(0)}`;
