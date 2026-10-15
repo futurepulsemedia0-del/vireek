@@ -5,6 +5,7 @@ import { LayoutTemplate } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
 import {
   BarChart3,
+  FileUp,
   LayoutTemplate,
   Globe,
   BookOpen,
@@ -423,6 +424,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Financing Center', href: '/dashboard/financing', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
+  { label: 'Data Imports', href: '/dashboard/imports', icon: FileUp, requiresPermission: 'can_edit_business_profile' },
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, requiresPermission: 'can_edit_business_profile' },
   { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, requiresPermission: 'can_export_data' },
