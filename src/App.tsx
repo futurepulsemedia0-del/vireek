@@ -272,6 +272,7 @@ const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then(
 const TrashPage = lazy(() => import('@/pages/TrashPage').then((m) => ({ default: m.TrashPage })));
 const DuplicatesPage = lazy(() => import('@/pages/DuplicatesPage').then((m) => ({ default: m.DuplicatesPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
+const ServiceAreasPage = lazy(() => import('@/pages/ServiceAreasPage').then((m) => ({ default: m.ServiceAreasPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
 const WorkforceEquilibriumPage = lazy(() => import('@/pages/WorkforceEquilibriumPage').then((m) => ({ default: m.WorkforceEquilibriumPage })));
 const BusinessDriftPage = lazy(() => import('@/pages/BusinessDriftPage').then((m) => ({ default: m.BusinessDriftPage })));
@@ -2711,6 +2712,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TechnicianCapacityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/service-areas"
+          element={
+            <ProtectedRoute>
+              <ServiceAreasPage />
             </ProtectedRoute>
           }
         />
