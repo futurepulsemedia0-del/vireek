@@ -26,6 +26,8 @@ const corsHeaders = {
 
 interface DispatchPayload {
   notification_id?: string;
+  subscriber_user_ids?: string[];
+  include_unattributed?: boolean;
 }
 
 interface PushSubscriptionRow {
@@ -33,6 +35,7 @@ interface PushSubscriptionRow {
   endpoint: string;
   p256dh: string;
   auth_key: string;
+  subscriber_user_id: string | null;
 }
 
 function jsonResponse(data: unknown, status = 200) {
@@ -107,15 +110,23 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ success: false, error: "Notification not found", requestId }, 404);
     }
 
-    const { data: subscriptions, error: subsError } = await admin
+    const { data: allSubscriptions, error: subsError } = await admin
       .from("push_subscriptions")
-      .select("id, endpoint, p256dh, auth_key")
+      .select("id, endpoint, p256dh, auth_key, subscriber_user_id")
       .eq("user_id", notification.user_id);
 
     if (subsError) {
       console.error(JSON.stringify({ event: "subscriptions_lookup_failed", requestId, error: subsError }));
       return jsonResponse({ success: false, error: "Failed to load subscriptions", requestId }, 500);
     }
+    const subscriberIds = Array.isArray(payload.subscriber_user_ids) ? payload.subscriber_user_ids : null;
+    const subscriptions = subscriberIds
+      ? (allSubscriptions ?? []).filter(
+          (s) =>
+            (s.subscriber_user_id && subscriberIds.includes(s.subscriber_user_id)) ||
+            (payload.include_unattributed === true && !s.subscriber_user_id),
+        )
+      : allSubscriptions;
     if (!subscriptions || subscriptions.length === 0) {
       console.log(JSON.stringify({ event: "no_subscriptions", requestId, user_id: notification.user_id }));
       return jsonResponse({ success: true, sent: 0, requestId });
