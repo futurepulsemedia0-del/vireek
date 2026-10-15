@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { WORKFLOW_PORTAL_LABELS, type WorkflowStatus } from '@/lib/jobWorkflow';
 
 /**
  * Customer Self-Service Portal — client library.
@@ -15,7 +16,7 @@ export interface PortalJob {
   id: string;
   service_type: string | null;
   scheduled_datetime: string | null;
-  job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+  job_status: 'scheduled' | 'en_route' | 'in_progress' | WorkflowStatus| 'completed' | 'cancelled' | 'no_show';
   invoice_amount: number | null;
   invoice_status: 'not_sent' | 'sent' | 'paid';
   reschedule_token: string | null;
@@ -146,9 +147,11 @@ export const JOB_STATUS_LABELS: Record<PortalJob['job_status'], string> = {
   scheduled: 'Scheduled',
   en_route: 'Technician en route',
   in_progress: 'In progress',
+  cancelled: 'Cancelled',
   completed: 'Completed',
   no_show: 'No-show',
   cancelled: 'Cancelled',
+  ...WORKFLOW_PORTAL_LABELS,
 };
 
 export const INVOICE_STATUS_LABELS: Record<PortalJob['invoice_status'], string> = {
