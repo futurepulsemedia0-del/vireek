@@ -141,6 +141,7 @@ const ScheduledReportsPage = lazy(() => import('@/pages/ScheduledReportsPage').t
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
+const ChartOfAccountsPage = lazy(() => import('@/pages/ChartOfAccountsPage').then((m) => ({ default: m.ChartOfAccountsPage })));
 const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
@@ -2004,6 +2005,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <AccountingPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/chart-of-accounts"
+  element={
+    <ProtectedRoute>
+      <ChartOfAccountsPage />
     </ProtectedRoute>
   }
 />
