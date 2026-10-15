@@ -149,6 +149,7 @@ import {
   GitMerge,
   FolderDown,
   SlidersHorizontal,
+  Images,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
@@ -254,6 +255,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Compliance Center', href: '/dashboard/compliance', icon: ShieldCheck },
   { label: 'Permit Center', href: '/dashboard/permits', icon: ClipboardCheck },
   { label: 'Documents', href: '/dashboard/documents', icon: FolderLock },
+  { label: 'Gallery', href: '/dashboard/gallery', icon: Images },
   { label: 'Callback Root-Cause', href: '/dashboard/callback-root-cause', icon: Microscope },
   { label: 'AI Job Autopsy', href: '/dashboard/job-autopsy', icon: Stethoscope },
   { label: 'Autonomy Readiness', href: '/dashboard/autonomy-readiness', icon: Gauge },
