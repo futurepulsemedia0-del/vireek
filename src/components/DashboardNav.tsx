@@ -385,6 +385,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Invoicing', href: '/dashboard/invoicing', icon: Receipt, requiresPermission: 'can_view_billing' },
   { label: 'Sales Tax', href: '/dashboard/tax', icon: Percent, requiresPermission: 'can_view_billing' },
   { label: 'Receivables Intelligence', href: '/dashboard/receivables', icon: Landmark, requiresPermission: 'can_view_billing' },
+  { label: 'Collections', href: '/dashboard/collections', icon: PhoneCall, requiresPermission: 'can_view_billing' },
   { label: 'Community', href: '/dashboard/community', icon: MessageCircle },
   { label: 'Negative Knowledge Store', href: '/dashboard/negative-knowledge', icon: History },
   { label: 'Commitment Graph', href: '/dashboard/commitments', icon: ShieldCheck },
