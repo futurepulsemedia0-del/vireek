@@ -176,7 +176,11 @@ export async function startMembershipCheckout(slug: string, values: JoinFormValu
   });
   if (error) return { ok: false, reason: await reasonFromError(error) };
 
-  const url = (data as { checkout_url?: string } | null)?.checkout_url;
+  const payload = data as { pay_path?: string; checkout_url?: string } | null;
+  const payPath = payload?.pay_path;
+  if (isSafePayPath(payPath)) return { ok: true, url: payPath };
+
+  const url = payload?.checkout_url;
   if (!isSafeCheckoutUrl(url)) return { ok: false, reason: 'error' };
   return { ok: true, url };
 }
