@@ -36,6 +36,7 @@ const AmbassadorPage = lazy(() => import('@/pages/AmbassadorPage').then((m) => (
 const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const SupportTicketsPage = lazy(() => import('@/pages/SupportTicketsPage').then((m) => ({ default: m.SupportTicketsPage })));
 const GettingStartedPage = lazy(() => import('@/pages/GettingStartedPage').then((m) => ({ default: m.GettingStartedPage })));
 const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const ProcurementPage = lazy(() => import('@/pages/ProcurementPage').then((m) => ({ default: m.ProcurementPage })));
@@ -691,6 +692,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/support"
+          element={
+            <ProtectedRoute>
+              <SupportTicketsPage />
             </ProtectedRoute>
           }
         />
