@@ -150,6 +150,7 @@ const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => (
 const ChartOfAccountsPage = lazy(() => import('@/pages/ChartOfAccountsPage').then((m) => ({ default: m.ChartOfAccountsPage })));
 const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
+const CommissionsPage = lazy(() => import('@/pages/CommissionsPage').then((m) => ({ default: m.CommissionsPage })));
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));|
 const EvidenceChainPage = lazy(() => import('@/pages/EvidenceChainPage').then((m) => ({ default: m.EvidenceChainPage })));
@@ -2194,6 +2195,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <PayrollPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/commissions"
+  element={
+    <ProtectedRoute>
+      <CommissionsPage />
     </ProtectedRoute>
   }
 />
