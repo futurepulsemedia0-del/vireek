@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
 import { getPushState, subscribeToPush, unsubscribeFromPush, isPushSupported, type PushSupportState } from '@/lib/push';
+import { DailyBriefingSettings } from '@/components/settings/DailyBriefingSettings';
 
 interface ToggleRowProps {
   icon: typeof PhoneCall;
@@ -292,6 +293,7 @@ export function SettingsPage() {
         </div>
       </div>
       <PushNotificationsCard />
+      <DailyBriefingSettings />
       <button
         type="button"
         onClick={() => navigate('/dashboard/settings/assistant')}
