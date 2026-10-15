@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { CircleCheck, Loader2, Lock, X } from 'lucide-react';
+import { CircleCheck, Loader2, X } from 'lucide-react';
 import { TipSelector } from '@/components/payments/TipSelector';
-import { fetchPublicPayment, startPublicCheckout, type PublicPaymentSummary } from '@/lib/publicPayment';
+import { createPublicPaymentIntent, fetchPublicPayment, type PublicPaymentSummary } from '@/lib/publicPayment';
+import { StripePaymentForm, type PaymentOutcome } from '@/components/payments/StripePaymentForm';
+import { buildReturnUrl } from '@/lib/paymentElement';
 import { computeTip, formatUsd, type TipSelection } from '@/lib/tipping';
 
 export function PublicPaymentPage() {
@@ -12,7 +14,7 @@ export function PublicPaymentPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [tip, setTip] = useState<TipSelection>({ kind: 'none' });
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<PaymentOutcome | null>(null);
 
   useEffect(() => {
     document.title = 'Pay securely';
@@ -40,16 +42,9 @@ export function PublicPaymentPage() {
     [summary, tip],
   );
 
-  async function handlePay() {
-    if (!tipResult?.ok) return;
-    setSubmitting(true);
-    setSubmitError(null);
-    try {
-      window.location.assign(await startPublicCheckout(token, effectiveTip));
-    } catch (e) {
-      setSubmitError(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
-      setSubmitting(false);
-    }
+  async function createIntent(): Promise<string> {
+    if (!tipResult?.ok) throw new Error('Please check the tip amount.');
+    return createPublicPaymentIntent(token, effectiveTip);
   }
 
   const shell = (children: React.ReactNode) => (
@@ -60,7 +55,20 @@ export function PublicPaymentPage() {
 
   if (loadError) return shell(<p role="alert" className="text-center text-sm text-danger">{loadError}</p>);
   if (!summary) return shell(<Loader2 className="mx-auto h-6 w-6 animate-spin text-text-secondary" aria-label="Loading" />);
-
+  if (outcome) {
+    return shell(
+      <div className="text-center">
+        <CircleCheck className="mx-auto mb-3 h-10 w-10 text-success" />
+        <h1 className="text-lg font-bold text-text-primary">{outcome === 'succeeded' ? 'Payment received' : 'Payment processing'}</h1>
+        <p className="mt-1 text-sm text-text-secondary">
+          {outcome === 'succeeded'
+            ? 'Thank you — your payment was successful. You can close this page.'
+            : 'Thanks — your payment is being processed and we’ll confirm it shortly. You can close this page.'}
+        </p>
+      </div>,
+    );
+  }
+  
   if (summary.status === 'paid') {
     return shell(
       <div className="text-center">
@@ -102,18 +110,12 @@ export function PublicPaymentPage() {
         <div className="flex justify-between text-base font-bold text-text-primary"><dt>Total</dt><dd>{formatUsd(total)}</dd></div>
       </dl>
 
-      {submitError && <p role="alert" className="text-sm text-danger">{submitError}</p>}
-
-      <button
-        type="button"
-        onClick={handlePay}
-        disabled={submitting || !tipResult?.ok}
-        className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-base font-semibold text-white disabled:opacity-50"
-      >
-        {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-4 w-4" />}
-        Pay {formatUsd(total)}
-      </button>
-      <p className="text-center text-xs text-text-secondary">Secure payment powered by Stripe. Your tip goes to your technician.</p>
-    </div>,
-  );
-}
+      <StripePaymentForm
+        publishableKey={summary.publishable_key}
+        amountCents={total}
+        payLabel={`Pay ${formatUsd(total)}`}
+        returnUrl={buildReturnUrl(window.location.origin)}
+        createIntent={createIntent}
+        onSuccess={setOutcome}
+        onProcessingChange={setSubmitting}
+      />
