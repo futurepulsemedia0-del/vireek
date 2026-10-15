@@ -10,6 +10,7 @@ import {
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, Profile, TeamMember } from '@/lib/supabase';
 import { clearSessionStart } from '@/lib/enterpriseSecurity';
+import { recordLoginEvent } from '@/lib/loginSecurity';
 import { clearScheduleCache } from '@/lib/technicianSchedule';
 
 export interface UserPermissions {
@@ -141,12 +142,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {{
       (async () => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
         if (newSession?.user) {
           await fetchProfile(newSession.user.id);
+          if (event === 'SIGNED_IN') void recordLoginEvent();
         } else {
           setProfile(null);
           setTeamMember(null);
