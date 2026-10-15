@@ -2,6 +2,7 @@ import { Clock, MapPin, TriangleAlert as AlertTriangle, User as UserIcon } from 
 import type { Job, TeamMember } from '@/lib/supabase';
 import { toDateKey, type MoveTargetOption } from '@/lib/scheduleDnd';
 import { DraggableJob, DropZone } from '@/components/schedule/ScheduleDnd';
+import { WORKFLOW_STATUS_DOT } from '@/lib/jobWorkflow';
 
 // ============================================================
 // Calendar boards (week grid, technician day lanes, unscheduled strip),
@@ -19,6 +20,7 @@ type JobStatus = Job['job_status'];
 const STATUS_DOT: Record<JobStatus, string> = {
   scheduled: 'bg-accent',
   en_route: 'bg-blue-500',
+  no_show: 'bg-warning-500',
   in_progress: 'bg-warning-500',
   completed: 'bg-success-500',
   cancelled: 'bg-danger',
