@@ -67,6 +67,9 @@ import { isEvidenceChainError, parseEvidenceChainError } from '@/lib/jobEvidence
 import { ScheduleDndProvider, DraggableJob, DropZone } from '@/components/schedule/ScheduleDnd';
 import { useScheduleBoard } from '@/hooks/useScheduleBoard';
 import type { MoveTargetOption } from '@/lib/scheduleDnd';
+import { JobWorkflowBoard } from '@/components/jobs/JobWorkflowBoard';
+import { useJobWorkflowActions } from '@/hooks/useJobWorkflowActions';
+import { WORKFLOW_STATUS_OPTIONS, emptyWorkflowBuckets, isWorkflowStatus } from '@/lib/jobWorkflow';
 
 // ============================================================
 // TYPES & CONSTANTS
@@ -105,6 +108,7 @@ const ALL_STATUSES: { key: JobStatus; label: string; color: string }[] = [
   ...BOARD_STAGES.map((s) => ({ key: s.key, label: s.label, color: s.dotColor })),
   { key: 'cancelled', label: 'Cancelled', color: 'bg-danger' },
   { key: 'no_show', label: 'No-show', color: 'bg-warning-500' },
+    ...WORKFLOW_STATUS_OPTIONS,
 ];
 
 const INVOICE_CONFIG: Record<InvoiceStatus, { label: string; badge: string }> = {
@@ -1165,6 +1169,7 @@ export function JobsPage() {
       in_progress: [],
       completed: [],
       cancelled: [],
+      ...emptyWorkflowBuckets(),
     };
     filteredJobs.forEach((j) => {
       if (map[j.job_status]) map[j.job_status].push(j);
@@ -1203,6 +1208,13 @@ export function JobsPage() {
 
   // Mutations
   const { guardStart, complianceDialog } = useComplianceStartGuard();
+  const workflow = useJobWorkflowActions({
+    refreshKey: allJobs.filter((j) => isWorkflowStatus(j.job_status)).map((j) => `${j.id}:${j.job_status}`).join(','),
+    onChanged: (jobId, status) => {
+      setAllJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, job_status: status as JobStatus } : j)));
+      setSelectedJob((prev) => (prev?.id === jobId ? { ...prev, job_status: status as JobStatus } : prev));
+    },
+  });
   const board = useScheduleBoard({
     jobs: allJobs,
     setJobs: setAllJobs,
@@ -1224,7 +1236,17 @@ export function JobsPage() {
     key: s.key, label: s.label, group: 'Status', target: { kind: 'status', status: s.key },
   }));
   const updateJobStatus = async (jobId: string, status: JobStatus) => {
+    if (isWorkflowStatus(status)) {
+      const held = allJobs.find((j) => j.id === jobId);
+      if (held) workflow.requestWorkflowStatus(held, status);
+      return;
+    }
     if ((status === 'en_route' || status === 'in_progress') && !(await guardStart(jobId))) return;
+    const current = allJobs.find((j) => j.id === jobId);
+    if (current && isWorkflowStatus(current.job_status) && (status === 'scheduled' || status === 'en_route' || status === 'in_progress')) {
+      await workflow.resumeJob(current, status);
+      return;
+    }
     if (status === 'cancelled' && user) {
       const job = allJobs.find((j) => j.id === jobId);
       try {
@@ -1673,6 +1695,22 @@ export function JobsPage() {
           </div>
         )}
 
+        {viewMode === 'board' && !dataLoading && filteredJobs.length > 0 && (
+          <JobWorkflowBoard
+            jobsByStatus={jobsByStatus}
+            holdsByJob={workflow.byJob}
+            now={workflow.now}
+            draggingId={draggingId}
+            dragOverStage={dragOverStage}
+            onDragOver={handleDragOver}
+            onDragLeave={() => setDragOverStage(null)}
+            onDrop={handleDrop}
+            onCardDragStart={handleDragStart}
+            onCardDragEnd={handleDragEnd}
+            onOpenJob={(job) => setSelectedJob(job)}
+          />
+        )}
+
         {/* List view */}
         {viewMode === 'list' && !dataLoading && filteredJobs.length > 0 && (
           <div className="overflow-x-auto rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
@@ -1800,6 +1838,7 @@ export function JobsPage() {
         )}
       </AnimatePresence>
       {complianceDialog}
+      {workflow.holdDialog}
       {bulk.bar}
     </DashboardLayout>
   );
