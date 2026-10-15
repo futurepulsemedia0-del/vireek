@@ -170,6 +170,7 @@ import { SurgeModeBanner } from '@/components/SurgeModeBanner';
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { NotificationBell } from '@/components/NotificationBell';
+import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
 import { AiAssistant } from '@/components/AiAssistant';
 import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
 import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
@@ -458,6 +459,7 @@ const PRIMARY_ITEMS: NavItem[] = [
 const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'My Account', href: '/dashboard/account', icon: User },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Locations', href: '/dashboard/settings/locations', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
   { label: 'Time Off', href: '/dashboard/time-off', icon: CalendarOff, requiresPermission: 'can_manage_team' },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
