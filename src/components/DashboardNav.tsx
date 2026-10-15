@@ -227,6 +227,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Parts & Inventory', href: '/dashboard/inventory', icon: Package },
   { label: 'Cycle Counts', href: '/dashboard/inventory/counts', icon: ClipboardCheck },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
+  { label: 'Blocklist & DNC', href: '/dashboard/blocklist', icon: Ban, requiresPermission: 'can_manage_numbers' },
   { label: 'Call Routing', href: '/dashboard/call-routing', icon: Workflow, requiresPermission: 'can_manage_numbers' },
   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
