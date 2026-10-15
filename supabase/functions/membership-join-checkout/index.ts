@@ -12,7 +12,6 @@
 // of a still-open Checkout session so double-clicks don't create rows.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { stripeRequest } from "../_shared/stripe/client.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -123,8 +122,8 @@ Deno.serve(async (req: Request) => {
       .limit(1)
       .maybeSingle();
     if (recent?.last_payment_request_id) {
-      const { data: openRequest } = await admin.from("payment_requests").select("status, payment_link_url").eq("id", recent.last_payment_request_id).maybeSingle();
-      if (openRequest?.status === "sent" && openRequest.payment_link_url) return jsonResponse({ checkout_url: openRequest.payment_link_url });
+      const { data: openRequest } = await admin.from("payment_requests").select("status, public_token").eq("id", recent.last_payment_request_id).maybeSingle();
+      if (openRequest?.status === "sent" && openRequest.public_token) return jsonResponse({ pay_path: `/pay/${openRequest.public_token}` });
     }
 
     // Hourly caps (counted from the rows this endpoint already writes).
@@ -178,43 +177,15 @@ Deno.serve(async (req: Request) => {
       .single();
     if (requestError || !paymentRequest) throw requestError || new Error("Could not create the payment request.");
 
-    let session: { id: string; url: string };
-    try {
-      session = await stripeRequest(
-        "checkout/sessions",
-        {
-          mode: "payment",
-          success_url: `${siteUrl}/join/${plan.public_slug}?checkout=success`,
-          cancel_url: `${siteUrl}/join/${plan.public_slug}?checkout=cancel`,
-          customer_email: email,
-          line_items: [
-            {
-              quantity: 1,
-              price_data: { currency: "usd", unit_amount: plan.price_cents, product_data: { name: `${plan.name} membership` } },
-            },
-          ],
-          payment_intent_data: { transfer_data: { destination: connect.stripe_account_id } },
-          metadata: {
-            payment_request_id: paymentRequest.id,
-            membership_id: membership.id,
-            user_id: plan.user_id,
-            membership_signup: "true",
-          },
-        },
-        secretKey,
-      );
-    } catch (stripeError) {
-      await admin.from("payment_requests").update({ status: "failed" }).eq("id", paymentRequest.id);
-      console.error(JSON.stringify({ event: "membership_join_stripe_failed", error: stripeError instanceof Error ? stripeError.message : String(stripeError) }));
-      return fail(502, "error", "We couldn't start checkout. Please try again.");
-    }
-
+    // The customer pays on our own /pay/:token page (Stripe Payment Element: cards, Apple Pay, Google Pay).
+    // The PaymentIntent is created there, so nothing needs to be created in Stripe at this point.
     await admin
       .from("payment_requests")
-      .update({ status: "sent", stripe_checkout_session_id: session.id, payment_link_url: session.url, last_reminder_sent_at: new Date().toISOString() })
+      .update({ status: "sent", payment_link_url: `${siteUrl}/pay/${paymentRequest.public_token}`, last_reminder_sent_at: new Date().toISOString() })
       .eq("id", paymentRequest.id);
     await admin.from("memberships").update({ last_payment_request_id: paymentRequest.id }).eq("id", membership.id);
 
+    return jsonResponse({ pay_path: `/pay/${paymentRequest.public_token}` });
     return jsonResponse({ checkout_url: session.url });
   } catch (error) {
     console.error(JSON.stringify({ event: "membership_join_failed", error: error instanceof Error ? error.message : String(error) }));
