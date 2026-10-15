@@ -6,6 +6,8 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Job, TeamMember } from '@/lib/supabase';
 import { suggestTechnicians } from '@/lib/dispatch';
+import { fetchAvailabilityData } from '@/lib/timeOffApi';
+import { addDays, localIsoDate, type AvailabilityData } from '@/lib/timeOff';
 import { buildStockFitMap, fetchStockFit, stockFitBonus, type StockFitRow } from '@/lib/truckStock';
 import { buildPassportFitMap, fetchPassportFit, passportFitHeadline, type PassportFitRow } from '@/lib/dispatchPassportFit';
 import { fetchTechnicianScorecards } from '@/lib/technicianPerformance';
@@ -64,6 +66,7 @@ export function DispatchBoardPage() {
   const [fleetSignals, setFleetSignals] = useState<Record<string, FleetDispatchSignal>>({});
   const [expandedProfitJob, setExpandedProfitJob] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<string | null>(null);
+  const [availability, setAvailability] = useState<AvailabilityData | null>(null);
   const ftf = useFirstTimeFixGate();
   const [aiDispatchEnabled, setAiDispatchEnabled] = useState(false);
   const [autoAssigning, setAutoAssigning] = useState(false);
@@ -95,6 +98,12 @@ export function DispatchBoardPage() {
         setPassportFit(buildPassportFitMap(rows)),
       );
       setTechnicians((teamRes.data as TeamMember[]) || []);
+      const ownerId = (teamRes.data as TeamMember[] | null)?.[0]?.account_owner_id;
+      if (ownerId) {
+        void fetchAvailabilityData(ownerId, addDays(localIsoDate(), -7))
+          .then(setAvailability)
+          .catch(() => setAvailability(null));
+      }
       void fetchFleetDispatchSignals().then(setFleetSignals);
       void fetchTechnicianScorecards().then((rows) => {
         const map: Record<string, number | null> = {};
