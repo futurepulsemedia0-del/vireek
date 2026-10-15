@@ -170,6 +170,9 @@ const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) =>
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
+const TechnicianMessagesPage = lazy(() => import('@/pages/TechnicianMessagesPage').then((m) => ({ default: m.TechnicianMessagesPage })));
+const TechnicianJobThreadPage = lazy(() => import('@/pages/TechnicianJobThreadPage').then((m) => ({ default: m.TechnicianJobThreadPage })));
+const FieldMessagesPage = lazy(() => import('@/pages/FieldMessagesPage').then((m) => ({ default: m.FieldMessagesPage })));
 const TechnicianSchedulePage = lazy(() => import('@/pages/TechnicianSchedulePage').then((m) => ({ default: m.TechnicianSchedulePage })));
 const TruckStockPage = lazy(() => import('@/pages/TruckStockPage').then((m) => ({ default: m.TruckStockPage })));
 const TechEarningsPage = lazy(() => import('@/pages/TechEarningsPage').then((m) => ({ default: m.TechEarningsPage })));
@@ -2213,6 +2216,30 @@ function AppRoutes() {
             <TechnicianRoute>
               <TechnicianJobBriefPage />
             </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/tech/messages"
+          element={
+            <TechnicianRoute>
+              <TechnicianMessagesPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/tech/messages/:jobId"
+          element={
+            <TechnicianRoute>
+              <TechnicianJobThreadPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/dashboard/field-messages"
+          element={
+            <ProtectedRoute>
+              <FieldMessagesPage />
+            </ProtectedRoute>
           }
         />
         <Route
