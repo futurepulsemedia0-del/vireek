@@ -450,6 +450,7 @@ const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) =>
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
 const OAuthAppsPage = lazy(() => import('@/pages/OAuthAppsPage').then((m) => ({ default: m.OAuthAppsPage })));
+const SmsCompliancePage = lazy(() => import('@/pages/SmsCompliancePage').then((m) => ({ default: m.SmsCompliancePage })));
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
@@ -1017,6 +1018,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <OAuthAppsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/sms-compliance"
+          element={
+            <ProtectedRoute>
+              <SmsCompliancePage />
             </ProtectedRoute>
           }
         />
