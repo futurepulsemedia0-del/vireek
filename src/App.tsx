@@ -129,6 +129,8 @@ const ServiceDataExchangePage = lazy(() => import('@/pages/ServiceDataExchangePa
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
 const SignDocumentPage = lazy(() => import('@/pages/SignDocumentPage').then((m) => ({ default: m.SignDocumentPage })));
 const InvoicePage = lazy(() => import('@/pages/InvoicePage').then((m) => ({ default: m.InvoicePage })));
+const DashboardSnapshotsPage = lazy(() => import('@/pages/DashboardSnapshotsPage').then((m) => ({ default: m.DashboardSnapshotsPage })));
+const SharedDashboardPage = lazy(() => import('@/pages/SharedDashboardPage').then((m) => ({ default: m.SharedDashboardPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InventoryCountsPage = lazy(() => import('@/pages/InventoryCountsPage').then((m) => ({ default: m.InventoryCountsPage })));
@@ -1826,6 +1828,14 @@ function AppRoutes() {
           }
         />
         <Route
+          path="/dashboard/snapshots"
+          element={
+            <ProtectedRoute>
+              <DashboardSnapshotsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/quotes/:id"
           element={
             <ProtectedRoute>
@@ -1836,6 +1846,7 @@ function AppRoutes() {
         <Route path="/quote/:token" element={<QuoteAcceptPage />} />
         <Route path="/sign/:token" element={<SignDocumentPage />} />
         <Route path="/invoice/:token" element={<InvoicePage />} />
+        <Route path="/shared/dashboard/:token" element={<SharedDashboardPage />} />
         <Route path="/invite/:token" element={<InviteAcceptPage />} />
                 <Route
           path="/dashboard/knowledge"
