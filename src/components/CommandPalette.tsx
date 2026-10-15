@@ -32,6 +32,7 @@ interface StaticPage {
 const PAGES: StaticPage[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
+  { label: 'Blocklist & DNC', href: '/dashboard/blocklist', icon: PhoneCall, keywords: 'spam robocall block dnc do not call' },
   { label: 'Call Routing', href: '/dashboard/call-routing', icon: PhoneCall, keywords: 'routing hours holiday voicemail overflow language department' },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Customers', href: '/dashboard/customers', icon: BookUser },
