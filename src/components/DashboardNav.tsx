@@ -390,6 +390,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Receivables Intelligence', href: '/dashboard/receivables', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Collections', href: '/dashboard/collections', icon: PhoneCall, requiresPermission: 'can_view_billing' },
   { label: 'Community', href: '/dashboard/community', icon: MessageCircle },
+  { label: 'Feedback', href: '/dashboard/feedback', icon: Lightbulb },
   { label: 'Negative Knowledge Store', href: '/dashboard/negative-knowledge', icon: History },
   { label: 'Commitment Graph', href: '/dashboard/commitments', icon: ShieldCheck },
   { label: 'Evolution Roadmap', href: '/dashboard/roadmap', icon: Compass, requiresPermission: 'can_view_billing' },
