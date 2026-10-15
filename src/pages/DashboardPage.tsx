@@ -17,6 +17,7 @@ import { AttributionReport, AttributionRow } from '@/components/AttributionRepor
 
 import { OverviewGrid } from '@/components/overview/OverviewGrid';
 import { OverviewCustomizeBar } from '@/components/overview/OverviewCustomizeBar';
+import { SystemHealthStrip } from '@/components/overview/SystemHealthStrip';
 import { useOverviewLayout } from '@/hooks/useOverviewLayout';
 import { hiddenItems, resolveRolePreset, visibleItems, type OverviewWidgetId, type PermissionKey } from '@/lib/overviewLayout';
 // ============================================================
@@ -936,6 +937,10 @@ export function DashboardPage() {
           )}
         </div>
 
+        {(isOwner || permissions.can_manage_numbers || permissions.can_view_billing || permissions.can_edit_business_profile) && (
+          <SystemHealthStrip />
+        )}
+        
         {/* CUSTOMIZABLE OVERVIEW — layout saved per user in Supabase */}
         <OverviewCustomizeBar
           editing={editingLayout}
