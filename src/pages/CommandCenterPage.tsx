@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emptyWorkflowBuckets } from '@/lib/jobWorkflow';
 import {
   ArrowLeft,
   Phone,
@@ -299,6 +300,7 @@ export function CommandCenterPage() {
       in_progress: [],
       completed: [],
       cancelled: [],
+      ...emptyWorkflowBuckets(),
     };
     jobs.forEach((j) => {
       if (map[j.job_status]) map[j.job_status].push(j);
