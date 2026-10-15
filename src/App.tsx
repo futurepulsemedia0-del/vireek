@@ -238,6 +238,7 @@ const FieldScientistPage = lazy(() => import('@/pages/FieldScientistPage').then(
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
 const ReceivablesIntelligencePage = lazy(() => import('@/pages/ReceivablesIntelligencePage').then((m) => ({ default: m.ReceivablesIntelligencePage })));
+const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then((m) => ({ default: m.CollectionsPage })));
 onst RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
@@ -1356,6 +1357,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/collections"
+  element={
+    <ProtectedRoute>
+      <CollectionsPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/revenue-causality"
           element={
