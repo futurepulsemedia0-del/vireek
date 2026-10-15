@@ -61,6 +61,16 @@ import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/pr
 import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
+import {
+  areaTechnicians,
+  computeAreaQuote,
+  evaluateAddress,
+  formatCents,
+  loadTenantServiceAreas,
+  outOfAreaReply,
+  pickAreaTechnician,
+  type ServiceAreaSettingsRow,
+} from "../_shared/service-areas/resolve.ts";
 
 // ---------------------------------------------------------------------------
 // Types (only the fields we actually read — Vapi payloads carry much more)
@@ -638,6 +648,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   const afterHoursContext = buildAfterHoursContextVariable(tenant, new Date());
   const recordingConsentContext = buildRecordingConsentNotice(callerNumber);
   const customerMemoryContext = await buildCustomerMemoryContextVariable(admin, tenant, callerNumber);
+  const serviceAreaContext = await buildServiceAreaContextVariable(admin, tenant);
 
   logEvent("assistant_request_resolved", requestId, {
     user_id: tenant.userId,
@@ -653,6 +664,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     after_hours_context: afterHoursContext,
     recording_consent_context: recordingConsentContext,
     customer_memory_context: customerMemoryContext,
+    service_area_context: serviceAreaContext,
   };
 
   if (tenant.agentOrchestrationEnabled) {
@@ -1162,7 +1174,30 @@ async function toolBookAppointment(
       return `Surge mode is active and today's booking capacity (${tenant.surgeMaxBookingsPerDay}) is already full — offer the customer the next available day instead of booking this one.`;
     }
   }
-
+  // Service-area gate — enforced here (not just in the prompt) so a skipped
+  // check_service_area call can never book an out-of-area job. Fails OPEN.
+  const addressArg = typeof args.address === "string" ? args.address.trim() : "";
+  const serviceAreas = await loadTenantServiceAreas(admin, tenant.userId);
+  if (serviceAreas.areas.length > 0 && !addressArg) {
+    return "I need the full service address, including the ZIP or postal code, before I can book this appointment.";
+  }
+  const areaVerdict = await evaluateAddress(serviceAreas, addressArg || null);
+  if (areaVerdict.status === "out_of_area") {
+    return outOfAreaInstruction(serviceAreas.settings);
+  }
+  const matchedArea = areaVerdict.status === "in_area" ? areaVerdict.area : null;
+  const areaQuote = matchedArea ? computeAreaQuote(matchedArea, 0) : null;
+  const areaNote = matchedArea
+    ? [
+        `Service area: ${matchedArea.name}`,
+        areaQuote && areaQuote.travelFeeCents > 0 ? `travel fee ${formatCents(areaQuote.travelFeeCents)}` : null,
+        matchedArea.surge_enabled && computeAreaQuote(matchedArea, 10000).surgeApplied ? `surge ${matchedArea.surge_multiplier}x active` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : areaVerdict.status === "unknown"
+      ? "Service area: unverified — confirm coverage with the customer"
+      : null;
   let callId: string | null = null;
   if (vapiCallId) {
     const callRow = await upsertCallRow(admin, tenant, vapiCallId, { status: "booked" }, "tool-book-appointment");
@@ -1170,7 +1205,8 @@ async function toolBookAppointment(
   }
 
   const serviceType = typeof args.service_type === "string" ? args.service_type : null;
-  const dispatchNote = await suggestTechnicianNote(admin, tenant, serviceType, scheduledDatetime);
+  const suggestedNote = await suggestTechnicianNote(admin, tenant, serviceType, scheduledDatetime);
+  const dispatchNote = [suggestedNote, areaNote].filter(Boolean).join(" | ") || null;
 
   const jobPayload = {
     user_id: tenant.userId,
@@ -1211,17 +1247,12 @@ async function toolBookAppointment(
     ? `Booked for ${customerName} on ${new Date(job.scheduled_datetime).toLocaleString()}.`
     : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
 
-      const promoCode = typeof args.promo_code === "string" ? args.promo_code.trim() : "";
-  if (promoCode) {
-    const { data: promoRes } = await admin.rpc("promo_reserve_for_job", {
-      p_user_id: tenant.userId, p_job_id: job.id, p_code: promoCode, p_service: serviceType,
-      p_phone: jobPayload.customer_phone, p_email: null, p_customer_id: null, p_channel: "voice",
-      p_client_key: callerNumber ? `voice:${callerNumber}` : null,
-    });
-    baseMessage += promoRes?.ok
-      ? ` The promo code ${promoRes.code} (${promoRes.label}) is applied to this appointment; the final price is confirmed on the written estimate.`
-      : ` The promo code could not be applied: ${promoReasonForVoice(promoRes?.reason)} The appointment is still booked at the regular price.`;
+  const feeNotice: string[] = [];
+  if (areaQuote && areaQuote.travelFeeCents > 0) feeNotice.push(`a ${formatCents(areaQuote.travelFeeCents)} travel fee applies`);
+  if (matchedArea && matchedArea.surge_enabled && computeAreaQuote(matchedArea, 10000).surgeApplied) {
+    feeNotice.push(`pricing is ${matchedArea.surge_multiplier}x the standard rate right now`);
   }
+  const pricingNote = feeNotice.length > 0 ? ` Make sure the customer knows: ${feeNotice.join(" and ")}.` : "";
 
   const { data: profile } = await admin
     .from("business_profile")
@@ -1230,43 +1261,31 @@ async function toolBookAppointment(
     .maybeSingle();
 
   if (profile?.ai_dispatch_enabled) {
+    // Prefer a technician who covers this area (primary first, then least-loaded).
+    if (matchedArea) {
+      const preferredId = await pickAreaTechnician(
+        admin,
+        tenant.userId,
+        areaTechnicians(serviceAreas, matchedArea.id),
+        job.scheduled_datetime,
+      );
+      if (preferredId) {
+        const { data: areaAssign } = await admin.rpc("assign_technician_to_job", { p_job_id: job.id, p_technician_id: preferredId });
+        const assigned = areaAssign as { status?: string; technician_name?: string | null } | null;
+        if (assigned?.status === "assigned" && assigned.technician_name) {
+          return `${baseMessage} Assigned to ${assigned.technician_name}.${pricingNote}`;
+        }
+      }
+    }
+
     const assignment = await assignBestTechnician(admin, tenant.userId, job);
 
     if (assignment.technicianName) {
-      return `${baseMessage} Assigned to ${assignment.technicianName}.`;
+      return `${baseMessage} Assigned to ${assignment.technicianName}.${pricingNote}`;
     }
   }
 
-  return baseMessage;
-}
-
-function promoReasonForVoice(reason: string | undefined): string {
-  switch (reason) {
-    case "expired": return "that code has expired.";
-    case "not_started": return "that code isn't active yet.";
-    case "exhausted": return "that code has reached its limit.";
-    case "customer_limit": return "that code was already used by this customer.";
-    case "not_first_time": return "that code is for first-time customers only.";
-    case "identity_required": return "I need the caller's phone number to confirm that offer.";
-    case "min_subtotal": return "the job doesn't meet the minimum spend for that code.";
-    case "rate_limited": return "too many attempts — ask them to call back later or check the code.";
-    case "not_applicable": return "that code doesn't apply to this service.";
-    default: return "that code isn't valid.";
-  }
-}
-
-async function toolValidatePromoCode(admin: SupabaseClient, tenant: TenantContext, args: Record<string, unknown>, callerNumber: string | null): Promise<string> {
-  const code = typeof args.code === "string" ? args.code.trim() : "";
-  if (!code) return "I need the promo code the caller mentioned before I can check it.";
-  const phone = (typeof args.phone === "string" && args.phone.trim()) || callerNumber || null;
-  const { data, error } = await admin.rpc("promo_evaluate_booking", {
-    p_user_id: tenant.userId, p_code: code, p_service: typeof args.service === "string" ? args.service : null,
-    p_phone: phone, p_email: null, p_channel: "voice", p_client_key: callerNumber ? `voice:${callerNumber}` : null, p_record: true,
-  });
-  if (error || !data) return "I couldn't check that promo code right now — tell the caller the office will confirm it.";
-  if (!data.valid) return `That promo code can't be used: ${promoReasonForVoice(data.reason)}`;
-  const est = typeof data.estimated_discount_cents === "number" ? ` That's roughly $${(data.estimated_discount_cents / 100).toFixed(2)} off the listed starting price.` : "";
-  return `The code ${data.code} is valid: ${data.label}.${est} Do not promise a final price — the discount is applied on the written estimate. Pass promo_code to book_appointment to attach it.`;
+  return `${baseMessage}${pricingNote}`;
 }
 
 async function toolCheckWeather(args: Record<string, unknown>): Promise<string> {
@@ -1670,6 +1689,52 @@ async function toolRequestHumanTransfer(
     ? "Got it — connecting the caller to a live team member now."
     : "Got it — this business has no dedicated live-transfer number configured, so please connect the caller to the main forwarding number now.";
 }
+async function buildServiceAreaContextVariable(admin: SupabaseClient, tenant: TenantContext): Promise<string> {
+  const { areas } = await loadTenantServiceAreas(admin, tenant.userId);
+  if (areas.length === 0) return "";
+  return "SERVICE AREA RULES: This business only serves specific areas. Before booking any appointment, get the full street address including the ZIP or postal code, then call the check_service_area tool and follow its instructions exactly. Never promise service to an address the tool says is outside the area. If the tool reports a travel fee or surge pricing, tell the caller before they confirm.";
+}
+
+function outOfAreaInstruction(settings: ServiceAreaSettingsRow | null): string {
+  const reply = outOfAreaReply(settings);
+  const mode = settings?.out_of_area_mode ?? "waitlist";
+  if (mode === "transfer") {
+    return `OUTSIDE SERVICE AREA — do NOT book. Say: "${reply}" Then call request_human_transfer so a team member can decide on an exception.`;
+  }
+  if (mode === "waitlist") {
+    return `OUTSIDE SERVICE AREA — do NOT book. Say: "${reply}" Collect their name and best callback number, thank them, and end the call politely.`;
+  }
+  return `OUTSIDE SERVICE AREA — do NOT book. Say: "${reply}" Then offer to help if they have another address inside the service area.`;
+}
+
+async function toolCheckServiceArea(admin: SupabaseClient, tenant: TenantContext, args: Record<string, unknown>): Promise<string> {
+  const address = typeof args.address === "string" ? args.address.trim() : "";
+  if (!address) {
+    return "I need the caller's full street address, including the ZIP or postal code, before I can check whether we serve their area.";
+  }
+  const serviceAreas = await loadTenantServiceAreas(admin, tenant.userId);
+  const verdict = await evaluateAddress(serviceAreas, address);
+
+  if (verdict.status === "no_areas_configured") {
+    return "This business has no service-area restrictions — the address is fine. Continue booking.";
+  }
+  if (verdict.status === "out_of_area") {
+    return outOfAreaInstruction(serviceAreas.settings);
+  }
+  if (verdict.status === "unknown") {
+    return "I couldn't verify this address against the service area (a ZIP or postal code is missing or the address couldn't be located). Ask the caller to confirm the ZIP / postal code. If it still can't be verified, continue booking and tell them the office will confirm coverage.";
+  }
+
+  const area = verdict.area;
+  const parts = [`The address is inside our service area (${area.name}). Continue booking.`];
+  const quote = computeAreaQuote(area, 0);
+  if (quote.travelFeeCents > 0) parts.push(`A ${formatCents(quote.travelFeeCents)} travel fee applies — tell the caller before they confirm.`);
+  if (area.surge_enabled && computeAreaQuote(area, 10000).surgeApplied) {
+    parts.push(`Surge pricing is active in this area (${area.surge_multiplier}x the standard rate) — tell the caller before they confirm.`);
+  }
+  return parts.join(" ");
+}
+
 async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   const tenant = await resolveTenant(admin, message, requestId);
   const toolCalls = message.toolCalls ?? message.toolCallList ?? [];
@@ -1717,6 +1782,9 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "check_weather":
             result = await toolCheckWeather(args);
+            break;
+          case "check_service_area":
+            result = await toolCheckServiceArea(admin, tenant, args);
             break;
           case "lookup_price":
             result = await toolLookupPrice(admin, tenant, args, vapiCallId);
