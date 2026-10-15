@@ -247,6 +247,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
   { label: 'Context Engine', href: '/dashboard/context-engine', icon: Radar },
   { label: 'Advanced Routing', href: '/dashboard/routing', icon: Navigation },
+  { label: 'Service Areas', href: '/dashboard/service-areas', icon: MapPinned, requiresPermission: 'can_view_all_jobs' },
   { label: 'On-Call Rotation', href: '/dashboard/on-call', icon: AlarmClock },
   { label: 'Mutual Aid', href: '/dashboard/mutual-aid', icon: LifeBuoy },
   { label: 'Contractor Network', href: '/dashboard/network', icon: Network },
