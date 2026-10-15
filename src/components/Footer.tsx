@@ -116,6 +116,7 @@ const FOOTER_COLUMNS = [
       { label: 'Marketplace', href: '/marketplace' },
       { label: 'SDKs (Node.js & Python)', href: '/sdks' },
       { label: 'Sandbox', href: '/sandbox' },
+      { label: 'API Reference', href: '/developers/api-reference' },
       { label: 'Developer Changelog', href: '/developers/changelog' },
     ],
   },
