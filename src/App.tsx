@@ -220,8 +220,9 @@ const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
 const SwitchingShieldPage = lazy(() => import('@/pages/SwitchingShieldPage').then((m) => ({ default: m.SwitchingShieldPage })));
 const NextBestActionsPage = lazy(() => import('@/pages/NextBestActionsPage').then((m) => ({ default: m.NextBestActionsPage })));
+const CallQueuePage = lazy(() => import('@/pages/CallQueuePage').then((m) => ({ default: m.CallQueuePage })));
 const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').then((m) => ({ default: m.DiagnosisCopilotPage })));
-  const ServiceIntelligenceLoopPage = lazy(() => import('@/pages/ServiceIntelligenceLoopPage').then((m) => ({ default: m.ServiceIntelligenceLoopPage })));
+const ServiceIntelligenceLoopPage = lazy(() => import('@/pages/ServiceIntelligenceLoopPage').then((m) => ({ default: m.ServiceIntelligenceLoopPage })));
 const FailureGenomePage = lazy(() => import('@/pages/FailureGenomePage').then((m) => ({ default: m.FailureGenomePage })));
 const LiveCopilotPage = lazy(() => import('@/pages/LiveCopilotPage').then((m) => ({ default: m.LiveCopilotPage })));
 const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
@@ -2705,6 +2706,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <NextBestActionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/call-queue"
+          element={
+            <ProtectedRoute>
+              <CallQueuePage />
             </ProtectedRoute>
           }
         />
