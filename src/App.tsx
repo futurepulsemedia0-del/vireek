@@ -263,8 +263,9 @@ const ValueAtRiskPage = lazy(() => import('@/pages/ValueAtRiskPage').then((m) =>
 const RevenueAutopsyPage = lazy(() => import('@/pages/RevenueAutopsyPage').then((m) => ({ default: m.RevenueAutopsyPage })));
 const LtvAutopilotPage = lazy(() => import('@/pages/LtvAutopilotPage').then((m) => ({ default: m.LtvAutopilotPage })));
 const BottleneckMarketMakerPage = lazy(() => import('@/pages/BottleneckMarketMakerPage').then((m) => ({ default: m.BottleneckMarketMakerPage })));
+const PreventiveMaintenanceCommandCenterPage = lazy(() => import('@/pages/PreventiveMaintenanceCommandCenterPage').then((m) => ({ default: m.PreventiveMaintenanceCommandCenterPage })));
 const UncertaintyMapPage = lazy(() => import('@/pages/UncertaintyMapPage').then((m) => ({ default: m.UncertaintyMapPage })));
-   const UnknownsEnginePage = lazy(() => import('@/pages/UnknownsEnginePage').then((m) => ({ default: m.UnknownsEnginePage })));
+const UnknownsEnginePage = lazy(() => import('@/pages/UnknownsEnginePage').then((m) => ({ default: m.UnknownsEnginePage })));
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const EventPredictionMeshPage = lazy(() => import('@/pages/EventPredictionMeshPage').then((m) => ({ default: m.EventPredictionMeshPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
@@ -833,6 +834,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PredictiveFailurePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/preventive-maintenance"
+          element={
+            <ProtectedRoute>
+              <PreventiveMaintenanceCommandCenterPage />
             </ProtectedRoute>
           }
         />
