@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { PlanId } from '@/lib/pricing';
+import type { WorkflowStatus } from '@/lib/jobWorkflow';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -289,7 +290,7 @@ export interface Job {
   scheduled_datetime: string | null;
   duration_minutes: number | null;
   assigned_technician_id: string | null;
-  job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+  job_status: 'scheduled' | 'en_route' | 'in_progress' | 'completed' | 'cancelled' | 'no_show' | WorkflowStatus;
     tags: string[];
   invoice_amount: number | null;
   invoice_status: 'not_sent' | 'sent' | 'paid';
