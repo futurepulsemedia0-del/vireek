@@ -85,7 +85,8 @@ const OutcomeClearinghousePage = lazy(() => import('@/pages/OutcomeClearinghouse
 const OutcomeVerifyPage = lazy(() => import('@/pages/OutcomeVerifyPage').then((m) => ({ default: m.OutcomeVerifyPage })));
 const EvidenceMarketplacePage = lazy(() => import('@/pages/EvidenceMarketplacePage').then((m) => ({ default: m.EvidenceMarketplacePage })));
 const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartnersAdminPage').then((m) => ({ default: m.EvidencePartnersAdminPage })));
-const StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
+const StaffCustomersPage = lazy(() => import('@/pages/admin/StaffCustomersPage').then((m) => ({ default: m.StaffCustomersPage })));
+onst StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
 const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
 const EmergencyNetworkPage = lazy(() => import('@/pages/EmergencyNetworkPage').then((m) => ({ default: m.EmergencyNetworkPage })));
@@ -518,6 +519,14 @@ function AppRoutes() {
           element={
             <StaffRoute>
               <PartnerApplicationsAdminPage />
+            </StaffRoute>
+          }
+        />
+        <Route
+          path="/staff/customers"
+          element={
+            <StaffRoute>
+              <StaffCustomersPage />
             </StaffRoute>
           }
         />
