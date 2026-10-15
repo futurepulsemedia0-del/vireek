@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { WORKFLOW_STATUS_DOT } from '@/lib/jobWorkflow';
 import {
   ChevronLeft,
   ChevronRight,
@@ -41,6 +42,7 @@ type JobStatus = Job['job_status'];
 const STATUS_DOT: Record<JobStatus, string> = {
   scheduled: 'bg-accent',
   en_route: 'bg-blue-500',
+  no_show: 'bg-warning-500',
   in_progress: 'bg-warning-500',
   completed: 'bg-success-500',
   cancelled: 'bg-danger',
