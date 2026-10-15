@@ -24,6 +24,13 @@ import {
 import { IntegrationRecoveryBanner } from '@/components/integrations/IntegrationRecoveryBanner';
 import { IntegrationRecoveryPanel } from '@/components/integrations/IntegrationRecoveryPanel';
 import { ChatNotificationsPanel } from '@/components/integrations/ChatNotificationsPanel';
+import { MicrosoftCalendarPanel } from '@/components/integrations/MicrosoftCalendarPanel';
+import { oauthReasonMessage } from '@/lib/microsoftCalendar';
+import {
+  disconnectMicrosoftCalendar,
+  startMicrosoftCalendarConnect,
+  syncMicrosoftCalendarNow,
+} from '@/lib/microsoftCalendarApi';
 
 // ============================================================
 // CONSTANTS
@@ -53,6 +60,16 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     icon: Calendar,
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10',
+    hasWebhook: false,
+    oauth: true,
+  },
+  {
+    type: 'microsoft_calendar',
+    name: 'Microsoft 365 / Outlook',
+    description: 'Two-way sync of busy time and scheduled jobs with Outlook calendars, for your office and each technician.',
+    icon: Calendar,
+    color: 'text-sky-600',
+    bgColor: 'bg-sky-600/10',
     hasWebhook: false,
     oauth: true,
   },
@@ -143,21 +160,46 @@ export function IntegrationsPage() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [connectingOAuth, setConnectingOAuth] = useState<string | null>(null);
+  const [msRefreshKey, setMsRefreshKey] = useState(0);
 
   useEffect(() => {
     const gcal = searchParams.get('google_calendar');
     const hub = searchParams.get('hubspot');
-    if (!gcal && !hub) return;
+    const msCal = searchParams.get('microsoft_calendar');
+    if (!gcal && !hub && !msCal) return;
+    if (msCal) {
+      toast(
+        msCal === 'connected' ? 'Microsoft 365 calendar connected. Syncing…' : oauthReasonMessage(searchParams.get('reason')),
+        msCal === 'connected' ? 'success' : 'error',
+      );
+      if (msCal === 'connected') {
+        void syncMicrosoftCalendarNow()
+          .catch(() => undefined)
+          .finally(() => setMsRefreshKey((k) => k + 1));
+      }
+    }
     if (gcal) toast(gcal === 'connected' ? 'Google Calendar connected.' : 'Could not connect Google Calendar — please try again.', gcal === 'connected' ? 'success' : 'error');
     if (hub) toast(hub === 'connected' ? 'HubSpot connected.' : 'Could not connect HubSpot — please try again.', hub === 'connected' ? 'success' : 'error');
     searchParams.delete('google_calendar');
     searchParams.delete('hubspot');
+    searchParams.delete('microsoft_calendar');
+    searchParams.delete('scope');
     searchParams.delete('reason');
     setSearchParams(searchParams, { replace: true });
     loadIntegrations();
   }, [searchParams, setSearchParams, toast, loadIntegrations]);
 
   const handleOAuthConnect = async (def: IntegrationDef) => {
+    if (def.type === 'microsoft_calendar') {
+      setConnectingOAuth(def.type);
+      try {
+        await startMicrosoftCalendarConnect('office');
+      } catch (err) {
+        toast(err instanceof Error ? err.message : `Could not connect ${def.name}.`, 'error');
+        setConnectingOAuth(null);
+      }
+      return;
+    }
     setConnectingOAuth(def.type);
     try {
       const fn = def.type === 'google_calendar' ? 'google-calendar-oauth-start' : 'hubspot-oauth-start';
@@ -173,6 +215,27 @@ export function IntegrationsPage() {
   const handleOAuthDisconnect = async (def: IntegrationDef) => {
     const existing = getIntegration(def.type);
     if (!existing) return;
+    if (def.type === 'microsoft_calendar') {
+      const rawId = existing.config?.connection_id;
+      const connectionId = typeof rawId === 'string' ? rawId : null;
+      setToggling(def.type);
+      try {
+        if (connectionId) {
+          await disconnectMicrosoftCalendar(connectionId, false);
+        } else {
+          const { error } = await supabase.from('integrations').update({ status: 'disconnected' }).eq('id', existing.id);
+          if (error) throw error;
+        }
+        toast('Microsoft 365 disconnected. Existing Outlook events were left in place.', 'info');
+        await loadIntegrations();
+        setMsRefreshKey((k) => k + 1);
+      } catch (err) {
+        toast(err instanceof Error ? err.message : 'Could not disconnect Microsoft 365. Please try again.', 'error');
+      } finally {
+        setToggling(null);
+      }
+      return;
+    }
     setToggling(def.type);
     try {
       const { error } = await supabase.from('integrations').update({ status: 'disconnected' }).eq('id', existing.id);
@@ -245,6 +308,10 @@ export function IntegrationsPage() {
 
   /** Explicit recovery path when status is error / auto-disconnect. */
   const handleRecover = async (def: IntegrationDef) => {
+    if (def.type === 'microsoft_calendar') {
+      await handleOAuthConnect(def);
+      return;
+    }
     const existing = getIntegration(def.type);
     if (!existing) {
       await handleToggle(def);
@@ -457,6 +524,9 @@ export function IntegrationsPage() {
                   />
                 )}
 
+                {def.type === 'microsoft_calendar' && (
+                  <MicrosoftCalendarPanel refreshKey={msRefreshKey} onChanged={loadIntegrations} />
+                )}
                 {/* Connect / Disconnect / Coming soon */}
                 {def.comingSoon ? (
                   <div
