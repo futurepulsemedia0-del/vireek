@@ -1,6 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { stripeRequest } from "../_shared/stripe/client.ts";
 import { computeTip, firstName, TIP_PRESET_PERCENTS, type TipSelection } from "../_shared/payments/tip.ts";
+import { stripeGet } from "../_shared/stripe/terminalPayments.ts";
+import { buildIntentMetadata, buildPaymentIntentParams, isReusableIntentStatus } from "../_shared/payments/paymentIntent.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,7 +30,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: request } = await admin
       .from("payment_requests")
-      .select("id, user_id, job_id, customer_name, customer_email, amount, status, technician_id, stripe_checkout_session_id")
+      .select("id, user_id, job_id, customer_name, customer_email, amount, status, technician_id, stripe_checkout_session_id, stripe_payment_intent_id")
       .eq("public_token", token)
       .maybeSingle();
     if (!request) return json({ status: "not_found" });
@@ -41,6 +43,15 @@ Deno.serve(async (req: Request) => {
       request.technician_id ? admin.from("team_members").select("*").eq("id", request.technician_id).maybeSingle() : Promise.resolve({ data: null }),
     ]);
 
+    // Membership signup/renewal invoices are paid on this same page: find the membership (if any) to label and flag it.
+    const { data: membership } = await admin
+      .from("memberships")
+      .select("id, status, membership_plans:plan_id(name)")
+      .eq("last_payment_request_id", request.id)
+      .limit(1)
+      .maybeSingle();
+    const membershipPlanName = (membership?.membership_plans as { name?: string } | null)?.name ?? null;
+
     const baseCents = Math.round(Number(request.amount) * 100);
     const tipEnabled = !!connect?.tip_enabled && !!request.technician_id;
     const techFirstName = tech ? firstName((tech as Record<string, string | null>).full_name ?? (tech as Record<string, string | null>).member_name ?? (tech as Record<string, string | null>).name) : "";
@@ -49,15 +60,16 @@ Deno.serve(async (req: Request) => {
       return json({
         status: "open",
         amount_cents: baseCents,
-        description: job?.service_type ?? "Invoice",
+        description: membershipPlanName ? `${membershipPlanName} membership` : job?.service_type ?? "Invoice",
         customer_first_name: firstName(request.customer_name),
         technician_first_name: techFirstName || null,
         tip_enabled: tipEnabled,
         presets: TIP_PRESET_PERCENTS,
+        publishable_key: Deno.env.get("STRIPE_PUBLISHABLE_KEY") ?? null,
       });
     }
 
-    if (body.action !== "checkout") return json({ error: "Unknown action." }, 400);
+    if (body.action !== "checkout" && body.action !== "intent") return json({ error: "Unknown action." }, 400);
 
     if (!connect?.stripe_account_id || !connect.charges_enabled) {
       return json({ error: "This business can't accept payments right now." }, 400);
@@ -70,7 +82,53 @@ Deno.serve(async (req: Request) => {
     if (selection.kind !== "none" && !tipEnabled) return json({ error: "Tipping isn't available for this payment." }, 400);
     const tip = computeTip(baseCents, selection);
     if (!tip.ok) return json({ error: tip.error }, 400);
+    if (body.action === "intent") {
+      const intentDescription = membershipPlanName
+        ? `${membershipPlanName} membership`
+        : job?.service_type ?? `Invoice for ${request.customer_name}`;
+      const metadata = buildIntentMetadata({
+        requestId: request.id,
+        userId: request.user_id,
+        jobId: request.job_id,
+        baseCents,
+        tipCents: tip.tipCents,
+        technicianId: request.technician_id,
+        membershipId: membership?.id ?? null,
+        membershipSignup: membership?.status === "offered",
+      });
+      const params = buildPaymentIntentParams({
+        baseCents,
+        tipCents: tip.tipCents,
+        destinationAccountId: connect.stripe_account_id,
+        description: intentDescription,
+        receiptEmail: request.customer_email,
+        metadata,
+      });
 
+      // One live intent per payment request: update it for a retry or a changed tip, never double-charge.
+      let intent: any = null;
+      if (request.stripe_payment_intent_id) {
+        try {
+          const existing = await stripeGet(`payment_intents/${request.stripe_payment_intent_id}`, secretKey);
+          if (existing.status === "succeeded") return json({ error: "This invoice has already been paid." }, 409);
+          if (existing.status === "processing") return json({ error: "Your payment is still being processed. Please don't pay again." }, 409);
+          if (isReusableIntentStatus(existing.status)) {
+            intent = await stripeRequest(
+              `payment_intents/${existing.id}`,
+              { amount: params.amount, description: params.description, receipt_email: params.receipt_email, metadata },
+              secretKey,
+            );
+          }
+        } catch { /* unreadable or no longer updatable: fall through and create a fresh intent */ }
+      }
+      if (!intent) intent = await stripeRequest("payment_intents", params, secretKey);
+
+      await admin
+        .from("payment_requests")
+        .update({ stripe_payment_intent_id: intent.id, status: request.status === "pending" ? "sent" : request.status })
+        .eq("id", request.id);
+      return json({ client_secret: intent.client_secret });
+    }
     // Only one live session per request: expire the previous attempt (best effort).
     if (request.stripe_checkout_session_id) {
       try { await stripeRequest(`checkout/sessions/${request.stripe_checkout_session_id}/expire`, {}, secretKey); } catch { /* already completed/expired */ }
