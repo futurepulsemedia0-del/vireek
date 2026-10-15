@@ -219,6 +219,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Landing Pages', href: '/dashboard/landing-pages', icon: LayoutTemplate, requiresPermission: 'can_edit_business_profile' },
   { label: 'Command Center', href: '/dashboard/command-center', icon: Radio },
   { label: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, requiresPermission: 'can_view_billing' },
+  { label: 'Shared Snapshots', href: '/dashboard/snapshots', icon: Link2, requiresPermission: 'can_view_billing' },
   { label: 'Reports', href: '/dashboard/reports', icon: FileBarChart, requiresPermission: 'can_view_billing' },
   { label: 'Scheduled Reports', href: '/dashboard/reports/scheduled', icon: CalendarClock, requiresPermission: 'can_view_billing' },
   { label: 'Profitability', href: '/dashboard/profitability', icon: DollarSign },
