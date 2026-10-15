@@ -418,6 +418,7 @@ const SystemRequirementsPage = lazy(() => import('@/pages/SystemRequirementsPage
 const MaintenancePage = lazy(() => import('@/pages/MaintenancePage').then((m) => ({ default: m.MaintenancePage })));
 const CustomerDetailPage = lazy(() => import('@/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })));
 const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then((m) => ({ default: m.FeedbackPage })));
+const TechnicianProfilePage = lazy(() => import('@/pages/TechnicianProfilePage').then((m) => ({ default: m.TechnicianProfilePage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const CrmSyncPage = lazy(() => import('@/pages/CrmSyncPage').then((m) => ({ default: m.CrmSyncPage })));
 const CustomFieldsPage = lazy(() => import('@/pages/CustomFieldsPage').then((m) => ({ default: m.CustomFieldsPage })));
@@ -2186,6 +2187,14 @@ function AppRoutes() {
           element={
             <TechnicianRoute>
               <TechnicianDvirPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
+          path="/tech/profile"
+          element={
+            <TechnicianRoute>
+              <TechnicianProfilePage />
             </TechnicianRoute>
           }
         />
