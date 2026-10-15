@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ArrowLeft, Briefcase, MessagesSquare } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { useRealtimeSubscription } from '@/lib/realtime';
@@ -478,6 +479,12 @@ export function JobDetailPage() {
             {subtitle && <p className="mt-1 text-sm text-text-secondary">{subtitle}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
+          <Link
+  to={`/dashboard/team-chat?job=${j.id}`}
+  className="focus-ring inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-text-primary hover:bg-bg-tertiary"
+>
+  <MessagesSquare size={13} aria-hidden="true" /> Chat
+</Link>
             <Pill className={STATUS_BADGE[j.job_status]}>{STATUS_LABELS[j.job_status]}</Pill>
             {j.quality_check_passed === true && <Pill className="bg-success-500/10 text-success-500">Quality check passed</Pill>}
             {j.quality_check_passed === false && <Pill className="bg-warning-500/10 text-warning-500">Quality check failed</Pill>}
