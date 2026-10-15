@@ -35,7 +35,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: events, error } = await admin
     .from("escalation_events")
-    .select("id, user_id, schedule_id, current_tier, last_notified_at, ack_token, call_id")
+    .select("id, user_id, schedule_id, current_tier, last_notified_at, ack_token, call_id, notification_id")
     .eq("status", "active")
     .limit(100);
 
@@ -99,7 +99,12 @@ Deno.serve(async (req: Request) => {
       if (!member?.member_phone) continue;
 
       const ackUrl = `${siteUrl}/ack/${ev.ack_token}`;
-      const body = `Vireek escalation (tier ${nextTier.tier_order}): unacknowledged emergency call. Tap to accept: ${ackUrl}`;
+            let alertLabel = "emergency call";
+      if (ev.notification_id) {
+        const { data: notif } = await admin.from("notifications").select("title").eq("id", ev.notification_id).maybeSingle();
+        if (notif?.title) alertLabel = String(notif.title).slice(0, 80);
+      }
+      const body = `Vireek escalation (tier ${nextTier.tier_order}): unacknowledged "${alertLabel}". Tap to accept: ${ackUrl}`;
 
       if (nextTier.notify_via === "sms" || nextTier.notify_via === "both") {
         await sendSms(member.member_phone, body);
