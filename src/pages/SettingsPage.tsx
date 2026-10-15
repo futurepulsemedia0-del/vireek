@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings as SettingsIcon, ShieldCheck, AppWindow, ShieldAlert, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound, Building2, DatabaseBackup, ScrollText } from 'lucide-react';
+import { Settings as SettingsIcon, ShieldCheck, AppWindow, MessageSquareText, ShieldAlert, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound, Building2, DatabaseBackup, ScrollText } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -390,6 +390,26 @@ export function SettingsPage() {
               <p className="text-sm font-semibold text-text-primary">Audit log</p>
               <p className="mt-0.5 text-xs text-text-secondary">
                 Search, filter and export every sensitive action on your account.
+              </p>
+            </div>
+          </div>
+          <ChevronRight size={18} className="text-text-secondary" />
+        </button>
+      )}
+      {isOwner && (
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard/settings/sms-compliance')}
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+              <MessageSquareText size={20} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-text-primary">SMS compliance</p>
+              <p className="mt-0.5 text-xs text-text-secondary">
+                A2P 10DLC status, opt-in proof, and the opt-out log.
               </p>
             </div>
           </div>
