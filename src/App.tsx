@@ -375,6 +375,8 @@ const LocationCityPage = lazy(() => import('@/pages/LocationCityPage').then((m) 
 const LocationTradePage = lazy(() => import('@/pages/LocationTradePage').then((m) => ({ default: m.LocationTradePage })));
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
+const SurveysPage = lazy(() => import('@/pages/SurveysPage').then((m) => ({ default: m.SurveysPage })));
+const SurveyResponsePage = lazy(() => import('@/pages/SurveyResponsePage').then((m) => ({ default: m.SurveyResponsePage })));
 const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
 const LandingPagesPage = lazy(() => import('@/pages/LandingPagesPage').then((m) => ({ default: m.LandingPagesPage })));
 const PublicLandingPage = lazy(() => import('@/pages/PublicLandingPage').then((m) => ({ default: m.PublicLandingPage })));
@@ -591,6 +593,7 @@ function AppRoutes() {
         <Route path="/developers/changelog" element={<DeveloperChangelogPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
+        <Route path="/s/:token" element={<SurveyResponsePage />} />
         <Route path="/book/:slug" element={<BookingPage />} />
         <Route path="/lp/:slug" element={<PublicLandingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
@@ -2354,6 +2357,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CapacityExchangePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/surveys"
+          element={
+            <ProtectedRoute>
+              <SurveysPage />
             </ProtectedRoute>
           }
         />
