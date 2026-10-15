@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { listTrustedDevices, revokeTrustedDevice, TrustedDeviceRow } from '@/lib/deviceTrust';
 import { listOwnSessions, revokeOwnSession, getCurrentSessionId, describeUserAgent, OwnSessionRow } from '@/lib/sessions';
 import { buildMyDataExport, downloadDataExport, deleteMyAccount } from '@/lib/accountData';
+import { RecoveryCodesPanel } from '@/components/security/RecoveryCodesPanel';
 import { EnterpriseDataExportPanel } from '@/components/settings/EnterpriseDataExportPanel';
 import { PasskeysCard } from '@/components/settings/PasskeysCard';
 
@@ -394,6 +395,7 @@ export function SecuritySettingsPage() {
         </div>
       </div>
       <PasskeysCard />
+      {verifiedFactor && <RecoveryCodesPanel />}
       {/* Sessions */}
       <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
         <div className="flex items-center gap-3">
