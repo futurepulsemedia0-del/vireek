@@ -24,6 +24,7 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
 import { sendEmail } from "../_shared/notify/deliver.ts";
+import { getPreferences, getPreferencesBatch, mayContact } from "../_shared/compliance/preferenceCheck.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -53,7 +54,7 @@ interface Template {
 }
 
 interface Invitation {
-  id: string; user_id: string; job_id: string | null; channel: "sms" | "email" | "both";
+  id: string; user_id: string; job_id: string | null; customer_id: string | null; channel: "sms" | "email" | "both";
   sms_body: string; email_subject: string; question: string; timezone: string;
   customer_name: string; customer_phone: string | null; customer_email: string | null;
   token: string; attempts: number;
@@ -141,6 +142,13 @@ async function enqueueAuto(admin: Admin): Promise<{ queued: number; skipped: num
       for (const c of cs ?? []) customers.set(c.id, { email: c.email, phone: c.phone });
     }
 
+    // Honour the customer's preference center (opted out of surveys / channel / unsubscribed from all).
+    const prefMap = await getPreferencesBatch(admin, customerIds);
+    if (prefMap === "error") {
+      console.error("[survey-dispatcher] could not read preferences; skipping template", t.id);
+      continue; // fail closed: never survey someone whose opt-out we couldn't verify
+    }
+
     // Cooldown: anyone surveyed (any template of this type) within cooldown_days is skipped.
     const recentKeys = new Set<string>();
     if (t.cooldown_days > 0) {
@@ -162,8 +170,12 @@ async function enqueueAuto(admin: Admin): Promise<{ queued: number; skipped: num
     const rows: Record<string, unknown>[] = [];
     for (const j of fresh) {
       const c = j.customer_id ? customers.get(j.customer_id) : undefined;
-      const phone = j.customer_phone || c?.phone || null;
-      const email = c?.email || null;
+      const rawPhone = j.customer_phone || c?.phone || null;
+      const rawEmail = c?.email || null;
+      const pref = j.customer_id ? prefMap.get(j.customer_id) : undefined;
+      const phone = rawPhone && (!pref || mayContact(pref, "surveys", "sms").ok) ? rawPhone : null;
+      const email = rawEmail && (!pref || mayContact(pref, "surveys", "email").ok) ? rawEmail : null;
+      const optedOut = (!!rawPhone || !!rawEmail) && !phone && !email && !!pref;
       const keys = [
         j.customer_id ? `id:${j.customer_id}` : null,
         phone ? `ph:${digits(phone)}` : null,
@@ -173,7 +185,10 @@ async function enqueueAuto(admin: Admin): Promise<{ queued: number; skipped: num
       const hasContact = t.channel === "sms" ? !!phone : t.channel === "email" ? !!email : !!(phone || email);
       let status: "pending" | "skipped" = "pending";
       let note: string | null = null;
-      if (!hasContact) {
+      if (!hasContact && optedOut) {
+        status = "skipped";
+        note = "Customer opted out of survey messages in their preference center.";
+      } else if (!hasContact) {
         status = "skipped";
         note = `No ${t.channel === "both" ? "phone or email" : t.channel === "sms" ? "phone number" : "email address"} on file.`;
       } else if (keys.some((k) => recentKeys.has(k))) {
@@ -225,9 +240,16 @@ async function deliver(admin: Admin, inv: Invitation, businessName: string): Pro
   const link = `${siteUrl()}/s/${inv.token}`;
   const vars = { customer_first_name: firstName(inv.customer_name), business_name: businessName, link };
 
-  const wantSms = (inv.channel === "sms" || inv.channel === "both") && !!inv.customer_phone;
-  const wantEmail = (inv.channel === "email" || inv.channel === "both") && !!inv.customer_email;
-  if (!wantSms && !wantEmail) return { status: "skipped", error: "No usable contact method." };
+  // Re-check at send time: the customer may have opted out since the survey was queued.
+  const prefs = await getPreferences(admin, inv.customer_id);
+  if (prefs === "error") {
+    return inv.attempts < MAX_ATTEMPTS
+      ? { status: "pending", error: "Preferences could not be verified.", retryInMinutes: 15 * inv.attempts }
+      : { status: "failed", error: "Preferences could not be verified." };
+  }
+  const wantSms = (inv.channel === "sms" || inv.channel === "both") && !!inv.customer_phone && mayContact(prefs, "surveys", "sms").ok;
+  const wantEmail = (inv.channel === "email" || inv.channel === "both") && !!inv.customer_email && mayContact(prefs, "surveys", "email").ok;
+  if (!wantSms && !wantEmail) return { status: "skipped", error: "No usable contact method, or the customer opted out." };
 
   // Quiet hours apply to SMS. If SMS is the only usable channel, wait for the window; otherwise email goes now.
   const smsAllowedNow = wantSms && inSmsWindow(inv.timezone);
@@ -303,7 +325,7 @@ async function deliverDue(admin: Admin): Promise<{ sent: number; failed: number;
       .update({ status: "sending", claimed_at: new Date().toISOString(), attempts: (peek?.attempts ?? 0) + 1 })
       .eq("id", id)
       .eq("status", "pending")
-      .select("id,user_id,job_id,channel,sms_body,email_subject,question,timezone,customer_name,customer_phone,customer_email,token,attempts")
+      .select("id,user_id,job_id,customer_id,channel,sms_body,email_subject,question,timezone,customer_name,customer_phone,customer_email,token,attempts")
       .maybeSingle();
     if (!claimed) continue;
     const inv = claimed as Invitation;
@@ -422,7 +444,7 @@ async function deliverOne(admin: Admin, id: string): Promise<{ status: "sent" | 
     .from("survey_invitations")
     .update({ status: "sending", claimed_at: new Date().toISOString(), attempts: 1 })
     .eq("id", id).eq("status", "pending")
-    .select("id,user_id,job_id,channel,sms_body,email_subject,question,timezone,customer_name,customer_phone,customer_email,token,attempts")
+    .select("id,user_id,job_id,customer_id,channel,sms_body,email_subject,question,timezone,customer_name,customer_phone,customer_email,token,attempts")
     .maybeSingle();
   if (!claimed) return { status: "queued" };
   const inv = claimed as Invitation;
