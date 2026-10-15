@@ -192,6 +192,7 @@ interface NavItem {
 // further.
 const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Support', href: '/dashboard/support', icon: LifeBuoy },
   { label: 'Getting Started', href: '/dashboard/getting-started', icon: Rocket },
   { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
