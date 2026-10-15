@@ -1,4 +1,4 @@
-export type CapacityOutcome = 'assigned' | 'at_capacity' | 'no_technician_available' | 'not_found';
+export type CapacityOutcome = 'assigned' | 'at_capacity' | 'no_technician_available' | 'not_found'| 'blocked_time_off';
 
 export interface AssignTechnicianResult {
   status: CapacityOutcome;
@@ -34,7 +34,9 @@ export function describeAssignResult(result: AssignTechnicianResult): { message:
       return { message: `Assigned to ${result.technician_name ?? 'technician'}.`, ok: true };
     case 'at_capacity':
       return { message: result.reason || 'That technician is already at capacity for that day.', ok: false };
-    case 'no_technician_available':
+    case 'blocked_time_off':
+      return { message: result.reason || 'That technician is unavailable that day.', ok: false };
+      case 'no_technician_available':
       return { message: result.reason || 'No technician is available for that day.', ok: false };
     default:
       return { message: 'Could not assign this job.', ok: false };
