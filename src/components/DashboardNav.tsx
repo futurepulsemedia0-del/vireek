@@ -200,6 +200,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
   { label: 'Tasks', href: '/dashboard/tasks', icon: ListChecks },
   { label: 'Team Chat', href: '/dashboard/team-chat', icon: MessagesSquare },
+  { label: 'Live Calls', href: '/dashboard/live-calls', icon: Radio, requiresPermission: 'can_manage_numbers' },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Goals', href: '/dashboard/goals', icon: Target },
