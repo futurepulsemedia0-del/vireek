@@ -27,6 +27,16 @@ export interface DeveloperChangelogRelease {
 
 export const DEVELOPER_CHANGELOG_RELEASES: DeveloperChangelogRelease[] = [
   {
+  {
+    date: 'October 9, 2026',
+    entries: [
+      {
+        type: 'api',
+        title: 'API Reference, OpenAPI spec, Postman collection and per-key request logs',
+        body: 'A new API Reference page ships an OpenAPI 3 spec and a Postman collection for api-v1, and every authenticated request is now logged per API key (30-day retention) and viewable by the account owner.',
+      },
+    ],
+  },
     date: 'September 13, 2026',
     entries: [
       {
