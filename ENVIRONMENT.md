@@ -84,6 +84,7 @@ Chain order and task routing: `_shared/ai-core/registry.ts`. A provider without 
 | `STRIPE_SECRET_KEY` | `create-checkout-session`, `create-billing-portal-session`, `create-payment-request`, `stripe-connect-onboarding`, `stripe-webhook`, `membership-lifecycle-agent`, `mcp-server` | Stripe → Developers → API keys |
 | `STRIPE_WEBHOOK_SECRET` | `stripe-webhook` (signature check) | Stripe → Developers → Webhooks → endpoint `…/functions/v1/stripe-webhook` → signing secret |
 | `STRIPE_PAYMENT_WEBHOOK_SECRET` | `stripe-payment-webhook` | Same, for the `…/stripe-payment-webhook` endpoint |
+| `STRIPE_PUBLISHABLE_KEY` | `public-payment` | Stripe → Developers → API keys → **Publishable key** (`pk_…`). Public by design; must be the same mode (test/live) as `STRIPE_SECRET_KEY` |
 | `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PROFESSIONAL`, `STRIPE_PRICE_BUSINESS` | `create-checkout-session` (read dynamically via `PRICE_ENV_BY_PLAN`). Missing → HTTP 500 "Billing is not configured yet" | Stripe → Products → price id (`price_…`) |
 
 ### B4. Messaging
