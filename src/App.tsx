@@ -250,6 +250,7 @@ const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then((m) =>
 onst RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
+const LiveCallsPage = lazy(() => import('@/pages/LiveCallsPage').then((m) => ({ default: m.LiveCallsPage })));
 const VerificationNetworkPage = lazy(() => import('@/pages/VerificationNetworkPage').then((m) => ({ default: m.VerificationNetworkPage })));
 const PhysicalEconomyNetworkPage = lazy(() => import('@/pages/PhysicalEconomyNetworkPage').then((m) => ({ default: m.PhysicalEconomyNetworkPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
@@ -885,6 +886,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AdaptiveDiagnosticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/live-calls"
+          element={
+            <ProtectedRoute>
+              <LiveCallsPage />
             </ProtectedRoute>
           }
         />
