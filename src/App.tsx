@@ -306,6 +306,7 @@ const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttribu
 const LeadMarketplacesPage = lazy(() => import('@/pages/LeadMarketplacesPage').then((m) => ({ default: m.LeadMarketplacesPage })));
 const DemandOsPage = lazy(() => import('@/pages/DemandOsPage').then((m) => ({ default: m.DemandOsPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
+const CallRoutingPage = lazy(() => import('@/pages/CallRoutingPage').then((m) => ({ default: m.CallRoutingPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
 const EmergencyOperationsPage = lazy(() => import('@/pages/EmergencyOperationsPage').then((m) => ({ default: m.EmergencyOperationsPage })));
 const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m) => ({ default: m.ProfitabilityPage })));
@@ -1998,6 +1999,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AdvancedRoutingPage />
+            </ProtectedRoute>
+          }
+        />
+              <Route
+          path="/dashboard/call-routing"
+          element={
+            <ProtectedRoute>
+              <CallRoutingPage />
             </ProtectedRoute>
           }
         />
