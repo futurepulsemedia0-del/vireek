@@ -3,7 +3,8 @@ import { CircleCheck, X } from 'lucide-react';
 
 export function PaymentResultPage() {
   const [searchParams] = useSearchParams();
-  const success = searchParams.get('status') === 'success';
+  // Stripe appends redirect_status after redirect-based methods (3-D Secure, bank redirects).
+  const success = searchParams.get('status') === 'success' && searchParams.get('redirect_status') !== 'failed';
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg-primary px-6">
