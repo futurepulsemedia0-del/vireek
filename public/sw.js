@@ -25,7 +25,17 @@ self.addEventListener('push', (event) => {
     data: { url: data.url || '/dashboard' },
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(
+    (async () => {
+      // Chat: do not buzz when the person is already looking at that conversation.
+      if (data.chatChannelId) {
+        const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        const watching = wins.some((c) => c.visibilityState === 'visible' && c.url.includes('c=' + data.chatChannelId));
+        if (watching) return;
+      }
+      await self.registration.showNotification(title, options);
+    })(),
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {
