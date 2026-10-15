@@ -1,6 +1,7 @@
 import type { Job, TeamMember } from '@/lib/supabase';
 import { stockFitBonus, stockFitReason, type StockFitRow } from '@/lib/truckStock';
 import { passportFitBonus, passportFitReasons, type PassportFitRow } from '@/lib/dispatchPassportFit';
+import { unavailabilityForTimestamp, type AvailabilityData } from '@/lib/timeOff';
 
 export interface DispatchSuggestion {
   technician: TeamMember;
@@ -24,13 +25,16 @@ export function suggestTechnicians(
   technicians: TeamMember[],
   jobsByTechnician: Record<string, Job[]>,
   stockFit: Record<string, StockFitRow> = {},
-  passportFit: Record<string, PassportFitRow> = {}
+  passportFit: Record<string, PassportFitRow> = {},
+  availability: AvailabilityData | null = null
 ): DispatchSuggestion[] {
   const candidates = technicians.filter((t) => t.role === 'technician' && t.dispatch_enabled);
 
   return candidates
     .map((tech) => {
       const reasons: string[] = [];
+      const off = availability ? unavailabilityForTimestamp(tech.id, job.scheduled_datetime, availability) : null;
+      if (off) return { technician: tech, score: -1, reasons: [off.reason] };
       const todaysJobs = (jobsByTechnician[tech.id] ?? []).filter((j) =>
         isSameDay(j.scheduled_datetime, job.scheduled_datetime)
       );
