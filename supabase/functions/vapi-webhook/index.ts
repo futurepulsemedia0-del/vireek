@@ -621,6 +621,7 @@ async function buildCustomerTypeContextVariable(
 // ---------------------------------------------------------------------------
 
 import { buildRecordingConsentNotice } from "../_shared/compliance/recordingConsent.ts";
+import { trackLiveCallEvent } from "../_shared/live-calls/runtime.ts";
 async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   const tenant = await resolveTenant(admin, message, requestId);
 
@@ -2166,6 +2167,7 @@ Deno.serve(async (req: Request) => {
 
   logEvent("webhook_received", requestId, { type: message.type });
   await logToDb(admin, { eventType: message.type, status: "success", requestId });
+  await trackLiveCallEvent(admin, message, requestId, resolveTenant);
 
   try {
     switch (message.type) {
