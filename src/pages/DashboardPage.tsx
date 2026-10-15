@@ -12,6 +12,7 @@ import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
 import { SinceYesterdayCard } from '@/components/SinceYesterdayCard';
+import { DailyBriefingCard } from '@/components/DailyBriefingCard';
 import { TodayTasksCard } from '@/components/TodayTasksCard';
 import { AttributionReport, AttributionRow } from '@/components/AttributionReport';
 
@@ -753,7 +754,11 @@ export function DashboardPage() {
     { to: '/dashboard/billing', icon: CreditCard, title: 'Billing', sub: 'Plan & customer invoices', show: isOwner || permissions.can_view_billing },
     { to: '/dashboard/integrations', icon: Plug, title: 'Integrations', sub: 'Connect your tools', show: true },
   ];
-
+{!profileLoading && (
+  <div className="mb-6">
+    <DailyBriefingCard />
+  </div>
+)}
   const renderWidget = (id: OverviewWidgetId): React.ReactNode => {
     switch (id) {
       case 'since_yesterday':
