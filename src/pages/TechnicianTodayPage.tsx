@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, MapPin, Truck, UserRound, Wallet } from 'lucide-react';
+import { AlertTriangle, ChevronRight, MapPin, MessageSquare, Truck, UserRound, Wallet } from 'lucide-react';
 import { fetchTodayJobs, formatTime, STATUS_LABELS, TechnicianJob } from '@/lib/technicianOS';
+import { fetchUnreadTotal } from '@/lib/jobMessages';
+import { useRealtimeSubscription } from '@/lib/realtime';
 
 const STATUS_DOT: Record<string, string> = {
   scheduled: 'bg-accent',
@@ -14,6 +16,10 @@ export function TechnicianTodayPage() {
   const [jobs, setJobs] = useState<TechnicianJob[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [unread, setUnread] = useState(0);
+  const refreshUnread = () => { fetchUnreadTotal().then(setUnread).catch(() => undefined); };
+  useEffect(refreshUnread, []);
+  useRealtimeSubscription({ channelName: 'tech-today-unread', table: 'job_messages', event: 'INSERT', onChange: refreshUnread });
 
   useEffect(() => {
     fetchTodayJobs()
@@ -26,10 +32,16 @@ export function TechnicianTodayPage() {
       <header className="sticky top-0 z-10 border-b border-border bg-bg-primary/95 px-4 py-4 backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
+        <div className="flex items-start justify-between">
+          <div>
             <h1 className="text-lg font-semibold text-text-primary">Today</h1>
-            <p className="text-sm text-text-secondary">
-              {jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled
-            </p>
+            <p className="text-sm text-text-secondary">{jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled</p>
+          </div>
+          <Link to="/tech/messages" className="focus-ring relative rounded-full border border-border p-2.5 text-text-primary" aria-label={unread ? `Messages, ${unread} unread` : 'Messages'}>
+            <MessageSquare className="h-5 w-5" />
+            {unread > 0 && <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-accent px-1 text-center text-[11px] font-semibold text-white">{unread}</span>}
+          </Link>
+        </div>
           </div>
           <nav className="flex items-center gap-2" aria-label="Technician shortcuts">
             <Link
