@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Bell,
   CornerDownLeft,
+  LifeBuoy,
   Rocket,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -43,6 +44,7 @@ const PAGES: StaticPage[] = [
   { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, keywords: 'export csv excel xlsx pdf download' }
   { label: 'Getting Started', href: '/dashboard/getting-started', icon: Rocket, keywords: 'setup checklist onboarding tour' },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, keywords: 'settings' },
+  { label: 'Support', href: '/dashboard/support', icon: LifeBuoy, keywords: 'help ticket contact' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
