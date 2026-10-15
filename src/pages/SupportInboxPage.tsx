@@ -4,6 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { formatMessageTime, SupportConversation, SupportMessage } from '@/lib/supportChat';
+import { MessageAttachments, SlaBadge, StateBadge } from '@/components/support/TicketParts';
+import { fetchAttachments } from '@/lib/supportTicketsApi';
+import { ticketRef, type Ticket, type TicketAttachment } from '@/lib/supportTickets';
+
+const asTicket = (c: SupportConversation) => c as unknown as Ticket;
 
 export function SupportInboxPage() {
   const { user } = useAuth();
@@ -12,6 +17,7 @@ export function SupportInboxPage() {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [attachments, setAttachments] = useState<TicketAttachment[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const selected = conversations.find((c) => c.id === selectedId) ?? null;
@@ -59,6 +65,11 @@ export function SupportInboxPage() {
   });
 
   useEffect(() => {
+    if (!selectedId) { setAttachments([]); return; }
+    fetchAttachments(selectedId).then(setAttachments).catch(() => setAttachments([]));
+  }, [selectedId, messages.length]);
+
+  useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
@@ -103,11 +114,14 @@ export function SupportInboxPage() {
                 selectedId === c.id ? 'bg-accent/10' : 'hover:bg-bg-secondary'
               }`}
             >
-              <p className="text-sm font-medium text-text-primary">{c.visitor_name || c.visitor_email || 'Anonymous visitor'}</p>
+              <p className="text-sm font-medium text-text-primary">
+                {asTicket(c).subject ? `${ticketRef(asTicket(c).ticket_number)} · ${asTicket(c).subject}` : c.visitor_name || c.visitor_email || 'Anonymous visitor'}
+              </p>>
               <p className="mt-0.5 truncate text-xs text-text-secondary">{c.page_path || '—'}</p>
               <p className="mt-0.5 text-[11px] text-text-secondary/70">
                 {c.status === 'open' ? 'Waiting' : 'In progress'} · {new Date(c.last_message_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
               </p>
+              {asTicket(c).subject && <div className="mt-1.5"><SlaBadge ticket={asTicket(c)} /></div>}
             </button>
           ))
         )}
@@ -122,6 +136,13 @@ export function SupportInboxPage() {
               <div>
                 <p className="text-sm font-semibold text-text-primary">{selected.visitor_name || selected.visitor_email || 'Anonymous visitor'}</p>
                 <p className="text-xs text-text-secondary">{selected.visitor_email || 'No email provided'} · {selected.page_path}</p>
+                {asTicket(selected).subject && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <span className="text-xs font-medium text-text-primary">{ticketRef(asTicket(selected).ticket_number)} · {asTicket(selected).subject}</span>
+                    <StateBadge ticket={asTicket(selected)} />
+                    <SlaBadge ticket={asTicket(selected)} />
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -145,6 +166,7 @@ export function SupportInboxPage() {
                       }`}
                     >
                       {m.body}
+                      <MessageAttachments items={attachments.filter((a) => a.message_id === m.id)} onDark={!isVisitor} />
                       <span className={`mt-1 block text-[10px] ${isVisitor ? 'text-text-secondary' : 'text-white/70'}`}>
                         {formatMessageTime(m.created_at)}
                       </span>
