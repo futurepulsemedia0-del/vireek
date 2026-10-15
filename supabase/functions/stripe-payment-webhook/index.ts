@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyStripeSignature } from "../_shared/stripe/client.ts";
-import { applyPaymentIntentResult } from "../_shared/stripe/terminalPayments.ts";
+import { applyPaymentIntentResult, stripeGet } from "../_shared/stripe/terminalPayments.ts";
+import { finalizePaymentRequestFromIntent } from "../_shared/payments/finalizeIntent.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -93,6 +94,12 @@ Deno.serve(async (req: Request) => {
       case "payment_intent.succeeded":
       case "payment_intent.payment_failed":
       case "payment_intent.canceled": {
+        // Payment Element payments (pay links, memberships — incl. Apple Pay & Google Pay) carry payment_request_id.
+        const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+        const finalized = await finalizePaymentRequestFromIntent(admin, event.data.object, {
+          fetchCharge: (chargeId) => stripeGet(`charges/${chargeId}`, stripeKey),
+        });
+        if (finalized.handled) break;
         await applyPaymentIntentResult(admin, event.data.object, Deno.env.get("STRIPE_SECRET_KEY") ?? undefined);
         break;
       }
