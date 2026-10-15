@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Bell,
   CornerDownLeft,
+  Rocket,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -39,7 +40,8 @@ const PAGES: StaticPage[] = [
   { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, keywords: 'salesforce pipedrive zoho crm sync' },
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, keywords: 'fields custom properties' },
-  { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, keywords: 'export csv excel xlsx pdf download' },
+  { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, keywords: 'export csv excel xlsx pdf download' }
+  { label: 'Getting Started', href: '/dashboard/getting-started', icon: Rocket, keywords: 'setup checklist onboarding tour' },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, keywords: 'settings' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
