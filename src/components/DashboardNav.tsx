@@ -160,6 +160,7 @@ import {
   FolderDown,
   SlidersHorizontal,
   Images,
+  Paintbrush,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
@@ -461,6 +462,7 @@ const PRIMARY_ITEMS: NavItem[] = [
 const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'My Account', href: '/dashboard/account', icon: User },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Branding', href: '/dashboard/settings/branding', icon: Paintbrush, requiresPermission: 'can_edit_business_profile' },
   { label: 'Locations', href: '/dashboard/settings/locations', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
   { label: 'Time Off', href: '/dashboard/time-off', icon: CalendarOff, requiresPermission: 'can_manage_team' },
