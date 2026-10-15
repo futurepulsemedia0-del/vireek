@@ -373,6 +373,7 @@ const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => (
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
 const SecurityWhitepaperPage = lazy(() => import('@/pages/SecurityWhitepaperPage').then((m) => ({ default: m.SecurityWhitepaperPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
+const OfflinePage = lazy(() => import('@/pages/OfflinePage').then((m) => ({ default: m.OfflinePage })));
 const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
 const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
@@ -594,6 +595,7 @@ function AppRoutes() {
         <Route path="/trust/compliance" element={<ComplianceStatusPage />} />
         <Route path="/integrations" element={<IntegrationsHubPage />} />
         <Route path="/integrations/:slug" element={<IntegrationDetailPage />} />
+        <Route path="/offline" element={<OfflinePage />} />
         <Route path="/status" element={<StatusPage />} />
         <Route path="/status/unsubscribe" element={<StatusUnsubscribePage />} />
         <Route path="/maintenance" element={<MaintenancePage />} />
