@@ -112,6 +112,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   useSessionPolicyEnforcement(Boolean(session));
+  const mfaPending = useMfaPending(session?.user?.id ?? null);
   useLoginAlert(Boolean(session));
 
   if (loading) {
@@ -128,6 +129,16 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (!session) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
+  if (mfaPending === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-bg-primary">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
+      </div>
+    );
+  }
 
+  if (mfaPending) {
+    return <Navigate to="/mfa" state={{ from: location.pathname + location.search }} replace />;
+  }
   return <>{children}</>;
 }
