@@ -294,6 +294,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Promise Tracker', href: '/dashboard/promises', icon: Handshake },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: MessageSquareWarning },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
+  { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
