@@ -23,6 +23,7 @@ import {
 } from '@/lib/integrationRecovery';
 import { IntegrationRecoveryBanner } from '@/components/integrations/IntegrationRecoveryBanner';
 import { IntegrationRecoveryPanel } from '@/components/integrations/IntegrationRecoveryPanel';
+import { ChatNotificationsPanel } from '@/components/integrations/ChatNotificationsPanel';
 
 // ============================================================
 // CONSTANTS
@@ -84,7 +85,7 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
 
 export function IntegrationsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user, profile, profileLoading, isOwner } = useAuth();
   const { toast } = useToast();
 
   useKeyboardShortcut({
@@ -499,6 +500,7 @@ export function IntegrationsPage() {
           })}
         </div>
       )}
+      <ChatNotificationsPanel isOwner={isOwner} />
     </DashboardLayout>
   );
 }
