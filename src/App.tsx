@@ -237,6 +237,7 @@ const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ 
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
 const KnowledgeCapturePage = lazy(() => import('@/pages/KnowledgeCapturePage').then((m) => ({ default: m.KnowledgeCapturePage })));
 const FailureAtlasPage = lazy(() => import('@/pages/FailureAtlasPage').then((m) => ({ default: m.FailureAtlasPage })));
+const ImportsPage = lazy(() => import('@/pages/ImportsPage').then((m) => ({ default: m.ImportsPage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
 const BusinessEvolutionRoadmapPage = lazy(() => import('@/pages/BusinessEvolutionRoadmapPage').then((m) => ({ default: m.BusinessEvolutionRoadmapPage })));
@@ -1391,6 +1392,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <NegativeKnowledgeStorePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/imports"
+          element={
+            <ProtectedRoute>
+              <ImportsPage />
             </ProtectedRoute>
           }
         />
