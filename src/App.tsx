@@ -464,6 +464,7 @@ const TasksPage = lazy(() => import('@/pages/TasksPage').then((m) => ({ default:
 const TeamChatPage = lazy(() => import('@/pages/TeamChatPage').then((m) => ({ default: m.TeamChatPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
 const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ default: m.SandboxPage })));
+const ApiReferencePage = lazy(() => import('@/pages/ApiReferencePage').then((m) => ({ default: m.ApiReferencePage })));
 const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
 const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) => ({ default: m.InviteAcceptPage })));
 
@@ -603,6 +604,7 @@ function AppRoutes() {
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/sdks" element={<SdksPage />} />
         <Route path="/sandbox" element={<SandboxPage />} />
+        <Route path="/developers/api-reference" element={<ApiReferencePage />} />
         <Route path="/developers/changelog" element={<DeveloperChangelogPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
