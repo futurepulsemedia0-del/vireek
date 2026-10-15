@@ -275,6 +275,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: Sparkles },
   { label: 'Adaptive Diagnostic', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
   { label: 'Predictive Failure', href: '/dashboard/predictive-failure', icon: Radar },
+  { label: 'Preventive Maintenance', href: '/dashboard/preventive-maintenance', icon: CalendarClock, requiresPermission: 'can_view_all_jobs' },
   { label: 'Verification Network', href: '/dashboard/verification-network', icon: BadgeCheck },
   { label: 'Physical Economy Network', href: '/dashboard/physical-economy-network', icon: Network },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
