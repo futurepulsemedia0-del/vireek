@@ -121,6 +121,7 @@ import {
   HeartPulse,
   Factory,
   MessageSquareWarning,
+  MessageSquareText,
   MessageSquareHeart,
   MessageSquare,
   ShieldCheck,
