@@ -1032,7 +1032,14 @@ export function JobsPage() {
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [location, navigate]);
-
+  // Deep link from the Customer Feedback panel: /dashboard/jobs?job=<id> opens that job.
+  useEffect(() => {
+    const jobId = new URLSearchParams(location.search).get('job');
+    if (!jobId || dataLoading) return;
+    const match = allJobs.find((j) => j.id === jobId);
+    if (match) setSelectedJob(match);
+    navigate(location.pathname, { replace: true });
+  }, [location.search, location.pathname, dataLoading, allJobs, navigate]);
   useEffect(() => {
     if (!profileLoading && profile && !profile.onboarding_completed) {
       navigate('/onboarding', { replace: true });
