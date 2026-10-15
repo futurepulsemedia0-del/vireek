@@ -458,6 +458,7 @@ const OAuthAppsPage = lazy(() => import('@/pages/OAuthAppsPage').then((m) => ({ 
 const SmsCompliancePage = lazy(() => import('@/pages/SmsCompliancePage').then((m) => ({ default: m.SmsCompliancePage })));
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
+const BrandingSettingsPage = lazy(() => import('@/pages/BrandingSettingsPage').then((m) => ({ default: m.BrandingSettingsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 const ServerErrorPage = lazy(() => import('@/pages/ServerErrorPage').then((m) => ({ default: m.ServerErrorPage })));
 const BadgePage = lazy(() => import('@/pages/BadgePage').then((m) => ({ default: m.BadgePage })));
@@ -1074,6 +1075,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/settings/branding"
+  element={
+    <ProtectedRoute>
+      <BrandingSettingsPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/calls"
           element={
