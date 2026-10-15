@@ -50,6 +50,7 @@ import {
   Ban,
   Users2,
   CreditCard,
+  MessagesSquare,
   Plug,
   ChevronDown,
   Sparkles,
@@ -167,6 +168,8 @@ import { NotificationBell } from '@/components/NotificationBell';
 import { AiAssistant } from '@/components/AiAssistant';
 import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
 import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
+import { ChatUnreadProvider } from '@/contexts/ChatUnreadContext';
+import { ChatNavBadge } from '@/components/teamchat/ChatNavBadge';
 import { useKeyboardShortcuts, DEFAULT_SHORTCUTS } from '@/lib/keyboardShortcuts';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
@@ -191,6 +194,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
   { label: 'Tasks', href: '/dashboard/tasks', icon: ListChecks },
+  { label: 'Team Chat', href: '/dashboard/team-chat', icon: MessagesSquare },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Goals', href: '/dashboard/goals', icon: Target },
@@ -527,6 +531,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       >
         <item.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
         {label(item.label)}
+        {item.href === '/dashboard/team-chat' && <ChatNavBadge />}
       </Link>
     );
   }
@@ -748,6 +753,7 @@ export function DashboardLayout({
     // shared by both bells, instead of each opening its own and colliding.
     // See NotificationsContext.tsx for the full story on the bug this fixes.
         <NotificationsProvider>
+        <ChatUnreadProvider>
       <div className="min-h-screen bg-bg-primary">
         <DashboardNav activeLabel={activeLabel} />
         <div className="lg:pl-60 print:pl-0">
@@ -769,6 +775,7 @@ export function DashboardLayout({
           <AiAssistant />
         </div>
       </div>
+    </ChatUnreadProvider>
     </NotificationsProvider>
   );
 }
