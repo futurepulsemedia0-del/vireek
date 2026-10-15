@@ -112,6 +112,11 @@ export function monthlyEquivalentLabel(priceCents: number, interval: 'monthly' |
   return `about ${formatPlanPrice(toMonthlyCents(priceCents, interval))} / month`;
 }
 
+/** Only ever send the customer to our own payment page (/pay/<64-hex token>) — never an arbitrary URL. */
+export function isSafePayPath(path: string | null | undefined): path is string {
+  return typeof path === 'string' && /^\/pay\/[a-f0-9]{64}$/.test(path);
+}
+
 /** Only ever send the customer to a Stripe-hosted https page. */
 export function isSafeCheckoutUrl(url: string | null | undefined): url is string {
   if (!url) return false;
