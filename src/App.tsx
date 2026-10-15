@@ -235,6 +235,7 @@ onst RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGrap
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
 const VerificationNetworkPage = lazy(() => import('@/pages/VerificationNetworkPage').then((m) => ({ default: m.VerificationNetworkPage })));
+const PhysicalEconomyNetworkPage = lazy(() => import('@/pages/PhysicalEconomyNetworkPage').then((m) => ({ default: m.PhysicalEconomyNetworkPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const InvoiceDetailPage = lazy(() => import('@/pages/InvoiceDetailPage').then((m) => ({ default: m.InvoiceDetailPage })));
 const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
@@ -830,6 +831,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <VerificationNetworkPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/physical-economy-network"
+          element={
+            <ProtectedRoute>
+              <PhysicalEconomyNetworkPage />
             </ProtectedRoute>
           }
         />
