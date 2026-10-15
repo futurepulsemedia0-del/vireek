@@ -1,4 +1,5 @@
 import type { Job, TeamMember } from '@/lib/supabase';
+import { WORKFLOW_STATUS_TRANSITIONS } from '@/lib/jobWorkflow';
 
 // ============================================================
 // Drag-and-drop scheduling engine — PURE logic, no React, no network.
@@ -37,6 +38,7 @@ export const STATUS_TRANSITIONS: Record<JobStatus, readonly JobStatus[]> = {
   in_progress: ['en_route', 'completed'],
   completed: [],
   cancelled: [],
+  no_show: [],
   no_show: [],
 };
 
