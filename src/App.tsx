@@ -17,6 +17,8 @@ import { AriaLiveRegion } from '@/lib/a11y/announcer';
 // consistent across pages specifically so this mapping stays mechanical.
 const MarketingPage = lazy(() => import('@/pages/MarketingPage'));
 const AudiencesPage = lazy(() => import('@/pages/AudiencesPage'));
+const EmailCampaignsPage = lazy(() => import('@/pages/EmailCampaignsPage'));
+const EmailUnsubscribePage = lazy(() => import('@/pages/EmailUnsubscribePage'));
 const CampaignDetailPage = lazy(() => import('@/pages/CampaignDetailPage').then((m) => ({ default: m.CampaignDetailPage })));
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })));
@@ -668,6 +670,7 @@ function AppRoutes() {
         <Route path="/offline" element={<OfflinePage />} />
         <Route path="/status" element={<StatusPage />} />
         <Route path="/status/unsubscribe" element={<StatusUnsubscribePage />} />
+        <Route path="/email/unsubscribe/:token" element={<EmailUnsubscribePage />} />
         <Route path="/maintenance" element={<MaintenancePage />} />
         <Route path="/case-studies" element={<CaseStudiesPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
@@ -1822,6 +1825,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <MarketingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/email-campaigns"
+          element={
+            <ProtectedRoute>
+              <EmailCampaignsPage />
             </ProtectedRoute>
           }
         />
