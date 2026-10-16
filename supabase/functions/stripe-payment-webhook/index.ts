@@ -103,6 +103,22 @@ Deno.serve(async (req: Request) => {
         await applyPaymentIntentResult(admin, event.data.object, Deno.env.get("STRIPE_SECRET_KEY") ?? undefined);
         break;
       }
+      case "charge.refund.updated":
+      case "refund.updated":
+      case "refund.failed": {
+        const refund = event.data.object;
+        if (refund?.id) {
+          const metaId = refund.metadata?.refund_id;
+          const { error: refundError } = await admin.rpc("refund_apply_stripe_update", {
+            p_stripe_refund_id: refund.id,
+            p_stripe_status: event.type === "refund.failed" ? "failed" : (refund.status ?? "pending"),
+            p_failure_reason: refund.failure_reason ?? null,
+            p_refund_id: typeof metaId === "string" && /^[0-9a-f-]{36}$/i.test(metaId) ? metaId : null,
+          });
+          if (refundError) throw new Error(refundError.message);
+        }
+        break;
+      }
       case "account.updated": {
         const account = event.data.object;
         await admin
