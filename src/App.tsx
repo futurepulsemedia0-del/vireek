@@ -62,6 +62,7 @@ const AgentMarketplacePage = lazy(() => import('@/pages/AgentMarketplacePage').t
 const AutonomyBudgetPage = lazy(() => import('@/pages/AutonomyBudgetPage').then((m) => ({ default: m.AutonomyBudgetPage })));
 const ExecutionReliabilityPage = lazy(() => import('@/pages/ExecutionReliabilityPage').then((m) => ({ default: m.ExecutionReliabilityPage })));
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
+const ReferralsPage = lazy(() => import('@/pages/ReferralsPage').then((m) => ({ default: m.ReferralsPage })));
 const VoicemailDropsPage = lazy(() => import('@/pages/VoicemailDropsPage').then((m) => ({ default: m.VoicemailDropsPage })));
 const NeighborhoodRevenuePage = lazy(() => import('@/pages/NeighborhoodRevenuePage').then((m) => ({ default: m.NeighborhoodRevenuePage })));
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
@@ -1833,6 +1834,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <OutboundCampaignsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/referrals"
+          element={
+            <ProtectedRoute>
+              <ReferralsPage />
             </ProtectedRoute>
           }
         />
