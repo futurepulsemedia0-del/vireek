@@ -330,6 +330,7 @@ const FinancingCenterPage = lazy(() => import('@/pages/FinancingCenterPage').the
 const UpdatePaymentMethodPage = lazy(() => import('@/pages/UpdatePaymentMethodPage').then((m) => ({ default: m.UpdatePaymentMethodPage })));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })));
 const PaymentsPage = lazy(() => import('@/pages/PaymentsPage').then((m) => ({ default: m.PaymentsPage })));
+const RefundsPage = lazy(() => import('@/pages/RefundsPage').then((m) => ({ default: m.RefundsPage })));
 const PaymentResultPage = lazy(() => import('@/pages/PaymentResultPage').then((m) => ({ default: m.PaymentResultPage })));
 const PublicPaymentPage = lazy(() => import('@/pages/PublicPaymentPage').then((m) => ({ default: m.PublicPaymentPage })));
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
@@ -3229,6 +3230,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PaymentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/refunds"
+          element={
+            <ProtectedRoute>
+              <RefundsPage />
             </ProtectedRoute>
           }
         />
