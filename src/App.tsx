@@ -198,6 +198,7 @@ const HomeDemandExchangePage = lazy(() => import('@/pages/HomeDemandExchangePage
 const ContextEnginePage = lazy(() => import('@/pages/ContextEnginePage').then((m) => ({ default: m.ContextEnginePage })));
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
 const UnderpricedJobsPage = lazy(() => import('@/pages/UnderpricedJobsPage').then((m) => ({ default: m.UnderpricedJobsPage })));
+const ExpensesPage = lazy(() => import('@/pages/ExpensesPage').then((m) => ({ default: m.ExpensesPage })));
 const EquipmentLifecyclePage = lazy(() => import('@/pages/EquipmentLifecyclePage').then((m) => ({ default: m.EquipmentLifecyclePage })));
 const BuildingTelemetryPage = lazy(() => import('@/pages/BuildingTelemetryPage').then((m) => ({ default: m.BuildingTelemetryPage })));
 const EquipmentPassportsPage = lazy(() => import('@/pages/EquipmentPassportsPage').then((m) => ({ default: m.EquipmentPassportsPage })));
@@ -2217,6 +2218,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <PayrollPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/expenses"
+  element={
+    <ProtectedRoute>
+      <ExpensesPage />
     </ProtectedRoute>
   }
 />
