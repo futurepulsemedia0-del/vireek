@@ -377,6 +377,7 @@ const PodcastPage = lazy(() => import('@/pages/PodcastPage').then((m) => ({ defa
 const GlossaryPage = lazy(() => import('@/pages/GlossaryPage').then((m) => ({ default: m.GlossaryPage })));
 const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage').then((m) => ({ default: m.TestimonialsPage })));
 const ContactPage = lazy(() => import('@/pages/ContactPage').then((m) => ({ default: m.ContactPage })));
+const ContactSalesPage = lazy(() => import('@/pages/ContactSalesPage').then((m) => ({ default: m.ContactSalesPage })));
 const ServicesPage = lazy(() => import('@/pages/ServicesPage').then((m) => ({ default: m.ServicesPage })));
 const FeaturesPage = lazy(() => import('@/pages/FeaturesPage').then((m) => ({ default: m.FeaturesPage })));
 const LeadQualificationPage = lazy(() => import('@/pages/LeadQualificationPage').then((m) => ({ default: m.LeadQualificationPage })));
@@ -624,6 +625,7 @@ function AppRoutes() {
         <Route path="/glossary" element={<GlossaryPage />} />
         <Route path="/testimonials" element={<TestimonialsPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/contact-sales" element={<ContactSalesPage />} />
         <Route path="/error" element={<ServerErrorPage />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/solutions" element={<ServicesPage />} />
