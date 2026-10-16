@@ -412,30 +412,18 @@ export function BillingPage() {
             <h3 className="text-sm font-semibold text-text-primary">Billing History</h3>
           </div>
           {hasStripeCustomer ? (
-            <div className="mt-4">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-xs text-text-secondary">
-                    <th className="pb-2 font-medium">Date</th>
-                    <th className="pb-2 font-medium">Amount</th>
-                    <th className="pb-2 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Stripe invoices would populate here */}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-border bg-bg-primary p-4">
-              <Lock size={16} className="shrink-0 text-text-secondary" />
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-text-secondary">
-                Billing history will appear here once Stripe is connected. Your Starter plan is free — no charges yet.
+                View every Vireek invoice, download PDF receipts and manage your card.
               </p>
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/billing/invoices')}
+                className="focus-ring inline-flex min-h-[40px] items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
+              >
+                <FileText size={15} /> View invoices <ArrowUpRight size={14} />
+              </button>
             </div>
-          )}
-        </div>
-      </div>
 
       {/* SECTION 2: Customer Invoices */}
 <div className="mb-8 printable-invoice" id="invoice-print-area">
