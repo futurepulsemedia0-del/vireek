@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import {
   ArrowRight,
   ShieldCheck,
@@ -25,6 +26,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { fetchOpenPostings } from '@/lib/careersApi';
+import { EMPLOYMENT_TYPE_LABELS, LOCATION_TYPE_LABELS, type JobPosting } from '@/lib/careers';
 
 const CAREERS_EMAIL = 'ali@vireek.com';
 
@@ -133,10 +136,7 @@ function SEO() {
   return null;
 }
 
-function RoleCard({ role }: { role: Role }) {
-  const applyHref =
-    role.applyHref ?? `mailto:${CAREERS_EMAIL}?subject=${encodeURIComponent(`Application: ${role.title}`)}`;
-
+function RoleCard({ role }: { role: JobPosting }) {
   return (
     <Card className="flex h-full flex-col">
       <div className="flex flex-wrap items-center gap-2">
@@ -146,23 +146,23 @@ function RoleCard({ role }: { role: Role }) {
         </span>
       </div>
       <h3 className="mt-4 text-xl font-bold text-text-primary">{role.title}</h3>
-      <p className="mt-3 flex-1 text-sm leading-relaxed text-text-secondary">{role.description}</p>
+      <p className="mt-3 flex-1 text-sm leading-relaxed text-text-secondary">{role.summary}</p>
       <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary/80">
         <span className="flex items-center gap-1.5">
           <MapPin size={13} />
-          {role.location}
+          {role.location} · {LOCATION_TYPE_LABELS[role.location_type]}
         </span>
         <span className="flex items-center gap-1.5">
           <Clock size={13} />
-          {role.type}
+          {EMPLOYMENT_TYPE_LABELS[role.employment_type]}
         </span>
       </div>
-      <a href={applyHref} className="mt-6">
+      <Link to={`/careers/${role.slug}`} className="mt-6">
         <Button variant="primary" size="sm" className="w-full">
-          Apply
+          View role &amp; apply
           <ArrowRight size={16} />
         </Button>
-      </a>
+      </Link>
     </Card>
   );
 }
@@ -190,6 +190,25 @@ function OpenRolesEmptyState() {
 }
 
 export function CareersPage() {
+  const [roles, setRoles] = useState<JobPosting[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchOpenPostings()
+      .then((rows) => {
+        if (!cancelled) setRoles(rows);
+      })
+      .catch(() => {
+        // The page must never break because roles failed to load: it falls back to the empty state.
+      })
+      .finally(() => {
+        if (!cancelled) setRolesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   return (
     <>
       <SEO />
@@ -379,12 +398,18 @@ export function CareersPage() {
               transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
               className="mt-14"
             >
-              {OPEN_ROLES.length === 0 ? (
+              {rolesLoading ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="h-56 animate-pulse rounded-2xl bg-bg-tertiary" />
+                  ))}
+                </div>
+              ) : roles.length === 0 ? (
                 <OpenRolesEmptyState />
               ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {OPEN_ROLES.map((role) => (
-                    <RoleCard key={role.title} role={role} />
+                  {roles.map((role) => (
+                    <RoleCard key={role.id} role={role} />
                   ))}
                 </div>
               )}
