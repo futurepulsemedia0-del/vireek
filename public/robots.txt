@@ -4,3 +4,4 @@ Disallow: /s/
 Disallow: /portal/
 Sitemap: https://vireek.com/sitemap.xml
 Sitemap: https://vireek.com/sitemap-locations.xml
+Sitemap: https://vireek.com/sitemap-careers.xml
