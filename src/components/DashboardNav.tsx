@@ -480,6 +480,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
   { label: 'Time Off', href: '/dashboard/time-off', icon: CalendarOff, requiresPermission: 'can_manage_team' },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
+  { label: 'Slack & Teams', href: '/dashboard/settings/slack-teams', icon: MessageSquareWarning, requiresPermission: 'can_manage_team' },
   { label: 'Billing Invoices', href: '/dashboard/billing/invoices', icon: Receipt, requiresPermission: 'can_view_billing' },
   { label: 'Plans & Upgrades', href: '/dashboard/billing/plans', icon: Rocket, requiresPermission: 'can_view_billing' },
   { label: 'Payments', href: '/dashboard/payments', icon: CreditCard, requiresPermission: 'can_view_billing' },
