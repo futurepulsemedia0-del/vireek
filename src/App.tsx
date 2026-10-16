@@ -77,6 +77,7 @@ const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedg
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const AskVireekPage = lazy(() => import('@/pages/AskVireekPage').then((m) => ({ default: m.AskVireekPage })));
+const CsrDeskPage = lazy(() => import('@/pages/CsrDeskPage').then((m) => ({ default: m.CsrDeskPage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const PartsIntelligencePage = lazy(() => import('@/pages/PartsIntelligencePage').then((m) => ({ default: m.PartsIntelligencePage })));
@@ -1146,6 +1147,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AskVireekPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/csr-desk"
+          element={
+            <ProtectedRoute>
+              <CsrDeskPage />
             </ProtectedRoute>
           }
         />
