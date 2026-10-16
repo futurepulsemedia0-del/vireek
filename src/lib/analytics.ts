@@ -14,6 +14,7 @@ const GA_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID;
 
 let scriptLoaded = false;
 let consentGranted = false;
+const consentListeners = new Set<() => void>();
 
 function ensureDataLayer() {
   window.dataLayer = window.dataLayer || [];
@@ -44,7 +45,10 @@ function loadGaScript() {
 /** Called from CookieConsent.tsx whenever the "analytics" toggle changes. */
 export function setAnalyticsConsent(granted: boolean) {
   consentGranted = granted;
-  if (granted) loadGaScript();
+  if (granted) {
+    loadGaScript();
+    consentListeners.forEach((cb) => cb());
+  }
   // Revoking after grant: we simply stop sending further events —
   // GA's own script can't be safely unloaded once injected.
 }
@@ -65,6 +69,13 @@ export function trackEvent(name: string, params: Record<string, unknown> = {}) {
   window.gtag('event', name, params);
 }
 
+/** Runs `cb` whenever analytics consent is granted (flushes one-off conversion events). Returns an unsubscribe fn. */
+export function onAnalyticsConsent(cb: () => void): () => void {
+  consentListeners.add(cb);
+  return () => {
+    consentListeners.delete(cb);
+  };
+}
 export function hasAnalyticsConsent() {
   return consentGranted;
 }
