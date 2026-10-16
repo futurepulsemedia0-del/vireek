@@ -21,10 +21,22 @@ function flatten(params: Record<string, unknown>, prefix = ""): [string, string]
   return out;
 }
 
+export class StripeApiError extends Error {
+  status: number;
+  code?: string;
+  constructor(message: string, status: number, code?: string) {
+    super(message);
+    this.name = "StripeApiError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
 export async function stripeRequest(
   path: string,
   params: Record<string, unknown>,
   secretKey: string,
+  opts: { idempotencyKey?: string } = {},
 ): Promise<any> {
   const body = new URLSearchParams(flatten(params));
   const res = await fetch(`https://api.stripe.com/v1/${path}`, {
@@ -32,11 +44,12 @@ export async function stripeRequest(
     headers: {
       Authorization: `Bearer ${secretKey}`,
       "Content-Type": "application/x-www-form-urlencoded",
+      ...(opts.idempotencyKey ? { "Idempotency-Key": opts.idempotencyKey } : {}),
     },
     body,
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data?.error?.message || `Stripe API error (${res.status})`);
+  if (!res.ok) throw new StripeApiError(data?.error?.message || `Stripe API error (${res.status})`, res.status, data?.error?.code);
   return data;
 }
 
