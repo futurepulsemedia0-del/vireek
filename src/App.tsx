@@ -178,6 +178,7 @@ const HomePassportNetworkPage = lazy(() => import('@/pages/HomePassportNetworkPa
 const PermitIntelligencePage = lazy(() => import('@/pages/PermitIntelligencePage').then((m) => ({ default: m.PermitIntelligencePage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
+const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
@@ -2358,6 +2359,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <MembershipsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/gift-cards"
+          element={
+            <ProtectedRoute>
+              <GiftCardsPage />
             </ProtectedRoute>
           }
         />
