@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { EASE, sectionHeadingClass, viewport } from '@/lib/motion';
 import { SARAH_PHONE } from '@/lib/site';
@@ -28,6 +28,7 @@ const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
 
 export function SignupForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>(INITIAL);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -63,6 +64,7 @@ export function SignupForm() {
       });
       if (response.ok) {
         setSubmitted(true);
+        navigate('/thank-you?source=signup');
       } else {
         setError(true);
       }
