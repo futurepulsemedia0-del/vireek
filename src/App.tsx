@@ -461,6 +461,7 @@ const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ de
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
 const BrandingSettingsPage = lazy(() => import('@/pages/BrandingSettingsPage').then((m) => ({ default: m.BrandingSettingsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
+const ThankYouPage = lazy(() => import('@/pages/ThankYouPage').then((m) => ({ default: m.ThankYouPage })));
 const ServerErrorPage = lazy(() => import('@/pages/ServerErrorPage').then((m) => ({ default: m.ServerErrorPage })));
 const BadgePage = lazy(() => import('@/pages/BadgePage').then((m) => ({ default: m.BadgePage })));
 const IntegrationsHubPage = lazy(() => import('@/pages/IntegrationsHubPage').then((m) => ({ default: m.IntegrationsHubPage })));
@@ -676,6 +677,7 @@ function AppRoutes() {
         <Route path="/brand" element={<BrandGuidelinesPage />} />
         <Route path="/partners" element={<PartnersPage />} />
         <Route path="/pay-result" element={<PaymentResultPage />} />
+        <Route path="/thank-you" element={<ThankYouPage />} />
         <Route path="/pay/:token" element={<PublicPaymentPage />} />
         <Route path="/affiliate" element={<AffiliatePage />} />
         <Route path="/referral" element={<ReferralPage />} />
