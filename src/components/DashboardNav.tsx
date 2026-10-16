@@ -164,6 +164,7 @@ import {
   SlidersHorizontal,
   Images,
   Paintbrush,
+  Gift,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
@@ -324,6 +325,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Promise Tracker', href: '/dashboard/promises', icon: Handshake },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: MessageSquareWarning },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
+  { label: 'Gift Cards', href: '/dashboard/gift-cards', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
