@@ -173,6 +173,8 @@ import { SurgeModeBanner } from '@/components/SurgeModeBanner';
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { NotificationBell } from '@/components/NotificationBell';
+import { WhatsNewButton } from '@/components/whats-new/WhatsNewButton';
+import { WhatsNewProvider } from '@/contexts/WhatsNewContext';
 import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
 import { AiAssistant } from '@/components/AiAssistant';
 import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
@@ -481,6 +483,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
   { label: 'Trash', href: '/dashboard/trash', icon: Trash2, requiresPermission: 'can_view_billing' },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { label: 'What’s New', href: '/dashboard/whats-new', icon: Sparkles },
   { label: 'Help', href: '/dashboard/help', icon: LifeBuoy },
 ];
 
@@ -656,7 +659,10 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             </span>
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
-          <NotificationBell />
+          <div className="flex items-center gap-1">
+            <WhatsNewButton />
+            <NotificationBell />
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-4">
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-secondary/60">
@@ -686,6 +692,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
           <div className="flex items-center gap-2">
+            <WhatsNewButton />
             <NotificationBell />
             <button
               type="button"
@@ -801,6 +808,7 @@ export function DashboardLayout({
         </div>
       </div>
     </ChatUnreadProvider>
+    </WhatsNewProvider>
     </NotificationsProvider>
   );
 }
