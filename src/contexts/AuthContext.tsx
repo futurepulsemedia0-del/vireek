@@ -21,6 +21,7 @@ export interface UserPermissions {
   can_view_all_jobs: boolean;
   can_view_audit_log: boolean;
   can_manage_security: boolean;
+  can_issue_refunds: boolean;
   can_export_data: boolean;
 }
 
@@ -45,6 +46,7 @@ const OWNER_PERMISSIONS: UserPermissions = {
   can_view_all_jobs: true,
   can_view_audit_log: true,
   can_manage_security: true,
+  can_issue_refunds: true,
   can_export_data: true,
 };
 
@@ -185,6 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     can_view_all_jobs: false,
     can_view_audit_log: false,
     can_manage_security: false,
+    can_issue_refunds: false,
     can_export_data: false,
   };
   // A custom role (Enterprise RBAC) overrides the base team_members
