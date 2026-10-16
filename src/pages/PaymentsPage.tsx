@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CreditCard, Send, Loader as Loader2, ExternalLink, CircleCheck, TriangleAlert as AlertTriangle, Copy } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -223,6 +223,14 @@ export function PaymentsPage() {
                   <div className="flex items-center gap-2">
                     <StatusBadge status={r.status} />
                     {r.status === 'paid' && <CircleCheck className="h-4 w-4 text-success" />}
+                    {r.status === 'paid' && (
+                      <Link
+                        to={`/dashboard/refunds?payment=${r.id}`}
+                        className="focus-ring rounded-lg px-2 py-1 text-xs font-medium text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+                      >
+                        Refund
+                      </Link>
+                    )}
                     {r.payment_link_url && r.status !== 'paid' && (
                       <>
                         <button onClick={() => copyLink(r.payment_link_url!)} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" title="Copy link">
