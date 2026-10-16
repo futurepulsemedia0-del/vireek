@@ -154,6 +154,7 @@ import {
   Navigation,
   Beaker
   Landmark,
+  Undo2,
   FileBarChart,
   Trash2,
   GitMerge,
@@ -285,6 +286,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'AI Job Autopsy', href: '/dashboard/job-autopsy', icon: Stethoscope },
   { label: 'Autonomy Readiness', href: '/dashboard/autonomy-readiness', icon: Gauge },
   { label: 'Accounting', href: '/dashboard/accounting', icon: BookOpen },
+  { label: 'Refunds', href: '/dashboard/refunds', icon: Undo2, requiresPermission: 'can_view_billing' },
   { label: 'Chart of Accounts', href: '/dashboard/chart-of-accounts', icon: Layers, requiresPermission: 'can_view_billing' },
   { label: 'Bank Intelligence', href: '/dashboard/bank-intelligence', icon: Landmark },
   { label: 'Payroll', href: '/dashboard/payroll', icon: DollarSign },
