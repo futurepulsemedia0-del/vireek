@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, Users } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -33,6 +33,7 @@ function SEO() {
 }
 
 export function DemoPage() {
+  const navigate = useNavigate();
   return (
     <>
       <SEO />
@@ -85,7 +86,9 @@ export function DemoPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: EASE, delay: 0.1 }}
             >
-              <EnterpriseDemoBookingCalendar />
+              <EnterpriseDemoBookingCalendar
+                onBooked={(slot) => navigate(`/thank-you?source=demo&start=${encodeURIComponent(slot.start.toISOString())}`)}
+              />
             </motion.div>
           </div>
         </section>
