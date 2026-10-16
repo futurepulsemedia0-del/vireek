@@ -334,6 +334,7 @@ const BillingPlansPage = lazy(() => import('@/pages/BillingPlansPage').then((m) 
 const CancelSubscriptionPage = lazy(() => import('@/pages/CancelSubscriptionPage').then((m) => ({ default: m.CancelSubscriptionPage })));
 const FinancingCenterPage = lazy(() => import('@/pages/FinancingCenterPage').then((m) => ({ default: m.FinancingCenterPage })));
 const UpdatePaymentMethodPage = lazy(() => import('@/pages/UpdatePaymentMethodPage').then((m) => ({ default: m.UpdatePaymentMethodPage })));
+const SlackTeamsSettingsPage = lazy(() => import('@/pages/SlackTeamsSettingsPage').then((m) => ({ default: m.SlackTeamsSettingsPage })));
 const BillingInvoicesPage = lazy(() => import('@/pages/BillingInvoicesPage').then((m) => ({ default: m.BillingInvoicesPage })));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })));
 const PaymentsPage = lazy(() => import('@/pages/PaymentsPage').then((m) => ({ default: m.PaymentsPage })));
@@ -3257,6 +3258,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <UpdatePaymentMethodPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/slack-teams"
+          element={
+            <ProtectedRoute>
+              <SlackTeamsSettingsPage />
             </ProtectedRoute>
           }
         />
