@@ -72,11 +72,14 @@ interface EnterpriseDemoBookingCalendarProps {
   className?: string;
   heading?: string;
   description?: string;
+  /** Called once a slot is booked, so a parent can take over (e.g. redirect to /thank-you). */
+  onBooked?: (slot: DemoSlot) => void;
 }
 
 export function EnterpriseDemoBookingCalendar({
   className = '',
   heading = 'Pick a time for your live demo',
+  onBooked,
   description = '30 minutes with our team — pick whatever works for you and it\u2019s confirmed instantly.',
 }: EnterpriseDemoBookingCalendarProps) {
   const [loadingSlots, setLoadingSlots] = useState(true);
@@ -194,6 +197,7 @@ export function EnterpriseDemoBookingCalendar({
       });
       if (result.ok) {
         setConfirmed(selectedSlot);
+        onBooked?.(selectedSlot);
         setStep('confirmed');
       } else if (result.reason === 'SLOT_NOT_AVAILABLE') {
         setSubmitError('That time was just booked by someone else. Please pick another time.');
