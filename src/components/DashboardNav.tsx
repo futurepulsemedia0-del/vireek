@@ -63,6 +63,7 @@ import {
   Smile,
   Voicemail,
   PhoneOutgoing,
+  Gift,
   AudioLines,
   Megaphone,
   MailPlus,
@@ -166,7 +167,6 @@ import {
   SlidersHorizontal,
   Images,
   Paintbrush,
-  Gift,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
@@ -231,6 +231,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Voicemail Drops', href: '/dashboard/voicemail-drops', icon: AudioLines, requiresPermission: 'can_view_billing' },
   { label: 'Neighborhood Revenue', href: '/dashboard/neighborhood-revenue', icon: MapPinned, requiresPermission: 'can_view_billing' },
   { label: 'Marketing Automation', href: '/dashboard/marketing', icon: Megaphone },
+  { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Email Campaigns', href: '/dashboard/email-campaigns', icon: MailPlus, requiresPermission: 'can_view_billing' },
   { label: 'Audiences', href: '/dashboard/audiences', icon: Filter, requiresPermission: 'can_view_billing' },
   { label: 'Landing Pages', href: '/dashboard/landing-pages', icon: LayoutTemplate, requiresPermission: 'can_edit_business_profile' },
