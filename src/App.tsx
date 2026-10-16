@@ -426,6 +426,8 @@ const DeveloperChangelogPage = lazy(() => import('@/pages/DeveloperChangelogPage
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
 const AccessibilityConformancePage = lazy(() => import('@/pages/AccessibilityConformancePage').then((m) => ({ default: m.AccessibilityConformancePage })));
 const CareersPage = lazy(() => import('@/pages/CareersPage').then((m) => ({ default: m.CareersPage })));
+const CareerPostingPage = lazy(() => import('@/pages/CareerPostingPage').then((m) => ({ default: m.CareerPostingPage })));
+const HiringPage = lazy(() => import('@/pages/admin/HiringPage').then((m) => ({ default: m.HiringPage })));
 const CulturePage = lazy(() => import('@/pages/CulturePage').then((m) => ({ default: m.CulturePage })));
 const PressPage = lazy(() => import('@/pages/PressPage').then((m) => ({ default: m.PressPage })));
 const BrandGuidelinesPage = lazy(() => import('@/pages/BrandGuidelinesPage').then((m) => ({ default: m.BrandGuidelinesPage })));
@@ -561,6 +563,14 @@ function AppRoutes() {
             </StaffRoute>
           }
         />
+        <Route
+          path="/dashboard/hiring"
+          element={
+            <StaffRoute>
+              <HiringPage />
+            </StaffRoute>
+          }
+        />
 <Route
   path="/staff/usage"
   element={
@@ -683,6 +693,7 @@ function AppRoutes() {
         <Route path="/accessibility" element={<AccessibilityPage />} />
         <Route path="/accessibility/conformance" element={<AccessibilityConformancePage />} />
         <Route path="/careers" element={<CareersPage />} />
+        <Route path="/careers/:slug" element={<CareerPostingPage />} />
         <Route path="/culture" element={<CulturePage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/brand" element={<BrandGuidelinesPage />} />
