@@ -15,10 +15,26 @@ export function PartnerReferralRedirectPage() {
 
   useEffect(() => {
     if (!code) return;
-    storePartnerReferralCode(code);
-    supabase.rpc('record_partner_click', { p_code: code, p_landing_path: window.location.pathname }).finally(() => {
-      window.location.replace(`/?pref=${encodeURIComponent(code)}`);
-    });
+    (async () => {
+      // 1) A contractor's customer-referral link: count the click and send the friend to booking.
+      try {
+        const { data } = await supabase.rpc('track_referral_click', { p_code: code });
+        if (data?.ok) {
+          const ref = encodeURIComponent(code);
+          window.location.replace(data.booking_slug ? `/book/${data.booking_slug}?ref=${ref}` : `/?ref=${ref}`);
+          return;
+        }
+      } catch {
+        // Not a customer-referral code (or the lookup failed): fall through to the partner program.
+      }
+      // 2) Vireek partner-program link (previous behaviour).
+      storePartnerReferralCode(code);
+      try {
+        await supabase.rpc('record_partner_click', { p_code: code, p_landing_path: window.location.pathname });
+      } finally {
+        window.location.replace(`/?pref=${encodeURIComponent(code)}`);
+      }
+    })();
   }, [code]);
 
   return null;
