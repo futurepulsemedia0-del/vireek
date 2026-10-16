@@ -461,6 +461,7 @@ const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ de
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
 const BrandingSettingsPage = lazy(() => import('@/pages/BrandingSettingsPage').then((m) => ({ default: m.BrandingSettingsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
+const WhatsNewPage = lazy(() => import('@/pages/WhatsNewPage').then((m) => ({ default: m.WhatsNewPage })));
 const ThankYouPage = lazy(() => import('@/pages/ThankYouPage').then((m) => ({ default: m.ThankYouPage })));
 const ServerErrorPage = lazy(() => import('@/pages/ServerErrorPage').then((m) => ({ default: m.ServerErrorPage })));
 const BadgePage = lazy(() => import('@/pages/BadgePage').then((m) => ({ default: m.BadgePage })));
@@ -3264,6 +3265,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <WebhookLogsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/whats-new"
+          element={
+            <ProtectedRoute>
+              <WhatsNewPage />
             </ProtectedRoute>
           }
         />
