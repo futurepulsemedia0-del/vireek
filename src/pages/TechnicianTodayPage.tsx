@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, MapPin, MessageSquare, Truck, UserRound, Wallet } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, Clock, ChevronRight, MapPin, MessageSquare, Truck, UserRound, Wallet } from 'lucide-react';
 import { fetchTodayJobs, formatTime, STATUS_LABELS, TechnicianJob } from '@/lib/technicianOS';
 import { fetchUnreadTotal } from '@/lib/jobMessages';
 import { useRealtimeSubscription } from '@/lib/realtime';
@@ -29,43 +29,15 @@ export function TechnicianTodayPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary pb-10">
-      <header className="sticky top-0 z-10 border-b border-border bg-bg-primary/95 px-4 py-4 backdrop-blur">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-text-primary">Today</h1>
-            <p className="text-sm text-text-secondary">{jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled</p>
-          </div>
-          <Link to="/tech/messages" className="focus-ring relative rounded-full border border-border p-2.5 text-text-primary" aria-label={unread ? `Messages, ${unread} unread` : 'Messages'}>
-            <MessageSquare className="h-5 w-5" />
-            {unread > 0 && <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-accent px-1 text-center text-[11px] font-semibold text-white">{unread}</span>}
-          </Link>
-        </div>
-          </div>
-          <nav className="flex items-center gap-2" aria-label="Technician shortcuts">
-            <Link
-              to="/tech/earnings"
-              className="focus-ring flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
-            >
-              <Wallet className="h-4 w-4" aria-hidden /> Earnings
-            </Link>
-            <Link
-              to="/tech/truck-stock"
-              className="focus-ring flex h-11 items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 text-sm font-medium text-text-primary active:scale-[0.98]"
-            >
-              <Truck className="h-4 w-4" aria-hidden /> Truck stock
-            </Link>
-            <Link
-              to="/tech/profile"
-              aria-label="My profile"
-              className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-primary active:scale-[0.98]"
-            >
-              <UserRound className="h-4 w-4" aria-hidden />
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-primary/95 px-4 py-4 backdrop-blur">
+  <div>
+    <h1 className="text-lg font-semibold text-text-primary">Today</h1>
+    <p className="text-sm text-text-secondary">{jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled</p>
+  </div>
+  <Link to="/tech/timesheet" className="focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 text-sm font-semibold text-text-primary">
+    <Clock className="h-4 w-4" /> Timesheet
+  </Link>
+</header>
 
       <main className="mx-auto max-w-lg px-4 py-4">
         {loading && <p className="py-10 text-center text-text-secondary">Loading…</p>}
