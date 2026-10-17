@@ -391,6 +391,7 @@ const WebhookLogsPage = lazy(() => import('@/pages/WebhookLogsPage').then((m) =>
 const LiveEscalationPage = lazy(() => import('./pages/LiveEscalationPage').then((m) => ({ default: m.LiveEscalationPage })));
 const PlatformPage = lazy(() => import('@/pages/PlatformPage').then((m) => ({ default: m.PlatformPage })));
 const ComparePage = lazy(() => import('@/pages/ComparePage').then((m) => ({ default: m.ComparePage })));
+const AlternativePage = lazy(() => import('@/pages/AlternativePage').then((m) => ({ default: m.AlternativePage })));
 const CompetitorPage = lazy(() => import('@/pages/CompetitorPage').then((m) => ({ default: m.CompetitorPage })));
 const SwitchGuidesPage = lazy(() => import('@/pages/SwitchGuidesPage').then((m) => ({ default: m.SwitchGuidesPage })));
 const SwitchGuidePage = lazy(() => import('@/pages/SwitchGuidePage').then((m) => ({ default: m.SwitchGuidePage })));
@@ -643,6 +644,7 @@ function AppRoutes() {
         <Route path="/compare" element={<ComparePage />} />
         <Route path="/compare/matrix" element={<FeatureMatrixPage />} />
         <Route path="/compare/:slug" element={<CompetitorPage />} />
+        <Route path="/alternatives/:competitor" element={<AlternativePage />} />
         <Route path="/switch" element={<SwitchGuidesPage />} />
         <Route path="/switch/:slug" element={<SwitchGuidePage />} />
         <Route path="/ai-receptionist-vs-human-receptionist" element={<AIReceptionistVsHumanPage />} />
