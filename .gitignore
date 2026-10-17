@@ -32,3 +32,8 @@ dist-ssr
 supabase/.temp/
 public/blog-rss.xml
 public/changelog-rss.xml
+
+# Mobile signing — never commit
+*.jks
+*.keystore
+android/keystore.properties
