@@ -10,6 +10,7 @@
     "test:built": "vitest run -c vitest.built.config.ts",
     "lint": "eslint .",
     "native:assets": "node scripts/make-native-assets.mjs && capacitor-assets generate --ios --android",
+    "mobile:preflight": "node scripts/mobile-preflight.mjs",
     "lint:design": "node scripts/check-design-system.mjs",
     "migrations:check": "node scripts/migrations-dedupe.mjs check",
     "migrations:plan": "node scripts/migrations-dedupe.mjs plan",
