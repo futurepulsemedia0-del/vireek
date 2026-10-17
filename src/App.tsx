@@ -268,6 +268,8 @@ const FieldScientistPage = lazy(() => import('@/pages/FieldScientistPage').then(
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
 const ReceivablesIntelligencePage = lazy(() => import('@/pages/ReceivablesIntelligencePage').then((m) => ({ default: m.ReceivablesIntelligencePage })));
+const PaymentPlansPage = lazy(() => import('@/pages/PaymentPlansPage').then((m) => ({ default: m.PaymentPlansPage })));
+const DisputesPage = lazy(() => import('@/pages/DisputesPage').then((m) => ({ default: m.DisputesPage })));
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then((m) => ({ default: m.CollectionsPage })));
 onst RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
@@ -1588,6 +1590,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ReceivablesIntelligencePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/disputes"
+          element={
+            <ProtectedRoute>
+              <DisputesPage />
             </ProtectedRoute>
           }
         />
@@ -3410,6 +3420,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PaymentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/payment-plans"
+          element={
+            <ProtectedRoute>
+              <PaymentPlansPage />
             </ProtectedRoute>
           }
         />
