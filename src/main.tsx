@@ -18,15 +18,20 @@ import { ScrollToTop } from '@/components/ScrollToTop';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
 import { ConnectivityShell } from '@/components/system/ConnectivityShell';
+import { NativeBridge } from '@/components/native/NativeBridge';
+import { initNativeRuntime } from '@/lib/native/lifecycle';
+import { isNative } from '@/lib/native/platform';
+import { hideNativeSplash } from '@/lib/native/shell';
 import { initSentry } from '@/lib/sentry';
 import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
 import './styles/print.css';
 
 initSentry();
+initNativeRuntime();
 
 // Register the push-notification service worker eagerly.
-if ('serviceWorker' in navigator) {
+if (!isNative() && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {
       // Non-fatal — push notifications just won't be available this session.
