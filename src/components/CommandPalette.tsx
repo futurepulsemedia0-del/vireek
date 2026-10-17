@@ -16,6 +16,7 @@ import {
   Plug,
   ShieldCheck,
   Bell,
+  Mail,
   CornerDownLeft,
   LifeBuoy,
   Rocket,
@@ -51,6 +52,7 @@ const PAGES: StaticPage[] = [
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
   { label: 'Security settings', href: '/dashboard/settings/security', icon: ShieldCheck, keywords: '2fa mfa audit' },
+  { label: 'Email settings', href: '/dashboard/settings/email', icon: Mail, keywords: 'reply-to signature domain spf dkim inbound' },
   { label: 'Sessions & devices', href: '/dashboard/settings/sessions', icon: ShieldCheck, keywords: 'sessions devices sign out login alerts' },
   { label: 'Audit log', href: '/dashboard/settings/audit-log', icon: ShieldCheck, keywords: 'audit history activity export' },
 ];
