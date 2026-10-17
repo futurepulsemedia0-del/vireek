@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CircleCheck as CheckCircle2, CircleAlert as AlertCircle, Info, X } from 'lucide-react';
+import { haptic } from '@/lib/native/haptics';
 
 type ToastType = 'success' | 'error' | 'info';
 
