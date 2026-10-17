@@ -17,6 +17,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { normalizePhone } from "../_shared/compliance/dncCheck.ts";
+import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
 
 const STOP_WORDS = new Set(["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"]);
 
@@ -86,6 +87,7 @@ Deno.serve(async (req: Request) => {
       provider_sid: providerSid,
     }).select("id").single();
 
+    await recordLanguageFromMessage(admin, userId, { phone: from }, body);
     if (inboundMsg) {
       await runAutoReplyInBackground(admin, {
         userId, channel: "sms", conversationId: conversation.id,
