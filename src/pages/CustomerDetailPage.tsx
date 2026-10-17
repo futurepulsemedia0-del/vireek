@@ -34,6 +34,7 @@ import { HomeHealthCard } from '@/components/customers/HomeHealthCard';
 import { PropertyVisionCard } from '@/components/customers/PropertyVisionCard';
 import { CustomerDocumentsCard } from '@/components/customers/CustomerDocumentsCard';
 import { CustomerTimeline } from '@/components/customers/CustomerTimeline';
+import { CustomerLanguageControl } from '@/components/customers/CustomerLanguageSelect';
 
 // ============================================================
 // TYPES — narrow, query-shaped (not the full app-wide Job/Call
@@ -392,6 +393,16 @@ export function CustomerDetailPage() {
               )}
             </div>
           </div>
+            <CustomerLanguageControl
+              customerId={customer.id}
+              language={customer.preferred_language}
+              source={customer.preferred_language_source}
+              onChanged={(preferred_language) =>
+                setCustomer((c) =>
+                  c ? { ...c, preferred_language, preferred_language_source: preferred_language ? 'staff' : null } : c,
+                )
+              }
+            />
           <span className="rounded-full bg-bg-tertiary px-3 py-1 text-xs font-medium capitalize text-text-secondary">
             {customer.lifecycle_stage} · {customer.customer_type}
           </span>
