@@ -1,5 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendGatedSms, sendGatedEmail } from "../_shared/messaging/gatedSend.ts";
+import { resolveCustomerLanguage } from "../_shared/i18n/customerLanguage.ts";
+import { formatMoney, htmlLangAttrs, renderTemplate, textAlignStart } from "../_shared/i18n/templates.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,7 +50,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: job } = await admin
       .from("jobs")
-      .select("id, user_id, customer_name, customer_phone, service_type, invoice_amount, assigned_technician_id")
+      .select("id, user_id, customer_id, customer_name, customer_phone, service_type, invoice_amount, assigned_technician_id")
       .eq("id", jobId)
       .eq("user_id", ownerId)
       .maybeSingle();
@@ -148,25 +150,28 @@ Deno.serve(async (req: Request) => {
 
     await admin.from("jobs").update({ invoice_status: "sent" }).eq("id", job.id).eq("invoice_status", "not_sent");
 
-    const amountLabel = `$${Number(job.invoice_amount).toFixed(2)}`;
+ const language = await resolveCustomerLanguage(admin, ownerId, { customerId: job.customer_id, phone: customerPhone, email: customerEmail });
+    const amountLabel = formatMoney(Number(job.invoice_amount), language);
+    const vars = { name: job.customer_name, amount: amountLabel, description, url: session.url };
     if (customerPhone) {
-      await sendGatedSms(admin, ownerId, customerPhone, `Hi ${job.customer_name}, your invoice for ${amountLabel} is ready. Pay securely: ${session.url}`);
+      await sendGatedSms(admin, ownerId, customerPhone, renderTemplate("payment.sms.ready", language, vars));
     }
     if (customerEmail) {
-      await sendEmail(
+      const esc = { escape: escapeHtml };
+      await sendGatedEmail(
+        admin,
+        ownerId,
         customerEmail,
-        `Your ${amountLabel} invoice is ready`,
-        `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-          <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">Invoice ready</p>
-          <h1 style="font-size: 22px; margin: 0 0 16px;">${amountLabel} due for ${escapeHtml(description)}</h1>
-          <a href="${session.url}" style="display: inline-block; margin-top: 8px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Pay ${amountLabel} now</a>
-          <p style="margin-top: 24px; font-size: 13px; color: #9ca3af;">Secure payment powered by Stripe.</p>
+        renderTemplate("payment.email.ready.subject", language, vars),
+        `<div ${htmlLangAttrs(language)} style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a; text-align: ${textAlignStart(language)};">
+          <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">${renderTemplate("payment.email.ready.eyebrow", language, vars, esc)}</p>
+          <h1 style="font-size: 22px; margin: 0 0 16px;">${renderTemplate("payment.email.ready.heading", language, vars, esc)}</h1>
+          <a href="${escapeHtml(String(session.url))}" style="display: inline-block; margin-top: 8px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">${renderTemplate("payment.email.ready.cta", language, vars, esc)}</a>
+          <p style="margin-top: 24px; font-size: 13px; color: #9ca3af;">${renderTemplate("payment.email.ready.footer", language)}</p>
         </div>`,
-        `${amountLabel} due for ${description}. Pay securely: ${session.url}`,
+        renderTemplate("payment.email.ready.text", language, vars),
       );
     }
-
-    return jsonResponse({ payment_request_id: paymentRequest.id, payment_link_url: session.url });
   } catch (error) {
     console.error(JSON.stringify({ event: "create_payment_request_failed", error: error instanceof Error ? error.message : String(error) }));
     return jsonResponse({ error: "Something went wrong creating the payment request." }, 500);
