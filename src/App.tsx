@@ -475,6 +475,8 @@ const SsoLoginPage = lazy(() => import('@/pages/SsoLoginPage').then((m) => ({ de
 const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) => ({ default: m.ReliabilityPage })));
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
+const InspectionReportsPage = lazy(() => import('@/pages/InspectionReportsPage').then((m) => ({ default: m.InspectionReportsPage })));
+const InspectionReportPublicPage = lazy(() => import('@/pages/InspectionReportPublicPage').then((m) => ({ default: m.InspectionReportPublicPage })));
 const EmailSettingsPage = lazy(() => import('@/pages/EmailSettingsPage').then((m) => ({ default: m.EmailSettingsPage })));
 const ApiUsagePage = lazy(() => import('@/pages/ApiUsagePage').then((m) => ({ default: m.ApiUsagePage })));
 const OAuthAppsPage = lazy(() => import('@/pages/OAuthAppsPage').then((m) => ({ default: m.OAuthAppsPage })));
@@ -1072,6 +1074,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ApiKeysPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/inspection-reports"
+          element={
+            <ProtectedRoute>
+              <InspectionReportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/inspection-reports/:id"
+          element={
+            <ProtectedRoute>
+              <InspectionReportsPage />
             </ProtectedRoute>
           }
         />
@@ -1989,6 +2007,7 @@ function AppRoutes() {
         />
         <Route path="/quote/:token" element={<QuoteAcceptPage />} />
         <Route path="/sign/:token" element={<SignDocumentPage />} />
+        <Route path="/inspection/:token" element={<InspectionReportPublicPage />} />
         <Route path="/invoice/:token" element={<InvoicePage />} />
         <Route path="/shared/dashboard/:token" element={<SharedDashboardPage />} />
         <Route path="/invite/:token" element={<InviteAcceptPage />} />
