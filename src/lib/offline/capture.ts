@@ -5,6 +5,8 @@
 
 import { idb, getMeta, setMeta, notifyData, type PingRecord } from './db';
 import { getCachedIdentity } from './identity';
+import { getNativeFix, hasNativeLocationPermission } from '../native/geolocation';
+import { isNative } from '../native/platform';
 
 // ------------------------------------------------------------
 // Photos
@@ -219,6 +221,12 @@ export function recordFix(fix: Fix): void {
 }
 
 export function getCurrentFix(timeoutMs = 8000): Promise<Fix | null> {
+  if (isNative()) {
+    return getNativeFix(timeoutMs).then((fix) => {
+      if (fix) lastFix = fix;
+      return fix;
+    });
+  }
   return new Promise((resolve) => {
     if (!('geolocation' in navigator)) return resolve(null);
     navigator.geolocation.getCurrentPosition(
@@ -236,6 +244,7 @@ export function getCurrentFix(timeoutMs = 8000): Promise<Fix | null> {
 export async function getFixIfPermitted(timeoutMs = 3000): Promise<Fix | null> {
   const recent = getLastKnownFix(2 * 60_000);
   if (recent) return recent;
+  if (isNative()) return (await hasNativeLocationPermission()) ? getCurrentFix(timeoutMs) : null;
   try {
     const status = await navigator.permissions?.query({ name: 'geolocation' });
     if (status?.state !== 'granted') return null;
