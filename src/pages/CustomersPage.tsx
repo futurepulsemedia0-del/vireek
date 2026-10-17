@@ -30,6 +30,8 @@ import { SortSelect, type SortOption } from '@/components/SortSelect';
 import { CustomFieldsEditor, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
 import { useBulkTable } from '@/hooks/useBulkTable';
 import { applyRowPatches } from '@/lib/bulk/engine';
+import { CustomerLanguageSelect } from '@/components/customers/CustomerLanguageSelect';
+import { normalizeLanguage, type LanguageCode } from '@/lib/customerLanguage';
 import { useCustomFieldDefs } from '@/lib/customFieldsApi';
 import { matchesCustomFilters, sanitizeCustomData, validateCustomData, type CustomData, type CustomFilters } from '@/lib/customFields';
 import { coerceSort, sortRows, type SortValue } from '@/lib/viewSort';
@@ -76,7 +78,7 @@ function formatDate(dateStr: string | null): string {
 type DraftCustomer = Pick<
   Customer,
   'name' | 'phone' | 'email' | 'address' | 'customer_type' | 'lifecycle_stage' | 'tags' | 'notes'
->;
+> & { preferred_language: LanguageCode | null };
 
 const EMPTY_DRAFT: DraftCustomer = {
   name: '',
@@ -87,6 +89,7 @@ const EMPTY_DRAFT: DraftCustomer = {
   lifecycle_stage: 'lead',
   tags: [],
   notes: '',
+  preferred_language: null,
 };
 
 // ============================================================
@@ -124,6 +127,7 @@ function CustomerDrawer({
         lifecycle_stage: customer.lifecycle_stage,
         tags: customer.tags,
         notes: customer.notes ?? '',
+        preferred_language: normalizeLanguage(customer.preferred_language),
       });
       setCustomData((customer.custom_data as CustomData) ?? {});
     } else {
@@ -153,6 +157,9 @@ function CustomerDrawer({
         lifecycle_stage: draft.lifecycle_stage,
         tags: draft.tags,
         notes: draft.notes?.trim() || null,
+        ...(draft.preferred_language !== normalizeLanguage(customer?.preferred_language)
+          ? { preferred_language: draft.preferred_language, preferred_language_source: draft.preferred_language ? 'staff' : null }
+          : {}),
         ...(cfDefs.length ? { custom_data: sanitizeCustomData(cfDefs, customData) } : {}),
       };
       const { error } = customer
@@ -280,6 +287,18 @@ function CustomerDrawer({
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-text-secondary">Tags</label>
                 <TagEditor tags={draft.tags} suggestions={TAG_SUGGESTIONS} onChange={(tags) => setDraft((d) => ({ ...d, tags }))} />
+              <div>
+                <label htmlFor="customer-language" className="mb-1.5 block text-xs font-medium text-text-secondary">
+                  Preferred language
+                </label>
+                <CustomerLanguageSelect
+                  value={draft.preferred_language}
+                  onChange={(preferred_language) => setDraft((d) => ({ ...d, preferred_language }))}
+                />
+                <p className="mt-1 text-[11px] text-text-secondary">
+                  Used by the AI voice agent, texts, emails, invoices and the customer portal.
+                </p>
+              </div>
               </div>
 
               <div>
