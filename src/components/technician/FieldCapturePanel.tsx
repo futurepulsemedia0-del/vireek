@@ -12,6 +12,8 @@ import {
   startVoiceRecording, type VoiceRecording,
 } from '@/lib/offline/capture';
 import { detectCapabilities, ensureTrailPermission, readTag, scanCode } from '@/lib/native/capabilities';
+import { takeNativePhoto } from '@/lib/native/camera';
+import { isNative } from '@/lib/native/platform';
 import { FieldFormsPanel } from '@/components/technician/FieldFormsPanel';
 import type { OutboxOp } from '@/lib/offline/db';
 import { dismissOp, enqueue, listOutboxForJob } from '@/lib/offline/outbox';
@@ -142,13 +144,21 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
     [jobId, toast],
   );
 
-  async function onPhotos(files: FileList | null) {
+  async function onPhotos(files: ArrayLike<File> | null) {
     if (!files) return;
     for (const file of Array.from(files)) {
       const out = await compressImage(file);
       await queue('photo', { original_bytes: file.size, bytes: out.size }, { data: out, bucket: 'job-evidence-photos', ext: 'jpg' });
     }
     toast(`${files.length} photo${files.length === 1 ? '' : 's'} saved`, 'success');
+  }
+  async function onNativePhoto() {
+    try {
+      const file = await takeNativePhoto();
+      if (file) await onPhotos([file]);
+    } catch {
+      toast('Camera permission is needed to take photos.', 'error');
+    }
   }
 
   async function toggleVoice() {
@@ -282,7 +292,10 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <label className="flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm font-medium text-text-primary">
+        <label
+          className="flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm font-medium text-text-primary"
+          onClick={(e) => { if (isNative()) { e.preventDefault(); void onNativePhoto(); } }}
+        >
           <Camera className="h-4 w-4" /> Take photo
           <input type="file" accept="image/*" capture="environment" multiple className="sr-only" onChange={(e) => { void onPhotos(e.target.files); e.target.value = ''; }} />
         </label>
