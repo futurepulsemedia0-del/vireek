@@ -158,6 +158,7 @@ const BudgetsPage = lazy(() => import('@/pages/BudgetsPage').then((m) => ({ defa
 const ChartOfAccountsPage = lazy(() => import('@/pages/ChartOfAccountsPage').then((m) => ({ default: m.ChartOfAccountsPage })));
 const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
+const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
 const SessionsPage = lazy(() => import('@/pages/SessionsPage').then((m) => ({ default: m.SessionsPage })));
 const CommissionsPage = lazy(() => import('@/pages/CommissionsPage').then((m) => ({ default: m.CommissionsPage })));
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
@@ -2348,6 +2349,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <PayrollPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/tax"
+  element={
+    <ProtectedRoute>
+      <TaxCenterPage />
     </ProtectedRoute>
   }
 />
