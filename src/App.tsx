@@ -476,6 +476,7 @@ const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) =>
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
 const InspectionReportsPage = lazy(() => import('@/pages/InspectionReportsPage').then((m) => ({ default: m.InspectionReportsPage })));
+const ReputationPage = lazy(() => import('@/pages/ReputationPage'));
 const InspectionReportPublicPage = lazy(() => import('@/pages/InspectionReportPublicPage').then((m) => ({ default: m.InspectionReportPublicPage })));
 const EmailSettingsPage = lazy(() => import('@/pages/EmailSettingsPage').then((m) => ({ default: m.EmailSettingsPage })));
 const ApiUsagePage = lazy(() => import('@/pages/ApiUsagePage').then((m) => ({ default: m.ApiUsagePage })));
@@ -631,6 +632,7 @@ function AppRoutes() {
         <Route path="/docs" element={<DeveloperDocsPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/dashboard/reputation" element={<ReputationPage />} />
         <Route path="/report" element={<ReportPage />} />
         <Route path="/podcast" element={<PodcastPage />} />
         <Route path="/glossary" element={<GlossaryPage />} />
