@@ -24,6 +24,10 @@ function json(body: unknown, status = 200) {
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+  const expectedSecret = Deno.env.get("EMAIL_WEBHOOK_SECRET");
+  if (expectedSecret && new URL(req.url).searchParams.get("secret") !== expectedSecret) {
+    return json({ error: "Unauthorized" }, 401);
+  }
 
   const admin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -53,6 +57,11 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (!profile) {
+    const { data: es } = await admin.from("email_settings").select("inbound_enabled").eq("user_id", profile.id).maybeSingle();
+    if (es && es.inbound_enabled === false) {
+      console.error(JSON.stringify({ event: "email_webhook_inbound_disabled", to }));
+      return json({ received: true });
+    }
       console.error(JSON.stringify({ event: "email_webhook_unknown_alias", to }));
       return json({ received: true });
     }
