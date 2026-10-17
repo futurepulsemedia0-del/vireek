@@ -44,6 +44,7 @@ const GettingStartedPage = lazy(() => import('@/pages/GettingStartedPage').then(
 const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const ProcurementPage = lazy(() => import('@/pages/ProcurementPage').then((m) => ({ default: m.ProcurementPage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
+const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const CallDetailPage = lazy(() => import('@/pages/CallDetailPage').then((m) => ({ default: m.CallDetailPage })));
 const UnifiedInboxPage = lazy(() => import('@/pages/UnifiedInboxPage').then((m) => ({ default: m.UnifiedInboxPage })));
 const GoalOrchestratorPage = lazy(() => import('@/pages/GoalOrchestratorPage').then((m) => ({ default: m.GoalOrchestratorPage })));
@@ -700,6 +701,7 @@ function AppRoutes() {
         <Route path="/maintenance" element={<MaintenancePage />} />
         <Route path="/case-studies" element={<CaseStudiesPage />} />
         <Route path="/customers" element={<CustomersPage />} />
+        <Route path="/customers" element={<CustomerStoriesPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/roadmap" element={<RoadmapPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />
