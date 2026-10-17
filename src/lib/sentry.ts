@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react';
+import { isNative } from '@/lib/native/platform';
 
 const DSN = import.meta.env.VITE_SENTRY_DSN;
 
@@ -6,6 +7,12 @@ const DSN = import.meta.env.VITE_SENTRY_DSN;
 export function initSentry() {
   if (!DSN) return; // no DSN set (e.g. local dev) — skip silently, no crash
 
+  if (isNative()) {
+    // Native build: also captures Swift/Kotlin crashes. Same project, same user/context helpers below.
+    void import('@/lib/native/sentryNative').then((m) => m.initNativeSentry(DSN));
+    return;
+  }
+  
   Sentry.init({
     dsn: DSN,
     environment: import.meta.env.MODE,
