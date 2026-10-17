@@ -19,6 +19,8 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
 import { ConnectivityShell } from '@/components/system/ConnectivityShell';
 import { NativeBridge } from '@/components/native/NativeBridge';
+import { AppLockGate } from '@/components/native/AppLockGate';
+import { UpdateGate } from '@/components/native/UpdateGate';
 import { initNativeRuntime } from '@/lib/native/lifecycle';
 import { isNative } from '@/lib/native/platform';
 import { hideNativeSplash } from '@/lib/native/shell';
@@ -59,9 +61,11 @@ createRoot(document.getElementById('root')!).render(
                 <ConnectivityProvider>
                   <AuthProvider>
                     <ErrorBoundary>
+                    <AppLockGate>
                       <ConnectivityShell>
                         <App />
                       </ConnectivityShell>
+                      </AppLockGate>
                       <AccessibilityWidget />
                       <LanguagePersistenceSync />
                       <SiteAssistant />
