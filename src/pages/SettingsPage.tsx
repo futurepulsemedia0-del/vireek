@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings as SettingsIcon, ShieldCheck, AppWindow, MessageSquareText, ShieldAlert, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound, Building2, DatabaseBackup, ScrollText } from 'lucide-react';
+import { Settings as SettingsIcon, ShieldCheck, AppWindow, MessageSquareText, ShieldAlert, ChevronRight, PhoneCall, Gauge, Lightbulb, Wrench, Mic, UserPlus, PhoneMissed, Bell, BellOff, KeyRound, Building2, DatabaseBackup, , Mail, ScrollText } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -134,7 +134,7 @@ function PushNotificationsCard() {
 }
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { profile, isOwner, refreshProfile } = useAuth();
+  const { profile, isOwner, refreshProfile, permissions } = useAuth(););
   const { toast } = useToast();
   const [saving, setSaving] = useState<string | null>(null);
 
@@ -464,6 +464,26 @@ export function SettingsPage() {
               <p className="text-sm font-semibold text-text-primary">Disaster Recovery &amp; Data Governance</p>
               <p className="mt-0.5 text-xs text-text-secondary">
                 Backups, restore drills, retention, deletion requests, consent, and PII controls.
+              </p>
+            </div>
+          </div>
+          <ChevronRight size={18} className="text-text-secondary" />
+        </button>
+      )}
+      {(isOwner || permissions.can_edit_business_profile) && (
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard/settings/email')}
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+              <Mail size={20} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-text-primary">Email settings</p>
+              <p className="mt-0.5 text-xs text-text-secondary">
+                Reply-to, signature, sender domain verification (SPF/DKIM) and your inbound address.
               </p>
             </div>
           </div>
