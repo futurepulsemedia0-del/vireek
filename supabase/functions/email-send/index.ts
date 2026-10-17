@@ -5,6 +5,7 @@
 // email-webhook into this same conversation.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { buildFromAddress, buildInboundAddress, composeOutboundText, resolveReplyTo } from "../_shared/messaging/emailSettings.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 
 const corsHeaders = {
@@ -44,50 +45,42 @@ const { conversationId, subject, body, overrideReason } = await req.json();
     .maybeSingle();
   if (!conversation) return json({ error: "Conversation not found" }, 404);
 
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("company_name, inbound_email_token")
-    .eq("id", userId)
-    .maybeSingle();
+  const [{ data: profile }, { data: es }] = await Promise.all([
+    admin.from("profiles").select("company_name, inbound_email_token").eq("id", userId).maybeSingle(),
+    admin
+      .from("email_settings")
+      .select("reply_to_email, signature, sender_name, sender_local_part, sender_domain, domain_status")
+      .eq("user_id", userId)
+      .maybeSingle(),
+  ]);
 
-  const gate = await gateOutbound(admin, userId, {
-    channel: "email",
-    to: conversation.customer_email,
-    purpose: "service",
-    source: "email-send",
-    override: typeof overrideReason === "string" && overrideReason.trim()
-      ? { reason: overrideReason.trim() }
-      : null,
-  });
-
-  if (!gate.proceed) {
-    return json({
-      error: "QUIET_HOURS",
-      sendAt: gate.sendAt,
-      detail: gate.decision.detail,
-    }, 409);
-  }
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const fromAddress = Deno.env.get("RESEND_FROM_EMAIL") || "Vireek <onboarding@resend.dev>";
   const inboundDomain = Deno.env.get("INBOUND_EMAIL_DOMAIN");
   if (!apiKey) return json({ error: "NOT_CONFIGURED", detail: "Email isn't configured yet (missing RESEND_API_KEY)." }, 422);
 
   const finalSubject = subject?.trim() || conversation.subject || "Re: your message";
-  const replyTo =
-    inboundDomain && profile?.inbound_email_token ? `${profile.inbound_email_token}@${inboundDomain}` : undefined;
+  const replyTo = resolveReplyTo(es?.reply_to_email, buildInboundAddress(profile?.inbound_email_token, inboundDomain));
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: profile?.company_name ? `${profile.company_name} <${fromAddress.split("<").pop()?.replace(">", "") ?? fromAddress}>` : fromAddress,
+      from: buildFromAddress({
+        senderName: es?.sender_name,
+        companyName: profile?.company_name,
+        domain: es?.sender_domain,
+        domainStatus: es?.domain_status,
+        localPart: es?.sender_local_part,
+        platformFrom: fromAddress,
+      }),
       to: [conversation.customer_email],
       reply_to: replyTo,
       subject: finalSubject,
-      text: body.trim(),
+      text: composeOutboundText(body, es?.signature),
     }),
   });
-
+  
   if (!res.ok) return json({ error: "PROVIDER_ERROR", detail: await res.text() }, 422);
 
   const { data: message } = await admin
