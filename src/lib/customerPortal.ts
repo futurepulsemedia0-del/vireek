@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { pt, portalLocale } from '@/lib/portalI18n';
 import { WORKFLOW_PORTAL_LABELS, type WorkflowStatus } from '@/lib/jobWorkflow';
 
 /**
@@ -99,11 +100,11 @@ export function formatRewardLabel(referral: PortalReferral): string {
 }
 
 export function formatWarrantyStatus(exp: string | null): { label: string; tone: 'ok' | 'warn' | 'expired' } {
-  if (!exp) return { label: 'No warranty on file', tone: 'ok' };
+  if (!exp) return { label: pt('No warranty on file'), tone: 'ok' };
   const days = Math.floor((new Date(exp).getTime() - Date.now()) / 86400000);
-  if (days < 0) return { label: `Expired ${formatPortalDate(exp)}`, tone: 'expired' };
-  if (days <= 60) return { label: `Expires ${formatPortalDate(exp)}`, tone: 'warn' };
-  return { label: `Covered until ${formatPortalDate(exp)}`, tone: 'ok' };
+  if (days < 0) return { label: pt('Expired {{date}}', { date: formatPortalDate(exp) }), tone: 'expired' };
+  if (days <= 60) return { label: pt('Expires {{date}}', { date: formatPortalDate(exp) }), tone: 'warn' };
+  return { label: pt('Covered until {{date}}', { date: formatPortalDate(exp) }), tone: 'ok' };
 }
 
 /**
@@ -162,7 +163,7 @@ export const INVOICE_STATUS_LABELS: Record<PortalJob['invoice_status'], string> 
 
 export function formatAmount(amount: number | null): string {
   if (amount === null) return '—';
-  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  return amount.toLocaleString(portalLocale(), { style: 'currency', currency: 'USD' });
 }
 
 export function formatCents(cents: number | null): string {
@@ -171,6 +172,6 @@ export function formatCents(cents: number | null): string {
 }
 
 export function formatPortalDate(dateStr: string | null): string {
-  if (!dateStr) return 'Not yet scheduled';
-  return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  if (!dateStr) return pt('Not yet scheduled');
+  return new Date(dateStr).toLocaleDateString(portalLocale(), { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
