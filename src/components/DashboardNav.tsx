@@ -493,6 +493,8 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Billing Invoices', href: '/dashboard/billing/invoices', icon: Receipt, requiresPermission: 'can_view_billing' },
   { label: 'Plans & Upgrades', href: '/dashboard/billing/plans', icon: Rocket, requiresPermission: 'can_view_billing' },
   { label: 'Payments', href: '/dashboard/payments', icon: CreditCard, requiresPermission: 'can_view_billing' },
+  { label: 'Payment Plans', href: '/dashboard/payment-plans', icon: Calendar, requiresPermission: 'can_view_billing' },
+  { label: 'Disputes', href: '/dashboard/disputes', icon: ShieldAlert, requiresPermission: 'can_view_billing' },
   { label: 'Financing Center', href: '/dashboard/financing', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
