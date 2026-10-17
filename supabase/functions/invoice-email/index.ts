@@ -10,6 +10,8 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendEmail } from "../_shared/notify/deliver.ts";
+import { resolveCustomerLanguage } from "../_shared/i18n/customerLanguage.ts";
+import { formatDate, formatMoney, htmlLangAttrs, renderTemplate, textAlignStart } from "../_shared/i18n/templates.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -79,7 +81,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: invoice } = await admin
       .from("invoices")
-      .select("id, user_id, invoice_number, customer_name, customer_email, line_items, tax_percent, status, due_date, invoice_token, sent_at")
+      .select("id, user_id, customer_id, customer_phone, invoice_number, customer_name, customer_email, line_items, tax_percent, status, due_date, invoice_token, sent_at")
       .eq("id", invoiceId)
       .eq("user_id", ownerId)
       .maybeSingle();
@@ -116,27 +118,31 @@ Deno.serve(async (req: Request) => {
 
     const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
     const link = `${siteUrl}/invoice/${invoice.invoice_token}`;
-    const business = companyName || "Your service provider";
+const language = await resolveCustomerLanguage(admin, ownerId, { customerId: invoice.customer_id, phone: invoice.customer_phone, email: to });
+    const L = (key: Parameters<typeof renderTemplate>[0]) => renderTemplate(key, language);
+    const business = companyName || L("invoice.email.fallbackBusiness");
     const overdue = invoice.due_date && new Date(invoice.due_date) < new Date(new Date().toDateString());
-    const subject =
-      kind === "reminder"
-        ? `${overdue ? "Overdue" : "Reminder"}: invoice ${invoice.invoice_number} from ${business}`
-        : `Invoice ${invoice.invoice_number} from ${business}`;
-    const dueLine = invoice.due_date ? `Due ${new Date(invoice.due_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}.` : "";
-    const lead = kind === "reminder" ? "This is a friendly reminder that the invoice below is still open." : "Your invoice is ready.";
+    const subject = renderTemplate(
+      kind === "reminder" ? (overdue ? "invoice.email.subject.overdue" : "invoice.email.subject.reminder") : "invoice.email.subject.initial",
+      language,
+      { number: invoice.invoice_number, business },
+    );
+    const dueLine = invoice.due_date ? renderTemplate("invoice.email.due", language, { date: formatDate(invoice.due_date, language) }) : "";
+    const lead = L(kind === "reminder" ? "invoice.email.lead.reminder" : "invoice.email.lead.initial");
+    const greeting = renderTemplate("invoice.email.greeting", language, { name: invoice.customer_name });
+    const balanceLabel = formatMoney(balance / 100, language);
 
-    const text = `Hi ${invoice.customer_name},\n\n${lead}\n\nInvoice ${invoice.invoice_number}\nBalance due: ${money(balance)}\n${dueLine}\n\nView it here: ${link}\n\nThank you,\n${business}`;
-    const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#171717">
-<p>Hi ${escapeHtml(invoice.customer_name)},</p>
+    const text = `${greeting}\n\n${lead}\n\n${L("invoice.email.label.invoice")} ${invoice.invoice_number}\n${L("invoice.email.label.balance")}: ${balanceLabel}\n${dueLine}\n\n${L("invoice.email.viewHere")} ${link}\n\n${L("invoice.email.signoff")}\n${business}`;
+    const html = `<div ${htmlLangAttrs(language)} style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#171717;text-align:${textAlignStart(language)}">
+<p>${escapeHtml(greeting)}</p>
 <p>${escapeHtml(lead)}</p>
 <table style="width:100%;border:1px solid #e1e1e8;border-radius:12px;padding:16px;border-collapse:separate">
-<tr><td style="color:#6e6e78;font-size:13px">Invoice</td><td style="text-align:right;font-weight:600">${escapeHtml(invoice.invoice_number)}</td></tr>
-<tr><td style="color:#6e6e78;font-size:13px">Balance due</td><td style="text-align:right;font-weight:600">${money(balance)}</td></tr>
+<tr><td style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.label.invoice"))}</td><td style="text-align:${language === "ar" || language === "fa" ? "left" : "right"};font-weight:600">${escapeHtml(invoice.invoice_number)}</td></tr>
+<tr><td style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.label.balance"))}</td><td style="text-align:${language === "ar" || language === "fa" ? "left" : "right"};font-weight:600">${escapeHtml(balanceLabel)}</td></tr>
 ${dueLine ? `<tr><td colspan="2" style="color:#6e6e78;font-size:13px;padding-top:8px">${escapeHtml(dueLine)}</td></tr>` : ""}
 </table>
-<p style="margin:24px 0"><a href="${link}" style="background:#203ad8;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">View invoice</a></p>
-<p style="color:#6e6e78;font-size:13px">Thank you,<br/>${escapeHtml(business)}</p></div>`;
-
+<p style="margin:24px 0"><a href="${link}" style="background:#203ad8;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
+<p style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(business)}</p></div>`;
     const result = await sendEmail(to, subject, html, text);
 
     await admin.from("invoice_reminders").insert({
