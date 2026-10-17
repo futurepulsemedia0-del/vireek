@@ -1,11 +1,14 @@
 // src/lib/push.ts — real Web Push (PWA-friendly, no native app needed).
 import { supabase } from '@/lib/supabase';
+import { isNative } from '@/lib/native/platform';
+import { getNativePushState, subscribeNativePush, unsubscribeNativePush } from '@/lib/native/push';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
 
 export type PushSupportState = 'unsupported' | 'denied' | 'not-subscribed' | 'subscribed';
 
 export function isPushSupported(): boolean {
+      if (isNative()) return true;
   return (
     typeof window !== 'undefined' &&
     'serviceWorker' in navigator &&
@@ -33,6 +36,7 @@ async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration
 }
 
 export async function getPushState(): Promise<PushSupportState> {
+  if (isNative()) return getNativePushState();
   if (!isPushSupported()) return 'unsupported';
   if (Notification.permission === 'denied') return 'denied';
 
@@ -137,6 +141,7 @@ async function saveSubscription(
 }
 
 export async function subscribeToPush(): Promise<{ success: boolean; error?: string }> {
+    if (isNative()) return subscribeNativePush();
   if (!isPushSupported()) {
     return { success: false, error: 'Push notifications are not supported in this browser.' };
   }
@@ -162,6 +167,7 @@ export async function subscribeToPush(): Promise<{ success: boolean; error?: str
 }
 
 export async function unsubscribeFromPush(): Promise<{ success: boolean; error?: string }> {
+      if (isNative()) return unsubscribeNativePush();
   if (!isPushSupported()) return { success: true };
 
   try {
