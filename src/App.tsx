@@ -427,6 +427,7 @@ const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ defaul
 const OfflinePage = lazy(() => import('@/pages/OfflinePage').then((m) => ({ default: m.OfflinePage })));
 const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
+const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
 const RoadmapPage = lazy(() => import('@/pages/RoadmapPage').then((m) => ({ default: m.RoadmapPage })));
 const DeveloperChangelogPage = lazy(() => import('@/pages/DeveloperChangelogPage').then((m) => ({ default: m.DeveloperChangelogPage })));
@@ -698,6 +699,7 @@ function AppRoutes() {
         <Route path="/email/unsubscribe/:token" element={<EmailUnsubscribePage />} />
         <Route path="/maintenance" element={<MaintenancePage />} />
         <Route path="/case-studies" element={<CaseStudiesPage />} />
+        <Route path="/customers" element={<CustomersPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/roadmap" element={<RoadmapPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />
