@@ -500,6 +500,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, requiresPermission: 'can_export_data' },
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
   { label: 'Trash', href: '/dashboard/trash', icon: Trash2, requiresPermission: 'can_view_billing' },
+  { label: 'API Usage', href: '/dashboard/settings/api-usage', icon: Activity },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   { label: 'Chat Widget', href: '/dashboard/settings/chat-widget', icon: MessageCircle, requiresPermission: 'can_edit_business_profile' },
   { label: 'What’s New', href: '/dashboard/whats-new', icon: Sparkles },
