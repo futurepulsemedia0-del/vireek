@@ -137,6 +137,9 @@ export interface Customer {
   created_at: string;
   updated_at: string;
   custom_data?: Record<string, unknown> | null;
+  preferred_language?: string | null;
+  preferred_language_source?: 'auto_detected' | 'staff' | 'customer' | null;
+  preferred_language_updated_at?: string | null;
 }
 
 export interface CommercialContract {
