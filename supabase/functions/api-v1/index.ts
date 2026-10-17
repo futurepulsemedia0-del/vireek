@@ -25,10 +25,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Authorization, Content-Type",
 };
 
-function json(data: unknown, status = 200) {
+function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeaders, "Content-Type": "application/json", ...extraHeaders },
   });
 }
 
@@ -50,7 +50,7 @@ const TABLE_BY_RESOURCE: Record<string, { table: string; scope: string }> = {
   leads: { table: "leads", scope: "leads:read" },
   jobs: { table: "jobs", scope: "jobs:read" },
 };
-
+const RATE_LIMIT_PER_MINUTE = 120;
 async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
@@ -81,6 +81,19 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
 
   ctx.keyId = keyRow.id;
   ctx.userId = keyRow.user_id;
+  // Per-key limiter (fixed 60 s window, counted from api_request_logs).
+  // Fail-open: a limiter error must never take the API down.
+  const { data: withinLimit } = await admin.rpc("api_v1_rate_limit_ok", {
+    p_key_id: keyRow.id,
+    p_limit: RATE_LIMIT_PER_MINUTE,
+  });
+  if (withinLimit === false) {
+    return json(
+      { error: `Rate limit exceeded (${RATE_LIMIT_PER_MINUTE} requests/minute per key). Retry shortly.` },
+      429,
+      { "Retry-After": "60" },
+    );
+  }
   // Fire-and-forget last_used_at update — doesn't block the response.
   admin.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", keyRow.id).then(() => {});
 
@@ -130,6 +143,7 @@ Deno.serve(async (req: Request) => {
     res = json({ error: "Internal error" }, 500);
   }
 
+  const latencyMs = Math.max(0, Date.now() - startedAt);
   if (ctx.admin && ctx.keyId && ctx.userId) {
     let errorMessage: string | null = null;
     if (res.status >= 400) {
@@ -149,7 +163,7 @@ Deno.serve(async (req: Request) => {
         path: pathname.slice(0, 300),
         resource: ctx.resource,
         status: res.status,
-        latency_ms: Math.max(0, Date.now() - startedAt),
+        latency_ms: latencyMs,
         error: errorMessage,
         user_agent: (req.headers.get("user-agent") || "").slice(0, 200) || null,
       }),
