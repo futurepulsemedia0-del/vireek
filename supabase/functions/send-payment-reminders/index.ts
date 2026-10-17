@@ -1,5 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
+import { resolveCustomerLanguage } from "../_shared/i18n/customerLanguage.ts";
+import { escapeHtml, formatMoney, htmlLangAttrs, renderTemplate } from "../_shared/i18n/templates.ts";
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, X-Cron-Secret" };
 
@@ -25,7 +27,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: due, error } = await admin
       .from("payment_requests")
-      .select("id, customer_name, customer_email, customer_phone, amount, payment_link_url, reminder_count, created_at, status")
+      .select("id, user_id, customer_name, customer_email, customer_phone, amount, payment_link_url, reminder_count, created_at, status")
       .in("status", ["sent", "overdue"])
       .lt("last_reminder_sent_at", cutoff)
       .lt("reminder_count", MAX_REMINDERS);
@@ -33,16 +35,19 @@ Deno.serve(async (req: Request) => {
 
     let sent = 0;
     for (const request of due ?? []) {
-      const amountLabel = `$${Number(request.amount).toFixed(2)}`;
+      const language = await resolveCustomerLanguage(admin, request.user_id, { phone: request.customer_phone, email: request.customer_email });
+      const amountLabel = formatMoney(Number(request.amount), language);
+      const vars = { name: request.customer_name, amount: amountLabel, url: request.payment_link_url };
+      const smsText = renderTemplate("payment.sms.reminder", language, vars);
       if (request.customer_phone) {
-        await sendSms(request.customer_phone, `Reminder: your ${amountLabel} invoice is still open. Pay here: ${request.payment_link_url}`);
+        await sendSms(request.customer_phone, smsText);
       }
       if (request.customer_email) {
         await sendEmail(
           request.customer_email,
-          `Reminder: ${amountLabel} invoice still open`,
-          `<p>Hi ${request.customer_name}, a friendly reminder that your ${amountLabel} invoice hasn't been paid yet.</p><p><a href="${request.payment_link_url}">Pay ${amountLabel} now</a></p>`,
-          `Reminder: your ${amountLabel} invoice is still open. Pay here: ${request.payment_link_url}`,
+          renderTemplate("payment.email.reminder.subject", language, vars),
+          `<div ${htmlLangAttrs(language)}><p>${renderTemplate("payment.email.reminder.body", language, vars, { escape: escapeHtml })}</p><p><a href="${escapeHtml(String(request.payment_link_url ?? ""))}">${renderTemplate("payment.email.ready.cta", language, vars, { escape: escapeHtml })}</a></p></div>`,
+          smsText,
         );
       }
       const isOverdue = request.created_at < overdueCutoff;
