@@ -17,6 +17,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { handleMarketplaceEmail } from "../_shared/lead-marketplace/emailEntry.ts";
 import { createDeps } from "../_shared/lead-marketplace/runtime.ts";
+import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -95,6 +96,7 @@ Deno.serve(async (req: Request) => {
       body_html: html,
     }).select("id").single();
 
+    await recordLanguageFromMessage(admin, profile.id, { email: from }, text);
     const ownDomain = Deno.env.get("INBOUND_EMAIL_DOMAIN");
     if (inboundMsg && !(ownDomain && from.endsWith(`@${ownDomain.toLowerCase()}`))) {
       await runAutoReplyInBackground(admin, {
