@@ -43,3 +43,10 @@ App id `com.vireek.field` · Capacitor 8 · Android (Gradle) + iOS (CocoaPods; M
 - **Sentry:** the native build reports JS errors and Swift/Kotlin crashes to the same project as the website (`VITE_SENTRY_DSN`). Keep `@sentry/react` pinned to the exact version `@sentry/capacitor` requires. Readable iOS native stack traces additionally need dSYM upload from the Xcode build (Sentry docs, "Capacitor → iOS debug symbols").
 - **Privacy cover:** iOS draws a black cover in `sceneWillResignActive`; Android 13+ disables the recents screenshot. Test: open a job, press Home / open the app switcher — no content visible.
 - **E2E:** `maestro test e2e/mobile` locally (emulator running, debug APK installed), and the `android-e2e` job in `.github/workflows/mobile.yml` on every release run. Add a flow per critical path as the app grows.
+
+## Phase 4 — store submission kit
+
+- `npm run mobile:preflight` before every submission: checks permission strings, Android manifest rules, universal-link files, Privacy Manifest wiring, Sentry version pin and store-copy length limits. Fix every ✖; read every !.
+- Store text: `docs/store/listing.md` (App Store + Play), `docs/store/review-notes.md` (create the demo account first), `docs/store/privacy-data-map.md` (App Privacy labels + Data safety).
+- Add `ios/App/App/PrivacyInfo.xcprivacy` to the App target in Xcode (required since 2024).
+- Re-run the privacy map whenever a new SDK or data type is added.
