@@ -1,12 +1,6 @@
-import { CustomFieldsEditor, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
-import { useCustomFieldDefs } from '@/lib/customFieldsApi';
-import { matchesCustomFilters, sanitizeCustomData, validateCustomData, type CustomData, type CustomFilters } from '@/lib/customFields';
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
-import { SortSelect, type SortOption } from '@/components/SortSelect';
-import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
 import {
   ArrowLeft,
   Search,
@@ -31,8 +25,14 @@ import { TagEditor } from '@/components/TagEditor';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { SkeletonTable } from '@/components/Skeleton';
+import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
+import { SortSelect, type SortOption } from '@/components/SortSelect';
+import { CustomFieldsEditor, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
 import { useBulkTable } from '@/hooks/useBulkTable';
 import { applyRowPatches } from '@/lib/bulk/engine';
+import { useCustomFieldDefs } from '@/lib/customFieldsApi';
+import { matchesCustomFilters, sanitizeCustomData, validateCustomData, type CustomData, type CustomFilters } from '@/lib/customFields';
+import { coerceSort, sortRows, type SortValue } from '@/lib/viewSort';
 
 // ============================================================
 // CONSTANTS
@@ -46,16 +46,23 @@ const LIFECYCLE_STAGES: { key: Customer['lifecycle_stage']; label: string; dotCo
 ];
 
 const TAG_SUGGESTIONS = ['repeat-customer', 'referral', 'financing', 'commercial-account', 'high-value'];
+
 const CUSTOMER_SORT_OPTIONS: SortOption[] = [
   { key: 'name', label: 'Name' },
   { key: 'created_at', label: 'Date added', defaultDir: 'desc' },
   { key: 'last_contacted_at', label: 'Last contacted', defaultDir: 'desc' },
 ];
+const CUSTOMER_SORT_KEYS = CUSTOMER_SORT_OPTIONS.map((o) => o.key);
 const CUSTOMER_SORT_ACCESSORS: Record<string, (c: Customer) => SortValue> = {
   name: (c) => c.name,
   created_at: (c) => new Date(c.created_at).getTime(),
   last_contacted_at: (c) => (c.last_contacted_at ? new Date(c.last_contacted_at).getTime() : null),
 };
+
+const inputCls =
+  'focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-2.5 text-sm text-text-primary';
+
+type CustomFieldDefs = ReturnType<typeof useCustomFieldDefs>['defs'];
 
 function lifecycleMeta(stage: Customer['lifecycle_stage']) {
   return LIFECYCLE_STAGES.find((s) => s.key === stage) ?? LIFECYCLE_STAGES[0];
@@ -89,25 +96,25 @@ const EMPTY_DRAFT: DraftCustomer = {
 function CustomerDrawer({
   open,
   customer,
+  cfDefs,
   onClose,
   onSaved,
   onDeleteRequest,
 }: {
   open: boolean;
   customer: Customer | null;
+  cfDefs: CustomFieldDefs;
   onClose: () => void;
   onSaved: () => void;
   onDeleteRequest: (customer: Customer) => void;
 }) {
   const { toast } = useToast();
   const [draft, setDraft] = useState<DraftCustomer>(EMPTY_DRAFT);
-   const { defs: cfDefs } = useCustomFieldDefs('customer');
-   const [customData, setCustomData] = useState<CustomData>({});
+  const [customData, setCustomData] = useState<CustomData>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (customer) {
-    setCustomData((customer.custom_data as CustomData) ?? {});
       setDraft({
         name: customer.name,
         phone: customer.phone ?? '',
@@ -118,6 +125,7 @@ function CustomerDrawer({
         tags: customer.tags,
         notes: customer.notes ?? '',
       });
+      setCustomData((customer.custom_data as CustomData) ?? {});
     } else {
       setDraft(EMPTY_DRAFT);
       setCustomData({});
@@ -129,11 +137,11 @@ function CustomerDrawer({
       toast('Customer name is required.', 'error');
       return;
     }
-   const cfErrors = validateCustomData(cfDefs, customData);
-   if (cfErrors.length) {
-     toast(cfErrors[0], 'error');
-     return;
-   }
+    const cfErrors = validateCustomData(cfDefs, customData);
+    if (cfErrors.length) {
+      toast(cfErrors[0], 'error');
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -145,7 +153,7 @@ function CustomerDrawer({
         lifecycle_stage: draft.lifecycle_stage,
         tags: draft.tags,
         notes: draft.notes?.trim() || null,
-   ...(cfDefs.length ? { custom_data: sanitizeCustomData(cfDefs, customData) } : {}),
+        ...(cfDefs.length ? { custom_data: sanitizeCustomData(cfDefs, customData) } : {}),
       };
       const { error } = customer
         ? await supabase.from('customers').update(payload).eq('id', customer.id)
@@ -184,9 +192,7 @@ function CustomerDrawer({
             className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col overflow-y-auto border-l border-border bg-bg-primary p-6 shadow-2xl"
           >
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-text-primary">
-                {customer ? 'Edit Customer' : 'New Customer'}
-              </h2>
+              <h2 className="text-lg font-bold text-text-primary">{customer ? 'Edit Customer' : 'New Customer'}</h2>
               <button
                 type="button"
                 onClick={onClose}
@@ -204,19 +210,19 @@ function CustomerDrawer({
                   type="text"
                   value={draft.name}
                   onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
-                  className="focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-2.5 text-sm text-text-primary"
+                  className={inputCls}
                   placeholder="Jane Smith"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-text-secondary">Phone</label>
                   <input
                     type="tel"
                     value={draft.phone ?? ''}
                     onChange={(e) => setDraft((d) => ({ ...d, phone: e.target.value }))}
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-2.5 text-sm text-text-primary"
+                    className={inputCls}
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -226,7 +232,7 @@ function CustomerDrawer({
                     type="email"
                     value={draft.email ?? ''}
                     onChange={(e) => setDraft((d) => ({ ...d, email: e.target.value }))}
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-2.5 text-sm text-text-primary"
+                    className={inputCls}
                     placeholder="jane@email.com"
                   />
                 </div>
@@ -238,7 +244,7 @@ function CustomerDrawer({
                   type="text"
                   value={draft.address ?? ''}
                   onChange={(e) => setDraft((d) => ({ ...d, address: e.target.value }))}
-                  className="focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-2.5 text-sm text-text-primary"
+                  className={inputCls}
                   placeholder="123 Main St, Springfield"
                 />
               </div>
@@ -248,10 +254,8 @@ function CustomerDrawer({
                   <label className="mb-1.5 block text-xs font-medium text-text-secondary">Type</label>
                   <select
                     value={draft.customer_type}
-                    onChange={(e) =>
-                      setDraft((d) => ({ ...d, customer_type: e.target.value as Customer['customer_type'] }))
-                    }
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-2.5 text-sm text-text-primary"
+                    onChange={(e) => setDraft((d) => ({ ...d, customer_type: e.target.value as Customer['customer_type'] }))}
+                    className={inputCls}
                   >
                     <option value="residential">Residential</option>
                     <option value="commercial">Commercial</option>
@@ -261,10 +265,8 @@ function CustomerDrawer({
                   <label className="mb-1.5 block text-xs font-medium text-text-secondary">Stage</label>
                   <select
                     value={draft.lifecycle_stage}
-                    onChange={(e) =>
-                      setDraft((d) => ({ ...d, lifecycle_stage: e.target.value as Customer['lifecycle_stage'] }))
-                    }
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-2.5 text-sm text-text-primary"
+                    onChange={(e) => setDraft((d) => ({ ...d, lifecycle_stage: e.target.value as Customer['lifecycle_stage'] }))}
+                    className={inputCls}
                   >
                     {LIFECYCLE_STAGES.map((s) => (
                       <option key={s.key} value={s.key}>
@@ -277,11 +279,7 @@ function CustomerDrawer({
 
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-text-secondary">Tags</label>
-                <TagEditor
-                  tags={draft.tags}
-                  suggestions={TAG_SUGGESTIONS}
-                  onChange={(tags) => setDraft((d) => ({ ...d, tags }))}
-                />
+                <TagEditor tags={draft.tags} suggestions={TAG_SUGGESTIONS} onChange={(tags) => setDraft((d) => ({ ...d, tags }))} />
               </div>
 
               <div>
@@ -290,12 +288,14 @@ function CustomerDrawer({
                   value={draft.notes ?? ''}
                   onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))}
                   rows={4}
-                  className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-secondary px-3.5 py-2.5 text-sm text-text-primary"
+                  className={`${inputCls} resize-none`}
                   placeholder="Anything worth remembering about this customer…"
                 />
               </div>
+
+              <CustomFieldsEditor defs={cfDefs} value={customData} onChange={setCustomData} />
             </div>
-   <CustomFieldsEditor defs={cfDefs} value={customData} onChange={setCustomData} />
+
             <div className="mt-6 flex gap-2">
               <button
                 type="button"
@@ -331,13 +331,14 @@ export function CustomersPage() {
   const navigate = useNavigate();
   const { user, profile, profileLoading } = useAuth();
   const { toast } = useToast();
+  const { defs: cfDefs } = useCustomFieldDefs('customer');
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState<Customer['lifecycle_stage'] | 'all'>('all');
-   const { defs: cfDefs } = useCustomFieldDefs('customer');
-   const [cfFilters, setCfFilters] = useState<CustomFilters>({});
+  const [cfFilters, setCfFilters] = useState<CustomFilters>({});
+  const [sort, setSort] = useState(() => coerceSort(null, CUSTOMER_SORT_KEYS, null));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
@@ -348,10 +349,7 @@ export function CustomersPage() {
     if (!user) return;
     setDataLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('customers')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
       if (!error && data) setCustomers(data as Customer[]);
     } finally {
       setDataLoading(false);
@@ -371,7 +369,7 @@ export function CustomersPage() {
   useKeyboardShortcut({ key: '/', handler: () => searchRef.current?.focus() });
 
   const filteredCustomers = useMemo(() => {
-   let list = customers.filter((c) => matchesCustomFilters(c.custom_data, cfDefs, cfFilters));
+    let list = customers.filter((c) => matchesCustomFilters(c.custom_data, cfDefs, cfFilters));
     if (stageFilter !== 'all') list = list.filter((c) => c.lifecycle_stage === stageFilter);
     const q = search.trim().toLowerCase();
     const matched = !q
@@ -382,10 +380,12 @@ export function CustomersPage() {
             (c.phone?.toLowerCase().includes(q) ?? false) ||
             (c.email?.toLowerCase().includes(q) ?? false) ||
             (c.address?.toLowerCase().includes(q) ?? false) ||
-            c.tags.some((t) => t.includes(q))
+            c.tags.some((t) => t.includes(q)),
         );
     return sortRows(matched, sort, CUSTOMER_SORT_ACCESSORS);
-  }, [customers, search, stageFilter, sort]);
+  }, [customers, search, stageFilter, cfFilters, cfDefs, sort]);
+
+  const isFiltered = search.trim() !== '' || stageFilter !== 'all' || Object.keys(cfFilters).length > 0;
 
   const bulk = useBulkTable<Customer>({
     table: 'customers',
@@ -415,11 +415,14 @@ export function CustomersPage() {
     onRowsChanged: (u) => setCustomers((prev) => applyRowPatches(prev, u)),
     onRowsRemoved: (ids) => setCustomers((prev) => prev.filter((c) => !ids.includes(c.id))),
   });
+
   const currentFilters = { search, stageFilter };
   const applyView = (f: Record<string, unknown>, extras: AppliedViewExtras) => {
     setSearch(typeof f.search === 'string' ? f.search : '');
-    setStageFilter(LIFECYCLE_STAGES.some((s) => s.key === f.stageFilter) ? (f.stageFilter as Customer['lifecycle_stage']) : 'all');
-    setSort(coerceSort(extras.sort, CUSTOMER_SORT_OPTIONS.map((o) => o.key), null));
+    setStageFilter(
+      LIFECYCLE_STAGES.some((s) => s.key === f.stageFilter) ? (f.stageFilter as Customer['lifecycle_stage']) : 'all',
+    );
+    setSort(coerceSort(extras.sort, CUSTOMER_SORT_KEYS, null));
   };
 
   const openNewDrawer = () => {
@@ -464,14 +467,14 @@ export function CustomersPage() {
         >
           <ArrowLeft size={18} />
         </button>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Customers</h1>
           <p className="mt-1 text-sm text-text-secondary">
             {filteredCustomers.length} {filteredCustomers.length === 1 ? 'customer' : 'customers'}
-            {search && ' (filtered)'}
+            {isFiltered && ' (filtered)'}
           </p>
         </div>
-        <div className="relative max-w-xs flex-1">
+        <div className="relative w-full min-w-0 sm:max-w-xs sm:flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary" />
           <input
             ref={searchRef}
@@ -479,6 +482,7 @@ export function CustomersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search customers…  (press /)"
+            aria-label="Search customers"
             className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60"
           />
         </div>
@@ -492,9 +496,10 @@ export function CustomersPage() {
         </button>
       </div>
 
-   <CustomFilterBar defs={cfDefs} value={cfFilters} onChange={setCfFilters} className="mb-4" />
-      {/* Stage filter pills */}
-      <div className="mb-4 flex flex-wrap gap-2">
+      <CustomFilterBar defs={cfDefs} value={cfFilters} onChange={setCfFilters} className="mb-4" />
+
+      {/* Stage filter pills + sort + saved views */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => setStageFilter('all')}
@@ -521,6 +526,10 @@ export function CustomersPage() {
             {s.label}
           </button>
         ))}
+        <div className="ml-auto flex items-center gap-2">
+          <SortSelect value={sort} options={CUSTOMER_SORT_OPTIONS} onChange={setSort} />
+          <SavedViewsBar page="customers" currentFilters={currentFilters} currentSort={sort} onApply={applyView} />
+        </div>
       </div>
 
       {dataLoading ? (
@@ -528,20 +537,20 @@ export function CustomersPage() {
       ) : filteredCustomers.length === 0 ? (
         <EmptyState
           icon={Building2}
-          title={search || stageFilter !== 'all' ? 'No customers match your filters' : 'No customers yet'}
+          title={isFiltered ? 'No customers match your filters' : 'No customers yet'}
           description="Add your first customer, or they'll start showing up here as calls and jobs get linked to them."
           action={{ label: 'Add customer', onClick: openNewDrawer }}
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
+          <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs uppercase tracking-wide text-text-secondary">
+                <th className="w-10 px-4 py-3">{bulk.headerCheckbox()}</th>
                 <th className="px-4 py-3 font-medium">Customer</th>
                 <th className="px-4 py-3 font-medium">Contact</th>
                 <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">Stage</th>
-                <th className="w-10 px-4 py-3">{bulk.headerCheckbox()}</th>
                 <th className="px-4 py-3 font-medium">Last contact</th>
               </tr>
             </thead>
@@ -552,12 +561,14 @@ export function CustomersPage() {
                   <tr
                     key={c.id}
                     onClick={() => openEditDrawer(c)}
-                    className="cursor-pointer border-b border-border/60 last:border-0 transition-colors hover:bg-bg-tertiary/60"
+                    className="cursor-pointer border-b border-border/60 transition-colors last:border-0 hover:bg-bg-tertiary/60"
                   >
+                    <td className="w-10 px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      {bulk.rowCheckbox(c.id, c.name)}
+                    </td>
                     <td className="px-4 py-3">
-                    <td className="w-10 px-4 py-3">{bulk.rowCheckbox(c.id, c.name)}</td>
                       <div className="font-medium text-text-primary">{c.name}</div>
-          <CustomFieldBadgesAuto entity="customer" data={c.custom_data} />
+                      <CustomFieldBadgesAuto entity="customer" data={c.custom_data} />
                       {c.tags.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {c.tags.slice(0, 3).map((t) => (
@@ -569,10 +580,6 @@ export function CustomersPage() {
                               {t}
                             </span>
                           ))}
-                                  <div className="ml-auto flex items-center gap-2">
-          <SortSelect value={sort} options={CUSTOMER_SORT_OPTIONS} onChange={setSort} />
-          <SavedViewsBar page="customers" currentFilters={currentFilters} currentSort={sort} onApply={applyView} />
-        </div>
                         </div>
                       )}
                     </td>
@@ -618,6 +625,7 @@ export function CustomersPage() {
       <CustomerDrawer
         open={drawerOpen}
         customer={editingCustomer}
+        cfDefs={cfDefs}
         onClose={() => setDrawerOpen(false)}
         onSaved={handleSaved}
         onDeleteRequest={(c) => setDeleteTarget(c)}
@@ -626,7 +634,7 @@ export function CustomersPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         title="Delete customer?"
-description={`This moves ${deleteTarget?.name ?? 'this customer'} to the trash, where you can restore it for 30 days. Linked calls, leads, and jobs are kept.`}
+        description={`This moves ${deleteTarget?.name ?? 'this customer'} to the trash, where you can restore it for 30 days. Linked calls, leads, and jobs are kept.`}
         confirmLabel="Yes, delete this customer"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
