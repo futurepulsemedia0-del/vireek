@@ -1,177 +1,565 @@
-import { supabase } from '@/lib/supabase';
-import { pt, portalLocale } from '@/lib/portalI18n';
-import { WORKFLOW_PORTAL_LABELS, type WorkflowStatus } from '@/lib/jobWorkflow';
+import { useEffect, useState, useMemo } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import {
+  AlertCircle,
+  Briefcase,
+  FileText,
+  Award,
+  Send,
+  User,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  ShieldCheck,
+  CalendarClock,
+  Gift,
+  CreditCard,
+  History as HistoryIcon,
+} from 'lucide-react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import {
+  fetchPortalBundle,
+  submitServiceRequest,
+  updateContactInfo,
+  getRescheduleLink,
+  getBookingLink,
+  getReferralLink,
+  formatRewardLabel,
+  formatWarrantyStatus,
+  JOB_STATUS_LABELS,
+  INVOICE_STATUS_LABELS,
+  formatAmount,
+  formatCents,
+  formatPortalDate,
+  type PortalBundle,
+} from '@/lib/customerPortal';
+import { pt, usePortalLanguage } from '@/lib/portalI18n';
+import { LANGUAGE_OPTIONS, normalizeLanguage } from '@/lib/customerLanguage';
 
-/**
- * Customer Self-Service Portal — client library.
- *
- * Same security pattern as `lib/reschedule.ts`: all reads and writes go
- * through narrow SECURITY DEFINER Postgres functions that validate the
- * portal token server-side (get_customer_portal_bundle,
- * submit_portal_service_request, update_portal_contact_info — see
- * supabase/migrations/20260925000000_customer_self_service_portal.sql).
- * RLS on customers/jobs/quotes/memberships is never opened to anon.
- */
+type Tab = 'jobs' | 'quotes' | 'equipment' | 'referral' | 'request' | 'profile';
 
-export interface PortalJob {
-  id: string;
-  service_type: string | null;
-  scheduled_datetime: string | null;
-  job_status: 'scheduled' | 'en_route' | 'in_progress' | WorkflowStatus| 'completed' | 'cancelled' | 'no_show';
-  invoice_amount: number | null;
-  invoice_status: 'not_sent' | 'sent' | 'paid';
-  reschedule_token: string | null;
-  payment_link_url: string | null;
-  created_at: string;
-}
-
-export interface PortalEquipment {
-  id: string;
-  equipment_type: string;
-  make: string | null;
-  model: string | null;
-  install_date: string | null;
-  warranty_expires_at: string | null;
-  warranty_alert_stage: 'expiring_soon' | 'expired' | null;
-  last_service_date: string | null;
-}
-
-export interface PortalQuote {
-  id: string;
-  quote_token: string;
-  status: 'draft' | 'sent' | 'accepted' | 'declined' | 'expired';
-  accepted_total_cents: number | null;
-  valid_until: string | null;
-  sent_at: string | null;
-  created_at: string;
-}
-
-export interface PortalReferral {
-  code: string;
-  reward_type: 'credit' | 'discount' | 'cash';
-  reward_value: number;
-  clicks: number;
-}
-
-export interface PortalMembership {
-  status: 'offered' | 'active' | 'cancelled';
-  started_at: string | null;
-  plan_name: string | null;
-  benefits: string[] | null;
-}
-
-export interface PortalBundle {
-  customer: {
-    name: string;
-    phone: string | null;
-    email: string | null;
-    address: string | null;
-    lifecycle_stage: string;
+function JobStatusBadge({ status }: { status: PortalBundle['jobs'][number]['job_status'] }) {
+  const colors: Record<typeof status, string> = {
+    scheduled: 'bg-accent/10 text-accent',
+    en_route: 'bg-warning-500/10 text-warning-500',
+    in_progress: 'bg-warning-500/10 text-warning-500',
+    completed: 'bg-success-500/10 text-success',
+    cancelled: 'bg-bg-tertiary text-text-secondary',
   };
-  business_name: string | null;
-  booking_slug: string | null;
-  jobs: PortalJob[];
-  quotes: PortalQuote[];
-  equipment: PortalEquipment[];
-  referral: PortalReferral | null;
-  membership: PortalMembership | null;
+  return (
+    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${colors[status]}`}>
+      {pt(JOB_STATUS_LABELS[status])}
+    </span>
+  );
 }
 
-export function getPortalLink(token: string): string {
-  return `${window.location.origin}/portal/${token}`;
+function QuoteStatusBadge({ status }: { status: PortalBundle['quotes'][number]['status'] }) {
+  const colors: Record<typeof status, string> = {
+    draft: 'bg-bg-tertiary text-text-secondary',
+    sent: 'bg-accent/10 text-accent',
+    accepted: 'bg-success-500/10 text-success',
+    declined: 'bg-bg-tertiary text-text-secondary',
+    expired: 'bg-danger/10 text-danger',
+  };
+  const labels: Record<typeof status, string> = {
+    draft: 'Draft',
+    sent: 'Awaiting your response',
+    accepted: 'Accepted',
+    declined: 'Declined',
+    expired: 'Expired',
+  };
+  return (
+    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${colors[status]}`}>
+      {pt(labels[status])}
+    </span>
+  );
 }
 
-export function getRescheduleLink(token: string): string {
-  return `${window.location.origin}/reschedule/${token}`;
-}
+export function CustomerPortalPage() {
+  const { token } = useParams<{ token: string }>();
+  const [bundle, setBundle] = useState<PortalBundle | null | undefined>(undefined);
+  const [tab, setTab] = useState<Tab>('jobs');
+  const { language, changeLanguage } = usePortalLanguage(token);
+  const [langSaved, setLangSaved] = useState(false);
 
-export function getBookingLink(slug: string): string {
-  return `${window.location.origin}/book/${slug}`;
-}
+  // Service request form
+  const [reqServiceType, setReqServiceType] = useState('');
+  const [reqMessage, setReqMessage] = useState('');
+  const [reqSubmitting, setReqSubmitting] = useState(false);
+  const [reqDone, setReqDone] = useState(false);
+  const [reqError, setReqError] = useState<string | null>(null);
 
-export function getReferralLink(code: string): string {
-  return `${window.location.origin}/r/${code}`;
-}
+  // Contact info form
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
-export function formatRewardLabel(referral: PortalReferral): string {
-  if (referral.reward_type === 'credit') return `$${referral.reward_value.toFixed(0)} account credit`;
-  if (referral.reward_type === 'discount') return `${referral.reward_value.toFixed(0)}% discount`;
-  return `$${referral.reward_value.toFixed(0)} cash reward`;
-}
+  useEffect(() => {
+    if (!token) return;
+    (async () => {
+      const data = await fetchPortalBundle(token);
+      setBundle(data);
+      if (data) {
+        setPhone(data.customer.phone ?? '');
+        setEmail(data.customer.email ?? '');
+      }
+    })();
+  }, [token]);
 
-export function formatWarrantyStatus(exp: string | null): { label: string; tone: 'ok' | 'warn' | 'expired' } {
-  if (!exp) return { label: pt('No warranty on file'), tone: 'ok' };
-  const days = Math.floor((new Date(exp).getTime() - Date.now()) / 86400000);
-  if (days < 0) return { label: pt('Expired {{date}}', { date: formatPortalDate(exp) }), tone: 'expired' };
-  if (days <= 60) return { label: pt('Expires {{date}}', { date: formatPortalDate(exp) }), tone: 'warn' };
-  return { label: pt('Covered until {{date}}', { date: formatPortalDate(exp) }), tone: 'ok' };
-}
+  const upcomingJobs = useMemo(
+    () => (bundle?.jobs ?? []).filter((j) => j.job_status !== 'completed' && j.job_status !== 'cancelled'),
+    [bundle],
+  );
 
-/**
- * Returns the bundle, or null if the link is invalid OR the business
- * hasn't turned the portal on. Those two cases are deliberately
- * indistinguishable to the caller (see get_customer_portal_bundle) —
- * an invalid-vs-disabled distinction would let a guessed token confirm
- * whether a given link format exists at all.
- */
-export async function fetchPortalBundle(token: string): Promise<PortalBundle | null> {
-  const { data, error } = await supabase.rpc('get_customer_portal_bundle', { p_token: token });
-  if (error || !data) return null;
-  return data as PortalBundle;
-}
+  const pastJobs = useMemo(
+    () => (bundle?.jobs ?? []).filter((j) => j.job_status === 'completed' || j.job_status === 'cancelled'),
+    [bundle],
+  );
 
-export async function submitServiceRequest(token: string, serviceType: string, message: string): Promise<boolean> {
-  const { data, error } = await supabase.rpc('submit_portal_service_request', {
-    p_token: token,
-    p_service_type: serviceType,
-    p_message: message,
-  });
-  if (error) return false;
-  return Boolean(data);
-}
+  const handleSubmitRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    if (!reqServiceType.trim() && !reqMessage.trim()) {
+      setReqError('Tell us a bit about what you need.');
+      return;
+    }
+    setReqSubmitting(true);
+    setReqError(null);
+    const ok = await submitServiceRequest(token, reqServiceType, reqMessage);
+    if (ok) {
+      setReqDone(true);
+      setReqServiceType('');
+      setReqMessage('');
+    } else {
+      setReqError("Couldn't submit your request — please call us directly.");
+    }
+    setReqSubmitting(false);
+  };
 
-export async function updateContactInfo(token: string, phone: string, email: string): Promise<boolean> {
-  const { data, error } = await supabase.rpc('update_portal_contact_info', {
-    p_token: token,
-    p_phone: phone,
-    p_email: email,
-  });
-  if (error) return false;
-  return Boolean(data);
-}
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    setProfileSaving(true);
+    setProfileError(null);
+    setProfileSaved(false);
+    const ok = await updateContactInfo(token, phone, email);
+    if (ok) {
+      setProfileSaved(true);
+    } else {
+      setProfileError("Couldn't save your changes — please call us directly.");
+    }
+    setProfileSaving(false);
+  };
 
-// ============================================================
-// DISPLAY HELPERS
-// ============================================================
+  const TABS: { key: Tab; label: string; icon: typeof Briefcase }[] = [
+    { key: 'jobs', label: pt('My Appointments'), icon: Briefcase },
+    { key: 'quotes', label: pt('Quotes'), icon: FileText },
+    { key: 'equipment', label: pt('Equipment'), icon: ShieldCheck },
+    { key: 'referral', label: pt('Refer & Earn'), icon: Gift },
+    { key: 'request', label: pt('Request Service'), icon: Send },
+    { key: 'profile', label: pt('My Info'), icon: User },
+  ];
 
-export const JOB_STATUS_LABELS: Record<PortalJob['job_status'], string> = {
-  scheduled: 'Scheduled',
-  en_route: 'Technician en route',
-  in_progress: 'In progress',
-  cancelled: 'Cancelled',
-  completed: 'Completed',
-  no_show: 'No-show',
-  cancelled: 'Cancelled',
-  ...WORKFLOW_PORTAL_LABELS,
-};
+  return (
+    <div className="flex min-h-screen flex-col bg-bg-primary">
+      <Header />
+      <main className="flex-1 px-4 py-12">
+        <div className="mx-auto w-full max-w-3xl">
+          {bundle === undefined && (
+            <p className="py-20 text-center text-sm text-text-secondary">{pt('Loading your account…')}</p>
+          )}
 
-export const INVOICE_STATUS_LABELS: Record<PortalJob['invoice_status'], string> = {
-  not_sent: 'Not yet invoiced',
-  sent: 'Invoice sent — payment due',
-  paid: 'Paid',
-};
+          {bundle === null && (
+            <div className="rounded-2xl border border-border bg-bg-secondary p-8 text-center shadow-card dark:shadow-card-dark">
+              <AlertCircle size={28} className="mx-auto mb-3 text-text-secondary" />
+              <h1 className="text-lg font-semibold text-text-primary">{pt('Portal not available')}</h1>
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                This link isn't valid, or the self-service portal isn't turned on for this business yet.
+                Please call the business directly for help.
+              </p>
+            </div>
+          )}
 
-export function formatAmount(amount: number | null): string {
-  if (amount === null) return '—';
-  return amount.toLocaleString(portalLocale(), { style: 'currency', currency: 'USD' });
-}
+          {bundle && (
+            <>
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold tracking-tight text-text-primary">{pt('Hi {{name}},', { name: bundle.customer.name.split(' ')[0] })}</h1>
+                <p className="mt-1 text-sm text-text-secondary">{pt('Your account with {{business}}', { business: bundle.business_name ?? 'us' })}</p>
+              </div>
+              <Link
+                to={`/portal/${token}/history`}
+                className="focus-ring mb-6 flex min-h-[44px] items-center gap-3 rounded-2xl border border-border bg-bg-secondary p-4 transition-colors hover:bg-bg-tertiary"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <HistoryIcon size={18} aria-hidden="true" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-text-primary">{pt('Full service history')}</span>
+                  <span className="block text-xs text-text-secondary">Past visits, invoices, membership &amp; equipment</span>
+                </span>
+              </Link>
+              <a
+                href={`/emergency/${token}`}
+                className="mb-6 flex items-center justify-between rounded-2xl border border-danger/30 bg-danger/5 p-4 transition-colors hover:border-danger/50"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-danger">{pt('Something is wrong?')}</p>
+                  <p className="text-xs text-text-secondary">Report an emergency and get immediate safety steps</p>
+                </div>
+                <span className="rounded-full bg-danger px-3 py-1.5 text-xs font-semibold text-white">{pt('Start now')}</span>
+              </a>
 
-export function formatCents(cents: number | null): string {
-  if (cents === null) return '—';
-  return formatAmount(cents / 100);
-}
+              {bundle.membership && (
+                <div className="mb-6 flex items-center gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+                    <Award size={18} />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-text-primary">
+                      {bundle.membership.plan_name ?? 'Membership'} — {bundle.membership.status === 'active' ? 'Active' : bundle.membership.status === 'offered' ? 'Offered' : 'Cancelled'}
+                    </p>
+                    {bundle.membership.benefits && bundle.membership.benefits.length > 0 && (
+                      <p className="text-xs text-text-secondary">{bundle.membership.benefits.join(' · ')}</p>
+                    )}
+                  </div>
+                </div>
+              )}
 
-export function formatPortalDate(dateStr: string | null): string {
-  if (!dateStr) return pt('Not yet scheduled');
-  return new Date(dateStr).toLocaleDateString(portalLocale(), { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+              {/* Tabs */}
+              <div className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-border bg-bg-secondary p-1">
+                {TABS.map((t) => (
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() => setTab(t.key)}
+                    className={`focus-ring flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                  >
+                    <t.icon size={13} />
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Appointments */}
+              {tab === 'jobs' && (
+                <div className="space-y-4">
+                  {bundle.booking_slug && (
+                    <a
+                      href={getBookingLink(bundle.booking_slug)}
+                      className="focus-ring flex items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-accent/90"
+                    >
+                      <CalendarClock size={15} /> {pt('Book new service')}
+                    </a>
+                  )}
+
+                  <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                    <h2 className="text-sm font-semibold text-text-primary">{pt('Upcoming')}</h2>
+                    {upcomingJobs.length === 0 ? (
+                      <p className="mt-3 text-sm text-text-secondary">{pt('No upcoming appointments.')}</p>
+                    ) : (
+                      <div className="mt-4 space-y-3">
+                        {upcomingJobs.map((j) => (
+                          <div key={j.id} className="rounded-xl border border-border/60 p-3.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">{j.service_type ?? 'Service visit'}</p>
+                                <p className="mt-0.5 flex items-center gap-1 text-xs text-text-secondary">
+                                  <Clock size={11} /> {formatPortalDate(j.scheduled_datetime)}
+                                </p>
+                              </div>
+                              <JobStatusBadge status={j.job_status} />
+                            </div>
+                            {(j.reschedule_token || (j.invoice_status === 'sent' && j.payment_link_url)) && (
+                              <div className="mt-3 flex flex-wrap gap-2 border-t border-border/60 pt-2.5">
+                                {j.reschedule_token && j.job_status === 'scheduled' && (
+                                  <a
+                                    href={getRescheduleLink(j.reschedule_token)}
+                                    className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
+                                  >
+                                    <CalendarClock size={12} /> {pt('Reschedule')}
+                                  </a>
+                                )}
+                                {j.invoice_status === 'sent' && j.payment_link_url && (
+                                  <a
+                                    href={j.payment_link_url}
+                                    className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90"
+                                  >
+                                    <CreditCard size={12} /> {pt('Pay now')}
+                                  </a>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                    <h2 className="text-sm font-semibold text-text-primary">{pt('Past Service')}</h2>
+                    {pastJobs.length === 0 ? (
+                      <p className="mt-3 text-sm text-text-secondary">{pt('No past service on file yet.')}</p>
+                    ) : (
+                      <div className="mt-4 space-y-3">
+                        {pastJobs.map((j) => (
+                          <div key={j.id} className="rounded-xl border border-border/60 p-3.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">{j.service_type ?? 'Service visit'}</p>
+                                <p className="mt-0.5 flex items-center gap-1 text-xs text-text-secondary">
+                                  <Clock size={11} /> {formatPortalDate(j.scheduled_datetime ?? j.created_at)}
+                                </p>
+                              </div>
+                              <JobStatusBadge status={j.job_status} />
+                            </div>
+                            {j.invoice_amount !== null && (
+                              <div className="mt-2 flex items-center justify-between border-t border-border/60 pt-2 text-xs">
+                                <span className="text-text-secondary">{pt(INVOICE_STATUS_LABELS[j.invoice_status])}</span>
+                                <span className="font-semibold text-text-primary">{formatAmount(j.invoice_amount)}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Quotes */}
+              {tab === 'quotes' && (
+                <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                  <h2 className="text-sm font-semibold text-text-primary">{pt('Quotes')}</h2>
+                  {bundle.quotes.length === 0 ? (
+                    <p className="mt-3 text-sm text-text-secondary">No quotes on file yet.</p>
+                  ) : (
+                    <div className="mt-4 space-y-3">
+                      {bundle.quotes.map((q) => (
+                        <a
+                          key={q.id}
+                          href={`/quote/${q.quote_token}`}
+                          className="focus-ring flex items-center justify-between gap-3 rounded-xl border border-border/60 p-3.5 transition-colors hover:bg-bg-tertiary"
+                        >
+                          <div>
+                            <p className="text-sm font-medium text-text-primary">
+                              {q.accepted_total_cents !== null ? formatCents(q.accepted_total_cents) : 'Quote'}
+                            </p>
+                            <p className="mt-0.5 text-xs text-text-secondary">
+                              {q.sent_at ? `Sent ${formatPortalDate(q.sent_at)}` : formatPortalDate(q.created_at)}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <QuoteStatusBadge status={q.status} />
+                            <ExternalLink size={13} className="text-text-secondary" />
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Equipment */}
+              {tab === 'equipment' && (
+                <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                  <h2 className="text-sm font-semibold text-text-primary">Your Equipment</h2>
+                  {bundle.equipment.length === 0 ? (
+                    <p className="mt-3 text-sm text-text-secondary">No equipment on file yet.</p>
+                  ) : (
+                    <div className="mt-4 space-y-3">
+                      {bundle.equipment.map((eq) => {
+                        const warranty = formatWarrantyStatus(eq.warranty_expires_at);
+                        const toneClass =
+                          warranty.tone === 'expired'
+                            ? 'bg-danger/10 text-danger'
+                            : warranty.tone === 'warn'
+                              ? 'bg-warning-500/10 text-warning-500'
+                              : 'bg-success-500/10 text-success';
+                        return (
+                          <div key={eq.id} className="rounded-xl border border-border/60 p-3.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">
+                                  {[eq.make, eq.model].filter(Boolean).join(' ') || eq.equipment_type}
+                                </p>
+                                <p className="mt-0.5 text-xs text-text-secondary">{eq.equipment_type}</p>
+                              </div>
+                              <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${toneClass}`}>
+                                <ShieldCheck size={11} className="mr-1 inline" />
+                                {warranty.label}
+                              </span>
+                            </div>
+                            {eq.last_service_date && (
+                              <p className="mt-2 border-t border-border/60 pt-2 text-xs text-text-secondary">
+                                Last serviced {formatPortalDate(eq.last_service_date)}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Refer & Earn */}
+              {tab === 'referral' && (
+                <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                  <h2 className="text-sm font-semibold text-text-primary">Refer a Friend</h2>
+                  {bundle.referral ? (
+                    <>
+                      <p className="mt-1 text-xs text-text-secondary">
+                        Share your link — you get {formatRewardLabel(bundle.referral)} when they become a customer.
+                      </p>
+                      <div className="mt-4 flex items-center gap-2 rounded-xl border border-border/60 bg-bg-primary p-3">
+                        <code className="flex-1 truncate text-xs text-text-primary">
+                          {getReferralLink(bundle.referral.code)}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => navigator.clipboard.writeText(getReferralLink(bundle.referral!.code))}
+                          className="focus-ring shrink-0 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                      <p className="mt-3 text-xs text-text-secondary">{bundle.referral.clicks} people have clicked your link so far.</p>
+                    </>
+                  ) : (
+                    <p className="mt-3 text-sm text-text-secondary">Your referral link isn't ready yet — check back shortly.</p>
+                  )}
+                </div>
+              )}
+
+              {/* Request Service */}
+              {tab === 'request' && (
+                <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                  <h2 className="text-sm font-semibold text-text-primary">Request Service</h2>
+                  <p className="mt-1 text-xs text-text-secondary">We'll reach out to get this scheduled.</p>
+                  {reqDone ? (
+                    <div className="mt-5 flex items-center gap-3 rounded-xl border border-success-500/30 bg-success/5 p-4">
+                      <CheckCircle2 size={20} className="shrink-0 text-success" />
+                      <p className="text-sm text-text-primary">Thanks — your request has been sent. We'll be in touch soon.</p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmitRequest} className="mt-5 space-y-4">
+                      <div>
+                        <label htmlFor="portal-service-type" className="mb-1.5 block text-xs font-medium text-text-secondary">
+                          What do you need?
+                        </label>
+                        <input
+                          id="portal-service-type"
+                          type="text"
+                          value={reqServiceType}
+                          onChange={(e) => setReqServiceType(e.target.value)}
+                          placeholder="e.g. AC repair, leak, annual tune-up…"
+                          className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="portal-message" className="mb-1.5 block text-xs font-medium text-text-secondary">
+                          Anything else we should know? (optional)
+                        </label>
+                        <textarea
+                          id="portal-message"
+                          value={reqMessage}
+                          onChange={(e) => setReqMessage(e.target.value)}
+                          rows={4}
+                          className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary"
+                        />
+                      </div>
+                      {reqError && <p className="text-xs text-danger">{reqError}</p>}
+                      <button
+                        type="submit"
+                        disabled={reqSubmitting}
+                        className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
+                      >
+                        <Send size={15} />
+                        {reqSubmitting ? 'Sending…' : pt('Send request')}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )}
+
+              {/* Profile */}
+              {tab === 'profile' && (
+                <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+                  <h2 className="text-sm font-semibold text-text-primary">My Info</h2>
+                  <p className="mt-1 text-xs text-text-secondary">Keep your contact info up to date.</p>
+                  <form onSubmit={handleSaveProfile} className="mt-5 space-y-4">
+                    <div>
+                      <label htmlFor="portal-phone" className="mb-1.5 block text-xs font-medium text-text-secondary">{pt('Phone')}</label>
+                      <input
+                        id="portal-phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => { setPhone(e.target.value); setProfileSaved(false); }}
+                        className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="portal-email" className="mb-1.5 block text-xs font-medium text-text-secondary">{pt('Email')}</label>
+                      <input
+                        id="portal-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); setProfileSaved(false); }}
+                        className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary"
+                      />
+                    </div>
+                    {bundle.customer.address && (
+                      <div>
+                        <p className="mb-1.5 text-xs font-medium text-text-secondary">Address on file</p>
+                        <p className="text-sm text-text-primary">{bundle.customer.address}</p>
+                        <p className="mt-1 text-[11px] text-text-secondary">Call us to update your address.</p>
+                      </div>
+                    )}
+                    <div>
+                      <label htmlFor="portal-language" className="mb-1.5 block text-xs font-medium text-text-secondary">
+                        {pt('Language')}
+                      </label>
+                      <select
+                        id="portal-language"
+                        value={normalizeLanguage(language) ?? 'en'}
+                        onChange={async (e) => {
+                          const code = normalizeLanguage(e.target.value);
+                          if (!code) return;
+                          setLangSaved(false);
+                          setLangSaved(await changeLanguage(code));
+                        }}
+                        className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary"
+                      >
+                        {LANGUAGE_OPTIONS.map((o) => (
+                          <option key={o.code} value={o.code}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-[11px] text-text-secondary">
+                        {langSaved ? pt('Language saved.') : pt('Choose the language we use to contact you.')}
+                      </p>
+                    </div>
+                    {profileError && <p className="text-xs text-danger">{profileError}</p>}
+                    {profileSaved && <p className="text-xs text-success">{pt('Saved.')}</p>}
+                    <button
+                      type="submit"
+                      disabled={profileSaving}
+                      className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
+                    >
+                      {profileSaving ? 'Saving…' : pt('Save changes')}
+                    </button>
+                  </form>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
 }
