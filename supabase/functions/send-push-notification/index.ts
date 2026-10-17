@@ -1,7 +1,8 @@
 // supabase/functions/send-push-notification/index.ts
 //
-// Delivers a real browser push notification (Web Push protocol) for a
-// `notifications` row to every device the account has subscribed from.
+// Delivers a real push notification for a `notifications` row to every device the
+// account has registered: browsers (Web Push protocol) and the native iOS / Android app
+// (Firebase Cloud Messaging).
 //
 // Called internally by the trigger_dispatch_push_notification Postgres
 // trigger via pg_net. Not meant to be called directly by the client.
@@ -11,12 +12,16 @@
 //   VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY     — from `npx web-push generate-vapid-keys`
 //   VAPID_SUBJECT                             — e.g. "mailto:ali@vireek.com"
 //   PUSH_DISPATCH_SECRET                      — same string as app.settings.push_dispatch_secret
+// Optional (native app push):
+//   FCM_SERVICE_ACCOUNT_JSON                  — Firebase service-account JSON; without it the
+//                                               native devices are skipped, web push is unaffected
 //
 // Deploy:
 //   supabase functions deploy send-push-notification --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import webpush from "npm:web-push@3.6.7";
+import { isFcmConfigured, sendFcm } from "../_shared/notify/fcm.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,6 +41,18 @@ interface PushSubscriptionRow {
   p256dh: string;
   auth_key: string;
   subscriber_user_id: string | null;
+}
+
+interface DeviceTokenRow {
+  id: string;
+  token: string;
+  subscriber_user_id: string | null;
+}
+
+interface Delivery {
+  id: string;
+  ok: boolean;
+  pruned?: boolean;
 }
 
 function jsonResponse(data: unknown, status = 200) {
@@ -119,28 +136,46 @@ Deno.serve(async (req: Request) => {
       console.error(JSON.stringify({ event: "subscriptions_lookup_failed", requestId, error: subsError }));
       return jsonResponse({ success: false, error: "Failed to load subscriptions", requestId }, 500);
     }
+
+    // Targeting: a notification may be limited to specific people (e.g. @mentions).
+    // The same rule applies to browsers and to native devices.
     const subscriberIds = Array.isArray(payload.subscriber_user_ids) ? payload.subscriber_user_ids : null;
-    const subscriptions = subscriberIds
-      ? (allSubscriptions ?? []).filter(
-          (s) =>
-            (s.subscriber_user_id && subscriberIds.includes(s.subscriber_user_id)) ||
-            (payload.include_unattributed === true && !s.subscriber_user_id),
-        )
-      : allSubscriptions;
-    if (!subscriptions || subscriptions.length === 0) {
+    const isTargeted = (subscriberUserId: string | null): boolean =>
+      !subscriberIds ||
+      (subscriberUserId !== null && subscriberIds.includes(subscriberUserId)) ||
+      (payload.include_unattributed === true && subscriberUserId === null);
+
+    const webSubs = ((allSubscriptions ?? []) as PushSubscriptionRow[]).filter((s) => isTargeted(s.subscriber_user_id));
+
+    // Native app devices (FCM). Skipped entirely while FCM_SERVICE_ACCOUNT_JSON is not set.
+    let devices: DeviceTokenRow[] = [];
+    if (isFcmConfigured()) {
+      const { data: deviceRows, error: devicesError } = await admin
+        .from("device_push_tokens")
+        .select("id, token, subscriber_user_id")
+        .eq("user_id", notification.user_id);
+      if (devicesError) {
+        console.error(JSON.stringify({ event: "device_tokens_lookup_failed", requestId, error: devicesError }));
+      } else {
+        devices = ((deviceRows ?? []) as DeviceTokenRow[]).filter((d) => isTargeted(d.subscriber_user_id));
+      }
+    }
+
+    if (webSubs.length === 0 && devices.length === 0) {
       console.log(JSON.stringify({ event: "no_subscriptions", requestId, user_id: notification.user_id }));
       return jsonResponse({ success: true, sent: 0, requestId });
     }
 
+    const url = notification.action_url || "/dashboard";
     const notificationPayload = JSON.stringify({
       title: notification.title,
       body: notification.message,
-      url: notification.action_url || "/dashboard",
+      url,
       tag: notification.type,
     });
 
-    const results = await Promise.all(
-      (subscriptions as PushSubscriptionRow[]).map(async (sub) => {
+    const webResults: Delivery[] = await Promise.all(
+      webSubs.map(async (sub): Promise<Delivery> => {
         try {
           await webpush.sendNotification(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth_key } },
@@ -159,6 +194,35 @@ Deno.serve(async (req: Request) => {
       }),
     );
 
+    const deviceResults: Delivery[] = await Promise.all(
+      devices.map(async (device): Promise<Delivery> => {
+        try {
+          const result = await sendFcm(device.token, {
+            title: notification.title,
+            body: notification.message,
+            url,
+            tag: notification.type,
+          });
+          if (result.ok) return { id: device.id, ok: true };
+          if (result.unregistered) {
+            await admin.from("device_push_tokens").delete().eq("id", device.id);
+            return { id: device.id, ok: false, pruned: true };
+          }
+          console.error(JSON.stringify({ event: "fcm_send_failed", requestId, device_id: device.id }));
+          return { id: device.id, ok: false };
+        } catch (error) {
+          console.error(JSON.stringify({
+            event: "fcm_send_error",
+            requestId,
+            device_id: device.id,
+            error: error instanceof Error ? error.message : String(error),
+          }));
+          return { id: device.id, ok: false };
+        }
+      }),
+    );
+
+    const results = [...webResults, ...deviceResults];
     const sent = results.filter((r) => r.ok).length;
     const pruned = results.filter((r) => r.pruned).length;
 
