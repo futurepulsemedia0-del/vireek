@@ -11,6 +11,7 @@ import { listOwnSessions, revokeOwnSession, getCurrentSessionId, describeUserAge
 import { buildMyDataExport, downloadDataExport, deleteMyAccount } from '@/lib/accountData';
 import { RecoveryCodesPanel } from '@/components/security/RecoveryCodesPanel';
 import { EnterpriseDataExportPanel } from '@/components/settings/EnterpriseDataExportPanel';
+import { AppLockCard } from '@/components/native/AppLockCard';
 import { PasskeysCard } from '@/components/settings/PasskeysCard';
 
 interface AuditLogRow {
@@ -573,7 +574,7 @@ export function SecuritySettingsPage() {
           )}
         </div>
       </div>
-
+      <AppLockCard />
       {/* Workspace-level export (Business / Enterprise, owner only) */}
 <EnterpriseDataExportPanel />
 
