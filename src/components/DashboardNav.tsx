@@ -501,6 +501,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
   { label: 'Trash', href: '/dashboard/trash', icon: Trash2, requiresPermission: 'can_view_billing' },
   { label: 'API Usage', href: '/dashboard/settings/api-usage', icon: Activity },
+  { label: 'Email Settings', href: '/dashboard/settings/email', icon: Mail, requiresPermission: 'can_edit_business_profile' },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   { label: 'Chat Widget', href: '/dashboard/settings/chat-widget', icon: MessageCircle, requiresPermission: 'can_edit_business_profile' },
   { label: 'What’s New', href: '/dashboard/whats-new', icon: Sparkles },
@@ -548,6 +549,9 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return location.pathname === '/dashboard';
+    if (href === '/dashboard/settings') {
+      return location.pathname === href || (location.pathname.startsWith(href + '/') && !location.pathname.startsWith('/dashboard/settings/email'));
+    }
     if (href === '/dashboard/inventory') return location.pathname === '/dashboard/inventory';
     return location.pathname.startsWith(href);
   };
