@@ -472,6 +472,7 @@ const SsoLoginPage = lazy(() => import('@/pages/SsoLoginPage').then((m) => ({ de
 const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) => ({ default: m.ReliabilityPage })));
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
+const ApiUsagePage = lazy(() => import('@/pages/ApiUsagePage').then((m) => ({ default: m.ApiUsagePage })));
 const OAuthAppsPage = lazy(() => import('@/pages/OAuthAppsPage').then((m) => ({ default: m.OAuthAppsPage })));
 const SmsCompliancePage = lazy(() => import('@/pages/SmsCompliancePage').then((m) => ({ default: m.SmsCompliancePage })));
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
@@ -1064,6 +1065,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ApiKeysPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/api-usage"
+          element={
+            <ProtectedRoute>
+              <ApiUsagePage />
             </ProtectedRoute>
           }
         />
