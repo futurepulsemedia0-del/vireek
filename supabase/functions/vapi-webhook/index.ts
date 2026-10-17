@@ -62,6 +62,7 @@ import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/pr
 import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
+import { recordLanguageFromCall, resolveVoiceLanguage } from "../_shared/i18n/customerLanguage.ts";
 import {
   areaTechnicians,
   computeAreaQuote,
@@ -659,6 +660,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   const afterHoursContext = buildAfterHoursContextVariable(tenant, new Date());
   const recordingConsentContext = buildRecordingConsentNotice(callerNumber);
   const customerMemoryContext = await buildCustomerMemoryContextVariable(admin, tenant, callerNumber);
+  const voiceLanguage = await resolveVoiceLanguage(admin, tenant.userId, callerNumber, tenant.assistantName);
   const serviceAreaContext = await buildServiceAreaContextVariable(admin, tenant);
 
   logEvent("assistant_request_resolved", requestId, {
@@ -675,6 +677,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     after_hours_context: afterHoursContext,
     recording_consent_context: recordingConsentContext,
     customer_memory_context: customerMemoryContext,
+    language_context: voiceLanguage.context,
     service_area_context: serviceAreaContext,
   };
 
@@ -689,6 +692,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     assistantId: tenant.assistantId,
     assistantOverrides: {
       variableValues: sharedVariableValues,
+      ...(voiceLanguage.firstMessage ? { firstMessage: voiceLanguage.firstMessage } : {}),
     },
   });
 }
@@ -2088,6 +2092,12 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
   }
 
   const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, requestId);
+
+  // Customer language — detected from the caller's own words; only fills an empty preference (never throws).
+  if (message.type === "end-of-call-report" && transcript) {
+    const detected = await recordLanguageFromCall(admin, { userId: tenant.userId, vapiCallId, callerNumber, transcript });
+    if (detected.language) logEvent("caller_language_detected", requestId, { language: detected.language, confidence: detected.confidence });
+  }
   logEvent("lifecycle_event_processed", requestId, {
     type: message.type,
     user_id: tenant.userId,
