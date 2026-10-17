@@ -185,6 +185,7 @@ const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) =>
 const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
+const TechnicianTimesheetPage = lazy(() => import('@/pages/TechnicianTimesheetPage').then((m) => ({ default: m.TechnicianTimesheetPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
 const TechnicianMessagesPage = lazy(() => import('@/pages/TechnicianMessagesPage').then((m) => ({ default: m.TechnicianMessagesPage })));
 const TechnicianJobThreadPage = lazy(() => import('@/pages/TechnicianJobThreadPage').then((m) => ({ default: m.TechnicianJobThreadPage })));
