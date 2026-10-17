@@ -246,6 +246,7 @@ const PromoCodesPage = lazy(() => import('@/pages/PromoCodesPage').then((m) => (
 const QuoteTruthEnginePage = lazy(() => import('@/pages/QuoteTruthEnginePage').then((m) => ({ default: m.QuoteTruthEnginePage })));
 const OperationalTruthPage = lazy(() => import('@/pages/OperationalTruthPage').then((m) => ({ default: m.OperationalTruthPage })));
 const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').then((m) => ({ default: m.IncentiveEnginePage })));
+const InstallProjectsPage = lazy(() => import('@/pages/InstallProjectsPage').then((m) => ({ default: m.InstallProjectsPage })));
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
 const EnergyIntelligencePage = lazy(() => import('@/pages/EnergyIntelligencePage').then((m) => ({ default: m.EnergyIntelligencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
@@ -2970,6 +2971,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <IncentiveEnginePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/projects"
+          element={
+            <ProtectedRoute>
+              <InstallProjectsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/projects/:projectId"
+          element={
+            <ProtectedRoute>
+              <InstallProjectsPage />
             </ProtectedRoute>
           }
         />
