@@ -38,3 +38,8 @@ App id `com.vireek.field` · Capacitor 8 · Android (Gradle) + iOS (CocoaPods; M
 - [ ] Airplane mode → capture → reconnect syncs (vault).
 - [ ] GPS trail keeps recording with the screen locked.
 - [ ] Shared links (booking, tracking, sign) use `https://vireek.com/...`.
+## Phase 3 — crash reporting, privacy cover, E2E
+
+- **Sentry:** the native build reports JS errors and Swift/Kotlin crashes to the same project as the website (`VITE_SENTRY_DSN`). Keep `@sentry/react` pinned to the exact version `@sentry/capacitor` requires. Readable iOS native stack traces additionally need dSYM upload from the Xcode build (Sentry docs, "Capacitor → iOS debug symbols").
+- **Privacy cover:** iOS draws a black cover in `sceneWillResignActive`; Android 13+ disables the recents screenshot. Test: open a job, press Home / open the app switcher — no content visible.
+- **E2E:** `maestro test e2e/mobile` locally (emulator running, debug APK installed), and the `android-e2e` job in `.github/workflows/mobile.yml` on every release run. Add a flow per critical path as the app grows.
