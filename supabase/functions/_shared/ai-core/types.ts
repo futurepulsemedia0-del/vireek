@@ -49,6 +49,7 @@ export type TaskType =
   | "inbound_auto_reply"
   | "switching_shield_plan"
   | "bank_categorization";
+  | "review_reply"
 
 export interface NormalizedChatRequest {
   system: string;
