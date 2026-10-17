@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { PlanId } from '@/lib/pricing';
 import type { WorkflowStatus } from '@/lib/jobWorkflow';
+import { isNative } from '@/lib/native/platform';
+import { nativeAuthStorage } from '@/lib/native/secureStorage';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -17,6 +19,7 @@ export const supabase = createClient(
   supabaseAnonKey || 'missing-env-key',
   {
     auth: {
+      ...(isNative() ? { storage: nativeAuthStorage } : {}),
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
