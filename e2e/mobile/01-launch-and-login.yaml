@@ -1,0 +1,10 @@
+# Maestro smoke test: the installed app starts, the custom-scheme deep link routes in-app,
+# and the sign-in screen renders. Run locally: maestro test e2e/mobile
+appId: com.vireek.field
+---
+- launchApp:
+    clearState: true
+- openLink: vireek://login
+- extendedWaitUntil:
+    visible: 'Welcome back'
+    timeout: 30000
