@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["REPLACE_WITH_TEAMID.com.vireek.field"],
+        "components": [
+          { "/": "/tech", "?": {} },
+          { "/": "/tech/*" },
+          { "/": "/dashboard", "?": {} },
+          { "/": "/dashboard/*" },
+          { "/": "/login" },
+          { "/": "/reset-password" }
+        ]
+      }
+    ]
+  }
+}
