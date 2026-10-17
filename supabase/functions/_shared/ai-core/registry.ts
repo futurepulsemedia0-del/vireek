@@ -67,6 +67,7 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   causal_shock_cascade: JSON_CHAIN,
   opportunity_cost_ranking: JSON_CHAIN,
   business_drift_narrative: JSON_CHAIN,
+  review_reply: JSON_CHAIN,
   inbound_auto_reply: JSON_CHAIN,
 };
 export function getRouteForTask(task: TaskType): RouteEntry[] {
