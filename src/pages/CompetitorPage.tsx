@@ -9,6 +9,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { COMPETITORS, getCompetitorBySlug, type FeatureValue } from '@/lib/competitors';
+import { alternativePath, getAlternativeByCompetitorSlug } from '@/lib/alternatives';
 
 /* ------------------------------------------------------------------ */
 /*  Feature table cell icon (mirrors src/components/sections/Comparison.tsx) */
@@ -45,6 +46,7 @@ export function CompetitorPage() {
 
   const { name, category, summary, builtFor, icon: Icon, isVoiceAICompetitor, featureRows, positioning, worksWellTogether, faq } = competitor;
   const otherCompetitors = COMPETITORS.filter((c) => c.slug !== competitor.slug);
+  const alternative = getAlternativeByCompetitorSlug(competitor.slug);
 
   return (
     <>
@@ -283,6 +285,14 @@ export function CompetitorPage() {
             <p className={`${eyebrowClass()} text-center`}>More Comparisons</p>
             <h2 className={`${sectionHeadingClass()} text-center text-2xl sm:text-3xl`}>Compare Vireek to other tools</h2>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
+              {alternative && (
+                <Link
+                  to={alternativePath(alternative.slug)}
+                  className="focus-ring inline-flex items-center gap-2 rounded-xl border border-accent/40 bg-bg-secondary px-4 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-accent/5"
+                >
+                  {name} alternatives
+                </Link>
+              )}
               {otherCompetitors.map((other) => (
                 <Link
                   key={other.slug}
