@@ -56,6 +56,10 @@ import {
 } from '@/lib/jobCosting';
 import { supabase } from '@/lib/supabase';
 import { FleetJobCostCard } from '@/components/fleet/FleetJobCostCard';
+import { useDateRange } from '@/hooks/useDateRange';
+import { DateRangeFilter } from '@/components/DateRangeFilter';
+import { DeltaBadge } from '@/components/DeltaBadge';
+import { computeDelta, inRange } from '@/lib/dateRange';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
@@ -645,6 +649,11 @@ export function ProfitabilityPage() {
   const { isOwner, permissions } = useAuth();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  // Defaults to the last 90 days; jobs are dated by their scheduled date.
+  const dateRange = useDateRange('90d');
+  const { range } = dateRange;
+  // A job opened via a ?job= deep link stays listed even if it falls outside the period.
+  const [pinnedJobId] = useState<string | null>(() => searchParams.get('job'));
 
   // Reuses the existing billing permission — profitability is financial data.
   const canAccess = isOwner || permissions.can_view_billing;
@@ -698,19 +707,31 @@ export function ProfitabilityPage() {
     return Array.from(set).sort();
   }, [rows]);
 
-  const filteredRows = useMemo(() => {
-    let list = rows.filter((r) => {
+  // Jobs matching the search / service / status filters, regardless of date.
+  const matchingRows = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return rows.filter((r) => {
       if (serviceFilter !== 'all' && r.service_type !== serviceFilter) return false;
       if (statusFilter !== 'all' && r.job_status !== statusFilter) return false;
-      if (search.trim()) {
-        const q = search.trim().toLowerCase();
-        const haystack = `${r.customer_name} ${r.service_type ?? ''}`.toLowerCase();
-        if (!haystack.includes(q)) return false;
-      }
+      if (q && !`${r.customer_name} ${r.service_type ?? ''}`.toLowerCase().includes(q)) return false;
       return true;
     });
+  }, [rows, search, serviceFilter, statusFilter]);
 
-    list = [...list].sort((a, b) => {
+  // Totals, chart and deltas use only jobs scheduled inside the selected period.
+  const windowRows = useMemo(
+    () => matchingRows.filter((r) => inRange(r.scheduled_datetime, range.start, range.end)),
+    [matchingRows, range.start, range.end],
+  );
+
+  const filteredRows = useMemo(() => {
+    const list = [...windowRows];
+    if (pinnedJobId && !list.some((r) => r.job_id === pinnedJobId)) {
+      const pinned = matchingRows.find((r) => r.job_id === pinnedJobId);
+      if (pinned) list.push(pinned);
+    }
+
+    return list.sort((a, b) => {
       switch (sortKey) {
         case 'margin_asc':
           return (a.margin_pct ?? 999) - (b.margin_pct ?? 999);
@@ -725,11 +746,31 @@ export function ProfitabilityPage() {
           return new Date(b.scheduled_datetime ?? 0).getTime() - new Date(a.scheduled_datetime ?? 0).getTime();
       }
     });
+  }, [windowRows, matchingRows, pinnedJobId, sortKey]);
 
-    return list;
-  }, [rows, search, serviceFilter, statusFilter, sortKey]);
+  const summary = useMemo(() => summarize(windowRows), [windowRows]);
 
-  const summary = useMemo(() => summarize(filteredRows), [filteredRows]);
+  const previousSummary = useMemo(
+    () =>
+      range.compare
+        ? summarize(matchingRows.filter((r) => inRange(r.scheduled_datetime, range.prevStart, range.prevEnd)))
+        : null,
+    [matchingRows, range.compare, range.prevStart, range.prevEnd],
+  );
+
+  const unscheduledCount = useMemo(() => rows.filter((r) => !r.scheduled_datetime).length, [rows]);
+
+  const kpiDeltas = previousSummary
+    ? {
+        revenue: computeDelta(summary.totalRevenueCents, previousSummary.totalRevenueCents),
+        cost: computeDelta(summary.totalCostCents, previousSummary.totalCostCents, { polarity: 'lowerIsBetter' }),
+        profit: computeDelta(summary.totalProfitCents, previousSummary.totalProfitCents),
+        margin: computeDelta(summary.avgMarginPct, previousSummary.avgMarginPct, { kind: 'points' }),
+      }
+    : null;
+
+  const kpiBadge = (key: 'revenue' | 'cost' | 'profit' | 'margin', format?: (n: number) => string) =>
+    kpiDeltas ? <DeltaBadge delta={kpiDeltas[key]} versus={range.prevLabel} format={format} /> : null;
 
   if (!canAccess) {
     return (
@@ -768,6 +809,16 @@ export function ProfitabilityPage() {
         </div>
       </div>
 
+      <div className="mb-6">
+        <DateRangeFilter controller={dateRange} />
+        {!loading && unscheduledCount > 0 && (
+          <p className="mt-2 text-xs text-text-secondary">
+            {unscheduledCount} job{unscheduledCount === 1 ? '' : 's'} without a scheduled date{' '}
+            {unscheduledCount === 1 ? 'is' : 'are'} not counted in period totals.
+          </p>
+        )}
+      </div>
+
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {loading ? (
@@ -780,21 +831,33 @@ export function ProfitabilityPage() {
         ) : (
           <>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-              <p className="text-xs font-medium text-text-secondary">Total Revenue</p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs font-medium text-text-secondary">Total Revenue</p>
+                {kpiBadge('revenue', formatCents)}
+              </div>
               <p className="mt-2 text-3xl font-bold text-text-primary">{formatCents(summary.totalRevenueCents)}</p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-              <p className="text-xs font-medium text-text-secondary">Total Costs</p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs font-medium text-text-secondary">Total Costs</p>
+                {kpiBadge('cost', formatCents)}
+              </div>
               <p className="mt-2 text-3xl font-bold text-text-primary">{formatCents(summary.totalCostCents)}</p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-              <p className="text-xs font-medium text-text-secondary">Gross Profit</p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs font-medium text-text-secondary">Gross Profit</p>
+                {kpiBadge('profit', formatCents)}
+              </div>
               <p className={`mt-2 text-3xl font-bold ${summary.totalProfitCents < 0 ? 'text-danger' : 'text-success-500'}`}>
                 {formatCents(summary.totalProfitCents)}
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-              <p className="text-xs font-medium text-text-secondary">Avg. Margin</p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs font-medium text-text-secondary">Avg. Margin</p>
+                {kpiBadge('margin', (n) => `${n}%`)}
+              </div>
               <p className="mt-2 flex items-center gap-1 text-3xl font-bold text-cta">
                 {formatMargin(summary.avgMarginPct)}
                 <Percent size={18} className="text-cta/60" />
@@ -815,7 +878,7 @@ export function ProfitabilityPage() {
           <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
             <h3 className="text-sm font-semibold text-text-primary">Costs by Category</h3>
             <div className="mt-5">
-              <CategoryBreakdownChart rows={filteredRows} />
+              <CategoryBreakdownChart rows={windowRows} />
             </div>
           </div>
         )}
@@ -873,10 +936,10 @@ export function ProfitabilityPage() {
               <DollarSign size={22} />
             </span>
             <h3 className="mt-4 text-base font-semibold text-text-primary">
-              {rows.length === 0 ? 'No jobs to cost out yet' : 'No jobs match your filters'}
+              {rows.length === 0 ? 'No jobs to cost out yet' : 'No jobs match this period and filters'}
             </h3>
             <p className="mt-1.5 max-w-sm text-sm text-text-secondary">
-              {rows.length === 0 ? "Once jobs come in from calls, they'll show up here for cost tracking." : 'Try a different search term or filter.'}
+              {rows.length === 0 ? "Once jobs come in from calls, they'll show up here for cost tracking." : 'Try a wider date range, a different search term or another filter.'}
             </p>
           </div>
         ) : (
