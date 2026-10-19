@@ -1,12 +1,9 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Rocket, X } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useGettingStarted } from '@/hooks/useGettingStarted';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/Skeleton';
-import { ProductTour } from '@/components/ProductTour';
 
 export const GETTING_STARTED_PATH = '/dashboard/getting-started';
 
@@ -15,20 +12,11 @@ export const GETTING_STARTED_PATH = '/dashboard/getting-started';
  * is complete or dismissed, plus the one-time first-run product tour.
  */
 export function GettingStartedCard() {
-  const { profile } = useAuth();
+export function GettingStartedCard() {
   const navigate = useNavigate();
-  const { status, summary, progress, setDismissed, setTourCompleted } = useGettingStarted();
-  const [tourOpen, setTourOpen] = useState(false);
+  const { status, summary, progress, setDismissed } = useGettingStarted();
 
-  // First run only: wait for data, finished onboarding, and a settled layout.
-  const shouldAutoStart = status === 'ready' && !progress.tourCompleted && profile?.onboarding_completed === true;
-  useEffect(() => {
-    if (!shouldAutoStart) return;
-    const timer = window.setTimeout(() => setTourOpen(true), 700);
-    return () => window.clearTimeout(timer);
-  }, [shouldAutoStart]);
-
-  const tour = (
+  if (status === 'error') return null; // never show a broken card on the overview
     <ProductTour
       open={tourOpen}
       checklistHref={GETTING_STARTED_PATH}
