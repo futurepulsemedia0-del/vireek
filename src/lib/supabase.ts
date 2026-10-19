@@ -65,6 +65,8 @@ export interface Profile {
   notify_ai_insight?: boolean;
   notify_job_update?: boolean;
   notify_new_lead?: boolean;
+  notify_comment_mention?: boolean;
+  notify_comment_email?: boolean;
   notify_missed_call?: boolean;
   preferred_language?: string | null;
   created_at: string;
