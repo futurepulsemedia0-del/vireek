@@ -1,4 +1,14 @@
 {
+  "pwa": {
+    "install": {
+      "title": "Install Vireek",
+      "body": "Add Vireek to your home screen for one-tap access, full-screen use and offline support.",
+      "iosSteps": "Tap the Share button, then choose “Add to Home Screen”.",
+      "cta": "Install",
+      "howTo": "How to install",
+      "dismiss": "Not now"
+    }
+  },
   "nav": {
     "items": {
       "overview": "Overview",
@@ -223,7 +233,15 @@
     "signedOut": "Signed out successfully.",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "mainNavigation": "Main navigation"
+    "mainNavigation": "Main navigation",
+    "mobile": {
+      "bottomNavigation": "Mobile navigation",
+      "overview": "Overview",
+      "jobs": "Jobs",
+      "calls": "Calls",
+      "inbox": "Inbox",
+      "more": "More"
+    }
   },
   "account": {
     "subtitle": "Your profile, sign-in email, and password.",
