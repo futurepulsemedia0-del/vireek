@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Accessibility, X, RotateCcw, Check, Zap, Eye, Brain, Book, Shield,
@@ -690,6 +691,7 @@ export function AccessibilityWidget() {
   const { hasOnboarded, setHasOnboarded } = useAccessibility();
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const onWallboard = useLocation().pathname.startsWith('/wallboard');
 
   useEffect(() => {
     if (!hasOnboarded) {
@@ -725,6 +727,7 @@ export function AccessibilityWidget() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [isOpen]);
+  if (onWallboard) return null;
 
   return (
     <div className="a11y-widget fixed bottom-[calc(1.25rem_+_var(--vk-bottom-nav-h,0px))] right-5 z-[75] print:hidden">
