@@ -143,7 +143,7 @@ export function AiAssistant() {
         aria-expanded={open}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.94 }}
-        className="fixed bottom-[92px] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent print:hidden"
+        className="fixed bottom-[calc(92px_+_var(--vk-bottom-nav-h,0px))] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -179,7 +179,7 @@ export function AiAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[164px] right-5 z-40 flex h-[560px] w-[390px] max-w-[92vw] flex-col overflow-hidden rounded-3xl border border-border bg-bg-secondary/95 shadow-card-hover backdrop-blur-xl dark:shadow-card-hover-dark"
+            className="fixed bottom-[calc(164px_+_var(--vk-bottom-nav-h,0px))] right-5 z-40 flex h-[560px] w-[390px] max-w-[92vw] flex-col overflow-hidden rounded-3xl border border-border bg-bg-secondary/95 shadow-card-hover backdrop-blur-xl dark:shadow-card-hover-dark"
             role="dialog"
             aria-modal="true"
             aria-label="AI Assistant"
