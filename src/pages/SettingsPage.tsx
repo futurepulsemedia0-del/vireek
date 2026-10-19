@@ -146,6 +146,8 @@ export function SettingsPage() {
     notify_warranty_alert: profile?.notify_warranty_alert ?? true,
     notify_new_lead: profile?.notify_new_lead ?? true,
     notify_missed_call: profile?.notify_missed_call ?? true,
+    notify_comment_mention: profile?.notify_comment_mention ?? true,
+    notify_comment_email: profile?.notify_comment_email ?? true,
   };
 
   const updatePref = async (key: keyof typeof prefs, value: boolean) => {
@@ -199,6 +201,22 @@ export function SettingsPage() {
             checked={prefs.notify_missed_call}
             disabled={saving === 'notify_missed_call'}
             onChange={(v) => updatePref('notify_missed_call', v)}
+          />
+          <ToggleRow
+            icon={AtSign}
+            label="Comments & mentions"
+            description="Notify me (bell and push) when someone mentions me or replies in my thread."
+            checked={prefs.notify_comment_mention}
+            disabled={saving === 'notify_comment_mention'}
+            onChange={(v) => updatePref('notify_comment_mention', v)}
+          />
+          <ToggleRow
+            icon={Mail}
+            label="Comment emails"
+            description="Also email me about mentions and thread replies."
+            checked={prefs.notify_comment_email}
+            disabled={saving === 'notify_comment_email'}
+            onChange={(v) => updatePref('notify_comment_email', v)}
           />
           <ToggleRow
             icon={PhoneCall}
