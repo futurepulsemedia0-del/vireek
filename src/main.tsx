@@ -16,6 +16,7 @@ import { SiteAssistant } from '@/components/SiteAssistant';
 import { LiveChatWidget } from '@/components/LiveChatWidget';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ProductTourProvider } from '@/contexts/ProductTourContext';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
 import { ConnectivityShell } from '@/components/system/ConnectivityShell';
 import { NativeBridge } from '@/components/native/NativeBridge';
