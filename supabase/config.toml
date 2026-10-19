@@ -1,0 +1,2 @@
+[functions.money-recovered-run]
+verify_jwt = false
