@@ -424,6 +424,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Knowledge Capture', href: '/dashboard/knowledge-capture', icon: Brain },
   { label: 'Revenue Protection', href: '/dashboard/revenue-protection', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
+  { label: 'Money Recovered', href: '/dashboard/recovery/statements', icon: Receipt, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
   { label: 'Outcome Benchmarks', href: '/dashboard/outcome-benchmarks', icon: BarChart3, requiresPermission: 'can_view_billing' },
   { label: 'Data Exchange', href: '/dashboard/data-exchange', icon: Handshake, requiresPermission: 'can_view_billing' },
