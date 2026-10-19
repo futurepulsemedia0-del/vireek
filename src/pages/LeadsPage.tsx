@@ -906,6 +906,7 @@ export function JobsPage() {
   const [priceBookItems, setPriceBookItems] = useState<PriceBookItem[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [prefill, setPrefill] = useState<PrefillData | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('board');
