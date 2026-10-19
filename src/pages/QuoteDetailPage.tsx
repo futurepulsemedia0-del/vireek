@@ -823,6 +823,7 @@ export function QuoteDetailPage() {
           <div className="space-y-6 lg:col-span-2">
             <OptionsSection quote={quote} />
             <VersionDiffSection ws={state.ws} />
+            <CommentsPanel entityType="quote" entityId={quote.id} entityLabel={quote.customer_name ?? undefined} />
           </div>
           <div className="space-y-6">
             <ConvertSection ws={state.ws} busy={convertBusy} onConvert={handleConvert} />
