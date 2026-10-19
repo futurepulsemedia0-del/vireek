@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Megaphone, Users, Gift, Flame, Plus, Play, Pause, Trash2 } from 'lucide-react';
@@ -17,12 +17,17 @@ import {
   type LeadScore,
   type ReferralCode,
 } from '@/lib/marketing';
+import { useDateRange } from '@/hooks/useDateRange';
+import { DateRangeFilter } from '@/components/DateRangeFilter';
+import { DeltaBadge } from '@/components/DeltaBadge';
+import { KpiStatCard, KpiStatCardSkeleton } from '@/components/KpiStatCard';
+import { buildMarketingKpis, fetchMarketingCounts, type MarketingPeriodCounts } from '@/lib/marketingMetrics';
 
 type Tab = 'overview' | 'segments' | 'campaigns' | 'referrals';
 
 export default function MarketingPage() {
   const { user } = useAuth();
-  const { showToast } = useToast();
+  const { toast: showToast } = useToast();
   const [tab, setTab] = useState<Tab>('overview');
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +35,39 @@ export default function MarketingPage() {
   const [campaigns, setCampaigns] = useState<MarketingCampaign[]>([]);
   const [scores, setScores] = useState<LeadScore[]>([]);
   const [referralCodes, setReferralCodes] = useState<ReferralCode[]>([]);
+
+  // Period KPIs (Overview tab): exact server-side counts for the selected range and the one before it.
+  const dateRange = useDateRange('30d');
+  const { range } = dateRange;
+  const [counts, setCounts] = useState<{ current: MarketingPeriodCounts; previous: MarketingPeriodCounts } | null>(null);
+  const [countsStatus, setCountsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [retryTick, setRetryTick] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    setCountsStatus('loading');
+    Promise.all([
+      fetchMarketingCounts(range.start, range.end),
+      fetchMarketingCounts(range.prevStart, range.prevEnd),
+    ])
+      .then(([current, previous]) => {
+        if (cancelled) return;
+        setCounts({ current, previous });
+        setCountsStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setCountsStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, range.start, range.end, range.prevStart, range.prevEnd, retryTick]);
+
+  const kpis = useMemo(
+    () => (counts ? buildMarketingKpis(counts.current, counts.previous, range.compare) : []),
+    [counts, range.compare],
+  );
 
   const loadAll = useCallback(async () => {
     if (!user) return;
@@ -146,9 +184,43 @@ export default function MarketingPage() {
           <>
             {tab === 'overview' && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-3">
+                  <DateRangeFilter controller={dateRange} />
+                </div>
+                {countsStatus === 'error' && kpis.length === 0 ? (
+                  <div
+                    role="alert"
+                    className="sm:col-span-3 flex items-center justify-between gap-3 rounded-xl border border-danger/30 bg-danger/5 p-4 text-sm text-text-primary"
+                  >
+                    <span>Couldn&apos;t load the metrics for this period.</span>
+                    <button
+                      type="button"
+                      onClick={() => setRetryTick((n) => n + 1)}
+                      className="focus-ring rounded-lg border border-border bg-bg-secondary px-3 py-1.5 text-sm font-medium hover:border-accent/40"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : kpis.length === 0 ? (
+                  Array.from({ length: 6 }).map((_, i) => <KpiStatCardSkeleton key={i} />)
+                ) : (
+                  kpis.map((k) => (
+                    <KpiStatCard
+                      key={k.key}
+                      label={k.label}
+                      hint={k.hint}
+                      value={k.value.toLocaleString('en-US')}
+                      loading={countsStatus === 'loading'}
+                      badge={k.delta ? <DeltaBadge delta={k.delta} versus={range.prevLabel} /> : null}
+                    />
+                  ))
+                )}
+                <p className="sm:col-span-3 mt-2 text-xs font-medium uppercase tracking-wide text-text-secondary">
+                  Current totals
+                </p>
                 <StatCard icon={Users} label="Segments" value={segments.length} />
                 <StatCard icon={Megaphone} label="Active campaigns" value={campaigns.filter((c) => c.status === 'active').length} />
-                <StatCard icon={Gift} label="Referral codes issued" value={referralCodes.length} />
+                <StatCard icon={Gift} label="Referral codes (all time)" value={referralCodes.length} />
                 <div className="sm:col-span-3 bg-bg-secondary border border-border rounded-xl p-5 mt-2">
                   <div className="flex items-center gap-2 mb-3">
                     <Flame className="w-5 h-5 text-warning-500" />
