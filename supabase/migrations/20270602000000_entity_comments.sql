@@ -34,11 +34,9 @@
     select/update/delete policies are replaced accordingly, and clients can no
     longer insert targeted rows (only the SECURITY DEFINER comment trigger can).
   - Types: comment_mention, comment_reply (thread participants).
-  - Push: push_subscriptions gets subscriber_id (the signed-in user who
-    registered the device) so a mention is pushed only to that person's
-    devices. Devices registered before this migration have subscriber_id NULL
-    and receive account-wide pushes as before; they start receiving mention
-    pushes after the user re-enables push once.
+  - Push: send-push-notification reads notifications.recipient_id and pushes
+    only to that person's devices (push_subscriptions / device_push_tokens
+    .subscriber_user_id, which already exist in this project).
   - Email: a pg_net trigger calls the send-comment-email edge function (same
     app.settings.* + secret as send-push-notification) when the recipient has
     notify_comment_email = true.
@@ -52,7 +50,7 @@
   Requires: get_account_owner_id(), profiles, team_members(user_id,
   account_owner_id, invite_status, role, permissions, custom_role_id),
   custom_roles(permissions), jobs(assigned_technician_id), customers, quotes,
-  leads, notifications, push_subscriptions, pg_net (already used by push).
+  leads, notifications, pg_net (already used by push).
 */
 
 -- ---------------------------------------------------------------------------
@@ -103,15 +101,6 @@ CREATE POLICY "delete_own_notifications" ON public.notifications
     user_id = public.get_account_owner_id()
     AND (recipient_id IS NULL OR recipient_id = auth.uid())
   );
-
--- ---------------------------------------------------------------------------
--- push_subscriptions.subscriber_id  (which person owns the device)
--- ---------------------------------------------------------------------------
-ALTER TABLE public.push_subscriptions
-  ADD COLUMN IF NOT EXISTS subscriber_id uuid DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE;
-
-CREATE INDEX IF NOT EXISTS idx_push_subscriptions_subscriber
-  ON public.push_subscriptions (subscriber_id) WHERE subscriber_id IS NOT NULL;
 
 -- ---------------------------------------------------------------------------
 -- Table
