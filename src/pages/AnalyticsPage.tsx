@@ -4,10 +4,8 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Download,
-  Calendar,
   TrendingUp,
   Lightbulb,
-  ChevronDown,
   Printer,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,72 +20,19 @@ import { ServiceRecoveryIntelligence } from '@/components/ServiceRecoveryIntelli
 import { CompoundingFlywheelWidget } from '@/components/CompoundingFlywheelWidget';
 import { BusinessImmuneSystem } from '@/components/BusinessImmuneSystem';
 import { useKeyboardShortcut } from '@/lib/hooks';
+import { useDateRange } from '@/hooks/useDateRange';
+import { DateRangeFilter } from '@/components/DateRangeFilter';
+import { DeltaBadge } from '@/components/DeltaBadge';
+import { computeDelta, type Delta, type ResolvedRange } from '@/lib/dateRange';
 import { Lock } from 'lucide-react';
 
 // ============================================================
 // TYPES
 // ============================================================
 
-type DateRange = '7d' | '30d' | '90d' | 'custom';
-
-interface DateRangeState {
-  preset: DateRange;
-  start: Date;
-  end: Date;
-  prevStart: Date;
-  prevEnd: Date;
-}
-
-// ============================================================
-// DATE RANGE HELPERS
-// ============================================================
-
-function getDateRangeState(preset: DateRange, customStart?: string, customEnd?: string): DateRangeState {
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
-
-  let start = new Date(end);
-  let prevEnd = new Date(end);
-  let prevStart = new Date(end);
-
-  if (preset === '7d') {
-    start.setDate(start.getDate() - 6);
-    start.setHours(0, 0, 0, 0);
-    prevStart.setDate(prevStart.getDate() - 13);
-    prevStart.setHours(0, 0, 0, 0);
-    prevEnd.setDate(prevEnd.getDate() - 7);
-    prevEnd.setHours(23, 59, 59, 999);
-  } else if (preset === '30d') {
-    start.setDate(start.getDate() - 29);
-    start.setHours(0, 0, 0, 0);
-    prevStart.setDate(prevStart.getDate() - 59);
-    prevStart.setHours(0, 0, 0, 0);
-    prevEnd.setDate(prevEnd.getDate() - 30);
-    prevEnd.setHours(23, 59, 59, 999);
-  } else if (preset === '90d') {
-    start.setDate(start.getDate() - 89);
-    start.setHours(0, 0, 0, 0);
-    prevStart.setDate(prevStart.getDate() - 179);
-    prevStart.setHours(0, 0, 0, 0);
-    prevEnd.setDate(prevEnd.getDate() - 90);
-    prevEnd.setHours(23, 59, 59, 999);
-  } else if (preset === 'custom' && customStart && customEnd) {
-    start = new Date(customStart);
-    start.setHours(0, 0, 0, 0);
-    end.setTime(new Date(customEnd).getTime());
-    end.setHours(23, 59, 59, 999);
-    const diffMs = end.getTime() - start.getTime();
-    const diffDays = Math.ceil(diffMs / 86400000);
-    prevEnd = new Date(start);
-    prevEnd.setTime(start.getTime() - 1);
-    prevEnd.setHours(23, 59, 59, 999);
-    prevStart = new Date(prevEnd);
-    prevStart.setDate(prevStart.getDate() - diffDays);
-    prevStart.setHours(0, 0, 0, 0);
-  }
-
-  return { preset, start, end, prevStart, prevEnd };
-}
+// The range logic (presets, previous-period math, URL state) now lives in
+// '@/lib/dateRange' and '@/hooks/useDateRange'.
+type DateRangeState = ResolvedRange;
 
 function formatDateLabel(date: Date): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -151,105 +96,6 @@ function EmptyChart({ message }: { message: string }) {
   return (
     <div className="flex items-center justify-center py-12 text-center">
       <p className="text-sm text-text-secondary">{message}</p>
-    </div>
-  );
-}
-
-// ============================================================
-// DATE RANGE PICKER
-// ============================================================
-
-function DateRangePicker({
-  range,
-  onRangeChange,
-  customStart,
-  customEnd,
-  onCustomStartChange,
-  onCustomEndChange,
-}: {
-  range: DateRange;
-  onRangeChange: (r: DateRange) => void;
-  customStart: string;
-  customEnd: string;
-  onCustomStartChange: (v: string) => void;
-  onCustomEndChange: (v: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const labels: Record<DateRange, string> = {
-    '7d': 'Last 7 days',
-    '30d': 'Last 30 days',
-    '90d': 'Last 90 days',
-    custom: 'Custom range',
-  };
-
-  const todayStr = new Date().toISOString().split('T')[0];
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:border-accent/40"
-      >
-        <Calendar size={16} className="text-text-secondary" />
-        {labels[range]}
-        <ChevronDown size={16} className="text-text-secondary" />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-border bg-bg-secondary p-3 shadow-card-hover dark:shadow-card-hover-dark">
-            {(['7d', '30d', '90d'] as DateRange[]).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => {
-                  onRangeChange(r);
-                  setOpen(false);
-                }}
-                className={`focus-ring w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                  range === r ? 'bg-accent/10 text-accent font-medium' : 'text-text-primary hover:bg-bg-tertiary'
-                }`}
-              >
-                {labels[r]}
-              </button>
-            ))}
-            <div className="my-2 border-t border-border" />
-            <div className="px-3 py-1">
-              <p className="text-xs font-medium text-text-secondary">Custom range</p>
-              <div className="mt-2 grid gap-2">
-                <input
-                  type="date"
-                  max={todayStr}
-                  value={customStart}
-                  onChange={(e) => onCustomStartChange(e.target.value)}
-                  className="focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
-                />
-                <input
-                  type="date"
-                  max={todayStr}
-                  value={customEnd}
-                  onChange={(e) => onCustomEndChange(e.target.value)}
-                  className="focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (customStart && customEnd) {
-                      onRangeChange('custom');
-                      setOpen(false);
-                    }
-                  }}
-                  disabled={!customStart || !customEnd}
-                  className="focus-ring w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                >
-                  Apply
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }
@@ -690,6 +536,8 @@ interface AnalyticsMetrics {
   totalLeads: number;
   leadsWon: number;
   conversionRate: number;
+  /** null when "Compare to previous period" is off */
+  deltas: Record<'totalCalls' | 'emergencyCalls' | 'conversionRate' | 'revenue', Delta> | null;
   revenue: number;
   outcomes: { label: string; value: number; color: string; percentage: number }[];
   funnel: { label: string; value: number; color: string }[];
@@ -722,10 +570,9 @@ export function AnalyticsPage() {
   const [allTechnicians, setAllTechnicians] = useState<TeamMember[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  const [range, setRange] = useState<DateRange>('30d');
-  const [customStart, setCustomStart] = useState('');
-  const [customEnd, setCustomEnd] = useState('');
-  const [showCompare, setShowCompare] = useState(false);
+  // Range + compare toggle live in the URL (?range=&from=&to=&compare=).
+  const dateRange = useDateRange('30d');
+  const showCompare = dateRange.range.compare;
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -766,7 +613,7 @@ export function AnalyticsPage() {
     }
   }, [profile, profileLoading, navigate]);
 
-  const rangeState = useMemo(() => getDateRangeState(range, customStart, customEnd), [range, customStart, customEnd]);
+  const rangeState = dateRange.range;
 
   const metrics = useMemo((): AnalyticsMetrics => {
     const { start, end, prevStart, prevEnd } = rangeState;
@@ -903,6 +750,33 @@ export function AnalyticsPage() {
       insights.outcomes = `${booked.percentage}% of calls resulted in a booking (${booked.value} calls)`;
     }
 
+    // KPI deltas: same definitions as the figures returned below, evaluated for the previous period.
+    const sumPaid = (from: Date, to: Date) =>
+      allJobs
+        .filter((j) => j.invoice_status === 'paid' && new Date(j.created_at) >= from && new Date(j.created_at) <= to)
+        .reduce((sum, j) => sum + (j.invoice_amount ?? 0), 0);
+    const prevLeadsInRange = allLeads.filter((l) => {
+      const d = new Date(l.created_at);
+      return d >= prevStart && d <= prevEnd;
+    });
+    const winRate = (leadsList: Lead[]) =>
+      leadsList.length > 0
+        ? Math.round((leadsList.filter((l) => l.stage === 'won').length / leadsList.length) * 100)
+        : null;
+    const revenueNow = sumPaid(start, end);
+    const deltas = rangeState.compare
+      ? {
+          totalCalls: computeDelta(callsInRange.length, prevCallsInRange.length),
+          emergencyCalls: computeDelta(
+            callsInRange.filter((c) => c.is_emergency).length,
+            prevCallsInRange.filter((c) => c.is_emergency).length,
+            { polarity: 'neutral' },
+          ),
+          conversionRate: computeDelta(winRate(leadsInRange), winRate(prevLeadsInRange), { kind: 'points' }),
+          revenue: computeDelta(revenueNow, sumPaid(prevStart, prevEnd)),
+        }
+      : null;
+
     // Emergency insight
     const emergencyCalls = callsInRange.filter((c) => c.is_emergency);
     if (emergencyCalls.length > 0) {
@@ -940,12 +814,11 @@ export function AnalyticsPage() {
     return {
       totalCalls,
       emergencyCalls: emergencyCalls.length,
+      deltas,
       totalLeads: leadsInRange.length,
       leadsWon: wonLeads,
-      conversionRate: newLeads > 0 ? Math.round((wonLeads / newLeads) * 100) : 0,
-      revenue: allJobs
-        .filter((j) => j.invoice_status === 'paid' && new Date(j.created_at) >= start && new Date(j.created_at) <= end)
-        .reduce((sum, j) => sum + (j.invoice_amount ?? 0), 0),
+      conversionRate: leadsInRange.length > 0 ? Math.round((wonLeads / leadsInRange.length) * 100) : 0,
+      revenue: revenueNow,
       outcomes,
       funnel: funnelStages,
       callVolume,
@@ -956,6 +829,9 @@ export function AnalyticsPage() {
       insights,
     };
   }, [allCalls, allJobs, allLeads, rangeState]);
+
+  const kpiBadge = (key: 'totalCalls' | 'emergencyCalls' | 'conversionRate' | 'revenue', format?: (n: number) => string) =>
+    metrics.deltas ? <DeltaBadge delta={metrics.deltas[key]} versus={rangeState.prevLabel} format={format} /> : null;
 
   const handleExport = () => {
     const callsInRange = allCalls.filter((c) => {
@@ -1011,14 +887,6 @@ export function AnalyticsPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <DateRangePicker
-              range={range}
-              onRangeChange={setRange}
-              customStart={customStart}
-              customEnd={customEnd}
-              onCustomStartChange={setCustomStart}
-              onCustomEndChange={setCustomEnd}
-            />
             <button
               type="button"
               onClick={handleExport}
@@ -1041,6 +909,10 @@ export function AnalyticsPage() {
           </div>
         </div>
 
+        <div className="mb-6 print:hidden">
+          <DateRangeFilter controller={dateRange} />
+        </div>
+
         <div className="printable-report" id="report-print-area">
         {/* Summary KPIs */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -1054,19 +926,31 @@ export function AnalyticsPage() {
           ) : (
             <>
               <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-                <p className="text-xs font-medium text-text-secondary">Total Calls</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs font-medium text-text-secondary">Total Calls</p>
+                  {kpiBadge('totalCalls')}
+                </div>
                 <p className="mt-2 text-3xl font-bold text-text-primary">{metrics.totalCalls}</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-                <p className="text-xs font-medium text-text-secondary">Emergency Calls</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs font-medium text-text-secondary">Emergency Calls</p>
+                  {kpiBadge('emergencyCalls')}
+                </div>
                 <p className="mt-2 text-3xl font-bold text-danger">{metrics.emergencyCalls}</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-                <p className="text-xs font-medium text-text-secondary">Conversion Rate</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs font-medium text-text-secondary">Conversion Rate</p>
+                  {kpiBadge('conversionRate', (n) => `${n}%`)}
+                </div>
                 <p className="mt-2 text-3xl font-bold text-text-primary">{metrics.conversionRate}%</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-                <p className="text-xs font-medium text-text-secondary">Revenue</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs font-medium text-text-secondary">Revenue</p>
+                  {kpiBadge('revenue', formatCurrency)}
+                </div>
                 <p className="mt-2 text-3xl font-bold text-cta">{formatCurrency(metrics.revenue)}</p>
               </div>
             </>
@@ -1081,17 +965,6 @@ export function AnalyticsPage() {
             <ChartCard
               title="Call Volume Over Time"
               insight={metrics.insights.callVolume}
-              rightContent={
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-text-secondary">
-                  <input
-                    type="checkbox"
-                    checked={showCompare}
-                    onChange={(e) => setShowCompare(e.target.checked)}
-                    className="accent-accent"
-                  />
-                  Compare to previous period
-                </label>
-              }
             >
               {metrics.callVolume.length === 0 || metrics.callVolume.every((d) => d.count === 0) ? (
                 <EmptyChart message="No calls in this period." />
