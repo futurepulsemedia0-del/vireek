@@ -16,7 +16,7 @@ export interface NotificationRow {
   [key: string]: unknown;
   id: string;
   user_id: string;
-  type: 'emergency_call' | 'usage_alert' | 'ai_insight' | 'job_update' |   'warranty_alert' | 'quote_viewed' | 'system';
+  type: 'emergency_call' | 'usage_alert' | 'ai_insight' | 'job_update' |   'warranty_alert' | 'quote_viewed' | 'comment_mention' | 'comment_reply' | 'system';
   title: string;
   message: string;
   is_read: boolean;
@@ -199,6 +199,9 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
         if (soundOn) playChime();
         if (desktopOn && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
           new Notification(row.title, { body: row.message, tag: row.id });
+        }
+        if (row.type === 'comment_mention' || row.type === 'comment_reply') {
+          toast(row.title, 'info');
         }
         if (row.type === 'emergency_call') {
           toast(`${row.title}: ${row.message}`, 'error');
