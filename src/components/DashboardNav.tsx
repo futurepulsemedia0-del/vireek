@@ -223,6 +223,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Tasks', href: '/dashboard/tasks', icon: ListChecks },
   { label: 'Team Chat', href: '/dashboard/team-chat', icon: MessagesSquare },
   { label: 'Live Calls', href: '/dashboard/live-calls', icon: Radio, requiresPermission: 'can_manage_numbers' },
+  { label: 'Wallboard (TV)', href: '/dashboard/wallboard', icon: Monitor, ownerOnly: true },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Call Scripts', href: '/dashboard/call-scripts', icon: ScrollText, requiresPermission: 'can_edit_business_profile' },
   { label: 'CSR Phone Desk', href: '/dashboard/csr-desk', icon: Headset, requiresPermission: 'can_view_all_jobs' },
