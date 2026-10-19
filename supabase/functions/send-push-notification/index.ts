@@ -115,7 +115,7 @@ Deno.serve(async (req: Request) => {
   try {
     const { data: notification, error: notifError } = await admin
       .from("notifications")
-      .select("id, user_id, type, title, message, action_url")
+      .select("id, user_id, type, title, message, action_url, recipient_id")
       .eq("id", payload.notification_id)
       .maybeSingle();
 
@@ -125,6 +125,19 @@ Deno.serve(async (req: Request) => {
     }
     if (!notification) {
       return jsonResponse({ success: false, error: "Notification not found", requestId }, 404);
+    }
+
+    // Per-person notifications (comment @mentions / thread replies): honour the
+    // recipient's own switch, then limit delivery to that person's devices.
+    if (notification.recipient_id && String(notification.type).startsWith("comment_")) {
+      const { data: pref } = await admin
+        .from("profiles")
+        .select("notify_comment_mention")
+        .eq("id", notification.recipient_id)
+        .maybeSingle();
+      if (pref?.notify_comment_mention === false) {
+        return jsonResponse({ success: true, sent: 0, skipped: "recipient_muted", requestId });
+      }
     }
 
     const { data: allSubscriptions, error: subsError } = await admin
@@ -138,8 +151,15 @@ Deno.serve(async (req: Request) => {
     }
 
     // Targeting: a notification may be limited to specific people (e.g. @mentions).
+    // Explicit ids from the dispatcher win; otherwise a notification addressed to one
+    // person (recipient_id) goes only to that person's devices. Devices with no known
+    // owner are never used for a person-addressed notification (privacy).
     // The same rule applies to browsers and to native devices.
-    const subscriberIds = Array.isArray(payload.subscriber_user_ids) ? payload.subscriber_user_ids : null;
+    const subscriberIds: string[] | null = Array.isArray(payload.subscriber_user_ids)
+      ? payload.subscriber_user_ids
+      : notification.recipient_id
+        ? [notification.recipient_id as string]
+        : null;
     const isTargeted = (subscriberUserId: string | null): boolean =>
       !subscriberIds ||
       (subscriberUserId !== null && subscriberIds.includes(subscriberUserId)) ||
@@ -167,11 +187,13 @@ Deno.serve(async (req: Request) => {
     }
 
     const url = notification.action_url || "/dashboard";
+    // Person-addressed notifications keep their own tag so two mentions never replace each other.
+    const tag = notification.recipient_id ? notification.id : notification.type;
     const notificationPayload = JSON.stringify({
       title: notification.title,
       body: notification.message,
       url,
-      tag: notification.type,
+      tag,
     });
 
     const webResults: Delivery[] = await Promise.all(
@@ -201,7 +223,7 @@ Deno.serve(async (req: Request) => {
             title: notification.title,
             body: notification.message,
             url,
-            tag: notification.type,
+            tag,
           });
           if (result.ok) return { id: device.id, ok: true };
           if (result.unregistered) {
