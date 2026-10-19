@@ -194,6 +194,8 @@ import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '@/hooks/useDirection';
 import { navLabelKey } from '@/lib/navLabel';
+import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
+import { PwaInstallBanner } from '@/components/mobile/PwaInstallBanner';پ
 
 interface NavItem {
   label: string;
@@ -794,6 +796,8 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         )}
       </AnimatePresence>
 
+      {/* Mobile bottom navigation — "More" opens the same drawer as the header menu button */}
+      <MobileBottomNav onMore={() => setDrawerOpen(true)} moreOpen={drawerOpen} />
       {/* Keyboard shortcuts help panel — opened via "?" from anywhere */}
       <KeyboardShortcutsModal
         open={shortcutsHelpOpen}
@@ -824,12 +828,13 @@ export function DashboardLayout({
       <div className="min-h-screen bg-bg-primary">
         <DashboardNav activeLabel={activeLabel} />
         <div className="lg:pl-60 print:pl-0">
-          <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8 print:max-w-none print:p-0">
+          <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-24 lg:px-8 lg:py-8 print:max-w-none print:p-0">
             <div className="no-print">
                             <UpgradeBanner />
               <SurgeModeBanner />
               <PaymentFailedBanner />
               <UsageLimitBanner />             
+              <PwaInstallBanner />
             </div>
             <div key={i18n.language} className="contents">
   {children}
