@@ -126,6 +126,7 @@ const OperationalEntropyPage = lazy(() => import('@/pages/OperationalEntropyPage
 const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPage').then((m) => ({ default: m.BusinessDigitalTwinPage })));
 const BusinessWorldModelPage = lazy(() => import('@/pages/BusinessWorldModelPage').then((m) => ({ default: m.BusinessWorldModelPage })));
 const BusinessRealityPage = lazy(() => import('@/pages/BusinessRealityPage').then((m) => ({ default: m.BusinessRealityPage })));
+const DataQualityCenterPage = lazy(() => import('@/pages/DataQualityCenterPage').then((m) => ({ default: m.DataQualityCenterPage })));
 const InvisibleRevenueMapPage = lazy(() => import('@/pages/InvisibleRevenueMapPage').then((m) => ({ default: m.InvisibleRevenueMapPage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
 const BusinessForecastPage = lazy(() => import('@/pages/BusinessForecastPage').then((m) => ({ default: m.BusinessForecastPage })));
@@ -1488,6 +1489,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <BusinessRealityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/data-quality"
+          element={
+            <ProtectedRoute>
+              <DataQualityCenterPage />
             </ProtectedRoute>
           }
         />
