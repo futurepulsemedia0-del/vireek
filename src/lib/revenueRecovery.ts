@@ -274,3 +274,7 @@ export async function backfillLedger(userId: string): Promise<number> {
   if (error) throw error;
   return (data as number) ?? 0;
 }
+
+
+// Weekly "Money Recovered" statement — same ledger, conservative attribution (see moneyRecovered.ts).
+export { attribute as attributeRecovery, categoryOf as recoveryCategoryOf } from '../../supabase/functions/_shared/money-recovered/engine';
