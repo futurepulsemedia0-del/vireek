@@ -2,6 +2,8 @@ User-agent: *
 Allow: /
 Disallow: /s/
 Disallow: /portal/
+Disallow: /track/
+Disallow: /review/
 Sitemap: https://vireek.com/sitemap.xml
 Sitemap: https://vireek.com/sitemap-locations.xml
 Sitemap: https://vireek.com/sitemap-careers.xml
