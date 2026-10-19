@@ -25,6 +25,7 @@ import { UpdateGate } from '@/components/native/UpdateGate';
 import { initNativeRuntime } from '@/lib/native/lifecycle';
 import { isNative } from '@/lib/native/platform';
 import { hideNativeSplash } from '@/lib/native/shell';
+import { initInstallPrompt } from '@/lib/pwa/installPrompt';
 import { initSentry } from '@/lib/sentry';
 import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
@@ -32,6 +33,7 @@ import './styles/print.css';
 
 initSentry();
 initNativeRuntime();
+initInstallPrompt(); // must run at boot: beforeinstallprompt fires only once, early
 
 // Register the push-notification service worker eagerly.
 if (!isNative() && 'serviceWorker' in navigator) {
