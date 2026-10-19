@@ -28,6 +28,7 @@ import { JobWorkflowPanel } from '@/components/jobs/JobWorkflowPanel';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import type { RealtimeStatus } from '@/lib/realtime';
 import type { Job } from '@/lib/supabase';
+import { CommentsPanel } from '@/components/comments/CommentsPanel';
 import { createInvoiceFromQuote } from '@/lib/invoices';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
 import { isEvidenceChainError, parseEvidenceChainError } from '@/lib/jobEvidenceChain';
@@ -515,6 +516,7 @@ export function JobDetailPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <JobNotesCard job={j} canEdit={access.canEdit} onSave={saveNotes} />
+          <CommentsPanel entityType="job" entityId={j.id} entityLabel={j.customer_name} />
           <JobPhotosCard job={j} canEdit={access.canEdit} uploading={uploading} onUpload={(slot, files) => void uploadPhotos(slot, files)} />
           <JobPartsCard required={required} used={used} />
           {access.canSeeBilling && <JobCostsCard job={j} costs={costs} invoices={invoices} />}
