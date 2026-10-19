@@ -649,34 +649,23 @@ export interface BusinessProfileHoliday {
 }
 
 export interface ServiceRecoverySignal {
-  id: string;
-  user_id: string;
-  job_id: string | null;
-  call_id: string | null;
-  promise_id: string | null;
-  review_request_id: string | null;
-  customer_id: string | null;
-  customer_name: string;
-  customer_phone: string | null;
-  customer_email: string | null;
-  signal_type: 'negative_sentiment' | 'eta_missed' | 'technician_delay' | 'broken_promise' | 'negative_review' | 'payment_dispute' | 'other';
+  id: string; user_id: string;
+  job_id: string | null; call_id: string | null; lead_id: string | null;
+  promise_id: string | null; review_request_id: string | null; customer_id: string | null;
+  customer_name: string; customer_phone: string | null; customer_email: string | null;
+  signal_type: 'eta_missed' | 'technician_delayed' | 'technician_delay' | 'negative_sentiment' | 'customer_dispute' | 'broken_promise' | 'negative_review' | 'payment_dispute' | 'other';
   source_table: 'jobs' | 'calls' | 'promises' | 'review_requests' | 'manual';
   source_id: string | null;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  signal_excerpt: string | null;
-  recommended_channel: 'sms' | 'email' | 'call';
-  recommended_message: string | null;
-  status: 'open' | 'action_queued' | 'action_sent' | 'resolved' | 'ignored';
+  severity_score: number;
+  signal_excerpt: string | null; detail: string | null;
+  recommended_channel: 'sms' | 'email' | 'call'; recommended_message: string | null;
+  status: 'open' | 'playbook_enrolled' | 'escalated' | 'action_queued' | 'action_sent' | 'resolved' | 'ignored';
   outcome: 'recovered' | 'lost' | 'pending';
-  executed_at: string | null;
-  executed_channel: 'sms' | 'email' | 'call' | null;
-  resolved_at: string | null;
-  notes: string | null;
-  detected_at: string;
-  created_at: string;
-  updated_at: string;
+  executed_at: string | null; executed_channel: 'sms' | 'email' | 'call' | null;
+  resolved_at: string | null; resolution_note: string | null; notes: string | null;
+  detected_at: string; created_at: string; updated_at: string;
 }
-
 export interface BusinessImmuneSignal {
   id: string;
   user_id: string;
