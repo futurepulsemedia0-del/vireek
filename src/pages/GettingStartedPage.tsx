@@ -6,7 +6,6 @@
  * regains focus; only per-person intent (skips, dismissal, tour) is stored.
  */
 
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -17,7 +16,7 @@ import {
 import { DashboardLayout } from '@/components/DashboardNav';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
-import { ProductTour } from '@/components/ProductTour';
+import { useProductTour } from '@/contexts/ProductTourContext';
 import { Button } from '@/components/ui/Button';
 import { useGettingStarted } from '@/hooks/useGettingStarted';
 import { GROUPS, type StepKey, type StepView } from '@/lib/gettingStarted';
@@ -140,7 +139,7 @@ export function GettingStartedPage() {
   const navigate = useNavigate();
   const gs = useGettingStarted();
   const { status, steps, summary, progress, refreshing } = gs;
-  const [tourOpen, setTourOpen] = useState(false);
+  const { startTour } = useProductTour();
 
   return (
     <DashboardLayout activeLabel="Getting Started">
@@ -156,7 +155,7 @@ export function GettingStartedPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="secondary" onClick={() => setTourOpen(true)}>
-              <PlayCircle size={14} aria-hidden="true" /> Take the tour
+              <PlayCircle size={14} aria-hidden="true" /> startTour()
             </Button>
             <Button size="sm" variant="secondary" onClick={() => void gs.refresh()} disabled={refreshing || status === 'loading'}>
               {refreshing ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <RefreshCw size={14} aria-hidden="true" />}
@@ -280,14 +279,6 @@ export function GettingStartedPage() {
           </div>
         )}
       </div>
-
-      <ProductTour
-        open={tourOpen}
-        onFinish={() => {
-          setTourOpen(false);
-          gs.setTourCompleted(true);
-        }}
-      />
     </DashboardLayout>
   );
 }
