@@ -239,6 +239,8 @@ const VehiclesPage = lazy(() => import('@/pages/VehiclesPage').then((m) => ({ de
 const TechnicianDvirPage = lazy(() => import('@/pages/TechnicianDvirPage').then((m) => ({ default: m.TechnicianDvirPage })));
 const FleetDvirPage = lazy(() => import('@/pages/FleetDvirPage').then((m) => ({ default: m.FleetDvirPage })));
 const LiveMapPage = lazy(() => import('@/pages/LiveMapPage').then((m) => ({ default: m.LiveMapPage })));
+const WallboardPage = lazy(() => import('@/pages/WallboardPage').then((m) => ({ default: m.WallboardPage })));
+const WallboardSettingsPage = lazy(() => import('@/pages/WallboardSettingsPage').then((m) => ({ default: m.WallboardSettingsPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
 const SwitchingShieldPage = lazy(() => import('@/pages/SwitchingShieldPage').then((m) => ({ default: m.SwitchingShieldPage })));
@@ -2049,6 +2051,7 @@ function AppRoutes() {
         <Route path="/inspection/:token" element={<InspectionReportPublicPage />} />
         <Route path="/invoice/:token" element={<InvoicePage />} />
         <Route path="/shared/dashboard/:token" element={<SharedDashboardPage />} />
+        <Route path="/wallboard/:token" element={<WallboardPage />} />
         <Route path="/invite/:token" element={<InviteAcceptPage />} />
                 <Route
           path="/dashboard/knowledge"
@@ -2986,6 +2989,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/dashboard/wallboard"
+  element={
+    <ProtectedRoute>
+      <WallboardSettingsPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/next-best-actions"
           element={
