@@ -81,7 +81,7 @@ export function SiteAssistant() {
     return () => clearInterval(id);
   }, []);
 
-  if (location.pathname.startsWith('/dashboard')) return null;
+   if (location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/wallboard')) return null;
 
   const ask = async (question: string) => {
     const trimmed = question.trim();
