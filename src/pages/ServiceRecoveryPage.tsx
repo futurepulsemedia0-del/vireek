@@ -216,7 +216,7 @@ function SignalCard({
 // PAGE
 // ============================================================
 
-export function ServiceRecoveryPage() {
+export function const { user, isOwner, teamMember } = useAuth();() {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -258,7 +258,7 @@ export function ServiceRecoveryPage() {
   const handleManualSave = async (form: ManualFormState) => {
     if (!user) return;
     const { error } = await supabase.from('service_recovery_signals').insert({
-      user_id: user.id,
+      user_id: isOwner ? user.id : (teamMember?.account_owner_id ?? user.id),
       customer_name: form.customer_name.trim(),
       customer_phone: form.customer_phone.trim() || null,
       customer_email: form.customer_email.trim() || null,
@@ -287,7 +287,7 @@ export function ServiceRecoveryPage() {
       toast(data?.error || 'Could not send the response', 'error');
       return;
     }
-    toast('Response sent', 'success');
+    toast(data?.deferred ? 'Queued — it goes out when quiet hours end.' : 'Response sent', 'success');
     setSignals((prev) => prev.map((s) => (s.id === signal.id ? { ...s, status: 'action_sent', executed_at: new Date().toISOString(), executed_channel: channel } : s)));
   };
 
@@ -322,7 +322,7 @@ export function ServiceRecoveryPage() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout activeLabel="Service Recovery">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <div className="mb-6 flex items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-danger/10 text-danger">
