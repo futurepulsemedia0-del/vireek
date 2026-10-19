@@ -434,6 +434,10 @@ const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage')
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
 const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
+const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
+const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
+const CallScriptsPage = lazy(() => import('@/pages/CallScriptsPage').then((m) => ({ default: m.CallScriptsPage })));
+const BookingSettingsPage = lazy(() => import('@/pages/BookingSettingsPage').then((m) => ({ default: m.BookingSettingsPage })));
 const RoadmapPage = lazy(() => import('@/pages/RoadmapPage').then((m) => ({ default: m.RoadmapPage })));
 const DeveloperChangelogPage = lazy(() => import('@/pages/DeveloperChangelogPage').then((m) => ({ default: m.DeveloperChangelogPage })));
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
@@ -684,6 +688,10 @@ function AppRoutes() {
         <Route path="/s/:token" element={<SurveyResponsePage />} />
         <Route path="/preferences/:token" element={<PreferencesPage />} />
         <Route path="/book/:slug" element={<BookingPage />} />
+        <Route path="/track/:token" element={<TrackingPage />} />
+        <Route path="/review/:token" element={<ReviewSubmitPage />} />
+        <Route path="/dashboard/call-scripts" element={<ProtectedRoute><CallScriptsPage /></ProtectedRoute>} />
+        <Route path="/dashboard/booking-settings" element={<ProtectedRoute><BookingSettingsPage /></ProtectedRoute>} />
         <Route path="/lp/:slug" element={<PublicLandingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
