@@ -4,6 +4,9 @@ import { AlertTriangle, Clock, ChevronRight, MapPin, MessageSquare, Truck, UserR
 import { fetchTodayJobs, formatTime, STATUS_LABELS, TechnicianJob } from '@/lib/technicianOS';
 import { fetchUnreadTotal } from '@/lib/jobMessages';
 import { useRealtimeSubscription } from '@/lib/realtime';
+import { Link, useNavigate } from 'react-router-dom';
+import { ReplayTourMenu } from '@/components/tour/ReplayTourMenu';
+import { ContextualTip } from '@/components/tour/ContextualTip';
 
 const STATUS_DOT: Record<string, string> = {
   scheduled: 'bg-accent',
@@ -28,15 +31,14 @@ export function TechnicianTodayPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-bg-primary pb-10">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-primary/95 px-4 py-4 backdrop-blur">
-  <div>
-    <h1 className="text-lg font-semibold text-text-primary">Today</h1>
-    <p className="text-sm text-text-secondary">{jobs.length} job{jobs.length === 1 ? '' : 's'} scheduled</p>
-  </div>
-  <Link to="/tech/timesheet" className="focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 text-sm font-semibold text-text-primary">
-    <Clock className="h-4 w-4" /> Timesheet
-  </Link>
+    <div className="flex items-center gap-2">
+  <ReplayTourMenu align="end" />
+  <ContextualTip id="tech.timesheet">
+    <Link to="/tech/timesheet" className="…همان classNameی که الان داری…">
+      <Clock className="h-4 w-4" /> Timesheet
+    </Link>
+  </ContextualTip>
+</div>
 </header>
 
       <main className="mx-auto max-w-lg px-4 py-4">
