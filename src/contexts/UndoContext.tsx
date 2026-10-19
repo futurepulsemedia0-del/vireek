@@ -186,7 +186,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
       <div
         aria-label="Undo"
         role="region"
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-[130] flex flex-col items-center gap-2 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+        className="pointer-events-none fixed inset-x-0 bottom-[var(--vk-bottom-nav-h,0px)] z-[130] flex flex-col items-center gap-2 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
       >
         <AnimatePresence>
           {visible.map((e) => (
