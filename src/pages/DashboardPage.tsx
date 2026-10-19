@@ -23,6 +23,7 @@ import { bucketCounts, computeDelta, inRange } from '@/lib/dateRange';
 import { OverviewGrid } from '@/components/overview/OverviewGrid';
 import { OverviewCustomizeBar } from '@/components/overview/OverviewCustomizeBar';
 import { SystemHealthStrip } from '@/components/overview/SystemHealthStrip';
+import { DataHealthCard } from '@/components/overview/DataHealthCard';
 import { useOverviewLayout } from '@/hooks/useOverviewLayout';
 import { hiddenItems, resolveRolePreset, visibleItems, type OverviewWidgetId, type PermissionKey } from '@/lib/overviewLayout';
 // ============================================================
@@ -951,6 +952,8 @@ export function DashboardPage() {
             </div>
           </div>
         );
+      case 'data_health':
+        return <DataHealthCard />;
       case 'recent_activity':
         return <RecentActivity items={metrics.activityItems} highlightId={newlyArrivedId ? `call-${newlyArrivedId}` : null} />;
       default:
