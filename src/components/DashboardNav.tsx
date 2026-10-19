@@ -181,6 +181,7 @@ import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { WhatsNewButton } from '@/components/whats-new/WhatsNewButton';
+import { ReplayTourMenu } from '@/components/tour/ReplayTourMenu';
 import { WhatsNewProvider } from '@/contexts/WhatsNewContext';
 import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
 import { AiAssistant } from '@/components/AiAssistant';
@@ -691,6 +692,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
           <div className="flex items-center gap-1">
+          <ReplayTourMenu align="start" />
             <WhatsNewButton />
             <NotificationBell />
           </div>
@@ -723,11 +725,13 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
           <div className="flex items-center gap-2">
+          <ReplayTourMenu align="end" />
             <WhatsNewButton />
             <NotificationBell />
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
+              data-tour="menu-button"
               aria-label={t('nav.openMenu')}
               className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-primary"
             >
