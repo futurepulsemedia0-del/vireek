@@ -16,7 +16,10 @@ import { GettingStartedCard } from '@/components/GettingStartedCard';
 import { DailyBriefingCard } from '@/components/DailyBriefingCard';
 import { TodayTasksCard } from '@/components/TodayTasksCard';
 import { AttributionReport, AttributionRow } from '@/components/AttributionReport';
-
+import { useDateRange } from '@/hooks/useDateRange';
+import { DateRangeFilter } from '@/components/DateRangeFilter';
+import { DeltaBadge } from '@/components/DeltaBadge';
+import { bucketCounts, computeDelta, inRange } from '@/lib/dateRange';
 import { OverviewGrid } from '@/components/overview/OverviewGrid';
 import { OverviewCustomizeBar } from '@/components/overview/OverviewCustomizeBar';
 import { SystemHealthStrip } from '@/components/overview/SystemHealthStrip';
@@ -59,6 +62,7 @@ function KpiCard({
   label,
   value,
   sub,
+  delta,
   accentColor,
   delay,
 }: {
@@ -66,6 +70,7 @@ function KpiCard({
   label: string;
   value: string;
   sub: string;
+  delta?: React.ReactNode;
   accentColor: string;
   delay: number;
 }) {
@@ -82,7 +87,8 @@ function KpiCard({
         </span>
       </div>
       <p className="mt-5 text-4xl font-bold tracking-tight text-text-primary">{value}</p>
-      <p className="mt-1 text-sm font-medium text-text-secondary">{label}</p>
+            <p className="mt-0.5 text-xs text-text-secondary/70">{sub}</p>
+
       <p className="mt-0.5 text-xs text-text-secondary/70">{sub}</p>
     </motion.div>
   );
@@ -108,12 +114,14 @@ function MetricCard({
   label,
   value,
   children,
+  delta,
   delay,
 }: {
   icon: typeof Phone;
   label: string;
   value: string;
   children?: React.ReactNode;
+  delta?: React.ReactNode;
   delay: number;
 }) {
   return (
@@ -127,7 +135,10 @@ function MetricCard({
         <Icon size={18} className="text-text-secondary" />
         <span className="text-sm font-medium text-text-secondary">{label}</span>
       </div>
-      <p className="mt-3 text-2xl font-bold tracking-tight text-text-primary">{value}</p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <p className="text-2xl font-bold tracking-tight text-text-primary">{value}</p>
+        {delta}
+      </div>
       {children}
     </motion.div>
   );
@@ -146,14 +157,22 @@ function MetricSkeleton() {
 // 14-DAY CALL VOLUME CHART (custom SVG, no chart library)
 // ============================================================
 
-function CallVolumeChart({ data }: { data: { date: string; count: number }[] }) {
+function CallVolumeChart({
+  data,
+  title = 'Call Volume',
+  bucketDays = 1,
+}: {
+  data: { date: string; count: number }[];
+  title?: string;
+  bucketDays?: number;
+}) {
   const maxCount = Math.max(...data.map((d) => d.count), 1);
   const chartHeight = 160;
 
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-primary">Call Volume — Last 14 Days</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{title}{bucketDays > 1 ? ' · weekly' : ''}</h3>
         <span className="text-xs text-text-secondary">
           {data.reduce((sum, d) => sum + d.count, 0)} total calls
         </span>
@@ -378,6 +397,9 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const { user, profile, profileLoading, isOwner, permissions, teamMember } = useAuth();
   const { toast } = useToast();
+  // Overview defaults to month-to-date (what the old "This Month" cards showed).
+  const dateRange = useDateRange('mtd');
+  const { range } = dateRange;
 
   const [calls, setCalls] = useState<Call[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -493,70 +515,78 @@ export function DashboardPage() {
 
   const metrics = useMemo(() => {
     const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const { start, end, prevStart, prevEnd, compare } = range;
 
-    const callsThisMonth = allCalls.filter((c) => new Date(c.call_datetime) >= monthStart);
-    const emergencyCalls = callsThisMonth.filter((c) => c.is_emergency);
-    const jobsCompletedThisMonth = allJobs.filter(
-      (j) => j.job_status === 'completed' && new Date(j.created_at) >= monthStart
-    );
-    const revenueThisMonth = allJobs
-      .filter((j) => j.invoice_status === 'paid' && new Date(j.created_at) >= monthStart)
-      .reduce((sum, j) => sum + (j.invoice_amount ?? 0), 0);
+    // One definition of every KPI, evaluated for the selected period AND the
+    // previous one, so the delta badges always compare like with like.
+    const periodStats = (from: Date, to: Date) => {
+      const periodCalls = allCalls.filter((c) => inRange(c.call_datetime, from, to));
+      const periodLeads = leads.filter((l) => inRange(l.created_at, from, to));
+      const sentimentCalls = periodCalls.filter((c) => c.sentiment !== null);
+      const positive = sentimentCalls.filter((c) => c.sentiment === 'positive').length;
+      const wonLeads = periodLeads.filter((l) => l.stage === 'won').length;
+      const missed = periodCalls.filter((c) => c.status === 'missed').length;
+      return {
+        calls: periodCalls,
+        callCount: periodCalls.length,
+        emergencies: periodCalls.filter((c) => c.is_emergency).length,
+        jobsCompleted: allJobs.filter((j) => j.job_status === 'completed' && inRange(j.created_at, from, to)).length,
+        revenue: allJobs
+          .filter((j) => j.invoice_status === 'paid' && inRange(j.created_at, from, to))
+          .reduce((sum, j) => sum + (j.invoice_amount ?? 0), 0),
+        leadCount: periodLeads.length,
+        wonLeads,
+        sentimentPct: sentimentCalls.length > 0 ? Math.round((positive / sentimentCalls.length) * 100) : null,
+        conversionPct: periodLeads.length > 0 ? Math.round((wonLeads / periodLeads.length) * 100) : null,
+        missedPct: periodCalls.length > 0 ? Math.round((missed / periodCalls.length) * 100) : null,
+      };
+    };
+    const cur = periodStats(start, end);
+    const prev = periodStats(prevStart, prevEnd);
 
+    const deltas = compare
+      ? {
+          calls: computeDelta(cur.callCount, prev.callCount),
+          emergencies: computeDelta(cur.emergencies, prev.emergencies, { polarity: 'neutral' }),
+          jobsCompleted: computeDelta(cur.jobsCompleted, prev.jobsCompleted),
+          revenue: computeDelta(cur.revenue, prev.revenue),
+          sentiment: computeDelta(cur.sentimentPct, prev.sentimentPct, { kind: 'points' }),
+          conversion: computeDelta(cur.conversionPct, prev.conversionPct, { kind: 'points' }),
+          missed: computeDelta(cur.missedPct, prev.missedPct, { kind: 'points', polarity: 'lowerIsBetter' }),
+        }
+      : null;
+
+    // Plan usage is a billing-cycle gauge, not a period KPI, so it has no delta.
     const minutesUsed = profile?.minutes_used_this_month ?? 0;
     const minutesIncluded = profile?.minutes_included ?? 50;
     const minutesRemaining = Math.max(0, minutesIncluded - minutesUsed);
     const usagePercent = minutesIncluded > 0 ? Math.min(100, (minutesUsed / minutesIncluded) * 100) : 0;
 
-    const sentimentCalls = allCalls.filter((c) => c.sentiment !== null);
-    const positiveCount = sentimentCalls.filter((c) => c.sentiment === 'positive').length;
-    const avgSentiment = sentimentCalls.length > 0
-      ? `${Math.round((positiveCount / sentimentCalls.length) * 100)}% positive`
-      : '—';
+    const avgSentiment = cur.sentimentPct !== null ? `${cur.sentimentPct}% positive` : '—';
+    const conversionRate = cur.conversionPct !== null ? `${cur.conversionPct}%` : '—';
+    const missedCallRate = cur.missedPct !== null ? `${cur.missedPct}%` : '—';
 
-    const wonLeads = leads.filter((l) => l.stage === 'won').length;
-    const conversionRate = leads.length > 0
-      ? `${Math.round((wonLeads / leads.length) * 100)}%`
-      : '—';
-
-    const missedCalls = allCalls.filter((c) => c.status === 'missed').length;
-    const missedCallRate = allCalls.length > 0
-      ? `${Math.round((missedCalls / allCalls.length) * 100)}%`
-      : '—';
-
-    // NOTE: this used to be a nested `useMemo(...)` call right here, which is
-    // an illegal "hook inside a hook" call (violates the Rules of Hooks and
-    // can crash at runtime). It's just a plain derived value, so it's
-    // computed directly as part of this outer useMemo instead.
     const attributionRows: AttributionRow[] = (() => {
       const map = new Map<string, { total: number; booked: number }>();
-      allCalls.forEach((c) => {
+      cur.calls.forEach((c) => {
         const key = c.lead_source || 'unknown';
-        const cur = map.get(key) ?? { total: 0, booked: 0 };
-        cur.total += 1;
-        if (c.status === 'booked') cur.booked += 1;
-        map.set(key, cur);
+        const entry = map.get(key) ?? { total: 0, booked: 0 };
+        entry.total += 1;
+        if (c.status === 'booked') entry.booked += 1;
+        map.set(key, entry);
       });
       return Array.from(map.entries())
         .map(([source, v]) => ({ source, ...v, rate: v.total ? Math.round((v.booked / v.total) * 100) : 0 }))
         .sort((a, b) => b.booked - a.booked);
     })();
 
-    // 14-day chart data
-    const chartData: { date: string; count: number }[] = [];
-    for (let i = 13; i >= 0; i--) {
-      const date = new Date();
-      date.setHours(0, 0, 0, 0);
-      date.setDate(date.getDate() - i);
-      const nextDate = new Date(date);
-      nextDate.setDate(nextDate.getDate() + 1);
-      const count = allCalls.filter((c) => {
-        const callDate = new Date(c.call_datetime);
-        return callDate >= date && callDate < nextDate;
-      }).length;
-      chartData.push({ date: date.toISOString(), count });
-    }
+    // Daily bars up to ~3 months, weekly bars beyond that.
+    const { points: chartData, bucketDays: chartBucketDays } = bucketCounts(
+      allCalls,
+      (c) => c.call_datetime,
+      start,
+      end,
+    );
 
     // Needs Attention items
     const attentionItems: AttentionItem[] = [];
@@ -686,10 +716,10 @@ export function DashboardPage() {
     activityItems.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
     return {
-      callsThisMonthCount: callsThisMonth.length,
-      emergencyCallsCount: emergencyCalls.length,
-      jobsCompletedCount: jobsCompletedThisMonth.length,
-      revenueThisMonth,
+      callsInRangeCount: cur.callCount,
+      emergencyCallsCount: cur.emergencies,
+      jobsCompletedCount: cur.jobsCompleted,
+      revenueInRange: cur.revenue,
       minutesUsed,
       minutesIncluded,
       minutesRemaining,
@@ -698,11 +728,15 @@ export function DashboardPage() {
       conversionRate,
       missedCallRate,
       chartData,
+      chartBucketDays,
+      leadCount: cur.leadCount,
+      wonLeads: cur.wonLeads,
+      deltas,
       attentionItems: attentionItems.slice(0, 8),
       activityItems: activityItems.slice(0, 10),
       attributionRows,
     };
-  }, [allCalls, allJobs, calls, jobs, leads, insights, profile]);
+  }, [allCalls, allJobs, calls, jobs, leads, insights, profile, range]);
 
   const todayDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -711,6 +745,11 @@ export function DashboardPage() {
   });
 
   const dailyDigest = insights.find((i) => i.insight_type === 'pattern');
+  const deltaBadge = (
+    key: 'calls' | 'emergencies' | 'jobsCompleted' | 'revenue' | 'sentiment' | 'conversion' | 'missed',
+    format?: (n: number) => string,
+  ) => (metrics.deltas ? <DeltaBadge delta={metrics.deltas[key]} versus={range.prevLabel} format={format} /> : null);
+  const asPercent = (n: number) => `${n}%`;
 
   // ------------------------------------------------------------
   // Customizable Overview: per-user layout saved in Supabase
@@ -777,7 +816,9 @@ export function DashboardPage() {
         );
       case 'kpi_calls':
         return busy ? <KpiSkeleton /> : (
-          <KpiCard icon={Phone} label="Calls This Month" value={String(metrics.callsThisMonthCount)} sub="Total inbound calls" accentColor="bg-accent/10 text-accent" delay={0} />
+          <KpiCard icon={Phone} label="Calls" value={String(metrics.callsInRangeCount)} sub={`Inbound · ${range.label}`} accentColor="bg-accent/10 text-accent" delay={0} />
+                        delta={deltaBadge('calls')}
+
         );
       case 'kpi_emergency':
         return busy ? <KpiSkeleton /> : (
@@ -788,15 +829,19 @@ export function DashboardPage() {
             sub={`${metrics.emergencyCallsCount === 1 ? 'Call' : 'Calls'} needing urgent response`}
             accentColor="bg-danger/10 text-danger"
             delay={0.05}
+                delta={deltaBadge('emergencies')}
           />
         );
       case 'kpi_jobs':
         return busy ? <KpiSkeleton /> : (
-          <KpiCard icon={CheckCircle2} label="Jobs Completed" value={String(metrics.jobsCompletedCount)} sub="This month" accentColor="bg-success-500/10 text-success-500" delay={0.1} />
+          <KpiCard icon={CheckCircle2} label="Jobs Completed" value={String(metrics.jobsCompletedCount)} sub={range.label} accentColor="bg-success-500/10 text-success-500" delay={0.1} />
+                delta={deltaBadge('jobsCompleted')}
         );
       case 'kpi_revenue':
         return busy ? <KpiSkeleton /> : (
-          <KpiCard icon={DollarSign} label="Revenue This Month" value={formatCurrency(metrics.revenueThisMonth)} sub="From paid invoices" accentColor="bg-cta/10 text-cta" delay={0.15} />
+          <KpiCard icon={DollarSign} label="Revenue" value={formatCurrency(metrics.revenueInRange)} sub="From paid invoices" accentColor="bg-cta/10 text-cta" delay={0.15} />
+                delta={deltaBadge('revenue', formatCurrency)}
+                delta={deltaBadge('jobsCompleted')}
         );
       case 'metric_minutes':
         return busy ? <MetricSkeleton /> : (
@@ -819,18 +864,25 @@ export function DashboardPage() {
         );
       case 'metric_sentiment':
         return busy ? <MetricSkeleton /> : <MetricCard icon={Activity} label="Avg Response Sentiment" value={metrics.avgSentiment} delay={0.25} />;
+                delta={deltaBadge('sentiment', asPercent)}
       case 'metric_conversion':
         return busy ? <MetricSkeleton /> : (
           <MetricCard icon={TrendingUp} label="Conversion Rate" value={metrics.conversionRate} delay={0.3}>
+                delta={deltaBadge('conversion', asPercent)}
             <p className="mt-1 text-xs text-text-secondary">
-              {leads.filter((l) => l.stage === 'won').length} won / {leads.length} total leads
+             {metrics.wonLeads} won / {metrics.leadCount} leads in period
             </p>
           </MetricCard>
         );
       case 'metric_missed':
         return busy ? <MetricSkeleton /> : <MetricCard icon={XCircle} label="Missed Call Rate" value={metrics.missedCallRate} delay={0.35} />;
+                delta={deltaBadge('missed', asPercent)}
       case 'call_volume':
-        return dataLoading ? <ChartSkeleton /> : <CallVolumeChart data={metrics.chartData} />;
+        return dataLoading ? <ChartSkeleton /> : <CallVolumeChart
+              data={metrics.chartData}
+              title={`Call Volume — ${range.label}`}
+              bucketDays={metrics.chartBucketDays}
+            />;
       case 'needs_attention':
         return <NeedsAttention items={metrics.attentionItems} onInsightClick={() => navigate('/dashboard/insights')} />;
       case 'attribution':
