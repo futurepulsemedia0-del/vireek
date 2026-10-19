@@ -431,6 +431,7 @@ export function CustomerDetailPage() {
 
         {id && <HomeHealthCard customerId={id} />}
         {id && <PropertyVisionCard customerId={id} />}
+        {id && <CommentsPanel entityType="customer" entityId={id} entityLabel={customer.name} />}
         {id && <CustomerDocumentsCard customerId={id} customerName={customer.name} />}
         {/* Equipment */}
         <div className="mb-6">
