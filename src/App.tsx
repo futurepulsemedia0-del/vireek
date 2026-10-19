@@ -95,6 +95,7 @@ const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartn
 const StaffCustomersPage = lazy(() => import('@/pages/admin/StaffCustomersPage').then((m) => ({ default: m.StaffCustomersPage })));
 onst StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
+const PilotManagementPage = lazy(() => import('@/pages/admin/PilotManagementPage').then((m) => ({ default: m.PilotManagementPage })));
 const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
 const EmergencyNetworkPage = lazy(() => import('@/pages/EmergencyNetworkPage').then((m) => ({ default: m.EmergencyNetworkPage })));
 const AiReliabilityPage = lazy(() => import('@/pages/AiReliabilityPage').then((m) => ({ default: m.AiReliabilityPage })));
@@ -606,7 +607,14 @@ function AppRoutes() {
             </StaffRoute>
           }
         />
-        
+                <Route
+          path="/staff/pilots"
+          element={
+            <StaffRoute>
+              <PilotManagementPage />
+            </StaffRoute>
+          }
+        />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/cookies" element={<CookiePolicyPage />} />
         <Route path="/terms" element={<TermsPage />} />
