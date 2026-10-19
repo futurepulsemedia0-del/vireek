@@ -18,6 +18,8 @@ import {
   AlertCircle,
   ShieldAlert,
   Eye,
+  AtSign,
+  MessageSquare,
 } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationsContext';
 import type { NotificationRow } from '@/contexts/NotificationsContext';
@@ -34,6 +36,8 @@ const TYPE_ICON: Record<NotificationRow['type'], typeof Bell> = {
   job_update: Wrench,
   warranty_alert: ShieldAlert,
   quote_viewed: Eye,
+  comment_mention: AtSign,
+  comment_reply: MessageSquare,
   system: Info,
 };
 
@@ -44,6 +48,8 @@ const TYPE_COLOR: Record<NotificationRow['type'], string> = {
   job_update: 'bg-accent/10 text-accent',
   warranty_alert: 'bg-warning-500/10 text-warning-500',
   quote_viewed: 'bg-success-500/10 text-success-500',
+  comment_mention: 'bg-accent/10 text-accent',
+  comment_reply: 'bg-accent/10 text-accent',
   system: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -54,6 +60,8 @@ const TYPE_LABEL: Record<NotificationRow['type'], string> = {
   job_update: 'Job update',
   warranty_alert: 'Warranty alert',
   quote_viewed: 'Estimate activity',
+  comment_mention: 'Mention',
+  comment_reply: 'Thread reply',
   system: 'System',
 };
 
