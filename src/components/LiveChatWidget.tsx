@@ -131,7 +131,7 @@ export function LiveChatWidget() {
     [conversation, visitorId, name, email, location.pathname, sending],
   );
 
-  if (location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/staff')) return null;
+  if (location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/staff') || location.pathname.startsWith('/wallboard')) return null;
 
   return (
     <AnimatePresence>
