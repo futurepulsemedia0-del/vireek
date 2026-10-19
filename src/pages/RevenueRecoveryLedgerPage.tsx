@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   AlertTriangle,
   Ban,
@@ -377,6 +378,11 @@ export function RevenueRecoveryLedgerPage() {
           </button>
         </div>
 
+        <div className="mb-4">
+          <Link to="/dashboard/recovery/statements" className="focus-ring text-sm font-medium text-accent hover:underline">
+            Weekly Money Recovered statement →
+          </Link>
+        </div>
         {/* Stats */}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className={`rounded-2xl border p-4 ${stats.overdueCount > 0 ? 'border-danger/30 bg-danger/[0.04]' : 'border-border bg-bg-secondary'}`}>
