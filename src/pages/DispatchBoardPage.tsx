@@ -11,7 +11,6 @@ import { addDays, localIsoDate, type AvailabilityData } from '@/lib/timeOff';
 import { buildStockFitMap, fetchStockFit, stockFitBonus, type StockFitRow } from '@/lib/truckStock';
 import { buildPassportFitMap, fetchPassportFit, passportFitHeadline, type PassportFitRow } from '@/lib/dispatchPassportFit';
 import { fetchTechnicianScorecards } from '@/lib/technicianPerformance';
-import { rankTechniciansByProfitability, formatProfitabilityCents } from '@/lib/dispatchProfitability';
 import { rankTechniciansByProfitability, formatProfitabilityCents, type FleetDispatchSignal } from '@/lib/dispatchProfitability';
 import { fetchFleetDispatchSignals } from '@/lib/fleetIntelligence';
 import { friendlyDispatchError } from '@/lib/dvir';
@@ -55,7 +54,7 @@ function copilotPriorityStyle(priority: number): { color: string; bgColor: strin
 }
 
 export function DispatchBoardPage() {
-  const { user } = useAuth();
+  const { user, profile, teamMember, isOwner, permissions } = useAuth();
   const { toast } = useToast();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [technicians, setTechnicians] = useState<TeamMember[]>([]);
@@ -243,7 +242,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
 };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout activeLabel="Dispatch Board">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
         <div className="mb-6 flex items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
