@@ -419,6 +419,8 @@ const LocationCityPage = lazy(() => import('@/pages/LocationCityPage').then((m) 
 const LocationTradePage = lazy(() => import('@/pages/LocationTradePage').then((m) => ({ default: m.LocationTradePage })));
 const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
+const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
+const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const SurveysPage = lazy(() => import('@/pages/SurveysPage').then((m) => ({ default: m.SurveysPage })));
 const SurveyResponsePage = lazy(() => import('@/pages/SurveyResponsePage').then((m) => ({ default: m.SurveyResponsePage })));
@@ -699,6 +701,8 @@ function AppRoutes() {
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
+        <Route path="/track/:token" element={<TrackingPage />} />
+        <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/s/:token" element={<SurveyResponsePage />} />
         <Route path="/preferences/:token" element={<PreferencesPage />} />
         <Route path="/book/:slug" element={<BookingPage />} />
