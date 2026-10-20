@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { CustomFieldsEditor, CustomFieldsPanel, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
-import { useCustomFieldDefs, useCustomDataSync } from '@/lib/customFieldsApi';
+import { useCustomFieldDefs, useCustomDataSync } from '@/lib/customFieldsApi';import { JobRefrigerantPanel } from '@/components/jobs/JobRefrigerantPanel';
 import { matchesCustomFilters, sanitizeCustomData, validateCustomData, type CustomData, type CustomFilters } from '@/lib/customFields';
 import { ColumnPicker } from '@/components/ColumnPicker';
 import {
@@ -587,6 +587,7 @@ function JobDetailPanel({
         </div>
         <MissionBriefPanel job={job} /
         <PermitCompliancePanel job={job} />
+        <JobRefrigerantPanel job={job} />
         <JobUnknownsPanel job={job} />
         <PermitTransactionPanel job={job} />
         <JobRegulationSnapshotPanel job={job} />
