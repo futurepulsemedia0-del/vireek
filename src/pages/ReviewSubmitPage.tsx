@@ -3,7 +3,10 @@ import { useParams } from 'react-router-dom';
 import { AlertCircle, CheckCircle2, ExternalLink, Star } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { fetchReviewRequest, submitReview, type ReviewRequestPublic } from '@/lib/customerReview';
+import { fetchReviewRequest, type ReviewRequestPublic } from '@/lib/customerReview';
+import { fetchTechnicianReviewContext, submitReviewWithTechnician, type TechnicianReviewContext } from '@/lib/technicianRatingsApi';
+import { TechnicianRatingForm } from '@/components/TechnicianRatingForm';
+import { emptyTechnicianRating, type TechnicianRatingValue } from '@/lib/technicianRatings';
 
 export function ReviewSubmitPage() {
   const { token } = useParams<{ token: string }>();
@@ -14,17 +17,20 @@ export function ReviewSubmitPage() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ suggestPublic: boolean; googleUrl: string | null } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [techCtx, setTechCtx] = useState<TechnicianReviewContext | null>(null);
+  const [techRating, setTechRating] = useState<TechnicianRatingValue>(emptyTechnicianRating);
 
   useEffect(() => {
     if (!token) return;
     (async () => setReq(await fetchReviewRequest(token)))();
+    (async () => setTechCtx(await fetchTechnicianReviewContext(token)))();
   }, [token]);
 
   const handleSubmit = async () => {
     if (!token || rating === 0) return;
     setSubmitting(true);
     setError(null);
-    const res = await submitReview(token, rating, feedback);
+       const res = await submitReviewWithTechnician(token, rating, feedback, techCtx?.available ? techRating : null);
     setSubmitting(false);
     if (res.ok) {
       setResult({ suggestPublic: Boolean(res.suggest_public_review), googleUrl: res.google_review_url ?? null });
@@ -96,6 +102,15 @@ export function ReviewSubmitPage() {
                 </div>
               )}
 
+              {rating > 0 && techCtx?.available && (
+                <TechnicianRatingForm
+                  technicianName={techCtx.technician_first_name ?? 'your technician'}
+                  value={techRating}
+                  onChange={setTechRating}
+                  disabled={submitting}
+                />
+              )}
+              
               {error && <p className="mt-3 text-xs text-danger">{error}</p>}
 
               <button
