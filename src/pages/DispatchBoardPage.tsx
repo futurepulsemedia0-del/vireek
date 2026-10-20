@@ -16,6 +16,9 @@ import { fetchFleetDispatchSignals } from '@/lib/fleetIntelligence';
 import { friendlyDispatchError } from '@/lib/dvir';
 import { DispatchIntelligencePanel } from '@/components/dispatch/DispatchIntelligencePanel';
 import { RiskChip } from '@/components/dispatch/RiskChip';
+import { DispatchRulesPanel } from '@/components/dispatch/DispatchRulesPanel';
+import { useDispatchRulesData } from '@/hooks/useDispatchRulesData';
+import { Link } from 'react-router-dom';
 import { useJobRiskMap } from '@/hooks/useJobRiskMap';
 import { useFirstTimeFixGate } from '@/hooks/useFirstTimeFixGate';
 import { FirstTimeFixChip } from '@/components/jobs/FirstTimeFixChip';
@@ -131,6 +134,7 @@ export function DispatchBoardPage() {
   const riskMap = useJobRiskMap(jobs);
   const canManage = isOwner || permissions.can_view_all_jobs;
   const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
+  const { bundle: rulesBundle } = useDispatchRulesData(accountOwnerId, jobs);
   const OPEN = ['scheduled', 'en_route', 'in_progress'];
 
   const board = useScheduleBoard({
@@ -255,6 +259,9 @@ const handleAssign = async (job: Job, technicianId: string) => {
             </p>
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <Link to="/dashboard/assignment-rules" className="focus-ring rounded-full border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-accent">
+             Rules
+                </Link>
             <button
               type="button"
               onClick={handleToggleAiDispatch}
@@ -435,6 +442,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
                           ))}
                         </div>
                       )}
+                        <DispatchRulesPanel job={job} bundle={rulesBundle} ownerId={accountOwnerId} busy={assigning === job.id} onAssign={handleAssign} />
                       {suggestions.length > 0 && (
                         <div className="mt-3">
                           <button
