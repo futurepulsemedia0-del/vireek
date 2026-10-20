@@ -56,6 +56,7 @@ import { JobPhotosCard, JobPartsCard } from '@/components/jobs/detail/JobWorkSec
 import { JobLineItemsCard } from '@/components/jobs/detail/JobLineItemsCard';
 import { JobCostsCard, JobInvoiceCard } from '@/components/jobs/detail/JobMoneySections';
 import { JobActivityFeed } from '@/components/jobs/detail/JobActivityFeed';
+import { JobCrewPanel } from '@/components/jobs/JobCrewPanel';
 import { Pill } from '@/components/jobs/detail/JobSection';
 
 // ============================================================
@@ -514,6 +515,10 @@ export function JobDetailPage() {
         <JobTechnicianCard job={j} technician={technician.data} loading={technician.loading} error={technician.error} onRetry={technician.reload} />
       </div>
 
+  {ownerId && (
+    <JobCrewPanel jobId={j.id} ownerId={ownerId} leadTechnicianId={j.assigned_technician_id} onChanged={() => void syncJob()} />
+  )}
+  
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <JobNotesCard job={j} canEdit={access.canEdit} onSave={saveNotes} />
