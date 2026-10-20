@@ -1067,6 +1067,11 @@ export interface CausalOutcomeTracking {
 }
 
 export interface ReviewRequest {
+  technician_id?: string | null;
+  technician_rating?: number | null;
+  technician_tags?: string[] | null;
+  technician_comment?: string | null;
+  technician_rated_at?: string | null;
   id: string;
   user_id: string;
   job_id: string | null;
