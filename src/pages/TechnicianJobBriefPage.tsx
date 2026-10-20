@@ -108,6 +108,7 @@ export function TechnicianJobBriefPage() {
         </button>
 
         <PermitCompliancePanel job={job} />
+        <JobRefrigerantPanel job={job} />
         <JobUnknownsPanel job={job} />
         <JobPaymentPanel jobId={job.id} />
         <Link to={`/dashboard/live-copilot?job=${jobId}`} className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white">Open Live Copilot</Link>
