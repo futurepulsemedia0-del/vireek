@@ -556,6 +556,7 @@ export interface Quote {
   recommended_option_id: string | null;
   selected_option_id: string | null;
   accepted_total_cents: number | null;
+  optional_items: unknown[];
   presentation_note: string | null;
   deposit_percent: number;
   first_viewed_at: string | null;
