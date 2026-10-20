@@ -83,7 +83,7 @@ Deno.serve(async (req: Request) => {
         .eq("user_id", userId).gte("created_at", baselineStart.toISOString()),
       db.from("callback_root_cause_analyses").select("created_at")
         .eq("user_id", userId).gte("created_at", baselineStart.toISOString()),
-      db.from("job_technician_assignments").select("previous_technician_id, assigned_at")
+      db.from("job_technician_assignments").select("previous_technician_id, assigned_at").is("crew_role", null)
         .eq("user_id", userId).gte("assigned_at", baselineStart.toISOString()),
       db.from("jobs").select("id, job_status, created_at").eq("user_id", userId)
         .eq("job_status", "completed").gte("created_at", baselineStart.toISOString()),
