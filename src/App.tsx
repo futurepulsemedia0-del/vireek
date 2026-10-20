@@ -494,6 +494,8 @@ const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) =>
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
 const InspectionReportsPage = lazy(() => import('@/pages/InspectionReportsPage').then((m) => ({ default: m.InspectionReportsPage })));
+const FindingsPackagesPage = lazy(() => import('@/pages/FindingsPackagesPage').then((m) => ({ default: m.FindingsPackagesPage })));
+const FindingsPackagePublicPage = lazy(() => import('@/pages/FindingsPackagePublicPage').then((m) => ({ default: m.FindingsPackagePublicPage })));
 const ReputationPage = lazy(() => import('@/pages/ReputationPage'));
 const InspectionReportPublicPage = lazy(() => import('@/pages/InspectionReportPublicPage').then((m) => ({ default: m.InspectionReportPublicPage })));
 const EmailSettingsPage = lazy(() => import('@/pages/EmailSettingsPage').then((m) => ({ default: m.EmailSettingsPage })));
@@ -1123,6 +1125,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <InspectionReportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/findings"
+          element={
+            <ProtectedRoute>
+              <FindingsPackagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/findings/:id"
+          element={
+            <ProtectedRoute>
+              <FindingsPackagesPage />
             </ProtectedRoute>
           }
         />
@@ -2065,6 +2083,7 @@ function AppRoutes() {
         <Route path="/quote/:token" element={<QuoteAcceptPage />} />
         <Route path="/sign/:token" element={<SignDocumentPage />} />
         <Route path="/inspection/:token" element={<InspectionReportPublicPage />} />
+        <Route path="/findings/:token" element={<FindingsPackagePublicPage />} />
         <Route path="/invoice/:token" element={<InvoicePage />} />
         <Route path="/shared/dashboard/:token" element={<SharedDashboardPage />} />
         <Route path="/wallboard/:token" element={<WallboardPage />} />
