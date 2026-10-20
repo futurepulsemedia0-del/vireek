@@ -291,6 +291,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Direct Bank Intelligence', href: '/dashboard/bank-intelligence', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Regional Demand', href: '/dashboard/regional-demand', icon: MapPin, requiresPermission: 'can_view_billing' },
   { label: 'Dispatch Board', href: '/dashboard/dispatch', icon: Route },
+  { label: 'Dispatch Rules', href: '/dashboard/assignment-rules', icon: SlidersHorizontal, requiresPermission: 'can_manage_team' },
   { label: 'Context Engine', href: '/dashboard/context-engine', icon: Radar },
   { label: 'Advanced Routing', href: '/dashboard/routing', icon: Navigation },
   { label: 'Service Areas', href: '/dashboard/service-areas', icon: MapPinned, requiresPermission: 'can_view_all_jobs' },
