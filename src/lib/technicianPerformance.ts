@@ -21,6 +21,7 @@
  */
 
 import { supabase, Job, TeamMember, ReviewRequest } from '@/lib/supabase';
+import { summarizeTechnicianRatings, ratingCoachingNotes, type TagCount } from '@/lib/technicianRatings';
 
 // ============================================================
 // TYPES
@@ -47,6 +48,10 @@ export interface TechnicianMetrics {
   revenueCents: number;
   csatAvg: number | null;
   csatResponses: number;
+  techRatingAvg: number | null;
+  techRatingResponses: number;
+  techRatingLowCount: number;
+  techRatingTags: TagCount[];
   utilizationRate: number | null;
   trainingGaps: TrainingGap[];
   aiCoachingNotes: CoachingNote[];
@@ -81,6 +86,10 @@ export interface TechnicianScorecard {
   revenue_cents: number;
   csat_avg: number | null;
   csat_responses: number;
+  tech_rating_avg: number | null;
+  tech_rating_responses: number;
+  tech_rating_low_count: number;
+  tech_rating_tags: TagCount[];
   utilization_rate: number | null;
   training_gaps: TrainingGap[];
   ai_coaching_notes: CoachingNote[];
@@ -182,6 +191,8 @@ export function computeTechnicianPerformance(
       ? round(techReviews.reduce((s, r) => s + (r.rating ?? 0), 0) / csatResponses, 2)
       : null;
 
+    const ratingStats = summarizeTechnicianRatings(allReviewRequests, tech.id, inRange);
+    const ratingNotes = ratingCoachingNotes(ratingStats);
     const capacity = tech.max_jobs_per_day * periodDays;
     const utilizationRate = capacity > 0 ? round(Math.min(100, (techScheduled.length / capacity) * 100)) : null;
 
@@ -227,7 +238,7 @@ export function computeTechnicianPerformance(
       }
     }
 
-    const aiCoachingNotes = generateCoachingNotes({
+    const baseCoachingNotes = generateCoachingNotes({
       firstTimeFixRate,
       callbackRate,
       csatAvg,
@@ -237,6 +248,10 @@ export function computeTechnicianPerformance(
     });
 
     return {
+    const aiCoachingNotes = [
+      ...baseCoachingNotes.filter((n) => !(n.tip.startsWith('Metrics are healthy') && ratingNotes.length > 0)),
+      ...ratingNotes,
+    ];
       technicianId: tech.id,
       technicianName: tech.member_name || tech.member_email || 'Unnamed technician',
       jobsCompleted: techCompleted.length,
@@ -246,6 +261,10 @@ export function computeTechnicianPerformance(
       revenueCents,
       csatAvg,
       csatResponses,
+      techRatingAvg: ratingStats.avg,
+      techRatingResponses: ratingStats.responses,
+      techRatingLowCount: ratingStats.lowCount,
+      techRatingTags: ratingStats.topTags,
       utilizationRate,
       trainingGaps,
       aiCoachingNotes,
@@ -351,6 +370,10 @@ export async function saveTechnicianScorecard(
     revenue_cents: metrics.revenueCents,
     csat_avg: metrics.csatAvg,
     csat_responses: metrics.csatResponses,
+    tech_rating_avg: metrics.techRatingAvg,
+    tech_rating_responses: metrics.techRatingResponses,
+    tech_rating_low_count: metrics.techRatingLowCount,
+    tech_rating_tags: metrics.techRatingTags,
     utilization_rate: metrics.utilizationRate,
     training_gaps: metrics.trainingGaps,
     ai_coaching_notes: metrics.aiCoachingNotes,
