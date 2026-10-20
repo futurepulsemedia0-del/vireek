@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { RefrigerantComplianceSection } from '@/components/compliance/RefrigerantComplianceSection';
 import { supabase, TeamMember, TechnicianCredential, ComplianceRequirement } from '@/lib/supabase';
 import { computeCredentialStatus, CREDENTIAL_STATUS_LABELS, CREDENTIAL_STATUS_COLORS } from '@/lib/complianceGate';
 
