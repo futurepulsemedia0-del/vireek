@@ -70,6 +70,7 @@ const NeighborhoodRevenuePage = lazy(() => import('@/pages/NeighborhoodRevenuePa
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
 const JobDetailPage = lazy(() => import('@/pages/JobDetailPage').then((m) => ({ default: m.JobDetailPage })));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
+const CalendarFeedsPage = lazy(() => import('@/pages/CalendarFeedsPage').then((m) => ({ default: m.CalendarFeedsPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
 const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ default: m.InsightsPage })));
 const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ default: m.QuotesPage })));
@@ -2042,6 +2043,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CalendarPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/calendar-feeds"
+          element={
+            <ProtectedRoute>
+              <CalendarFeedsPage />
             </ProtectedRoute>
           }
         />
