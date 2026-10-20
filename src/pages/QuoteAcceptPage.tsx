@@ -7,11 +7,17 @@ import { Footer } from '@/components/Footer';
 import { fetchQuoteForToken, respondToQuote, recordQuoteView, calculateQuoteTotals, formatCents, PublicQuoteInfo } from '@/lib/quotes';
 import { isTieredQuote } from '@/lib/estimates';
 import { EstimatePresentation } from '@/components/quotes/EstimatePresentation';
+import { QuoteAddonsPicker } from '@/components/quotes/QuoteAddonsPicker';
+import { acceptErrorMessage, acceptQuoteWithAddons, addonTotals, fetchQuoteAddons } from '@/lib/quoteAddons';
+import type { PublicQuoteAddon } from '@/lib/quoteAddons';
 export function QuoteAcceptPage() {
   const { token } = useParams<{ token: string }>();
   const [quote, setQuote] = useState<PublicQuoteInfo | null | undefined>(undefined);
   const [submitting, setSubmitting] = useState(false);
   const [responded, setResponded] = useState<'accepted' | 'declined' | null>(null);
+  const [addons, setAddons] = useState<PublicQuoteAddon[]>([]);
+  const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 useEffect(() => {
   if (!token) return;
@@ -24,19 +30,40 @@ useEffect(() => {
   });
 }, [token]);
 
+useEffect(() => {
+  if (!token) return;
+  let cancelled = false;
+  void fetchQuoteAddons(token).then((a) => {
+    if (!cancelled) setAddons(a);
+  });
+  return () => {
+    cancelled = true;
+  };
+}, [token]);
+
 const handleRespond = async (
   response: 'accepted' | 'declined',
-  optionId: string | null = null
+  optionId: string | null = null,
+  addonIds: string[] = selectedAddonIds
 ) => {
   if (!token) return;
   setSubmitting(true);
-  const ok = await respondToQuote(token, response, optionId);
-  if (ok) setResponded(response);
+  setErrorMessage(null);
+  if (response === 'accepted' && addonIds.length > 0) {
+    const result = await acceptQuoteWithAddons(token, optionId, addonIds);
+    if (result.ok) setResponded('accepted');
+    else setErrorMessage(acceptErrorMessage(result.reason));
+  } else {
+    const ok = await respondToQuote(token, response, optionId);
+    if (ok) setResponded(response);
+    else setErrorMessage(acceptErrorMessage('error'));
+  }
   setSubmitting(false);
 };
 
   const totals = quote ? calculateQuoteTotals(quote.line_items, quote.tax_percent, quote.promo_discount_cents ?? 0): null;
   const tiered = Boolean(quote && isTieredQuote(quote));
+  const addonSummary = addonTotals(addons, selectedAddonIds, quote?.tax_percent ?? 0);
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
@@ -44,7 +71,7 @@ const handleRespond = async (
       <main className="flex flex-1 items-center justify-center px-4 py-16">
         {tiered && quote && !responded && quote.status === 'sent' ? (
           <div className="w-full max-w-5xl">
-            <EstimatePresentation quote={quote} submitting={submitting} onRespond={handleRespond} />
+            <EstimatePresentation quote={quote} submitting={submitting} addons={addons} errorMessage={errorMessage} onRespond={handleRespond} />
           </div>
         ) : (
         <div className="w-full max-w-md rounded-2xl border border-border bg-bg-secondary p-8 shadow-card dark:shadow-card-dark">
@@ -81,6 +108,20 @@ const handleRespond = async (
                 ))}
               </div>
 
+              {addons.length > 0 && (
+                <div className="mb-4">
+                  <QuoteAddonsPicker
+                    addons={addons}
+                    selectedIds={selectedAddonIds}
+                    onToggle={(id) =>
+                      setSelectedAddonIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+                    }
+                    taxPercent={quote.tax_percent ?? 0}
+                    disabled={submitting}
+                  />
+                </div>
+              )}
+
               {quote.tax_cents != null || (quote.tax_breakdown?.length ?? 0) > 0 || quote.tax_exempt ? (
                 <div className="mb-2 px-1">
                   <TaxBreakdownLines breakdown={quote.tax_breakdown} taxCents={totals?.taxCents ?? 0} taxPercent={quote.tax_percent} taxExempt={quote.tax_exempt} />
@@ -95,10 +136,16 @@ const handleRespond = async (
               {totals && (
                 <div className="mb-4 flex items-center justify-between rounded-xl bg-bg-tertiary px-4 py-3">
                   <span className="text-sm font-medium text-text-primary">Total</span>
-                  <span className="text-lg font-bold text-text-primary">{formatCents(totals.totalCents)}</span>
+                  <span className="text-lg font-bold text-text-primary">{formatCents(totals.totalCents + addonSummary.totalCents)}</span>
                 </div>
               )}
 
+              {errorMessage && (
+                <p role="alert" className="mb-3 text-xs text-danger">
+                  {errorMessage}
+                </p>
+              )}
+              
               <div className="flex gap-2">
                 <button
                   type="button"
