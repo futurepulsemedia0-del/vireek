@@ -16,4 +16,17 @@ const config: CapacitorConfig = {
   },
 };
 
-export default config;
+// "Vireek Home" is a separate app (own bundle id + native projects) built from the same code:
+//   VIREEK_APP=home  →  see scripts/cap-home.mjs
+const isHome = process.env.VIREEK_APP === 'home';
+
+export default isHome
+  ? {
+      ...config,
+      appId: 'com.vireek.home',
+      appName: 'Vireek Home',
+      webDir: 'dist-home',
+      ios: { path: 'ios-home' },
+      android: { ...config.android, path: 'android-home' },
+    }
+  : config;
