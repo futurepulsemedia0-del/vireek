@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
+import { assignJobsWithRules } from "../_shared/dispatch/rulesAssign.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,8 +34,7 @@ Deno.serve(async (req: Request) => {
 
   if (error) return jsonResponse({ error: error.message }, 500);
 
-  const results = [];
-  for (const job of unassigned ?? []) {
+  const results = await assignJobsWithRules(admin, userId, unassigned ?? []);
     const result = await assignBestTechnician(admin, userId, job);
     results.push({ job_id: job.id, ...result });
   }
