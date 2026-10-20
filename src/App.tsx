@@ -8,6 +8,7 @@ import { TechnicianRoute } from '@/components/TechnicianRoute';
 import { PartnerRoute } from '@/components/PartnerRoute';
 import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { AriaLiveRegion } from '@/lib/a11y/announcer';
+import { HomeTargetGate } from '@/pages/home/HomeTargetGate';
 
 // Performance pass: only the landing page (the route almost every first-time
 // visitor lands on) ships eagerly in the main bundle. Every other route —
@@ -423,6 +424,7 @@ const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ defa
 const LandingPagesPage = lazy(() => import('@/pages/LandingPagesPage').then((m) => ({ default: m.LandingPagesPage })));
 const PublicLandingPage = lazy(() => import('@/pages/PublicLandingPage').then((m) => ({ default: m.PublicLandingPage })));
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
+const HomeApp = lazy(() => import('@/pages/home/HomeApp').then((m) => ({ default: m.HomeApp })));
 const CustomerPortalHistoryPage = lazy(() => import('@/pages/CustomerPortalHistoryPage').then((m) => ({ default: m.CustomerPortalHistoryPage })));
 const EmergencyTriagePage = lazy(() => import('@/pages/EmergencyTriagePage').then((m) => ({ default: m.EmergencyTriagePage })));
 const JobRoomPage = lazy(() => import('@/pages/JobRoomPage').then((m) => ({ default: m.JobRoomPage })));
@@ -537,7 +539,7 @@ function AppRoutes() {
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomeTargetGate><HomePage /></HomeTargetGate>} />
         <Route path="/login" element={<LoginPage />} />
         {/*
           /forgot-password and /reset-password are intentionally plain,
@@ -702,6 +704,7 @@ function AppRoutes() {
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/portal/:token/history" element={<CustomerPortalHistoryPage />} />
+        <Route path="/home/*" element={<HomeApp />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
         <Route path="/guarantee/:token" element={<ServiceGuaranteePublicPage />} />
         <Route path="/outcome/:token" element={<OutcomeVerifyPage />} />
