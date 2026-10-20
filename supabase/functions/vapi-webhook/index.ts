@@ -1,4 +1,5 @@
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
+import { autoTagCallDisposition } from "../_shared/call-dispositions/autoDisposition.ts";
 // supabase/functions/vapi-webhook/index.ts
 //
 // Server URL for the Vapi "Vireek Receptionist" production assistant(s).
@@ -2092,6 +2093,12 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
   }
 
   const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, requestId);
+
+  // Call disposition: high-confidence AI tagging (spam / booked / no answer). Never throws.
+  if (message.type === "end-of-call-report" && callRow) {
+    const tagged = await autoTagCallDisposition(admin, { callId: callRow.id, userId: callRow.user_id });
+    if (tagged.tagged) logEvent("call_disposition_auto_tagged", requestId, { outcome: tagged.outcome, task_created: tagged.taskCreated });
+  }
 
   // Customer language — detected from the caller's own words; only fills an empty preference (never throws).
   if (message.type === "end-of-call-report" && transcript) {
