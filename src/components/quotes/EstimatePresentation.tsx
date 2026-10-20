@@ -26,6 +26,11 @@ import {
   upgradeGapCents,
 } from '@/lib/estimates';
 import type { EstimateOption, EstimatePhoto } from '@/lib/estimates';
+import { QuoteAddonsPicker } from '@/components/quotes/QuoteAddonsPicker';
+import { addonsForOption, addonTotals, grandTotalCents, reconcileSelection } from '@/lib/quoteAddons';
+import type { PublicQuoteAddon } from '@/lib/quoteAddons';
+
+const NO_ADDONS: PublicQuoteAddon[] = [];
 
 // ============================================================
 // LIGHTBOX
@@ -335,13 +340,18 @@ export function EstimatePresentation({
   quote,
   submitting,
   readOnly = false,
+  addons = NO_ADDONS,
+  errorMessage = null,
   onRespond,
 }: {
   quote: PublicQuoteInfo;
   submitting?: boolean;
   /** Preview mode inside the dashboard — hides the accept/decline actions. */
   readOnly?: boolean;
-  onRespond?: (response: 'accepted' | 'declined', optionId: string | null) => void;
+    /** Optional add-ons the customer can toggle; the total recalculates live. */
+  addons?: PublicQuoteAddon[];
+  errorMessage?: string | null;
+  onRespond?: (response: 'accepted' | 'declined', optionId: string | null, addonIds?: string[]) => void;
 }) {
   const taxPercent = quote.tax_percent ?? 0;
   const depositPercent = quote.deposit_percent ?? 0;
@@ -356,11 +366,22 @@ export function EstimatePresentation({
     () => quote.recommended_option_id ?? options.find((o) => o.recommended)?.id ?? options[0]?.id ?? null
   );
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
 
   const selected = options.find((o) => o.id === selectedId) ?? null;
   const selectedTotals = selected ? optionTotals(selected, taxPercent) : null;
-  const deposit = selectedTotals ? depositCents(selectedTotals.totalCents, depositPercent) : 0;
-  const monthly = selectedTotals ? monthlyPaymentCents(selectedTotals.totalCents) : 0;
+   const availableAddons = useMemo(() => addonsForOption(addons, selectedId), [addons, selectedId]);
+  const activeAddonIds = useMemo(
+    () => reconcileSelection(selectedAddonIds, availableAddons),
+    [selectedAddonIds, availableAddons]
+  );
+  const addonSummary = addonTotals(availableAddons, activeAddonIds, taxPercent);
+  const grandTotal = selectedTotals ? grandTotalCents(selectedTotals.totalCents, addonSummary) : 0;
+  const toggleAddon = (id: string) =>
+    setSelectedAddonIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  const deposit = selectedTotals ? depositCents(grandTotal, depositPercent) : 0;
+  const monthly = selectedTotals ? monthlyPaymentCents(grandTotal) : 0;
 
   const validUntil = quote.valid_until
     ? new Date(quote.valid_until).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
@@ -413,6 +434,14 @@ export function EstimatePresentation({
         </div>
       </section>
 
+      <QuoteAddonsPicker
+        addons={availableAddons}
+        selectedIds={activeAddonIds}
+        onToggle={toggleAddon}
+        taxPercent={taxPercent}
+        disabled={submitting}
+      />
+
       {(quote.financing_note || quote.financing_partner_name) && selectedTotals && (
         <p className="mt-4 rounded-2xl border border-accent/25 bg-accent/5 px-4 py-3 text-xs leading-relaxed text-text-secondary">
           <span className="font-semibold text-text-primary">
@@ -432,8 +461,9 @@ export function EstimatePresentation({
             <div>
               <p className="text-xs text-text-secondary">
                 {selected?.name} {options.length > 1 && '· change your choice above'}
+                {addonSummary.count > 0 && ` · +${addonSummary.count} add-on${addonSummary.count === 1 ? '' : 's'}`}
               </p>
-              <p className="text-xl font-bold text-text-primary">{formatCents(selectedTotals.totalCents)}</p>
+              <p className="text-xl font-bold text-text-primary">{formatCents(grandTotal)}</p>
               {deposit > 0 && (
                 <p className="text-xs text-text-secondary">{formatCents(deposit)} deposit to book</p>
               )}
@@ -451,13 +481,18 @@ export function EstimatePresentation({
               <button
                 type="button"
                 disabled={submitting || !selected}
-                onClick={() => onRespond?.('accepted', selected?.id ?? null)}
+                onClick={() => onRespond?.('accepted', selected?.id ?? null, activeAddonIds)}
                 className="focus-ring flex-1 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50 sm:flex-none"
               >
                 {submitting ? 'Sending…' : 'Approve this option'}
               </button>
             </div>
           </div>
+          {errorMessage && (
+            <p role="alert" className="mt-3 text-xs text-danger">
+              {errorMessage}
+            </p>
+          )}
         </motion.div>
       )}
 
