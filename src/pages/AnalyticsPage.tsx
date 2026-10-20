@@ -19,6 +19,7 @@ import { WarrantyIntelligence } from '@/components/WarrantyIntelligence';
 import { ServiceRecoveryIntelligence } from '@/components/ServiceRecoveryIntelligence';
 import { CompoundingFlywheelWidget } from '@/components/CompoundingFlywheelWidget';
 import { BusinessImmuneSystem } from '@/components/BusinessImmuneSystem';
+import { CallDispositionBreakdown } from '@/components/call-dispositions/CallDispositionBreakdown';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useDateRange } from '@/hooks/useDateRange';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
@@ -1017,6 +1018,11 @@ export function AnalyticsPage() {
           )}
         </div>
 
+        {/* Call Dispositions */}
+        <div className="mt-6">
+          <CallDispositionBreakdown start={rangeState.start} end={rangeState.end} />
+        </div>
+        
         {/* Lead Source Attribution + Cohort/LTV */}
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <LeadSourceBreakdown calls={allCalls} />
