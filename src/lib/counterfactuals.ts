@@ -46,7 +46,7 @@ export async function fetchCounterfactuals(): Promise<Counterfactual[]> {
 export async function fetchUnanalyzedAssignments(): Promise<PendingAssignment[]> {
   const { data: analyzed } = await supabase.from('business_counterfactuals').select('source_id').eq('decision_type', 'technician_dispatch');
   const analyzedIds = (analyzed ?? []).map((r) => r.source_id);
-  let query = supabase.from('job_technician_assignments').select('id, job_id, technician_id, service_type, assigned_at').order('assigned_at', { ascending: false }).limit(20);
+  let query = supabase.from('job_technician_assignments').select('id, job_id, technician_id, service_type, assigned_at').is('crew_role', null).order('assigned_at', { ascending: false }).limit(20);
   if (analyzedIds.length > 0) query = query.not('id', 'in', `(${analyzedIds.join(',')})`);
   const { data, error } = await query;
   if (error) throw error;
