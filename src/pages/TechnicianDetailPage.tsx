@@ -13,6 +13,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Lock, Mail, Phone, TriangleAlert, UserX } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { EmptyState } from '@/components/EmptyState';
+import { TechnicianPhotoEditor } from '@/components/team/TechnicianPhotoEditor';
 import { AvailabilitySection, CredentialsSection, SkillsSection } from '@/components/team/TechnicianProfileSections';
 import { EarningsSection, HoursSection, JobHistorySection, ScorecardSection } from '@/components/team/TechnicianWorkSections';
 import { useAuth } from '@/contexts/AuthContext';
