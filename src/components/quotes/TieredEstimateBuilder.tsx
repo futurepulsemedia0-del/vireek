@@ -52,6 +52,9 @@ import {
 } from '@/lib/estimates';
 import type { EstimateOption, EstimatePhoto, EstimatePhotoKind, EstimateTemplate, EstimateTier } from '@/lib/estimates';
 import { FieldEstimatePanel } from '@/components/quotes/FieldEstimatePanel';
+import { QuoteAddonsEditor } from '@/components/quotes/QuoteAddonsEditor';
+import { normaliseOptionalItems, validateOptionalItems } from '@/lib/quoteAddons';
+import type { QuoteOptionalItem } from '@/lib/quoteAddons';
 import { buildAiReport, tiersToOptions } from '@/lib/fieldEstimate';
 import type { AiReport, FieldEstimateResult } from '@/lib/fieldEstimate';
 
@@ -62,6 +65,8 @@ import type { AiReport, FieldEstimateResult } from '@/lib/fieldEstimate';
 export interface TieredEstimateDraft {
   ai_report: AiReport | null;
   ai_confidence: number | null;
+  /** Customer-toggleable add-ons. */
+  optional_items: QuoteOptionalItem[];
   /** Folder key for photo uploads. The quote id once saved, a uuid before that. */
   draft_id: string;
   lead_id: string | null;
@@ -114,6 +119,7 @@ export function quoteToTieredDraft(quote: Quote): TieredEstimateDraft {
     presentation_note: quote.presentation_note ?? '',
     options: options.length > 0 ? options : createDefaultOptions(),
     photos: (quote.photos ?? []) as EstimatePhoto[],
+    optional_items: normaliseOptionalItems(quote.optional_items),
     ai_report: (quote.ai_report ?? null) as AiReport | null,
     ai_confidence: quote.ai_confidence ?? null,
   };
@@ -137,6 +143,7 @@ export function draftToQuotePayload(draft: TieredEstimateDraft, userId: string) 
     line_items: (recommended?.line_items ?? []) as QuoteLineItem[],
     options,
     photos: draft.photos,
+    optional_items: normaliseOptionalItems(draft.optional_items),
     recommended_option_id: recommended?.id ?? null,
     presentation_note: draft.presentation_note.trim() || null,
     tax_percent: Number(draft.tax_percent) || 0,
@@ -583,8 +590,11 @@ export function TieredEstimateBuilder({
   }, []);
 
   const errors = useMemo(
-    () => validateEstimateOptions(draft.options, taxPercent),
-    [draft.options, taxPercent]
+    () => [
+      ...validateEstimateOptions(draft.options, taxPercent),
+      ...validateOptionalItems(draft.optional_items, draft.options.map((o) => o.id)),
+    ],
+    [draft.options, draft.optional_items, taxPercent]
   );
 
   const patch = useCallback((p: Partial<TieredEstimateDraft>) => setDraft((d) => ({ ...d, ...p })), []);
@@ -905,6 +915,14 @@ export function TieredEstimateBuilder({
         />
       </div>
 
+      {/* Optional add-ons */}
+      <QuoteAddonsEditor
+        items={draft.optional_items}
+        options={draft.options}
+        taxPercent={taxPercent}
+        onChange={(optional_items) => patch({ optional_items })}
+      />
+    
       {/* Errors */}
       {errors.length > 0 && (
         <ul className="space-y-1 rounded-xl border border-warning-500/30 bg-warning-500/[0.06] px-3 py-2">
