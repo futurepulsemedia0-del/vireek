@@ -43,9 +43,16 @@ export interface JobBrief {
 }
 
 export async function fetchTodayJobs(date?: string): Promise<TechnicianJob[]> {
-  const { data, error } = await supabase.rpc('get_technician_today_jobs', date ? { p_date: date } : {});
-  if (error) throw error;
-  return (data || []) as TechnicianJob[];
+  const args = date ? { p_date: date } : {};
+  const [own, crew] = await Promise.all([
+    supabase.rpc('get_technician_today_jobs', args),
+    supabase.rpc('get_my_crew_jobs', args),
+  ]);
+  if (own.error) throw own.error;
+  const merged = new Map<string, TechnicianJob>();
+  for (const row of (own.data || []) as TechnicianJob[]) merged.set(row.id, row);
+  if (!crew.error) for (const row of (crew.data || []) as TechnicianJob[]) if (!merged.has(row.id)) merged.set(row.id, row);
+  return [...merged.values()].sort((a, b) => (a.scheduled_datetime ?? '9999').localeCompare(b.scheduled_datetime ?? '9999'));
 }
 
 export async function fetchJobBrief(jobId: string): Promise<JobBrief> {
