@@ -805,6 +805,7 @@ export interface TeamMember {
   max_jobs_per_day: number;
   dispatch_enabled: boolean;
   member_phone: string | null;
+  photo_url?: string | null;
   /** What this technician costs the business per hour, in cents — internal only, never shown to customers. */
   hourly_cost_rate_cents: number | null;
   home_address: string | null;
