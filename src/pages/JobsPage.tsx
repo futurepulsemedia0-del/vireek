@@ -1356,31 +1356,25 @@ export function JobsPage() {
       return;
     }
     try {
-      const { data: bp } = await supabase
-        .from('business_profile')
-        .select('google_review_url')
-        .maybeSingle();
-      const reviewUrl = (bp as { google_review_url: string | null } | null)?.google_review_url;
-      if (!reviewUrl) {
-        toast('Add your Google review link on the Business Profile page first.', 'error');
-        navigate('/dashboard/business-profile');
-        return;
-      }
+      const { data: created, error } = await supabase
+        .from('review_requests')
+        .insert({
+          job_id: job.id,
+          customer_name: job.customer_name,
+          customer_phone: job.customer_phone,
+          status: 'sent',
+        })
+        .select('review_token')
+        .single();
+      if (error || !created) throw error ?? new Error('review request not created');
 
+      const reviewLink = `${window.location.origin}/review/${(created as { review_token: string }).review_token}`;
       const businessName = profile?.company_name || 'us';
       const firstName = job.customer_name.split(' ')[0];
-      const message = `Hi ${firstName}, thanks for choosing ${businessName}! Mind leaving us a quick review? ${reviewUrl}`;
+      const message = `Hi ${firstName}, thanks for choosing ${businessName}! How did we do? It takes 30 seconds: ${reviewLink}`;
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       const separator = isIOS ? '&' : '?';
       const smsHref = `sms:${job.customer_phone}${separator}body=${encodeURIComponent(message)}`;
-
-      const { error } = await supabase.from('review_requests').insert({
-        job_id: job.id,
-        customer_name: job.customer_name,
-        customer_phone: job.customer_phone,
-        status: 'sent',
-      });
-      if (error) throw error;
 
       window.open(smsHref, '_self');
       toast('Review request text is ready to send.', 'success');
