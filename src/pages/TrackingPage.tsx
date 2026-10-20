@@ -1,40 +1,38 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { AlertCircle, Clock, MapPin, Wrench } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { fetchJobTracking, minutesRemaining, type JobTracking } from '@/lib/liveTracking';
+import { fetchJobTracking, type JobTracking } from '@/lib/liveTracking';
+import { OnMyWayView } from '@/components/tracking/OnMyWayView';
 
 const POLL_MS = 20000;
-
-const STATUS_COPY: Record<JobTracking['job_status'], string> = {
-  scheduled: "Your technician hasn't left yet — check back closer to your appointment.",
-  en_route: 'Your technician is on the way.',
-  in_progress: 'Your technician has arrived and is working on your service.',
-  completed: 'This service visit is complete.',
-  cancelled: 'This visit was cancelled.',
-  no_show: 'This visit was marked as a no-show.',
-};
 
 export function TrackingPage() {
   const { token } = useParams<{ token: string }>();
   const [tracking, setTracking] = useState<JobTracking | null | undefined>(undefined);
-  const [remaining, setRemaining] = useState<number | null>(null);
 
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
 
-    const load = async () => {
+    // A failed poll must never wipe out data we already showed — keep the last good snapshot.
+    const load = async (force = false) => {
+      if (!force && document.hidden) return;
       const data = await fetchJobTracking(token);
-      if (!cancelled) setTracking(data);
+      if (!cancelled) setTracking((prev) => data ?? prev ?? null);
     };
 
-    load();
-    const poll = setInterval(load, POLL_MS);
+    void load(true);
+    const poll = setInterval(() => void load(), POLL_MS);
+    const onVisible = () => {
+      if (!document.hidden) void load(true);
+    };
+    document.addEventListener('visibilitychange', onVisible);
     return () => {
       cancelled = true;
       clearInterval(poll);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, [token]);
 
