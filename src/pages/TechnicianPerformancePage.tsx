@@ -30,6 +30,7 @@ import {
   type TechnicianMetrics,
   type TechnicianScorecard,
 } from '@/lib/technicianPerformance';
+import { isNegativeTag, tagLabel } from '@/lib/technicianRatings';
 import { EmptyState } from '@/components/EmptyState';
 import { SkeletonStatGrid, SkeletonCardList, FadeIn } from '@/components/Skeleton';
 
@@ -127,11 +128,36 @@ function TechnicianScorecardCard({ metrics }: { metrics: TechnicianMetrics }) {
           color={rateColor(metrics.csatAvg === null ? null : metrics.csatAvg * 20, 80)}
         />
         <StatBlock
+        <StatBlock
+          label="Technician rating"
+          value={metrics.techRatingAvg !== null ? `${metrics.techRatingAvg}/5` : '—'}
+          sub={
+            metrics.techRatingResponses > 0
+              ? `${metrics.techRatingResponses} rating${metrics.techRatingResponses === 1 ? '' : 's'}${metrics.techRatingLowCount > 0 ? ` · ${metrics.techRatingLowCount} low` : ''}`
+              : undefined
+          }
+          color={rateColor(metrics.techRatingAvg === null ? null : metrics.techRatingAvg * 20, 84)}
+        />
           label="Utilization"
           value={metrics.utilizationRate !== null ? `${metrics.utilizationRate}%` : '—'}
           color={metrics.utilizationRate !== null && metrics.utilizationRate > 95 ? 'text-warning-500' : undefined}
         />
       </div>
+
+      {metrics.techRatingTags.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {metrics.techRatingTags.map((t) => (
+            <span
+              key={t.tag}
+              className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                isNegativeTag(t.tag) ? 'bg-danger/10 text-danger' : 'bg-success-500/10 text-success-500'
+              }`}
+            >
+              {tagLabel(t.tag)} · {t.count}
+            </span>
+          ))}
+        </div>
+      )}
 
       {(metrics.trainingGaps.length > 0 || metrics.aiCoachingNotes.length > 0) && (
         <div className="mt-4">
@@ -211,7 +237,7 @@ export function TechnicianPerformancePage() {
       const [techRes, jobsRes, reviewsRes] = await Promise.all([
         supabase.from('team_members').select('*').eq('role', 'technician').eq('invite_status', 'active'),
         supabase.from('jobs').select('*').not('assigned_technician_id', 'is', null),
-        supabase.from('review_requests').select('*').not('rating', 'is', null),
+        supabase.from('review_requests').select('*').or('rating.not.is.null,technician_rating.not.is.null'),
       ]);
       if (techRes.error) throw techRes.error;
       setTechnicians((techRes.data as TeamMember[]) ?? []);
@@ -291,6 +317,8 @@ export function TechnicianPerformancePage() {
         { header: 'Revenue', accessor: (t) => (t.revenueCents / 100).toFixed(2) },
         { header: 'CSAT', accessor: (t) => t.csatAvg },
         { header: 'CSAT Responses', accessor: (t) => t.csatResponses },
+        { header: 'Technician Rating', accessor: (t) => t.techRatingAvg },
+        { header: 'Technician Rating Responses', accessor: (t) => t.techRatingResponses },
         { header: 'Utilization %', accessor: (t) => t.utilizationRate },
         { header: 'Training Gaps', accessor: (t) => t.trainingGaps.map((g) => g.serviceType).join('; ') },
       ],
