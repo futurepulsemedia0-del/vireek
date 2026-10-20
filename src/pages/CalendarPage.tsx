@@ -25,6 +25,9 @@ import { LiveIndicator } from '@/components/LiveIndicator';
 import { ScheduleDndProvider } from '@/components/schedule/ScheduleDnd';
 import { WeekGrid, DayLanes, UnscheduledStrip, CalendarJobCard } from '@/components/schedule/CalendarBoard';
 import { useScheduleBoard } from '@/hooks/useScheduleBoard';
+import { CalendarExtendedViews, CalendarToolbarExtras, CalendarViewSwitcher } from '@/components/schedule/CalendarViews';
+import { useCalendarPrefs, useCalendarShortcuts } from '@/hooks/useCalendarView';
+import { describeFilters, filterJobs, isExtendedView, periodLabel, shiftAnchor, statusColor } from '@/lib/calendarViews';
 import { toDateKey, type MoveTargetOption } from '@/lib/scheduleDnd';
 
 // ============================================================
@@ -36,7 +39,6 @@ import { toDateKey, type MoveTargetOption } from '@/lib/scheduleDnd';
 // that writes to the same `jobs` table so both stay in sync in realtime.
 // ============================================================
 
-type ViewMode = 'week' | 'day';
 type JobStatus = Job['job_status'];
 
 const STATUS_DOT: Record<JobStatus, string> = {
@@ -631,7 +633,8 @@ export function CalendarPage() {
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [technicians, setTechnicians] = useState<TeamMember[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>('week');
+  const { view: viewMode, setView: setViewMode, colorMode, setColorMode, agendaGroupBy, setAgendaGroupBy } = useCalendarPrefs();
+  const [statusFilter, setStatusFilter] = useState<Set<string>>(() => new Set());
   const [anchorDate, setAnchorDate] = useState(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -731,11 +734,10 @@ export function CalendarPage() {
 
   const activeJobs = useMemo(() => allJobs.filter((j) => j.job_status !== 'cancelled'), [allJobs]);
 
-  const visibleJobs = useMemo(() => {
-    if (techFilter === 'unassigned') return activeJobs.filter((j) => !j.assigned_technician_id);
-    if (techFilter !== 'all') return activeJobs.filter((j) => j.assigned_technician_id === techFilter);
-    return activeJobs;
-  }, [activeJobs, techFilter]);
+ const visibleJobs = useMemo(
+  () => filterJobs(activeJobs, { technician: techFilter, statuses: statusFilter }),
+  [activeJobs, techFilter, statusFilter],
+);
 
   const scheduledJobs = useMemo(() => visibleJobs.filter((j) => j.scheduled_datetime), [visibleJobs]);
   const unscheduledJobs = useMemo(
@@ -894,18 +896,31 @@ const updateJob = useCallback(
   // Navigation
   // ------------------------------------------------------------
 
-  const goPrev = () => setAnchorDate((d) => addDays(d, viewMode === 'week' ? -7 : -1));
-  const goNext = () => setAnchorDate((d) => addDays(d, viewMode === 'week' ? 7 : 1));
-  const goToday = () => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
+const goPrev = useCallback(() => setAnchorDate((d) => shiftAnchor(viewMode, d, -1)), [viewMode]);
+const goNext = useCallback(() => setAnchorDate((d) => shiftAnchor(viewMode, d, 1)), [viewMode]);
+const goToday = useCallback(() => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  setAnchorDate(d);
+}, []);
+const openDay = useCallback(
+  (d: Date) => {
     setAnchorDate(d);
-  };
+    setViewMode('day');
+  },
+  [setViewMode],
+);
+const rangeLabel = periodLabel(viewMode, anchorDate);
+const filterSummary = describeFilters(
+  techFilter === 'all'
+    ? null
+    : techFilter === 'unassigned'
+      ? 'Unassigned'
+      : technicians.find((t) => t.id === techFilter)?.member_name ?? 'Technician',
+  [...statusFilter].map((s) => statusColor(s).label),
+);
 
-  const rangeLabel =
-    viewMode === 'week'
-      ? formatWeekRangeLabel(weekStart)
-      : anchorDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+useCalendarShortcuts({ enabled: !selectedJob, onView: setViewMode, onPrev: goPrev, onNext: goNext, onToday: goToday });
 
   return (
     <DashboardLayout activeLabel="Calendar">
@@ -986,26 +1001,16 @@ const updateJob = useCallback(
               </option>
             ))}
           </select>
-          <div className="flex rounded-xl border border-border bg-bg-primary p-1">
-            <button
-              type="button"
-              onClick={() => setViewMode('week')}
-              className={`focus-ring flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                viewMode === 'week' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              <LayoutGrid size={15} /> Week
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('day')}
-              className={`focus-ring flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                viewMode === 'day' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              <Calendar size={15} /> Day
-            </button>
-          </div>
+<CalendarToolbarExtras
+  view={viewMode}
+  colorMode={colorMode}
+  onColorMode={setColorMode}
+  statusFilter={statusFilter}
+  onStatusFilter={setStatusFilter}
+  agendaGroupBy={agendaGroupBy}
+  onAgendaGroupBy={setAgendaGroupBy}
+/>
+<CalendarViewSwitcher view={viewMode} onChange={setViewMode} />
         </div>
       </div>
 
@@ -1019,7 +1024,24 @@ const updateJob = useCallback(
             </div>
           ))}
         </div>
-      ) : viewMode === 'week' ? (
+) : isExtendedView(viewMode) ? (
+  <CalendarExtendedViews
+    view={viewMode}
+    anchorDate={anchorDate}
+    onAnchorChange={setAnchorDate}
+    onOpenDay={openDay}
+    jobs={scheduledJobs}
+    technicians={technicians}
+    lanes={lanes}
+    colorMode={colorMode}
+    agendaGroupBy={agendaGroupBy}
+    filterSummary={filterSummary}
+    isDraggable={board.isDraggable}
+    pendingIds={board.moves.pendingIds}
+    moveTargetsFor={moveTargetsFor}
+    onCardClick={setSelectedJob}
+  />
+) : viewMode === 'week' ? (
         <WeekGrid
           weekDays={weekDays}
           jobsByDay={jobsByDay}
