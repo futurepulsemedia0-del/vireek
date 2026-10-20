@@ -262,6 +262,8 @@ const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ 
 const PriceListsPage = lazy(() => import('@/pages/PriceListsPage').then((m) => ({ default: m.PriceListsPage })));
 const FormBuilderPage = lazy(() => import('@/pages/FormBuilderPage').then((m) => ({ default: m.FormBuilderPage })));
 const JobTemplatesPage = lazy(() => import('@/pages/JobTemplatesPage').then((m) => ({ default: m.JobTemplatesPage })));
+const SopLibraryPage = lazy(() => import('@/pages/SopLibraryPage').then((m) => ({ default: m.SopLibraryPage })));
+const SopTrainingPage = lazy(() => import('@/pages/SopTrainingPage').then((m) => ({ default: m.SopTrainingPage })));
 const ServiceCatalogPage = lazy(() => import('@/pages/ServiceCatalogPage').then((m) => ({ default: m.ServiceCatalogPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
 const FranchiseCommandCenterPage = lazy(() => import('@/pages/FranchiseCommandCenterPage').then((m) => ({ default: m.FranchiseCommandCenterPage })));
@@ -2754,6 +2756,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <JobTemplatesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/sop-library"
+          element={
+            <ProtectedRoute>
+              <SopLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/training"
+          element={
+            <ProtectedRoute>
+              <SopTrainingPage />
             </ProtectedRoute>
           }
         />
