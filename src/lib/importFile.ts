@@ -105,7 +105,7 @@ export function cellToString(value: unknown): string {
   return String(value).trim();
 }
 
-export function matrixToTable(matrix: string[][]): { headers: string[]; rows: string[][] } {
+export function matrixToTable(matrix: string[][], maxRows: number = MAX_IMPORT_ROWS): { headers: string[]; rows: string[][] } {
   const nonEmpty = matrix.filter((r) => r.some((c) => c.trim() !== ''));
   if (nonEmpty.length === 0) throw new ImportFileError('This file is empty.');
 
@@ -118,8 +118,8 @@ export function matrixToTable(matrix: string[][]): { headers: string[]; rows: st
   const headers = uniqueHeaders(headerRow.slice(0, width));
   const rows = nonEmpty.slice(1).map((r) => Array.from({ length: width }, (_, i) => (r[i] ?? '').trim()));
   if (rows.length === 0) throw new ImportFileError('This file has a header row but no data rows.');
-  if (rows.length > MAX_IMPORT_ROWS) {
-    throw new ImportFileError(`This file has ${rows.length.toLocaleString()} rows. The limit is ${MAX_IMPORT_ROWS.toLocaleString()} per import — split it into smaller files (they can all be imported, one after another).`);
+  if (rows.length > maxRows) {
+    throw new ImportFileError(`This file has ${rows.length.toLocaleString()} rows. The limit is ${maxRows.toLocaleString()} per import — split it into smaller files (they can all be imported, one after another).`);
   }
   return { headers, rows };
 }
@@ -149,7 +149,7 @@ function readBuffer(file: File): Promise<ArrayBuffer> {
   });
 }
 
-export async function readImportFile(file: File, options: { sheet?: string } = {}): Promise<ParsedTable> {
+export async function readImportFile(file: File, options: { sheet?: string; maxRows?: number } = {}): Promise<ParsedTable> {
   const kind = fileKind(file.name);
   if (kind === 'xls') throw new ImportFileError('Old .xls files aren’t supported. In Excel choose File → Save As → “Excel Workbook (.xlsx)” or “CSV”, then upload that.');
   if (!kind) throw new ImportFileError('Upload a .csv, .tsv or .xlsx file.');
@@ -160,7 +160,7 @@ export async function readImportFile(file: File, options: { sheet?: string } = {
 
   if (kind === 'csv') {
     const text = decodeText(buffer);
-    const { headers, rows } = matrixToTable(parseDelimited(text, detectDelimiter(text)));
+    const { headers, rows } = matrixToTable(parseDelimited(text, detectDelimiter(text)), options.maxRows);
     return { fileName: file.name, fileType: 'csv', headers, rows, sheetNames: [], sheet: null };
   }
 
@@ -170,7 +170,7 @@ export async function readImportFile(file: File, options: { sheet?: string } = {
     if (sheetNames.length === 0) throw new ImportFileError('This workbook has no sheets.');
     const sheet = options.sheet && sheetNames.includes(options.sheet) ? options.sheet : sheetNames[0];
     const raw = (await readXlsxFile(buffer, { sheet })) as unknown as unknown[][];
-    const { headers, rows } = matrixToTable(raw.map((r) => r.map(cellToString)));
+    const { headers, rows } = matrixToTable(raw.map((r) => r.map(cellToString)), options.maxRows);
     return { fileName: file.name, fileType: 'xlsx', headers, rows, sheetNames, sheet };
   } catch (e) {
     if (e instanceof ImportFileError) throw e;
