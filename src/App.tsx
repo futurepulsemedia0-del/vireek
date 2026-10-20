@@ -294,6 +294,7 @@ const KnowledgeCapturePage = lazy(() => import('@/pages/KnowledgeCapturePage').t
 const FailureAtlasPage = lazy(() => import('@/pages/FailureAtlasPage').then((m) => ({ default: m.FailureAtlasPage })));
 const FeedbackAnalyticsPage = lazy(() => import('@/pages/FeedbackAnalyticsPage').then((m) => ({ default: m.FeedbackAnalyticsPage })));
 const ImportsPage = lazy(() => import('@/pages/ImportsPage').then((m) => ({ default: m.ImportsPage })));
+const HoursAuditPage = lazy(() => import('@/pages/HoursAuditPage').then((m) => ({ default: m.HoursAuditPage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
 const BusinessEvolutionRoadmapPage = lazy(() => import('@/pages/BusinessEvolutionRoadmapPage').then((m) => ({ default: m.BusinessEvolutionRoadmapPage })));
@@ -1712,6 +1713,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ImportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/hours-audit"
+          element={
+            <ProtectedRoute>
+              <HoursAuditPage />
             </ProtectedRoute>
           }
         />
