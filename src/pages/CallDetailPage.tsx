@@ -30,6 +30,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { supabase, type Call } from '@/lib/supabase';
+import { CallDispositionPanel } from '@/components/call-dispositions/CallDispositionPanel';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import {
   activeTurnIndex,
@@ -686,6 +687,10 @@ export function CallDetailPage() {
             </dl>
           </Panel>
 
+          {accountOwnerId && (
+            <CallDispositionPanel call={call} accountOwnerId={accountOwnerId} canEdit={canView} />
+          )}
+          
           <Panel title="Linked records" icon={Link2}>
             <div className="space-y-4">
               <div>
