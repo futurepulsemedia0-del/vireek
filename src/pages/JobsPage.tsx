@@ -39,6 +39,7 @@ import { softDeleteRecords } from '@/lib/trash';
 import { PriceBookItem } from '@/lib/priceBook';
 import { JobTemplatePicker } from '@/components/jobs/JobTemplatePicker';
 import { JobTemplatePanel } from '@/components/jobs/JobTemplatePanel';
+import { JobSopPanel } from '@/components/jobs/JobSopPanel';
 import { JobTemplateSummary, applyJobTemplate, describeTemplateError } from '@/lib/jobTemplates';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
@@ -594,6 +595,7 @@ function JobDetailPanel({
         <JobRiskPanel job={job} />
         <JobKnowledgePanel job={job} />
         <JobTemplatePanel job={job} />
+        <JobSopPanel job={job} />
         <JobQualityGatePanel job={job} />
         <JobContextPanel job={job} />
          <CustomFieldsPanel entity="job" recordId={job.id} value={job.custom_data as CustomData | undefined} />
