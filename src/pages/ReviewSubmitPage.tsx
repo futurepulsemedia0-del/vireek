@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { AlertCircle, CheckCircle2, ExternalLink, Star } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -11,7 +11,11 @@ import { emptyTechnicianRating, type TechnicianRatingValue } from '@/lib/technic
 export function ReviewSubmitPage() {
   const { token } = useParams<{ token: string }>();
   const [req, setReq] = useState<ReviewRequestPublic | null | undefined>(undefined);
-  const [rating, setRating] = useState(0);
+  const [searchParams] = useSearchParams();
+  const [rating, setRating] = useState(() => {
+    const n = Number(searchParams.get('rating'));
+    return Number.isInteger(n) && n >= 1 && n <= 5 ? n : 0;
+  });
   const [hoverRating, setHoverRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [submitting, setSubmitting] = useState(false);
