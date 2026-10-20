@@ -510,6 +510,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Disputes', href: '/dashboard/disputes', icon: ShieldAlert, requiresPermission: 'can_view_billing' },
   { label: 'Financing Center', href: '/dashboard/financing', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: TrendingUp, requiresPermission: 'can_view_billing' },
+  { label: 'Hours Audit', href: '/dashboard/hours-audit', icon: Timer, requiresPermission: 'can_view_billing' },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
   { label: 'Data Imports', href: '/dashboard/imports', icon: FileUp, requiresPermission: 'can_edit_business_profile' },
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
