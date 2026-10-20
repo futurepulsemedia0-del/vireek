@@ -21,6 +21,7 @@ import {
   setDocumentExpiry,
   uploadDocumentVersion,
 } from '@/lib/documentsApi';
+import { HomeownerShareToggle } from '@/components/documents/HomeownerShareToggle';
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60';
@@ -217,6 +218,7 @@ export function DocumentDetailPanel({
 
             <div className="flex-1 space-y-6 overflow-y-auto p-5">
               <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
+              <HomeownerShareToggle documentId={doc.id} canManage={canManage} />
                 <div>
                   <dt className="text-text-secondary">Reference</dt>
                   <dd className="mt-0.5 break-words font-medium text-text-primary">
