@@ -143,6 +143,7 @@ const InvoicePage = lazy(() => import('@/pages/InvoicePage').then((m) => ({ defa
 const DashboardSnapshotsPage = lazy(() => import('@/pages/DashboardSnapshotsPage').then((m) => ({ default: m.DashboardSnapshotsPage })));
 const SharedDashboardPage = lazy(() => import('@/pages/SharedDashboardPage').then((m) => ({ default: m.SharedDashboardPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
+  const DispatchRulesPage = lazy(() => import('@/pages/DispatchRulesPage').then((m) => ({ default: m.DispatchRulesPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InventoryCountsPage = lazy(() => import('@/pages/InventoryCountsPage').then((m) => ({ default: m.InventoryCountsPage })));
 const VendorManagementPage = lazy(() => import('@/pages/VendorManagementPage').then((m) => ({ default: m.VendorManagementPage })));
@@ -2264,6 +2265,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+  <Route
+    path="/dashboard/assignment-rules"
+    element={
+      <ProtectedRoute>
+        <DispatchRulesPage />
+      </ProtectedRoute>
+    }
+  />
         <Route
           path="/dashboard/routing"
           element={
