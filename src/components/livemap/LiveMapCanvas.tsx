@@ -35,6 +35,7 @@ interface LiveMapCanvasProps {
   fitSignal: number;
   onSelectVehicle: (id: string | null) => void;
   onError: (message: string) => void;
+  onMapReady?: (map: maplibregl.Map | null) => void;
 }
 
 const EMPTY = { type: 'FeatureCollection', features: [] } as const;
@@ -53,7 +54,7 @@ function jobElement(): HTMLDivElement {
   return el;
 }
 
-export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedId, fitSignal, onSelectVehicle, onError }: LiveMapCanvasProps) {
+export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedId, fitSignal, onSelectVehicle, onError, onMapReady }: LiveMapCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const readyRef = useRef(false);
@@ -63,6 +64,8 @@ export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedI
   selectRef.current = onSelectVehicle;
   const errorRef = useRef(onError);
   errorRef.current = onError;
+  const readyCbRef = useRef(onMapReady);
+  readyCbRef.current = onMapReady;
   const latest = useRef({ views, jobs });
   latest.current = { views, jobs };
   const fittedOnce = useRef(false);
@@ -108,6 +111,7 @@ export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedI
       readyRef.current = true;
       // Trigger the data effects below, which only run once ready.
       map.fire('vireek-ready');
+      readyCbRef.current?.(map);
     });
 
     map.on('click', () => selectRef.current(null));
@@ -128,6 +132,7 @@ export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedI
       jMarkers.forEach((m) => m.marker.remove());
       vMarkers.clear();
       jMarkers.clear();
+      readyCbRef.current?.(null);
       readyRef.current = false;
       map.remove();
       mapRef.current = null;
