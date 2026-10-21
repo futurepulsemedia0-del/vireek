@@ -30,6 +30,9 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
+import { runRenewalPipeline } from "../_shared/membershipRenewal/pipeline.ts";
+import { makeStripeCharger } from "../_shared/membershipRenewal/stripeCharger.ts";
+import { cardUsable, winBackEventData } from "../_shared/membershipRenewal/logic.ts";
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, X-Cron-Secret" };
 function json(data: unknown, status = 200) {
@@ -78,6 +81,14 @@ Deno.serve(async (req: Request) => {
   const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
   const now = new Date();
   const counts = { invoiced: 0, renewed: 0, past_due: 0, churned: 0, visit_nudged: 0, churn_risk: 0 };
+  // Renewal workflow: 60/30/7 pipeline, renewal quote, card-on-file charge, non-renewing close-out.
+  // Runs first so a card charged today is already rolled forward when step 1 below looks at it.
+  const renewal = await runRenewalPipeline(admin, {
+    now, siteUrl, sendSms, sendEmail,
+    enroll: (a) => enroll(admin, a),
+    charge: secretKey ? makeStripeCharger(secretKey) : undefined,
+    log: (event, data) => console.error(JSON.stringify({ event, ...data })),
+  });
 
   // -----------------------------------------------------------------
   // 1. ROLL PERIOD FORWARD — renewal invoice already paid
@@ -118,7 +129,7 @@ Deno.serve(async (req: Request) => {
     const cutoff = new Date(now.getTime() + RENEWAL_LEAD_DAYS * 86400_000).toISOString();
     const { data: due } = await admin
       .from("memberships")
-      .select("id, user_id, plan_id, customer_name, customer_phone, customer_email, current_period_end, last_payment_request_id, membership_plans:plan_id(name, price_cents)")
+      .select("id, user_id, plan_id, customer_name, customer_phone, customer_email, current_period_end, last_payment_request_id, auto_renew, stripe_customer_id, stripe_payment_method_id, card_exp_month, card_exp_year, auto_renew_consent_at, membership_plans:plan_id(name, price_cents)")
       .eq("status", "active").eq("auto_renew", true)
       .lte("current_period_end", cutoff);
 
@@ -130,6 +141,7 @@ Deno.serve(async (req: Request) => {
       const plan = (m as any).membership_plans as { name: string; price_cents: number } | null;
       if (!plan || plan.price_cents <= 0) continue;
       if (!m.customer_email && !m.customer_phone) continue;
+      if (cardUsable(m as any, new Date(m.current_period_end))) continue; // card-on-file renewals are charged by runRenewalPipeline
 
       const { data: connect } = await admin.from("stripe_connect_accounts").select("stripe_account_id, charges_enabled").eq("user_id", m.user_id).maybeSingle();
       if (!connect?.stripe_account_id || !connect.charges_enabled || !secretKey) continue;
@@ -182,14 +194,14 @@ Deno.serve(async (req: Request) => {
     for (const m of pastDue ?? []) {
       await admin.from("memberships").update({ status: "churned", churned_at: now.toISOString() }).eq("id", m.id);
 
-      const { data: plan } = await admin.from("membership_plans").select("price_cents").eq("id", m.plan_id).maybeSingle();
+      const { data: plan } = await admin.from("membership_plans").select("name, price_cents, public_slug").eq("id", m.plan_id).maybeSingle();
       await admin.from("revenue_recovery_events").upsert({
         user_id: m.user_id, source_type: "membership_churned", source_table: "memberships", source_id: m.id,
         lead_id: m.lead_id, customer_name: m.customer_name, customer_phone: m.customer_phone,
         estimated_value_cents: plan?.price_cents ?? 0, estimated_value_basis: plan?.price_cents ? "membership_plan" : "none",
       }, { onConflict: "source_table,source_id", ignoreDuplicates: true });
 
-      await enroll(admin, { aggregateId: m.id, eventType: "membership.churned", userId: m.user_id, customerName: m.customer_name, customerPhone: m.customer_phone, customerEmail: null });
+      await enroll(admin, { aggregateId: m.id, eventType: "membership.churned", userId: m.user_id, customerName: m.customer_name, customerPhone: m.customer_phone, customerEmail: null, extra: { reason: "payment_lapsed", ...winBackEventData(plan, siteUrl) } });
       counts.churned++;
     }
   }
@@ -223,5 +235,5 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  return json({ ok: true, ...counts });
+  return json({ ok: true, ...counts, renewal });
 });
