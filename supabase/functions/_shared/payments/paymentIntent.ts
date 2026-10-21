@@ -21,6 +21,8 @@ export interface IntentMetadataInput {
   membershipId?: string | null;
   /** True only for a first-time public signup (membership still "offered"). */
   membershipSignup?: boolean;
+  /** Membership payments only: the customer ticked "renew automatically", so the card is saved for off-session renewals. */
+  saveCard?: boolean;
 }
 
 /** Same keys the Checkout flow wrote (flow "tip_v1"), so the webhook and finalize RPC treat both identically. */
@@ -37,6 +39,7 @@ export function buildIntentMetadata(input: IntentMetadataInput): Record<string, 
   if (input.membershipId) {
     meta.membership_id = input.membershipId;
     if (input.membershipSignup) meta.membership_signup = "true";
+    if (input.saveCard) meta.save_card = "true";
   }
   return meta;
 }
@@ -48,6 +51,9 @@ export interface IntentParamsInput {
   description: string;
   receiptEmail?: string | null;
   metadata: Record<string, string>;
+  /** Stripe Customer to attach the card to; only used together with saveCard. */
+  customerId?: string | null;
+  saveCard?: boolean;
 }
 
 /**
@@ -70,6 +76,7 @@ export function buildPaymentIntentParams(input: IntentParamsInput): Record<strin
     description: input.description.slice(0, 500),
     receipt_email: input.receiptEmail || undefined,
     metadata: input.metadata,
+    ...(input.saveCard && input.customerId ? { customer: input.customerId, setup_future_usage: "off_session" } : {}),
   };
 }
 
