@@ -1,3 +1,6 @@
+-- STEP B. Run second, alone. Unchanged project migration 20261110000000_truck_stock_replenishment.sql (+ lock_timeout line).
+SET lock_timeout = '5s';
+
 /*
   # Truck Stock + Parts Availability + Auto-Replenishment
 
