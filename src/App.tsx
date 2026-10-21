@@ -192,6 +192,8 @@ const HomePassportNetworkPage = lazy(() => import('@/pages/HomePassportNetworkPa
 const PermitIntelligencePage = lazy(() => import('@/pages/PermitIntelligencePage').then((m) => ({ default: m.PermitIntelligencePage })));
 const ReviewsPage = lazy(() => import('@/pages/ReviewsPage').then((m) => ({ default: m.ReviewsPage })));
 const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) => ({ default: m.MembershipsPage })));
+const MembershipRenewalsPage = lazy(() => import('@/pages/MembershipRenewalsPage').then((m) => ({ default: m.MembershipRenewalsPage })));
+const RenewMembershipPage = lazy(() => import('@/pages/RenewMembershipPage').then((m) => ({ default: m.RenewMembershipPage })));
 const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
@@ -2096,6 +2098,7 @@ function AppRoutes() {
           }
         />
         <Route path="/quote/:token" element={<QuoteAcceptPage />} />
+        <Route path="/renew/:token" element={<RenewMembershipPage />} />
         <Route path="/sign/:token" element={<SignDocumentPage />} />
         <Route path="/inspection/:token" element={<InspectionReportPublicPage />} />
         <Route path="/findings/:token" element={<FindingsPackagePublicPage />} />
@@ -2580,6 +2583,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <MembershipsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/memberships/renewals"
+          element={
+            <ProtectedRoute>
+              <MembershipRenewalsPage />
             </ProtectedRoute>
           }
         />
