@@ -276,7 +276,8 @@ Deno.serve(async (req: Request) => {
       .select("id, name, geofence_type, latitude, longitude, radius_meters")
       .eq("user_id", ownerId)
       .eq("active", true)
-      .in("geofence_type", ["depot", "restricted"]);
+            .in("geofence_type", ["depot", "restricted"])
+      .eq("shape", "circle");
     const fences = (fenceRows ?? []) as { id: string; name: string; geofence_type: string; latitude: number; longitude: number; radius_meters: number }[];
 
     for (const [vehicleId, list] of pingsByVehicle) {
