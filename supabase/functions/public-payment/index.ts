@@ -46,11 +46,17 @@ Deno.serve(async (req: Request) => {
     // Membership signup/renewal invoices are paid on this same page: find the membership (if any) to label and flag it.
     const { data: membership } = await admin
       .from("memberships")
-      .select("id, status, membership_plans:plan_id(name)")
+      .select("id, status, auto_renew, stripe_customer_id, membership_plans:plan_id(name, billing_interval)")
       .eq("last_payment_request_id", request.id)
       .limit(1)
       .maybeSingle();
     const membershipPlanName = (membership?.membership_plans as { name?: string } | null)?.name ?? null;
+    const membershipInterval = (membership?.membership_plans as { billing_interval?: string } | null)?.billing_interval ?? null;
+    // Offer "renew automatically" only on a membership payment whose plan actually renews.
+    const autoRenewOffer =
+      membership && membership.auto_renew !== false && (membershipInterval === "monthly" || membershipInterval === "yearly")
+        ? { interval: membershipInterval }
+        : null;
 
     const baseCents = Math.round(Number(request.amount) * 100);
     const tipEnabled = !!connect?.tip_enabled && !!request.technician_id;
@@ -66,6 +72,7 @@ Deno.serve(async (req: Request) => {
         tip_enabled: tipEnabled,
         presets: TIP_PRESET_PERCENTS,
         publishable_key: Deno.env.get("STRIPE_PUBLISHABLE_KEY") ?? null,
+        auto_renew_offer: autoRenewOffer,
       });
     }
 
@@ -83,6 +90,18 @@ Deno.serve(async (req: Request) => {
     const tip = computeTip(baseCents, selection);
     if (!tip.ok) return json({ error: tip.error }, 400);
     if (body.action === "intent") {
+      // Card-on-file consent: only honoured on a membership payment, and only when the customer explicitly opted in.
+      const saveCard = body.save_card === true && !!autoRenewOffer;
+      let stripeCustomerId: string | null = membership?.stripe_customer_id ?? null;
+      if (saveCard && !stripeCustomerId) {
+        const customer = await stripeRequest(
+          "customers",
+          { email: request.customer_email ?? undefined, name: request.customer_name, metadata: { membership_id: membership!.id, user_id: request.user_id } },
+          secretKey,
+        );
+        stripeCustomerId = customer.id;
+        await admin.from("memberships").update({ stripe_customer_id: customer.id }).eq("id", membership!.id);
+      }
       const intentDescription = membershipPlanName
         ? `${membershipPlanName} membership`
         : job?.service_type ?? `Invoice for ${request.customer_name}`;
@@ -102,6 +121,8 @@ Deno.serve(async (req: Request) => {
         destinationAccountId: connect.stripe_account_id,
         description: intentDescription,
         receiptEmail: request.customer_email,
+        customerId: stripeCustomerId,
+        saveCard,
         metadata,
       });
 
@@ -112,7 +133,8 @@ Deno.serve(async (req: Request) => {
           const existing = await stripeGet(`payment_intents/${request.stripe_payment_intent_id}`, secretKey);
           if (existing.status === "succeeded") return json({ error: "This invoice has already been paid." }, 409);
           if (existing.status === "processing") return json({ error: "Your payment is still being processed. Please don't pay again." }, 409);
-          if (isReusableIntentStatus(existing.status)) {
+          // A different "save this card" choice needs a fresh intent: setup_future_usage can't be changed safely.
+          if (isReusableIntentStatus(existing.status) && (existing.setup_future_usage === "off_session") === saveCard) {
             intent = await stripeRequest(
               `payment_intents/${existing.id}`,
               { amount: params.amount, description: params.description, receipt_email: params.receipt_email, metadata },
