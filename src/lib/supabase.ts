@@ -321,6 +321,12 @@ export interface Job {
   rescheduled_by_customer_at: string | null;
   eta_minutes: number | null;
   eta_set_at: string | null;
+  arrival_window_start: string | null;
+  arrival_window_end: string | null;
+  arrival_window_original_start: string | null;
+  arrival_window_original_end: string | null;
+  arrival_window_narrowed_at: string | null;
+  arrival_confirmed_at: string | null;
   technician_lat: number | null;
   technician_lng: number | null;
   location_updated_at: string | null;
