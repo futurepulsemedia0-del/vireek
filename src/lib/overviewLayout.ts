@@ -34,6 +34,7 @@ export const WIDGET_IDS = [
   'ai_insights',
   'quick_actions',
   'recent_activity',
+  'kpi_renewal_rate',
   'data_health',
 ] as const;
 
@@ -80,6 +81,7 @@ export const WIDGETS: Record<OverviewWidgetId, WidgetDef> = {
   ai_insights: { id: 'ai_insights', title: 'AI insights', minW: 4 },
   quick_actions: { id: 'quick_actions', title: 'Quick actions', minW: 4 },
   recent_activity: { id: 'recent_activity', title: 'Recent activity', minW: 4 },
+  kpi_renewal_rate: { id: 'kpi_renewal_rate', title: 'Agreement renewal rate', minW: 3, permission: 'can_view_billing' },
   data_health: { id: 'data_health', title: 'Data health', minW: 4, permission: 'can_view_billing' },
 };
 
@@ -103,7 +105,7 @@ const PRESET_ENTRIES: Record<OverviewPresetId, readonly PresetEntry[]> = {
     ['metric_minutes', 3], ['metric_sentiment', 3], ['metric_conversion', 3], ['metric_missed', 3],
     ['call_volume', 6], ['needs_attention', 6],
     ['data_health', 12],
-    ['attribution', 12], ['ai_insights', 12], ['quick_actions', 12], ['recent_activity', 12],
+    ['attribution', 6], ['kpi_renewal_rate', 6], ['ai_insights', 12], ['quick_actions', 12], ['recent_activity', 12],
   ],
   dispatcher: [
     ['kpi_emergency', 3], ['kpi_jobs', 3], ['kpi_calls', 3], ['metric_missed', 3],
