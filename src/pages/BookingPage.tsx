@@ -6,6 +6,9 @@ import { Header } from '@/components/Header';
 import { validateBookingPromo, promoReasonMessage, type BookingPromoResult } from '@/lib/promoCodes';
 import { Footer } from '@/components/Footer';
 import { fetchBookingBusiness, fetchBookedWindow, submitPublicBooking, generateAvailableSlots, BookingBusinessInfo } from '@/lib/onlineBooking';
+import { ArrivalWindowPicker } from '@/components/booking/ArrivalWindowPicker';
+import { loadArrivalWindowOffers, submitBookingWithArrivalWindow, type ArrivalWindowOffers } from '@/lib/arrivalWindowsApi';
+import { formatWindowDay, formatWindowRange, type OfferedWindow } from '@/lib/arrivalWindows';
 
 function formatSlot(date: Date): string {
   return date.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
@@ -20,6 +23,8 @@ export function BookingPage() {
   const [business, setBusiness] = useState<BookingBusinessInfo | null | undefined>(undefined);
   const [slots, setSlots] = useState<Date[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
+  const [windowOffers, setWindowOffers] = useState<ArrivalWindowOffers | null>(null);
+  const [selectedWindow, setSelectedWindow] = useState<OfferedWindow | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -42,12 +47,16 @@ export function BookingPage() {
         const later = new Date(now.getTime() + info.window_days * 24 * 60 * 60 * 1000);
         const booked = await fetchBookedWindow(slug, now, later);
         setSlots(generateAvailableSlots(info, booked, now));
+        loadArrivalWindowOffers(slug, info).then(setWindowOffers).catch(() => setWindowOffers(null));
         setService(info.services_offered?.[0] ?? '');
       }
     })();
   }, [slug]);
 
-  const canSubmit = useMemo(() => Boolean(selectedSlot && name.trim().length > 1), [selectedSlot, name]);
+const canSubmit = useMemo(
+  () => Boolean((windowOffers ? selectedWindow : selectedSlot) && name.trim().length > 1),
+  [windowOffers, selectedWindow, selectedSlot, name]
+);
   const checkPromo = async () => {
     if (!slug || !promoInput.trim()) return;
     setPromoChecking(true);
@@ -55,6 +64,14 @@ export function BookingPage() {
     setPromoChecking(false);
   };
 
+const result = windowOffers && selectedWindow
+  ? await submitBookingWithArrivalWindow({
+      slug, customerName: name, customerPhone: phone, customerEmail: email, serviceType: service,
+      notes, channel, refCode, intakeAnswers: /* همان مقداری که الان به تابع قبلی می‌دهی، یا {} */ {},
+      window: selectedWindow,
+    })
+  : /* همان فراخوانی قبلی */;
+  
   const handleSubmit = async () => {
     if (!slug || !selectedSlot) return;
     setSubmitting(true);
