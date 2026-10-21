@@ -23,6 +23,7 @@ import { bucketCounts, computeDelta, inRange } from '@/lib/dateRange';
 import { OverviewGrid } from '@/components/overview/OverviewGrid';
 import { OverviewCustomizeBar } from '@/components/overview/OverviewCustomizeBar';
 import { SystemHealthStrip } from '@/components/overview/SystemHealthStrip';
+import { RenewalRateCard } from '@/components/overview/RenewalRateCard';
 import { DataHealthCard } from '@/components/overview/DataHealthCard';
 import { useOverviewLayout } from '@/hooks/useOverviewLayout';
 import { hiddenItems, resolveRolePreset, visibleItems, type OverviewWidgetId, type PermissionKey } from '@/lib/overviewLayout';
@@ -844,6 +845,8 @@ export function DashboardPage() {
                 delta={deltaBadge('revenue', formatCurrency)}
                 delta={deltaBadge('jobsCompleted')}
         );
+      case 'kpi_renewal_rate':
+        return <RenewalRateCard />;
       case 'metric_minutes':
         return busy ? <MetricSkeleton /> : (
           <MetricCard icon={Clock} label="Minutes Used" value={`${metrics.minutesUsed} / ${metrics.minutesIncluded}`} delay={0.2}>
