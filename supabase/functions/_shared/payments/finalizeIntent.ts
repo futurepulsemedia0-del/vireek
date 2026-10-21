@@ -3,6 +3,7 @@
 // so it can be unit-tested with a fake. Ignores PaymentIntents that don't belong to a payment_request
 // (e.g. Terminal / Tap to Pay intents, which carry job_payment_id instead).
 import { walletFromCharge } from "./paymentIntent.ts";
+import { cardFromCharge } from "../membershipRenewal/logic.ts";
 
 export interface FinalizeOutcome {
   handled: boolean;
@@ -41,6 +42,30 @@ export async function activateSignupMembership(admin: any, membershipId: string)
     })
     .eq("id", membershipId)
     .eq("status", "offered");
+}
+/**
+ * Saves the card used for a membership payment when the customer opted in to automatic renewal.
+ * Scoped to the owning user (from the server-set intent metadata) and safe to repeat.
+ */
+export async function saveMembershipCard(admin: any, membershipId: string, pi: any, charge: any, now: Date = new Date()): Promise<void> {
+  const customerId = typeof pi?.customer === "string" ? pi.customer : pi?.customer?.id;
+  const methodId = typeof pi?.payment_method === "string" ? pi.payment_method : pi?.payment_method?.id;
+  if (!customerId || !methodId) return;
+  const card = cardFromCharge(charge);
+  await admin
+    .from("memberships")
+    .update({
+      stripe_customer_id: customerId,
+      stripe_payment_method_id: methodId,
+      card_brand: card?.brand ?? null,
+      card_last4: card?.last4 ?? null,
+      card_exp_month: card?.exp_month || null,
+      card_exp_year: card?.exp_year || null,
+      auto_renew: true,
+      auto_renew_consent_at: now.toISOString(),
+    })
+    .eq("id", membershipId)
+    .eq("user_id", pi?.metadata?.user_id ?? "");
 }
 
 export async function finalizePaymentRequestFromIntent(admin: any, pi: any, opts: FinalizeOptions = {}): Promise<FinalizeOutcome> {
@@ -83,6 +108,14 @@ export async function finalizePaymentRequestFromIntent(admin: any, pi: any, opts
       try { charge = await opts.fetchCharge(pi.latest_charge); } catch { /* the wallet label is optional */ }
     }
     const wallet = walletFromCharge(charge);
+    if (pi.metadata?.save_card === "true" && pi.metadata?.membership_id) {
+      try {
+        await saveMembershipCard(admin, pi.metadata.membership_id, pi, charge);
+      } catch (e) {
+        // The payment is already recorded; a card-save hiccup must not fail the webhook.
+        console.error(JSON.stringify({ event: "membership_card_save_failed", requestId, error: e instanceof Error ? e.message : String(e) }));
+      }
+    }
     console.log(JSON.stringify({ event: "payment_request_paid", requestId, paymentIntent: pi.id, wallet }));
   }
   return { handled: true, status: result?.status ?? "unknown" };
