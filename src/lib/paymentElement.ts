@@ -54,8 +54,13 @@ export function readAppearanceFromDom(): Appearance {
  * can change freely and wallets always show the final total. The amount here MUST equal the amount
  * the server puts on the PaymentIntent (both come from the same computeTip).
  */
-export function buildElementsOptions(amountCents: number, appearance: Appearance): StripeElementsOptionsMode {
-  return { mode: 'payment', amount: amountCents, currency: PAYMENT_CURRENCY, appearance };
+export function buildElementsOptions(
+  amountCents: number,
+  appearance: Appearance,
+  setupFutureUsage?: 'off_session',
+): StripeElementsOptionsMode {
+  // Stripe.js requires the Elements group and the PaymentIntent to agree on setup_future_usage.
+  return { mode: 'payment', amount: amountCents, currency: PAYMENT_CURRENCY, appearance, ...(setupFutureUsage ? { setupFutureUsage } : {}) };
 }
 
 export function buildReturnUrl(origin: string): string {
