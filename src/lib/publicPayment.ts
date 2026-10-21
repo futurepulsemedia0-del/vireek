@@ -10,6 +10,8 @@ export interface PublicPaymentSummary {
   tip_enabled?: boolean;
   presets?: number[];
   publishable_key?: string | null;
+  /** Present on membership payments whose plan renews: lets the customer opt in to automatic renewal. */
+  auto_renew_offer?: { interval: 'monthly' | 'yearly' } | null;
 }
 
 async function readError(error: unknown): Promise<string> {
@@ -39,8 +41,8 @@ export async function startPublicCheckout(token: string, tip: TipSelection): Pro
 }
 
 /** Creates (or re-uses) the PaymentIntent for this link and returns its client secret for Stripe.js. */
-export async function createPublicPaymentIntent(token: string, tip: TipSelection): Promise<string> {
-  const { data, error } = await supabase.functions.invoke('public-payment', { body: { action: 'intent', token, tip } });
+eexport async function createPublicPaymentIntent(token: string, tip: TipSelection, saveCard = false): Promise<string> {
+  const { data, error } = await supabase.functions.invoke('public-payment', { body: { action: 'intent', token, tip, save_card: saveCard } });
   if (error) throw new Error(await readError(error));
   if (!data?.client_secret) throw new Error('Could not start the payment.');
   return data.client_secret as string;
