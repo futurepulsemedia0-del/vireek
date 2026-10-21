@@ -53,6 +53,7 @@ import {
 import type { JobNotesPatch, JobStatus, JobTechnician } from '@/lib/jobDetail';
 import { JobStatusTimeline, JobCustomerCard, JobTechnicianCard, JobNotesCard } from '@/components/jobs/detail/JobOverviewCards';
 import { JobPhotosCard, JobPartsCard } from '@/components/jobs/detail/JobWorkSections';
+import { JobPartsOrderingPanel } from '@/components/jobs/JobPartsOrderingPanel';
 import { JobLineItemsCard } from '@/components/jobs/detail/JobLineItemsCard';
 import { JobCostsCard, JobInvoiceCard } from '@/components/jobs/detail/JobMoneySections';
 import { JobActivityFeed } from '@/components/jobs/detail/JobActivityFeed';
@@ -525,6 +526,15 @@ export function JobDetailPage() {
           <CommentsPanel entityType="job" entityId={j.id} entityLabel={j.customer_name} />
           <JobPhotosCard job={j} canEdit={access.canEdit} uploading={uploading} onUpload={(slot, files) => void uploadPhotos(slot, files)} />
           <JobPartsCard required={required} used={used} />
+          <JobPartsOrderingPanel
+           job={j}
+           canManage={access.canManage}
+          canEdit={access.canEdit}
+           onChanged={() => {
+            void syncJob();
+            required.reload();
+             }}
+              />
           <JobLineItemsCard jobId={j.id} canSeeBilling={access.canSeeBilling} />
           {access.canSeeBilling && <JobCostsCard job={j} costs={costs} invoices={invoices} />}
           {access.canSeeBilling && (
