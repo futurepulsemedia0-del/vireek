@@ -15,6 +15,7 @@ export function PublicPaymentPage() {
   const [tip, setTip] = useState<TipSelection>({ kind: 'none' });
   const [submitting, setSubmitting] = useState(false);
   const [outcome, setOutcome] = useState<PaymentOutcome | null>(null);
+  const [autoRenew, setAutoRenew] = useState(false);
 
   useEffect(() => {
     document.title = 'Pay securely';
@@ -44,7 +45,7 @@ export function PublicPaymentPage() {
 
   async function createIntent(): Promise<string> {
     if (!tipResult?.ok) throw new Error('Please check the tip amount.');
-    return createPublicPaymentIntent(token, effectiveTip);
+    return createPublicPaymentIntent(token, effectiveTip, autoRenew && !!summary?.auto_renew_offer);
   }
 
   const shell = (children: React.ReactNode) => (
@@ -110,7 +111,20 @@ export function PublicPaymentPage() {
         <div className="flex justify-between text-base font-bold text-text-primary"><dt>Total</dt><dd>{formatUsd(total)}</dd></div>
       </dl>
 
+      {summary.auto_renew_offer && (
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border-primary p-3 text-sm text-text-secondary">
+          <input type="checkbox" className="mt-0.5 h-4 w-4" checked={autoRenew} disabled={submitting} onChange={(e) => setAutoRenew(e.target.checked)} />
+          <span>
+            <span className="font-medium text-text-primary">Renew automatically every {summary.auto_renew_offer.interval === 'monthly' ? 'month' : 'year'}</span>
+            <br />
+            Save this card and charge {formatUsd(summary.amount_cents)} at each renewal until I cancel. We’ll remind you before every renewal, and you can cancel anytime from the link in those messages.
+          </span>
+        </label>
+      )}
+
       <StripePaymentForm
+        key={autoRenew && summary.auto_renew_offer ? 'save' : 'once'}
+        saveForFuture={autoRenew && !!summary.auto_renew_offer}
         publishableKey={summary.publishable_key}
         amountCents={total}
         payLabel={`Pay ${formatUsd(total)}`}
