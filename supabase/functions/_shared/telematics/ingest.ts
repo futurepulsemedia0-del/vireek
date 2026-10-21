@@ -8,6 +8,7 @@ import {
   isValidPoint, normalizeSettings, shouldLogBreadcrumb, stepGeofence,
   type Fix, type OpenVisit, type PendingMap, type TelematicsSettings,
 } from "./engine.ts";
+import { ZoneTracker } from "./zoneRuntime.ts";
 
 export interface IncomingFix {
   t: number;
@@ -78,6 +79,7 @@ export class VehicleSession {
   private pending: PendingMap = {};
   private open: (OpenVisit & { visitId: string; arrivedMs: number })[] = [];
   private jobs = new Map<string, SiteJob>();
+  private zoneTracker: ZoneTracker;
   private stationarySince: number | null = null;
   private crumbs: Record<string, unknown>[] = [];
   private newest: IncomingFix | null = null;
@@ -87,12 +89,13 @@ export class VehicleSession {
 
   constructor(private admin: SupabaseClient, private vehicle: VehicleRef, rawSettings: unknown) {
     this.settings = normalizeSettings(rawSettings);
+    this.zoneTracker = new ZoneTracker(admin, vehicle);
   }
 
   async init(): Promise<void> {
     const { admin, vehicle } = this;
     const [{ data: live }, { data: crumb }, { data: visits }] = await Promise.all([
-      admin.from("vehicle_live_state").select("latitude, longitude, speed_mph, engine_state, last_fix_at, stationary_since, geofence_pending, current_job_id").eq("vehicle_id", vehicle.id).maybeSingle(),
+      admin.from("vehicle_live_state").select("latitude, longitude, speed_mph, engine_state, last_fix_at, stationary_since, geofence_pending, current_job_id, zone_state").eq("vehicle_id", vehicle.id).maybeSingle(),
       admin.from("vehicle_position_log").select("recorded_at, latitude, longitude, speed_mph, engine_state").eq("vehicle_id", vehicle.id).order("recorded_at", { ascending: false }).limit(1).maybeSingle(),
       admin.from("telematics_job_visits").select("id, job_id, arrived_at").eq("vehicle_id", vehicle.id).is("departed_at", null),
     ]);
@@ -109,6 +112,7 @@ export class VehicleSession {
     if (crumb) {
       this.lastLogged = { t: Date.parse(crumb.recorded_at), lat: crumb.latitude, lng: crumb.longitude, speedMph: crumb.speed_mph, engine: (crumb.engine_state ?? "unknown") as Fix["engine"] };
     }
+    await this.zoneTracker.init((live as { zone_state?: unknown } | null)?.zone_state);
     this.open = (visits ?? []).map((v) => ({ visitId: v.id, jobId: v.job_id, arrivedAt: Date.parse(v.arrived_at), arrivedMs: Date.parse(v.arrived_at) }));
 
     // Candidate jobs = this technician's active jobs near today, plus any job with an open visit.
@@ -158,6 +162,14 @@ export class VehicleSession {
 
     for (const a of step.arrivals) await this.handleArrival(a.jobId, a.arrivedAt, a.distanceM);
     for (const d of step.departures) await this.handleDeparture(d.jobId, d.departedAt);
+    const zoneTransitions = this.zoneTracker.step(fix);
+    if (zoneTransitions.length > 0) {
+      await this.zoneTracker.handle(
+        zoneTransitions,
+        { ...fix, speedMph: f.speedMph },
+        [...this.jobs.values()].map((j) => ({ id: j.id, lat: j.lat, lng: j.lng, scheduled_datetime: j.scheduled_datetime, job_status: j.job_status })),
+      );
+    }
 
     this.prev = fix;
     this.newest = f;
@@ -260,7 +272,7 @@ export class VehicleSession {
       vehicle_id: vehicle.id, user_id: vehicle.user_id, latitude: n.lat, longitude: n.lng, speed_mph: n.speedMph,
       heading_deg: n.headingDeg ?? null, engine_state: n.engine, last_fix_at: iso,
       stationary_since: this.stationarySince ? new Date(this.stationarySince).toISOString() : null,
-      geofence_pending: this.pending, current_job_id: this.currentJobId, updated_at: new Date().toISOString(),
+      geofence_pending: this.pending, zone_state: this.zoneTracker.state, current_job_id: this.currentJobId, updated_at: new Date().toISOString(),
     };
     if (n.odometerMiles != null) patch.odometer_miles = Math.round(n.odometerMiles * 10) / 10;
     if (n.engineHours != null) patch.engine_hours = Math.round(n.engineHours * 10) / 10;
