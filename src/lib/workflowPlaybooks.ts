@@ -772,30 +772,35 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
     name: 'Membership Win-Back',
     category: 'Membership Lifecycle',
     icon: UserPlus,
-    tagline: 'A lapsed member already trusted you once.',
     description:
-      'A respectful, no-pressure re-offer a week after a membership churns or is cancelled \u2014 recovering members who lapsed on payment or timing, not dissatisfaction.',
+      'A lapsed member already trusted you once. Whether the card failed or they simply didn’t renew, this re-offers the membership at day 7, 21 and 45 with a one-tap rejoin link, asks you to approve a sweetener before the last text, and ends with a courtesy call at day 60.',
     industry: 'general',
     trigger_event: 'membership.churned',
     trigger_conditions: {},
     steps: [
+      { step_number: 1, type: 'wait', delay_minutes: 10080, on_failure: 'continue', config: {} }, // day 7
       {
-        step_number: 1,
-        type: 'wait',
-        delay_minutes: 10080, // 7 days
-        on_failure: 'continue',
-        config: {},
+        step_number: 2, type: 'sms', delay_minutes: 0, on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, we noticed your {{business_name}} membership lapsed — no hard feelings! If you'd like to pick it back up, just reply here." },
+      },
+      { step_number: 3, type: 'wait', delay_minutes: 20160, on_failure: 'continue', config: {} }, // day 21
+      {
+        step_number: 4, type: 'sms', delay_minutes: 0, on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, your {{plan_name}} ({{amount}}) is still available at {{business_name}} — rejoin in under a minute: {{plan_join_url}}" },
+      },
+      { step_number: 5, type: 'wait', delay_minutes: 34560, on_failure: 'continue', config: {} }, // day 45
+      {
+        step_number: 6, type: 'human_approval', delay_minutes: 0, on_failure: 'stop',
+        config: { reason: 'Lapsed 45 days — approve a win-back offer (e.g. a discount) for this member? Rejecting ends the sequence.' },
       },
       {
-        step_number: 2,
-        type: 'sms',
-        delay_minutes: 0,
-        on_failure: 'continue',
-        config: { body: "Hi {{customer_name}}, we noticed your {{business_name}} membership lapsed \u2014 no hard feelings! If you'd like to pick it back up, just reply here." },
+        step_number: 7, type: 'sms', delay_minutes: 0, on_failure: 'continue',
+        config: { body: "Hi {{customer_name}}, we'd love to have you back at {{business_name}} — here's a special offer to rejoin: {{plan_join_url}}" },
       },
+      { step_number: 8, type: 'wait', delay_minutes: 21600, on_failure: 'continue', config: {} }, // day 60
+      { step_number: 9, type: 'call', delay_minutes: 0, on_failure: 'continue', config: { call_context: 'membership_winback_call' } },
     ],
   },
-];
 
 export function findPlaybook(slug: string): WorkflowPlaybook | undefined {
   return WORKFLOW_PLAYBOOKS.find((p) => p.slug === slug);
