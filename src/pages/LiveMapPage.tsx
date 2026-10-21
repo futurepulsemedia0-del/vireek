@@ -9,6 +9,11 @@ import { EmptyState } from '@/components/EmptyState';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { Skeleton, SkeletonCardList, SkeletonStatGrid } from '@/components/Skeleton';
 import { LiveMapCanvas } from '@/components/livemap/LiveMapCanvas';
+import type maplibregl from 'maplibre-gl';
+import { GeofenceMapLayer } from '@/components/livemap/GeofenceMapLayer';
+import { GeofencePanel } from '@/components/livemap/GeofencePanel';
+import { useGeofences } from '@/lib/useGeofences';
+import { draftFromGeofence, newDraft, pointInGeofence, type Geofence, type GeofenceDraft, type ZoneShape } from '@/lib/geofences';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import {
   appendTrailPoint,
@@ -79,6 +84,53 @@ export function LiveMapPage() {
   const [fitSignal, setFitSignal] = useState(0);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapKey, setMapKey] = useState(0);
+  // ---- Zones (geofence editor) ----
+  const canManageZones = isOwner || permissions.can_manage_team;
+  const { zones, events, loading: zonesLoading, error: zonesError, eventsError, reload: reloadZones, save: saveZone, toggle: toggleZone, remove: removeZone } = useGeofences(accountOwnerId, canView);
+  const [leftTab, setLeftTab] = useState<'fleet' | 'zones'>('fleet');
+  const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
+  const [draft, setDraft] = useState<GeofenceDraft | null>(null);
+  const [drawing, setDrawing] = useState(false);
+  const [zoneSaving, setZoneSaving] = useState(false);
+  const [zoneSaveError, setZoneSaveError] = useState<string | null>(null);
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+
+  const startDraw = (shape: ZoneShape) => {
+    setSelectedZoneId(null);
+    setZoneSaveError(null);
+    setDraft(newDraft(shape));
+    setDrawing(true);
+    setMobileTab('map');
+  };
+  const editZone = (z: Geofence) => {
+    setZoneSaveError(null);
+    setSelectedZoneId(null);
+    setDraft(draftFromGeofence(z));
+    setDrawing(false);
+  };
+  const cancelDraft = () => {
+    setDraft(null);
+    setDrawing(false);
+    setZoneSaveError(null);
+  };
+  const undoPoint = () => setDraft((d) => (d && d.shape === 'polygon' ? { ...d, polygon: d.polygon.slice(0, -1) } : d));
+  const selectZone = (id: string | null) => {
+    setSelectedZoneId(id);
+    if (id) setLeftTab('zones');
+  };
+  const submitZone = async () => {
+    if (!draft) return;
+    setZoneSaving(true);
+    setZoneSaveError(null);
+    try {
+      await saveZone(draft);
+      cancelDraft();
+    } catch (e) {
+      setZoneSaveError(errMsg(e));
+    } finally {
+      setZoneSaving(false);
+    }
+  };
 
   const load = useCallback(async () => {
     if (!accountOwnerId) return;
@@ -188,6 +240,18 @@ export function LiveMapPage() {
   const selected = useMemo(() => derived?.views.find((v) => v.id === selectedId) ?? null, [derived, selectedId]);
   const mapJobs = useMemo(() => snapshot?.jobs ?? [], [snapshot]);
   const mapViews = shown;
+  const insideCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    if (!derived) return m;
+    for (const z of zones) {
+      if (!z.active) continue;
+      let n = 0;
+      for (const v of derived.views) if (v.state !== 'offline' && pointInGeofence(v.point, z)) n++;
+      if (n > 0) m.set(z.id, n);
+    }
+    return m;
+  }, [derived, zones]);
+  const vehicleLabels = useMemo(() => new Map((snapshot?.vehicles ?? []).map((v) => [v.id, v.label] as [string, string])), [snapshot]);
 
   const selectVehicle = (id: string | null) => {
     setSelectedId(id);
@@ -284,7 +348,7 @@ export function LiveMapPage() {
         <div className="grid gap-4 md:grid-cols-[340px_1fr]">
           {/* ---- List column ---- */}
           <div className={`${mobileTab === 'list' ? 'block' : 'hidden'} max-h-[70vh] space-y-4 overflow-y-auto md:block md:max-h-[calc(100vh-22rem)]`}>
-            <section aria-labelledby="techs-heading" className="space-y-2">
+            <section aria-labelledby="techs-heading" className={`space-y-2 ${leftTab === 'zones' ? 'hidden' : ''}`}>
               <h2 id="techs-heading" className="text-sm font-semibold text-text-primary">Technicians ({shown.length})</h2>
               {shown.length === 0 ? (
                 <EmptyState icon={MapPinOff} title="No vehicles match" description="Try a different filter, or wait for the next GPS fix." />
@@ -320,7 +384,7 @@ export function LiveMapPage() {
               )}
             </section>
 
-            <section aria-labelledby="jobs-heading" className="space-y-2">
+            <section aria-labelledby="jobs-heading" className={`space-y-2 ${leftTab === 'zones' ? 'hidden' : ''}`}>
               <h2 id="jobs-heading" className="text-sm font-semibold text-text-primary">Open jobs ({mapJobs.length})</h2>
               {mapJobs.length === 0 ? (
                 <EmptyState icon={MapPinOff} title="No open jobs" description="Jobs scheduled around now will appear here and on the map." />
@@ -347,6 +411,20 @@ export function LiveMapPage() {
           </div>
 
           {/* ---- Map column (kept mounted so the map never reloads when switching tabs) ---- */}
+            <div className="flex gap-1.5" role="group" aria-label="Sidebar view">
+              <Button variant={leftTab === 'fleet' ? 'primary' : 'secondary'} size="sm" onClick={() => setLeftTab('fleet')}>Fleet</Button>
+              <Button variant={leftTab === 'zones' ? 'primary' : 'secondary'} size="sm" onClick={() => setLeftTab('zones')}>Zones ({zones.length})</Button>
+            </div>
+            {leftTab === 'zones' && (
+              <GeofencePanel
+                zones={zones} events={events} loading={zonesLoading} error={zonesError} eventsError={eventsError}
+                canManage={canManageZones} draft={draft} drawing={drawing} selectedZoneId={selectedZoneId}
+                vehicleLabels={vehicleLabels} insideCounts={insideCounts} nowMs={nowMs} saving={zoneSaving} saveError={zoneSaveError}
+                onStartDraw={startDraw} onDraftChange={setDraft} onResumeDraw={() => { setDrawing(true); setMobileTab('map'); }}
+                onUndoPoint={undoPoint} onSave={() => void submitZone()} onCancel={cancelDraft} onEdit={editZone}
+                onSelect={selectZone} onToggleActive={(z) => toggleZone(z.id, !z.active)} onDelete={(z) => removeZone(z.id)} onRetry={() => void reloadZones()}
+              />
+            )}
           <div className={`${mobileTab === 'map' ? 'block' : 'hidden'} relative h-[65vh] min-h-[420px] overflow-hidden rounded-xl border border-border md:block md:h-[calc(100vh-22rem)]`}>
             {mapError ? (
               <div className="flex h-full items-center justify-center p-4">
@@ -370,7 +448,22 @@ export function LiveMapPage() {
                   fitSignal={fitSignal}
                   onSelectVehicle={selectVehicle}
                   onError={setMapError}
+                  onMapReady={setMapInstance}
                 />
+                <GeofenceMapLayer
+                  map={mapInstance} zones={zones} selectedZoneId={selectedZoneId} draft={draft} drawing={drawing}
+                  onSelectZone={selectZone} onDraftChange={setDraft} onDrawDone={() => { setDrawing(false); setMobileTab('list'); }}
+                />
+                {draft && drawing && (
+                  <div className="absolute inset-x-3 top-12 z-10 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-border bg-bg-secondary/95 p-2 shadow-lg">
+                    <span className="px-2 text-sm text-text-primary">
+                      {draft.shape === 'circle' ? 'Click the map to place the center' : `Click to add points (${draft.polygon.length})`}
+                    </span>
+                    {draft.shape === 'polygon' && <Button size="sm" variant="secondary" onClick={undoPoint} disabled={draft.polygon.length === 0}>Undo</Button>}
+                    {draft.shape === 'polygon' && <Button size="sm" onClick={() => { setDrawing(false); setMobileTab('list'); }} disabled={draft.polygon.length < 3}>Done</Button>}
+                    <Button size="sm" variant="ghost" onClick={cancelDraft}>Cancel</Button>
+                  </div>
+                )}
                 <div className="pointer-events-none absolute left-3 top-3">
                   <LiveIndicator status={rtStatus} />
                 </div>
