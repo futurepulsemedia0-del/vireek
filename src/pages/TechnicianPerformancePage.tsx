@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { OnTimeRateCard } from '@/components/team/OnTimeRateCard';
 import {
   ArrowLeft,
   Lock,
