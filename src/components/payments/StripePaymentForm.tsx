@@ -25,6 +25,8 @@ interface StripePaymentFormProps {
   createIntent: () => Promise<string>;
   onSuccess: (outcome: PaymentOutcome) => void;
   onProcessingChange?: (processing: boolean) => void;
+  /** True when the card will be saved for off-session renewals. Fixed at mount: remount (change `key`) to toggle. */
+  saveForFuture?: boolean;
 }
 
 const UNAVAILABLE = 'Online payment isn’t available right now. Please contact the business.';
@@ -37,7 +39,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
   // Elements options are frozen at mount (react-stripe-js warns when they change);
   // later amount changes are applied with elements.update() inside the form.
   const optionsRef = useRef<ReturnType<typeof buildElementsOptions> | null>(null);
-  if (!optionsRef.current) optionsRef.current = buildElementsOptions(amountCents, readAppearanceFromDom());
+  if (!optionsRef.current) optionsRef.current = buildElementsOptions(amountCents, readAppearanceFromDom(), props.saveForFuture ? 'off_session' : undefined);
 
   if (!stripePromise) {
     return (
