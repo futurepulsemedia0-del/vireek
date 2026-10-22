@@ -527,6 +527,7 @@ const ApiUsagePage = lazy(() => import('@/pages/ApiUsagePage').then((m) => ({ de
 const OAuthAppsPage = lazy(() => import('@/pages/OAuthAppsPage').then((m) => ({ default: m.OAuthAppsPage })));
 const SmsCompliancePage = lazy(() => import('@/pages/SmsCompliancePage').then((m) => ({ default: m.SmsCompliancePage })));
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
+const RegionalPacksSettingsPage = lazy(() => import('@/pages/RegionalPacksSettingsPage').then((m) => ({ default: m.RegionalPacksSettingsPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
 const BrandingSettingsPage = lazy(() => import('@/pages/BrandingSettingsPage').then((m) => ({ default: m.BrandingSettingsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
@@ -1104,6 +1105,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AuditLogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/regional-packs"
+          element={
+            <ProtectedRoute>
+              <RegionalPacksSettingsPage />
             </ProtectedRoute>
           }
         />
