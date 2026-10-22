@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StaffRoute } from '@/components/StaffRoute';
+import { SupplierRoute } from '@/components/SupplierRoute';
 import { TechnicianRoute } from '@/components/TechnicianRoute';
 import { PartnerRoute } from '@/components/PartnerRoute';
 import { SkipToContent } from '@/components/a11y/SkipToContent';
@@ -89,6 +90,10 @@ const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulator
 const PartsMarketPage = lazy(() => import('@/pages/PartsMarketPage').then((m) => ({ default: m.PartsMarketPage })));
 const PartsIntelligencePage = lazy(() => import('@/pages/PartsIntelligencePage').then((m) => ({ default: m.PartsIntelligencePage })));
 const SupplierIntelligencePage = lazy(() => import('@/pages/SupplierIntelligencePage').then((m) => ({ default: m.SupplierIntelligencePage })));
+const ProcurementNetworkPage = lazy(() => import('@/pages/ProcurementNetworkPage').then((m) => ({ default: m.ProcurementNetworkPage })));
+const SupplierPortalPage = lazy(() => import('@/pages/SupplierPortalPage').then((m) => ({ default: m.SupplierPortalPage })));
+const SupplierApplyPage = lazy(() => import('@/pages/SupplierApplyPage').then((m) => ({ default: m.SupplierApplyPage })));
+const StaffProcurementNetworkPage = lazy(() => import('@/pages/StaffProcurementNetworkPage').then((m) => ({ default: m.StaffProcurementNetworkPage })));
 const SupplyChainOutcomePage = lazy(() => import('@/pages/SupplyChainOutcomePage').then((m) => ({ default: m.SupplyChainOutcomePage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
 const OutcomeIntelligenceNetworkPage = lazy(() => import('@/pages/OutcomeIntelligenceNetworkPage').then((m) => ({ default: m.OutcomeIntelligenceNetworkPage })));
@@ -1321,6 +1326,24 @@ function AppRoutes() {
             <ProtectedRoute>
               <SupplierIntelligencePage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/procurement-network"
+          element={
+            <ProtectedRoute>
+              <ProcurementNetworkPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/supplier-portal/apply" element={<SupplierRoute requireSupplier={false}><SupplierApplyPage /></SupplierRoute>} />
+        <Route path="/supplier-portal" element={<SupplierRoute><SupplierPortalPage /></SupplierRoute>} />
+        <Route
+          path="/staff/procurement-network"
+          element={
+            <StaffRoute>
+              <StaffProcurementNetworkPage />
+            </StaffRoute>
           }
         />
         <Route
