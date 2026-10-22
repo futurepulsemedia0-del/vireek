@@ -28,6 +28,7 @@ import {
   toDispatchJobs,
   toDispatchTechs,
 } from '@/lib/dispatchIntelligenceApi';
+import { fetchDispatchDurations } from '@/lib/durationModelApi';
 
 interface Props {
   jobs: Job[];
@@ -108,10 +109,11 @@ export function DispatchIntelligencePanel({ jobs, technicians, riskMap, onChange
     setFailed(false);
     try {
       const ctx = await fetchPlanContext(ownerId, jobs, techs);
+      const learned = await fetchDispatchDurations(ownerId, jobs);
       const p = planDispatch({
         nowMs: Date.now(),
         technicians: toDispatchTechs(techs, ctx.firstTimeFix),
-        jobs: toDispatchJobs(jobs),
+        jobs: toDispatchJobs(jobs, learned),
         stockFit: ctx.stockFit,
         blockingGaps: ctx.blockingGaps,
       });
