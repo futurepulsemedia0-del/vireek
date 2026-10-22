@@ -332,6 +332,7 @@ const DuplicatesPage = lazy(() => import('@/pages/DuplicatesPage').then((m) => (
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const ServiceAreasPage = lazy(() => import('@/pages/ServiceAreasPage').then((m) => ({ default: m.ServiceAreasPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
+const StaffingForecastPage = lazy(() => import('@/pages/StaffingForecastPage').then((m) => ({ default: m.StaffingForecastPage })));
 const WorkforceEquilibriumPage = lazy(() => import('@/pages/WorkforceEquilibriumPage').then((m) => ({ default: m.WorkforceEquilibriumPage })));
 const BusinessDriftPage = lazy(() => import('@/pages/BusinessDriftPage').then((m) => ({ default: m.BusinessDriftPage })));
 const ExecutiveReportsPage = lazy(() => import('@/pages/ExecutiveReportsPage').then((m) => ({ default: m.ExecutiveReportsPage })));
@@ -3438,6 +3439,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CapacityDemandPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/staffing-forecast"
+          element={
+            <ProtectedRoute>
+              <StaffingForecastPage />
             </ProtectedRoute>
           }
         />
