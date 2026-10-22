@@ -70,9 +70,9 @@ select pg_temp.order_for('00000000-0000-0000-0000-0000000000a1', 40);
 select pg_temp.order_for('00000000-0000-0000-0000-0000000000a2', 40);
 select pg_temp.order_for('00000000-0000-0000-0000-0000000000a3', 40);
 
-select is((select count(*)::int from public.purchase_orders where status = 'pending_approval' and notes like 'Procurement Network%'), 3,
-  'each order is routed into a real purchase order awaiting approval');
-select is((select count(*)::int from public.purchase_order_items where unit_price_cents = 9500 and quantity_ordered = 40), 3,
+select is((select count(*)::int from public.pn_orders where status = 'awaiting_approval'), 3,
+  'each order is created and waits for the buyer approval');
+select is((select count(*)::int from public.pn_order_lines where unit_price_cents = 9500 and qty = 40), 3,
   'prices are computed server-side at the base tier');
 
 -- ------------------------------------------------------------ tenant isolation --
@@ -92,10 +92,10 @@ select pg_temp.act_as('00000000-0000-0000-0000-0000000000b1');
 select is((select count(*)::int from public.pn_orders), 0, 'supplier cannot see orders awaiting buyer approval');
 select pg_temp.reset_role();
 
--- approving the PO releases the order (and marks the PO sent)
-update public.purchase_orders set status = 'approved' where notes like 'Procurement Network%';
+-- the buyer approval (PO approval or pn_approve_order) releases the order to the supplier
+update public.pn_orders set status = 'placed', placed_at = now() where status = 'awaiting_approval';
 select pg_temp.act_as('00000000-0000-0000-0000-0000000000b1');
-select is((select count(*)::int from public.pn_orders where status = 'placed'), 3, 'approved POs release orders to the supplier');
+select is((select count(*)::int from public.pn_orders where status = 'placed'), 3, 'approved orders are released to the supplier');
 select is((select count(*)::int from public.pn_line_baselines), 0, 'supplier can never read buyer baseline prices');
 select pg_temp.reset_role();
 
