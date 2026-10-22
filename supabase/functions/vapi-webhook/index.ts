@@ -1,5 +1,6 @@
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 import { autoTagCallDisposition } from "../_shared/call-dispositions/autoDisposition.ts";
+import { getSealPolicy, sealCallArtifacts } from "../_shared/trust/vault.ts";
 // supabase/functions/vapi-webhook/index.ts
 //
 // Server URL for the Vapi "Vireek Receptionist" production assistant(s).
@@ -2092,7 +2093,17 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
     }
   }
 
-  const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, requestId);
+const sealPolicy = message.type === "end-of-call-report" ? await getSealPolicy(admin, tenant.userId).catch(() => null) : null;
+const sealingActive = !!sealPolicy && (sealPolicy.transcripts || sealPolicy.recordings);
+const plainTranscript = typeof patch.transcript === "string" ? patch.transcript : null;
+const plainRecordingUrl = typeof patch.recording_url === "string" ? patch.recording_url : null;
+if (sealingActive && sealPolicy!.transcripts) delete patch.transcript;
+const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, requestId);
+if (sealingActive && callRow) {
+  const sealed = await sealCallArtifacts(admin, { ownerId: tenant.userId, callId: callRow.id, transcript: plainTranscript, recordingUrl: plainRecordingUrl });
+  await admin.from("calls").update({ transcript: sealed.transcript, recording_url: sealed.recording_url }).eq("id", callRow.id);
+  if (sealed.problems.length) logError("trust_sealing_problem", requestId, sealed.problems.join("; "));
+}
 
   // Call disposition: high-confidence AI tagging (spam / booked / no answer). Never throws.
   if (message.type === "end-of-call-report" && callRow) {
