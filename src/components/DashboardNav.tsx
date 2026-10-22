@@ -536,6 +536,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Email Settings', href: '/dashboard/settings/email', icon: Mail, requiresPermission: 'can_edit_business_profile' },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   { label: 'Chat Widget', href: '/dashboard/settings/chat-widget', icon: MessageCircle, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Website Widgets', href: '/dashboard/settings/website-widgets', icon: Globe, requiresPermission: 'can_edit_business_profile' },
   { label: 'What’s New', href: '/dashboard/whats-new', icon: Sparkles },
   { label: 'Help', href: '/dashboard/help', icon: LifeBuoy },
 ];
