@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutTemplate } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
+import { Mic } from 'lucide-react';
 import {
   BarChart3,
   FileUp,
@@ -266,6 +267,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Parts & Inventory', href: '/dashboard/inventory', icon: Package },
   { label: 'Cycle Counts', href: '/dashboard/inventory/counts', icon: ClipboardCheck },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
+  { label: 'Voice Platform', href: '/dashboard/voice-platform', icon: Mic, requiresPermission: 'can_manage_numbers' },
   { label: 'Blocklist & DNC', href: '/dashboard/blocklist', icon: Ban, requiresPermission: 'can_manage_numbers' },
   { label: 'Call Routing', href: '/dashboard/call-routing', icon: Workflow, requiresPermission: 'can_manage_numbers' },
   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
