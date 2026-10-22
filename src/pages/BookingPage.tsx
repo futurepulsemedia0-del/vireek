@@ -5,6 +5,7 @@ import { CalendarClock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { validateBookingPromo, promoReasonMessage, type BookingPromoResult } from '@/lib/promoCodes';
 import { Footer } from '@/components/Footer';
+import { recordRescueLinkClick } from '@/lib/rescueLinkTracking';
 import { fetchBookingBusiness, fetchBookedWindow, submitPublicBooking, generateAvailableSlots, fetchBookingServiceDurations, BookingBusinessInfo } from '@/lib/onlineBooking';
 import { ArrivalWindowPicker } from '@/components/booking/ArrivalWindowPicker';
 import { loadArrivalWindowOffers, submitBookingWithArrivalWindow, type ArrivalWindowOffers } from '@/lib/arrivalWindowsApi';
@@ -62,6 +63,11 @@ export function BookingPage() {
     setSelectedSlot(null);
   }, [business, bookedIso, learned, service]);
 
+  const rescueToken = searchParams.get('rl');
+  useEffect(() => {
+    void recordRescueLinkClick(rescueToken);
+  }, [rescueToken]);
+  
 const canSubmit = useMemo(
   () => Boolean((windowOffers ? selectedWindow : selectedSlot) && name.trim().length > 1),
   [windowOffers, selectedWindow, selectedSlot, name]
