@@ -132,7 +132,7 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
         type: 'sms',
         delay_minutes: 0,
         on_failure: 'stop',
-        config: { body: "Hi, sorry we missed your call at {{business_name}}! Reply here or call us back and we'll get you taken care of right away." },
+        config: { body: "Hi, sorry we missed your call at {{business_name}}! Reply here or call us back and we'll get you taken care of right away.", include_booking_link: true },
       },
       {
         step_number: 2,
