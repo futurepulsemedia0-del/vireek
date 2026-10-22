@@ -42,6 +42,7 @@ import type {
   ShipTo,
 } from '@/lib/procurementNetwork';
 import {
+  approveOrder,
   cancelOrder,
   errorMessage,
   fetchInventoryPartsLite,
@@ -422,6 +423,19 @@ function OrdersTab({ orders, programStatus, onChanged }: { orders: NetworkOrder[
     }
   };
 
+  const approve = async (id: string) => {
+    setBusy(id);
+    try {
+      await approveOrder(id);
+      toast('Order approved and sent to the supplier', 'success');
+      await onChanged();
+    } catch (e) {
+      toast(errorMessage(e), 'error');
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const cancel = async (id: string) => {
     if (!window.confirm('Cancel this order? The linked purchase order is cancelled too.')) return;
     setBusy(id);
@@ -451,10 +465,13 @@ function OrdersTab({ orders, programStatus, onChanged }: { orders: NetworkOrder[
                 {o.program_title} - {new Date(o.created_at).toLocaleDateString()}
                 {o.tracking ? ` - Tracking: ${o.tracking}` : ''}
               </p>
-              {o.status === 'awaiting_approval' && (
+              {o.status === 'awaiting_approval' && o.po_id && (
                 <p className="mt-1 text-xs text-amber-600">
                   Approve the purchase order in <Link className="underline" to="/dashboard/procurement">Purchase Orders</Link> to send it to the supplier.
                 </p>
+              )}
+              {o.status === 'awaiting_approval' && !o.po_id && (
+                <p className="mt-1 text-xs text-amber-600">Review the order, then approve it here to send it to the supplier.</p>
               )}
               {o.cancel_reason && <p className="mt-1 text-xs text-rose-600">{o.cancel_reason}</p>}
             </div>
@@ -464,6 +481,11 @@ function OrdersTab({ orders, programStatus, onChanged }: { orders: NetworkOrder[
               <Button variant="ghost" size="sm" onClick={() => void toggle(o.id)}>
                 {expanded === o.id ? 'Hide' : 'Details'}
               </Button>
+              {o.status === 'awaiting_approval' && !o.po_id && (
+                <Button size="sm" onClick={() => void approve(o.id)} disabled={busy === o.id}>
+                  Approve &amp; send
+                </Button>
+              )}
               {buyerCanCancel(o.status, programStatus.get(o.program_id)) && (
                 <Button variant="secondary" size="sm" onClick={() => void cancel(o.id)} disabled={busy === o.id}>
                   Cancel
@@ -563,7 +585,7 @@ function ProgramPanel({ programId, onBack, onOrdered }: { programId: string; onB
         shipTo: ship,
         notes,
       });
-      toast(`Order ${res.order_number} created - approve its purchase order to send it`, 'success');
+      toast(res.po_linked ? `Order ${res.order_number} created - approve its purchase order to send it` : `Order ${res.order_number} created - approve it in the Orders tab to send it`, 'success');
       await onOrdered();
     } catch (e) {
       toast(errorMessage(e, 'Could not place the order'), 'error');
