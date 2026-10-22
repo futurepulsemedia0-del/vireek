@@ -15,6 +15,7 @@ import {
   User as UserIcon,
   TriangleAlert as AlertTriangle,
 } from 'lucide-react';
+import { DurationPredictionBadge } from '@/components/jobs/DurationPredictionBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -552,12 +553,27 @@ function ScheduleDrawer({
             onChange={(e) => setDuration(Number(e.target.value))}
             className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary"
           >
-            {DURATION_OPTIONS.map((mins) => (
+            {(DURATION_OPTIONS.includes(duration) ? DURATION_OPTIONS : [...DURATION_OPTIONS, duration].sort((a, b) => a - b)).map((mins) => (
               <option key={mins} value={mins}>
                 {mins < 60 ? `${mins} min` : `${(mins / 60).toString().replace('.0', '')} hr${mins > 60 && mins % 60 !== 0 ? ` ${mins % 60}m` : ''}`}
               </option>
             ))}
           </select>
+          </select>
+          <DurationPredictionBadge
+            className="mt-2"
+            input={{
+              jobId: job.id,
+              serviceType: job.service_type,
+              technicianId: techId || null,
+              customerId: job.customer_id,
+              planMinutes: typeof job.expected_duration_minutes === 'number' ? job.expected_duration_minutes : null,
+              slotMinutes: (job.duration_minutes as number | null) ?? null,
+            }}
+            currentMinutes={duration}
+            onApply={setDuration}
+          />
+        </div>
         </div>
 
         <div>
