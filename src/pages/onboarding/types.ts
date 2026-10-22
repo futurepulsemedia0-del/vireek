@@ -10,6 +10,7 @@ import {
   PhoneCall,
   ClipboardCheck,
   Rocket,
+  Briefcase,
 } from 'lucide-react';
 
 // ============================================================
@@ -24,6 +25,7 @@ import {
 
 export type StepId =
   | 'business'
+  | 'vertical'
   | 'operations'
   | 'hours'
   | 'phone'
@@ -44,6 +46,7 @@ export interface StepDef {
 
 export const STEPS: StepDef[] = [
   { id: 'business', label: 'Business Info', shortLabel: 'Business', icon: Building2, optional: false },
+  { id: 'vertical', label: 'Industry', shortLabel: 'Industry', icon: Briefcase, optional: true },
   { id: 'operations', label: 'Operations', shortLabel: 'Ops', icon: Wrench, optional: true },
   { id: 'hours', label: 'Business Hours', shortLabel: 'Hours', icon: Clock, optional: true },
   { id: 'phone', label: 'Phone Number', shortLabel: 'Phone', icon: Phone, optional: true },
@@ -175,6 +178,10 @@ export interface WizardData {
   forwardingNumber: string;
   serviceArea: string;
   services: string[];
+  
+  // Industry (Voice Platform)
+  verticalId: string;
+  verticalComplianceAck: boolean;
 
   // Operations
   primaryIndustry: string;
@@ -218,6 +225,9 @@ export const EMPTY_WIZARD_DATA: WizardData = {
   forwardingNumber: '',
   serviceArea: '',
   services: [],
+
+  verticalId: 'home_services',
+  verticalComplianceAck: false,
 
   primaryIndustry: '',
   teamSize: '',
