@@ -74,6 +74,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'Enterprise', href: '/enterprise' },
           { label: 'Trust Center', href: '/trust' },
           { label: 'Compliance Status', href: '/trust/compliance' },
+          { label: 'Security Portal', href: '/trust/security' },
         ],
       },
       {
