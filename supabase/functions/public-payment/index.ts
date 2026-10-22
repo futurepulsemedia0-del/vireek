@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { stripeRequest } from "../_shared/stripe/client.ts";
 import { computeTip, firstName, TIP_PRESET_PERCENTS, type TipSelection } from "../_shared/payments/tip.ts";
 import { stripeGet } from "../_shared/stripe/terminalPayments.ts";
+import { buildRegionalPaymentMethodOptions, normalizeChargeCurrency } from "../_shared/payments/regionalMethods.ts";
 import { buildIntentMetadata, buildPaymentIntentParams, isReusableIntentStatus } from "../_shared/payments/paymentIntent.ts";
 
 const corsHeaders = {
@@ -124,6 +125,11 @@ Deno.serve(async (req: Request) => {
         customerId: stripeCustomerId,
         saveCard,
         metadata,
+        currency: normalizeChargeCurrency(job?.invoice_currency),
+        paymentMethodOptions: buildRegionalPaymentMethodOptions(
+          normalizeChargeCurrency(job?.invoice_currency),
+          { acssEnabled: Deno.env.get("STRIPE_ACSS_DEBIT_ENABLED") === "true" },
+        ),
       });
 
       // One live intent per payment request: update it for a retry or a changed tip, never double-charge.
