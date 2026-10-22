@@ -176,6 +176,7 @@ const RESOURCES = [
   { label: 'Cookie Policy', description: 'How cookies are used on this site.', href: '/cookies' },
   { label: 'Data Processing Agreement', description: 'Our standard DPA for enterprise procurement.', href: '/dpa' },
   { label: 'Sub-processor List', description: 'Every third party that touches your data.', href: '/subprocessors' },
+  { label: 'Security Portal', description: 'Pentest summaries and sub-processor change notices.', href: '/trust/security' },
   { label: 'System Status', description: 'Live uptime and incident history.', href: '/status' },
   { label: 'Master Services Agreement', description: 'Legal terms for business and enterprise order forms.', href: '/msa' },
   { label: 'Service Level Agreement', description: 'Our uptime commitment and service credits.', href: '/sla' },
