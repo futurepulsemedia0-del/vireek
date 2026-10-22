@@ -54,7 +54,7 @@ export function toDispatchTechs(team: TeamMember[], firstTimeFix: Record<string,
     }));
 }
 
-export function toDispatchJobs(jobs: Job[]): DispatchJob[] {
+export function toDispatchJobs(jobs: Job[], learnedMinutes: Record<string, number> = {}): DispatchJob[] {
   return jobs.map((j) => ({
     id: j.id,
     customerName: j.customer_name,
@@ -62,7 +62,7 @@ export function toDispatchJobs(jobs: Job[]): DispatchJob[] {
     address: j.address,
     point: point(j.latitude, j.longitude),
     scheduledAt: j.scheduled_datetime,
-    durationMinutes: j.duration_minutes,
+    durationMinutes: learnedMinutes[j.id] ?? j.duration_minutes,
     assignedTechnicianId: j.assigned_technician_id,
     status: j.job_status,
     createdAt: j.created_at,
