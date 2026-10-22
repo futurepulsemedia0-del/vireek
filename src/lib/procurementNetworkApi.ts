@@ -171,7 +171,9 @@ export interface StaffOverview {
 export interface PlaceOrderResult {
   order_id: string;
   order_number: string;
-  po_id: string;
+  /** null when no purchase order could be linked (the buyer then approves inside the network). */
+  po_id: string | null;
+  po_linked: boolean;
   subtotal_cents: number;
   tier_rank: number;
   lines: number;
@@ -224,6 +226,11 @@ export function placeOrder(input: {
     p_notes: input.notes?.trim() || null,
     p_expected_delivery: input.expectedDelivery || null,
   });
+}
+
+/** Only for orders without a linked purchase order; PO-linked orders are approved via the PO. */
+export function approveOrder(orderId: string) {
+  return rpc<{ ok: boolean }>('pn_approve_order', { p_order: orderId });
 }
 
 export function cancelOrder(orderId: string) {
