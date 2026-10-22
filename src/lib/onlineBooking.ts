@@ -64,11 +64,11 @@ export async function submitPublicBooking(input: SubmitBookingInput): Promise<{ 
 // worth porting that file to this same engine later, not touched here).
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 
-export function generateAvailableSlots(business: BookingBusinessInfo, bookedIso: string[], now: Date = new Date()): Date[] {
+export function generateAvailableSlots(business: BookingBusinessInfo, bookedIso: string[], now: Date = new Date(), durationOverrideMinutes?: number): Date[] {
   const booked = new Set(bookedIso.map((iso) => new Date(iso).getTime()));
   const earliestBookable = new Date(now.getTime() + business.lead_time_hours * 60 * 60 * 1000);
   const holidaySet = new Set((business.holidays ?? []).map((h) => h.date));
-  const duration = business.default_duration_minutes || 60;
+  const duration = durationOverrideMinutes && durationOverrideMinutes >= 15 ? durationOverrideMinutes : business.default_duration_minutes || 60;
   const slots: Date[] = [];
 
   for (let d = 0; d <= business.window_days && slots.length < 40; d++) {
@@ -93,4 +93,15 @@ export function generateAvailableSlots(business: BookingBusinessInfo, bookedIso:
     }
   }
   return slots;
+}
+/** Learned slot length per service ({ 'ac repair': 90 }), or null when the owner has not enabled the feed. */
+export async function fetchBookingServiceDurations(slug: string): Promise<Record<string, number> | null> {
+  const { data, error } = await supabase.rpc('get_booking_predicted_durations', { p_slug: slug });
+  if (error || !data || typeof data !== 'object') return null;
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(data as Record<string, unknown>)) {
+    const n = Number(v);
+    if (Number.isFinite(n) && n >= 15 && n <= 1440) out[k] = n;
+  }
+  return Object.keys(out).length > 0 ? out : null;
 }
