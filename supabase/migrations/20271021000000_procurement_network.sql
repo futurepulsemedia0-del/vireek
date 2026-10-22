@@ -28,9 +28,45 @@
     - Prices are computed server-side at order time; the client cannot set a price.
     - All sensitive writes go through SECURITY DEFINER RPCs with SET search_path = public.
 
-  Additive and idempotent: nothing existing is altered except two AFTER-UPDATE triggers
-  (on purchase_orders) that only touch rows in the new pn_orders table.
+  PURCHASE-ORDER ADAPTER: the purchase-order table is resolved at runtime by pn_po_table()
+  (purchase_orders, else purchase_orders_vendor_os_legacy). If linking fails or no such table
+  exists, the network order still works without a PO link: the buyer approves it inside the
+  Procurement Network (pn_approve_order). pn_orders.po_link_error says why.
+
+  Additive and idempotent: nothing existing is altered except one AFTER-UPDATE trigger on the
+  resolved purchase-order table that only touches rows in the new pn_orders table.
 */
+
+-- =============================================================
+-- PREFLIGHT: fail fast with a clear message if a prerequisite is missing
+-- =============================================================
+DO $$
+DECLARE
+  missing text[] := '{}';
+  t text;
+  c text;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['profiles', 'team_members', 'vendors', 'inventory_parts'] LOOP
+    IF to_regclass('public.' || t) IS NULL THEN missing := missing || ('table ' || t); END IF;
+  END LOOP;
+  IF to_regprocedure('public.get_account_owner_id()') IS NULL THEN missing := missing || 'function get_account_owner_id()'; END IF;
+  FOREACH c IN ARRAY ARRAY[
+    'profiles.is_staff', 'profiles.company_name', 'profiles.role',
+    'team_members.member_email', 'team_members.account_owner_id', 'team_members.permissions',
+    'vendors.user_id', 'vendors.email', 'inventory_parts.user_id'
+  ] LOOP
+    IF to_regclass('public.' || split_part(c, '.', 1)) IS NOT NULL AND NOT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = split_part(c, '.', 1) AND column_name = split_part(c, '.', 2)
+    ) THEN missing := missing || ('column ' || c); END IF;
+  END LOOP;
+  IF array_length(missing, 1) > 0 THEN
+    RAISE EXCEPTION 'Procurement Network prerequisites are missing in this database: %', array_to_string(missing, ', ');
+  END IF;
+  IF to_regclass('public.purchase_orders') IS NULL AND to_regclass('public.purchase_orders_vendor_os_legacy') IS NULL THEN
+    RAISE NOTICE 'No purchase-order table found: network orders will be approved inside the Procurement Network (no PO link).';
+  END IF;
+END $$;
 
 -- =============================================================
 -- 0. HELPERS
@@ -65,6 +101,27 @@ RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public
 AS $$ SELECT COALESCE((SELECT is_staff FROM profiles WHERE id = auth.uid()), false) $$;
+
+-- Which purchase-order table this database uses (resolved at runtime; no hard dependency).
+CREATE OR REPLACE FUNCTION public.pn_po_table()
+RETURNS text LANGUAGE sql STABLE SET search_path = public AS $$
+  SELECT CASE
+    WHEN to_regclass('public.purchase_orders') IS NOT NULL THEN 'purchase_orders'
+    WHEN to_regclass('public.purchase_orders_vendor_os_legacy') IS NOT NULL THEN 'purchase_orders_vendor_os_legacy'
+    ELSE NULL END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.pn_cancel_po(p_po uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE t text := public.pn_po_table();
+BEGIN
+  IF t IS NULL OR p_po IS NULL THEN RETURN; END IF;
+  BEGIN
+    EXECUTE format('UPDATE public.%I SET status = ''cancelled'' WHERE id = $1 AND status NOT IN (''received'', ''closed'', ''cancelled'')', t) USING p_po;
+  EXCEPTION WHEN OTHERS THEN NULL;
+  END;
+END;
+$$;
 
 -- =============================================================
 -- 1. SUPPLIERS (non-tenant organisations) + their users
@@ -317,7 +374,8 @@ CREATE TABLE IF NOT EXISTS pn_orders (
   program_id uuid NOT NULL REFERENCES pn_programs(id) ON DELETE RESTRICT,
   program_title text,
   supplier_name text,
-  po_id uuid REFERENCES purchase_orders(id) ON DELETE SET NULL,
+  po_id uuid, -- soft reference to the buyer's purchase order (table resolved by pn_po_table())
+  po_link_error text,
   status text NOT NULL DEFAULT 'awaiting_approval'
     CHECK (status IN ('awaiting_approval', 'placed', 'confirmed', 'shipped', 'delivered', 'cancelled')),
   tier_rank_at_order integer,
@@ -347,7 +405,7 @@ CREATE TABLE IF NOT EXISTS pn_order_lines (
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   catalog_item_id uuid NOT NULL REFERENCES pn_catalog_items(id) ON DELETE RESTRICT,
   part_id uuid REFERENCES inventory_parts(id) ON DELETE SET NULL,
-  po_item_id uuid REFERENCES purchase_order_items(id) ON DELETE SET NULL,
+  po_item_id uuid,
   sku text NOT NULL,
   description text NOT NULL,
   qty numeric NOT NULL CHECK (qty > 0),
@@ -829,7 +887,10 @@ BEGIN
     WHERE po_id = NEW.id AND status = 'awaiting_approval';
     v_released := FOUND;
     IF v_released AND NEW.status = 'approved' THEN
-      UPDATE purchase_orders SET status = 'sent', sent_at = COALESCE(sent_at, now()) WHERE id = NEW.id AND status = 'approved';
+      BEGIN
+        EXECUTE format('UPDATE public.%I SET status = ''sent'', sent_at = COALESCE(sent_at, now()) WHERE id = $1 AND status = ''approved''', TG_TABLE_NAME) USING NEW.id;
+      EXCEPTION WHEN OTHERS THEN NULL;
+      END;
     END IF;
   ELSIF NEW.status = 'cancelled' THEN
     UPDATE pn_orders o SET status = 'cancelled', cancelled_at = now(),
@@ -844,11 +905,14 @@ BEGIN
 END;
 $$;
 
-DROP TRIGGER IF EXISTS trg_pn_sync_order_from_po ON purchase_orders;
-CREATE TRIGGER trg_pn_sync_order_from_po
-  AFTER UPDATE OF status ON purchase_orders
-  FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status)
-  EXECUTE FUNCTION public.pn_sync_order_from_po();
+DO $$
+DECLARE t text := public.pn_po_table();
+BEGIN
+  IF t IS NOT NULL THEN
+    EXECUTE format('DROP TRIGGER IF EXISTS trg_pn_sync_order_from_po ON public.%I', t);
+    EXECUTE format('CREATE TRIGGER trg_pn_sync_order_from_po AFTER UPDATE OF status ON public.%I FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status) EXECUTE FUNCTION public.pn_sync_order_from_po()', t);
+  END IF;
+END $$;
 
 -- =============================================================
 -- 9. TENANT RPCs
@@ -1020,17 +1084,20 @@ DECLARE
   v_sched uuid;
   v_vendor uuid;
   v_vendor_tier text;
+  v_tbl text;
   v_po uuid;
+  v_po_error text;
+  v_item_id uuid;
   v_order uuid := gen_random_uuid();
   v_number text;
   v_ship jsonb;
   v_company text;
   r record;
+  r2 record;
   ci pn_catalog_items%ROWTYPE;
   v_part uuid;
   v_price integer;
   v_baseline integer;
-  v_po_item uuid;
   v_line uuid;
   v_subtotal bigint := 0;
   v_lines integer := 0;
@@ -1080,19 +1147,15 @@ BEGIN
   IF v_tier_id IS NULL THEN RAISE EXCEPTION 'This program has no pricing tiers'; END IF;
 
   v_vendor := public.pn_vendor_for_supplier(v_owner, v_prog.supplier_id);
-  SELECT tier INTO v_vendor_tier FROM vendors WHERE id = v_vendor;
+  -- vendors.tier only exists when Vendor Management is installed; read it without depending on it.
+  SELECT to_jsonb(v) ->> 'tier' INTO v_vendor_tier FROM vendors v WHERE v.id = v_vendor;
   IF v_vendor_tier = 'blocked' THEN RAISE EXCEPTION 'This supplier is blocked in your Vendor Management'; END IF;
 
   SELECT COALESCE(NULLIF(company_name, ''), email) INTO v_company FROM profiles WHERE id = v_owner;
   v_number := 'PNO-' || to_char(now(), 'YYYYMMDD') || '-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6));
 
-  INSERT INTO purchase_orders (user_id, vendor_id, status, expected_delivery_date, notes)
-  VALUES (v_owner, v_vendor, 'pending_approval', p_expected_delivery,
-          left('Procurement Network ' || v_number || ' - ' || v_prog.title || COALESCE(' - ' || NULLIF(btrim(p_notes), ''), ''), 2000))
-  RETURNING id INTO v_po;
-
-  INSERT INTO pn_orders (id, order_number, user_id, supplier_id, program_id, program_title, supplier_name, po_id, status, tier_rank_at_order, ship_to, buyer_company, notes)
-  VALUES (v_order, v_number, v_owner, v_prog.supplier_id, p_program, v_prog.title, v_sup.name, v_po, 'awaiting_approval', v_tier_rank, v_ship, v_company, left(NULLIF(btrim(p_notes), ''), 2000));
+  INSERT INTO pn_orders (id, order_number, user_id, supplier_id, program_id, program_title, supplier_name, status, tier_rank_at_order, ship_to, buyer_company, notes)
+  VALUES (v_order, v_number, v_owner, v_prog.supplier_id, p_program, v_prog.title, v_sup.name, 'awaiting_approval', v_tier_rank, v_ship, v_company, left(NULLIF(btrim(p_notes), ''), 2000));
 
   FOR r IN
     SELECT (e ->> 'catalog_item_id')::uuid AS item_id,
@@ -1116,22 +1179,19 @@ BEGIN
 
     v_price := public.pn_unit_price(v_sched, ci.id, v_tier_id, ci.list_price_cents, v_disc);
 
-    v_baseline := ci.list_price_cents;
+    -- Baseline = the buyer's most recent non-network purchase price for the same part, else list.
+    v_baseline := NULL;
     IF v_part IS NOT NULL THEN
       SELECT poi.unit_price_cents INTO v_baseline
-      FROM purchase_order_items poi JOIN purchase_orders po ON po.id = poi.po_id
-      WHERE po.user_id = v_owner AND poi.part_id = v_part AND po.id <> v_po
-        AND po.status NOT IN ('pending_approval', 'cancelled') AND poi.unit_price_cents > 0
+      FROM purchase_order_items poi
+      WHERE poi.user_id = v_owner AND poi.part_id = v_part::text AND poi.unit_price_cents > 0
+        AND NOT EXISTS (SELECT 1 FROM pn_order_lines pl WHERE pl.po_item_id = poi.id)
       ORDER BY poi.created_at DESC LIMIT 1;
-      IF v_baseline IS NULL THEN v_baseline := ci.list_price_cents; END IF;
     END IF;
+    IF v_baseline IS NULL THEN v_baseline := ci.list_price_cents; END IF;
 
-    INSERT INTO purchase_order_items (user_id, po_id, part_id, description, quantity_ordered, unit_price_cents)
-    VALUES (v_owner, v_po, v_part, left(ci.name || ' (' || ci.sku || ')', 400), r.qty, v_price)
-    RETURNING id INTO v_po_item;
-
-    INSERT INTO pn_order_lines (order_id, user_id, catalog_item_id, part_id, po_item_id, sku, description, qty, list_price_cents, unit_price_cents)
-    VALUES (v_order, v_owner, ci.id, v_part, v_po_item, ci.sku, ci.name, r.qty, ci.list_price_cents, v_price)
+    INSERT INTO pn_order_lines (order_id, user_id, catalog_item_id, part_id, sku, description, qty, list_price_cents, unit_price_cents)
+    VALUES (v_order, v_owner, ci.id, v_part, ci.sku, ci.name, r.qty, ci.list_price_cents, v_price)
     RETURNING id INTO v_line;
     INSERT INTO pn_line_baselines (line_id, user_id, baseline_unit_cents) VALUES (v_line, v_owner, v_baseline);
 
@@ -1140,11 +1200,57 @@ BEGIN
   END LOOP;
 
   UPDATE pn_orders SET subtotal_cents = v_subtotal WHERE id = v_order;
-  PERFORM public.pn_log(v_owner, v_prog.supplier_id, 'order', v_order, 'placed',
-    jsonb_build_object('order_number', v_number, 'lines', v_lines, 'subtotal_cents', v_subtotal, 'tier_rank', v_tier_rank));
 
-  RETURN jsonb_build_object('order_id', v_order, 'order_number', v_number, 'po_id', v_po,
+  -- Route into the buyer's purchase orders. All-or-nothing: on any failure the PO and its
+  -- items are rolled back and the order stays usable without a PO link (see pn_approve_order).
+  v_tbl := public.pn_po_table();
+  IF v_tbl IS NULL THEN
+    v_po_error := 'No purchase-order table found';
+  ELSE
+    BEGIN
+      EXECUTE format('INSERT INTO public.%I (user_id, vendor_id, status, expected_delivery_date, notes) VALUES ($1, $2, ''pending_approval'', $3, $4) RETURNING id', v_tbl)
+        INTO v_po
+        USING v_owner, v_vendor, p_expected_delivery,
+              left('Procurement Network ' || v_number || ' - ' || v_prog.title || COALESCE(' - ' || NULLIF(btrim(p_notes), ''), ''), 2000);
+      FOR r2 IN SELECT id, part_id, sku, description, qty, unit_price_cents FROM pn_order_lines WHERE order_id = v_order ORDER BY created_at, id LOOP
+        INSERT INTO purchase_order_items (user_id, po_id, part_id, description, quantity_ordered, unit_price_cents)
+        VALUES (v_owner, v_po, r2.part_id::text, left(r2.description || ' (' || r2.sku || ')', 400), r2.qty, r2.unit_price_cents)
+        RETURNING id INTO v_item_id;
+        UPDATE pn_order_lines SET po_item_id = v_item_id WHERE id = r2.id;
+      END LOOP;
+    EXCEPTION WHEN OTHERS THEN
+      v_po := NULL;
+      v_po_error := left(SQLERRM, 300);
+    END;
+  END IF;
+  UPDATE pn_orders SET po_id = v_po, po_link_error = CASE WHEN v_po IS NULL THEN v_po_error ELSE NULL END WHERE id = v_order;
+
+  PERFORM public.pn_log(v_owner, v_prog.supplier_id, 'order', v_order, 'placed',
+    jsonb_build_object('order_number', v_number, 'lines', v_lines, 'subtotal_cents', v_subtotal, 'tier_rank', v_tier_rank, 'po_linked', v_po IS NOT NULL));
+
+  RETURN jsonb_build_object('order_id', v_order, 'order_number', v_number, 'po_id', v_po, 'po_linked', v_po IS NOT NULL,
                             'subtotal_cents', v_subtotal, 'tier_rank', v_tier_rank, 'lines', v_lines);
+END;
+$$;
+
+-- For orders that could not be linked to a purchase order: the buyer approves inside the network.
+CREATE OR REPLACE FUNCTION public.pn_approve_order(p_order uuid)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  v_owner uuid := public.get_account_owner_id();
+  o pn_orders%ROWTYPE;
+BEGIN
+  IF v_owner IS NULL OR NOT public.pn_can_manage() THEN RAISE EXCEPTION 'Not allowed'; END IF;
+  SELECT * INTO o FROM pn_orders WHERE id = p_order AND user_id = v_owner FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Order not found'; END IF;
+  IF o.po_id IS NOT NULL THEN RAISE EXCEPTION 'This order is linked to a purchase order. Approve that purchase order instead.'; END IF;
+  IF o.status <> 'awaiting_approval' THEN RAISE EXCEPTION 'This order is not awaiting approval'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM pn_programs WHERE id = o.program_id AND status = 'open') THEN
+    RAISE EXCEPTION 'The program is closed';
+  END IF;
+  UPDATE pn_orders SET status = 'placed', placed_at = now() WHERE id = o.id;
+  PERFORM public.pn_log(v_owner, o.supplier_id, 'order', o.id, 'approved_in_network');
+  RETURN jsonb_build_object('ok', true);
 END;
 $$;
 
@@ -1165,7 +1271,7 @@ BEGIN
   END IF;
   UPDATE pn_orders SET status = 'cancelled', cancelled_at = now(), cancel_reason = 'Cancelled by the buyer' WHERE id = o.id;
   IF o.po_id IS NOT NULL THEN
-    UPDATE purchase_orders SET status = 'cancelled' WHERE id = o.po_id AND status NOT IN ('received', 'closed', 'cancelled');
+    PERFORM public.pn_cancel_po(o.po_id);
   END IF;
   PERFORM public.pn_log(v_owner, o.supplier_id, 'order', o.id, 'cancelled_by_buyer');
   RETURN jsonb_build_object('ok', true);
@@ -1328,7 +1434,7 @@ BEGIN
     END IF;
     UPDATE pn_orders SET status = 'cancelled', cancelled_at = now(), cancel_reason = left(btrim(p_note), 500) WHERE id = o.id;
     IF o.po_id IS NOT NULL THEN
-      UPDATE purchase_orders SET status = 'cancelled' WHERE id = o.po_id AND status NOT IN ('received', 'closed', 'cancelled');
+      PERFORM public.pn_cancel_po(o.po_id);
     END IF;
   ELSE
     RAISE EXCEPTION 'Invalid action';
@@ -1472,7 +1578,9 @@ BEGIN
     'pn_sync_order_from_po()',
     'pn_validate_schedule_line()',
     'pn_set_schedule_version()',
-    'pn_guard_list_price()'
+    'pn_guard_list_price()',
+    'pn_po_table()',
+    'pn_cancel_po(uuid)'
   ] LOOP
     EXECUTE format('REVOKE ALL ON FUNCTION public.%s FROM PUBLIC, anon, authenticated', f);
   END LOOP;
@@ -1480,7 +1588,7 @@ BEGIN
   FOREACH f IN ARRAY ARRAY[
     'pn_can_manage()', 'pn_is_staff()', 'pn_my_supplier_ids()', 'pn_is_supplier_admin(uuid)', 'pn_min_cohort()',
     'pn_join_network(text, text[], boolean)', 'pn_leave_network()', 'pn_list_programs()', 'pn_program_detail(uuid)',
-    'pn_set_commitment(uuid, uuid, numeric)', 'pn_place_order(uuid, jsonb, jsonb, text, date)', 'pn_cancel_order(uuid)',
+    'pn_set_commitment(uuid, uuid, numeric)', 'pn_place_order(uuid, jsonb, jsonb, text, date)', 'pn_cancel_order(uuid)', 'pn_approve_order(uuid)',
     'pn_supplier_apply(text, text, text, text, text, text, text, text[], text[])',
     'pn_supplier_update_profile(uuid, text, text, text, text, text, text[], text[])',
     'pn_supplier_add_member(uuid, text, text)', 'pn_supplier_submit_schedule(uuid)',
