@@ -261,6 +261,7 @@ const NextBestActionsPage = lazy(() => import('@/pages/NextBestActionsPage').the
 const CallQueuePage = lazy(() => import('@/pages/CallQueuePage').then((m) => ({ default: m.CallQueuePage })));
 const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').then((m) => ({ default: m.DiagnosisCopilotPage })));
 const ServiceIntelligenceLoopPage = lazy(() => import('@/pages/ServiceIntelligenceLoopPage').then((m) => ({ default: m.ServiceIntelligenceLoopPage })));
+const DurationIntelligencePage = lazy(() => import('@/pages/DurationIntelligencePage').then((m) => ({ default: m.DurationIntelligencePage })));
 const FailureGenomePage = lazy(() => import('@/pages/FailureGenomePage').then((m) => ({ default: m.FailureGenomePage })));
 const LiveCopilotPage = lazy(() => import('@/pages/LiveCopilotPage').then((m) => ({ default: m.LiveCopilotPage })));
 const MarginGuardrailsPage = lazy(() => import('@/pages/MarginGuardrailsPage').then((m) => ({ default: m.MarginGuardrailsPage })));
@@ -3379,6 +3380,14 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           />
+<Route
+  path="/dashboard/duration-intelligence"
+  element={
+    <ProtectedRoute>
+      <DurationIntelligencePage />
+    </ProtectedRoute>
+  }
+/>
 <Route
   path="/dashboard/resolution-probability"
   element={
