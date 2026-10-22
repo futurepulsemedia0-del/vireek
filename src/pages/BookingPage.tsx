@@ -5,7 +5,7 @@ import { CalendarClock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { validateBookingPromo, promoReasonMessage, type BookingPromoResult } from '@/lib/promoCodes';
 import { Footer } from '@/components/Footer';
-import { fetchBookingBusiness, fetchBookedWindow, submitPublicBooking, generateAvailableSlots, BookingBusinessInfo } from '@/lib/onlineBooking';
+import { fetchBookingBusiness, fetchBookedWindow, submitPublicBooking, generateAvailableSlots, fetchBookingServiceDurations, BookingBusinessInfo } from '@/lib/onlineBooking';
 import { ArrivalWindowPicker } from '@/components/booking/ArrivalWindowPicker';
 import { loadArrivalWindowOffers, submitBookingWithArrivalWindow, type ArrivalWindowOffers } from '@/lib/arrivalWindowsApi';
 import { formatWindowDay, formatWindowRange, type OfferedWindow } from '@/lib/arrivalWindows';
@@ -22,6 +22,8 @@ export function BookingPage() {
   const refCode = searchParams.get('ref') || undefined;
   const [business, setBusiness] = useState<BookingBusinessInfo | null | undefined>(undefined);
   const [slots, setSlots] = useState<Date[]>([]);
+  const [bookedIso, setBookedIso] = useState<string[]>([]);
+  const [learned, setLearned] = useState<Record<string, number> | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
   const [windowOffers, setWindowOffers] = useState<ArrivalWindowOffers | null>(null);
   const [selectedWindow, setSelectedWindow] = useState<OfferedWindow | null>(null);
@@ -46,12 +48,19 @@ export function BookingPage() {
         const now = new Date();
         const later = new Date(now.getTime() + info.window_days * 24 * 60 * 60 * 1000);
         const booked = await fetchBookedWindow(slug, now, later);
-        setSlots(generateAvailableSlots(info, booked, now));
+        setBookedIso(booked);
+        setLearned(await fetchBookingServiceDurations(slug));
         loadArrivalWindowOffers(slug, info).then(setWindowOffers).catch(() => setWindowOffers(null));
         setService(info.services_offered?.[0] ?? '');
       }
     })();
   }, [slug]);
+  useEffect(() => {
+    if (!business?.booking_enabled) return;
+    const key = service.toLowerCase().replace(/\s+/g, ' ').trim();
+    setSlots(generateAvailableSlots(business, bookedIso, new Date(), learned?.[key]));
+    setSelectedSlot(null);
+  }, [business, bookedIso, learned, service]);
 
 const canSubmit = useMemo(
   () => Boolean((windowOffers ? selectedWindow : selectedSlot) && name.trim().length > 1),
