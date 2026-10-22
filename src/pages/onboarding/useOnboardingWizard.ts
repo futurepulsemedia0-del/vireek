@@ -5,6 +5,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { supabase, BusinessProfile } from '@/lib/supabase';
 import { purchasePhoneNumber } from '@/lib/phoneNumbers';
 import { createArticle, EMPTY_ARTICLE_FORM } from '@/lib/knowledge';
+import { fetchVerticalSettings, getPack, normalizeVerticalId, saveVerticalSelection } from '@/lib/voicePlatform';
 import {
   EMPTY_WIZARD_DATA,
   STEPS,
@@ -88,6 +89,7 @@ export function useOnboardingWizard() {
         serviceArea: businessProfile?.service_area ?? draft?.serviceArea ?? prev.serviceArea,
         hours: (businessProfile?.business_hours as WizardData['hours']) ?? draft?.hours ?? prev.hours,
         primaryIndustry: businessProfile?.primary_industry ?? draft?.primaryIndustry ?? prev.primaryIndustry,
+        verticalId: normalizeVerticalId(businessProfile?.vertical_id ?? draft?.verticalId ?? prev.verticalId),
         teamSize: businessProfile?.team_size ?? draft?.teamSize ?? prev.teamSize,
         currentCallHandling: businessProfile?.current_call_handling ?? draft?.currentCallHandling ?? prev.currentCallHandling,
         schedulingTool: businessProfile?.scheduling_tool ?? draft?.schedulingTool ?? prev.schedulingTool,
@@ -103,6 +105,16 @@ export function useOnboardingWizard() {
         completedSteps: wizardState?.completed_steps ?? draft?.completedSteps ?? prev.completedSteps,
       }));
 
+      // Voice Platform: restore a previously recorded compliance acknowledgement (best effort).
+      const loadedVertical = normalizeVerticalId(businessProfile?.vertical_id ?? draft?.verticalId);
+      if (getPack(loadedVertical)?.regulated) {
+        try {
+          const settings = await fetchVerticalSettings(user.id, loadedVertical);
+          if (settings.complianceAckAt) setData((prev) => ({ ...prev, verticalComplianceAck: true }));
+        } catch {
+          /* non-fatal: the owner can simply tick the box again */
+        }
+      }
       // Resume exactly where they left off, but never past "confirm" —
       // launch is always a deliberate final click, not something to
       // silently jump back into.
@@ -155,6 +167,7 @@ export function useOnboardingWizard() {
         service_area: data.serviceArea.trim() || null,
         business_hours: Object.keys(data.hours).length > 0 ? data.hours : null,
         primary_industry: data.primaryIndustry || null,
+        vertical_id: data.verticalId || 'home_services',
         team_size: data.teamSize || null,
         current_call_handling: data.currentCallHandling || null,
         scheduling_tool: data.schedulingTool || null,
@@ -260,6 +273,11 @@ export function useOnboardingWizard() {
     }
     setSaving(true);
     try {
+      if (getPack(data.verticalId)?.regulated && !data.verticalComplianceAck) {
+        toast('Please confirm the compliance notice for your industry.', 'error');
+        void goTo('vertical', false);
+        return;
+      }
       const { data: updatedProfile, error: profError } = await supabase
         .from('profiles')
         .update({
@@ -279,6 +297,14 @@ export function useOnboardingWizard() {
       }
 
       await saveBusinessProfile();
+      if (getPack(data.verticalId)?.regulated) {
+        await saveVerticalSelection({
+          ownerId: user.id,
+          actorId: user.id,
+          verticalId: normalizeVerticalId(data.verticalId),
+          acknowledge: data.verticalComplianceAck,
+        });
+      }
       await provisionPhoneIfNeeded();
       await seedKnowledgeIfNeeded();
       await persistWizardState('launch', STEPS.map((s) => s.id));
