@@ -124,6 +124,7 @@ export interface NetworkOrder {
   program_title: string | null;
   supplier_name: string | null;
   po_id: string | null;
+  po_link_error: string | null;
   status: NetworkOrderStatus;
   tier_rank_at_order: number | null;
   ship_to: Partial<ShipTo>;
