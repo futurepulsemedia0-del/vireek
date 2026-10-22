@@ -242,6 +242,7 @@ const OemGraphPage = lazy(() => import('@/pages/OemGraphPage').then((m) => ({ de
 const RecallCenterPage = lazy(() => import('@/pages/RecallCenterPage').then((m) => ({ default: m.RecallCenterPage })));
 const LocationsSettingsPage = lazy(() => import('@/pages/LocationsSettingsPage').then((m) => ({ default: m.LocationsSettingsPage })));
 const TimeOffPage = lazy(() => import('@/pages/TimeOffPage').then((m) => ({ default: m.TimeOffPage })));
+const HrOnboardingPage = lazy(() => import('@/pages/HrOnboardingPage').then((m) => ({ default: m.HrOnboardingPage })));
 const TemplatesPage = lazy(() => import('@/pages/TemplatesPage').then((m) => ({ default: m.TemplatesPage })));
 const UniversalIdentityPage = lazy(() => import('@/pages/UniversalIdentityPage').then((m) => ({ default: m.UniversalIdentityPage })));
 const FieldIntelligencePage = lazy(() => import('@/pages/FieldIntelligencePage').then((m) => ({ default: m.FieldIntelligencePage })));
@@ -3071,6 +3072,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TemplatesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/hr"
+          element={
+            <ProtectedRoute>
+              <HrOnboardingPage />
             </ProtectedRoute>
           }
         />
