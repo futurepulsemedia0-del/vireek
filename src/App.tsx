@@ -518,6 +518,7 @@ const SsoLoginPage = lazy(() => import('@/pages/SsoLoginPage').then((m) => ({ de
 const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) => ({ default: m.ReliabilityPage })));
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
+const VoicePlatformPage = lazy(() => import('@/pages/VoicePlatformPage').then((m) => ({ default: m.VoicePlatformPage })));
 const InspectionReportsPage = lazy(() => import('@/pages/InspectionReportsPage').then((m) => ({ default: m.InspectionReportsPage })));
 const FindingsPackagesPage = lazy(() => import('@/pages/FindingsPackagesPage').then((m) => ({ default: m.FindingsPackagesPage })));
 const FindingsPackagePublicPage = lazy(() => import('@/pages/FindingsPackagePublicPage').then((m) => ({ default: m.FindingsPackagePublicPage })));
@@ -733,6 +734,7 @@ function AppRoutes() {
         <Route path="/track/:token" element={<TrackingPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/dashboard/call-scripts" element={<ProtectedRoute><CallScriptsPage /></ProtectedRoute>} />
+        <Route path="/dashboard/voice-platform" element={<ProtectedRoute><VoicePlatformPage /></ProtectedRoute>} />
         <Route path="/dashboard/booking-settings" element={<ProtectedRoute><BookingSettingsPage /></ProtectedRoute>} />
         <Route path="/lp/:slug" element={<PublicLandingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
