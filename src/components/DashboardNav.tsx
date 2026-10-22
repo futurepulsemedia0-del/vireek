@@ -469,6 +469,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Market Intelligence', href: '/dashboard/market-intelligence', icon: Network },
   { label: 'Identity Learner', href: '/dashboard/identity', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Governance Center', href: '/dashboard/governance', icon: ShieldAlert },
+{ label: 'Trust Pack', href: '/dashboard/trust-pack', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
   { label: 'Value at Risk', href: '/dashboard/value-at-risk', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Revenue Autopsy', href: '/dashboard/revenue-autopsy', icon: Skull, requiresPermission: 'can_view_billing' },
   { label: 'LTV Autopilot', href: '/dashboard/ltv-autopilot', icon: Rocket, requiresPermission: 'can_view_billing' },
