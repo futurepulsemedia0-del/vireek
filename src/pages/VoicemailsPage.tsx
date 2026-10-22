@@ -171,7 +171,7 @@ function VoicemailCard({
 
       {call.recording_url && (
         <div className="mt-4">
-          <AudioPlayer url={call.recording_url} />
+          <SealedAudio url={call.recording_url}>{(u) => <AudioPlayer url={u} />}</SealedAudio>
         </div>
       )}
 
