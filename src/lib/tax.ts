@@ -12,9 +12,9 @@ export type CountryCode = string; // ISO 3166-1 alpha-2, e.g. 'DE', 'US'
 /** Standard VAT/GST rate (%) by country. Only countries we actively support. */
 export const VAT_RATES: Record<CountryCode, number> = {
   // European Union
-  AT: 20, BE: 21, BG: 20, HR: 25, CY: 19, CZ: 21, DK: 25, EE: 22,
+  AT: 20, BE: 21, BG: 20, HR: 25, CY: 19, CZ: 21, DK: 25, EE: 24,
   FI: 25.5, FR: 20, DE: 19, GR: 24, HU: 27, IE: 23, IT: 22, LV: 21,
-  LT: 21, LU: 17, MT: 18, NL: 21, PL: 23, PT: 23, RO: 19, SK: 20,
+  LT: 21, LU: 17, MT: 18, NL: 21, PL: 23, PT: 23, RO: 21, SK: 23,
   SI: 22, ES: 21, SE: 25,
   // Non-EU, still VAT/GST-registered destinations we sell into
   GB: 20, NO: 25, CH: 8.1, AE: 5, TR: 20, AU: 10,
