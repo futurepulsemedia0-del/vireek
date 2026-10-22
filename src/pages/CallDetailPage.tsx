@@ -386,6 +386,7 @@ export function CallDetailPage() {
   }, [load]);
 
   // ---------- derived ----------
+  const unsealed = useSealedValue(call?.transcript ?? null);
   const turns = useMemo(() => (call ? parseTranscript(call.transcript, call.duration_seconds, call.caller_name) : []), [call]);
   const sentiment = useMemo(() => buildSentimentTimeline(turns), [turns]);
   const roleFiltered = useMemo(() => turns.filter((t) => speakerFilter === 'all' || t.role === speakerFilter || (speakerFilter === 'agent' && t.role === 'unknown')), [turns, speakerFilter]);
