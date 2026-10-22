@@ -26,6 +26,7 @@
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { appendBookingLink, buildTrackedBookingLink, wantsBookingLink } from "../_shared/rescue/bookingLink.ts";
 import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
 
 const BATCH_SIZE = 25;
@@ -133,10 +134,18 @@ async function checkCondition(admin: SupabaseClient, run: Run, check: string): P
 async function runSmsStep(admin: SupabaseClient, run: Run, config: Record<string, unknown>) {
   if (!run.customer_phone) return { ok: false, terminal: true, error: "No customer phone on file." };
   const vars = await buildTemplateVars(admin, run);
-  const body = renderTemplate(String(config.body ?? ""), vars);
 
-  if (run.mode === "test") return { ok: true, result: { simulated: true, body } };
-
+  // Rescue Loop: tracked booking link for call.missed runs (only when the step asks for it).
+  if (run.entity_type === "call" && run.entity_id && wantsBookingLink(config)) {
+    const { data: bp } = await admin.from("business_profile").select("booking_slug, booking_enabled").eq("user_id", run.user_id).maybeSingle();
+    if (bp?.booking_enabled && bp.booking_slug) {
+      const { data: token } = await admin.rpc("rescue_issue_link", { p_user_id: run.user_id, p_call_id: run.entity_id });
+      const link = buildTrackedBookingLink({ siteUrl: Deno.env.get("SITE_URL") ?? "https://app.vireek.com", slug: bp.booking_slug, token: typeof token === "string" ? token : null });
+      if (link) vars.booking_link = link;
+    }
+  }
+  let body = renderTemplate(String(config.body ?? ""), vars);
+  if (config.include_booking_link === true) body = appendBookingLink(body, vars.booking_link ? String(vars.booking_link) : null);
   const auth = await authorizeAgentAction(admin, {
     userId: run.user_id,
     actionSlug: "workflow_sms",
