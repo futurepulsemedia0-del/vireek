@@ -8,13 +8,34 @@ import { supabase } from '@/lib/supabase';
  * key is returned ONCE, at creation, and never again.
  */
 
-export const API_SCOPES = ['calls:read', 'leads:read', 'jobs:read'] as const;
+export const API_SCOPES = [
+  'calls:read',
+  'leads:read',
+  'jobs:read',
+  'verticals:read',
+  'assistants:read',
+  'assistants:write',
+  'numbers:read',
+  'numbers:write',
+  'webhooks:read',
+  'webhooks:write',
+] as const;
 export type ApiScope = (typeof API_SCOPES)[number];
+
+/** Pre-selected when creating a key. Write scopes are always an explicit opt-in. */
+export const DEFAULT_API_SCOPES: ApiScope[] = ['calls:read', 'leads:read', 'jobs:read'];
 
 export const SCOPE_LABELS: Record<ApiScope, string> = {
   'calls:read': 'Read calls (recordings, transcripts, summaries)',
   'leads:read': 'Read leads',
   'jobs:read': 'Read jobs',
+  'verticals:read': 'Read industry template packs (Voice Platform)',
+  'assistants:read': 'Read voice assistants (Voice Platform)',
+  'assistants:write': 'Create, update and delete voice assistants (Voice Platform)',
+  'numbers:read': 'Read voice numbers (Voice Platform)',
+  'numbers:write': 'Buy and release phone numbers — billable (Voice Platform)',
+  'webhooks:read': 'Read webhook endpoints',
+  'webhooks:write': 'Create and delete webhook endpoints',
 };
 
 export interface ApiKeyRow {
