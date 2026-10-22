@@ -17,6 +17,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
+import { SealedAudio, SealedText, SealedNotice, useSealedValue } from '@/components/trust-pack/SealedContent';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -130,7 +131,8 @@ Deno.serve(async (req: Request) => {
       await admin.from("deletion_requests").update({ status: "processing" }).eq("id", request.id);
 
       let result: Record<string, number> = {};
-
+    const trust = await eraseTrustPackData(admin, request.user_id);
+   if (!trust.ok) throw new Error("trust_pack_erasure_incomplete");
       if (request.request_type === "full_account") {
         for (const owned of OWNED_TABLES) {
           const { data: rows, error } = await admin
