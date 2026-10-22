@@ -259,6 +259,7 @@ const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage')
 const SwitchingShieldPage = lazy(() => import('@/pages/SwitchingShieldPage').then((m) => ({ default: m.SwitchingShieldPage })));
 const NextBestActionsPage = lazy(() => import('@/pages/NextBestActionsPage').then((m) => ({ default: m.NextBestActionsPage })));
 const CallQueuePage = lazy(() => import('@/pages/CallQueuePage').then((m) => ({ default: m.CallQueuePage })));
+const RescueLoopPage = lazy(() => import('@/pages/RescueLoopPage').then((m) => ({ default: m.RescueLoopPage })));
 const DiagnosisCopilotPage = lazy(() => import('@/pages/DiagnosisCopilotPage').then((m) => ({ default: m.DiagnosisCopilotPage })));
 const ServiceIntelligenceLoopPage = lazy(() => import('@/pages/ServiceIntelligenceLoopPage').then((m) => ({ default: m.ServiceIntelligenceLoopPage })));
 const DurationIntelligencePage = lazy(() => import('@/pages/DurationIntelligencePage').then((m) => ({ default: m.DurationIntelligencePage })));
@@ -3156,6 +3157,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CallQueuePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/rescue-loop"
+          element={
+            <ProtectedRoute>
+              <RescueLoopPage />
             </ProtectedRoute>
           }
         />
