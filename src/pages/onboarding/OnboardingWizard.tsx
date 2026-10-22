@@ -6,6 +6,7 @@ import { useOnboardingWizard } from './useOnboardingWizard';
 import { Stepper } from './Stepper';
 import { BusinessInfoStep } from './steps/BusinessInfoStep';
 import { OperationsStep } from './steps/OperationsStep';
+import { VerticalStep } from './steps/VerticalStep';
 import { HoursStep } from './steps/HoursStep';
 import { PhoneStep } from './steps/PhoneStep';
 import { CalendarStep } from './steps/CalendarStep';
@@ -69,6 +70,7 @@ export function OnboardingWizard() {
 
           <AnimatePresence mode="wait">
             {stepId === 'business' && <BusinessInfoStep key="business" {...stepProps} onBack={undefined} />}
+            {stepId === 'vertical' && <VerticalStep key="vertical" {...stepProps} />}
             {stepId === 'operations' && <OperationsStep key="operations" {...stepProps} />}
             {stepId === 'hours' && <HoursStep key="hours" {...stepProps} />}
             {stepId === 'phone' && <PhoneStep key="phone" {...stepProps} />}
