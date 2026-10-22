@@ -382,6 +382,9 @@ const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage').then((m) 
 const TermsPage = lazy(() => import('@/pages/TermsPage').then((m) => ({ default: m.TermsPage })));
 const DpaPage = lazy(() => import('@/pages/DpaPage').then((m) => ({ default: m.DpaPage })));
 const SubprocessorsPage = lazy(() => import('@/pages/SubprocessorsPage').then((m) => ({ default: m.SubprocessorsPage })));
+const TrustPackPage = lazy(() => import('@/pages/TrustPackPage').then((m) => ({ default: m.TrustPackPage })));
+const SecurityPortalPage = lazy(() => import('@/pages/SecurityPortalPage').then((m) => ({ default: m.SecurityPortalPage })));
+const StaffTrustAdminPage = lazy(() => import('@/pages/StaffTrustAdminPage').then((m) => ({ default: m.StaffTrustAdminPage })));
 const RefundPolicyPage = lazy(() => import('@/pages/RefundPolicyPage').then((m) => ({ default: m.RefundPolicyPage })));
 const SlaPage = lazy(() => import('@/pages/SlaPage').then((m) => ({ default: m.SlaPage })));
 const AcceptableUsePage = lazy(() => import('@/pages/AcceptableUsePage').then((m) => ({ default: m.AcceptableUsePage })));
@@ -594,6 +597,7 @@ function AppRoutes() {
             </StaffRoute>
           }
         />
+       <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
         <Route
           path="/staff/partners"
           element={
@@ -753,6 +757,7 @@ function AppRoutes() {
         <Route path="/security/whitepaper" element={<SecurityWhitepaperPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
         <Route path="/trust/compliance" element={<ComplianceStatusPage />} />
+        <Route path="/trust/security" element={<SecurityPortalPage />} />
         <Route path="/integrations" element={<IntegrationsHubPage />} />
         <Route path="/integrations/:slug" element={<IntegrationDetailPage />} />
         <Route path="/offline" element={<OfflinePage />} />
@@ -1118,6 +1123,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/dashboard/trust-pack" element={<ProtectedRoute><TrustPackPage /></ProtectedRoute>} />
         <Route
           path="/dashboard/security-center"
           element={
