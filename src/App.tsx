@@ -435,6 +435,8 @@ const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ de
 const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const SurveysPage = lazy(() => import('@/pages/SurveysPage').then((m) => ({ default: m.SurveysPage })));
+const JobSummariesPage = lazy(() => import('@/pages/JobSummariesPage').then((m) => ({ default: m.JobSummariesPage })));
+const JobSummaryPublicPage = lazy(() => import('@/pages/JobSummaryPublicPage').then((m) => ({ default: m.JobSummaryPublicPage })));
 const SurveyResponsePage = lazy(() => import('@/pages/SurveyResponsePage').then((m) => ({ default: m.SurveyResponsePage })));
 const PreferencesPage = lazy(() => import('@/pages/PreferencesPage').then((m) => ({ default: m.PreferencesPage })));
 const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
@@ -1144,6 +1146,14 @@ function AppRoutes() {
               <InspectionReportsPage />
             </ProtectedRoute>
           }
+        />
+         <Route
+         path="/dashboard/job-summaries"
+        element={
+        <ProtectedRoute>
+          <JobSummariesPage />
+        </ProtectedRoute>
+        }
         />
         <Route
           path="/dashboard/findings"
@@ -2135,6 +2145,7 @@ function AppRoutes() {
         <Route path="/renew/:token" element={<RenewMembershipPage />} />
         <Route path="/sign/:token" element={<SignDocumentPage />} />
         <Route path="/inspection/:token" element={<InspectionReportPublicPage />} />
+        <Route path="/summary/:token" element={<JobSummaryPublicPage />} />
         <Route path="/findings/:token" element={<FindingsPackagePublicPage />} />
         <Route path="/invoice/:token" element={<InvoicePage />} />
         <Route path="/shared/dashboard/:token" element={<SharedDashboardPage />} />
