@@ -295,7 +295,7 @@ function CallDetailPanel({
         {call.recording_url && (
           <div>
             <p className="mb-2 text-xs font-medium text-text-secondary">Recording</p>
-            <AudioPlayer url={call.recording_url} />
+            <SealedAudio url={call.recording_url}>{(u) => <AudioPlayer url={u} />}</SealedAudio>
           </div>
         )}
 
