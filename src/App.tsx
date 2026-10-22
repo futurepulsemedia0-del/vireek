@@ -177,6 +177,7 @@ const CommissionsPage = lazy(() => import('@/pages/CommissionsPage').then((m) =>
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));|
 const ChatWidgetSettingsPage = lazy(() => import('@/pages/ChatWidgetSettingsPage').then((m) => ({ default: m.ChatWidgetSettingsPage })));
+const WebsiteWidgetsPage = lazy(() => import('@/pages/WebsiteWidgetsPage').then((m) => ({ default: m.WebsiteWidgetsPage })));
 const EvidenceChainPage = lazy(() => import('@/pages/EvidenceChainPage').then((m) => ({ default: m.EvidenceChainPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
@@ -2533,6 +2534,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ChatWidgetSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/website-widgets"
+          element={
+            <ProtectedRoute>
+              <WebsiteWidgetsPage />
             </ProtectedRoute>
           }
         />
