@@ -167,7 +167,7 @@ function PayRunDetail({ run, employees }: { run: PayRun; employees: Employee[] }
           <div key={i.id} className="flex justify-between text-xs">
             <span className="text-text-primary">{nameFor(i.employee_id)}</span>
             <span className="text-text-secondary">
-              gross {formatCents(i.gross_pay_cents)} &middot; tips {formatCents(i.tip_cents)} &middot; tax
+              gross {formatCents(i.gross_pay_cents)} &middot; tips {formatCents(i.tip_cents)}{i.bonus_cents > 0 ? <> &middot; bonuses {formatCents(i.bonus_cents)}</> : null} &middot; tax
             </span>
           </div>
         ))}
