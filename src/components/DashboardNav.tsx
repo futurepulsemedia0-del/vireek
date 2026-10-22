@@ -417,6 +417,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
   { label: 'Capacity Demand Control', href: '/dashboard/capacity-demand', icon: Gauge },
+  { label: 'Staffing Forecast', href: '/dashboard/staffing-forecast', icon: CalendarClock },
   { label: 'Workforce Equilibrium', href: '/dashboard/workforce-equilibrium', icon: Scale },
   { label: 'Business Drift Detector', href: '/dashboard/business-drift', icon: Compass },
   { label: 'Executive Reports', href: '/dashboard/reports/executive', icon: FileBarChart, ownerOnly: true },
