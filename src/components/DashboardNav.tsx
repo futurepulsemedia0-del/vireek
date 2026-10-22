@@ -241,6 +241,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Price Accuracy', href: '/dashboard/price-accuracy', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Voicemails', href: '/dashboard/voicemails', icon: Voicemail },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
+  { label: 'Lead Assignment', href: '/dashboard/lead-assignment', icon: Shuffle, requiresPermission: 'can_manage_team' },
   { label: 'Customers', href: '/dashboard/customers', icon: BookUser },
   { label: 'Equipment Intelligence', href: '/dashboard/equipment', icon: Wrench },
   { label: 'Building Telemetry', href: '/dashboard/building-telemetry', icon: Cpu },
