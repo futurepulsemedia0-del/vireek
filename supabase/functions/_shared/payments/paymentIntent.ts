@@ -51,6 +51,9 @@ export interface IntentParamsInput {
   description: string;
   receiptEmail?: string | null;
   metadata: Record<string, string>;
+  /** Lower-case ISO currency. Defaults to USD. */
+  currency?: string;
+  paymentMethodOptions?: Record<string, unknown>;
   /** Stripe Customer to attach the card to; only used together with saveCard. */
   customerId?: string | null;
   saveCard?: boolean;
@@ -70,12 +73,13 @@ export function buildPaymentIntentParams(input: IntentParamsInput): Record<strin
   if (!input.destinationAccountId) throw new Error("Missing connected account.");
   return {
     amount,
-    currency: PAYMENT_CURRENCY,
+       currency: input.currency ?? PAYMENT_CURRENCY,
     automatic_payment_methods: { enabled: true },
     transfer_data: { destination: input.destinationAccountId },
     description: input.description.slice(0, 500),
     receipt_email: input.receiptEmail || undefined,
     metadata: input.metadata,
+    ...(input.paymentMethodOptions ? { payment_method_options: input.paymentMethodOptions } : {}),
     ...(input.saveCard && input.customerId ? { customer: input.customerId, setup_future_usage: "off_session" } : {}),
   };
 }
