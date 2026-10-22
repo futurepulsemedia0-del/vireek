@@ -25,6 +25,7 @@ import { ArrowLeft, Briefcase, MessagesSquare } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { JobWorkflowPanel } from '@/components/jobs/JobWorkflowPanel';
+import { JobSummaryPanel } from '@/components/jobs/JobSummaryPanel';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import type { RealtimeStatus } from '@/lib/realtime';
 import type { Job } from '@/lib/supabase';
@@ -526,6 +527,7 @@ export function JobDetailPage() {
           <CommentsPanel entityType="job" entityId={j.id} entityLabel={j.customer_name} />
           <JobPhotosCard job={j} canEdit={access.canEdit} uploading={uploading} onUpload={(slot, files) => void uploadPhotos(slot, files)} />
           <JobPartsCard required={required} used={used} />
+          {ownerId && <JobSummaryPanel jobId={j.id} ownerId={ownerId} jobStatus={j.job_status} />}
           <JobPartsOrderingPanel
            job={j}
            canManage={access.canManage}
