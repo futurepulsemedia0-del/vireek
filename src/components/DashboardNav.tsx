@@ -390,6 +390,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Customer Trust Bank', href: '/dashboard/trust-bank', icon: ShieldCheck },
   { label: 'Next Best Actions', href: '/dashboard/next-best-actions', icon: Target },
   { label: 'Call Queue', href: '/dashboard/call-queue', icon: PhoneCall },
+  { label: 'Rescue Loop', href: '/dashboard/rescue-loop', icon: Timer },
   { label: 'Diagnosis Copilot', href: '/dashboard/diagnosis-copilot', icon: Stethoscope },
   { label: 'Remote Resolution', href: '/dashboard/remote-resolution', icon: PhoneCall },
   { label: 'Service Intelligence Loop', href: '/dashboard/service-intelligence-loop', icon: Network },
