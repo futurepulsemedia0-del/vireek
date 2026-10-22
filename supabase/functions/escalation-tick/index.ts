@@ -35,7 +35,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: events, error } = await admin
     .from("escalation_events")
-    .select("id, user_id, schedule_id, current_tier, last_notified_at, ack_token, call_id, notification_id")
+    .select("id, user_id, schedule_id, current_tier, last_notified_at, ack_token, call_id, notification_id, lead_id")
     .eq("status", "active")
     .limit(100);
 
@@ -55,9 +55,10 @@ Deno.serve(async (req: Request) => {
       if (!tiers || tiers.length === 0) continue;
 
       const activeTier = tiers.find((t) => t.tier_order === ev.current_tier);
-      const nextTier = tiers.find((t) => t.tier_order === ev.current_tier + 1);
+      const firstLeadAlert = Boolean(ev.lead_id) && !ev.last_notified_at;
+      const nextTier = firstLeadAlert ? activeTier : tiers.find((t) => t.tier_order === ev.current_tier + 1);
       const elapsedMs = ev.last_notified_at ? Date.now() - new Date(ev.last_notified_at).getTime() : Infinity;
-      if (!activeTier || elapsedMs < activeTier.delay_minutes * 60_000) continue;
+      if (!activeTier || (!firstLeadAlert && elapsedMs < activeTier.delay_minutes * 60_000)) continue;
 
       if (!nextTier) {
         const { data: profile, error: profileError } = await admin
@@ -99,7 +100,7 @@ Deno.serve(async (req: Request) => {
       if (!member?.member_phone) continue;
 
       const ackUrl = `${siteUrl}/ack/${ev.ack_token}`;
-            let alertLabel = "emergency call";
+          let alertLabel = ev.lead_id ? "uncontacted lead" : "emergency call";
       if (ev.notification_id) {
         const { data: notif } = await admin.from("notifications").select("title").eq("id", ev.notification_id).maybeSingle();
         if (notif?.title) alertLabel = String(notif.title).slice(0, 80);
