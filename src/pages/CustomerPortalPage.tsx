@@ -1,3 +1,4 @@
+import { PortalJobSummaries } from '@/components/portal/PortalJobSummaries';
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -293,6 +294,8 @@ export function CustomerPortalPage() {
                       </div>
                     )}
                   </div>
+                  {token && <PortalJobSummaries portalToken={token} />}
+
 
                   <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                     <h2 className="text-sm font-semibold text-text-primary">Past Service</h2>
