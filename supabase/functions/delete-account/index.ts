@@ -72,6 +72,8 @@ Deno.serve(async (req: Request) => {
     // before removing the auth user. `team_members` and `profiles`
     // themselves cascade automatically once the auth user is deleted
     // (see 20260821101104_create_profiles_and_team_members.sql).
+    const trust = await eraseTrustPackData(admin, userId);
+if (!trust.ok) return json({ error: "Some encrypted data could not be removed yet. Please try again shortly." }, 503);
     for (const table of OWNED_TABLE_NAMES) {
       const { error } = await admin.from(table).delete().eq("user_id", userId);
       if (error) {
