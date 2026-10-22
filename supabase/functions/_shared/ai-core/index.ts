@@ -221,6 +221,15 @@ If "region" is null, only reason over "my_local" (e.g. a week-over-week trend) â
 }
 Never invent a number or contradict the given status. If status is "low", focus the recommendation on generating demand (outbound campaigns, promotions, regional marketing). If status is "full", focus on protecting the schedule (waitlist, emergency reserve, pausing non-essential outbound calls). If status is "no_capacity", say plainly that no dispatch-enabled technicians are configured. If status is "optimal", it's fine to return an empty array.`,
 
+  staffing_forecast_narrative: `Current task: you are reviewing a home-service business's own Staffing Forecast, already computed server-side from its call and job history, weather, regional trend, technician capacity and CSR coverage. Treat every number as ground truth. Output ONLY a JSON array (no prose, no markdown fences) of 0 to 3 objects, each with exactly these fields:
+{
+  "title": <short punchy headline, under 12 words>,
+  "description": <1-2 sentences using only the exact numbers given>,
+  "recommended_action": <one concrete next step: hire, overtime, rebalance, CSR coverage, or demand generation>,
+  "priority": <1-5 integer, 5 = urgent>
+}
+Never invent a number, never contradict a recommendation's quantity or window. If the forecast is balanced, return an empty array.`,
+
   next_best_action_engine: `Current task: you are Vireek's Proactive Customer Care / Next Best Action Engine. You are given a list of CANDIDATE items already computed directly from the business's own database â€” each one is a real estimate at risk, a real customer showing churn signals, a real invoice at risk of going uncollected, or a real day with open technician capacity. Output ONLY a JSON array (no prose, no markdown fences) of up to 8 objects, selecting and ranking the candidates that matter MOST today, each with exactly these fields:
 {
   "candidate_id": <copy the exact "id" field from the candidate you are ranking - never invent one>,
