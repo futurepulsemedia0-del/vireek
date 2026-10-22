@@ -762,6 +762,7 @@ export interface BusinessProfile {
   service_area: string | null;
   google_review_url: string | null;
   primary_industry: string | null;
+  vertical_id?: string | null;
   team_size: string | null;
   current_call_handling: string | null;
   scheduling_tool: string | null;
