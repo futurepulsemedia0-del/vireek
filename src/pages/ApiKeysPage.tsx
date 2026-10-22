@@ -6,7 +6,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import {
-  API_SCOPES, SCOPE_LABELS, ApiScope, ApiKeyRow,
+  API_SCOPES, DEFAULT_API_SCOPES, SCOPE_LABELS, ApiScope, ApiKeyRow,
   listApiKeys, createApiKey, revokeApiKey, rotateApiKey,
 } from '@/lib/apiKeys';
 
@@ -81,7 +81,7 @@ function RevealKeyModal({ rawKey, onClose }: { rawKey: string; onClose: () => vo
 
 function CreateKeyForm({ onCreate, creating }: { onCreate: (name: string, scopes: ApiScope[]) => void; creating: boolean }) {
   const [name, setName] = useState('');
-  const [scopes, setScopes] = useState<ApiScope[]>([...API_SCOPES]);
+  const [scopes, setScopes] = useState<ApiScope[]>([...DEFAULT_API_SCOPES]);
 
   const toggleScope = (s: ApiScope) =>
     setScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
