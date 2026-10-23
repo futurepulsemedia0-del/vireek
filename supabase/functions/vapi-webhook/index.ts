@@ -1,4 +1,5 @@
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
+import { applyCallResult as applySpeedToLeadResult } from "../_shared/speed-to-lead/runtime.ts";
 import { autoTagCallDisposition } from "../_shared/call-dispositions/autoDisposition.ts";
 import { buildIdentityContext, lookupCallerIdentity, mergeCallerContext } from "../_shared/identity-resolution.ts";
 import { getSealPolicy, sealCallArtifacts } from "../_shared/trust/vault.ts";
@@ -2138,6 +2139,20 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
   const plainRecordingUrl = typeof patch.recording_url === "string" ? patch.recording_url : null;
   if (sealingActive && sealPolicy!.transcripts) delete patch.transcript;
   const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, requestId);
+    if (message.type === "end-of-call-report" && vapiCallId) {
+      try {
+        await applySpeedToLeadResult(admin, {
+          vapiCallId,
+          endedReason: (message.endedReason as string | undefined) ?? null,
+          durationSeconds: (patch.duration_seconds as number | null | undefined) ?? null,
+          transcript: (transcript as string | null | undefined) ?? null,
+          summary: (patch.summary as string | null | undefined) ?? null,
+          structured: (message.analysis as { structuredData?: Record<string, unknown> } | undefined)?.structuredData ?? null,
+        });
+      } catch (err) {
+        console.error(JSON.stringify({ event: "stl_apply_result_failed", error: String(err) }));
+      }
+    }
   if (sealingActive && callRow) {
     const sealed = await sealCallArtifacts(admin, { ownerId: tenant.userId, callId: callRow.id, transcript: plainTranscript, recordingUrl: plainRecordingUrl });
     await admin.from("calls").update({ transcript: sealed.transcript, recording_url: sealed.recording_url }).eq("id", callRow.id);
