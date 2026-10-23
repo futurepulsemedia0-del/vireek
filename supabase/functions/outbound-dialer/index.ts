@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
+import { selectOutboundNumber, recordDialAttempt } from "../_shared/number-reputation/attempts.ts";
 
 const BATCH_SIZE = 20;
 const VAPI_CALL_URL = "https://api.vapi.ai/call";
@@ -52,7 +53,7 @@ Deno.serve(async (req: Request) => {
       .eq("user_id", call.user_id)
       .maybeSingle();
 
-    if (!business?.vapi_assistant_id || !business?.vapi_phone_number_id) {
+    if (!business?.vapi_assistant_id) {
       await admin.from("outbound_calls").update({
         status: "failed", outcome_notes: "No Vapi assistant/phone number configured for this business.", attempt_count: call.attempt_count + 1,
       }).eq("id", call.id);
@@ -76,13 +77,23 @@ Deno.serve(async (req: Request) => {
         continue;
       }
     }
+    const pick = await selectOutboundNumber(admin, call.user_id, call.customer_phone, business.vapi_phone_number_id ?? null);
+    if (pick.kind === "none") {
+      await admin.from("outbound_calls").update({ status: "failed", outcome_notes: pick.note, attempt_count: call.attempt_count + 1 }).eq("id", call.id);
+      failed += 1;
+      continue;
+    }
+    if (pick.kind === "deferred") {
+      await admin.from("outbound_calls").update({ scheduled_for: pick.retryAt, outcome_notes: pick.note }).eq("id", call.id);
+      continue;
+    }
     try {
       const res = await fetch(VAPI_CALL_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${vapiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           assistantId: business.vapi_assistant_id,
-          phoneNumberId: business.vapi_phone_number_id,
+          phoneNumberId: pick.vapiPhoneNumberId,
           customer: { number: call.customer_phone },
           assistantOverrides: { variableValues: { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] } },
         }),
@@ -103,6 +114,9 @@ Deno.serve(async (req: Request) => {
       await admin.from("outbound_calls").update({
         status: "calling", vapi_call_id: json.id ?? null, called_at: new Date().toISOString(), attempt_count: call.attempt_count + 1,
       }).eq("id", call.id);
+      if (pick.kind === "pool") {
+        await recordDialAttempt(admin, { userId: call.user_id, phoneNumberId: pick.phoneNumberId, outboundCallId: call.id, campaignType: call.campaign_type, vapiCallId: json.id ?? null });
+      }
       dialed += 1;
     } catch (err) {
       await admin.from("outbound_calls").update({
