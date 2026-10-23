@@ -6,6 +6,7 @@ import { ClipboardList } from 'lucide-react';
 import { Mic } from 'lucide-react';
 import {
   BarChart3,
+  Ruler,
   FileUp,
   LayoutTemplate,
   Globe,
@@ -366,6 +367,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
   { label: 'Field Messages', href: '/dashboard/field-messages', icon: MessageSquare },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
+  { label: 'AI Takeoff', href: '/dashboard/takeoff', icon: Ruler },
   { label: 'Price Lists', href: '/dashboard/price-lists', icon: Tags, requiresPermission: 'can_view_billing' },
   { label: 'Form Builder', href: '/dashboard/form-builder', icon: ClipboardList, requiresPermission: 'can_edit_business_profile' },
   { label: 'Job Templates', href: '/dashboard/job-templates', icon: LayoutTemplate, requiresPermission: 'can_view_billing' },
