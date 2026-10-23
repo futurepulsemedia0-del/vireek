@@ -27,6 +27,7 @@ export interface InstallProject {
   retainage_percent: number;
   start_date: string | null;
   target_end_date: string | null;
+  work_weekends?: boolean;
   completed_at: string | null;
   retainage_invoice_id: string | null;
   notes: string | null;
@@ -46,6 +47,11 @@ export interface ProjectPhase {
   planned_end: string | null;
   actual_start: string | null;
   actual_end: string | null;
+  // Scheduler (optional so existing fixtures and rows keep type-checking).
+  locked?: boolean;
+  updated_at?: string;
+  baseline_start?: string | null;
+  baseline_end?: string | null;
 }
 
 export interface ProjectMilestone {
@@ -88,6 +94,7 @@ export interface ProjectMaterial {
   vendor: string | null;
   status: MaterialStatus;
   expected_date: string | null;
+  lead_time_days?: number;
   notes: string | null;
 }
 
@@ -586,6 +593,16 @@ const ERROR_COPY: Record<string, string> = {
   invalid_part: 'That inventory part is not in your account.',
   invalid_phase: 'That phase does not belong to this project.',
   duplicate_key: 'That job is already linked to a project.',
+  dependency_cycle: 'That link would create a loop between phases.',
+  dependency_self: 'A phase cannot depend on itself.',
+  dependency_invalid: 'Both phases must belong to this project.',
+  stale_schedule: 'The schedule changed while you were editing. It has been reloaded — try again.',
+  phase_locked: 'This phase is locked. Unlock it before changing its dates.',
+  phase_completed: 'Completed phases cannot be rescheduled.',
+  project_closed: 'Completed or cancelled projects cannot be rescheduled.',
+  invalid_range: 'The end date must be on or after the start date.',
+  invalid_technician: 'That team member is not in your account.',
+  sharing_not_found: 'Project not found.',
 };
 
 export function friendlyError(error: unknown, fallback: string): string {
