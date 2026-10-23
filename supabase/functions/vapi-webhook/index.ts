@@ -3,6 +3,7 @@ import { applyCallResult as applySpeedToLeadResult } from "../_shared/speed-to-l
 import { autoTagCallDisposition } from "../_shared/call-dispositions/autoDisposition.ts";
 import { buildIdentityContext, lookupCallerIdentity, mergeCallerContext } from "../_shared/identity-resolution.ts";
 import { getSealPolicy, sealCallArtifacts } from "../_shared/trust/vault.ts";
+import { recordAttemptOutcome } from "../_shared/number-reputation/attempts.ts";
 // supabase/functions/vapi-webhook/index.ts
 //
 // Server URL for the Vapi "Vireek Receptionist" production assistant(s).
@@ -87,6 +88,7 @@ import {
 interface VapiCall {
   id?: string;
   assistantId?: string;
+  phoneCallProviderId?: string;
   phoneNumberId?: string;
   customer?: { number?: string | null; name?: string | null } | null;
   startedAt?: string;
@@ -2001,6 +2003,7 @@ async function updateOutboundCallStatus(admin: SupabaseClient, outboundCallId: s
 }
 
 async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMessage, requestId: string) {
+  if (message.type === "end-of-call-report") await recordAttemptOutcome(admin, message);
   const tenant = await resolveTenant(admin, message, requestId);
   if (!tenant) {
     logEvent("lifecycle_event_no_tenant", requestId, { type: message.type });
