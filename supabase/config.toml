@@ -1,2 +1,4 @@
 [functions.money-recovered-run]
 verify_jwt = false
+[functions.quote-video-public]
+verify_jwt = false
