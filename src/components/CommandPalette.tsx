@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ExportMenu } from '@/components/exports/ExportMenu';
+import { OperatorPanel } from '@/components/operator/OperatorPanel';
 import {
   Search,
   LayoutDashboard,
@@ -20,6 +21,7 @@ import {
   CornerDownLeft,
   LifeBuoy,
   Rocket,
+  Sparkles,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -76,6 +78,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [operatorQuery, setOperatorQuery] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -95,6 +98,7 @@ export function CommandPalette() {
     if (open) setTimeout(() => inputRef.current?.focus(), 50);
     else {
       setQuery('');
+      setOperatorQuery(null);
       setResults([]);
     }
   }, [open]);
@@ -156,6 +160,14 @@ export function CommandPalette() {
     };
   }, [query]);
 
+  const operatorText = query.trim().replace(/^>\s*/, '');
+  const operatorIntent =
+    query.trim().startsWith('>') ||
+    (operatorText.length >= 6 && filteredPages.length === 0 && results.length === 0 && !searching);
+  const startOperator = () => {
+    if (operatorText.length >= 2) setOperatorQuery(operatorText);
+  };
+
   const go = (href: string) => {
     setOpen(false);
     navigate(href);
@@ -180,12 +192,22 @@ export function CommandPalette() {
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             className="fixed left-1/2 top-[14vh] z-[140] w-[92vw] max-w-lg -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
           >
+            {operatorQuery !== null ? (
+              <OperatorPanel instruction={operatorQuery} onBack={() => setOperatorQuery(null)} onClose={() => setOpen(false)} />
+            ) : (
+              <>
             <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
               <Search size={17} className="text-text-secondary" />
               <input
                 ref={inputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && operatorIntent) {
+                    e.preventDefault();
+                    startOperator();
+                  }
+                }}
                 placeholder="Jump to a page, or search calls, leads, jobs…"
                 className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary/60"
               />
@@ -213,6 +235,13 @@ export function CommandPalette() {
                     </button>
                   ))}
                 </>
+              )}
+              {operatorText.length >= 6 && (
+                <button type="button" onClick={startOperator} className="focus-ring flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-bg-tertiary">
+                  <Sparkles size={16} className="text-accent" />
+                  <span className="flex-1 truncate text-sm text-text-primary">Ask Operator: “{operatorText}”</span>
+                  <CornerDownLeft size={13} className="text-text-secondary/40" />
+                </button>
               )}
               {searching && <p className="px-4 py-2 text-xs text-text-secondary">Searching…</p>}
 
