@@ -20,11 +20,13 @@ import { JobsTab } from './JobsTab';
 import { MaterialsTab } from './MaterialsTab';
 import { OverviewTab } from './OverviewTab';
 import { PhasesTab } from './PhasesTab';
+import { ScheduleTab } from './scheduler/ScheduleTab';
 import { Pill, projectStatusTone, scheduleTone, useAction, useConfirm } from './projectUi';
 
 const TABS = [
   { key: 'overview', label: 'Overview' },
   { key: 'phases', label: 'Phases' },
+  { key: 'schedule', label: 'Schedule' },
   { key: 'billing', label: 'Billing' },
   { key: 'jobs', label: 'Jobs' },
   { key: 'materials', label: 'Materials' },
@@ -143,6 +145,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === 'overview' && <OverviewTab {...tabProps} />}
         {tab === 'phases' && <PhasesTab {...tabProps} />}
+        {tab === 'schedule' && <ScheduleTab {...tabProps} />}
         {tab === 'billing' && <BillingTab {...tabProps} />}
         {tab === 'jobs' && <JobsTab {...tabProps} />}
         {tab === 'materials' && <MaterialsTab {...tabProps} />}
