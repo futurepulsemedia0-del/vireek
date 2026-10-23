@@ -550,6 +550,7 @@ const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => (
 const MarketplacePage = lazy(() => import('@/pages/MarketplacePage').then((m) => ({ default: m.MarketplacePage })));
 const SdksPage = lazy(() => import('@/pages/SdksPage').then((m) => ({ default: m.SdksPage })));
 const PromiseTrackerPage = lazy(() => import('@/pages/PromiseTrackerPage').then((m) => ({ default: m.PromiseTrackerPage })));
+const ConversationIntelligencePage = lazy(() => import('@/pages/ConversationIntelligencePage').then((m) => ({ default: m.ConversationIntelligencePage })));
 const TasksPage = lazy(() => import('@/pages/TasksPage').then((m) => ({ default: m.TasksPage })));
 const TeamChatPage = lazy(() => import('@/pages/TeamChatPage').then((m) => ({ default: m.TeamChatPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
@@ -956,6 +957,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PromiseTrackerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/conversations"
+          element={
+            <ProtectedRoute>
+              <ConversationIntelligencePage />
             </ProtectedRoute>
           }
         />
