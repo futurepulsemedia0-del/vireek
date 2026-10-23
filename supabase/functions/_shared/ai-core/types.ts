@@ -15,6 +15,7 @@ export type ProviderId =
 export type TaskType =
   | "remote_resolution";
   | "ask_vireek"
+  | "operator_plan"
   | "demo_chat"
   | "intent_classify"
   | "dashboard_answer"
