@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /wallboard/
 Allow: /
 Disallow: /s/
+Disallow: /t/
 Disallow: /portal/
 Disallow: /track/
 Disallow: /review/
