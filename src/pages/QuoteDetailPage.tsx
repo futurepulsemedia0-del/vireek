@@ -26,6 +26,7 @@ import { Input, Textarea } from '@/components/ui/Input';
 import { SkeletonCard, SkeletonStatGrid } from '@/components/Skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { QuoteVideoPanel } from '@/components/quotes/QuoteVideoPanel';
 import { QUOTE_STATUS_COLORS, QUOTE_STATUS_LABELS, getQuoteLink } from '@/lib/quotes';
 import {
   UUID_RE,
@@ -822,6 +823,7 @@ export function QuoteDetailPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             <OptionsSection quote={quote} />
+            <QuoteVideoPanel quoteId={quote.id} quoteStatus={quote.status} customerName={quote.customer_name} />
             <VersionDiffSection ws={state.ws} />
             <CommentsPanel entityType="quote" entityId={quote.id} entityLabel={quote.customer_name ?? undefined} />
           </div>
