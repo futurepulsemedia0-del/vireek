@@ -276,6 +276,7 @@ const QuoteTruthEnginePage = lazy(() => import('@/pages/QuoteTruthEnginePage').t
 const OperationalTruthPage = lazy(() => import('@/pages/OperationalTruthPage').then((m) => ({ default: m.OperationalTruthPage })));
 const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').then((m) => ({ default: m.IncentiveEnginePage })));
 const InstallProjectsPage = lazy(() => import('@/pages/InstallProjectsPage').then((m) => ({ default: m.InstallProjectsPage })));
+const ProjectProgressPage = lazy(() => import('@/pages/ProjectProgressPage').then((m) => ({ default: m.ProjectProgressPage })));
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
 const RepairReplaceAdvisorPage = lazy(() => import('@/pages/RepairReplaceAdvisorPage').then((m) => ({ default: m.RepairReplaceAdvisorPage })));
 const EnergyIntelligencePage = lazy(() => import('@/pages/EnergyIntelligencePage').then((m) => ({ default: m.EnergyIntelligencePage })));
@@ -731,6 +732,7 @@ function AppRoutes() {
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
         <Route path="/track/:token" element={<TrackingPage />} />
+        <Route path="/project/:token" element={<ProjectProgressPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/s/:token" element={<SurveyResponsePage />} />
         <Route path="/preferences/:token" element={<PreferencesPage />} />
