@@ -11,6 +11,7 @@ import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { CollectPaymentPanel } from '@/components/technician/CollectPaymentPanel';
 import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { JobPaymentPanel } from '@/components/technician/JobPaymentPanel';
+import { TechnicianTagPanel } from '@/components/technician/../tags/TechnicianTagPanel';
 import { NameplateScanCard } from '@/components/technician/NameplateScanCard';
 
 export function TechnicianJobBriefPage() {
@@ -122,6 +123,7 @@ export function TechnicianJobBriefPage() {
         )}
 
        <NameplateScanCard jobId={job.id} onCreated={load} /> 
+        <TechnicianTagPanel equipment={equipment} onAssigned={load} />
         {equipment.length > 0 && (
           <section className="rounded-lg border border-border bg-bg-secondary p-3">
             <h2 className="mb-2 text-sm font-semibold text-text-primary">Equipment on site</h2>
