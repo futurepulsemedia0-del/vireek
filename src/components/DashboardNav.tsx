@@ -250,6 +250,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Quotes', href: '/dashboard/quotes', icon: FileText },
   { label: 'Outbound Campaigns', href: '/dashboard/outbound-campaigns', icon: PhoneOutgoing },
   { label: 'Voicemail Drops', href: '/dashboard/voicemail-drops', icon: AudioLines, requiresPermission: 'can_view_billing' },
+  { label: 'Speed to Lead', href: '/dashboard/speed-to-lead', icon: Zap, requiresPermission: 'can_view_billing' },
   { label: 'Neighborhood Revenue', href: '/dashboard/neighborhood-revenue', icon: MapPinned, requiresPermission: 'can_view_billing' },
   { label: 'Marketing Automation', href: '/dashboard/marketing', icon: Megaphone },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
