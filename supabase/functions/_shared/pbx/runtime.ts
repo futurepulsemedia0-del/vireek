@@ -93,6 +93,10 @@ export async function createLeg(a: SupabaseClient, call: Row, args: LegArgs): Pr
   }
 }
 
+/** Updates a live call (redirect to new TwiML). Swallows "call already ended". */
+export async function twilioApiSafe(path: string, form: Record<string, string>): Promise<void> {
+  try { await twilioApi(path, { form }); } catch (e) { console.error(JSON.stringify({ event: 'pbx_call_update_failed', error: String(e) })); }
+}
 export const endLeg = (callSid: string, status: 'completed' | 'canceled') =>
   twilioApi(`Calls/${callSid}.json`, { form: { Status: status } });
 
