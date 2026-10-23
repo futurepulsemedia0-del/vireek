@@ -374,6 +374,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
   { label: 'Equipment Health', href: '/dashboard/equipment-health', icon: HeartPulse },
   { label: 'Equipment Passports', href: '/dashboard/equipment-passports', icon: QrCode },
+  { label: 'Vireek Tags', href: '/dashboard/tags', icon: QrCode },
   { label: 'Home Passports', href: '/dashboard/home-passports', icon: Home },
   { label: 'OEM Intelligence', href: '/dashboard/oem-intelligence', icon: Factory },
   { label: 'OEM Intelligence Graph', href: '/dashboard/oem-graph', icon: Network },
