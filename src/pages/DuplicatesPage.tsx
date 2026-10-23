@@ -15,6 +15,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { SkeletonCardList } from '@/components/Skeleton';
 import { MergeDialog } from '@/components/duplicates/MergeDialog';
+import { IdentityReviewQueue } from '@/components/duplicates/IdentityReviewQueue';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -250,7 +251,8 @@ export function DuplicatesPage() {
                 ))}
               </div>
             </div>
-
+            
+            {kind === 'customers' && view === 'review' && <IdentityReviewQueue />}
             {loading ? (
               <SkeletonCardList count={4} rows={3} />
             ) : error ? (
