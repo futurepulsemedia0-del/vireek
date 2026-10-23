@@ -409,6 +409,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Operational Truth', href: '/dashboard/operational-truth', icon: ShieldCheck },
   { label: 'Incentive Engine', href: '/dashboard/incentives', icon: BadgePercent, requiresPermission: 'can_view_billing' },
   { label: 'Rebate Intelligence', href: '/dashboard/rebate-intelligence', icon: PiggyBank },
+  { label: 'Repair vs Replace', href: '/dashboard/repair-replace', icon: Scale },
   { label: 'Energy Intelligence', href: '/dashboard/energy-intelligence', icon: Zap },
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Company Reflexes', href: '/dashboard/reflexes', icon: Zap },
