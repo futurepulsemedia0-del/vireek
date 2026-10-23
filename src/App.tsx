@@ -67,6 +67,7 @@ const ExecutionReliabilityPage = lazy(() => import('@/pages/ExecutionReliability
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
 const ReferralsPage = lazy(() => import('@/pages/ReferralsPage').then((m) => ({ default: m.ReferralsPage })));
 const VoicemailDropsPage = lazy(() => import('@/pages/VoicemailDropsPage').then((m) => ({ default: m.VoicemailDropsPage })));
+const SpeedToLeadPage = lazy(() => import('@/pages/SpeedToLeadPage').then((m) => ({ default: m.SpeedToLeadPage })));
 const NeighborhoodRevenuePage = lazy(() => import('@/pages/NeighborhoodRevenuePage').then((m) => ({ default: m.NeighborhoodRevenuePage })));
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
 const JobDetailPage = lazy(() => import('@/pages/JobDetailPage').then((m) => ({ default: m.JobDetailPage })));
@@ -2066,6 +2067,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+      path="/dashboard/speed-to-lead"  → element: <SpeedToLeadPage />
         <Route
           path="/dashboard/neighborhood-revenue"
           element={
