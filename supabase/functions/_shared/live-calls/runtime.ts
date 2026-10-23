@@ -1,3 +1,4 @@
+  import { redactLiveLine } from "../pci/transcript.ts";
 // supabase/functions/_shared/live-calls/runtime.ts
 //
 // Feeds the Live Calls board from vapi-webhook's existing server messages.
@@ -143,12 +144,12 @@ export async function trackLiveCallEvent(
       live_call_id: row.id,
       user_id: row.user_id,
       role,
-      content: event.text,
+        content: redactLiveLine(event.text),
     });
 
     const patch: Record<string, unknown> = {
       last_line_role: role,
-      last_line_preview: previewOf(event.text),
+  last_line_preview: previewOf(redactLiveLine(event.text)),
       last_line_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
