@@ -1,4 +1,9 @@
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
+import { buildPorts } from "../_shared/pci/ports.ts";
+import { startPhonePayment } from "../_shared/pci/orchestrator.ts";
+import { deepRedact, redactCardData } from "../_shared/pci/cardData.ts";
+import { redactCallTranscript } from "../_shared/pci/transcript.ts";
+import { UUID_RE } from "../_shared/pci/session.ts";
 import { applyCallResult as applySpeedToLeadResult } from "../_shared/speed-to-lead/runtime.ts";
 import { autoTagCallDisposition } from "../_shared/call-dispositions/autoDisposition.ts";
 import { buildIdentityContext, lookupCallerIdentity, mergeCallerContext } from "../_shared/identity-resolution.ts";
@@ -240,7 +245,7 @@ function redact(obj: Record<string, unknown>): Record<string, unknown> {
     if (SENSITIVE_KEYS.has(k.toLowerCase())) {
       out[k] = typeof v === "string" ? maskPhone(v) : "[redacted]";
     } else {
-      out[k] = v;
+      out[k] = deepRedact(v);
     }
   }
   return out;
@@ -1869,6 +1874,8 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
           case "save_customer_memory":
             result = await toolSaveCustomerMemory(admin, tenant, args, callerNumber, vapiCallId);
             break;
+    case "collect_card_payment":
+      return await toolCollectCardPayment(admin, tenant, args, vapiCallId, callerNumber);
           case "search_knowledge":
             result = await toolSearchKnowledge(admin, tenant, args);
             break;
@@ -1926,6 +1933,37 @@ async function resolveCallSource(admin: SupabaseClient, phoneNumberId: string | 
 // 20260913050000_insurance_claims.sql) — this function does not send
 // email/SMS itself, it relies entirely on that existing delivery path.
 // ---------------------------------------------------------------------------
+
+async function toolCollectCardPayment(
+  admin: any, tenant: { userId: string }, args: Record<string, unknown>,
+  vapiCallId: string | undefined, callerNumber: string | null | undefined,
+): Promise<string> {
+  const FALLBACK = "I can't take card details securely on this call. Tell the caller the office will text them a secure payment link. Never ask for card numbers aloud.";
+  if (!vapiCallId) return FALLBACK;
+  try {
+    const ports = await buildPorts(admin);
+    let jobId = typeof args.job_id === "string" && UUID_RE.test(args.job_id) ? args.job_id : null;
+    if (!jobId) {
+      const last10 = (callerNumber ?? "").replace(/\D/g, "").slice(-10);
+      if (last10.length !== 10) return "I couldn't tell which invoice to pay. Ask the caller for the job, or offer a secure payment link.";
+      const { data: jobs } = await admin.from("jobs").select("id, customer_phone").eq("user_id", tenant.userId)
+        .gt("invoice_amount", 0).neq("invoice_status", "paid").order("created_at", { ascending: false }).limit(10);
+      const open: string[] = [];
+      for (const j of (jobs ?? []) as Array<{ id: string; customer_phone: string | null }>) {
+        if ((j.customer_phone ?? "").replace(/\D/g, "").slice(-10) === last10 && (await ports.db.getBalanceCents(j.id)) > 0) open.push(j.id);
+      }
+      if (open.length === 0) return "There is no open balance for this caller. Tell them nothing is due.";
+      if (open.length > 1) return "The caller has several open invoices. Offer a secure payment link instead of guessing.";
+      jobId = open[0];
+    }
+    const r = await startPhonePayment(ports, { userId: tenant.userId, jobId, vapiCallId, channel: "ai_agent", actorId: null });
+    if (r.ok) return "Secure payment line started. Say nothing about card details. The call is being moved to the keypad line.";
+    if (r.code === "already_in_progress") return "A secure payment is already in progress. Wait quietly.";
+    return FALLBACK;
+  } catch {
+    return FALLBACK;
+  }
+}
 
 async function toolCaptureInsuranceClaim(
   admin: SupabaseClient,
@@ -2044,7 +2082,11 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
 
   let transcript: string | null = null;
   if (message.type === "end-of-call-report") {
-    transcript = message.transcript ?? message.artifact?.transcript ?? null;
+const pciSess = vapiCallId
+  ? await admin.from("phone_payment_sessions").select("id").eq("user_id", tenant.userId).eq("vapi_call_id", vapiCallId).limit(1).maybeSingle()
+  : { data: null };
+const pci = redactCallTranscript(message.transcript ?? message.artifact?.transcript ?? null, { hadCapture: !!pciSess.data });
+transcript = pci.text;
     const recordingUrl =
       message.recordingUrl ?? message.artifact?.recordingUrl ?? message.artifact?.recording?.stereoUrl ?? null;
     const summary = message.summary ?? message.analysis?.summary ?? null;
@@ -2060,9 +2102,12 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
 
     Object.assign(patch, {
       transcript,
-      recording_url: recordingUrl,
+        recording_url: pci.spokenCardDetected ? null : recordingUrl,
       summary,
-      duration_seconds: durationSeconds,
+        summary: summary ? redactCardData(summary, { strict: true }).text : summary,
+        pci_capture_occurred: !!pciSess.data,
+        pci_redactions: pci.redactions,
+        pci_spoken_card_detected: pci.spokenCardDetected,
     });
 
     // Price Book Enforcement — deterministic, no LLM call. Runs whether
