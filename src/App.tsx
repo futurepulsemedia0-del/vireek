@@ -277,6 +277,7 @@ const OperationalTruthPage = lazy(() => import('@/pages/OperationalTruthPage').t
 const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').then((m) => ({ default: m.IncentiveEnginePage })));
 const InstallProjectsPage = lazy(() => import('@/pages/InstallProjectsPage').then((m) => ({ default: m.InstallProjectsPage })));
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
+const RepairReplaceAdvisorPage = lazy(() => import('@/pages/RepairReplaceAdvisorPage').then((m) => ({ default: m.RepairReplaceAdvisorPage })));
 const EnergyIntelligencePage = lazy(() => import('@/pages/EnergyIntelligencePage').then((m) => ({ default: m.EnergyIntelligencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
 const PriceListsPage = lazy(() => import('@/pages/PriceListsPage').then((m) => ({ default: m.PriceListsPage })));
@@ -3334,6 +3335,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <RebateIntelligencePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/repair-replace"
+          element={
+            <ProtectedRoute>
+              <RepairReplaceAdvisorPage />
             </ProtectedRoute>
           }
         />
