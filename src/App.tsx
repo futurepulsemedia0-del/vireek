@@ -512,6 +512,7 @@ const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then((m) => ({ de
 const TechnicianProfilePage = lazy(() => import('@/pages/TechnicianProfilePage').then((m) => ({ default: m.TechnicianProfilePage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const CrmSyncPage = lazy(() => import('@/pages/CrmSyncPage').then((m) => ({ default: m.CrmSyncPage })));
+const PropertyManagementPage = lazy(() => import('@/pages/PropertyManagementPage').then((m) => ({ default: m.PropertyManagementPage })));
 const CustomFieldsPage = lazy(() => import('@/pages/CustomFieldsPage').then((m) => ({ default: m.CustomFieldsPage })));
 const ExportsPage = lazy(() => import('@/pages/ExportsPage').then((m) => ({ default: m.ExportsPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
@@ -916,6 +917,14 @@ function AppRoutes() {
     element={
       <ProtectedRoute>
         <CrmSyncPage />
+      </ProtectedRoute>
+    }
+  />
+    <Route
+    path="/dashboard/property-management"
+    element={
+      <ProtectedRoute>
+        <PropertyManagementPage />
       </ProtectedRoute>
     }
   />
