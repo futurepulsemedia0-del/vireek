@@ -354,6 +354,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { label: 'Customer Feedback', href: '/dashboard/feedback-analytics', icon: Smile, requiresPermission: 'can_view_all_jobs' },
   { label: 'Promise Tracker', href: '/dashboard/promises', icon: Handshake },
+  { label: 'Conversation Intelligence', href: '/dashboard/conversations', icon: MessagesSquare },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: MessageSquareWarning },
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Renewals', href: '/dashboard/memberships/renewals', icon: RotateCcw, requiresPermission: 'can_view_billing' },
