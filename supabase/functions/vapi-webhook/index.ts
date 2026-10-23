@@ -1,5 +1,6 @@
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 import { autoTagCallDisposition } from "../_shared/call-dispositions/autoDisposition.ts";
+import { buildIdentityContext, lookupCallerIdentity, mergeCallerContext } from "../_shared/identity-resolution.ts";
 import { getSealPolicy, sealCallArtifacts } from "../_shared/trust/vault.ts";
 // supabase/functions/vapi-webhook/index.ts
 //
@@ -676,7 +677,11 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   }
 
   const callerNumber = message.call?.customer?.number ?? null;
-  const callerContext = await buildCallerContextVariable(admin, tenant, callerNumber);
+  const identity = await lookupCallerIdentity(admin, tenant.userId, { phone: callerNumber });
+  const callerContext = mergeCallerContext(
+    await buildCallerContextVariable(admin, tenant, callerNumber),
+    buildIdentityContext(identity),
+  );
   const customerTypeContext = await buildCustomerTypeContextVariable(admin, tenant, callerNumber);
   const surgeContext = buildSurgeContextVariable(tenant);
   const afterHoursContext = buildAfterHoursContextVariable(tenant, new Date());
@@ -969,12 +974,17 @@ async function toolLookupCustomer(
   // Knowledge Graph — Customer × Equipment × Job × Call. Resolve the
   // customer record for this phone (if any) so Sarah can reference
   // specific units, not just job-level warranty text.
-  const { data: customerRecord } = await admin
-    .from("customers")
-    .select("id")
-    .eq("user_id", tenant.userId)
-    .eq("phone", phone)
-    .maybeSingle();
+  const identity = await lookupCallerIdentity(admin, tenant.userId, {
+    phone,
+    email: typeof args.email === "string" ? args.email : null,
+    address: typeof args.address === "string" ? args.address : null,
+    name: typeof args.name === "string" ? args.name : null,
+  });
+  const identityId = identity.band === "high" && !identity.conflict ? identity.customerId : null;
+  const { data: exactRecord } = identityId
+    ? { data: null }
+    : await admin.from("customers").select("id").eq("user_id", tenant.userId).eq("phone", phone).maybeSingle();
+  const customerRecord = identityId ? { id: identityId } : exactRecord;
 
   const { data: equipmentOnFile } = customerRecord
     ? await admin
@@ -1007,11 +1017,13 @@ async function toolLookupCustomer(
     return "I couldn't reach the customer records system right now.";
   }
 
-  if ((!pastCalls || pastCalls.length === 0) && (!pastJobs || pastJobs.length === 0) && (!equipmentOnFile || equipmentOnFile.length === 0)) {
+  if ((!pastCalls || pastCalls.length === 0) && (!pastJobs || pastJobs.length === 0)&& (!equipmentOnFile || equipmentOnFile.length === 0) && !identityId) {
     return "This looks like a new customer — no prior calls or jobs on file.";
   }
 
   const parts: string[] = [];
+  const identityNote = buildIdentityContext(identity);
+  if (identityNote) parts.push(identityNote);
   if (pastCalls && pastCalls.length > 0) {
     const latest = pastCalls[0];
     parts.push(
