@@ -539,6 +539,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
   { label: 'Data Imports', href: '/dashboard/imports', icon: FileUp, requiresPermission: 'can_edit_business_profile' },
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Property Management', href: '/dashboard/property-management', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, requiresPermission: 'can_edit_business_profile' },
   { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, requiresPermission: 'can_export_data' },
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
