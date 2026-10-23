@@ -35,6 +35,7 @@ import { PropertyVisionCard } from '@/components/customers/PropertyVisionCard';
 import { CustomerDocumentsCard } from '@/components/customers/CustomerDocumentsCard';
 import { CustomerTimeline } from '@/components/customers/CustomerTimeline';
 import { CustomerLanguageControl } from '@/components/customers/CustomerLanguageSelect';
+import { CustomerIdentityPanel } from '@/components/customers/CustomerIdentityPanel';
 
 // ============================================================
 // TYPES — narrow, query-shaped (not the full app-wide Job/Call
@@ -431,6 +432,7 @@ export function CustomerDetailPage() {
 
         {id && <HomeHealthCard customerId={id} />}
         {id && <PropertyVisionCard customerId={id} />}
+        {id && <CustomerIdentityPanel customerId={id} customerName={customer.name} />}
         {id && <CommentsPanel entityType="customer" entityId={id} entityLabel={customer.name} />}
         {id && <CustomerDocumentsCard customerId={id} customerName={customer.name} />}
         {/* Equipment */}
