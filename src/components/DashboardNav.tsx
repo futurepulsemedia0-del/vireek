@@ -541,6 +541,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Hours Audit', href: '/dashboard/hours-audit', icon: Timer, requiresPermission: 'can_view_billing' },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
   { label: 'Data Imports', href: '/dashboard/imports', icon: FileUp, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Phone Payments', href: '/dashboard/phone-payments', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
   { label: 'Property Management', href: '/dashboard/property-management', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, requiresPermission: 'can_edit_business_profile' },
