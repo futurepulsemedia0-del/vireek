@@ -282,6 +282,8 @@ const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage
 const RepairReplaceAdvisorPage = lazy(() => import('@/pages/RepairReplaceAdvisorPage').then((m) => ({ default: m.RepairReplaceAdvisorPage })));
 const EnergyIntelligencePage = lazy(() => import('@/pages/EnergyIntelligencePage').then((m) => ({ default: m.EnergyIntelligencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
+const TakeoffPage = lazy(() => import('@/pages/TakeoffPage').then((m) => ({ default: m.TakeoffPage })));
+const TakeoffDetailPage = lazy(() => import('@/pages/TakeoffDetailPage').then((m) => ({ default: m.TakeoffDetailPage })));
 const PriceListsPage = lazy(() => import('@/pages/PriceListsPage').then((m) => ({ default: m.PriceListsPage })));
 const FormBuilderPage = lazy(() => import('@/pages/FormBuilderPage').then((m) => ({ default: m.FormBuilderPage })));
 const JobTemplatesPage = lazy(() => import('@/pages/JobTemplatesPage').then((m) => ({ default: m.JobTemplatesPage })));
@@ -2908,6 +2910,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PriceBookPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/takeoff"
+          element={
+            <ProtectedRoute>
+              <TakeoffPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/takeoff/:id"
+          element={
+            <ProtectedRoute>
+              <TakeoffDetailPage />
             </ProtectedRoute>
           }
         />
