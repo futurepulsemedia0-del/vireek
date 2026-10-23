@@ -552,6 +552,7 @@ const ComplianceStatusPage = lazy(() => import('@/pages/ComplianceStatusPage').t
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })));
 const CommandCenterPage = lazy(() => import('@/pages/CommandCenterPage').then((m) => ({ default: m.CommandCenterPage })));
 const PhoneNumbersPage = lazy(() => import('@/pages/PhoneNumbersPage').then((m) => ({ default: m.PhoneNumbersPage })));
+const NumberReputationPage = lazy(() => import('@/pages/NumberReputationPage').then((m) => ({ default: m.NumberReputationPage })));
 const UsageDashboardPage = lazy(() => import('@/pages/UsageDashboardPage').then((m) => ({ default: m.UsageDashboardPage })));
 const SitemapPage = lazy(() => import('@/pages/SitemapPage').then((m) => ({ default: m.SitemapPage })));
 const EnterprisePage = lazy(() => import('@/pages/EnterprisePage').then((m) => ({ default: m.EnterprisePage })));
@@ -890,6 +891,14 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+        <Route
+          path="/dashboard/phone-numbers/reputation"
+          element={
+            <ProtectedRoute>
+              <NumberReputationPage />
+            </ProtectedRoute>
+          }
+        />
                 <Route
           path="/dashboard/usage"
           element={
