@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { CollectCardByPhoneDialog } from '@/components/phone-payments/CollectCardByPhoneDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { Button } from '@/components/ui/Button';
@@ -46,6 +47,7 @@ export function LiveCallsPage() {
   const [linesError, setLinesError] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [confirmMode, setConfirmMode] = useState<HandoffMode | null>(null);
+  const [cardCallId, setCardCallId] = useState<string | null>(null);
   const [handoffBusy, setHandoffBusy] = useState(false);
   const linesRequest = useRef(0);
 
@@ -379,6 +381,13 @@ export function LiveCallsPage() {
         </FadeIn>
       )}
 
+  <CollectCardByPhoneDialog
+    open={cardCallId !== null}
+    vapiCallId={cardCallId ?? ''}
+    callerPhone={selected?.caller_number ?? null}
+    onClose={() => setCardCallId(null)}
+  />
+  
       <ConfirmDialog
         open={confirmMode !== null}
         title={confirmMode === 'take_over' ? 'Take over this call?' : 'Transfer this call to your team?'}
