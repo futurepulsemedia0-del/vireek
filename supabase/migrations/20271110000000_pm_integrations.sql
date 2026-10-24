@@ -20,8 +20,8 @@ the database (approval gate, NTE cap, billing rules) still applies to synced dat
 - triggers on work_orders / work_order_visits that enqueue pushes (never block the write)
 
 ## Requires
-`has_account_permission()` (20270503000000_crm_sync) and `set_updated_at()` +
-the work_orders tables (20270410000000_commercial_work_orders).
+the work_orders tables (20270410000000_commercial_work_orders). The permission helper
+and the updated_at trigger function are defined in this file.
 
 ## Security model
 1. Tenant scoping: every row carries `user_id` = ACCOUNT OWNER id (get_account_owner_id()).
@@ -33,6 +33,54 @@ the work_orders tables (20270410000000_commercial_work_orders).
 4. Tenant contacts are personal data. They are deleted when a connection is disconnected,
    and never copied anywhere except onto the work order's own site-contact fields.
 */
+
+
+-- 0. Preflight + self-contained helpers ------------------------------------
+DO $$
+BEGIN
+  IF to_regclass('public.work_orders') IS NULL OR to_regclass('public.work_order_visits') IS NULL THEN
+    RAISE EXCEPTION 'Run the commercial work orders migration (20270410000000_commercial_work_orders.sql) first.';
+  END IF;
+  IF to_regclass('public.customers') IS NULL OR to_regclass('public.team_members') IS NULL
+     OR to_regclass('public.profiles') IS NULL OR to_regclass('public.custom_roles') IS NULL THEN
+    RAISE EXCEPTION 'Core tables (customers / profiles / team_members / custom_roles) are missing.';
+  END IF;
+END $$;
+
+-- Same definition as 20270503000000_crm_sync.sql (CREATE OR REPLACE = safe if it already exists).
+CREATE OR REPLACE FUNCTION public.has_account_permission(p_key text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT CASE
+    WHEN NOT EXISTS (SELECT 1 FROM team_members WHERE user_id = auth.uid())
+      THEN EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid())
+    ELSE COALESCE((
+      SELECT CASE
+        WHEN cr.permissions ? p_key THEN (cr.permissions ->> p_key) = 'true'
+        ELSE COALESCE((tm.permissions ->> p_key) = 'true', false)
+      END
+      FROM team_members tm
+      LEFT JOIN custom_roles cr ON cr.id = tm.custom_role_id
+      WHERE tm.user_id = auth.uid()
+      LIMIT 1
+    ), false)
+  END;
+$$;
+GRANT EXECUTE ON FUNCTION public.has_account_permission(text) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.pm_touch_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at := now();
+  RETURN NEW;
+END;
+$$;
 
 -- =============================================================
 -- 1. PERMISSION HELPER
@@ -72,7 +120,7 @@ CREATE INDEX IF NOT EXISTS idx_pm_connections_user ON public.pm_connections (use
 
 DROP TRIGGER IF EXISTS trg_touch_pm_connections ON public.pm_connections;
 CREATE TRIGGER trg_touch_pm_connections BEFORE UPDATE ON public.pm_connections
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  FOR EACH ROW EXECUTE FUNCTION public.pm_touch_updated_at();
 
 CREATE TABLE IF NOT EXISTS public.pm_connection_secrets (
   connection_id uuid PRIMARY KEY REFERENCES public.pm_connections (id) ON DELETE CASCADE,
@@ -193,7 +241,7 @@ CREATE INDEX IF NOT EXISTS idx_pm_queue_conn_status ON public.pm_sync_queue (con
 
 DROP TRIGGER IF EXISTS trg_touch_pm_queue ON public.pm_sync_queue;
 CREATE TRIGGER trg_touch_pm_queue BEFORE UPDATE ON public.pm_sync_queue
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  FOR EACH ROW EXECUTE FUNCTION public.pm_touch_updated_at();
 
 -- =============================================================
 -- 6. ENQUEUE TRIGGERS (a failure here must never block the user's write)
@@ -318,13 +366,12 @@ COMMENT ON TABLE public.pm_connection_secrets IS
 COMMENT ON TABLE public.pm_tenant_contacts IS
   'Tenant contact details read from the property manager system (personal data). Deleted on disconnect.';
 
-/*
-## Scheduled sync + queue drain (Supabase SQL editor; pg_cron + pg_net enabled). Replace the placeholders.
-
-  select cron.schedule('pm-sync-every-5-min', '*/5 * * * *', $$
-    select net.http_post(
-      url := 'https://<project-ref>.supabase.co/functions/v1/pm-sync-run',
-      headers := jsonb_build_object('Content-Type','application/json','X-Cron-Secret','<CRON_SECRET>'),
-      body := jsonb_build_object('action','cron')
-    ); $$);
-*/
+-- =============================================================
+-- OPTIONAL (run separately, only after replacing the placeholders): scheduled sync every 5 minutes
+--   select cron.schedule('pm-sync-every-5-min', '*/5 * * * *', $cron$
+--     select net.http_post(
+--       url := 'https://<project-ref>.supabase.co/functions/v1/pm-sync-run',
+--       headers := jsonb_build_object('Content-Type','application/json','X-Cron-Secret','<CRON_SECRET>'),
+--       body := jsonb_build_object('action','cron')
+--     ); $cron$);
+-- =============================================================
