@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
 import { BookingLinkCard } from '@/components/settings/BookingLinkCard';
 import { IntakeQuestionsEditor } from '@/components/booking/IntakeQuestionsEditor';
+import { CapacityBookingCard } from '@/components/booking/CapacityBookingCard';
 import {
   BOOKING_LIMITS,
   DAY_LABELS,
@@ -204,6 +205,7 @@ export function BookingSettingsPage() {
             {(shown.slug || slugTaken) && <p role="alert" className="mt-2 text-xs text-danger">{slugTaken ? 'That booking link is already taken — try another.' : shown.slug}</p>}
           </div>
 
+          <CapacityBookingCard services={loaded.services} />
           <Section icon={<ListChecks size={18} />} title="Services shown" description="Choose which of your services customers can pick when they book.">
             {loaded.services.length === 0 ? (
               <EmptyState icon={ListChecks} title="No services listed yet" description="Add the services you offer in your business profile, then choose which ones appear here."
