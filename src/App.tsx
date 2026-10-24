@@ -110,6 +110,7 @@ const PilotManagementPage = lazy(() => import('@/pages/admin/PilotManagementPage
 const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
 const EmergencyNetworkPage = lazy(() => import('@/pages/EmergencyNetworkPage').then((m) => ({ default: m.EmergencyNetworkPage })));
 const AiReliabilityPage = lazy(() => import('@/pages/AiReliabilityPage').then((m) => ({ default: m.AiReliabilityPage })));
+const AiTransparencyPage = lazy(() => import('@/pages/AiTransparencyPage').then((m) => ({ default: m.AiTransparencyPage })));
 const ServiceGuaranteePage = lazy(() => import('@/pages/ServiceGuaranteePage').then((m) => ({ default: m.ServiceGuaranteePage })));
 const ServiceGuaranteePublicPage = lazy(() => import('@/pages/ServiceGuaranteePublicPage').then((m) => ({ default: m.ServiceGuaranteePublicPage })));
 const JoinMembershipPage = lazy(() => import('@/pages/JoinMembershipPage').then((m) => ({ default: m.JoinMembershipPage })));
@@ -2320,6 +2321,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AiReliabilityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/ai-transparency"
+          element={
+            <ProtectedRoute>
+              <AiTransparencyPage />
             </ProtectedRoute>
           }
         />
