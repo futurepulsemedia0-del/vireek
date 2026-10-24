@@ -18,6 +18,38 @@
 --   profiles, team_members, custom_roles.
 -- =============================================================
 
+-- 0. Compatibility: make sure every column these features read exists ---------
+-- (some databases have an older customers / leads / calls table without them; adding is harmless)
+DO $$
+BEGIN
+  IF to_regclass('public.customers') IS NULL OR to_regclass('public.leads') IS NULL OR to_regclass('public.calls') IS NULL THEN
+    RAISE EXCEPTION 'Tables customers / leads / calls must exist first.';
+  END IF;
+END $$;
+
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS name text NOT NULL DEFAULT '';
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS phone text;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS email text;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS address text;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS customer_type text NOT NULL DEFAULT 'residential';
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS lifecycle_stage text NOT NULL DEFAULT 'lead';
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
+
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS name text NOT NULL DEFAULT '';
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS phone text;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS email text;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS service_interested text;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS notes text;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS stage text NOT NULL DEFAULT 'new';
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS customer_id uuid REFERENCES public.customers(id) ON DELETE SET NULL;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
+
+ALTER TABLE public.calls ADD COLUMN IF NOT EXISTS caller_phone text;
+ALTER TABLE public.calls ADD COLUMN IF NOT EXISTS caller_name text;
+ALTER TABLE public.calls ADD COLUMN IF NOT EXISTS customer_id uuid REFERENCES public.customers(id) ON DELETE SET NULL;
+
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns
