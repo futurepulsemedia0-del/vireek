@@ -53,8 +53,8 @@ export interface PriceAccuracyResult {
 // Extraction
 // ---------------------------------------------------------------------------
 
-const DOLLAR_PATTERN = /\$\s?(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)/g;
-const WORDS_DOLLARS_PATTERN = /\b(\d{1,3}(?:,\d{3})*)\s+dollars\b/gi;
+const DOLLAR_PATTERN = /[$€£]\s?(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)/g;
+const WORDS_DOLLARS_PATTERN = /\b(\d{1,3}(?:,\d{3})*)\s+(?:dollars|euros|pounds|dirhams|riyals|liras)\b/gi;
 
 /**
  * Pulls only the assistant's (Sarah's) turns out of a Vapi transcript.
