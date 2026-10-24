@@ -66,6 +66,7 @@ import { recordAttemptOutcome } from "../_shared/number-reputation/attempts.ts";
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import { syncJobToExternalProviders } from "../_shared/dispatch/externalJobSync.ts";
+import { voiceBookingGuard, voiceCheckAvailability } from "../_shared/booking/voiceBooking.ts";
 import { isAutomationEnabled } from "../_shared/automation/gate.ts";
 import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
 import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
@@ -1279,6 +1280,7 @@ async function toolBookAppointment(
     scheduled_datetime: scheduledDatetime,
     job_status: "scheduled",
     dispatch_note: dispatchNote,
+      ...(capacityGuard.mode === "ok" ? { assigned_technician_id: capacityGuard.technicianId, duration_minutes: capacityGuard.durationMinutes } : {}),
   };
 
   const { data: job, error: jobError } = await admin
@@ -1321,7 +1323,7 @@ async function toolBookAppointment(
     .eq("user_id", tenant.userId)
     .maybeSingle();
 
-  if (profile?.ai_dispatch_enabled) {
+  if (profile?.ai_dispatch_enabled && capacityGuard.mode !== "ok") {
     // Prefer a technician who covers this area (primary first, then least-loaded).
     if (matchedArea) {
       const preferredId = await pickAreaTechnician(
@@ -1836,6 +1838,9 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
           case "lookup_customer":
             result = await toolLookupCustomer(admin, tenant, args, callerNumber);
             break;
+          case "check_availability":
+            result = await voiceCheckAvailability(admin, tenant.userId, args);
+            break;
           case "book_appointment":
             result = await toolBookAppointment(admin, tenant, args, vapiCallId, callerNumber);
             break;
@@ -1977,6 +1982,12 @@ async function toolCaptureInsuranceClaim(
   const customerName =
     (typeof args.customer_name === "string" && args.customer_name.trim()) || callerName || null;
 
+      const capacityGuard = await voiceBookingGuard(admin, tenant.userId, {
+    serviceType: typeof args.service_type === "string" ? args.service_type : null,
+    address: addressArg || null,
+    scheduledDatetime,
+  });
+  if (capacityGuard.mode === "blocked") return capacityGuard.message;
   let callId: string | null = null;
   if (vapiCallId) {
     const { data: existingCall } = await admin
