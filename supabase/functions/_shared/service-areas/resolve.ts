@@ -1,3 +1,5 @@
+import { formatCents as formatCentsRegional } from "../regional/regional.ts";
+
 // Deno port of the pure functions in src/lib/serviceAreas.ts (normalize,
 // extract, point-in-polygon, resolve, quote) plus the server-only pieces the
 // Vapi webhook needs: loading a tenant's zones, geocoding on demand, and
@@ -174,10 +176,9 @@ export function outOfAreaReply(settings: ServiceAreaSettingsRow | null): string 
   return settings?.out_of_area_message?.trim() || DEFAULT_OUT_OF_AREA_MESSAGES[mode];
 }
 
-export function formatCents(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`;
+export function formatCents(cents: number, currency = "USD", locale = "en-US"): string {
+  return formatCentsRegional(cents, currency, locale);
 }
-
 // ---------------------------------------------------------------------------
 // Server-only helpers
 // ---------------------------------------------------------------------------
