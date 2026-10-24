@@ -23,6 +23,7 @@ import { NativeBridge } from '@/components/native/NativeBridge';
 import { AppLockGate } from '@/components/native/AppLockGate';
 import { UpdateGate } from '@/components/native/UpdateGate';
 import { initNativeRuntime } from '@/lib/native/lifecycle';
+import { RegionalProvider } from '@/contexts/RegionalContext';
 import { isNative } from '@/lib/native/platform';
 import { hideNativeSplash } from '@/lib/native/shell';
 import { initInstallPrompt } from '@/lib/pwa/installPrompt';
@@ -63,6 +64,7 @@ createRoot(document.getElementById('root')!).render(
 </ToastProvider>
                 <ConnectivityProvider>
                   <AuthProvider>
+                    <RegionalProvider>
                     <ErrorBoundary>
                     <AppLockGate>
                       <ConnectivityShell>
@@ -74,6 +76,7 @@ createRoot(document.getElementById('root')!).render(
                       <SiteAssistant />
                       <LiveChatWidget />
                     </ErrorBoundary>
+                    </RegionalProvider>
                   </AuthProvider>
                 </ConnectivityProvider>
               </ToastProvider>
