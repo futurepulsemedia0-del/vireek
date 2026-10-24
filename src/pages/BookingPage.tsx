@@ -7,6 +7,7 @@ import { validateBookingPromo, promoReasonMessage, type BookingPromoResult } fro
 import { Footer } from '@/components/Footer';
 import { recordRescueLinkClick } from '@/lib/rescueLinkTracking';
 import { fetchBookingBusiness, fetchBookedWindow, submitPublicBooking, generateAvailableSlots, fetchBookingServiceDurations, BookingBusinessInfo } from '@/lib/onlineBooking';
+import { useGoogleStructuredData } from '@/hooks/useGoogleStructuredData';
 import { ArrivalWindowPicker } from '@/components/booking/ArrivalWindowPicker';
 import { loadArrivalWindowOffers, submitBookingWithArrivalWindow, type ArrivalWindowOffers } from '@/lib/arrivalWindowsApi';
 import { formatWindowDay, formatWindowRange, type OfferedWindow } from '@/lib/arrivalWindows';
@@ -17,6 +18,7 @@ function formatSlot(date: Date): string {
 
 export function BookingPage() {
   const { slug } = useParams<{ slug: string }>();
+  useGoogleStructuredData(slug);
   const [searchParams] = useSearchParams();
   const embed = searchParams.get('embed') === '1';
   const channel = searchParams.get('src') || 'direct_link';
