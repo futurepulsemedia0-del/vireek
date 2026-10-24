@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { BookingBusinessInfo } from '@/lib/onlineBooking';
 import { submitPublicBooking } from '@/lib/onlineBooking';
+import { fetchCapacitySlots, bookCapacitySlot } from '@/lib/capacityBookingApi';
 import {
   EMPTY_BRANDING,
   generateSlots,
@@ -145,12 +146,13 @@ async function fetchBusyWindow(slug: string, start: Date, end: Date): Promise<Bu
 
 export interface PublicBookingContext {
   settings: PublicBookingSettings;
+  services: string[];
   slots: Date[];
   services: string[];
 }
 
 /** One call for the public page: settings + real busy times -> bookable slots. */
-export async function loadPublicBookingContext(slug: string, info: BookingBusinessInfo, now: Date = new Date()): Promise<PublicBookingContext> {
+export async function loadPublicBookingContext(slug: string, info: BookingBusinessInfo, now: Date = new Date() serviceType?: string | null,): Promise<PublicBookingContext> {
   const fetched = await fetchPublicBookingSettings(slug);
   const settings = fetched ?? DEFAULT_PUBLIC_SETTINGS;
   const end = new Date(now.getTime() + (info.window_days + 1) * 24 * 60 * 60 * 1000);
@@ -169,7 +171,8 @@ export async function loadPublicBookingContext(slug: string, info: BookingBusine
     now,
   );
   const services = (info.services_offered ?? []).filter((s) => !settings.hiddenServices.includes(s));
-  return { settings, slots, services };
+  const capacity = await fetchCapacitySlots(slug, serviceType ?? services[0] ?? null);
+  return { settings, slots: capacity ? capacity.slots : slots, services, capacity: capacity !== null };
 }
 
 export interface SubmitBookingInput {
@@ -182,7 +185,18 @@ export type SubmitBookingResult =
   | { ok: true; depositDueCents: number }
   | { ok: false; reason: 'slot_taken' | 'too_soon' | 'unavailable' | 'service_unavailable' | 'intake_invalid' | 'unknown' };
 
-export async function submitBookingWithSettings(input: SubmitBookingInput): Promise<SubmitBookingResult> {
+export async function submitBookingWithSettings(input: SubmitBookingInput): Promise<SubmitBookingResult> { export async function submitBookingWithSettings(input: SubmitBookingInput): Promise<SubmitBookingResult> {
+  const cap = await bookCapacitySlot({
+    slug: input.slug, slot: input.scheduledDatetime, customerName: input.customerName, customerPhone: input.customerPhone,
+    customerEmail: input.customerEmail, serviceType: input.serviceType, notes: input.notes, channel: input.channel,
+    refCode: input.refCode, intakeAnswers: input.intakeAnswers,
+  });
+  if (cap.mode === 'capacity') {
+    return cap.ok ? { ok: true, depositDueCents: cap.depositDueCents } : { ok: false, reason: cap.reason === 'intake_required' ? 'intake_invalid' : cap.reason };
+  }
+
+  const { data, error } = await supabase.rpc('create_public_booking_with_settings', {
+    // ... کد قبلی بدون تغییر
   const { data, error } = await supabase.rpc('create_public_booking_with_settings', {
     p_slug: input.slug,
     p_customer_name: input.customerName.trim(),
