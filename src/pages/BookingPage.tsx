@@ -7,6 +7,7 @@ import { validateBookingPromo, promoReasonMessage, type BookingPromoResult } fro
 import { Footer } from '@/components/Footer';
 import { recordRescueLinkClick } from '@/lib/rescueLinkTracking';
 import { fetchBookingBusiness, fetchBookedWindow, submitPublicBooking, generateAvailableSlots, fetchBookingServiceDurations, BookingBusinessInfo } from '@/lib/onlineBooking';
+import { fetchCapacitySlots } from '@/lib/capacityBookingApi';
 import { useGoogleStructuredData } from '@/hooks/useGoogleStructuredData';
 import { ArrivalWindowPicker } from '@/components/booking/ArrivalWindowPicker';
 import { loadArrivalWindowOffers, submitBookingWithArrivalWindow, type ArrivalWindowOffers } from '@/lib/arrivalWindowsApi';
@@ -69,7 +70,18 @@ export function BookingPage() {
   useEffect(() => {
     void recordRescueLinkClick(rescueToken);
   }, [rescueToken]);
-  
+  // Smart capacity booking: when the customer changes the service, re-fetch the times a qualified technician can take.
+  // Does nothing (keeps the standard times) when smart booking is off.
+  useEffect(() => {
+    if (!slug || !service) return;
+    let cancelled = false;
+    void fetchCapacitySlots(slug, service).then((r) => {
+      if (cancelled || !r) return;
+      setSlots(r.slots);
+      setSelectedSlot(null);
+    });
+    return () => { cancelled = true; };
+  }, [slug, service]);
 const canSubmit = useMemo(
   () => Boolean((windowOffers ? selectedWindow : selectedSlot) && name.trim().length > 1),
   [windowOffers, selectedWindow, selectedSlot, name]
