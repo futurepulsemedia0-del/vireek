@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { useLiveStatus } from '@/hooks/useLiveStatus';
+import { LiveReliabilityPanel } from '@/components/status/LiveReliabilityPanel';
 import { supabase } from '@/lib/supabase';
 
 // ============================================================
@@ -407,6 +408,7 @@ export function StatusPage() {
         </section>
 
         {/* System components */}
+        <LiveReliabilityPanel />
         <section className="px-6 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl">
             <p className={`${eyebrowClass()} text-center`}>Component Status</p>
