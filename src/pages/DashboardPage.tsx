@@ -11,6 +11,7 @@ import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
+import { LeakReportCard } from '@/components/LeakReportCard';
 import { SinceYesterdayCard } from '@/components/SinceYesterdayCard';
 import { GettingStartedCard } from '@/components/GettingStartedCard';
 import { DailyBriefingCard } from '@/components/DailyBriefingCard';
@@ -801,6 +802,9 @@ export function DashboardPage() {
     <DailyBriefingCard />
   </div>
 )}
+<div className="mb-6">
+  <LeakReportCard />
+</div>
   const renderWidget = (id: OverviewWidgetId): React.ReactNode => {
     switch (id) {
       case 'since_yesterday':
