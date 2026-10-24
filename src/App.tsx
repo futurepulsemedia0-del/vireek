@@ -341,6 +341,7 @@ const EventPredictionMeshPage = lazy(() => import('@/pages/EventPredictionMeshPa
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
 const TrashPage = lazy(() => import('@/pages/TrashPage').then((m) => ({ default: m.TrashPage })));
 const DuplicatesPage = lazy(() => import('@/pages/DuplicatesPage').then((m) => ({ default: m.DuplicatesPage })));
+const ComplianceRulesPage = lazy(() => import('@/pages/ComplianceRulesPage').then((m) => ({ default: m.ComplianceRulesPage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const ServiceAreasPage = lazy(() => import('@/pages/ServiceAreasPage').then((m) => ({ default: m.ServiceAreasPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
@@ -3476,6 +3477,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <DuplicatesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/compliance-rules"
+          element={
+            <ProtectedRoute>
+              <ComplianceRulesPage />
             </ProtectedRoute>
           }
         />
