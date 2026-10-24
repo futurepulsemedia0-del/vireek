@@ -177,6 +177,7 @@ import {
   Images,
   Camera,
   Paintbrush,
+  CalendarHeart,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
@@ -257,6 +258,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Leak Report', href: '/dashboard/leak-report', icon: PhoneMissed, requiresPermission: 'can_view_billing' },
   { label: 'Neighborhood Revenue', href: '/dashboard/neighborhood-revenue', icon: MapPinned, requiresPermission: 'can_view_billing' },
   { label: 'Marketing Automation', href: '/dashboard/marketing', icon: Megaphone },
+  { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Email Campaigns', href: '/dashboard/email-campaigns', icon: MailPlus, requiresPermission: 'can_view_billing' },
   { label: 'Audiences', href: '/dashboard/audiences', icon: Filter, requiresPermission: 'can_view_billing' },
