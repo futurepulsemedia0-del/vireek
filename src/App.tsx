@@ -3598,6 +3598,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/insights"
+  element={
+    <ProtectedRoute>
+      <InsightsSettingsPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/first-time-fix"
           element={
