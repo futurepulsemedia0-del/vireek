@@ -69,6 +69,7 @@ import { syncJobToExternalProviders } from "../_shared/dispatch/externalJobSync.
 import { isAutomationEnabled } from "../_shared/automation/gate.ts";
 import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
 import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
+import { getFeatureGate, recordProvenanceSidecar } from "../_shared/ai-transparency/gate.ts";
 import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
 import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
@@ -2148,6 +2149,8 @@ transcript = pci.text;
       if (intelligence) {
         const { memory_facts, ...intelligenceForCallRow } = intelligence;
         Object.assign(patch, intelligenceForCallRow);
+        const sentimentGate = await getFeatureGate(admin, tenant.userId, "ai_call_sentiment_text");
+        if (!sentimentGate.allowed) delete (patch as Record<string, unknown>).sentiment;
         logEvent("call_intelligence_computed", requestId, {
           call_score: intelligence.call_score,
           sentiment: intelligence.sentiment,
@@ -2160,7 +2163,7 @@ transcript = pci.text;
           }
         }
 
-        if (intelligence.sentiment === "negative" && tenant.forwardingNumber) {
+        if (sentimentGate.allowed && intelligence.sentiment === "negative" && tenant.forwardingNumber) {
           if (await isAutomationEnabled(admin, tenant.userId, "low-csat-auto-escalate")) {
             const recordingNote = patch.recording_url ? `Recording: ${patch.recording_url}` : "No recording available.";
             const alertBody = `Vireek alert: a call just ended with a low satisfaction score (${intelligence.call_score}/10). ${recordingNote}`;
@@ -2187,6 +2190,17 @@ transcript = pci.text;
   const plainRecordingUrl = typeof patch.recording_url === "string" ? patch.recording_url : null;
   if (sealingActive && sealPolicy!.transcripts) delete patch.transcript;
   const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, requestId);
+  if (callRow && plainRecordingUrl && message.type === "end-of-call-report") {
+    // Provider-hosted recording (Vapi): provenance is kept as a sidecar record, not inside the file.
+    await recordProvenanceSidecar(admin, tenant.userId, {
+      subjectType: "stored_recording",
+      subjectRef: `call:${callRow.id}`,
+      featureKey: "ai_voice_receptionist",
+      provider: "Vapi",
+      aiGeneratedAudio: true,
+      aiProcessed: true,
+    });
+  }
     if (message.type === "end-of-call-report" && vapiCallId) {
       try {
         await applySpeedToLeadResult(admin, {
