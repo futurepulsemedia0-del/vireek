@@ -7,6 +7,7 @@
  */
 
 import { supabase } from '@/lib/supabase';
+import { fetchMyFeatureState, prepareAiAudioUpload, registerProvenance } from '@/lib/aiTransparencyApi';
 import {
   audioContentType,
   buildStoragePath,
@@ -91,8 +92,23 @@ export interface CreateVoicemailDropInput extends ComplianceFlags {
 
 export async function createVoicemailDrop(input: CreateVoicemailDropInput): Promise<VoicemailDrop> {
   const path = buildStoragePath(input.accountOwnerId, input.file.name, crypto.randomUUID());
-
-  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, input.file, {
+  let body: Blob = input.file;
+  let provenance: { embedded: boolean; method: 'id3v2.4' | 'none'; sha256: string | null } | null = null;
+  if (input.usesAiVoice) {
+    const state = await fetchMyFeatureState('ai_voicemail_drops_ai_voice');
+    if (state && !state.allowed) {
+      throw new Error('AI-voiced voicemail drops are turned off in AI Transparency settings.');
+    }
+    const prepared = await prepareAiAudioUpload(
+      input.file,
+      audioContentType(input.file.name),
+      'ai_voicemail_drops_ai_voice',
+      'Uploaded audio',
+    );
+    body = prepared.body;
+    provenance = { embedded: prepared.embedded, method: prepared.method, sha256: prepared.sha256 };
+  }
+  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, body, {
     contentType: audioContentType(input.file.name),
     cacheControl: '3600',
     upsert: false,
@@ -109,7 +125,7 @@ export async function createVoicemailDrop(input: CreateVoicemailDropInput): Prom
       storage_path: path,
       file_name: input.file.name,
       mime_type: audioContentType(input.file.name),
-      size_bytes: input.file.size,
+      size_bytes: body.size,
       duration_seconds: input.durationSeconds,
       campaign_types: input.campaignTypes,
       uses_ai_voice: input.usesAiVoice,
@@ -120,7 +136,19 @@ export async function createVoicemailDrop(input: CreateVoicemailDropInput): Prom
     })
     .select(COLUMNS)
     .single();
-
+  if (input.usesAiVoice && provenance) {
+    void registerProvenance({
+      subjectType: 'generated_audio',
+      subjectRef: path,
+      featureKey: 'ai_voicemail_drops_ai_voice',
+      provider: 'Uploaded audio',
+      aiGeneratedAudio: true,
+      aiProcessed: true,
+      embedded: provenance.embedded,
+      embedMethod: provenance.method,
+      contentSha256: provenance.sha256,
+    });
+  }
   if (error) {
     // Never leave an orphaned file behind when the row could not be created.
     await supabase.storage.from(BUCKET).remove([path]);
