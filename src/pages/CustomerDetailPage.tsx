@@ -31,6 +31,7 @@ import {
 import { JobEquipmentLinker, type LinkedEquipment } from '@/components/customers/JobEquipmentLinker';
 import { EquipmentPassportChip } from '@/components/passport/EquipmentPassportChip';
 import { HomeHealthCard } from '@/components/customers/HomeHealthCard';
+import { CustomerLifecycleCard } from '@/components/customers/CustomerLifecycleCard';
 import { PropertyVisionCard } from '@/components/customers/PropertyVisionCard';
 import { CustomerDocumentsCard } from '@/components/customers/CustomerDocumentsCard';
 import { CustomerTimeline } from '@/components/customers/CustomerTimeline';
@@ -431,6 +432,7 @@ export function CustomerDetailPage() {
         </div>
 
         {id && <HomeHealthCard customerId={id} />}
+        {id && <CustomerLifecycleCard customerId={id} />}
         {id && <PropertyVisionCard customerId={id} />}
         {id && <CustomerIdentityPanel customerId={id} customerName={customer.name} />}
         {id && <CommentsPanel entityType="customer" entityId={id} entityLabel={customer.name} />}
