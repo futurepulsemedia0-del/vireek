@@ -126,6 +126,7 @@ export const A2A_PROTOCOL_VERSION = "0.3.0";
 const SKILL_TAGS: Record<string, string[]> = {
   get_customer: ["crm", "customer"], get_equipment: ["equipment", "warranty"], get_job: ["jobs"],
   check_schedule: ["schedule", "dispatch"], check_inventory: ["inventory", "parts"],
+  check_availability: ["schedule", "booking"],
   create_quote: ["quote", "sales"], dispatch_technician: ["dispatch"], send_customer_message: ["messaging"],
   collect_payment: ["payments"], get_action_status: ["status"],
 };
