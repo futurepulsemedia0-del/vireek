@@ -226,6 +226,9 @@ const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => (
 const NetworkHandoffsPage = lazy(() => import('@/pages/NetworkHandoffsPage').then((m) => ({ default: m.NetworkHandoffsPage })));
 const SkillMarketPage = lazy(() => import('@/pages/SkillMarketPage').then((m) => ({ default: m.SkillMarketPage })));
 const CapacityExchangePage = lazy(() => import('@/pages/CapacityExchangePage').then((m) => ({ default: m.CapacityExchangePage })));
+const JobBoardPage = lazy(() => import('@/pages/JobBoardPage').then((m) => ({ default: m.JobBoardPage })));
+const TechnicianJobBoardPage = lazy(() => import('@/pages/TechnicianJobBoardPage').then((m) => ({ default: m.TechnicianJobBoardPage })));
+const JobBoardOfferPage = lazy(() => import('@/pages/JobBoardOfferPage').then((m) => ({ default: m.JobBoardOfferPage })));
 const HomeDemandExchangePage = lazy(() => import('@/pages/HomeDemandExchangePage').then((m) => ({ default: m.HomeDemandExchangePage })));
 const ContextEnginePage = lazy(() => import('@/pages/ContextEnginePage').then((m) => ({ default: m.ContextEnginePage })));
 const AckEscalationPage = lazy(() => import('@/pages/AckEscalationPage').then((m) => ({ default: m.AckEscalationPage })));
@@ -767,6 +770,7 @@ function AppRoutes() {
         <Route path="/lp/:slug" element={<PublicLandingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
+        <Route path="/job-board/offer/:token" element={<JobBoardOfferPage />} />
         <Route path="/portal/:token/history" element={<CustomerPortalHistoryPage />} />
         <Route path="/home/*" element={<HomeApp />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
@@ -2772,6 +2776,14 @@ function AppRoutes() {
           }
         />
         <Route
+          path="/tech/job-board"
+          element={
+            <TechnicianRoute>
+              <TechnicianJobBoardPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
           path="/tech/dvir"
           element={
             <TechnicianRoute>
@@ -2912,6 +2924,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CapacityExchangePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/job-board"
+          element={
+            <ProtectedRoute>
+              <JobBoardPage />
             </ProtectedRoute>
           }
         />
