@@ -6,3 +6,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.number-reputation-sync]
 verify_jwt = false
+[functions.google-booking-feed]
+verify_jwt = false
