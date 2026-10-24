@@ -13,6 +13,7 @@
 //   supabase functions deploy clone-voice
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { getFeatureGate, recordProvenanceSidecar } from "../_shared/ai-transparency/gate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -80,6 +81,13 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const gate = await getFeatureGate(admin, caller.id, "ai_voice_cloning");
+    if (!gate.allowed) {
+      return new Response(JSON.stringify({ error: "Voice cloning is turned off in AI Transparency settings." }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     await admin
       .from("business_profile")
       .update({ custom_voice_status: "processing", custom_voice_error: null })
@@ -155,6 +163,15 @@ Deno.serve(async (req: Request) => {
       })
       .eq("user_id", caller.id);
 
+    await recordProvenanceSidecar(admin, caller.id, {
+      subjectType: "voice_clone",
+      subjectRef: elevenData.voice_id,
+      featureKey: "ai_voice_cloning",
+      provider: "ElevenLabs",
+      aiGeneratedAudio: true,
+      aiProcessed: true,
+    });
+    
     return new Response(JSON.stringify({ voiceId: elevenData.voice_id }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
