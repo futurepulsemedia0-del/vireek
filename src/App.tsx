@@ -81,6 +81,7 @@ const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage').then((m
 const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ default: m.WorkflowsPage })));
 const WorkflowCompilerPage = lazy(() => import('@/pages/WorkflowCompilerPage').then((m) => ({ default: m.WorkflowCompilerPage })));
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
+const LeakReportPage = lazy(() => import('@/pages/LeakReportPage').then((m) => ({ default: m.LeakReportPage })));
 const MoneyRecoveredStatementsPage = lazy(() => import('@/pages/MoneyRecoveredStatementsPage').then((m) => ({ default: m.MoneyRecoveredStatementsPage })));
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
@@ -2233,6 +2234,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <RevenueRecoveryLedgerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/leak-report"
+          element={
+            <ProtectedRoute>
+              <LeakReportPage />
             </ProtectedRoute>
           }
         />
