@@ -539,6 +539,8 @@ const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ defa
 const VoicePlatformPage = lazy(() => import('@/pages/VoicePlatformPage').then((m) => ({ default: m.VoicePlatformPage })));
 const InspectionReportsPage = lazy(() => import('@/pages/InspectionReportsPage').then((m) => ({ default: m.InspectionReportsPage })));
 const FindingsPackagesPage = lazy(() => import('@/pages/FindingsPackagesPage').then((m) => ({ default: m.FindingsPackagesPage })));
+const InHomeSalesPage = lazy(() => import('@/pages/InHomeSalesPage').then((m) => ({ default: m.InHomeSalesPage })));
+const SalesPresentationPage = lazy(() => import('@/pages/SalesPresentationPage').then((m) => ({ default: m.SalesPresentationPage })));
 const FindingsPackagePublicPage = lazy(() => import('@/pages/FindingsPackagePublicPage').then((m) => ({ default: m.FindingsPackagePublicPage })));
 const ReputationPage = lazy(() => import('@/pages/ReputationPage'));
 const InspectionReportPublicPage = lazy(() => import('@/pages/InspectionReportPublicPage').then((m) => ({ default: m.InspectionReportPublicPage })));
@@ -1248,6 +1250,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <FindingsPackagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/sales"
+          element={
+            <ProtectedRoute>
+              <InHomeSalesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/sales/present/:id"
+          element={
+            <ProtectedRoute>
+              <SalesPresentationPage />
             </ProtectedRoute>
           }
         />
