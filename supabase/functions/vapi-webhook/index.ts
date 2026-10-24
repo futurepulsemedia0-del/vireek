@@ -1,6 +1,7 @@
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 import { buildPorts } from "../_shared/pci/ports.ts";
 import { startPhonePayment } from "../_shared/pci/orchestrator.ts";
+import { buildRegionalVoiceContext, loadRegional, spokenMoney, type Regional } from "../_shared/regional/regional.ts";
 import { deepRedact, redactCardData } from "../_shared/pci/cardData.ts";
 import { redactCallTranscript } from "../_shared/pci/transcript.ts";
 import { UUID_RE } from "../_shared/pci/session.ts";
@@ -158,6 +159,7 @@ interface TenantContext {
   commercialSlaPolicy: string | null;
   agentOrchestrationEnabled: boolean;
   /** True when profiles.status or subscription_status is suspended/canceled — AI answering must not run. */
+  regional: Regional;
   isSuspended: boolean;
   /** Set only for API-created (Voice Platform) assistants. */
   voiceAssistantId?: string | null;
@@ -372,6 +374,7 @@ async function resolveTenant(
     afterHoursFee: resolvedBusiness.after_hours_fee ?? null,
     afterHoursFeeNote: resolvedBusiness.after_hours_fee_note ?? null,
     commercialSlaPolicy: resolvedBusiness.commercial_sla_policy ?? null,
+    regional: await loadRegional(admin, resolvedBusiness.user_id),
     agentOrchestrationEnabled: Boolean(profile?.agent_orchestration_enabled),
     voiceAssistantId: voiceAssistantRowId,
     isSuspended:
@@ -717,7 +720,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     recording_consent_context: recordingConsentContext,
     customer_memory_context: customerMemoryContext,
     language_context: voiceLanguage.context,
-    service_area_context: serviceAreaContext,
+    service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regional)].filter(Boolean).join(" "),
     vertical_context: verticalContext,
   };
 
@@ -872,7 +875,7 @@ function buildAfterHoursContextVariable(tenant: TenantContext, now: Date): strin
   if (!isAfterHoursAt(tenant.businessHours, tenant.holidays, now)) return "";
   return (
     tenant.afterHoursFeeNote ??
-    `This call is happening after hours. Let the caller know a $${tenant.afterHoursFee} after-hours fee applies before confirming any booking.`
+    `This call is happening after hours. Let the caller know a ${spokenMoney(Math.round(Number(tenant.afterHoursFee) * 100), tenant.regional.currency, tenant.regional.locale)} after-hours fee applies before confirming any booking.`
   );
 }
 async function handleTransferDestinationRequest(
