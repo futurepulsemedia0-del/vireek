@@ -8,3 +8,14 @@ verify_jwt = false
 verify_jwt = false
 [functions.google-booking-feed]
 verify_jwt = false
+[functions.synthetic-probe]
+verify_jwt = false
+
+[functions.slo-evaluate]
+verify_jwt = false
+
+[functions.synthetic-webhook-sink]
+verify_jwt = false
+
+[functions.status-feed]
+verify_jwt = false
