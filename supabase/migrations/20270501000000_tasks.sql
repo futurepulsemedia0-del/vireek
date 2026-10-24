@@ -54,6 +54,30 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   CONSTRAINT tasks_reminder_needs_due CHECK (reminder_offset_minutes IS NULL OR due_at IS NOT NULL)
 );
 
+-- ---------------------------------------------------------------------------
+-- Compatibility: if a tasks table already exists (older / different shape),
+-- CREATE TABLE IF NOT EXISTS above skips it, so add every column this feature needs.
+-- ---------------------------------------------------------------------------
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS user_id uuid DEFAULT public.get_account_owner_id();
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS created_by uuid DEFAULT auth.uid();
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS assigned_to uuid;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS assigned_to_name text;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS title text NOT NULL DEFAULT '';
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS description text;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'todo';
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS priority text NOT NULL DEFAULT 'normal';
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS due_at timestamptz;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS reminder_offset_minutes integer;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS recurrence text NOT NULL DEFAULT 'none';
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS recurrence_ends_on date;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS recurrence_parent_id uuid;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS customer_id uuid;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS job_id uuid;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS lead_id uuid;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS completed_at timestamptz;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+
 CREATE INDEX IF NOT EXISTS idx_tasks_user_status_due ON public.tasks (user_id, status, due_at);
 CREATE INDEX IF NOT EXISTS idx_tasks_assigned_open ON public.tasks (assigned_to, due_at) WHERE status <> 'done';
 CREATE INDEX IF NOT EXISTS idx_tasks_user_completed ON public.tasks (user_id, completed_at DESC) WHERE status = 'done';
