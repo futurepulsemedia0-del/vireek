@@ -71,6 +71,7 @@ export interface BusinessRecord {
   holidays: HolidayEntry[] | null;
   bookingUrl: string | null;
   bookingRules: BusinessContext["bookingRules"];
+  openTimes?: string[];
 }
 
 export interface KnowledgeContext {
@@ -256,6 +257,7 @@ export async function processInboundAutoReply(deps: AutoReplyDeps, input: Inboun
       openNow,
       bookingUrl: business.bookingUrl,
       bookingRules: business.bookingRules,
+      openTimes: business.openTimes,
     };
 
     const generated = await deps.generate({
