@@ -370,6 +370,8 @@ const FirstTimeFixAutopilotPage = lazy(() => import('@/pages/FirstTimeFixAutopil
 const ResolutionProbabilityPage = lazy(() => import('@/pages/ResolutionProbabilityPage').then((m) => ({ default: m.ResolutionProbabilityPage })));
 const OpsExperimentsPage = lazy(() => import('@/pages/OpsExperimentsPage').then((m) => ({ default: m.OpsExperimentsPage })));
 const OutcomeBenchmarkNetworkPage = lazy(() => import('@/pages/OutcomeBenchmarkNetworkPage').then((m) => ({ default: m.OutcomeBenchmarkNetworkPage })));
+const InsightsPublicPage = lazy(() => import('@/pages/InsightsPublicPage').then((m) => ({ default: m.InsightsPublicPage })));
+const InsightsSettingsPage = lazy(() => import('@/pages/InsightsSettingsPage').then((m) => ({ default: m.InsightsSettingsPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
 const LeadMarketplacesPage = lazy(() => import('@/pages/LeadMarketplacesPage').then((m) => ({ default: m.LeadMarketplacesPage })));
 const DemandOsPage = lazy(() => import('@/pages/DemandOsPage').then((m) => ({ default: m.DemandOsPage })));
@@ -797,6 +799,7 @@ function AppRoutes() {
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/security/whitepaper" element={<SecurityWhitepaperPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
+        <Route path="/insights" element={<InsightsPublicPage />} />
         <Route path="/trust/compliance" element={<ComplianceStatusPage />} />
         <Route path="/trust/security" element={<SecurityPortalPage />} />
         <Route path="/integrations" element={<IntegrationsHubPage />} />
