@@ -32,6 +32,7 @@ import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBa
 import { SortSelect, type SortOption } from '@/components/SortSelect';
 import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
 import { SalesTaxPanel } from '@/components/tax/SalesTaxPanel';
+import { formatMoney as formatMoneyRegional } from '@/lib/regional';
 import { TaxClassSelect } from '@/components/tax/TaxClassSelect';
 import { emptyTaxSelection, selectionFromDocument, taxColumnsFromSelection, type TaxSelection } from '@/lib/salesTax';
 // PROMO CODES
