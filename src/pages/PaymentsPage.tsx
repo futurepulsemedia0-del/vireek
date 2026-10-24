@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { CreditCard, Send, Loader as Loader2, ExternalLink, CircleCheck, TriangleAlert as AlertTriangle, Copy } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { Button } from '@/components/ui/Button';
+import { formatMoney as fmtRegional, getActiveRegional } from '@/lib/regional';
+import { useRegional } from '@/contexts/RegionalContext';
 import { Card } from '@/components/ui/Card';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase, Job } from '@/lib/supabase';
@@ -21,7 +23,7 @@ const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
 
 function formatMoney(amount: number) {
-  return `$${amount.toFixed(2)}`;
+  return fmtRegional(amount, getActiveRegional().reportingCurrency);
 }
 
 function StatusBadge({ status }: { status: PaymentRequest['status'] }) {
@@ -83,23 +85,17 @@ export function PaymentsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const stats = useMemo(() => {
-    const collected = requests.filter((r) => r.status === 'paid').reduce((sum, r) => sum + Number(r.amount), 0);
-    const outstanding = requests.filter((r) => r.status === 'sent' || r.status === 'overdue').reduce((sum, r) => sum + Number(r.amount), 0);
-    const overdue = requests.filter((r) => r.status === 'overdue').length;
-    return { collected, outstanding, overdue };
-  }, [requests]);
-
-  async function handleConnect() {
-    setConnecting(true);
-    try {
-      const url = await startStripeConnectOnboarding();
-      window.location.href = url;
-    } catch {
-      toast('Could not start Stripe onboarding — try again', 'error');
-      setConnecting(false);
-    }
-  }
+const stats = useMemo(() => {
+  const toRows = (list: typeof requests) => list.map((r) => ({
+    cents: Math.round(Number(r.amount) * 100),
+    currency: (r as { currency?: string }).currency ?? 'USD',
+    lockedRate: (r as { fx_rate_to_reporting?: number | null }).fx_rate_to_reporting ?? null,
+  }));
+  const collected = sumForReporting(toRows(requests.filter((r) => r.status === 'paid'))).totalCents / 100;
+  const outstanding = sumForReporting(toRows(requests.filter((r) => r.status === 'sent' || r.status === 'overdue'))).totalCents / 100;
+  const overdue = requests.filter((r) => r.status === 'overdue').length;
+  return { collected, outstanding, overdue };
+}, [requests, sumForReporting]);
 
   async function handleCreateRequest() {
     if (!job) return;
