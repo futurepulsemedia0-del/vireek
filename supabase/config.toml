@@ -19,3 +19,5 @@ verify_jwt = false
 
 [functions.status-feed]
 verify_jwt = false
+[functions.booking-capacity]
+verify_jwt = false
