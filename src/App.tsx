@@ -172,6 +172,7 @@ const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => (
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
 const BudgetsPage = lazy(() => import('@/pages/BudgetsPage').then((m) => ({ default: m.BudgetsPage })));
+const PrevailingWagePage = lazy(() => import('@/pages/PrevailingWagePage').then((m) => ({ default: m.PrevailingWagePage })));
 const ChartOfAccountsPage = lazy(() => import('@/pages/ChartOfAccountsPage').then((m) => ({ default: m.ChartOfAccountsPage })));
 const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
@@ -2572,6 +2573,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <BudgetsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/prevailing-wage"
+  element={
+    <ProtectedRoute>
+      <PrevailingWagePage />
     </ProtectedRoute>
   }
 />
