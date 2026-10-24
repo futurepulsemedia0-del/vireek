@@ -31,6 +31,7 @@ import {
   getTool, hasScope, canonicalJson, escapeLike, quoteTotals, computeAvailability, summarizeStock,
   type ToolDef, type QuoteLine,
 } from "../_shared/agent-network/tools.ts";
+import { runCheckAvailability } from "../_shared/booking/mcpHandler.ts";
 
 const MAX_BODY_BYTES = 64 * 1024;
 const AGENT_SOURCE = "mcp-server";
@@ -169,7 +170,8 @@ async function runRead(ctx: Ctx, def: ToolDef, a: Record<string, unknown>): Prom
         },
       };
     }
-
+    case "check_availability":
+      return runCheckAvailability(ctx.admin, owner, a);
     case "check_inventory": {
       let pq = db.from("inventory_parts").select("id, part_number, name, unit_label, reorder_point")
         .eq("user_id", owner).eq("active", true).limit(20);
