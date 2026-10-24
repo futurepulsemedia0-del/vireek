@@ -1,3 +1,4 @@
+import { CHECK_AVAILABILITY_TOOL } from "../booking/mcpTool.ts";
 // supabase/functions/_shared/agent-network/tools.ts
 //
 // Pure (no I/O, no Deno APIs) definition of every tool the Vireek Agent
@@ -10,6 +11,7 @@ export type ToolName =
   | "get_equipment"
   | "get_job"
   | "check_schedule"
+  | "check_availability"
   | "check_inventory"
   | "create_quote"
   | "dispatch_technician"
@@ -257,6 +259,7 @@ export const TOOLS: ToolDef[] = [
     },
   },
   {
+    CHECK_AVAILABILITY_TOOL,
     name: "check_inventory",
     title: "Check parts inventory",
     description: "Stock for parts matching an exact part_number or a name search: on hand, reserved and available per location, plus a below-reorder-point flag. Max 20 parts.",
