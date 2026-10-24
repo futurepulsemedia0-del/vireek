@@ -13,6 +13,7 @@ import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { JobPaymentPanel } from '@/components/technician/JobPaymentPanel';
 import { TechnicianTagPanel } from '@/components/technician/../tags/TechnicianTagPanel';
 import { NameplateScanCard } from '@/components/technician/NameplateScanCard';
+import { TechSalesLeadButton } from '@/components/sales/TechSalesLeadButton';
 
 export function TechnicianJobBriefPage() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -123,6 +124,7 @@ export function TechnicianJobBriefPage() {
         )}
 
        <NameplateScanCard jobId={job.id} onCreated={load} /> 
+        <TechSalesLeadButton jobId={job.id} />
         <TechnicianTagPanel equipment={equipment} onAssigned={load} />
         {equipment.length > 0 && (
           <section className="rounded-lg border border-border bg-bg-secondary p-3">
