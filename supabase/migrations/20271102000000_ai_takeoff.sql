@@ -34,6 +34,18 @@
   NOTE: keep this file's timestamp AFTER your newest migration.
 */
 
+
+-- 0. Preflight ---------------------------------------------------------------
+DO $$
+DECLARE t text;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['leads', 'quotes', 'price_book_items', 'inventory_parts', 'inventory_vendors'] LOOP
+    IF to_regclass('public.' || t) IS NULL THEN
+      RAISE EXCEPTION 'Table public.% is missing: run the migration that creates it first.', t;
+    END IF;
+  END LOOP;
+END $$;
+
 CREATE OR REPLACE FUNCTION public.takeoff_set_updated_at()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -267,6 +279,20 @@ COMMENT ON COLUMN quotes.takeoff_project_id IS
 -- =============================================================
 -- 7) Cross-tenant reference guard
 -- =============================================================
+CREATE OR REPLACE FUNCTION public.takeoff_row_owner_ok(p_row jsonb, p_owner uuid)
+RETURNS boolean
+LANGUAGE sql
+IMMUTABLE
+AS $$
+  -- Tables in the wild name their tenant column differently (user_id / owner_id / account_owner_id / account_id).
+  -- Reading it through jsonb never fails on a missing column. A row with no tenant column at all is shared.
+  SELECT CASE
+    WHEN p_row ?| ARRAY['user_id', 'owner_id', 'account_owner_id', 'account_id']
+      THEN COALESCE(p_row ->> 'user_id', p_row ->> 'owner_id', p_row ->> 'account_owner_id', p_row ->> 'account_id') = p_owner::text
+    ELSE true
+  END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.takeoff_refs_ok(
   p_project uuid,
   p_room uuid,
@@ -283,11 +309,19 @@ AS $$
   SELECT
     EXISTS (SELECT 1 FROM takeoff_projects p WHERE p.id = p_project AND p.account_owner_id = public.get_account_owner_id())
     AND (p_room IS NULL OR EXISTS (SELECT 1 FROM takeoff_rooms r WHERE r.id = p_room AND r.project_id = p_project))
-    AND (p_book_item IS NULL OR EXISTS (SELECT 1 FROM price_book_items b WHERE b.id = p_book_item AND b.user_id = public.get_account_owner_id()))
-    AND (p_part IS NULL OR EXISTS (SELECT 1 FROM inventory_parts ip WHERE ip.id = p_part AND ip.user_id = public.get_account_owner_id()))
-    AND (p_vendor IS NULL OR EXISTS (SELECT 1 FROM inventory_vendors v WHERE v.id = p_vendor AND v.user_id = public.get_account_owner_id()));
+    AND (p_book_item IS NULL OR EXISTS (
+          SELECT 1 FROM price_book_items b
+          WHERE b.id = p_book_item AND public.takeoff_row_owner_ok(to_jsonb(b), public.get_account_owner_id())))
+    AND (p_part IS NULL OR EXISTS (
+          SELECT 1 FROM inventory_parts ip
+          WHERE ip.id = p_part AND public.takeoff_row_owner_ok(to_jsonb(ip), public.get_account_owner_id())))
+    AND (p_vendor IS NULL OR EXISTS (
+          SELECT 1 FROM inventory_vendors v
+          WHERE v.id = p_vendor AND public.takeoff_row_owner_ok(to_jsonb(v), public.get_account_owner_id())));
 $$;
 
+REVOKE ALL ON FUNCTION public.takeoff_row_owner_ok(jsonb, uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.takeoff_row_owner_ok(jsonb, uuid) TO authenticated;
 REVOKE ALL ON FUNCTION public.takeoff_refs_ok(uuid, uuid, uuid, uuid, uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.takeoff_refs_ok(uuid, uuid, uuid, uuid, uuid) TO authenticated;
 
