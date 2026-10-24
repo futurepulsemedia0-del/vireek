@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { formatCentsIn } from '@/lib/regional';
 
 export interface QuoteLineItem {
   description: string;
@@ -39,8 +40,8 @@ export function calculateQuoteTotals(lineItems: QuoteLineItem[], taxPercent: num
   return { subtotalCents, discountCents, taxCents, totalCents: taxableCents + taxCents };
 }
 
-export function formatCents(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`;
+export function formatCents(cents: number, currency?: string | null): string {
+  return formatCentsIn(cents, currency);
 }
 
 export function getQuoteLink(token: string): string {
