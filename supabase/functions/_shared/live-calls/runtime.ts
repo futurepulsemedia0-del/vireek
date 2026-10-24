@@ -11,6 +11,7 @@
 // (Assistant -> Advanced -> Messaging -> Server Messages).
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { getFeatureGate } from "../ai-transparency/gate.ts";
 import {
   EMPTY_SIGNALS,
   applyCallerLine,
@@ -154,6 +155,7 @@ export async function trackLiveCallEvent(
       updated_at: new Date().toISOString(),
     };
     if (role === "caller") {
+      const sentimentOn = (await getFeatureGate(admin, row.user_id, "ai_live_call_sentiment_text")).allowed;
       const prev: LiveSignals = {
         ...EMPTY_SIGNALS,
         sentiment_score: row.sentiment_score,
@@ -163,8 +165,9 @@ export async function trackLiveCallEvent(
       };
       const next = applyCallerLine(prev, event.text);
       Object.assign(patch, {
-        sentiment_score: next.sentiment_score,
-        sentiment: sentimentFromScore(next.sentiment_score),
+        ...(sentimentOn
+          ? { sentiment_score: next.sentiment_score, sentiment: sentimentFromScore(next.sentiment_score) }
+          : {}),
         signal_text: next.signal_text,
         intent: next.intent,
         wants_human: next.wants_human,
