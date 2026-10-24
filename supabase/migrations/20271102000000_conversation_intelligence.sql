@@ -27,6 +27,18 @@
   team_members(user_id), jobs, commitments, tasks, notifications.
 */
 
+
+-- 0. Preflight ---------------------------------------------------------------
+DO $$
+BEGIN
+  IF to_regclass('public.tasks') IS NULL OR to_regprocedure('public.tasks_can_view_all()') IS NULL THEN
+    RAISE EXCEPTION 'Run the tasks migration first (prerequisites/C_tasks.sql = 20270501000000_tasks.sql).';
+  END IF;
+  IF to_regclass('public.commitments') IS NULL THEN
+    RAISE EXCEPTION 'Run the commitment graph migration first (20261125000000_commitment_graph.sql).';
+  END IF;
+END $$;
+
 -- ---------------------------------------------------------------------------
 -- Settings (one row per account)
 -- ---------------------------------------------------------------------------
