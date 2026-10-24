@@ -551,6 +551,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, requiresPermission: 'can_edit_business_profile' },
   { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, requiresPermission: 'can_export_data' },
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
+  { label: 'Compliance Rules', href: '/dashboard/compliance-rules', icon: Scale, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trash', href: '/dashboard/trash', icon: Trash2, requiresPermission: 'can_view_billing' },
   { label: 'API Usage', href: '/dashboard/settings/api-usage', icon: Activity },
   { label: 'Email Settings', href: '/dashboard/settings/email', icon: Mail, requiresPermission: 'can_edit_business_profile' },
