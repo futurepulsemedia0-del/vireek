@@ -483,6 +483,7 @@ const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ de
 const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const CallScriptsPage = lazy(() => import('@/pages/CallScriptsPage').then((m) => ({ default: m.CallScriptsPage })));
 const BookingSettingsPage = lazy(() => import('@/pages/BookingSettingsPage').then((m) => ({ default: m.BookingSettingsPage })));
+const GoogleBookingPage = lazy(() => import('@/pages/GoogleBookingPage').then((m) => ({ default: m.GoogleBookingPage })));
 const RoadmapPage = lazy(() => import('@/pages/RoadmapPage').then((m) => ({ default: m.RoadmapPage })));
 const DeveloperChangelogPage = lazy(() => import('@/pages/DeveloperChangelogPage').then((m) => ({ default: m.DeveloperChangelogPage })));
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
@@ -750,6 +751,7 @@ function AppRoutes() {
         <Route path="/dashboard/call-scripts" element={<ProtectedRoute><CallScriptsPage /></ProtectedRoute>} />
         <Route path="/dashboard/voice-platform" element={<ProtectedRoute><VoicePlatformPage /></ProtectedRoute>} />
         <Route path="/dashboard/booking-settings" element={<ProtectedRoute><BookingSettingsPage /></ProtectedRoute>} />
+        <Route path="/dashboard/google-booking" element={<ProtectedRoute><GoogleBookingPage /></ProtectedRoute>} />
         <Route path="/lp/:slug" element={<PublicLandingPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
