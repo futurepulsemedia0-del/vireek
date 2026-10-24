@@ -12,6 +12,7 @@ export interface BusinessContext {
   openNow: boolean | null;
   bookingUrl: string | null; // null when online booking is disabled / unconfigured
   bookingRules: { leadTimeHours: number; windowDays: number; durationMinutes: number } | null;
+  openTimes?: string[];
 }
 
 export interface PromptHistoryItem {
@@ -79,7 +80,10 @@ export function buildUserPrompt(input: {
     `KNOWLEDGE BASE (retrieval quality: ${input.retrievalTier}):`,
     input.knowledgeContext.trim() || "(nothing relevant found)",
   );
-
+    if (b.openTimes && b.openTimes.length > 0) {
+      lines.push(`- Typical open times right now (you may mention these as examples; never confirm a booking or promise a time, the booking link shows exact options): ${b.openTimes.join("; ")}`);
+    }
+    
   if (input.history.length) {
     lines.push("", "RECENT CONVERSATION (oldest first):");
     for (const h of input.history) {
