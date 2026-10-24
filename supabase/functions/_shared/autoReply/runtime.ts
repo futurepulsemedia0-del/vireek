@@ -1,3 +1,4 @@
+import { smsOpenTimes } from "../booking/voiceBooking.ts";
 // supabase/functions/_shared/autoReply/runtime.ts
 //
 // Real implementations of the engine's dependencies (Supabase, knowledge
@@ -112,6 +113,7 @@ function createStore(admin: SupabaseClient): AutoReplyStore {
         services: Array.isArray(bp?.services_offered) ? (bp!.services_offered as string[]) : [],
         hours: (bp?.business_hours as never) ?? null,
         holidays: (bp?.holidays as never) ?? null,
+        openTimes: canBook ? await smsOpenTimes(admin, userId) : [],
         bookingUrl: canBook ? `${siteUrl}/book/${bp!.booking_slug}` : null,
         bookingRules: canBook
           ? {
