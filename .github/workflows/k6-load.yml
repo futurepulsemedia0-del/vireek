@@ -1,0 +1,44 @@
+name: k6 load and soak
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Which suite to run
+        type: choice
+        options: [api-v1-load, webhook-soak]
+        default: api-v1-load
+      profile:
+        description: api-v1 profile (smoke, load, stress)
+        default: smoke
+      soak_duration:
+        description: Webhook soak duration (for example 30m, 2h)
+        default: 30m
+  schedule:
+    - cron: '0 3 * * 0' # weekly smoke on staging
+
+permissions:
+  contents: read
+
+jobs:
+  k6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1
+      - name: Run suite
+        env:
+          FUNCTIONS_BASE_URL: ${{ secrets.STAGING_FUNCTIONS_BASE_URL }}
+          API_KEYS: ${{ secrets.STAGING_K6_API_KEYS }}
+          VAPI_SERVER_SECRET: ${{ secrets.STAGING_VAPI_SERVER_SECRET }}
+          ASSISTANT_ID: ${{ secrets.STAGING_PROBE_ASSISTANT_ID }}
+          SUITE: ${{ github.event.inputs.suite || 'api-v1-load' }}
+          PROFILE: ${{ github.event.inputs.profile || 'smoke' }}
+          SOAK_DURATION: ${{ github.event.inputs.soak_duration || '30m' }}
+        run: |
+          if [ "$SUITE" = "webhook-soak" ]; then
+            k6 run load/k6/webhook.soak.js
+          else
+            k6 run load/k6/api-v1.load.js
+          fi
