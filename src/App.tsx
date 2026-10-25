@@ -295,6 +295,7 @@ const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').the
 const InstallProjectsPage = lazy(() => import('@/pages/InstallProjectsPage').then((m) => ({ default: m.InstallProjectsPage })));
 const ProjectProgressPage = lazy(() => import('@/pages/ProjectProgressPage').then((m) => ({ default: m.ProjectProgressPage })));
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
+const CloseoutBoardPage = lazy(() => import('@/pages/CloseoutBoardPage').then((m) => ({ default: m.CloseoutBoardPage })));
 const RepairReplaceAdvisorPage = lazy(() => import('@/pages/RepairReplaceAdvisorPage').then((m) => ({ default: m.RepairReplaceAdvisorPage })));
 const EnergyIntelligencePage = lazy(() => import('@/pages/EnergyIntelligencePage').then((m) => ({ default: m.EnergyIntelligencePage })));
 const PriceBookPage = lazy(() => import('@/pages/PriceBookPage').then((m) => ({ default: m.PriceBookPage })));
@@ -3525,6 +3526,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <RebateIntelligencePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/closeout"
+          element={
+            <ProtectedRoute>
+              <CloseoutBoardPage />
             </ProtectedRoute>
           }
         />
