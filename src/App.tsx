@@ -562,6 +562,7 @@ const SmsCompliancePage = lazy(() => import('@/pages/SmsCompliancePage').then((m
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
 const RegionalPacksSettingsPage = lazy(() => import('@/pages/RegionalPacksSettingsPage').then((m) => ({ default: m.RegionalPacksSettingsPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
+  const AiDisclosureLedgerPage = lazy(() => import('@/pages/AiDisclosureLedgerPage').then((m) => ({ default: m.AiDisclosureLedgerPage })));
 const BrandingSettingsPage = lazy(() => import('@/pages/BrandingSettingsPage').then((m) => ({ default: m.BrandingSettingsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 const WhatsNewPage = lazy(() => import('@/pages/WhatsNewPage').then((m) => ({ default: m.WhatsNewPage })));
@@ -778,6 +779,7 @@ function AppRoutes() {
         <Route path="/track/:token" element={<TrackingPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/dashboard/call-scripts" element={<ProtectedRoute><CallScriptsPage /></ProtectedRoute>} />
+        <Route path="/dashboard/ai-disclosure-ledger" element={<ProtectedRoute><AiDisclosureLedgerPage /></ProtectedRoute>} />
         <Route path="/dashboard/technician-retention" element={<ProtectedRoute><TechnicianRetentionPage /></ProtectedRoute>} />
         <Route path="/dashboard/voice-platform" element={<ProtectedRoute><VoicePlatformPage /></ProtectedRoute>} />
         <Route path="/dashboard/booking-settings" element={<ProtectedRoute><BookingSettingsPage /></ProtectedRoute>} />
