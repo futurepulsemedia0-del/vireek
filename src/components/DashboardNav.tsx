@@ -240,6 +240,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Wallboard (TV)', href: '/dashboard/wallboard', icon: Monitor, ownerOnly: true },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Call Scripts', href: '/dashboard/call-scripts', icon: ScrollText, requiresPermission: 'can_edit_business_profile' },
+    { label: 'AI Quality', href: '/dashboard/ai-quality', icon: Gauge, requiresPermission: 'can_edit_business_profile' },
   { label: 'AI Disclosure Ledger', href: '/dashboard/ai-disclosure-ledger', icon: ShieldCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'CSR Phone Desk', href: '/dashboard/csr-desk', icon: Headset, requiresPermission: 'can_view_all_jobs' },
   { label: 'Leaderboard', href: '/dashboard/leaderboard', icon: Medal },
