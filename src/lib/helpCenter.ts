@@ -226,6 +226,25 @@ export const HELP_ARTICLES: HelpArticle[] = [
     permission: 'can_manage_team',
   },
   {
+
+    {
+    id: 'tool-crib',
+    category: 'inventory',
+    title: 'Check tools out to technicians',
+    summary: 'Track who has each shared tool, when it is due back, and get alerted when one is overdue or lost.',
+    body: [
+      'The Tool Crib lists the shared tools your team borrows. Checking a tool out records who took it and when it is due back. Checking it in records its condition.',
+      'A tool still out after its due time shows as overdue and sends one notification. If it is still out a set number of hours later it is flagged as possibly lost. A manager can then mark it lost, or use "Found it" if it turns up.',
+    ],
+    steps: [
+      'Open Tool Crib and choose a tool, or scan its barcode or tag.',
+      'Choose Check out, pick the team member and how long they need it.',
+      'When it comes back, choose Check in and record its condition. Damaged tools go to maintenance automatically.',
+      'Use the Alerts tab to review overdue and lost tools.',
+    ],
+    keywords: ['tool', 'tools', 'crib', 'check out', 'check in', 'borrow', 'overdue', 'lost', 'equipment', 'drill'],
+    routes: ['/dashboard/tools'],
+  },
     id: 'team-permissions',
     category: 'account',
     title: 'Team members and permissions',
@@ -295,6 +314,7 @@ export const HELP_PAGE_LABELS: Record<string, string> = {
   '/dashboard/quotes': 'Quotes',
   '/dashboard/inventory': 'Parts & Inventory',
   '/dashboard/inventory/counts': 'Cycle Counts',
+  '/dashboard/tools': 'Tool Crib',
   '/dashboard/phone-numbers': 'Phone Numbers',
   '/dashboard/business-profile': 'Business Profile',
   '/dashboard/team': 'Team',
