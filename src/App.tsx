@@ -44,6 +44,7 @@ const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ defa
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const SupportTicketsPage = lazy(() => import('@/pages/SupportTicketsPage').then((m) => ({ default: m.SupportTicketsPage })));
 const GettingStartedPage = lazy(() => import('@/pages/GettingStartedPage').then((m) => ({ default: m.GettingStartedPage })));
+const SuccessCenterPage = lazy(() => import('@/pages/SuccessCenterPage').then((m) => ({ default: m.SuccessCenterPage })));
 const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const ProcurementPage = lazy(() => import('@/pages/ProcurementPage').then((m) => ({ default: m.ProcurementPage })));
 const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default: m.CallsPage })));
@@ -950,6 +951,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/success"
+  element={
+    <ProtectedRoute>
+      <SuccessCenterPage />
+    </ProtectedRoute>
+  }
+/>
                 <Route
           path="/dashboard/command-center"
           element={
