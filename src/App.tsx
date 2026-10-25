@@ -74,6 +74,8 @@ const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m
 const JobDetailPage = lazy(() => import('@/pages/JobDetailPage').then((m) => ({ default: m.JobDetailPage })));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
 const CalendarFeedsPage = lazy(() => import('@/pages/CalendarFeedsPage').then((m) => ({ default: m.CalendarFeedsPage })));
+const DirectMailPage = lazy(() => import('@/pages/DirectMailPage').then((m) => ({ default: m.DirectMailPage })));
+const MailerRedirectPage = lazy(() => import('@/pages/MailerRedirectPage').then((m) => ({ default: m.MailerRedirectPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
 const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ default: m.InsightsPage })));
 const QuotesPage = lazy(() => import('@/pages/QuotesPage').then((m) => ({ default: m.QuotesPage })));
@@ -809,6 +811,7 @@ function AppRoutes() {
         <Route path="/dashboard/booking-settings" element={<ProtectedRoute><BookingSettingsPage /></ProtectedRoute>} />
         <Route path="/dashboard/google-booking" element={<ProtectedRoute><GoogleBookingPage /></ProtectedRoute>} />
         <Route path="/lp/:slug" element={<PublicLandingPage />} />
+        <Route path="/m/:code" element={<MailerRedirectPage />} />
         <Route path="/ack/:token" element={<AckEscalationPage />} />
         <Route path="/w/:token" element={<WalletLandingPage />} />
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
@@ -2261,6 +2264,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/direct-mail"
+  element={
+    <ProtectedRoute>
+      <DirectMailPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/calendar-feeds"
           element={
