@@ -12,6 +12,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, BellRing, Copy, Download, FileX2, Loader2, Lock, Mail, Plus, RefreshCw, Send, Undo2, Ban, TriangleAlert } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { EmptyState } from '@/components/EmptyState';
+import { InvoiceProtectionCard } from '@/components/protection/InvoiceProtectionCard';
 import { Button } from '@/components/ui/Button';
 import { InvoiceAuditTrail, InvoiceTimeline, fmtDateTime } from '@/components/invoicing/InvoiceActivity';
 import { RecordPaymentDialog, RefundDialog, VoidDialog } from '@/components/invoicing/InvoiceDialogs';
@@ -392,6 +393,13 @@ export function InvoiceDetailPage() {
             </dl>
           </section>
 
+          <InvoiceProtectionCard
+            invoiceId={invoice.id}
+            invoiceLabel={invoice.invoice_number}
+            customerName={invoice.customer_name}
+            invoiceOpen={['draft', 'sent', 'viewed'].includes(invoice.status)}
+            canManage={canView}
+          />
           <section className={card} aria-labelledby="rem-title">
             <h2 id="rem-title" className="text-sm font-semibold text-text-primary">Reminders &amp; emails</h2>
             {reminders.length === 0 ? (
