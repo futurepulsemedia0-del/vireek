@@ -220,6 +220,9 @@ const TechnicianSchedulePage = lazy(() => import('@/pages/TechnicianSchedulePage
 const TruckStockPage = lazy(() => import('@/pages/TruckStockPage').then((m) => ({ default: m.TruckStockPage })));
 const TechEarningsPage = lazy(() => import('@/pages/TechEarningsPage').then((m) => ({ default: m.TechEarningsPage })));
 const TechnicianDepositsPage = lazy(() => import('@/pages/TechnicianDepositsPage').then((m) => ({ default: m.TechnicianDepositsPage })));
+const TechnicianPayPage = lazy(() => import('@/pages/TechnicianPayPage').then((m) => ({ default: m.TechnicianPayPage })));
+const PayCapitalPage = lazy(() => import('@/pages/PayCapitalPage').then((m) => ({ default: m.PayCapitalPage })));
+const PayControlsAdminPage = lazy(() => import('@/pages/admin/PayControlsAdminPage').then((m) => ({ default: m.PayControlsAdminPage })));
 const ExpertAssistInboxPage = lazy(() => import('@/pages/ExpertAssistInboxPage').then((m) => ({ default: m.ExpertAssistInboxPage })));
 const ExpertAssistThreadPage = lazy(() => import('@/pages/ExpertAssistThreadPage').then((m) => ({ default: m.ExpertAssistThreadPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
@@ -2913,6 +2916,7 @@ function AppRoutes() {
             </TechnicianRoute>
           }
         />
+<Route path="/tech/pay" element={<TechnicianRoute><Suspense fallback={<PageLoader />}><TechnicianPayPage /></Suspense></TechnicianRoute>} />
         <Route
           path="/dashboard/expert-assist"
           element={
@@ -2921,6 +2925,8 @@ function AppRoutes() {
             </TechnicianRoute>
           }
         />
+<Route path="/dashboard/pay" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><PayCapitalPage /></Suspense></ProtectedRoute>} />
+<Route path="/staff/pay-controls" element={<StaffRoute><Suspense fallback={<PageLoader />}><PayControlsAdminPage /></Suspense></StaffRoute>} />
         <Route
           path="/dashboard/expert-assist/:requestId"
           element={
