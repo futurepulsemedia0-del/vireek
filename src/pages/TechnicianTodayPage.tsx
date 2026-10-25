@@ -35,6 +35,7 @@ export function TechnicianTodayPage() {
   <ReplayTourMenu align="end" />
   <ContextualTip id="tech.timesheet">
     <Link to="/tech/timesheet" className="…همان classNameی که الان داری…">
+    <Link to="/tech/pay" className="(همان className لینک Timesheet)"><Wallet className="h-4 w-4" /> Pay</Link>
       <Clock className="h-4 w-4" /> Timesheet
     </Link>
   </ContextualTip>
