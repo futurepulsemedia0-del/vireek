@@ -425,6 +425,8 @@ const AcceptableUsePage = lazy(() => import('@/pages/AcceptableUsePage').then((m
 const ResponsibleAiPage = lazy(() => import('@/pages/ResponsibleAiPage').then((m) => ({ default: m.ResponsibleAiPage })));
 const MsaPage = lazy(() => import('@/pages/MsaPage').then((m) => ({ default: m.MsaPage })));
 const AiDisclosurePage = lazy(() => import('@/pages/AiDisclosurePage').then((m) => ({ default: m.AiDisclosurePage })));
+const OpenVoiceBenchmarkPage = lazy(() => import('@/pages/OpenVoiceBenchmarkPage').then((m) => ({ default: m.OpenVoiceBenchmarkPage })));
+const StaffOpenVoiceBenchmarkPage = lazy(() => import('@/pages/StaffOpenVoiceBenchmarkPage').then((m) => ({ default: m.StaffOpenVoiceBenchmarkPage })));
 const TrademarkPolicyPage = lazy(() => import('@/pages/TrademarkPolicyPage').then((m) => ({ default: m.TrademarkPolicyPage })));
 const DmcaPage = lazy(() => import('@/pages/DmcaPage').then((m) => ({ default: m.DmcaPage })));
 const VulnerabilityDisclosurePage = lazy(() => import('@/pages/VulnerabilityDisclosurePage').then((m) => ({ default: m.VulnerabilityDisclosurePage })));
@@ -646,6 +648,7 @@ function AppRoutes() {
           }
         />
        <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
+        <Route path="/staff/open-voice-benchmark" element={<StaffRoute><StaffOpenVoiceBenchmarkPage /></StaffRoute>} />
        <Route path="/staff/value-scoreboard" element={<StaffRoute><StaffValueScoreboardPage /></StaffRoute>} />
         <Route
           path="/staff/partners"
@@ -726,6 +729,7 @@ function AppRoutes() {
         <Route path="/responsible-ai" element={<ResponsibleAiPage />} />
         <Route path="/msa" element={<MsaPage />} />
         <Route path="/ai-disclosure" element={<AiDisclosurePage />} />
+        <Route path="/open-voice-benchmark" element={<OpenVoiceBenchmarkPage />} />
         <Route path="/trademark-policy" element={<TrademarkPolicyPage />} />
         <Route path="/dmca" element={<DmcaPage />} />
         <Route path="/vulnerability-disclosure" element={<VulnerabilityDisclosurePage />} />
