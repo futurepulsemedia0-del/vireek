@@ -242,6 +242,10 @@ export function TruckStockPage() {
           </div>
         )}
 
+        <Link to="/tech/truck-transfers" className="mb-3 flex min-h-[3rem] items-center justify-between rounded-2xl border border-border bg-bg-secondary px-4 text-sm font-medium text-text-primary">
+          <span>Deliveries &amp; van audit</span>
+          <span aria-hidden>›</span>
+        </Link>
         <form onSubmit={onSearchSubmit} role="search" className="mb-3">
           <label className="relative block">
             <span className="sr-only">Search parts</span>
