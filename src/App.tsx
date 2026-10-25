@@ -221,6 +221,8 @@ const TechnicianJobThreadPage = lazy(() => import('@/pages/TechnicianJobThreadPa
 const FieldMessagesPage = lazy(() => import('@/pages/FieldMessagesPage').then((m) => ({ default: m.FieldMessagesPage })));
 const TechnicianSchedulePage = lazy(() => import('@/pages/TechnicianSchedulePage').then((m) => ({ default: m.TechnicianSchedulePage })));
 const TruckStockPage = lazy(() => import('@/pages/TruckStockPage').then((m) => ({ default: m.TruckStockPage })));
+const TruckOperationsPage = lazy(() => import('@/pages/TruckOperationsPage').then((m) => ({ default: m.TruckOperationsPage })));
+const TechTruckTransfersPage = lazy(() => import('@/pages/TechTruckTransfersPage').then((m) => ({ default: m.TechTruckTransfersPage })));
 const TechEarningsPage = lazy(() => import('@/pages/TechEarningsPage').then((m) => ({ default: m.TechEarningsPage })));
 const TechnicianDepositsPage = lazy(() => import('@/pages/TechnicianDepositsPage').then((m) => ({ default: m.TechnicianDepositsPage })));
 const TechnicianPayPage = lazy(() => import('@/pages/TechnicianPayPage').then((m) => ({ default: m.TechnicianPayPage })));
@@ -2923,6 +2925,14 @@ function AppRoutes() {
           }
         />
         <Route
+          path="/tech/truck-transfers"
+          element={
+            <TechnicianRoute>
+              <TechTruckTransfersPage />
+            </TechnicianRoute>
+          }
+        />
+        <Route
           path="/tech/earnings"
           element={
             <TechnicianRoute>
@@ -3146,6 +3156,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <InventoryCountsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/inventory/trucks"
+          element={
+            <ProtectedRoute>
+              <TruckOperationsPage />
             </ProtectedRoute>
           }
         />
