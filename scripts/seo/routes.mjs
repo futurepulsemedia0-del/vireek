@@ -18,7 +18,7 @@ export const STATIC_PUBLIC_PATHS = [
   '/leadership', '/docs', '/blog', '/report', '/podcast', '/glossary', '/testimonials', '/contact',
   '/services', '/features', '/features/lead-qualification', '/features/sms-text-back',
   '/features/whatsapp-instagram-dm', '/features/live-escalation', '/platform', '/compare',
-  '/compare/matrix', '/switch', '/ai-receptionist-vs-human-receptionist', '/industries', '/pricing',
+  '/compare/matrix', '/switch', '/ai-receptionist-vs-human-receptionist', '/open-voice-benchmark', '/industries', '/pricing',
   '/enterprise', '/marketplace', '/sdks', '/developers/changelog', '/demo', '/calculator',
   '/security', '/trust', '/integrations', '/status', '/case-studies', '/changelog', '/roadmap',
   '/accessibility', '/accessibility/conformance', '/careers', '/culture', '/press', '/brand',
