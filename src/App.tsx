@@ -644,6 +644,7 @@ function AppRoutes() {
           }
         />
        <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
+       <Route path="/staff/value-scoreboard" element={<StaffRoute><StaffValueScoreboardPage /></StaffRoute>} />
         <Route
           path="/staff/partners"
           element={
