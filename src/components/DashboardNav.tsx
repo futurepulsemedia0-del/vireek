@@ -199,6 +199,7 @@ import { WhatsNewProvider } from '@/contexts/WhatsNewContext';
 import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
 import { AiAssistant } from '@/components/AiAssistant';
 import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
+import { NpsPrompt } from '@/components/success/NpsPrompt';
 import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
 import { ChatUnreadProvider } from '@/contexts/ChatUnreadContext';
 import { ChatNavBadge } from '@/components/teamchat/ChatNavBadge';
@@ -227,6 +228,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Support', href: '/dashboard/support', icon: LifeBuoy },
   { label: 'Getting Started', href: '/dashboard/getting-started', icon: Rocket },
+  { label: 'Success Center', href: '/dashboard/success', icon: TrendingUp },
   { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'Calendar Feeds', href: '/dashboard/calendar-feeds', icon: Calendar },
   { label: 'My Jobs', href: '/dashboard/jobs', icon: Wrench },
@@ -918,6 +920,7 @@ export function DashboardLayout({
         <TaskReminderWatcher />
           <GlobalSearchPalette />
           <AiAssistant />
+          <NpsPrompt />
         </div>
       </div>
     </ChatUnreadProvider>
