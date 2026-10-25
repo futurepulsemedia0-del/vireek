@@ -273,6 +273,7 @@ const FleetIntelligencePage = lazy(() => import('@/pages/FleetIntelligencePage')
 const VehiclesPage = lazy(() => import('@/pages/VehiclesPage').then((m) => ({ default: m.VehiclesPage })));
 const TechnicianDvirPage = lazy(() => import('@/pages/TechnicianDvirPage').then((m) => ({ default: m.TechnicianDvirPage })));
 const FleetDvirPage = lazy(() => import('@/pages/FleetDvirPage').then((m) => ({ default: m.FleetDvirPage })));
+const FuelCardsPage = lazy(() => import('@/pages/FuelCardsPage').then((m) => ({ default: m.FuelCardsPage })));
 const LiveMapPage = lazy(() => import('@/pages/LiveMapPage').then((m) => ({ default: m.LiveMapPage })));
 const WallboardPage = lazy(() => import('@/pages/WallboardPage').then((m) => ({ default: m.WallboardPage })));
 const WallboardSettingsPage = lazy(() => import('@/pages/WallboardSettingsPage').then((m) => ({ default: m.WallboardSettingsPage })));
@@ -3382,6 +3383,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <FleetDvirPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/fuel-cards"
+          element={
+            <ProtectedRoute>
+              <FuelCardsPage />
             </ProtectedRoute>
           }
         />
