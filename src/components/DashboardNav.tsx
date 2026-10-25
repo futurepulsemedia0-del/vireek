@@ -338,6 +338,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Chart of Accounts', href: '/dashboard/chart-of-accounts', icon: Layers, requiresPermission: 'can_view_billing' },
   { label: 'Bank Intelligence', href: '/dashboard/bank-intelligence', icon: Landmark },
   { label: 'Payroll', href: '/dashboard/payroll', icon: DollarSign },
+  { label: 'Vireek Pay', href: '/dashboard/pay', icon: CreditCard, requiresPermission: 'can_view_billing' },
   { label: 'Tax Center', href: '/dashboard/tax', icon: Receipt, requiresPermission: 'can_view_billing' },
   { label: 'Expenses', href: '/dashboard/expenses', icon: Receipt },
   { label: 'Commissions', href: '/dashboard/commissions', icon: Coins, requiresPermission: 'can_view_billing' },
