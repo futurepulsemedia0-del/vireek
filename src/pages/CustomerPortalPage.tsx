@@ -17,6 +17,7 @@ import {
   Gift,
   CreditCard,
   History as HistoryIcon,
+  Home as HomeIcon,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -200,6 +201,18 @@ export function CustomerPortalPage() {
                 </span>
               </Link>
               
+              <Link
+                to={`/portal/${token}/inventory`}
+                className="focus-ring mb-6 flex min-h-[44px] items-center gap-3 rounded-2xl border border-border bg-bg-secondary p-4 transition-colors hover:bg-bg-tertiary"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <HomeIcon size={18} aria-hidden="true" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-text-primary">My home inventory</span>
+                  <span className="block text-xs text-text-secondary">Appliances, receipts, manuals &amp; warranty reminders</span>
+                </span>
+              </Link>
                 href={`/emergency/${token}`}
                 className="mb-6 flex items-center justify-between rounded-2xl border border-danger/30 bg-danger/5 p-4 transition-colors hover:border-danger/50"
               >
