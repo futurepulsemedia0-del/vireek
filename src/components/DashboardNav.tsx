@@ -268,6 +268,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Email Campaigns', href: '/dashboard/email-campaigns', icon: MailPlus, requiresPermission: 'can_view_billing' },
+    { label: 'Direct Mail', href: '/dashboard/direct-mail', icon: MailPlus, requiresPermission: 'can_view_billing' },
   { label: 'Audiences', href: '/dashboard/audiences', icon: Filter, requiresPermission: 'can_view_billing' },
   { label: 'Landing Pages', href: '/dashboard/landing-pages', icon: LayoutTemplate, requiresPermission: 'can_edit_business_profile' },
   { label: 'Command Center', href: '/dashboard/command-center', icon: Radio },
