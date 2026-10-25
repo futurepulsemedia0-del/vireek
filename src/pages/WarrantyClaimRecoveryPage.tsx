@@ -237,7 +237,7 @@ export function WarrantyClaimRecoveryPage() {
     if (!user) return;
     setLoading(true);
     const [claimsRes, eligibleRes] = await Promise.all([
-      supabase.from('warranty_claims').select('*').order('created_at', { ascending: false }),
+      supabase.from('warranty_claims').select('*').eq('claim_type', 'manufacturer').order('created_at', { ascending: false }),
       supabase.from('warranty_eligible_jobs').select('*').order('completed_at', { ascending: false }).limit(50),
     ]);
 
