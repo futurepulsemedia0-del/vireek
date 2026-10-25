@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutTemplate } from 'lucide-react';
+import { FlaskConical } from 'lucide-react';
 import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
 import { Mic } from 'lucide-react';
@@ -391,6 +392,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Form Builder', href: '/dashboard/form-builder', icon: ClipboardList, requiresPermission: 'can_edit_business_profile' },
   { label: 'Job Templates', href: '/dashboard/job-templates', icon: LayoutTemplate, requiresPermission: 'can_view_billing' },
   { label: 'SOP Library', href: '/dashboard/sop-library', icon: BookOpenCheck, requiresPermission: 'can_manage_team' },
+  { label: 'Safety Data Sheets', href: '/safety/sds', icon: FlaskConical },
   { label: 'SOP Training', href: '/dashboard/training', icon: GraduationCap },
   { label: 'Service Catalog', href: '/dashboard/service-catalog', icon: ClipboardList, requiresPermission: 'can_view_billing' },
   { label: 'Underpriced Jobs', href: '/dashboard/underpriced-jobs', icon: TrendingDown, requiresPermission: 'can_view_billing' },
