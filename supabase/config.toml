@@ -34,3 +34,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.talent-background-webhook]
 verify_jwt = false
+[functions.portal-home-inventory]
+verify_jwt = false
