@@ -23,7 +23,7 @@ import {
 import { OtpEntry } from '@/components/auth/OtpEntry';
 import { AppleButton } from '@/components/auth/SocialAuthButtons';
 import { registerTrustedDevice } from '@/lib/deviceTrust';
-import { consumePostAuthRedirect } from '@/lib/inviteRedirect';
+import { consumePostAuthRedirect, peekPostAuthPath } from '@/lib/inviteRedirect';
 
 type SignupStep = 'form' | 'verify';
 
@@ -259,7 +259,7 @@ export function SignupPage() {
     // useEffect once the profile loaded, which meant an extra render/
     // navigation hop right after auth state changed. Going there directly
     // removes that hop entirely.
-    navigate('/onboarding', { replace: true });
+    navigate(peekPostAuthPath() ? consumePostAuthRedirect() : '/onboarding', { replace: true });
   }, [navigate]);
 
   const handleAppleSignUp = async () => {
