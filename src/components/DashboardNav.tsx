@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutTemplate } from 'lucide-react';
+import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
 import { Mic } from 'lucide-react';
 import {
@@ -372,6 +373,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Renewals', href: '/dashboard/memberships/renewals', icon: RotateCcw, requiresPermission: 'can_view_billing' },
   { label: 'Gift Cards', href: '/dashboard/gift-cards', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
+{ label: 'Trade Packs', href: '/dashboard/trade-packs', icon: PackageCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
