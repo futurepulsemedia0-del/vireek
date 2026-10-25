@@ -210,6 +210,7 @@ const MembershipRenewalsPage = lazy(() => import('@/pages/MembershipRenewalsPage
 const RenewMembershipPage = lazy(() => import('@/pages/RenewMembershipPage').then((m) => ({ default: m.RenewMembershipPage })));
 const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
+const TradePacksPage = lazy(() => import('@/pages/TradePacksPage').then((m) => ({ default: m.TradePacksPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
 const TechnicianTimesheetPage = lazy(() => import('@/pages/TechnicianTimesheetPage').then((m) => ({ default: m.TechnicianTimesheetPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
@@ -2820,6 +2821,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/trade-packs"
+  element={
+    <ProtectedRoute>
+      <TradePacksPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/tech/today"
           element={
