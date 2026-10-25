@@ -591,6 +591,7 @@ const SdksPage = lazy(() => import('@/pages/SdksPage').then((m) => ({ default: m
 const PromiseTrackerPage = lazy(() => import('@/pages/PromiseTrackerPage').then((m) => ({ default: m.PromiseTrackerPage })));
 const ConversationIntelligencePage = lazy(() => import('@/pages/ConversationIntelligencePage').then((m) => ({ default: m.ConversationIntelligencePage })));
 const TasksPage = lazy(() => import('@/pages/TasksPage').then((m) => ({ default: m.TasksPage })));
+const OperatingCadencePage = lazy(() => import('@/pages/OperatingCadencePage').then((m) => ({ default: m.OperatingCadencePage })));
 const TeamChatPage = lazy(() => import('@/pages/TeamChatPage').then((m) => ({ default: m.TeamChatPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
 const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ default: m.SandboxPage })));
@@ -1015,6 +1016,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TasksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/cadence"
+          element={
+            <ProtectedRoute>
+              <OperatingCadencePage />
             </ProtectedRoute>
           }
         />
