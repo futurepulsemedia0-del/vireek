@@ -162,6 +162,7 @@ const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m
   const DispatchRulesPage = lazy(() => import('@/pages/DispatchRulesPage').then((m) => ({ default: m.DispatchRulesPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InventoryCountsPage = lazy(() => import('@/pages/InventoryCountsPage').then((m) => ({ default: m.InventoryCountsPage })));
+const ToolCribPage = lazy(() => import('@/pages/ToolCribPage').then((m) => ({ default: m.ToolCribPage })));
 const VendorManagementPage = lazy(() => import('@/pages/VendorManagementPage').then((m) => ({ default: m.VendorManagementPage })));
 const SupplierCatalogPage = lazy(() => import('@/pages/SupplierCatalogPage').then((m) => ({ default: m.SupplierCatalogPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
@@ -3242,6 +3243,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <InventoryCountsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/tools"
+          element={
+            <ProtectedRoute>
+              <ToolCribPage />
             </ProtectedRoute>
           }
         />
