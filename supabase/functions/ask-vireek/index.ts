@@ -36,6 +36,7 @@ import {
   isTooUngrounded,
   normalizeModelAnswer,
 } from "../_shared/business-brain/facts.ts";
+import { officialMetricFacts } from "../_shared/data-platform/loader.ts";
 import type { BrainAnswer } from "../_shared/business-brain/types.ts";
 
 const corsHeaders = {
@@ -157,6 +158,8 @@ Deno.serve(async (req: Request) => {
     const plan = planQuestion(question);
     const raw = await loadRawData(db, ownerId, now);
     const facts = buildFacts(raw, plan);
+    const official = await officialMetricFacts(db, ownerId, now, raw.timeZone);
+    if (official) facts.official_metrics = official;
 
     let answer: BrainAnswer | null = null;
     try {
