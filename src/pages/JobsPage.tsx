@@ -59,6 +59,7 @@ import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { PermitTransactionPanel } from '@/components/jobs/PermitTransactionPanel';
 import { JobRegulationSnapshotPanel } from '@/components/jobs/JobRegulationSnapshotPanel';
+import { JobCloseoutPanel } from '@/components/jobs/JobCloseoutPanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
 import { useBulkTable } from '@/hooks/useBulkTable';
 import { applyRowPatches } from '@/lib/bulk/engine';
@@ -592,6 +593,7 @@ function JobDetailPanel({
         <JobTradePackPanel job={job} />
         <JobUnknownsPanel job={job} />
         <PermitTransactionPanel job={job} />
+        <JobCloseoutPanel job={job} />
         <JobRegulationSnapshotPanel job={job} />
         <ServiceTwinPanel job={job} />
         <TelemetryPrepPanel job={job} />
