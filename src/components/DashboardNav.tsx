@@ -408,6 +408,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Fleet Intelligence', href: '/dashboard/fleet-intelligence', icon: Radar },
   { label: 'Vehicles', href: '/dashboard/vehicles', icon: Truck, requiresPermission: 'can_manage_team' },
   { label: 'Vehicle Inspections (DVIR)', href: '/dashboard/fleet-dvir', icon: ClipboardCheck },
+  { label: 'Fuel Cards', href: '/dashboard/fuel-cards', icon: CreditCard, requiresPermission: 'can_manage_team' },
   { label: 'Field Evidence', href: '/dashboard/field-evidence', icon: ScanEye },
   { label: 'Property Vision', href: '/dashboard/property-vision', icon: ScanEye },
   { label: 'Customer Trust Bank', href: '/dashboard/trust-bank', icon: ShieldCheck },
