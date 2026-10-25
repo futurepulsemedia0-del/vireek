@@ -340,6 +340,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Autonomy Readiness', href: '/dashboard/autonomy-readiness', icon: Gauge },
   { label: 'Accounting', href: '/dashboard/accounting', icon: BookOpen },
   { label: 'Budgets', href: '/dashboard/budgets', icon: Wallet, requiresPermission: 'can_view_billing' },
+  { label: 'Talent Network', href: '/dashboard/talent', icon: Briefcase, requiresPermission: 'can_manage_team' },
   { label: 'Prevailing Wage', href: '/dashboard/prevailing-wage', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Refunds', href: '/dashboard/refunds', icon: Undo2, requiresPermission: 'can_view_billing' },
   { label: 'Chart of Accounts', href: '/dashboard/chart-of-accounts', icon: Layers, requiresPermission: 'can_view_billing' },
