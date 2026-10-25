@@ -360,6 +360,7 @@ const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage
 const ServiceAreasPage = lazy(() => import('@/pages/ServiceAreasPage').then((m) => ({ default: m.ServiceAreasPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
 const StaffingForecastPage = lazy(() => import('@/pages/StaffingForecastPage').then((m) => ({ default: m.StaffingForecastPage })));
+const SeasonalRevenueStabilizerPage = lazy(() => import('@/pages/SeasonalRevenueStabilizerPage').then((m) => ({ default: m.SeasonalRevenueStabilizerPage })));
 const WorkforceEquilibriumPage = lazy(() => import('@/pages/WorkforceEquilibriumPage').then((m) => ({ default: m.WorkforceEquilibriumPage })));
 const TechnicianRetentionPage = lazy(() => import('@/pages/TechnicianRetentionPage').then((m) => ({ default: m.TechnicianRetentionPage })));
 const BusinessDriftPage = lazy(() => import('@/pages/BusinessDriftPage').then((m) => ({ default: m.BusinessDriftPage })));
@@ -3716,6 +3717,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <StaffingForecastPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/seasonal-stabilizer"
+          element={
+            <ProtectedRoute>
+              <SeasonalRevenueStabilizerPage />
             </ProtectedRoute>
           }
         />
