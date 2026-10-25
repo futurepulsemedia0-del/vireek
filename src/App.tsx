@@ -353,6 +353,7 @@ const ServiceAreasPage = lazy(() => import('@/pages/ServiceAreasPage').then((m) 
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
 const StaffingForecastPage = lazy(() => import('@/pages/StaffingForecastPage').then((m) => ({ default: m.StaffingForecastPage })));
 const WorkforceEquilibriumPage = lazy(() => import('@/pages/WorkforceEquilibriumPage').then((m) => ({ default: m.WorkforceEquilibriumPage })));
+const TechnicianRetentionPage = lazy(() => import('@/pages/TechnicianRetentionPage').then((m) => ({ default: m.TechnicianRetentionPage })));
 const BusinessDriftPage = lazy(() => import('@/pages/BusinessDriftPage').then((m) => ({ default: m.BusinessDriftPage })));
 const ExecutiveReportsPage = lazy(() => import('@/pages/ExecutiveReportsPage').then((m) => ({ default: m.ExecutiveReportsPage })));
 const OpportunityCostLedgerPage = lazy(() => import('@/pages/OpportunityCostLedgerPage').then((m) => ({ default: m.OpportunityCostLedgerPage })));
@@ -771,6 +772,7 @@ function AppRoutes() {
         <Route path="/track/:token" element={<TrackingPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/dashboard/call-scripts" element={<ProtectedRoute><CallScriptsPage /></ProtectedRoute>} />
+        <Route path="/dashboard/technician-retention" element={<ProtectedRoute><TechnicianRetentionPage /></ProtectedRoute>} />
         <Route path="/dashboard/voice-platform" element={<ProtectedRoute><VoicePlatformPage /></ProtectedRoute>} />
         <Route path="/dashboard/booking-settings" element={<ProtectedRoute><BookingSettingsPage /></ProtectedRoute>} />
         <Route path="/dashboard/google-booking" element={<ProtectedRoute><GoogleBookingPage /></ProtectedRoute>} />
