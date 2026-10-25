@@ -41,6 +41,7 @@ import { PriceBookItem } from '@/lib/priceBook';
 import { JobTemplatePicker } from '@/components/jobs/JobTemplatePicker';
 import { JobTemplatePanel } from '@/components/jobs/JobTemplatePanel';
 import { JobSopPanel } from '@/components/jobs/JobSopPanel';
+import { SdsJobPanel } from '@/components/safety/SdsJobPanel';
 import { JobTemplateSummary, applyJobTemplate, describeTemplateError } from '@/lib/jobTemplates';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
@@ -601,6 +602,7 @@ function JobDetailPanel({
         <JobKnowledgePanel job={job} />
         <JobTemplatePanel job={job} />
         <JobSopPanel job={job} />
+        <SdsJobPanel job={job} />
         <JobQualityGatePanel job={job} />
         <JobContextPanel job={job} />
          <CustomFieldsPanel entity="job" recordId={job.id} value={job.custom_data as CustomData | undefined} />
