@@ -176,6 +176,11 @@ const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => (
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
 const BudgetsPage = lazy(() => import('@/pages/BudgetsPage').then((m) => ({ default: m.BudgetsPage })));
+const TalentBoardPage = lazy(() => import('@/pages/TalentBoardPage').then((m) => ({ default: m.TalentBoardPage })));
+const TalentJobPage = lazy(() => import('@/pages/TalentJobPage').then((m) => ({ default: m.TalentJobPage })));
+const TalentReferencePage = lazy(() => import('@/pages/TalentReferencePage').then((m) => ({ default: m.TalentReferencePage })));
+const TalentWorkerPage = lazy(() => import('@/pages/TalentWorkerPage').then((m) => ({ default: m.TalentWorkerPage })));
+const TalentNetworkPage = lazy(() => import('@/pages/TalentNetworkPage').then((m) => ({ default: m.TalentNetworkPage })));
 const PrevailingWagePage = lazy(() => import('@/pages/PrevailingWagePage').then((m) => ({ default: m.PrevailingWagePage })));
 const ChartOfAccountsPage = lazy(() => import('@/pages/ChartOfAccountsPage').then((m) => ({ default: m.ChartOfAccountsPage })));
 const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
@@ -850,6 +855,10 @@ function AppRoutes() {
         <Route path="/accessibility/conformance" element={<AccessibilityConformancePage />} />
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/careers/:slug" element={<CareerPostingPage />} />
+        <Route path="/talent" element={<TalentBoardPage />} />
+        <Route path="/talent/jobs/:slug" element={<TalentJobPage />} />
+        <Route path="/talent/reference/:token" element={<TalentReferencePage />} />
+        <Route path="/talent/me" element={<ProtectedRoute><TalentWorkerPage /></ProtectedRoute>} />
         <Route path="/culture" element={<CulturePage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/brand" element={<BrandGuidelinesPage />} />
@@ -2667,6 +2676,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <BudgetsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/talent"
+  element={
+    <ProtectedRoute>
+      <TalentNetworkPage />
     </ProtectedRoute>
   }
 />
