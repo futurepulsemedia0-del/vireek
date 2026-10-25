@@ -3,6 +3,8 @@ import { Target, RefreshCw, CircleCheck as CheckCircle, X, ArrowRight } from 'lu
 import { Link } from 'react-router-dom';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { EscalateToIssueButton } from '@/components/cadence/EscalateToIssueButton';
+import { parseAmountLabel } from '@/lib/cadence';
 import {
   CATEGORY_META, fetchTodayActions, generateNextBestActions, updateActionStatus, type NextBestAction,
 } from '@/lib/nextBestActions';
@@ -108,7 +110,14 @@ export function NextBestActionsPage() {
                       Open <ArrowRight size={12} />
                     </Link>
                   )}
-                  <div className="flex items-center gap-1.5">
+                  <div                     <EscalateToIssueButton
+                      compact
+                      title={a.title}
+                      description={`${a.reasoning}\n\nRecommended: ${a.recommended_action}`.slice(0, 4000)}
+                      sourceType="next_best_action"
+                      sourceRef={a.id}
+                      impactCents={parseAmountLabel(a.amount_label)}
+                    />className="flex items-center gap-1.5">
                     <button type="button" onClick={() => resolve(a.id, 'done')} title="Mark done" className="focus-ring rounded-lg border border-border p-1.5 text-text-secondary hover:text-success-500">
                       <CheckCircle size={14} />
                     </button>
