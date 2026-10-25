@@ -276,6 +276,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Economic Autopilot', href: '/dashboard/economic-autopilot', icon: Rocket, requiresPermission: 'can_view_billing' },
   { label: 'Parts & Inventory', href: '/dashboard/inventory', icon: Package },
   { label: 'Cycle Counts', href: '/dashboard/inventory/counts', icon: ClipboardCheck },
+  { label: 'Truck Operations', href: '/dashboard/inventory/trucks', icon: Truck },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
   { label: 'Number Reputation', href: '/dashboard/phone-numbers/reputation', icon: ShieldCheck, requiresPermission: 'can_manage_numbers' },
   { label: 'Voice Platform', href: '/dashboard/voice-platform', icon: Mic, requiresPermission: 'can_manage_numbers' },
