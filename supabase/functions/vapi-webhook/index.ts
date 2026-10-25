@@ -10,6 +10,7 @@ import { autoTagCallDisposition } from "../_shared/call-dispositions/autoDisposi
 import { buildIdentityContext, lookupCallerIdentity, mergeCallerContext } from "../_shared/identity-resolution.ts";
 import { getSealPolicy, sealCallArtifacts } from "../_shared/trust/vault.ts";
 import { recordAttemptOutcome } from "../_shared/number-reputation/attempts.ts";
+   import { planDisclosure, recordDisclosureOutcome } from "../_shared/ai-disclosure/ledger.ts";
 // supabase/functions/vapi-webhook/index.ts
 //
 // Server URL for the Vapi "Vireek Receptionist" production assistant(s).
@@ -702,6 +703,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   const customerMemoryContext = await buildCustomerMemoryContextVariable(admin, tenant, callerNumber);
   const voiceLanguage = await resolveVoiceLanguage(admin, tenant.userId, callerNumber, tenant.assistantName);
   const serviceAreaContext = await buildServiceAreaContextVariable(admin, tenant);
+   const disclosurePlan = await planDisclosure(admin, { userId: tenant.userId, vapiCallId: message.call?.id ?? null, callerLanguage: voiceLanguage.language });
   // Voice Platform: "" for home-services accounts (and on any error), so existing prompts are unaffected.
   const verticalContext = await loadVerticalContext(admin, tenant.userId, tenant.voiceAssistantId ?? null);
 
@@ -722,6 +724,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     language_context: voiceLanguage.context,
     service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regional)].filter(Boolean).join(" "),
     vertical_context: verticalContext,
+     ai_disclosure: disclosurePlan?.text ?? "",
   };
 
   if (tenant.agentOrchestrationEnabled) {
@@ -735,7 +738,9 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     assistantId: tenant.assistantId,
     assistantOverrides: {
       variableValues: sharedVariableValues,
-      ...(voiceLanguage.firstMessage ? { firstMessage: voiceLanguage.firstMessage } : {}),
+   ...(voiceLanguage.firstMessage
+     ? { firstMessage: disclosurePlan ? `${disclosurePlan.text} ${voiceLanguage.firstMessage}` : voiceLanguage.firstMessage }
+     : {}),
     },
   });
 }
@@ -2246,6 +2251,18 @@ transcript = pci.text;
     const detected = await recordLanguageFromCall(admin, { userId: tenant.userId, vapiCallId, callerNumber, transcript });
     if (detected.language) logEvent("caller_language_detected", requestId, { language: detected.language, confidence: detected.confidence });
   }
+   if (message.type === "end-of-call-report" && callRow && vapiCallId) {
+     try {
+       const proof = await recordDisclosureOutcome(admin, {
+         userId: tenant.userId, vapiCallId, callId: callRow.id, message, transcript,
+         callStartedAt: message.call?.startedAt ?? null,
+         durationSeconds: (patch.duration_seconds as number | null | undefined) ?? null,
+       });
+       if (proof) logEvent("ai_disclosure_recorded", requestId, { status: proof.status });
+     } catch (error) {
+       logError("ai_disclosure_record_failed", requestId, error, {});
+     }
+   }
   logEvent("lifecycle_event_processed", requestId, {
     type: message.type,
     user_id: tenant.userId,
