@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { HealthBadge } from './HealthBadge';
 import { ImpersonateDialog } from './ImpersonateDialog';
+import { AccountSuccessSection } from './AccountSuccessSection';
 import { AUDIT_ACTION_LABELS, fetchAccountDetail, type AccountDetail, type DailyUsage, type StaffAccount } from '@/lib/staffCustomers';
 
 /** Last 30 calendar days, zero-filled, oldest first. */
@@ -97,7 +98,8 @@ export function AccountDetailPanel({ account, onClose }: AccountDetailPanelProps
           ))}
         </ul>
       </Card>
-
+    
+      <AccountSuccessSection account={account} />
       {loading ? (
         <Card className="space-y-3 p-5 hover:translate-y-0" aria-busy="true">
           <Skeleton className="h-4 w-40" />
