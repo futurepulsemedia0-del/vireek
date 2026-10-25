@@ -168,6 +168,7 @@ const DocumentsPage = lazy(() => import('@/pages/DocumentsPage').then((m) => ({ 
 const GalleryPage = lazy(() => import('@/pages/GalleryPage').then((m) => ({ default: m.GalleryPage })));
 const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage').then((m) => ({ default: m.CallbackRootCausePage })));
 const ReportsPage = lazy(() => import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage })));
+const DataPlatformPage = lazy(() => import('@/pages/DataPlatformPage').then((m) => ({ default: m.DataPlatformPage })));
 const ScheduledReportsPage = lazy(() => import('@/pages/ScheduledReportsPage').then((m) => ({ default: m.ScheduledReportsPage })));
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
@@ -2563,6 +2564,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ReportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/data-platform"
+          element={
+            <ProtectedRoute>
+              <DataPlatformPage />
             </ProtectedRoute>
           }
         />
