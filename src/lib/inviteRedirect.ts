@@ -11,12 +11,36 @@ export function setPendingInviteToken(token: string): void {
   }
 }
 
+const PENDING_PATH_KEY = 'vireek_pending_post_auth_path';
+
+export function setPostAuthPath(path: string): void {
+  if (!/^\/talent\/[A-Za-z0-9/_-]*$/.test(path)) return;
+  try {
+    sessionStorage.setItem(PENDING_PATH_KEY, path);
+  } catch {
+    // non-fatal
+  }
+}
+
+export function peekPostAuthPath(): string | null {
+  try {
+    return sessionStorage.getItem(PENDING_PATH_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export function consumePostAuthRedirect(): string {
   try {
     const token = sessionStorage.getItem(PENDING_INVITE_KEY);
     if (token) {
       sessionStorage.removeItem(PENDING_INVITE_KEY);
       return `/invite/${token}`;
+    }
+    const path = sessionStorage.getItem(PENDING_PATH_KEY);
+    if (path) {
+      sessionStorage.removeItem(PENDING_PATH_KEY);
+      return path;
     }
   } catch {
     // Storage can be unavailable — fall through to the default.
