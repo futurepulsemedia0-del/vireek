@@ -1,3 +1,5 @@
+[functions.value-scoreboard-run]
+verify_jwt = false
 [functions.money-recovered-run]
 verify_jwt = false
 [functions.pbx-voice]
