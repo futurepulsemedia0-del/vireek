@@ -24,6 +24,7 @@ import { useFirstTimeFixGate } from '@/hooks/useFirstTimeFixGate';
 import { FirstTimeFixChip } from '@/components/jobs/FirstTimeFixChip';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
+import { TruckAlertsBanner } from '@/components/dispatch/TruckAlertsBanner';
 import { ScheduleDndProvider, DraggableJob, DropZone } from '@/components/schedule/ScheduleDnd';
 import { useScheduleBoard } from '@/hooks/useScheduleBoard';
 import type { MoveTargetOption } from '@/lib/scheduleDnd';
@@ -290,7 +291,8 @@ const handleAssign = async (job: Job, technicianId: string) => {
             </button>
           </div>
         </div>
-
+        
+        <div className="mb-4"><TruckAlertsBanner /></div>
         {(!loading || jobs.length > 0) && (
           <DispatchIntelligencePanel jobs={jobs} technicians={technicians} riskMap={riskMap} onChanged={fetchAll} />
         )}
