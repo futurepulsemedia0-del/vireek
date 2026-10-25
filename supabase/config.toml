@@ -26,3 +26,5 @@ verify_jwt = false
 
 [functions.analytics-embed]
 verify_jwt = false
+[functions.technician-retention-engine]
+verify_jwt = false
