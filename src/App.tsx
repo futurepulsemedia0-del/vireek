@@ -504,6 +504,7 @@ const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ 
 const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
 const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const CallScriptsPage = lazy(() => import('@/pages/CallScriptsPage').then((m) => ({ default: m.CallScriptsPage })));
+const AiQualityCenterPage = lazy(() => import('@/pages/AiQualityCenterPage').then((m) => ({ default: m.AiQualityCenterPage })));
 const BookingSettingsPage = lazy(() => import('@/pages/BookingSettingsPage').then((m) => ({ default: m.BookingSettingsPage })));
 const GoogleBookingPage = lazy(() => import('@/pages/GoogleBookingPage').then((m) => ({ default: m.GoogleBookingPage })));
 const RoadmapPage = lazy(() => import('@/pages/RoadmapPage').then((m) => ({ default: m.RoadmapPage })));
@@ -784,6 +785,7 @@ function AppRoutes() {
         <Route path="/track/:token" element={<TrackingPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/dashboard/call-scripts" element={<ProtectedRoute><CallScriptsPage /></ProtectedRoute>} />
+        <Route path="/dashboard/ai-quality" element={<ProtectedRoute><AiQualityCenterPage /></ProtectedRoute>} />
         <Route path="/dashboard/ai-disclosure-ledger" element={<ProtectedRoute><AiDisclosureLedgerPage /></ProtectedRoute>} />
         <Route path="/dashboard/technician-retention" element={<ProtectedRoute><TechnicianRetentionPage /></ProtectedRoute>} />
         <Route path="/dashboard/voice-platform" element={<ProtectedRoute><VoicePlatformPage /></ProtectedRoute>} />
