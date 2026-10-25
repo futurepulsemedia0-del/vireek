@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { HealthBadge } from '@/components/staff/HealthBadge';
 import { AccountDetailPanel } from '@/components/staff/AccountDetailPanel';
 import { StaffAuditLog } from '@/components/staff/StaffAuditLog';
+import { AtRiskAccountsPanel } from '@/components/staff/AtRiskAccountsPanel';
 import {
   BAND_LABELS,
   daysBetween,
@@ -30,7 +31,7 @@ const SORTS: [ExplorerSort, string][] = [
 ];
 const SELECT_CLASS = 'focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary';
 
-type Tab = 'accounts' | 'audit';
+type Tab = 'accounts' | 'at_risk' | 'audit';
 
 /** Staff pages must never be indexed, regardless of the site-wide default. */
 function useNoIndex(title: string) {
@@ -129,7 +130,7 @@ export function StaffCustomersPage() {
           <p className="mt-1 text-sm text-text-secondary">Internal account explorer. Every view and every sign-in is recorded in the audit log.</p>
 
           <div role="tablist" aria-label="Customer sections" className="mt-6 flex gap-1 border-b border-border">
-            {([['accounts', 'Accounts'], ['audit', 'Audit log']] as [Tab, string][]).map(([id, label]) => (
+            {([['accounts', 'Accounts'], ['at_risk', 'At-risk'], ['audit', 'Audit log']]as [Tab, string][]).map(([id, label]) => (
               <button
                 key={id}
                 type="button"
@@ -144,7 +145,9 @@ export function StaffCustomersPage() {
           </div>
 
           <div className="mt-6" role="tabpanel">
-            {tab === 'audit' ? (
+            {tab === 'at_risk' && !loading && !error && accounts.length > 0 ? (
+  <AtRiskAccountsPanel accounts={accounts} onOpen={(id) => { setTab('accounts'); select(id); }} />
+) : tab === 'audit' ? (
               <StaffAuditLog accountNames={accountNames} />
             ) : loading ? (
               <div className="space-y-3" aria-busy="true">
