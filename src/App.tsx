@@ -187,6 +187,8 @@ const ChatWidgetSettingsPage = lazy(() => import('@/pages/ChatWidgetSettingsPage
 const WebsiteWidgetsPage = lazy(() => import('@/pages/WebsiteWidgetsPage').then((m) => ({ default: m.WebsiteWidgetsPage })));
 const EvidenceChainPage = lazy(() => import('@/pages/EvidenceChainPage').then((m) => ({ default: m.EvidenceChainPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
+const ProtectionPlansPage = lazy(() => import('@/pages/ProtectionPlansPage').then((m) => ({ default: m.ProtectionPlansPage })));
+const PublicProtectionPlanPage = lazy(() => import('@/pages/PublicProtectionPlanPage').then((m) => ({ default: m.PublicProtectionPlanPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
 const SelfHealingPage = lazy(() => import('@/pages/SelfHealingPage').then((m) => ({ default: m.SelfHealingPage })));
 const TemporalRegulationPage = lazy(() => import('@/pages/TemporalRegulationPage').then((m) => ({ default: m.TemporalRegulationPage })));
@@ -796,6 +798,7 @@ function AppRoutes() {
         <Route path="/e/:code" element={<PublicEquipmentPassportPage />} />
         <Route path="/t/:token" element={<PublicTagPage />} />
         <Route path="/warranty/register" element={<WarrantyRegisterPage />} />
+        <Route path="/protection/:token" element={<PublicProtectionPlanPage />} />
         <Route path="/h/:code" element={<PublicHomePassportPage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
@@ -2722,6 +2725,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <WarrantyClaimRecoveryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/protection-plans"
+          element={
+            <ProtectedRoute>
+              <ProtectionPlansPage />
             </ProtectedRoute>
           }
         />
