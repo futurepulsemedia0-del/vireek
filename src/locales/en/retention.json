@@ -1,0 +1,175 @@
+{
+  "page": {
+    "title": "Technician Retention Engine",
+    "subtitle": "Spot the technicians most likely to leave, see why in plain language, and fix the causes with one click.",
+    "back": "Back to dashboard",
+    "lastComputed": "Week of {{week}}",
+    "recalculate": "Recalculate now",
+    "recalculating": "Calculating…",
+    "recalculated": "Scores updated.",
+    "recalcFailed": "Could not recalculate. Please try again.",
+    "loadFailed": "We could not load retention data.",
+    "retry": "Try again"
+  },
+  "access": {
+    "title": "Managers and owners only",
+    "description": "Retention scores are confidential. Ask your account owner for manager access."
+  },
+  "empty": {
+    "title": "No scores yet",
+    "description": "The engine scores your technicians every week from schedule changes, overtime, on-call load, pay, callbacks and office requests. Run it now to get your first scores.",
+    "cta": "Run the engine",
+    "noMatch": "No technicians match this filter."
+  },
+  "summary": {
+    "yearlyCost": "Expected yearly attrition cost",
+    "yearlyCostHint": "Likelihood of leaving × cost to replace, across the whole team.",
+    "high": "High risk",
+    "elevated": "Elevated risk",
+    "costAtRisk": "Cost if the at-risk team left",
+    "costAtRiskHint": "Replacement cost of everyone rated high or elevated.",
+    "impact": "Fixes that worked",
+    "impactValue": "{{improved}} of {{measured}}",
+    "impactNone": "No results measured yet",
+    "people": "technicians"
+  },
+  "filters": {
+    "label": "Show",
+    "all": "All",
+    "sortLabel": "Sort by",
+    "sortRisk": "Highest risk",
+    "sortCost": "Highest cost"
+  },
+  "band": {
+    "high": "High",
+    "elevated": "Elevated",
+    "low": "Low",
+    "insufficient": "Not enough data"
+  },
+  "tech": {
+    "score": "Risk score",
+    "trendUp": "Up {{n}} since last week",
+    "trendDown": "Down {{n}} since last week",
+    "trendFlat": "No change since last week",
+    "costIfLost": "Cost if they leave",
+    "expectedCost": "Expected yearly cost",
+    "tenure_days_one": "{{count}} day on the team",
+    "tenure_days_other": "{{count}} days on the team",
+    "tenure_months_one": "{{count}} month on the team",
+    "tenure_months_other": "{{count}} months on the team",
+    "tenure_years_one": "{{count}} year on the team",
+    "tenure_years_other": "{{count}} years on the team",
+    "driversTitle": "Why this score",
+    "points": "{{points}} pts",
+    "noDrivers": "No single factor stands out.",
+    "provisional": "Provisional score — limited data so far.",
+    "newHire": "New to the team: scores stay low until there are several weeks of data.",
+    "insufficientText": "Not enough operational data yet to score this technician fairly.",
+    "frozen": "Schedule frozen until {{until}}",
+    "lift": "Lift freeze",
+    "expand": "Show details",
+    "collapse": "Hide details"
+  },
+  "drivers": {
+    "same_day_changes": {
+      "name": "Last-minute schedule changes",
+      "text": "{{count}} jobs were moved within 24 hours of their start ({{perWeek}} per week)."
+    },
+    "overtime": {
+      "name": "Overtime",
+      "text": "{{hours}} overtime hours in 8 weeks ({{perWeek}} per week)."
+    },
+    "on_call_load": {
+      "name": "On-call burden",
+      "text": "{{days}} days on call, against a team average of {{avg}}."
+    },
+    "earnings_trend": {
+      "name": "Falling earnings",
+      "text": "Earnings are down {{dropPct}}% over the last 4 weeks compared with the 4 weeks before."
+    },
+    "callback_rate": {
+      "name": "Callbacks",
+      "text": "{{count}} callbacks on {{jobs}} completed jobs ({{ratePct}}%)."
+    },
+    "unpaid_time": {
+      "name": "Unpaid or rejected time",
+      "text": "{{hours}} worked hours were rejected and not paid ({{perWeek}} per week)."
+    },
+    "unanswered_requests": {
+      "name": "Unanswered office requests",
+      "text": "{{count}} of {{total}} requests to the office got no reply within 4 hours."
+    }
+  },
+  "actions": {
+    "title": "Suggested fixes",
+    "none": "No fixes suggested right now.",
+    "approve": "Approve",
+    "dismiss": "Dismiss",
+    "approved": "Approved",
+    "measuring": "Measuring — result in about a week",
+    "outcome": {
+      "improved": "Score improved ({{before}} → {{after}})",
+      "no_change": "No clear change ({{before}} → {{after}})",
+      "worsened": "Score got worse ({{before}} → {{after}})"
+    },
+    "approvedHint": "A follow-up task was created for you.",
+    "types": {
+      "freeze_schedule": {
+        "title": "Freeze {{name}}'s schedule for the next 48 hours",
+        "detail": "{{driver}} Only an emergency should move {{name}}'s jobs; you can lift the freeze at any time."
+      },
+      "reduce_overtime": {
+        "title": "Redistribute {{name}}'s overtime",
+        "detail": "{{driver}} Move or reassign some upcoming jobs to technicians with open capacity."
+      },
+      "rebalance_on_call": {
+        "title": "Rebalance the on-call rotation for {{name}}",
+        "detail": "{{driver}} Review the rotation so on-call days are shared more evenly."
+      },
+      "manager_one_on_one": {
+        "title": "Hold a 1:1 check-in with {{name}}",
+        "detail": "{{driver}} Ask what is getting in the way and what would help; review job mix and support together."
+      },
+      "remove_paperwork_step": {
+        "title": "Remove a paperwork step for {{name}}",
+        "detail": "{{driver}} Find out why the time was rejected and simplify the timesheet or close-out step that causes it."
+      },
+      "clear_office_backlog": {
+        "title": "Clear the office backlog for {{name}}",
+        "detail": "{{driver}} Reply to open requests and agree a response-time target with the office."
+      }
+    }
+  },
+  "toast": {
+    "approved": "Approved. A follow-up task was created.",
+    "approvedFreeze": "Approved. The schedule is frozen for 48 hours.",
+    "dismissed": "Dismissed.",
+    "lifted": "Freeze lifted.",
+    "forbidden": "Only owners and managers can do this.",
+    "stale": "This suggestion was already handled. Refreshing.",
+    "failed": "Something went wrong. Please try again."
+  },
+  "how": {
+    "title": "How this score works",
+    "intro": "The score is a transparent checklist, not an AI black box. For each technician we look at the last 8 weeks of data already in Vireek and score seven operational factors. Every point of the score is traceable to one of them.",
+    "signalsTitle": "What we look at",
+    "weight": "up to {{n}} pts",
+    "signal": {
+      "same_day_changes": "Jobs moved within 24 hours of their start time.",
+      "earnings_trend": "Commission, tips and hourly pay in the last 4 weeks versus the 4 before.",
+      "overtime": "Overtime hours on approved timesheets.",
+      "on_call_load": "Days on call compared with the team average.",
+      "unanswered_requests": "Requests in job threads the office did not answer within 4 hours.",
+      "unpaid_time": "Worked hours on timesheets that were rejected.",
+      "callback_rate": "Return visits on this technician's completed jobs."
+    },
+    "bandsTitle": "Reading the score",
+    "bands": "0–24 low, 25–49 elevated, 50–100 high. A factor with no data is skipped, and scores are scaled down when there is little data or the technician is new — so a new hire is never flagged on thin evidence.",
+    "costTitle": "How the dollar figures work",
+    "cost": "Cost if they leave is a planning estimate: $15,000 for under a year on the team, $20,000 for 1–3 years and $25,000 beyond that. Expected yearly cost multiplies it by a likelihood of leaving that rises from about 8% to 60% as the score rises. It is an estimate for planning, not a prediction about any person.",
+    "fairnessTitle": "What we never use",
+    "fairness": "Age, gender, ethnicity, religion, health, disability, family status or any other protected attribute is never read or scored. Only work data is used, and only owners and managers can see scores. Use the results to fix workplace causes — not to make decisions about an individual's employment.",
+    "limitsTitle": "Good to know",
+    "limits": "Rescheduled jobs are counted for the technician currently assigned to the job. Tenure is measured from when the technician was added to Vireek."
+  }
+}
