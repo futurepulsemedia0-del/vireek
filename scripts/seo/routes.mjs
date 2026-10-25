@@ -21,7 +21,7 @@ export const STATIC_PUBLIC_PATHS = [
   '/compare/matrix', '/switch', '/ai-receptionist-vs-human-receptionist', '/open-voice-benchmark', '/industries', '/pricing',
   '/enterprise', '/marketplace', '/sdks', '/developers/changelog', '/demo', '/calculator',
   '/security', '/trust', '/integrations', '/status', '/case-studies', '/changelog', '/roadmap',
-  '/accessibility', '/accessibility/conformance', '/careers', '/culture', '/press', '/brand',
+  '/accessibility', '/accessibility/conformance', '/careers', '/talent', '/culture', '/press', '/brand',
   '/partners', '/affiliate', '/referral', '/beta', '/webinars', '/roi', '/system-requirements',
   '/sitemap',
 ];
