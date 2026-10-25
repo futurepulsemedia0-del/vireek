@@ -28,3 +28,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.technician-retention-engine]
 verify_jwt = false
+[functions.pay-webhook]
+verify_jwt = false
