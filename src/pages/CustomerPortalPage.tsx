@@ -1,4 +1,5 @@
 import { PortalJobSummaries } from '@/components/portal/PortalJobSummaries';
+import { PortalWalletCard } from '@/components/portal/PortalWalletCard';
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -295,6 +296,7 @@ export function CustomerPortalPage() {
                     )}
                   </div>
                   {token && <PortalJobSummaries portalToken={token} />}
+                     {token && <PortalWalletCard portalToken={token} />}
 
 
                   <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
