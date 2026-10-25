@@ -338,7 +338,8 @@ const KnowledgeCapturePage = lazy(() => import('@/pages/KnowledgeCapturePage').t
 const FailureAtlasPage = lazy(() => import('@/pages/FailureAtlasPage').then((m) => ({ default: m.FailureAtlasPage })));
 const FeedbackAnalyticsPage = lazy(() => import('@/pages/FeedbackAnalyticsPage').then((m) => ({ default: m.FeedbackAnalyticsPage })));
 const ImportsPage = lazy(() => import('@/pages/ImportsPage').then((m) => ({ default: m.ImportsPage })));
-  const PhonePaymentsPage = lazy(() => import('@/pages/PhonePaymentsPage').then((m) => ({ default: m.PhonePaymentsPage })));
+const PhonePaymentsPage = lazy(() => import('@/pages/PhonePaymentsPage').then((m) => ({ default: m.PhonePaymentsPage })));
+const HiddenTechnicianPage = lazy(() => import('@/pages/HiddenTechnicianPage').then((m) => ({ default: m.HiddenTechnicianPage })));
 const HoursAuditPage = lazy(() => import('@/pages/HoursAuditPage').then((m) => ({ default: m.HoursAuditPage })));
 const CommitmentGraphPage = lazy(() => import('@/pages/CommitmentGraphPage').then((m) => ({ default: m.CommitmentGraphPage })));
 const CompanyReflexesPage = lazy(() => import('@/pages/CompanyReflexesPage').then((m) => ({ default: m.CompanyReflexesPage })));
@@ -1934,6 +1935,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <HoursAuditPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/hidden-technician"
+          element={
+            <ProtectedRoute>
+              <HiddenTechnicianPage />
             </ProtectedRoute>
           }
         />
