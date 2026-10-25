@@ -1,0 +1,164 @@
+{
+  "title": "Hidden Technician",
+  "subtitle": "Find the paid technician hours that never became billable — and recover them with fixes you approve.",
+  "honesty": "All figures are estimates built from your job times, valued at {{cost}} per hour (editable in Settings). They are the estimated value of an hour, not guaranteed revenue. Technicians are listed alphabetically; this is not a ranking.",
+  "demoBanner": "Sample data: nothing here is real or saved. Approving is disabled in the demo.",
+  "demoDisabled": "Disabled in the demo",
+  "access": {
+    "title": "You don't have access to this page",
+    "body": "Technician hours are payroll-adjacent, so this page is limited to owners and managers with the “View Billing” permission."
+  },
+  "actions": {
+    "freeAudit": "Free CSV audit",
+    "demo": "Try with demo data",
+    "refresh": "Refresh",
+    "approve": "Approve",
+    "dismiss": "Dismiss"
+  },
+  "units": {
+    "hours": "{{value}} h"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again."
+  },
+  "notice": {
+    "approved": "Approved. Recovery will be measured from real job data and shown here.",
+    "dismissed": "Dismissed. It will not be suggested again.",
+    "saved": "Settings saved."
+  },
+  "kpi": {
+    "utilization": "Utilization (last 28 days)",
+    "utilizationHint": "{{billable}} billable of {{paid}} paid",
+    "leaked": "Hours leaked",
+    "leakedHint": "Estimated value {{value}}",
+    "recovered": "Recovered this month (measured)",
+    "recoveredHint": "Estimated value {{value}} — only counts fixes measured on real jobs",
+    "potential": "Open suggestions",
+    "potentialHint": "Planning estimate, not a promise"
+  },
+  "top": {
+    "title": "Top 3 leaks"
+  },
+  "empty": {
+    "noLeaks": "No leaked hours found in this period.",
+    "fixes": "Nothing here yet.",
+    "noWaitlist": "Add customers to the waitlist so open slots can be filled.",
+    "noData": "No usable job data in the last 28 days. Make sure jobs have a technician and times, or try the demo."
+  },
+  "cause": {
+    "drive": "Drive time",
+    "idle_gap": "Idle gap",
+    "parts_run": "Parts run",
+    "no_show": "Customer no-show",
+    "callback": "Callback",
+    "paperwork": "Paperwork",
+    "waiting_approval": "Waiting for approval"
+  },
+  "causeHelp": {
+    "drive": "Time between jobs spent travelling.",
+    "idle_gap": "Gaps and unscheduled time with no job.",
+    "parts_run": "Time lost because parts were missing.",
+    "no_show": "Slots where the customer was not there.",
+    "callback": "Return visits to fix earlier work.",
+    "paperwork": "Wrap-up time after a finished job (estimated allowance).",
+    "waiting_approval": "Jobs on hold until the customer or office approved."
+  },
+  "confidence": {
+    "measured": "measured",
+    "inferred": "inferred",
+    "estimated": "estimated"
+  },
+  "rules": {
+    "job_status_no_show": "Job status says no-show",
+    "job_tag_no_show": "Job tagged no-show",
+    "job_rework": "Job marked as rework",
+    "job_tag_callback": "Job tagged callback",
+    "job_status_waiting_approval": "Job status is waiting for approval",
+    "job_tag_waiting_approval": "Job tagged waiting for approval",
+    "job_status_waiting_parts": "Job status is waiting for parts",
+    "gap_paperwork_allowance": "First minutes after a finished job",
+    "gap_parts_run_after_parts_job": "Gap after a job that needed parts",
+    "gap_idle": "Gap longer than the drive allowance",
+    "gap_drive_en_route": "From the en-route time to arrival",
+    "gap_drive_cap": "Last minutes before the next job (drive allowance)",
+    "day_unscheduled_slack": "Paid time left at the end of the day"
+  },
+  "fixes": {
+    "title": "Auto-fixes",
+    "intro": "Every fix waits for your approval. Recovered hours are counted only after real jobs prove them.",
+    "estimate": "planning estimate {{value}}",
+    "recovered": "recovered {{value}}",
+    "tracking": "measuring on real jobs"
+  },
+  "status": {
+    "suggested": "Suggested",
+    "approved": "Tracking",
+    "measured": "Measured",
+    "dismissed": "Dismissed"
+  },
+  "method": {
+    "direct_slot": "job time inside the offered slot",
+    "baseline_delta": "compared with the 28 days before"
+  },
+  "fix": {
+    "fill_gap": {
+      "title": "Fill {{tech}}'s open slot on {{day}} with {{customer}}",
+      "how": "Approving offers the open slot to this waitlist customer for 24 hours. Hours count only if they are booked and worked."
+    },
+    "cluster_route": {
+      "title": "Re-order {{tech}}'s {{jobs}} visits on {{day}} to cut driving",
+      "how": "Group nearby addresses back to back. Drive time is compared with your recent average afterwards."
+    },
+    "stage_parts": {
+      "title": "Stage parts the night before for {{tech}}",
+      "how": "Load common parts for tomorrow's jobs the evening before. Parts-run time is compared with the 28 days before."
+    },
+    "noshow_reminder": {
+      "title": "Send automatic appointment reminders to cut no-shows",
+      "how": "Reminder texts go out before each visit. No-show hours are compared with the 28 days before."
+    },
+    "paperwork_capture": {
+      "title": "Capture notes by voice or photo to cut paperwork time",
+      "how": "Technicians dictate or photograph instead of typing. Treat the measured figure as a conservative lower bound."
+    }
+  },
+  "pnl": {
+    "title": "Hours profit & loss by technician",
+    "intro": "Paid, billable and leaked hours for the last 28 days. Open a technician to see each day.",
+    "tech": "Technician",
+    "paid": "Paid",
+    "billable": "Billable",
+    "leaked": "Leaked",
+    "utilization": "Utilization",
+    "value": "Est. value",
+    "dayLine": "{{paid}} paid, {{billable}} billable, {{leaked}} leaked"
+  },
+  "ledger": {
+    "title": "Leak ledger",
+    "filter": "Filter by cause",
+    "allCauses": "All causes",
+    "day": "Day",
+    "cause": "Cause",
+    "hours": "Hours",
+    "why": "Why",
+    "more": "Show {{count}} more"
+  },
+  "settings": {
+    "title": "Assumptions",
+    "hourlyCost": "Estimated value of an hour (USD)",
+    "paidHours": "Paid hours per day",
+    "driveCap": "Drive allowance per gap (minutes)",
+    "paperwork": "Paperwork allowance per job (minutes)",
+    "save": "Save assumptions"
+  },
+  "how": {
+    "title": "How this is calculated",
+    "p1": "For each technician-day, the paid window starts at the first job and lasts your paid hours per day. Time on billable jobs is billable; everything else in the window is leaked.",
+    "p2": "Every leaked segment gets exactly one cause by fixed rules, so the causes always add up to the leaked total. The Why column shows the rule used.",
+    "p3": "Job statuses and rework flags are measured. Tags and gap-based causes are inferred. Paperwork is an allowance you set, so it is estimated.",
+    "p4": "Overlapping jobs are counted once, overnight jobs stay on the day they started, and rows without usable times are skipped and counted below.",
+    "p5": "Money is hours × {{cost}} — the estimated value of an hour, not revenue you are guaranteed to earn.",
+    "p6": "Recovered hours come only from real later jobs: a booked job worked inside an offered slot, or a drop in that cause versus the 28 days before approval."
+  },
+  "quality": "Data quality: {{skipped}} jobs skipped for missing or invalid times, {{unassigned}} jobs without an assigned technician."
+}
