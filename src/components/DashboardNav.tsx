@@ -437,6 +437,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Capacity Demand Control', href: '/dashboard/capacity-demand', icon: Gauge },
   { label: 'Staffing Forecast', href: '/dashboard/staffing-forecast', icon: CalendarClock },
   { label: 'Workforce Equilibrium', href: '/dashboard/workforce-equilibrium', icon: Scale },
+  { label: 'Retention Engine', href: '/dashboard/technician-retention', icon: HeartHandshake, requiresPermission: 'can_manage_team' },
   { label: 'Business Drift Detector', href: '/dashboard/business-drift', icon: Compass },
   { label: 'Executive Reports', href: '/dashboard/reports/executive', icon: FileBarChart, ownerOnly: true },
   { label: 'Opportunity Cost Ledger', href: '/dashboard/opportunity-cost', icon: Hourglass },
