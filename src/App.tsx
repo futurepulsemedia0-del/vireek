@@ -496,10 +496,11 @@ const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ defa
 const LandingPagesPage = lazy(() => import('@/pages/LandingPagesPage').then((m) => ({ default: m.LandingPagesPage })));
 const PublicLandingPage = lazy(() => import('@/pages/PublicLandingPage').then((m) => ({ default: m.PublicLandingPage })));
 const CustomerPortalPage = lazy(() => import('@/pages/CustomerPortalPage').then((m) => ({ default: m.CustomerPortalPage })));
-   const WalletLandingPage = lazy(() => import('@/pages/WalletLandingPage').then((m) => ({ default: m.WalletLandingPage })));
-   const WalletPassesPage = lazy(() => import('@/pages/WalletPassesPage').then((m) => ({ default: m.WalletPassesPage })));
+const WalletLandingPage = lazy(() => import('@/pages/WalletLandingPage').then((m) => ({ default: m.WalletLandingPage })));
+const WalletPassesPage = lazy(() => import('@/pages/WalletPassesPage').then((m) => ({ default: m.WalletPassesPage })));
 const HomeApp = lazy(() => import('@/pages/home/HomeApp').then((m) => ({ default: m.HomeApp })));
 const CustomerPortalHistoryPage = lazy(() => import('@/pages/CustomerPortalHistoryPage').then((m) => ({ default: m.CustomerPortalHistoryPage })));
+const CustomerPortalInventoryPage = lazy(() => import('@/pages/CustomerPortalInventoryPage').then((m) => ({ default: m.CustomerPortalInventoryPage })));
 const EmergencyTriagePage = lazy(() => import('@/pages/EmergencyTriagePage').then((m) => ({ default: m.EmergencyTriagePage })));
 const JobRoomPage = lazy(() => import('@/pages/JobRoomPage').then((m) => ({ default: m.JobRoomPage })));
 const DiagnosePage = lazy(() => import('@/pages/DiagnosePage').then((m) => ({ default: m.DiagnosePage })));
@@ -818,6 +819,7 @@ function AppRoutes() {
         <Route path="/portal/:token" element={<CustomerPortalPage />} />
         <Route path="/job-board/offer/:token" element={<JobBoardOfferPage />} />
         <Route path="/portal/:token/history" element={<CustomerPortalHistoryPage />} />
+        <Route path="/portal/:token/inventory" element={<CustomerPortalInventoryPage />} />
         <Route path="/home/*" element={<HomeApp />} />
         <Route path="/verified/:token" element={<VerifiedServicePage />} />
         <Route path="/guarantee/:token" element={<ServiceGuaranteePublicPage />} />
