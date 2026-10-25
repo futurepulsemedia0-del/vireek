@@ -14,6 +14,7 @@ import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
 import { LeakReportCard } from '@/components/LeakReportCard';
 import { SinceYesterdayCard } from '@/components/SinceYesterdayCard';
 import { GettingStartedCard } from '@/components/GettingStartedCard';
+import { SuccessNudgeCard } from '@/components/success/SuccessNudgeCard';
 import { DailyBriefingCard } from '@/components/DailyBriefingCard';
 import { TodayTasksCard } from '@/components/TodayTasksCard';
 import { AttributionReport, AttributionRow } from '@/components/AttributionReport';
