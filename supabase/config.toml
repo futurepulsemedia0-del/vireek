@@ -21,3 +21,8 @@ verify_jwt = false
 verify_jwt = false
 [functions.booking-capacity]
 verify_jwt = false
+[functions.data-platform-run]
+verify_jwt = false
+
+[functions.analytics-embed]
+verify_jwt = false
