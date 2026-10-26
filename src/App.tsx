@@ -146,6 +146,8 @@ const BusinessDigitalTwinPage = lazy(() => import('@/pages/BusinessDigitalTwinPa
 const BusinessWorldModelPage = lazy(() => import('@/pages/BusinessWorldModelPage').then((m) => ({ default: m.BusinessWorldModelPage })));
 const BusinessRealityPage = lazy(() => import('@/pages/BusinessRealityPage').then((m) => ({ default: m.BusinessRealityPage })));
 const DataQualityCenterPage = lazy(() => import('@/pages/DataQualityCenterPage').then((m) => ({ default: m.DataQualityCenterPage })));
+const ExitReadinessPage = lazy(() => import('@/pages/ExitReadinessPage').then((m) => ({ default: m.ExitReadinessPage })));
+const ExitDataRoomPublicPage = lazy(() => import('@/pages/ExitDataRoomPublicPage').then((m) => ({ default: m.ExitDataRoomPublicPage })));
 const InvisibleRevenueMapPage = lazy(() => import('@/pages/InvisibleRevenueMapPage').then((m) => ({ default: m.InvisibleRevenueMapPage })));
 const CashFlowForecastPage = lazy(() => import('@/pages/CashFlowForecastPage').then((m) => ({ default: m.CashFlowForecastPage })));
 const BusinessForecastPage = lazy(() => import('@/pages/BusinessForecastPage').then((m) => ({ default: m.BusinessForecastPage })));
@@ -1776,6 +1778,14 @@ function AppRoutes() {
           }
         />
         <Route
+          path="/dashboard/exit-readiness"
+          element={
+            <ProtectedRoute>
+              <ExitReadinessPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/identity"
           element={
             <ProtectedRoute>
@@ -2365,6 +2375,7 @@ function AppRoutes() {
         <Route path="/sign/:token" element={<SignDocumentPage />} />
         <Route path="/inspection/:token" element={<InspectionReportPublicPage />} />
         <Route path="/summary/:token" element={<JobSummaryPublicPage />} />
+        <Route path="/data-room" element={<ExitDataRoomPublicPage />} />
         <Route path="/findings/:token" element={<FindingsPackagePublicPage />} />
         <Route path="/invoice/:token" element={<InvoicePage />} />
         <Route path="/shared/dashboard/:token" element={<SharedDashboardPage />} />
