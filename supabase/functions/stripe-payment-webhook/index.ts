@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyStripeSignature } from "../_shared/stripe/client.ts";
 import { applyPaymentIntentResult, stripeGet } from "../_shared/stripe/terminalPayments.ts";
 import { finalizePaymentRequestFromIntent } from "../_shared/payments/finalizeIntent.ts";
+import { processBankStripeEvent } from "../_shared/bankPayments/runtime.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -91,6 +92,10 @@ Deno.serve(async (req: Request) => {
         }
         break;
       }
+      case "payment_intent.processing":
+      case "payment_intent.requires_action":
+        await processBankStripeEvent(admin, event); // only bank debits; card events are ignored inside
+        break;
       case "payment_intent.succeeded":
       case "payment_intent.payment_failed":
       case "payment_intent.canceled": {
@@ -99,8 +104,13 @@ Deno.serve(async (req: Request) => {
         const finalized = await finalizePaymentRequestFromIntent(admin, event.data.object, {
           fetchCharge: (chargeId) => stripeGet(`charges/${chargeId}`, stripeKey),
         });
+        await processBankStripeEvent(admin, event); // after finalize, so the invoice is already paid when the ledger posts
         if (finalized.handled) break;
         await applyPaymentIntentResult(admin, event.data.object, Deno.env.get("STRIPE_SECRET_KEY") ?? undefined);
+        break;
+      }
+      case "payment_method.automatically_updated":
+        await processBankStripeEvent(admin, event);
         break;
       }
       case "charge.refund.updated":
