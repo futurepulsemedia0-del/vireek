@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyStripeSignature } from "../_shared/stripe/client.ts";
 import { isHandledDisputeEvent, normalizeDispute } from "../_shared/disputes/normalize.ts";
+import { processBankStripeEvent } from "../_shared/bankPayments/runtime.ts";
 
 // Dedicated endpoint for charge.dispute.* so the existing payment webhook is untouched.
 // Secret: STRIPE_DISPUTE_WEBHOOK_SECRET (signing secret of THIS endpoint in the Stripe dashboard).
@@ -32,6 +33,7 @@ Deno.serve(async (req: Request) => {
       p: { event_id: event.id, event_type: event.type, event_created: event.created, stripe_account_id: event.account ?? null, dispute },
     });
     if (error) throw error;
+    await processBankStripeEvent(admin, event); // ACH return / dispute → reversal; no-op for card disputes
     if (data && data.matched === false) {
       console.warn(JSON.stringify({ event: "stripe_dispute_unmatched", dispute: dispute.stripe_dispute_id, payment_intent: dispute.stripe_payment_intent_id }));
     }
