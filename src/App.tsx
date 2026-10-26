@@ -203,6 +203,7 @@ const ChatWidgetSettingsPage = lazy(() => import('@/pages/ChatWidgetSettingsPage
 const WebsiteWidgetsPage = lazy(() => import('@/pages/WebsiteWidgetsPage').then((m) => ({ default: m.WebsiteWidgetsPage })));
 const EvidenceChainPage = lazy(() => import('@/pages/EvidenceChainPage').then((m) => ({ default: m.EvidenceChainPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
+const SupplierAuditPage = lazy(() => import('@/pages/SupplierAuditPage').then((m) => ({ default: m.SupplierAuditPage })));
 const ProtectionPlansPage = lazy(() => import('@/pages/ProtectionPlansPage').then((m) => ({ default: m.ProtectionPlansPage })));
 const PublicProtectionPlanPage = lazy(() => import('@/pages/PublicProtectionPlanPage').then((m) => ({ default: m.PublicProtectionPlanPage })));
 const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
@@ -2870,6 +2871,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <WarrantyClaimRecoveryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/supplier-audit"
+          element={
+            <ProtectedRoute>
+              <SupplierAuditPage />
             </ProtectedRoute>
           }
         />
