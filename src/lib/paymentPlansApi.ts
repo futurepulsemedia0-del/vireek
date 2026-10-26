@@ -81,7 +81,7 @@ async function action(body: Record<string, unknown>): Promise<Record<string, unk
 
 export const sendPlan = (planId: string) => action({ action: 'send', plan_id: planId });
 export const chargeInstallmentNow = async (installmentId: string) =>
-  (await action({ action: 'charge_now', installment_id: installmentId })) as { outcome?: 'paid' | 'failed' | 'requires_action'; error?: string | null };
+  (await action({ action: 'charge_now', installment_id: installmentId })) as { outcome?: 'paid' | 'failed' | 'requires_action' | 'pending'; error?: string | null };
 
 export async function waiveLateFee(installmentId: string): Promise<void> {
   const { error } = await supabase.rpc('waive_plan_late_fee', { p_installment_id: installmentId });
