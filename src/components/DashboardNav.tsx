@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutTemplate } from 'lucide-react';
+import { Banknote } from 'lucide-react';
 import { FlaskConical } from 'lucide-react';
 import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
@@ -568,6 +569,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Plans & Upgrades', href: '/dashboard/billing/plans', icon: Rocket, requiresPermission: 'can_view_billing' },
   { label: 'Payments', href: '/dashboard/payments', icon: CreditCard, requiresPermission: 'can_view_billing' },
   { label: 'Payment Plans', href: '/dashboard/payment-plans', icon: Calendar, requiresPermission: 'can_view_billing' },
+  { label: 'Pay by Bank', href: '/dashboard/pay-by-bank', icon: Banknote, requiresPermission: 'can_view_billing' },
   { label: 'Disputes', href: '/dashboard/disputes', icon: ShieldAlert, requiresPermission: 'can_view_billing' },
   { label: 'Financing Center', href: '/dashboard/financing', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: TrendingUp, requiresPermission: 'can_view_billing' },
