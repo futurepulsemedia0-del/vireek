@@ -145,7 +145,7 @@ export function FieldFormsPanel({ jobId }: { jobId: string }) {
         {template.description && <p className="text-xs text-text-secondary">{template.description}</p>}
         {session.draftRestored && <p className="text-xs text-text-secondary">Your unsaved answers were restored.</p>}
 
-        <FormRunner template={template} session={session} disabled={busy} idPrefix={`job-${jobId.slice(0, 8)}`} />
+        <FormRunner template={template} session={session} disabled={busy} idPrefix={`job-${jobId.slice(0, 8)}`} <FormRunner template={template} session={session} disabled={busy} idPrefix={`job-${jobId.slice(0, 8)}`} instruments /> />
 
         <Button type="button" className="w-full" disabled={busy} onClick={() => void submit()}>
           {busy ? 'Saving…' : 'Save form'}
