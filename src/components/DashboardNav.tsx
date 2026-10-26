@@ -7,6 +7,7 @@ import { FlaskConical } from 'lucide-react';
 import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
 import { Coffee } from 'lucide-react';
+import { Landmark as ValuationIcon } from 'lucide-react';
 import { Mic } from 'lucide-react';
 import { CalendarRange } from 'lucide-react';
 import {
@@ -465,6 +466,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Retention Engine', href: '/dashboard/technician-retention', icon: HeartHandshake, requiresPermission: 'can_manage_team' },
   { label: 'Business Drift Detector', href: '/dashboard/business-drift', icon: Compass },
   { label: 'Executive Reports', href: '/dashboard/reports/executive', icon: FileBarChart, ownerOnly: true },
+  { label: 'Valuation', href: '/valuation', icon: ValuationIcon, ownerOnly: true },
   { label: 'Exit Readiness', href: '/dashboard/exit-readiness', icon: Gauge, ownerOnly: true },
   { label: 'Opportunity Cost Ledger', href: '/dashboard/opportunity-cost', icon: Hourglass },
   { label: 'Causal Shock Simulator', href: '/dashboard/causal-shock-simulator', icon: Waves },
