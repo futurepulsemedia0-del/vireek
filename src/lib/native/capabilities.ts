@@ -7,6 +7,9 @@ import {
   startLocationTracking,
 } from '../offline/capture';
 import { isNative } from './platform';
+import { isBluetoothSupported } from './bluetooth';
+import { profilesFor } from './instruments';
+import { resolveUnit } from './measurements';
 import { isNativeNfcSupported, readNativeNfcTag } from './nfc';
 import { isNativeScanSupported, scanNativeCode } from './scanner';
 import { requestTrackingPermission, startNativeTracking } from './tracking';
@@ -48,4 +51,13 @@ export function startTrail(getJobId: () => string | null): () => void {
 export async function ensureTrailPermission(): Promise<boolean> {
   if (isNative()) return requestTrackingPermission().catch(() => false);
   return (await getCurrentFix(10_000)) !== null;
+}
+
+// ---- Bluetooth instruments (gauges, thermometers, meters) -------------------------------------
+export { BluetoothReadError, isAbortError, readInstrument } from './bluetooth';
+
+/** True when the device can offer "Read from device" for a number field with this unit. */
+export function canReadInstrument(unit: string | undefined): boolean {
+  const resolved = resolveUnit(unit);
+  return resolved !== null && isBluetoothSupported() && profilesFor(resolved.quantity).length > 0;
 }
