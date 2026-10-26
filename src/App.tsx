@@ -18,6 +18,7 @@ import { HomeTargetGate } from '@/pages/home/HomeTargetGate';
 // stays small regardless of how large the app grows. Named exports are kept
 // consistent across pages specifically so this mapping stays mechanical.
 const MarketingPage = lazy(() => import('@/pages/MarketingPage'));
+const ContentCalendarPage = lazy(() => import('@/pages/ContentCalendarPage'));
 const LifecycleTouchesPage = lazy(() => import('@/pages/LifecycleTouchesPage'));
 const AudiencesPage = lazy(() => import('@/pages/AudiencesPage'));
 const EmailCampaignsPage = lazy(() => import('@/pages/EmailCampaignsPage'));
@@ -2256,6 +2257,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <MarketingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/marketing/calendar"
+          element={
+            <ProtectedRoute>
+              <ContentCalendarPage />
             </ProtectedRoute>
           }
         />
