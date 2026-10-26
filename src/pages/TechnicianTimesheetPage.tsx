@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { useTimeClock } from '@/hooks/useTimeClock';
+import { BreakPromptBanner } from '@/components/BreakPromptBanner';
 import { clockErrorCopy, fixQuality, formatClock, formatHoursMinutes, GPS_ERROR_COPY, jobBreakdown, localDateIso, netMs, breakMs, weekMinutes } from '@/lib/timeClock';
 import type { TechnicianJob } from '@/lib/technicianOS';
 
@@ -105,6 +106,7 @@ export function TechnicianTimesheetPage() {
 
         {tc.profile && !unlinked && (
           <>
+            <BreakPromptBanner shift={tc.view} now={tc.now} busy={busy} onBreak={onBreak} onStartBreak={() => void tc.startBreak()} />
             <Card className="p-5">
               <div className="flex items-center justify-between text-sm">
                 <span className={`inline-flex items-center gap-2 font-medium ${working ? 'text-success-500' : onBreak ? 'text-warning-500' : 'text-text-secondary'}`}>
