@@ -6,6 +6,7 @@ import { Banknote } from 'lucide-react';
 import { FlaskConical } from 'lucide-react';
 import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
+import { Coffee } from 'lucide-react';
 import { Mic } from 'lucide-react';
 import {
   BarChart3,
@@ -285,6 +286,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Parts & Inventory', href: '/dashboard/inventory', icon: Package },
   { label: 'Cycle Counts', href: '/dashboard/inventory/counts', icon: ClipboardCheck },
   { label: 'Tool Crib', href: '/dashboard/tools', icon: Wrench },
+  { label: 'Break Compliance', href: '/dashboard/break-compliance', icon: Coffee, requiresPermission: 'can_view_billing' },
   { label: 'Truck Operations', href: '/dashboard/inventory/trucks', icon: Truck },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
   { label: 'Number Reputation', href: '/dashboard/phone-numbers/reputation', icon: ShieldCheck, requiresPermission: 'can_manage_numbers' },
