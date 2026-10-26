@@ -587,8 +587,10 @@ const OAuthAppsPage = lazy(() => import('@/pages/OAuthAppsPage').then((m) => ({ 
 const SmsCompliancePage = lazy(() => import('@/pages/SmsCompliancePage').then((m) => ({ default: m.SmsCompliancePage })));
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
 const RegionalPacksSettingsPage = lazy(() => import('@/pages/RegionalPacksSettingsPage').then((m) => ({ default: m.RegionalPacksSettingsPage })));
+const AcquisitionsPage = lazy(() => import('@/pages/AcquisitionsPage').then((m) => ({ default: m.AcquisitionsPage })));
+const AcquisitionDetailPage = lazy(() => import('@/pages/AcquisitionDetailPage').then((m) => ({ default: m.AcquisitionDetailPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
-  const AiDisclosureLedgerPage = lazy(() => import('@/pages/AiDisclosureLedgerPage').then((m) => ({ default: m.AiDisclosureLedgerPage })));
+const AiDisclosureLedgerPage = lazy(() => import('@/pages/AiDisclosureLedgerPage').then((m) => ({ default: m.AiDisclosureLedgerPage })));
 const BrandingSettingsPage = lazy(() => import('@/pages/BrandingSettingsPage').then((m) => ({ default: m.BrandingSettingsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 const WhatsNewPage = lazy(() => import('@/pages/WhatsNewPage').then((m) => ({ default: m.WhatsNewPage })));
@@ -1246,6 +1248,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <RegionalPacksSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/acquisitions"
+          element={
+            <ProtectedRoute>
+              <AcquisitionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/acquisitions/:id"
+          element={
+            <ProtectedRoute>
+              <AcquisitionDetailPage />
             </ProtectedRoute>
           }
         />
