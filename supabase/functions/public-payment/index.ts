@@ -4,6 +4,7 @@ import { computeTip, firstName, TIP_PRESET_PERCENTS, type TipSelection } from ".
 import { stripeGet } from "../_shared/stripe/terminalPayments.ts";
 import { buildRegionalPaymentMethodOptions, normalizeChargeCurrency } from "../_shared/payments/regionalMethods.ts";
 import { buildIntentMetadata, buildPaymentIntentParams, isReusableIntentStatus } from "../_shared/payments/paymentIntent.ts";
+import { buildBankIntentExtras, buildBankOffer, mergeIntentParams } from "../_shared/bankPayments/logic.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -63,6 +64,9 @@ Deno.serve(async (req: Request) => {
     const tipEnabled = !!connect?.tip_enabled && !!request.technician_id;
     const techFirstName = tech ? firstName((tech as Record<string, string | null>).full_name ?? (tech as Record<string, string | null>).member_name ?? (tech as Record<string, string | null>).name) : "";
 
+const { data: bankSettings } = await admin.from("bank_payment_settings").select("*").eq("user_id", request.user_id).maybeSingle();
+const bankPolicy = { platformEnabled: Deno.env.get("STRIPE_ACH_DEBIT_ENABLED") === "true", settings: bankSettings ?? null, baseCents };
+
     if (body.action === "get") {
       return json({
         status: "open",
@@ -74,6 +78,7 @@ Deno.serve(async (req: Request) => {
         presets: TIP_PRESET_PERCENTS,
         publishable_key: Deno.env.get("STRIPE_PUBLISHABLE_KEY") ?? null,
         auto_renew_offer: autoRenewOffer,
+        bank_offer: buildBankOffer({ ...bankPolicy, amountCents: baseCents }),
       });
     }
 
@@ -116,7 +121,7 @@ Deno.serve(async (req: Request) => {
         membershipId: membership?.id ?? null,
         membershipSignup: membership?.status === "offered",
       });
-      const params = buildPaymentIntentParams({
+      const baseParams = buildPaymentIntentParams({
         baseCents,
         tipCents: tip.tipCents,
         destinationAccountId: connect.stripe_account_id,
@@ -132,6 +137,7 @@ Deno.serve(async (req: Request) => {
         ),
       });
 
+      const params = mergeIntentParams(baseParams, buildBankIntentExtras(bankPolicy)) as typeof baseParams;
       // One live intent per payment request: update it for a retry or a changed tip, never double-charge.
       let intent: any = null;
       if (request.stripe_payment_intent_id) {
