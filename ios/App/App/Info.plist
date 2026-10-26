@@ -76,7 +76,9 @@
 	<string>Vireek uses your location to stamp job photos and show dispatch your progress to the job.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Vireek shares your trip with dispatch while you are on a job, even when the screen is locked.</string>
-	<key>NSFaceIDUsageDescription</key>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Vireek connects to the Bluetooth gauge or meter you choose, only to read a measurement into a job form.</string>
+  <key>NSFaceIDUsageDescription</key>
 	<string>Vireek uses Face ID to unlock the app and protect job and customer data.</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>Vireek reads NFC tags on equipment to identify it.</string>
