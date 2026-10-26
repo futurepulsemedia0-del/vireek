@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /wallboard/
+Disallow: /data-room
 Allow: /
 Disallow: /s/
 Disallow: /t/
