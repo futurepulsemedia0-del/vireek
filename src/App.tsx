@@ -332,6 +332,7 @@ const CounterfactualRealityEnginePage = lazy(() => import('@/pages/Counterfactua
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
 const ReceivablesIntelligencePage = lazy(() => import('@/pages/ReceivablesIntelligencePage').then((m) => ({ default: m.ReceivablesIntelligencePage })));
 const PaymentPlansPage = lazy(() => import('@/pages/PaymentPlansPage').then((m) => ({ default: m.PaymentPlansPage })));
+const PayByBankPage = lazy(() => import('@/pages/PayByBankPage').then((m) => ({ default: m.PayByBankPage })));
 const DisputesPage = lazy(() => import('@/pages/DisputesPage').then((m) => ({ default: m.DisputesPage })));
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then((m) => ({ default: m.CollectionsPage })));
 onst RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
