@@ -323,6 +323,7 @@ const FormBuilderPage = lazy(() => import('@/pages/FormBuilderPage').then((m) =>
 const JobTemplatesPage = lazy(() => import('@/pages/JobTemplatesPage').then((m) => ({ default: m.JobTemplatesPage })));
 const SopLibraryPage = lazy(() => import('@/pages/SopLibraryPage').then((m) => ({ default: m.SopLibraryPage })));
 const SdsLibraryPage = lazy(() => import('@/pages/SdsLibraryPage').then((m) => ({ default: m.SdsLibraryPage })));
+const ValuationPage = lazy(() => import('@/pages/ValuationPage').then((m) => ({ default: m.ValuationPage })));
 const SopTrainingPage = lazy(() => import('@/pages/SopTrainingPage').then((m) => ({ default: m.SopTrainingPage })));
 const ServiceCatalogPage = lazy(() => import('@/pages/ServiceCatalogPage').then((m) => ({ default: m.ServiceCatalogPage })));
 const AutomationMarketplacePage = lazy(() => import('@/pages/AutomationMarketplacePage').then((m) => ({ default: m.AutomationMarketplacePage })));
@@ -3255,6 +3256,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <SdsLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/valuation"
+          element={
+            <ProtectedRoute>
+              <ValuationPage />
             </ProtectedRoute>
           }
         />
