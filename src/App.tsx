@@ -341,6 +341,7 @@ const PaymentPlansPage = lazy(() => import('@/pages/PaymentPlansPage').then((m) 
 const PayByBankPage = lazy(() => import('@/pages/PayByBankPage').then((m) => ({ default: m.PayByBankPage })));
 const DisputesPage = lazy(() => import('@/pages/DisputesPage').then((m) => ({ default: m.DisputesPage })));
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then((m) => ({ default: m.CollectionsPage })));
+const CustomerStatementsPage = lazy(() => import('@/pages/CustomerStatementsPage').then((m) => ({ default: m.CustomerStatementsPage })));
 onst RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
@@ -1921,6 +1922,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <CollectionsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/statements"
+  element={
+    <ProtectedRoute>
+      <CustomerStatementsPage />
     </ProtectedRoute>
   }
 />
