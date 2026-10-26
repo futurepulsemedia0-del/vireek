@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Send, Inbox as InboxIcon, MessageSquare, Phone as PhoneIcon, Mail, MessageCircle, ExternalLink } from 'lucide-react';
+import { Send, Inbox as InboxIcon, MessageSquare, Phone as PhoneIcon, Mail, MessageCircle, ExternalLink, Smartphone, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { AiAssistPanel } from '@/components/inbox/AiAssistPanel';
+import { RichCardView, RichStatusTick } from '@/components/inbox/RichMessageParts';
 import {
   Channel,
   UnifiedConversation,
@@ -13,6 +14,7 @@ import {
   fetchMessages,
   findLinkedCustomerId,
   formatMessageTime,
+  isRichChannel,
   messagesTableFor,
   sendReply,
 } from '@/lib/unifiedInbox';
@@ -23,6 +25,8 @@ const CHANNEL_META: Record<Channel, { label: string; icon: typeof MessageSquare 
   sms: { label: 'SMS', icon: PhoneIcon },
   email: { label: 'Email', icon: Mail },
   chat: { label: 'Site chat', icon: MessageSquare },
+  rcs: { label: 'RCS', icon: Smartphone },
+  amb: { label: 'Apple Messages', icon: MessageSquare },
 };
 
 const FILTER_TABS: Array<{ key: 'all' | Channel; label: string }> = [
@@ -31,6 +35,8 @@ const FILTER_TABS: Array<{ key: 'all' | Channel; label: string }> = [
   { key: 'email', label: 'Email' },
   { key: 'whatsapp', label: 'WhatsApp' },
   { key: 'instagram', label: 'Instagram' },
+  { key: 'rcs', label: 'RCS' },
+  { key: 'amb', label: 'Apple' },
   { key: 'chat', label: 'Site chat' },
 ];
 
@@ -63,6 +69,7 @@ export function UnifiedInboxPage() {
   useRealtimeSubscription({ channelName: 'unified-inbox-sms', table: 'sms_messages', event: 'INSERT', onChange: () => load() });
   useRealtimeSubscription({ channelName: 'unified-inbox-email', table: 'email_messages', event: 'INSERT', onChange: () => load() });
   useRealtimeSubscription({ channelName: 'unified-inbox-chat', table: 'support_messages', event: 'INSERT', onChange: () => load() });
+  useRealtimeSubscription({ channelName: 'unified-inbox-rich', table: 'rich_messages', event: 'INSERT', onChange: () => load() });
 
   const filtered = useMemo(
     () => (filter === 'all' ? conversations : conversations.filter((c) => c.channel === filter)),
@@ -93,6 +100,18 @@ export function UnifiedInboxPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
+  // Delivery / read receipts and SMS-fallback status arrive as UPDATEs on the outbound row.
+  useRealtimeSubscription({
+    channelName: `unified-inbox-rich-status-${selected?.id ?? 'none'}`,
+    table: 'rich_messages',
+    event: 'UPDATE',
+    filter: selected ? `conversation_id=eq.${selected.id}` : undefined,
+    enabled: !!selected && isRichChannel(selected.channel),
+    onChange: async () => {
+      if (selected) setMessages(await fetchMessages(selected.channel, selected.id));
+    },
+  });
+
   const handleSend = async () => {
     const trimmed = input.trim();
     if (!trimmed || !selected || !user || sending) return;
@@ -109,6 +128,7 @@ export function UnifiedInboxPage() {
   };
 
   const canReply = selected && selected.channel !== 'whatsapp' && selected.channel !== 'instagram';
+  const replyBlocked = !!selected && (selected.optedOut === true || selected.closedByCustomer === true);
 
   return (
     <DashboardLayout activeLabel="Inbox">
@@ -117,6 +137,14 @@ export function UnifiedInboxPage() {
           <div className="flex items-center gap-2 border-b border-border px-4 py-4">
             <InboxIcon size={16} className="text-accent" />
             <h1 className="text-sm font-semibold text-text-primary">Inbox</h1>
+            <Link
+              to="/dashboard/settings/rich-messaging"
+              className="focus-ring ml-auto rounded-lg p-1.5 text-text-secondary hover:text-text-primary"
+              aria-label="RCS and Apple Messages settings"
+              title="RCS & Apple Messages settings"
+            >
+              <Settings size={15} />
+            </Link>
           </div>
           <div className="flex flex-wrap gap-1.5 border-b border-border px-3 py-2.5">
             {FILTER_TABS.map((tab) => (
@@ -203,9 +231,10 @@ export function UnifiedInboxPage() {
                       {m.sentBy?.startsWith('ai') && (
                         <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wide text-white/80">AI</span>
                       )}
-                      {m.body}
+                      {m.card ? <RichCardView card={m.card} outbound={m.direction === 'outbound'} /> : m.body}
                       <span className={`mt-1 block text-[10px] ${m.direction === 'inbound' ? 'text-text-secondary' : 'text-white/70'}`}>
                         {formatMessageTime(m.createdAt)}
+                        {m.direction === 'outbound' && m.status && <RichStatusTick status={m.status} />}
                       </span>
                     </div>
                   </div>
@@ -214,7 +243,13 @@ export function UnifiedInboxPage() {
 
               {sendError && <p className="px-5 pb-1 text-xs text-red-500">{sendError}</p>}
 
-              {canReply ? (
+              {replyBlocked ? (
+                <p className="border-t border-border p-3 text-center text-xs text-text-secondary">
+                  {selected?.optedOut
+                    ? 'This customer opted out (STOP). Messages are blocked on every channel until they reply START.'
+                    : 'The customer deleted this Apple Messages conversation. They need to message you first.'}
+                </p>
+              ) : canReply ? (
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
