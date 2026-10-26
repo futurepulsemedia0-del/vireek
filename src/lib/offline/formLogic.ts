@@ -74,6 +74,11 @@ export function noteKey(fieldId: string): string {
   return `${fieldId}__note`;
 }
 
+/** Where a number came from when a Bluetooth instrument supplied it (see native/measurements.ts). */
+export function sourceKey(fieldId: string): string {
+  return `${fieldId}__source`;
+}
+
 // ------------------------------------------------------------
 // Conditional logic
 // ------------------------------------------------------------
@@ -293,6 +298,8 @@ export function buildSubmission(
           answers[field.id] = n;
           summary.answered += 1;
           if (outOfRange(field, n)) summary.out_of_range += 1;
+          const source = comparable(values[sourceKey(field.id)]);
+          if (source) answers[sourceKey(field.id)] = source.slice(0, 200);
         }
         break;
       }
