@@ -9,7 +9,27 @@
 
 import { supabase } from '@/lib/supabase';
 
-export type Channel = 'whatsapp' | 'instagram' | 'sms' | 'email' | 'chat';
+export type Channel = 'whatsapp' | 'instagram' | 'sms' | 'email' | 'chat' | 'rcs' | 'amb';
+
+/** Delivery state of an outbound RCS / Apple Messages message (rich_messages.status). */
+export type RichStatus = 'queued' | 'deferred' | 'sent' | 'delivered' | 'read' | 'failed' | 'fallback_sent' | 'cancelled' | 'received';
+
+export interface UnifiedCardAction {
+  type: 'reply' | 'url' | 'call';
+  label: string;
+  value: string;
+}
+
+export interface UnifiedCard {
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  actions: UnifiedCardAction[];
+}
+
+export function isRichChannel(channel: Channel): channel is 'rcs' | 'amb' {
+  return channel === 'rcs' || channel === 'amb';
+}
 
 export interface UnifiedConversation {
   id: string;
@@ -19,6 +39,10 @@ export interface UnifiedConversation {
   subject: string | null; // email only
   unread: boolean;
   lastMessageAt: string;
+  /** RCS / Apple Messages only: customer sent STOP, replies are blocked server-side. */
+  optedOut?: boolean;
+  /** Apple Messages only: the customer deleted the conversation, the business cannot message. */
+  closedByCustomer?: boolean;
 }
 
 export interface UnifiedMessage {
@@ -27,6 +51,9 @@ export interface UnifiedMessage {
   body: string;
   createdAt: string;
   sentBy?: string;
+  /** RCS / Apple Messages only. */
+  status?: RichStatus;
+  card?: UnifiedCard;
 }
 
 export function formatMessageTime(iso: string): string {
@@ -34,11 +61,12 @@ export function formatMessageTime(iso: string): string {
 }
 
 export async function fetchConversations(): Promise<UnifiedConversation[]> {
-  const [dm, sms, email, chat] = await Promise.all([
+  const [dm, sms, email, chat, rich] = await Promise.all([
     supabase.from('dm_conversations').select('*').order('last_message_at', { ascending: false }),
     supabase.from('sms_conversations').select('*').order('last_message_at', { ascending: false }),
     supabase.from('email_conversations').select('*').order('last_message_at', { ascending: false }),
     supabase.from('support_conversations').select('*').neq('status', 'closed').order('last_message_at', { ascending: false }),
+    supabase.from('rich_conversations').select('*').order('last_message_at', { ascending: false }),
   ]);
 
   const out: UnifiedConversation[] = [];
@@ -88,6 +116,20 @@ export async function fetchConversations(): Promise<UnifiedConversation[]> {
     });
   }
 
+  for (const row of rich.data ?? []) {
+    out.push({
+      id: row.id,
+      channel: row.channel as Channel, // 'rcs' | 'amb'
+      customerLabel: row.customer_name || row.customer_phone || 'Apple Messages customer',
+      customerContact: row.customer_phone || '',
+      subject: null,
+      unread: row.unread ?? false,
+      lastMessageAt: row.last_message_at,
+      optedOut: !!row.opted_out_at,
+      closedByCustomer: !!row.customer_closed_at,
+    });
+  }
+
   return out.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
 }
 
@@ -97,6 +139,8 @@ const TABLE_BY_CHANNEL: Record<Channel, { conversations: string; messages: strin
   sms: { conversations: 'sms_conversations', messages: 'sms_messages' },
   email: { conversations: 'email_conversations', messages: 'email_messages' },
   chat: { conversations: 'support_conversations', messages: 'support_messages' },
+  rcs: { conversations: 'rich_conversations', messages: 'rich_messages' },
+  amb: { conversations: 'rich_conversations', messages: 'rich_messages' },
 };
 
 export function messagesTableFor(channel: Channel): string {
@@ -115,7 +159,30 @@ export async function fetchMessages(channel: Channel, conversationId: string): P
     body: (row.body ?? row.body_text) as string,
     createdAt: row.created_at as string,
     sentBy: row.sent_by as string | undefined,
+    status: row.status as RichStatus | undefined,
+    card: richCardOf(row.content),
   }));
+}
+
+/** Extracts the card payload of an outbound rich message (rich_messages.content), or undefined. */
+export function richCardOf(content: unknown): UnifiedCard | undefined {
+  const c = content as { kind?: string; card?: UnifiedCard } | null;
+  return c && c.kind === 'card' && c.card && typeof c.card.title === 'string' ? c.card : undefined;
+}
+
+/** Human-readable delivery label for an outbound rich message. */
+export function richStatusLabel(status: RichStatus | undefined): string | null {
+  switch (status) {
+    case 'queued': return 'Sending…';
+    case 'deferred': return 'Scheduled (quiet hours)';
+    case 'sent': return 'Sent';
+    case 'delivered': return 'Delivered';
+    case 'read': return 'Read';
+    case 'failed': return 'Failed';
+    case 'fallback_sent': return 'Sent as SMS';
+    case 'cancelled': return 'Cancelled';
+    default: return null;
+  }
 }
 
 /** Looks up an existing Customer record by phone or email for a "View customer" link. Best-effort — returns null on no match. */
@@ -153,6 +220,12 @@ export async function sendReply(channel: Channel, conversationId: string, body: 
     return { ok: true };
   }
 
+  if (channel === 'rcs' || channel === 'amb') {
+    const { data, error } = await supabase.functions.invoke('rich-send', { body: { conversationId, text: trimmed } });
+    if (error || data?.error) return { ok: false, error: data?.detail ?? data?.error ?? error?.message };
+    return { ok: true };
+  }
+  
   // whatsapp / instagram — Phase 1 receives + auto-replies from the
   // Knowledge Base (see supabase/functions/whatsapp-webhook); a human
   // reply-send path is a follow-up phase, same note as that function's
