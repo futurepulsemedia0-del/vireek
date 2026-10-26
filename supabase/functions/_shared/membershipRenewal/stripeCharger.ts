@@ -7,6 +7,8 @@ import type { ChargeInput, ChargeResult } from "./pipeline.ts";
 export function makeStripeCharger(secretKey: string): (input: ChargeInput) => Promise<ChargeResult> {
   return async (i) => {
     try {
+      const pm = await stripe("GET", `payment_methods/${i.paymentMethodId}`, secretKey);
+      if (pm?.type !== "card") return { outcome: "declined", message: "Automatic renewal supports cards only." };
       const pi = await stripe(
         "POST",
         "payment_intents",
