@@ -94,6 +94,8 @@ Chain order and task routing: `_shared/ai-core/registry.ts`. A provider without 
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | `_shared/messaging/sendSms.ts`, `_shared/notify/deliver.ts`, `register-a2p-brand` | Twilio Console |
 | `TWILIO_MESSAGING_SERVICE_SID` | `sendSms.ts` (compliant SMS path) | Twilio → Messaging → Services |
 | `TWILIO_FROM_NUMBER` | `notify/deliver.ts` (plain SMS path) | A Twilio number in E.164 |
+| `SINCH_PROJECT_ID`, `SINCH_KEY_ID`, `SINCH_KEY_SECRET` | `_shared/richMessaging/sinch.ts` (RCS + Apple Messages) | Sinch Build → Conversation API → Access keys |
+| `SINCH_WEBHOOK_SECRET` | `rich-webhook` signature check | a random string; also enter it on the Sinch webhook |
 | `RESEND_API_KEY` | `notify/deliver.ts`, `email-send`, `send-team-invite`, `notify-status-subscribers`, `stripe-webhook` | resend.com → API keys |
 | `RESEND_FROM_EMAIL` | same | e.g. `"Vireek <noreply@yourdomain.com>"` (verified domain) |
 | `INBOUND_EMAIL_DOMAIN` | `email-send`, `email-webhook` | Domain whose inbound mail is routed to `email-webhook`; tenants get `<profiles.inbound_email_token>@<domain>` |
