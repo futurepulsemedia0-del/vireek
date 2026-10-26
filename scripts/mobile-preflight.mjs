@@ -24,7 +24,7 @@ if (plist) {
   for (const key of [
     'NSCameraUsageDescription', 'NSPhotoLibraryUsageDescription', 'NSMicrophoneUsageDescription',
     'NSLocationWhenInUseUsageDescription', 'NSLocationAlwaysAndWhenInUseUsageDescription',
-    'NFCReaderUsageDescription', 'NSFaceIDUsageDescription', 'ITSAppUsesNonExemptEncryption', 'UIBackgroundModes',
+    'NFCReaderUsageDescription', 'NSBluetoothAlwaysUsageDescription','NSFaceIDUsageDescription', 'ITSAppUsesNonExemptEncryption', 'UIBackgroundModes',
   ]) must(plist.includes(`<key>${key}</key>`), `Info.plist: missing ${key}`);
   must(!plist.includes('<string>armv7</string>'), 'Info.plist: UIRequiredDeviceCapabilities still lists armv7 (use arm64)');
   must(existsSync('ios/App/App/PrivacyInfo.xcprivacy'), 'ios/App/App/PrivacyInfo.xcprivacy is missing');
@@ -33,7 +33,7 @@ if (plist) {
 }
 
 if (manifest) {
-  for (const p of ['CAMERA', 'RECORD_AUDIO', 'ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION']) {
+  for (const p of ['CAMERA', 'RECORD_AUDIO', 'BLUETOOTH_SCAN', 'BLUETOOTH_CONNECT','ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION']) {
     must(manifest.includes(`android.permission.${p}`), `AndroidManifest: missing ${p}`);
   }
   must(!manifest.includes('ACCESS_BACKGROUND_LOCATION'), 'AndroidManifest: ACCESS_BACKGROUND_LOCATION triggers Play background-location review — the foreground service is enough');
