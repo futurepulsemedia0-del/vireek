@@ -138,6 +138,12 @@ async function processRefund(admin: SupabaseClient, actor: Actor, refundId: stri
       await markFailed(admin, refund.id, "No Stripe payment is linked to this payment.");
       return json({ error: "No Stripe payment is linked to this payment." }, 400);
     }
+    const { data: bankAttempt } = await admin.from("bank_payment_attempts").select("amount_cents").eq("payment_request_id", refund.payment_request_id).eq("rail", "ach_debit").eq("status", "succeeded").maybeSingle();
+    if (bankAttempt && Number(refund.amount_cents) !== Number(bankAttempt.amount_cents)) {
+      const msg = "Bank (ACH) payments can only be refunded in full.";
+      await markFailed(admin, refund.id, msg);
+      return json({ error: msg }, 400);
+    }
     try {
       const sr = await stripeRequest(
         "refunds",
