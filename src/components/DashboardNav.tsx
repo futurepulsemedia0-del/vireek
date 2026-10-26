@@ -8,6 +8,7 @@ import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
 import { Coffee } from 'lucide-react';
 import { Mic } from 'lucide-react';
+import { CalendarRange } from 'lucide-react';
 import {
   BarChart3,
   Ruler,
@@ -269,6 +270,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Leak Report', href: '/dashboard/leak-report', icon: PhoneMissed, requiresPermission: 'can_view_billing' },
   { label: 'Neighborhood Revenue', href: '/dashboard/neighborhood-revenue', icon: MapPinned, requiresPermission: 'can_view_billing' },
   { label: 'Marketing Automation', href: '/dashboard/marketing', icon: Megaphone },
+  { label: 'Content Calendar', href: '/dashboard/marketing/calendar', icon: CalendarRange, requiresPermission: 'can_edit_business_profile' },
   { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Email Campaigns', href: '/dashboard/email-campaigns', icon: MailPlus, requiresPermission: 'can_view_billing' },
@@ -644,6 +646,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       return location.pathname === href || (location.pathname.startsWith(href + '/') && !location.pathname.startsWith('/dashboard/settings/email'));
     }
     if (href === '/dashboard/inventory') return location.pathname === '/dashboard/inventory';
+    if (href === '/dashboard/marketing') return location.pathname === href;
     return location.pathname.startsWith(href);
   };
 
