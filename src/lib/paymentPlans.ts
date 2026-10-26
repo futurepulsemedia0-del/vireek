@@ -47,7 +47,7 @@ export interface InstallmentRow {
   amount_cents: number;
   late_fee_cents: number;
   due_date: string;
-  status: 'scheduled' | 'processing' | 'requires_action' | 'failed' | 'paid' | 'waived' | 'canceled';
+  status: 'scheduled' | 'processing' | 'requires_action' | 'failed' | 'paid' | 'waived' | 'canceled'| 'pending_settlement';
   attempt_count: number;
   next_attempt_at: string | null;
   paid_at: string | null;
@@ -93,6 +93,7 @@ export const INSTALLMENT_STATUS_META: Record<InstallmentRow['status'], { label: 
   requires_action: { label: 'Needs customer', tone: 'warning' },
   failed: { label: 'Failed', tone: 'danger' },
   paid: { label: 'Paid', tone: 'success' },
+  pending_settlement: { label: 'Settling', tone: 'accent' },
   waived: { label: 'Waived', tone: 'neutral' },
   canceled: { label: 'Canceled', tone: 'neutral' },
 };
@@ -209,7 +210,7 @@ export function validatePlanInput(
 
 // ---------------------------------------------------------------- display helpers
 
-export const OPEN_STATUSES: InstallmentRow['status'][] = ['scheduled', 'processing', 'requires_action', 'failed'];
+export const OPEN_STATUSES: InstallmentRow['status'][] = ['scheduled', 'processing', 'pending_settlement', 'requires_action', 'failed'];
 const isOpen = (i: Pick<InstallmentRow, 'status'>) => OPEN_STATUSES.includes(i.status);
 
 export function installmentDue(i: Pick<InstallmentRow, 'amount_cents' | 'late_fee_cents'>): number {
@@ -225,7 +226,7 @@ export function planProgress(items: InstallmentRow[]): { paidCents: number; tota
 }
 
 export function isInstallmentOverdue(i: InstallmentRow, today = todayIso()): boolean {
-  return i.status !== 'processing' && isOpen(i) && i.due_date < today;
+  return i.status !== 'processing' && i.status !== 'pending_settlement' && isOpen(i) && i.due_date < today;
 }
 
 export function planHasOverdue(items: InstallmentRow[], today = todayIso()): boolean {
