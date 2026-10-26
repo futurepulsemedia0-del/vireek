@@ -108,7 +108,7 @@ export async function finalizePaymentRequestFromIntent(admin: any, pi: any, opts
       try { charge = await opts.fetchCharge(pi.latest_charge); } catch { /* the wallet label is optional */ }
     }
     const wallet = walletFromCharge(charge);
-    if (pi.metadata?.save_card === "true" && pi.metadata?.membership_id) {
+      if (pi.metadata?.save_card === "true" && pi.metadata?.membership_id && charge?.payment_method_details?.type !== "us_bank_account") {
       try {
         await saveMembershipCard(admin, pi.metadata.membership_id, pi, charge);
       } catch (e) {
