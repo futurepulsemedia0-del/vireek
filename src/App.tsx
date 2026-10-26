@@ -51,6 +51,7 @@ const CallsPage = lazy(() => import('@/pages/CallsPage').then((m) => ({ default:
 const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const CallDetailPage = lazy(() => import('@/pages/CallDetailPage').then((m) => ({ default: m.CallDetailPage })));
 const UnifiedInboxPage = lazy(() => import('@/pages/UnifiedInboxPage').then((m) => ({ default: m.UnifiedInboxPage })));
+const RichMessagingSettingsPage = lazy(() => import('@/pages/RichMessagingSettingsPage').then((m) => ({ default: m.RichMessagingSettingsPage })));
 const GoalOrchestratorPage = lazy(() => import('@/pages/GoalOrchestratorPage').then((m) => ({ default: m.GoalOrchestratorPage })));
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
@@ -1423,6 +1424,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <UnifiedInboxPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/rich-messaging"
+          element={
+            <ProtectedRoute>
+              <RichMessagingSettingsPage />
             </ProtectedRoute>
           }
         />
