@@ -29,6 +29,7 @@ Deno.serve(async (req: Request) => {
       .from("payment_requests")
       .select("id, user_id, customer_name, customer_email, customer_phone, amount, payment_link_url, reminder_count, created_at, status")
       .in("status", ["sent", "overdue"])
+      .neq("settlement_status", "processing")
       .lt("last_reminder_sent_at", cutoff)
       .lt("reminder_count", MAX_REMINDERS);
     if (error) throw error;
