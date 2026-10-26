@@ -25,6 +25,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "cli:build": "tsc -p packages/cli/tsconfig.json",
+    "cli:typecheck": "tsc -p packages/cli/tsconfig.json --noEmit",
     "test:e2e": "playwright test",
     "test:live": "vitest run -c vitest.live.config.ts",
     "cap:sync": "npm run build && cap sync",
