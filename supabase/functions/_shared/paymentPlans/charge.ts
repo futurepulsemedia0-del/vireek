@@ -2,7 +2,7 @@ import { stripe, StripeError } from "./stripe.ts";
 import { chargeIdempotencyKey, formatMoney } from "./logic.ts";
 import { sendEmail, sendSms } from "../notify/deliver.ts";
 
-export type ChargeOutcome = "paid" | "failed" | "requires_action" | "skipped";
+export type ChargeOutcome = "paid" | "failed" | "requires_action" | "skipped" | "pending";
 
 export const payLinkFor = (kind: "p" | "i", id: string) =>
   `${(Deno.env.get("SUPABASE_URL") ?? "").replace(/\/$/, "")}/functions/v1/payment-plan-pay?${kind}=${id}`;
@@ -44,12 +44,21 @@ export async function chargeInstallment(admin: any, secretKey: string, installme
   try {
     const pi = await stripe("POST", "payment_intents", secretKey, {
       amount, currency: plan.currency, customer: plan.stripe_customer_id, payment_method: plan.stripe_payment_method_id,
+      ...(plan.payment_rail === "bank" ? { payment_method_types: ["us_bank_account"] } : {}),
       off_session: true, confirm: true, transfer_data: { destination: connect.stripe_account_id },
       description: `Payment plan installment ${inst.seq} — ${plan.customer_name}`,
       metadata: { payment_plan_id: plan.id, installment_id: inst.id, source: "auto" },
     }, chargeIdempotencyKey(inst.id, inst.attempt_count));
     if (pi.status === "succeeded") { await apply("succeeded", pi.id); outcome = "paid"; }
     else if (pi.status === "requires_action") { await apply("requires_action", pi.id); outcome = "requires_action"; }
+    else if (pi.status === "processing" && plan.payment_rail === "bank") {
+      const { error: be } = await admin.rpc("bank_attempt_apply", { p: {
+        provider_payment_id: pi.id, status: "processing", installment_id: inst.id, amount_cents: amount, rail: "ach_debit",
+        event_created: Math.floor(Date.now() / 1000), provider_event_id: `charge_${pi.id}_processing`, event_type: "payment_intent.processing",
+      } });
+      if (be) throw be;
+      outcome = "pending";
+    }
     else { error = "The payment could not be completed."; await apply("failed", pi.id, error); outcome = "failed"; }
   } catch (e) {
     if (!(e instanceof StripeError)) throw e;
