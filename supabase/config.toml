@@ -36,3 +36,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.portal-home-inventory]
 verify_jwt = false
+[functions.rich-webhook]
+verify_jwt = false
+[functions.rich-fallback-sweep]
+verify_jwt = false
