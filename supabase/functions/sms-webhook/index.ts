@@ -18,8 +18,8 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { normalizePhone } from "../_shared/compliance/dncCheck.ts";
 import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
+import { STOP_WORDS } from "../_shared/messaging/optOut.ts";
 
-const STOP_WORDS = new Set(["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"]);
 
 function emptyTwiml() {
   return new Response("<Response></Response>", {
