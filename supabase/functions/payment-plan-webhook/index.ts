@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyStripeSignature } from "../_shared/stripe/client.ts";
 import { stripe } from "../_shared/paymentPlans/stripe.ts";
+import { processBankStripeEvent } from "../_shared/bankPayments/runtime.ts";
 
 // Dedicated endpoint (secret: STRIPE_PLAN_WEBHOOK_SECRET). Events: checkout.session.completed, payment_intent.succeeded.
 // Only objects carrying metadata.payment_plan_id are touched — every other payment event is ignored.
@@ -17,32 +18,48 @@ Deno.serve(async (req: Request) => {
   try { event = JSON.parse(payload); } catch { return new Response("Invalid payload", { status: 400 }); }
   const obj = event?.data?.object;
   const planId = obj?.metadata?.payment_plan_id as string | undefined;
-  if (!planId || !["checkout.session.completed", "payment_intent.succeeded"].includes(event.type)) return json({ received: true, ignored: true });
+  const PLAN_EVENTS = ["checkout.session.completed", "payment_intent.succeeded", "payment_intent.processing", "payment_intent.requires_action", "payment_intent.payment_failed"];
+  if (!planId || !PLAN_EVENTS.includes(event.type)) return json({ received: true, ignored: true }); return json({ received: true, ignored: true });
 
   const secretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
 
   try {
     const installmentId = obj.metadata?.installment_id as string | undefined;
+    if (event.type.startsWith("payment_intent.")) {
+      const bank = await processBankStripeEvent(admin, event);
+      if (bank.handled && event.type !== "payment_intent.succeeded") return json({ received: true });
+    }
     if (event.type === "checkout.session.completed") {
       let paymentMethod: string | null = null;
       let piId: string | null = null;
       if (obj.mode === "setup" && obj.setup_intent) {
         paymentMethod = (await stripe("GET", `setup_intents/${obj.setup_intent}`, secretKey)).payment_method ?? null;
       } else if (obj.mode === "payment" && obj.payment_intent) {
-        if (obj.payment_status !== "paid") return json({ received: true, ignored: true });
+          const unpaidBank = obj.payment_status === "unpaid"; // ACH deposit: money is still in flight
+        if (obj.payment_status !== "paid" && !unpaidBank) return json({ received: true, ignored: true });
         piId = obj.payment_intent;
         const pi = await stripe("GET", `payment_intents/${piId}`, secretKey);
         paymentMethod = typeof pi.payment_method === "string" ? pi.payment_method : pi.payment_method?.id ?? null;
       }
       // Only keep a card when the customer consented to future charges (auto-charge plans set setup_future_usage).
+      const isUnpaidBank = obj.mode === "payment" && obj.payment_status === "unpaid";
       const { data: plan } = await admin.from("payment_plans").select("auto_charge").eq("id", planId).maybeSingle();
       if (!plan) return json({ received: true, ignored: true });
       const { error } = await admin.rpc("activate_payment_plan", { p_plan_id: planId, p_payment_method: plan.auto_charge ? paymentMethod : null, p_customer: obj.customer ?? null });
       if (error) throw error;
-      if (installmentId && piId) {
+      if (installmentId && piId && !isUnpaidBank) {
         const { error: e2 } = await admin.rpc("apply_plan_payment", { p_installment_id: installmentId, p_payment_intent: piId, p_status: "succeeded", p_error: null });
         if (e2) throw e2;
+      }
+      if (piId) {
+        const pi2 = await stripe("GET", `payment_intents/${piId}?expand[]=payment_method`, secretKey);
+        if (pi2.payment_method?.type === "us_bank_account") {
+          await admin.rpc("bank_plan_set_rail", { p_plan_id: planId, p_payment_method: pi2.payment_method.id });
+          if (isUnpaidBank) {
+            await processBankStripeEvent(admin, { id: `${event.id}:deposit`, type: "payment_intent.processing", created: event.created, data: { object: pi2 } });
+          }
+        }
       }
     } else if (installmentId) {
       const { error } = await admin.rpc("apply_plan_payment", { p_installment_id: installmentId, p_payment_intent: obj.id, p_status: "succeeded", p_error: null });
