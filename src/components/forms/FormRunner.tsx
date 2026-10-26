@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, Check, PenLine, RotateCcw, X } from 'lucide-react';
 import { Input, Textarea } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { BluetoothReadingButton } from '@/components/forms/BluetoothReadingButton';
 import { SignaturePad } from '@/components/signatures/SignaturePad';
 import type { SignaturePadValue } from '@/components/signatures/SignaturePad';
 import { compressImage } from '@/lib/offline/capture';
-import { noteKey, photoBounds } from '@/lib/offline/formLogic';
+import { noteKey, photoBounds, sourceKey } from '@/lib/offline/formLogic';
 import type { FormField, FormTemplate } from '@/lib/offline/formSchema';
 import type { FormSession } from './useFormSession';
 
@@ -149,7 +150,9 @@ function SignatureField({ field, session, disabled }: { field: FormField; sessio
   );
 }
 
-function FieldBlock({ field, session, disabled, idPrefix }: { field: FormField; session: FormSession; disabled: boolean; idPrefix: string }) {
+function FieldBlock({
+  field, session, disabled, idPrefix, instruments,
+}: { field: FormField; session: FormSession; disabled: boolean; idPrefix: string; instruments: boolean }) {
   const id = `${idPrefix}-${field.id}`;
   const value = session.values[field.id];
   const error = session.errors[field.id];
@@ -161,22 +164,42 @@ function FieldBlock({ field, session, disabled, idPrefix }: { field: FormField; 
     case 'textarea':
       control = <Textarea id={id} rows={3} value={String(value ?? '')} onChange={(e) => set(e.target.value)} disabled={disabled} />;
       break;
-    case 'number':
+    case 'number': {
+      const source = String(session.values[sourceKey(field.id)] ?? '');
       control = (
-        <div className="flex items-center gap-2">
-          <Input
-            id={id}
-            type="number"
-            inputMode="decimal"
-            step="any"
-            value={String(value ?? '')}
-            onChange={(e) => set(e.target.value)}
-            disabled={disabled}
-          />
-          {field.unit && <span className="shrink-0 text-sm font-medium text-text-secondary">{field.unit}</span>}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Input
+              id={id}
+              type="number"
+              inputMode="decimal"
+              step="any"
+              value={String(value ?? '')}
+              onChange={(e) => {
+                set(e.target.value);
+                // A hand-edited number is no longer "from the instrument".
+                if (source) session.setValue(sourceKey(field.id), '');
+              }}
+              disabled={disabled}
+            />
+            {field.unit && <span className="shrink-0 text-sm font-medium text-text-secondary">{field.unit}</span>}
+          </div>
+          {instruments && (
+            <BluetoothReadingButton
+              unit={field.unit}
+              label={field.label}
+              source={source}
+              disabled={disabled}
+              onReading={(v, src) => {
+                set(v);
+                session.setValue(sourceKey(field.id), src);
+              }}
+            />
+          )}
         </div>
       );
       break;
+    }
     case 'select':
       control = (
         <select id={id} value={String(value ?? '')} onChange={(e) => set(e.target.value)} disabled={disabled} className={selectClass}>
@@ -310,11 +333,14 @@ export function FormRunner({
   session,
   disabled = false,
   idPrefix = 'ff',
+  instruments = false,
 }: {
   template: FormTemplate;
   session: FormSession;
   disabled?: boolean;
   idPrefix?: string;
+  /** offer "Read from device" (Bluetooth) on number fields — the technician's form, not the builder preview */
+  instruments?: boolean;
 }) {
   return (
     <div className="space-y-5">
