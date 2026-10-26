@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { stripe } from "../_shared/paymentPlans/stripe.ts";
 import { formatMoney } from "../_shared/paymentPlans/logic.ts";
+import { planBankEligible } from "../_shared/bankPayments/logic.ts";
 
 // PUBLIC link target (deploy with --no-verify-jwt). The UUID in the URL is the capability (same model as
 // /service and /approve tokens). It mints a FRESH Stripe Checkout session on every click — sessions expire after
@@ -46,8 +47,12 @@ Deno.serve(async (req: Request) => {
     if (!connect?.stripe_account_id || !connect.charges_enabled) return page("Payments unavailable", "The business can't accept payments right now. Please contact them.", 503);
 
     const metadata = { payment_plan_id: plan.id, ...(inst ? { installment_id: inst.id } : {}) };
+    const { data: bankSettings } = await admin.from("bank_payment_settings").select("*").eq("user_id", plan.user_id).maybeSingle();
+    const amts = inst ? [Number(inst.amount_cents) + Number(inst.late_fee_cents)] : [];
+    const bankOk = Deno.env.get("STRIPE_ACH_DEBIT_ENABLED") === "true" && !!inst && planBankEligible(bankSettings, amts);
     const base: Record<string, unknown> = {
-      customer: plan.stripe_customer_id, payment_method_types: ["card"], metadata,
+      customer: plan.stripe_customer_id, payment_method_types: bankOk ? ["card", "us_bank_account"] : ["card"], metadata,
+      ...(bankOk ? { payment_method_options: { us_bank_account: { verification_method: "automatic", financial_connections: { permissions: ["payment_method"] } } } } : {}),
       success_url: `${siteUrl}/pay-result?status=success`, cancel_url: `${siteUrl}/pay-result?status=cancel`,
       custom_text: { submit: { message: String(plan.terms_text ?? "").slice(0, 1000) } },
     };
