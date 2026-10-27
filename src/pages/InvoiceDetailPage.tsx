@@ -40,6 +40,7 @@ import {
   type ReminderKind,
 } from '@/lib/invoiceDetail';
 import { downloadInvoicePdf } from '@/lib/invoicePdf';
+import { SplitPaymentsCard } from '@/components/invoicing/SplitPaymentsCard';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const card = 'rounded-2xl border border-border bg-bg-secondary p-4 shadow-card sm:p-5 dark:shadow-card-dark';
@@ -337,6 +338,8 @@ export function InvoiceDetailPage() {
             )}
           </section>
 
+          {/* Split payments */}
+          <SplitPaymentsCard ownerId={accountOwnerId ?? ''} invoice={invoice} ledger={ledger} payments={payments} refunds={refunds} onChanged={refreshAll} />
           {/* Payments & refunds */}
           <section className={card} aria-labelledby="pay-title">
             <div className="flex items-center justify-between gap-3">
