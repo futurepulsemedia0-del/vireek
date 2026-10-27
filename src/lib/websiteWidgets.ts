@@ -5,10 +5,17 @@
  */
 
 import { normalizeDomain, parseDomains, readableTextColor } from '@/lib/chatWidget';
+import {
+  buildDefaultEstimatorOptions,
+  sanitizeEstimatorOptions,
+  validateEstimatorOptions,
+  type EstimatorErrorKey,
+  type EstimatorOptions,
+} from '@/lib/websiteEstimator';
 
 export { normalizeDomain, parseDomains, readableTextColor };
 
-export type WidgetType = 'booking' | 'quote' | 'reviews';
+export type WidgetType = 'booking' | 'quote' | 'reviews' | 'estimator';
 export type WidgetTheme = 'light' | 'dark' | 'auto';
 export type DisplayMode = 'floating' | 'inline';
 export type WidgetPosition = 'left' | 'right';
@@ -16,7 +23,7 @@ export type ReviewPlatform = 'google' | 'yelp' | 'facebook';
 export type QuoteContact = 'email' | 'phone' | 'either';
 export type ReviewsLayout = 'badge' | 'cards';
 
-export const WIDGET_TYPES: WidgetType[] = ['booking', 'quote', 'reviews'];
+export const WIDGET_TYPES: WidgetType[] = ['booking', 'quote', 'reviews', 'estimator'];
 export const REVIEW_PLATFORMS: ReviewPlatform[] = ['google', 'yelp', 'facebook'];
 export const PLATFORM_LABELS: Record<ReviewPlatform, string> = { google: 'Google', yelp: 'Yelp', facebook: 'Facebook' };
 
@@ -38,7 +45,7 @@ export interface ReviewsOptions {
   cta_url: string;
   platforms: ReviewPlatform[];
 }
-export type WidgetOptions = BookingOptions | QuoteOptions | ReviewsOptions;
+export type WidgetOptions = BookingOptions | QuoteOptions | ReviewsOptions | EstimatorOptions;
 
 interface CommonSettings {
   enabled: boolean;
@@ -57,7 +64,8 @@ interface CommonSettings {
 export type WidgetSettings =
   | (CommonSettings & { widget_type: 'booking'; options: BookingOptions })
   | (CommonSettings & { widget_type: 'quote'; options: QuoteOptions })
-  | (CommonSettings & { widget_type: 'reviews'; options: ReviewsOptions });
+  | (CommonSettings & { widget_type: 'reviews'; options: ReviewsOptions })
+  | (CommonSettings & { widget_type: 'estimator'; options: EstimatorOptions });
 
 export type WidgetRow = WidgetSettings & {
   id: string;
@@ -113,6 +121,14 @@ export const TYPE_META: Record<WidgetType, { label: string; blurb: string; defau
     defaultButton: 'See all reviews',
     defaultSuccess: '',
   },
+  estimator: {
+    label: 'Price estimator',
+    blurb: 'Visitors pick a service and see your price instantly, then request the exact quote.',
+    defaultTitle: 'Get an instant price',
+    defaultSubtitle: 'Pick a service and see your price right away.',
+    defaultButton: 'Get a price',
+    defaultSuccess: 'Thanks! We got your request and will confirm your exact price shortly.',
+  },
 };
 
 /* ------------------------------ defaults ----------------------------- */
@@ -120,6 +136,7 @@ export const TYPE_META: Record<WidgetType, { label: string; blurb: string; defau
 export function buildDefaultOptions(type: WidgetType): WidgetOptions {
   if (type === 'booking') return { collect_notes: true };
   if (type === 'quote') return { contact_required: 'either', ask_zip: false, message_required: false, services_mode: 'business', custom_services: [] };
+  if (type === 'estimator') return buildDefaultEstimatorOptions();
   return { layout: 'badge', max_excerpts: 3, min_rating: 4, min_reviews: 1, cta_url: '', platforms: [...REVIEW_PLATFORMS] };
 }
 
@@ -166,6 +183,7 @@ export function sanitizeOptions(type: WidgetType, raw: unknown): WidgetOptions {
       custom_services: services,
     };
   }
+  if (type === 'estimator') return sanitizeEstimatorOptions(raw);
   const dr = d as ReviewsOptions;
   const platforms = Array.isArray(o.platforms) ? REVIEW_PLATFORMS.filter((p) => (o.platforms as unknown[]).includes(p)) : [];
   return {
@@ -205,7 +223,8 @@ export function settingsEqual(a: WidgetSettings, b: WidgetSettings): boolean {
 
 export type WidgetErrorKey =
   | 'brand_color' | 'radius' | 'title' | 'subtitle' | 'button_label' | 'success_message' | 'allowed_domains'
-  | 'custom_services' | 'cta_url' | 'platforms' | 'max_excerpts' | 'min_rating' | 'min_reviews';
+  | 'custom_services' | 'cta_url' | 'platforms' | 'max_excerpts' | 'min_rating' | 'min_reviews'
+  | EstimatorErrorKey;
 export type WidgetErrors = Partial<Record<WidgetErrorKey, string>>;
 
 export function isHttpsUrl(value: string): boolean {
@@ -244,6 +263,8 @@ export function validateSettings(s: WidgetSettings): WidgetErrors {
     if (o.min_rating < LIMITS.ratingMin || o.min_rating > LIMITS.ratingMax) e.min_rating = `Between ${LIMITS.ratingMin} and ${LIMITS.ratingMax}.`;
     if (o.min_reviews < LIMITS.minReviewsMin || o.min_reviews > LIMITS.minReviewsMax) e.min_reviews = `Between ${LIMITS.minReviewsMin} and ${LIMITS.minReviewsMax}.`;
   }
+  if (s.widget_type === 'estimator') Object.assign(e, validateEstimatorOptions(s.options));
+
   return e;
 }
 
@@ -261,6 +282,7 @@ export interface ReadinessContext {
 /** Why a saved+enabled widget might still render nothing on the website. Empty list = ready. */
 export function getReadinessIssues(s: WidgetSettings, ctx: ReadinessContext): string[] {
   const issues: string[] = [];
+  if (s.widget_type === 'estimator') return issues; // needs the price-book catalog — see getEstimatorIssues()
   if (s.widget_type === 'booking') {
     if (!ctx.bookingEnabled || !ctx.bookingSlug) issues.push('Online booking is switched off. Enable it in Booking Settings — the widget stays hidden until then.');
   } else if (s.widget_type === 'quote') {
