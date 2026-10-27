@@ -42,8 +42,22 @@ import {
   listShiftsForReport,
   reviewViolation,
   saveBreakSettings,
+  applyBreakJurisdiction,
   type BreakOptions,
 } from '@/lib/breakComplianceApi';
+import {
+  BREAK_RULES_DISCLAIMER,
+  CUSTOM_JURISDICTION,
+  JURISDICTION_RULES,
+  effectiveJurisdiction,
+  getJurisdictionRule,
+  isJurisdictionCode,
+  jurisdictionLabel,
+  premiumExplanation,
+  settingsForJurisdiction,
+  type EffectiveJurisdiction,
+  type JurisdictionCode,
+} from '@/lib/breakRules';
 
 // ============================================================
 // SHARED BITS
@@ -176,6 +190,7 @@ function Compliance({ accountOwnerId, toast }: { accountOwnerId: string; toast: 
 
   const settings: BreakSettings = options?.settings ?? DEFAULT_SETTINGS;
   const canManage = options?.can_manage ?? false;
+  const jurisdiction = effectiveJurisdiction(options?.jurisdiction, settings);
 
   // toast identity may change between renders; keep it out of the load callback's deps.
   const toastRef = useRef(toast);
@@ -319,6 +334,11 @@ function Compliance({ accountOwnerId, toast }: { accountOwnerId: string; toast: 
       {tab === 'rules' ? (
         <RulesPanel
           settings={settings}
+          jurisdiction={jurisdiction}
+          onApplied={(s, code) => {
+            setOptions((o) => (o ? { ...o, settings: s, jurisdiction: code } : o));
+            toast(`${getJurisdictionRule(code).name} rules applied`, 'success');
+          }}
           toast={toast}
           onSaved={(s) => {
             setOptions((o) => (o ? { ...o, settings: s } : o));
@@ -342,6 +362,9 @@ function Compliance({ accountOwnerId, toast }: { accountOwnerId: string; toast: 
             />
           </section>
 
+          <p className="text-xs text-text-secondary">
+            Rule set: <span className="font-semibold text-text-primary">{jurisdictionLabel(jurisdiction)}</span>. {BREAK_RULES_DISCLAIMER}
+          </p>
           <section aria-label="Filters" className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex gap-1 rounded-xl border border-border bg-bg-secondary p-1" role="group" aria-label="Date range">
               {RANGES.map((d) => (
@@ -575,7 +598,19 @@ function ReviewSheet({
 // RULES
 // ============================================================
 
-function RulesPanel({ settings, toast, onSaved }: { settings: BreakSettings; toast: ToastFn; onSaved: (s: BreakSettings) => void }) {
+function RulesPanel({
+  settings,
+  jurisdiction,
+  toast,
+  onSaved,
+  onApplied,
+}: {
+  settings: BreakSettings;
+  jurisdiction: EffectiveJurisdiction;
+  toast: ToastFn;
+  onSaved: (s: BreakSettings) => void;
+  onApplied: (s: BreakSettings, code: JurisdictionCode) => void;
+}) {
   const [form, setForm] = useState<SettingsForm>(() => settingsToForm(settings));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -585,6 +620,26 @@ function RulesPanel({ settings, toast, onSaved }: { settings: BreakSettings; toa
   }, [settings]);
 
   const parsed = useMemo(() => validateSettingsForm(form), [form]);
+  const [pick, setPick] = useState('');
+  const picked = isJurisdictionCode(pick) ? getJurisdictionRule(pick) : null;
+
+  const apply = async () => {
+    if (busy || !isJurisdictionCode(pick)) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const next = settingsForJurisdiction(pick, settings);
+      await applyBreakJurisdiction(pick, next);
+      onApplied(next, pick);
+      setPick('');
+    } catch (e) {
+      const m = breakErrorMessage(e);
+      setError(m);
+      toast(m, 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
   const dirty = !parsed.ok || !settingsEqual(parsed.value, settings);
 
   const set = <K extends keyof SettingsForm>(key: K, value: SettingsForm[K]) => {
@@ -627,6 +682,53 @@ function RulesPanel({ settings, toast, onSaved }: { settings: BreakSettings; toa
 
   return (
     <div className="space-y-4">
+      <section className={`${panelClass} space-y-3`}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-base font-semibold text-text-primary">State rule set</h2>
+          <StatusPill text={jurisdictionLabel(jurisdiction)} tone={jurisdiction === CUSTOM_JURISDICTION ? 'warn' : 'good'} />
+        </div>
+        <p className="text-sm text-text-secondary">{premiumExplanation(jurisdiction)}</p>
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-text-primary">Apply a rule set</span>
+          <select className={selectClass} value={pick} onChange={(e) => setPick(e.target.value)} disabled={busy}>
+            <option value="">Choose a state…</option>
+            {JURISDICTION_RULES.map((r) => (
+              <option key={r.code} value={r.code}>
+                {r.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {picked && (
+          <div className="space-y-2 rounded-xl bg-bg-tertiary p-3 text-sm text-text-secondary">
+            <p className="text-text-primary">{picked.summary}</p>
+            <p>{picked.premiumNote}</p>
+            <p className="font-semibold text-text-primary">Not checked by this tool:</p>
+            <ul className="list-disc space-y-1 pl-5">
+              {picked.notChecked.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+            <p className="text-xs">
+              {picked.citation}
+              {picked.sourceUrl && (
+                <>
+                  {' · '}
+                  <a href={picked.sourceUrl} target="_blank" rel="noopener noreferrer" className="focus-ring text-accent underline">
+                    Source
+                  </a>
+                </>
+              )}
+              {' · '}
+              {picked.lastReviewed ? `Checked ${picked.lastReviewed}` : 'Not yet verified against the agency source'}
+            </p>
+            <Button onClick={() => void apply()} disabled={busy}>
+              {busy ? 'Applying…' : `Apply ${picked.name} rules`}
+            </Button>
+          </div>
+        )}
+        <p className="text-xs text-text-secondary">{BREAK_RULES_DISCLAIMER}</p>
+      </section>
       <section className={`${panelClass} space-y-3`}>
         <h2 className="text-base font-semibold text-text-primary">Rules</h2>
         {check('enabled', 'Check shifts against break rules')}
