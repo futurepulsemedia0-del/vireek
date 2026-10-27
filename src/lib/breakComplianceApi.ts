@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { normalizeJurisdictionCode, type JurisdictionCode } from './breakRules';
 import {
   normalizeSettings,
   type BreakSettings,
@@ -10,6 +11,7 @@ import {
 export interface BreakOptions {
   can_manage: boolean;
   settings: BreakSettings;
+  jurisdiction: JurisdictionCode;
   members: { id: string; name: string }[];
 }
 
@@ -36,6 +38,7 @@ export async function getBreakOptions(): Promise<BreakOptions> {
     can_manage: d.can_manage ?? false,
     settings: normalizeSettings(d.settings),
     members: d.members ?? [],
+    jurisdiction: normalizeJurisdictionCode((d.settings as { jurisdiction?: unknown } | null | undefined)?.jurisdiction),
   };
 }
 
@@ -106,6 +109,23 @@ export async function fetchMyBreakRules(): Promise<BreakSettings> {
 
 export async function saveBreakSettings(s: BreakSettings): Promise<void> {
   const { error } = await supabase.rpc('save_break_compliance_settings', {
+    p_enabled: s.enabled,
+    p_meal_min: s.meal_min_minutes,
+    p_meal_deadline: s.meal_deadline_minutes,
+    p_meal_thresholds: s.meal_thresholds,
+    p_rest_min: s.rest_min_minutes,
+    p_rest_thresholds: s.rest_thresholds,
+    p_premium: s.premium_minutes,
+    p_prompts: s.prompts_enabled,
+    p_lead: s.prompt_lead_minutes,
+  });
+  if (error) throw error;
+}
+
+/** Applies a rule set: the rule numbers and the rule-set code are saved together in one transaction. */
+export async function applyBreakJurisdiction(code: JurisdictionCode, s: BreakSettings): Promise<void> {
+  const { error } = await supabase.rpc('apply_break_jurisdiction', {
+    p_jurisdiction: code,
     p_enabled: s.enabled,
     p_meal_min: s.meal_min_minutes,
     p_meal_deadline: s.meal_deadline_minutes,
