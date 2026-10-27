@@ -71,6 +71,7 @@ const AutonomyBudgetPage = lazy(() => import('@/pages/AutonomyBudgetPage').then(
 const ExecutionReliabilityPage = lazy(() => import('@/pages/ExecutionReliabilityPage').then((m) => ({ default: m.ExecutionReliabilityPage })));
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
 const ReferralsPage = lazy(() => import('@/pages/ReferralsPage').then((m) => ({ default: m.ReferralsPage })));
+const LoyaltyPage = lazy(() => import('@/pages/LoyaltyPage').then((m) => ({ default: m.LoyaltyPage })));
 const VoicemailDropsPage = lazy(() => import('@/pages/VoicemailDropsPage').then((m) => ({ default: m.VoicemailDropsPage })));
 const CallMaskingPage = lazy(() => import('@/pages/CallMaskingPage').then((m) => ({ default: m.CallMaskingPage })));
 const PowerDialerPage = lazy(() => import('@/pages/PowerDialerPage').then((m) => ({ default: m.PowerDialerPage })));
@@ -2266,6 +2267,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ReferralsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/loyalty"
+          element={
+            <ProtectedRoute>
+              <LoyaltyPage />
             </ProtectedRoute>
           }
         />
