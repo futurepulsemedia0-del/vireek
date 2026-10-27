@@ -9,6 +9,7 @@ import { ClipboardList } from 'lucide-react';
 import { Coffee } from 'lucide-react';
 import { Landmark as ValuationIcon } from 'lucide-react';
 import { Mic } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { DoorOpen } from 'lucide-react';
 import { CalendarRange } from 'lucide-react';
 import {
@@ -281,6 +282,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Content Calendar', href: '/dashboard/marketing/calendar', icon: CalendarRange, requiresPermission: 'can_edit_business_profile' },
   { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
+  { label: 'Loyalty', href: '/dashboard/loyalty', icon: Crown, requiresPermission: 'can_view_billing' },
   { label: 'Email Campaigns', href: '/dashboard/email-campaigns', icon: MailPlus, requiresPermission: 'can_view_billing' },
   { label: 'Direct Mail', href: '/dashboard/direct-mail', icon: MailPlus, requiresPermission: 'can_view_billing' },
   { label: 'Canvassing', href: '/dashboard/marketing/canvassing', icon: DoorOpen },
