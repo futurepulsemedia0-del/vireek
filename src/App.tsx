@@ -201,6 +201,8 @@ const CommissionsPage = lazy(() => import('@/pages/CommissionsPage').then((m) =>
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));|
 const ChatWidgetSettingsPage = lazy(() => import('@/pages/ChatWidgetSettingsPage').then((m) => ({ default: m.ChatWidgetSettingsPage })));
+const VideoSessionRoomPage = lazy(() => import('@/pages/VideoSessionRoomPage').then((m) => ({ default: m.VideoSessionRoomPage })));
+const VideoSessionsPage = lazy(() => import('@/pages/VideoSessionsPage').then((m) => ({ default: m.VideoSessionsPage })));
 const WebsiteWidgetsPage = lazy(() => import('@/pages/WebsiteWidgetsPage').then((m) => ({ default: m.WebsiteWidgetsPage })));
 const EvidenceChainPage = lazy(() => import('@/pages/EvidenceChainPage').then((m) => ({ default: m.EvidenceChainPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
@@ -852,6 +854,8 @@ function AppRoutes() {
         <Route path="/service/:token" element={<JobRoomPage />} />
         <Route path="/approve/:token" element={<NoSurpriseApprovePage />} />
         <Route path="/resolve/:token" element={<RemoteResolutionRoomPage />} />
+        <Route path="/live/:token" element={<VideoSessionRoomPage />} />
+        <Route path="/dashboard/video-sessions" element={<ProtectedRoute><VideoSessionsPage /></ProtectedRoute>} />
         <Route path="/diagnose/:token" element={<DiagnosePage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/security" element={<SecurityPage />} />
