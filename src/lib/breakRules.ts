@@ -22,7 +22,7 @@ export const BREAK_RULES_DISCLAIMER =
 export const CUSTOM_JURISDICTION = 'CUSTOM' as const;
 export const DEFAULT_JURISDICTION = 'CA' as const;
 
-export type JurisdictionCode = 'CA' | 'WA' | 'OR' | 'CO' | 'IL' | 'FED';
+export type JurisdictionCode = 'CA' | 'WA' | 'OR' | 'CO' | 'NV' | 'IL' | 'FED';
 export type EffectiveJurisdiction = JurisdictionCode | typeof CUSTOM_JURISDICTION;
 
 /**
@@ -66,7 +66,6 @@ export const JURISDICTION_RULES: readonly JurisdictionRule[] = [
     notChecked: [
       'Written meal-break waivers (allowed for shifts of 6 hours or less, and the second meal up to 12 hours)',
       'On-duty meal periods and industry or wage-order exemptions',
-      'The second meal must also start by the end of the 10th hour (only the first meal start is timed)',
     ],
     rules: { meal_min_minutes: 30, meal_deadline_minutes: 300, meal_thresholds: [300, 600], rest_min_minutes: 10, rest_thresholds: [210, 360, 600], premium_minutes: 60 },
   },
@@ -120,6 +119,22 @@ export const JURISDICTION_RULES: readonly JurisdictionRule[] = [
     rules: { meal_min_minutes: 30, meal_deadline_minutes: 300, meal_thresholds: [301], rest_min_minutes: 10, rest_thresholds: [121, 361, 601, 841], premium_minutes: 0 },
   },
   {
+  {
+    code: 'NV',
+    name: 'Nevada',
+    summary: '30-min meal for 8 continuous hours; 10-min paid rest per 4h or major fraction (1 at 3.5h, 2 at 7h, 3 at 11h, 4 at 15h).',
+    citation: 'NRS 608.019; NAC 608.145',
+    sourceUrl: 'https://www.leg.state.nv.us/NRS/NRS-608.html#NRS608Sec019',
+    lastReviewed: '2026-10-27',
+    premiumModel: 'none',
+    premiumNote: 'No premium pay. Authorized rest periods count as paid hours worked.',
+    notChecked: [
+      'Employees may voluntarily agree to forego a rest or meal period',
+      'Exemptions: a sole employee at a workplace and employees under a collective bargaining agreement',
+      'Meal timing (the law asks for the middle of the work period only where practicable)',
+    ],
+    rules: { meal_min_minutes: 30, meal_deadline_minutes: 480, meal_thresholds: [480], rest_min_minutes: 10, rest_thresholds: [210, 420, 660, 900], premium_minutes: 0 },
+  },
     code: 'IL',
     name: 'Illinois',
     summary: '20-min meal for 7.5h of continuous work, started within 5h; another 20 min for each additional 4.5h. No rest-break mandate.',
