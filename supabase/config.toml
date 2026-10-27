@@ -14,20 +14,16 @@ verify_jwt = false
 verify_jwt = false
 [functions.synthetic-probe]
 verify_jwt = false
-
 [functions.slo-evaluate]
 verify_jwt = false
-
 [functions.synthetic-webhook-sink]
 verify_jwt = false
-
 [functions.status-feed]
 verify_jwt = false
 [functions.booking-capacity]
 verify_jwt = false
 [functions.data-platform-run]
 verify_jwt = false
-
 [functions.analytics-embed]
 verify_jwt = false
 [functions.technician-retention-engine]
@@ -45,4 +41,6 @@ verify_jwt = false
 [functions.closeout-deadline-engine]
 verify_jwt = false
 [functions.video-ice]
+verify_jwt = false
+[functions.call-bridge-voice]
 verify_jwt = false
