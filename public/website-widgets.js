@@ -1,4 +1,4 @@
-/*! Vireek website widgets — booking · request-a-quote · reviews badge.
+/*! Vireek website widgets — booking · request-a-quote · reviews badge · instant price estimator.
     Dependency-free, Shadow-DOM isolated. One <script> tag per widget; several can live on the same page.
     Mirrors: default copy in src/lib/websiteWidgets.ts, slot rules in src/lib/bookingPolicy.ts (generateSlots),
     limits in supabase/migrations/20271021000000_website_widgets.sql. Keep them in sync. */
@@ -16,7 +16,8 @@
   var DEFAULTS = {
     booking: { title: 'Book online', subtitle: 'Pick a time that works for you.', button: 'Book now', success: "You're booked! We'll see you then." },
     quote: { title: 'Request a free quote', subtitle: 'Tell us what you need — we reply fast.', button: 'Get a quote', success: 'Thanks! We got your request and will be in touch shortly.' },
-    reviews: { title: 'What customers say', subtitle: '', button: 'See all reviews', success: '' }
+    reviews: { title: 'What customers say', subtitle: '', button: 'See all reviews', success: '' },
+    estimator: { title: 'Get an instant price', subtitle: 'Pick a service and see your price right away.', button: 'Get a price', success: 'Thanks! We got your request and will confirm your exact price shortly.' }
   };
   var DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
   var MAX_SLOTS = 600;
@@ -27,6 +28,7 @@
   var ICONS = {
     cal: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
     quote: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>',
+    calc: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h4"/></svg>',
     star: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>',
     check: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>'
   };
@@ -240,6 +242,13 @@
       '.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}',
       '.badge{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}.stars{display:inline-flex;gap:1px;color:#F5A623}.sw{display:inline-flex}.num{font-weight:800;font-size:18px}.cnt{color:var(--mu);font-size:13px}',
       '.cta{color:var(--a);font-weight:600;font-size:13px;text-decoration:underline}',
+      '.opts{display:flex;flex-direction:column;gap:8px;max-height:min(260px,40vh);overflow:auto;padding:2px}',
+      '.opt{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px;padding:10px 12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:' + rs + 'px;text-align:left;line-height:1.3;width:100%}',
+      '.opt:hover{border-color:var(--a)}.opt[aria-checked=true]{border-color:var(--b);box-shadow:0 0 0 2px var(--b)}',
+      '.on{font-weight:600;font-size:14px}.op{color:var(--mu);font-size:13px;text-align:right}',
+      '.qty{display:flex;align-items:center;gap:8px}.qty input{width:84px;text-align:center}.qb{flex:0 0 44px;width:44px;height:44px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:' + rs + 'px;font-size:20px;font-weight:700;line-height:1}',
+      '.chk{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;cursor:pointer}.chk input{width:20px;height:20px;min-height:0;flex:0 0 auto;padding:0;accent-color:var(--b)}',
+      '.est{background:var(--sf);border-radius:' + rs + 'px;padding:14px;text-align:center}.est small{display:block;color:var(--mu);font-size:12px}.price{display:block;font-size:28px;font-weight:800;line-height:1.2;margin:2px 0}.est .fine{color:var(--mu);font-size:12px;margin-top:6px}',
       '.rv{display:flex;flex-direction:column;gap:14px}.rvhd b{font-size:18px;display:block;margin-bottom:6px}',
       '.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}',
       '.rc{background:var(--bg);border:1px solid var(--bd);border-radius:' + r + 'px;padding:14px;display:flex;flex-direction:column;gap:8px}',
@@ -302,6 +311,7 @@
     if (/BAD_NAME|missing_customer_name/.test(m)) return 'Please enter your name.';
     if (/CONTACT_REQUIRED/.test(m)) return 'Please add a phone number or email so we can reach you.';
     if (/MESSAGE_REQUIRED/.test(m)) return 'Please tell us a bit about the job.';
+    if (/BAD_ITEM/.test(m)) return 'That service is no longer available. Please choose another.';
     if (/RATE_LIMITED/.test(m)) return 'Too many requests right now. Please try again shortly.';
     return 'Could not send. Please check your connection and try again.';
   }
@@ -507,6 +517,232 @@
     return { el: root };
   }
 
+  /* ------------------------------- estimator ------------------------------- */
+  var QTY_MAX = 20;
+  var PRICE_CAP = 100000000;
+  var EST_DISCLAIMER = 'This is an estimate based on typical jobs. The final price is confirmed after we review the details.';
+  function toInt(v, lo, hi) {
+    var n = typeof v === 'number' && isFinite(v) ? (v < 0 ? Math.ceil(v) : Math.floor(v)) : lo;
+    return Math.min(hi, Math.max(lo, n));
+  }
+  function roundDiv(a, d) { return Math.floor((a + d / 2) / d); }
+  function qtyAllowed(it) { return it.pricing_model === 'hourly' || (typeof it.unit_label === 'string' && it.unit_label.trim() !== ''); }
+  /**
+   * The price a visitor sees. Integer cents, round-half-up. MUST stay identical to computeEstimate() in
+   * src/lib/websiteEstimator.ts and website_widget_estimate() in the estimator migration (the lead stores the SQL result).
+   */
+  function estimate(it, qty, urgent, rules) {
+    rules = rules || {};
+    var price = toInt(num(it.price_cents, 0), 0, PRICE_CAP);
+    var rawMax = it.price_max_cents === null || it.price_max_cents === undefined ? it.price_cents : it.price_max_cents;
+    var pmax = toInt(num(rawMax, 0), 0, PRICE_CAP);
+    var q = qtyAllowed(it) ? toInt(num(qty, 1), 1, QTY_MAX) : 1;
+    var spread = toInt(num(rules.spread_pct, 0), 0, 40);
+    var pct = urgent ? toInt(num(rules.urgency_pct, 0), 0, 100) : 0;
+    var low, high, kind;
+    if (it.pricing_model === 'starting_at') { low = price * q; high = null; kind = 'from'; }
+    else if (it.pricing_model === 'range') { low = price * q; high = Math.max(pmax, price) * q; kind = 'range'; }
+    else { low = roundDiv(price * q * (100 - spread), 100); high = roundDiv(price * q * (100 + spread), 100); kind = 'range'; }
+    if (pct > 0) { low = roundDiv(low * (100 + pct), 100); if (high !== null) high = roundDiv(high * (100 + pct), 100); }
+    if (kind !== 'from') kind = high === low ? 'exact' : 'range';
+    return { kind: kind, low_cents: low, high_cents: high };
+  }
+  function money0(c) {
+    var whole = c % 100 === 0;
+    try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: whole ? 0 : 2 }).format(c / 100); } catch (e) { return '$' + (c / 100).toFixed(whole ? 0 : 2); }
+  }
+  function estText(e) {
+    if (e.kind === 'from') return 'From ' + money0(e.low_cents);
+    if (e.kind === 'range' && typeof e.high_cents === 'number') return money0(e.low_cents) + ' – ' + money0(e.high_cents);
+    return money0(e.low_cents);
+  }
+  function unitText(u) { var t = String(u || '').trim(); return /^(per\b|\/)/i.test(t) ? t : 'per ' + t; }
+  function priceHint(it, rules) {
+    var t = estText(estimate(it, 1, false, rules));
+    if (it.pricing_model === 'hourly') return t + ' / hour';
+    if (typeof it.unit_label === 'string' && it.unit_label.trim()) return t + ' ' + unitText(it.unit_label);
+    return t;
+  }
+  function validEst(r) { return !!r && typeof r === 'object' && typeof r.kind === 'string' && typeof r.low_cents === 'number'; }
+
+  function estimatorView(ctx, payload) {
+    var s = payload.settings, data = payload.data || {};
+    var rules = data.rules && typeof data.rules === 'object' ? data.rules : {};
+    function usable(list) { return (Array.isArray(list) ? list : []).filter(function (it) { return it && typeof it.id === 'string' && num(it.price_cents, 0) > 0; }); }
+    var items = usable(data.items);
+    var gate = rules.gate_price === true;
+    var need = rules.contact_required === 'email' || rules.contact_required === 'phone' ? rules.contact_required : 'either';
+    var urgencyPct = toInt(num(rules.urgency_pct, 0), 0, 100);
+    var disclaimer = str(rules.disclaimer, EST_DISCLAIMER);
+    var root = h('div', { class: 'view' });
+    var out = null;
+    function blank() { return { name: '', phone: '', email: '', zip: '', message: '' }; }
+    var st = { step: 'pick', id: items.length === 1 ? items[0].id : null, qty: 1, urgent: false, err: '', result: null, refocus: false, val: blank() };
+
+    function cur() { for (var i = 0; i < items.length; i++) if (items[i].id === st.id) return items[i]; return null; }
+    function est() { var it = cur(); return it ? estimate(it, st.qty, st.urgent, rules) : null; }
+    function name(it) { return str(it.label, 'Service'); }
+    function detail() {
+      var it = cur();
+      if (!it) return '';
+      var bits = [name(it)];
+      if (qtyAllowed(it) && st.qty > 1) bits.push(it.pricing_model === 'hourly' ? st.qty + ' hours' : '× ' + st.qty);
+      if (st.urgent) bits.push('urgent service');
+      return bits.join(' · ');
+    }
+    function paintOut() {
+      if (!out) return;
+      clear(out);
+      var e = est();
+      if (!e) return;
+      if (gate) { out.appendChild(h('small', { text: 'Enter your contact details on the next step to see your price.' })); return; }
+      out.appendChild(h('small', { text: 'Your instant estimate' }));
+      out.appendChild(h('span', { class: 'price', text: estText(e) }));
+      if (st.urgent && urgencyPct > 0) out.appendChild(h('div', { class: 'fine', text: 'Includes +' + urgencyPct + '% for urgent service.' }));
+      out.appendChild(h('div', { class: 'fine', text: disclaimer }));
+    }
+
+    function qtyControl(it) {
+      var hourly = it.pricing_model === 'hourly';
+      var id = uid('f');
+      var input = h('input', { type: 'number', id: id, min: '1', max: String(QTY_MAX), inputmode: 'numeric' });
+      input.value = String(st.qty);
+      function set(n, fix) { st.qty = toInt(n, 1, QTY_MAX); if (fix) input.value = String(st.qty); paintOut(); }
+      var minus = h('button', { type: 'button', class: 'qb', 'aria-label': 'Decrease', text: '−' });
+      var plus = h('button', { type: 'button', class: 'qb', 'aria-label': 'Increase', text: '+' });
+      minus.addEventListener('click', function () { set(st.qty - 1, true); });
+      plus.addEventListener('click', function () { set(st.qty + 1, true); });
+      input.addEventListener('input', function () { var n = parseInt(input.value, 10); if (isFinite(n)) set(n, false); });
+      input.addEventListener('change', function () { set(parseInt(input.value, 10), true); });
+      var hint = hourly ? 'Estimated hours of work.' : 'Priced ' + unitText(it.unit_label) + '.';
+      return h('div', null, [h('label', { class: 'lbl', for: id, text: hourly ? 'Hours' : 'Quantity' }), h('div', { class: 'qty' }, [minus, input, plus]), h('div', { class: 'hint', text: hint })]);
+    }
+    function urgencyControl() {
+      var id = uid('f');
+      var cb = h('input', { type: 'checkbox', id: id });
+      cb.checked = st.urgent;
+      cb.addEventListener('change', function () { st.urgent = cb.checked; paintOut(); });
+      return h('label', { class: 'chk', for: id }, [cb, h('span', { text: 'Emergency or same-day service (+' + urgencyPct + '%)' })]);
+    }
+
+    function renderPick() {
+      var list = h('div', { class: 'opts', role: 'radiogroup', 'aria-label': 'Choose a service' });
+      var btns = [];
+      items.forEach(function (it) {
+        var b = h('button', { type: 'button', class: 'opt', role: 'radio', 'aria-checked': String(it.id === st.id) }, [
+          h('span', { class: 'on', text: name(it) }), h('span', { class: 'op', text: priceHint(it, rules) })
+        ]);
+        b.addEventListener('click', function () {
+          if (st.id !== it.id) { st.id = it.id; st.qty = 1; st.urgent = false; }
+          btns.forEach(function (x) { x.b.setAttribute('aria-checked', String(x.id === st.id)); });
+          renderDyn();
+        });
+        btns.push({ id: it.id, b: b });
+        list.appendChild(b);
+      });
+      root.appendChild(list);
+      var dyn = h('div', { class: 'view' });
+      root.appendChild(dyn);
+      function renderDyn() {
+        clear(dyn);
+        var it = cur();
+        if (!it) { out = null; dyn.appendChild(h('div', { class: 'hint', text: gate ? 'Choose a service to continue.' : 'Choose a service to see your price instantly.' })); return; }
+        if (it.description) dyn.appendChild(h('div', { class: 'hint', text: it.description }));
+        if (qtyAllowed(it)) dyn.appendChild(qtyControl(it));
+        if (urgencyPct > 0) dyn.appendChild(urgencyControl());
+        out = h('div', { class: 'est', role: 'status', 'aria-live': 'polite' });
+        dyn.appendChild(out);
+        paintOut();
+        var go = h('button', { type: 'button', class: 'btn', text: gate ? 'See my price' : 'Get my exact quote' });
+        go.addEventListener('click', function () { st.step = 'details'; st.err = ''; rerender(); });
+        dyn.appendChild(go);
+      }
+      renderDyn();
+      if (st.refocus) {
+        st.refocus = false;
+        var sel = btns.filter(function (x) { return x.id === st.id; })[0] || btns[0];
+        setTimeout(function () { try { sel.b.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }, 30);
+      }
+    }
+
+    function renderDetails() {
+      var it = cur();
+      if (!it) { st.step = 'pick'; renderPick(); return; }
+      var e0 = est();
+      var sum = h('div', { class: 'sum' }, [h('span', { text: detail() + (gate || !e0 ? '' : ' — ' + estText(e0)) })]);
+      var change = h('button', { type: 'button', class: 'link', text: 'Change' });
+      change.addEventListener('click', function () { st.step = 'pick'; st.err = ''; st.refocus = true; rerender(); });
+      sum.appendChild(change);
+      root.appendChild(sum);
+
+      var val = st.val;
+      var form = h('form', { class: 'view', novalidate: true });
+      var nm = h('input', { type: 'text', autocomplete: 'name', maxlength: '80' });
+      var phone = h('input', { type: 'tel', autocomplete: 'tel', maxlength: '40' });
+      var email = h('input', { type: 'email', autocomplete: 'email', maxlength: '254' });
+      var bind = function (el, k) { el.value = val[k]; el.addEventListener('input', function () { val[k] = el.value; }); el.addEventListener('change', function () { val[k] = el.value; }); };
+      bind(nm, 'name'); bind(phone, 'phone'); bind(email, 'email');
+      form.appendChild(field('Your name', nm, { required: true }));
+      form.appendChild(field('Phone', phone, { required: need === 'phone', hint: need === 'either' ? 'Phone or email is required.' : null }));
+      form.appendChild(field('Email', email, { required: need === 'email' }));
+      if (rules.ask_zip !== false) { var zip = h('input', { type: 'text', autocomplete: 'postal-code', maxlength: '12' }); bind(zip, 'zip'); form.appendChild(field('ZIP / postal code', zip)); }
+      var msg = h('textarea', { maxlength: '2000', rows: '2' });
+      bind(msg, 'message');
+      form.appendChild(field('Anything we should know?', msg));
+      form.appendChild(honeypot());
+      var err = h('div', { class: 'err', role: 'alert', text: st.err });
+      var idle = gate ? 'See my price' : 'Send request';
+      var go = h('button', { type: 'submit', class: 'btn', text: idle });
+      form.appendChild(err); form.appendChild(go);
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        err.textContent = '';
+        var em = val.email.trim(), ph = val.phone.trim();
+        if (val.name.trim().length < 2) { err.textContent = 'Please enter your name.'; nm.focus(); return; }
+        if (need === 'email' && !em) { err.textContent = 'Please enter your email.'; email.focus(); return; }
+        if (need === 'phone' && !ph) { err.textContent = 'Please enter your phone number.'; phone.focus(); return; }
+        if (need === 'either' && !em && !ph) { err.textContent = 'Please add a phone number or email.'; phone.focus(); return; }
+        if (em && !emailOk(em)) { err.textContent = 'That email address looks invalid.'; email.focus(); return; }
+        if (ph && !phoneOk(ph)) { err.textContent = 'That phone number looks invalid.'; phone.focus(); return; }
+        go.disabled = true; go.textContent = gate ? 'Getting your price…' : 'Sending…';
+        ctx.call('submit_website_widget_estimate', {
+          p_key: ctx.key, p_host: ctx.host, p_name: val.name.trim(), p_email: em, p_phone: ph, p_item: it.id,
+          p_quantity: qtyAllowed(it) ? st.qty : 1, p_urgent: st.urgent, p_message: val.message.trim(), p_zip: val.zip.trim(),
+          p_page_url: ctx.page, p_website: hpValue(form)
+        }).then(function (res) {
+          st.result = validEst(res) ? res : est();
+          st.step = 'done'; rerender();
+        }, function (ex) {
+          if (/BAD_ITEM/.test(String((ex && ex.message) || ''))) {
+            st.err = errText(ex); st.id = null; st.step = 'pick';
+            ctx.refresh().then(function (np) { if (np && np.data) items = usable(np.data.items); }, function () { /* keep the old list */ }).then(function () { rerender(); });
+            return;
+          }
+          err.textContent = errText(ex); go.disabled = false; go.textContent = idle;
+        });
+      });
+      root.appendChild(form);
+      setTimeout(function () { try { nm.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }, 30);
+    }
+
+    function renderDone() {
+      var e = st.result || est();
+      if (e) root.appendChild(h('div', { class: 'est' }, [h('small', { text: 'Your instant estimate' }), h('span', { class: 'price', text: estText(e) }), h('div', { class: 'fine', text: detail() }), h('div', { class: 'fine', text: disclaimer })]));
+      var again = function () { st.step = 'pick'; st.id = items.length === 1 ? items[0].id : null; st.qty = 1; st.urgent = false; st.result = null; st.val = blank(); rerender(); };
+      root.appendChild(successView(str(s.success_message, DEFAULTS.estimator.success), [], ctx.close ? function () { ctx.close(); } : again, ctx.close ? 'Close' : 'Get another estimate'));
+    }
+
+    function rerender() {
+      clear(root);
+      out = null;
+      if (!items.length) { root.appendChild(notice(ctx.preview ? 'Publish at least one service from your price book to preview the estimator.' : "Instant estimates aren't available right now — please call us for a quote.")); return; }
+      if (st.step === 'pick' && st.err) root.appendChild(h('div', { class: 'err', role: 'alert', text: st.err }));
+      if (st.step === 'pick') renderPick(); else if (st.step === 'details') renderDetails(); else renderDone();
+    }
+    rerender();
+    return { el: root };
+  }
+
   /* --------------------------------- reviews --------------------------------- */
   function starsEl(avg, size) {
     var wrap = h('span', { class: 'stars', 'aria-hidden': 'true' });
@@ -591,7 +827,7 @@
       }
       if (v) {
         if (!openedOnce) { openedOnce = true; ctx.track('open'); }
-        var f = panel.querySelector('button.slot, input, select, textarea, a');
+        var f = panel.querySelector('button.slot, button.opt, input, select, textarea, a');
         if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }, 60);
       } else if (launcher) launcher.focus();
     }
@@ -600,6 +836,7 @@
     var view, title = str(s.title, DEFAULTS[type].title);
     if (type === 'booking') view = bookingView(ctx, payload);
     else if (type === 'quote') view = quoteView(ctx, payload);
+    else if (type === 'estimator') view = estimatorView(ctx, payload);
     else view = reviewsView(ctx, payload, floating);
 
     if (floating) {
@@ -628,7 +865,7 @@
           h('div', { class: 'hd' }, [h('div', null, [h('b', { text: title }), sub ? h('small', { text: sub }) : null]), x]),
           h('div', { class: 'pbody' }, [view.el])
         ]);
-        launcher = h('button', { type: 'button', class: 'launch', 'aria-expanded': 'false', 'aria-haspopup': 'dialog' }, [h('span', { html: type === 'booking' ? ICONS.cal : ICONS.quote }), h('span', { text: str(s.button_label, DEFAULTS[type].button) })]);
+        launcher = h('button', { type: 'button', class: 'launch', 'aria-expanded': 'false', 'aria-haspopup': 'dialog' }, [h('span', { html: type === 'booking' ? ICONS.cal : type === 'estimator' ? ICONS.calc : ICONS.quote }), h('span', { text: str(s.button_label, DEFAULTS[type].button) })]);
         launcher.addEventListener('click', function () { setOpen(!panel.classList.contains('open')); });
         wrap.appendChild(panel); wrap.appendChild(launcher);
       }
@@ -705,6 +942,7 @@
       var type = payload.type, floating = payload.settings.display_mode !== 'inline';
       if (type === 'booking' && payload.data && payload.data.unavailable) return;
       if (type === 'reviews' && payload.data && !payload.data.show) return;
+      if (type === 'estimator' && payload.data && !payload.data.show) return;
       whenReady(function () {
         var container = document.body;
         if (!floating) {
@@ -742,6 +980,6 @@
     return render(container, payload, { ctx: ctx, contained: opts.contained !== false, startOpen: opts.startOpen !== false });
   }
 
-  NS.api = { init: init, preview: preview, _slots: computeSlots, _zonedToUtc: zonedToUtc, version: 1 };
+  NS.api = { init: init, preview: preview, _slots: computeSlots, _zonedToUtc: zonedToUtc, _estimate: estimate, version: 1 };
   if (currentTag) init(currentTag);
 })();
