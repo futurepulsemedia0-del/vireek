@@ -21,6 +21,7 @@ import { MaterialsTab } from './MaterialsTab';
 import { OverviewTab } from './OverviewTab';
 import { PhasesTab } from './PhasesTab';
 import { ScheduleTab } from './scheduler/ScheduleTab';
+import { WipTab } from './WipTab';
 import { Pill, projectStatusTone, scheduleTone, useAction, useConfirm } from './projectUi';
 
 const TABS = [
@@ -28,6 +29,7 @@ const TABS = [
   { key: 'phases', label: 'Phases' },
   { key: 'schedule', label: 'Schedule' },
   { key: 'billing', label: 'Billing' },
+  { key: 'wip', label: 'WIP' },
   { key: 'jobs', label: 'Jobs' },
   { key: 'materials', label: 'Materials' },
 ] as const;
@@ -147,6 +149,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
         {tab === 'phases' && <PhasesTab {...tabProps} />}
         {tab === 'schedule' && <ScheduleTab {...tabProps} />}
         {tab === 'billing' && <BillingTab {...tabProps} />}
+        {tab === 'wip' && <WipTab {...tabProps} />}
         {tab === 'jobs' && <JobsTab {...tabProps} />}
         {tab === 'materials' && <MaterialsTab {...tabProps} />}
       </div>
