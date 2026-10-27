@@ -59,6 +59,8 @@ import { JobContextPanel } from '@/components/jobs/JobContextPanel';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { PermitTransactionPanel } from '@/components/jobs/PermitTransactionPanel';
+import { CloseoutJobPanel } from '@/components/closeout/CloseoutJobPanel';
+import { isCloseoutGateError, closeoutGateMessage } from '@/lib/installCloseoutLogic';
 import { JobRegulationSnapshotPanel } from '@/components/jobs/JobRegulationSnapshotPanel';
 import { JobCloseoutPanel } from '@/components/jobs/JobCloseoutPanel';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
@@ -594,6 +596,7 @@ function JobDetailPanel({
         <JobTradePackPanel job={job} />
         <JobUnknownsPanel job={job} />
         <PermitTransactionPanel job={job} />
+        <CloseoutJobPanel job={job} />
         <JobCloseoutPanel job={job} />
         <JobRegulationSnapshotPanel job={job} />
         <ServiceTwinPanel job={job} />
@@ -1236,6 +1239,7 @@ export function JobsPage() {
       const m = (err as { message?: string })?.message ?? '';
       if (isQualityGateError(m)) return `Can't close this job yet — missing: ${parseQualityGateError(m).join(', ')}.`;
       if (isEvidenceChainError(m)) return `Can't close this job yet — evidence chain incomplete: ${parseEvidenceChainError(m).join(', ')}.`;
+      if (isCloseoutGateError(m)) return closeoutGateMessage(m);
       return null;
     },
   });
@@ -1297,6 +1301,10 @@ export function JobsPage() {
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : '';
+      if (isCloseoutGateError(message)) {
+        toast(closeoutGateMessage(message), 'error');
+        return;
+      }
       if (isQualityGateError(message)) {
         toast(`Can't close this job yet — missing: ${parseQualityGateError(message).join(', ')}.`, 'error');
       } else {
