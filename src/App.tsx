@@ -187,6 +187,8 @@ const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => (
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
 const BudgetsPage = lazy(() => import('@/pages/BudgetsPage').then((m) => ({ default: m.BudgetsPage })));
+const SiteSketchesPage = lazy(() => import('@/pages/SiteSketchesPage').then((m) => ({ default: m.SiteSketchesPage })));
+const SiteSketchEditorPage = lazy(() => import('@/pages/SiteSketchEditorPage').then((m) => ({ default: m.SiteSketchEditorPage })));
 const TalentBoardPage = lazy(() => import('@/pages/TalentBoardPage').then((m) => ({ default: m.TalentBoardPage })));
 const TalentJobPage = lazy(() => import('@/pages/TalentJobPage').then((m) => ({ default: m.TalentJobPage })));
 const TalentReferencePage = lazy(() => import('@/pages/TalentReferencePage').then((m) => ({ default: m.TalentReferencePage })));
