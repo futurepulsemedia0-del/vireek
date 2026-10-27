@@ -21,6 +21,13 @@ export interface IntentMetadataInput {
   membershipId?: string | null;
   /** True only for a first-time public signup (membership still "offered"). */
   membershipSignup?: boolean;
+  /** Card fee riding on the same charge (cents). 0 / absent = no fee. */
+  feeCents?: number;
+  feeMode?: string | null;
+  feeBps?: number | null;
+  feeLabel?: string;
+  /** Snapshot of "don't surcharge debit" at the time the intent was created. */
+  excludeDebit?: boolean;
   /** Membership payments only: the customer ticked "renew automatically", so the card is saved for off-session renewals. */
   saveCard?: boolean;
 }
@@ -36,6 +43,13 @@ export function buildIntentMetadata(input: IntentMetadataInput): Record<string, 
   };
   if (input.jobId) meta.job_id = input.jobId;
   if (input.tipCents > 0 && input.technicianId) meta.technician_id = input.technicianId;
+  if (input.feeCents && input.feeCents > 0) {
+    meta.fee_cents = String(input.feeCents);
+    meta.fee_mode = input.feeMode ?? "";
+    meta.fee_excl_debit = input.excludeDebit === false ? "0" : "1";
+    if (input.feeBps != null) meta.fee_bps = String(input.feeBps);
+    if (input.feeLabel) meta.fee_label = input.feeLabel.slice(0, 40);
+  }
   if (input.membershipId) {
     meta.membership_id = input.membershipId;
     if (input.membershipSignup) meta.membership_signup = "true";
@@ -45,6 +59,8 @@ export function buildIntentMetadata(input: IntentMetadataInput): Record<string, 
 }
 
 export interface IntentParamsInput {
+  /** Card fee added on top of invoice + tip (cents). */
+  feeCents?: number;
   baseCents: number;
   tipCents: number;
   destinationAccountId: string;
@@ -66,9 +82,11 @@ export interface IntentParamsInput {
  */
 export function buildPaymentIntentParams(input: IntentParamsInput): Record<string, unknown> {
   const { baseCents, tipCents } = input;
+  const feeCents = input.feeCents ?? 0;
+  if (!Number.isInteger(feeCents) || feeCents < 0) throw new Error("Invalid fee amount.");
   if (!Number.isInteger(baseCents) || baseCents <= 0) throw new Error("Invalid invoice amount.");
   if (!Number.isInteger(tipCents) || tipCents < 0) throw new Error("Invalid tip amount.");
-  const amount = baseCents + tipCents;
+  const amount = baseCents + tipCents + feeCents;
   if (amount < MIN_CHARGE_CENTS) throw new Error("This amount is below the minimum that can be charged online.");
   if (!input.destinationAccountId) throw new Error("Missing connected account.");
   return {
@@ -91,3 +109,7 @@ export function walletFromCharge(charge: any): WalletType | null {
   const type = charge?.payment_method_details?.card?.wallet?.type;
   return type === "apple_pay" || type === "google_pay" ? type : null;
 }
+/** Posted when an existing intent is updated without a fee, so stale fee keys can't linger on it. */
+export const CLEARED_FEE_METADATA: Record<string, string> = {
+  fee_cents: "", fee_mode: "", fee_bps: "", fee_label: "", fee_excl_debit: "",
+};
