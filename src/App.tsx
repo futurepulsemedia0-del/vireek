@@ -1,6 +1,6 @@
 import { CustomDomainGate } from '@/components/CustomDomainGate';
 import { Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StaffRoute } from '@/components/StaffRoute';
@@ -79,6 +79,7 @@ const JobDetailPage = lazy(() => import('@/pages/JobDetailPage').then((m) => ({ 
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
 const CalendarFeedsPage = lazy(() => import('@/pages/CalendarFeedsPage').then((m) => ({ default: m.CalendarFeedsPage })));
 const DirectMailPage = lazy(() => import('@/pages/DirectMailPage').then((m) => ({ default: m.DirectMailPage })));
+const CanvassingPage = lazy(() => import('@/pages/CanvassingPage').then((m) => ({ default: m.CanvassingPage })));
 const MailerRedirectPage = lazy(() => import('@/pages/MailerRedirectPage').then((m) => ({ default: m.MailerRedirectPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
 const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ default: m.InsightsPage })));
@@ -2346,6 +2347,8 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route path="/dashboard/marketing/canvassing" element={<ProtectedRoute><CanvassingPage /></ProtectedRoute>} />
+<Route path="/marketing/canvassing" element={<Navigate to="/dashboard/marketing/canvassing" replace />} />
 <Route
   path="/dashboard/direct-mail"
   element={
