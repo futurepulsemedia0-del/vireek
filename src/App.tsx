@@ -18,6 +18,7 @@ import { HomeTargetGate } from '@/pages/home/HomeTargetGate';
 // stays small regardless of how large the app grows. Named exports are kept
 // consistent across pages specifically so this mapping stays mechanical.
 const MarketingPage = lazy(() => import('@/pages/MarketingPage'));
+const InstallCloseoutPage = lazy(() => import('@/pages/InstallCloseoutPage'));
 const ContentCalendarPage = lazy(() => import('@/pages/ContentCalendarPage'));
 const LifecycleTouchesPage = lazy(() => import('@/pages/LifecycleTouchesPage'));
 const AudiencesPage = lazy(() => import('@/pages/AudiencesPage'));
@@ -2866,6 +2867,14 @@ function AppRoutes() {
       </ProtectedRoute>
     }
   />
+        <Route
+          path="/dashboard/install-closeout"
+          element={
+            <ProtectedRoute>
+              <InstallCloseoutPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/warranty-claims"
           element={
