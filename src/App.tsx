@@ -442,6 +442,7 @@ const PaymentsPage = lazy(() => import('@/pages/PaymentsPage').then((m) => ({ de
 const RefundsPage = lazy(() => import('@/pages/RefundsPage').then((m) => ({ default: m.RefundsPage })));
 const PaymentResultPage = lazy(() => import('@/pages/PaymentResultPage').then((m) => ({ default: m.PaymentResultPage })));
 const PublicPaymentPage = lazy(() => import('@/pages/PublicPaymentPage').then((m) => ({ default: m.PublicPaymentPage })));
+const SplitPayerPayPage = lazy(() => import('@/pages/SplitPayerPayPage').then((m) => ({ default: m.SplitPayerPayPage })));
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage').then((m) => ({ default: m.CookiePolicyPage })));
 const TermsPage = lazy(() => import('@/pages/TermsPage').then((m) => ({ default: m.TermsPage })));
@@ -900,6 +901,7 @@ function AppRoutes() {
         <Route path="/pay-result" element={<PaymentResultPage />} />
         <Route path="/thank-you" element={<ThankYouPage />} />
         <Route path="/pay/:token" element={<PublicPaymentPage />} />
+        <Route path="/pay-share/:token" element={<SplitPayerPayPage />} />
         <Route path="/affiliate" element={<AffiliatePage />} />
         <Route path="/referral" element={<ReferralPage />} />
         <Route path="/r/:code" element={<PartnerReferralRedirectPage />} />
