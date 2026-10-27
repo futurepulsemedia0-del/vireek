@@ -7,6 +7,7 @@
 import { recordFix, shouldRecordPing } from '../offline/capture';
 import { idb, type PingRecord } from '../offline/db';
 import { getCachedIdentity } from '../offline/identity';
+import { isTrackingAllowedNow } from '../trackingGate';
 import { requestSync } from '../offline/sync';
 
 export type TrackingIssue = 'not_authorized' | 'start_failed';
@@ -48,7 +49,7 @@ export function startNativeTracking(getJobId: () => string | null, onIssue?: (is
           recordFix({ lat: next.lat, lng: next.lng, accuracy: next.accuracy, at });
 
           const identity = getCachedIdentity();
-          if (!identity || !shouldRecordPing(prev, next)) return;
+          if (!identity || !isTrackingAllowedNow() || !shouldRecordPing(prev, next)) return;
           prev = next;
 
           const ping: PingRecord = {
