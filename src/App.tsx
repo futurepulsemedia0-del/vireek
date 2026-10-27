@@ -423,6 +423,7 @@ const DemandOsPage = lazy(() => import('@/pages/DemandOsPage').then((m) => ({ de
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const BlocklistPage = lazy(() => import('@/pages/BlocklistPage').then((m) => ({ default: m.BlocklistPage })));
 const CallRoutingPage = lazy(() => import('@/pages/CallRoutingPage').then((m) => ({ default: m.CallRoutingPage })));
+const CallFlowsPage = lazy(() => import('@/pages/CallFlowsPage').then((m) => ({ default: m.CallFlowsPage })));
 const WeatherSurgeIntelligencePage = lazy(() => import('@/pages/WeatherSurgeIntelligencePage').then((m) => ({ default: m.WeatherSurgeIntelligencePage })));
 const EmergencyOperationsPage = lazy(() => import('@/pages/EmergencyOperationsPage').then((m) => ({ default: m.EmergencyOperationsPage })));
 const ProfitabilityPage = lazy(() => import('@/pages/ProfitabilityPage').then((m) => ({ default: m.ProfitabilityPage })));
@@ -2648,6 +2649,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CallRoutingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/calls/flows"
+          element={
+            <ProtectedRoute>
+              <CallFlowsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/calls/flows/:id"
+          element={
+            <ProtectedRoute>
+              <CallFlowsPage />
             </ProtectedRoute>
           }
         />
