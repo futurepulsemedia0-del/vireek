@@ -8,6 +8,7 @@
 // how messages get in and out.
 
 import { supabase } from '@/lib/supabase';
+import { normalizeEmail, normalizePhone } from '@/lib/customerContacts';
 
 export type Channel = 'whatsapp' | 'instagram' | 'sms' | 'email' | 'chat' | 'rcs' | 'amb';
 
@@ -194,7 +195,19 @@ export async function findLinkedCustomerId(contact: string): Promise<string | nu
     .or(`phone.eq.${contact},email.eq.${contact}`)
     .limit(1)
     .maybeSingle();
-  return data?.id ?? null;
+  if (data?.id) return data.id;
+
+  // Not the customer's own phone/email: it may belong to one of their contacts (tenant, site, billing…).
+  if (contact.includes('@')) {
+    const email = normalizeEmail(contact);
+    if (!email) return null;
+    const { data: byEmail } = await supabase.from('customer_contacts').select('customer_id').eq('email', email).limit(1).maybeSingle();
+    return byEmail?.customer_id ?? null;
+  }
+  const phone = normalizePhone(contact);
+  if (!phone) return null;
+  const { data: byPhone } = await supabase.from('customer_contacts').select('customer_id').eq('phone_e164', phone).limit(1).maybeSingle();
+  return byPhone?.customer_id ?? null;
 }
 
 export async function sendReply(channel: Channel, conversationId: string, body: string, userId: string): Promise<{ ok: boolean; error?: string }> {
