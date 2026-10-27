@@ -10,6 +10,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendEmail } from "../_shared/notify/deliver.ts";
+import { invoiceRecipientEmails, resolveContactRecipients } from "../_shared/customers/contactRecipients.ts";
 import { resolveCustomerLanguage } from "../_shared/i18n/customerLanguage.ts";
 import { formatDate, formatMoney, htmlLangAttrs, renderTemplate, textAlignStart } from "../_shared/i18n/templates.ts";
 
@@ -89,8 +90,11 @@ Deno.serve(async (req: Request) => {
     if (invoice.status === "void") return json({ error: "This invoice is void." }, 400);
     if (invoice.status === "paid" && kind === "reminder") return json({ error: "This invoice is already paid." }, 400);
 
-    const to = (invoice.customer_email ?? "").trim();
-    if (!EMAIL_RE.test(to)) return json({ error: "Add a valid customer email to this invoice first." }, 400);
+
+    const billingContacts = await resolveContactRecipients(admin, ownerId, invoice.customer_id, "invoice");
+    const recipients = invoiceRecipientEmails(invoice.customer_email, billingContacts, (v) => EMAIL_RE.test(v));
+    if (recipients.length === 0) return json({ error: "Add a valid customer email or a billing contact to this invoice first." }, 400);
+    const to = recipients[0];
 
     if (kind === "reminder") {
       const { data: last } = await admin
@@ -143,22 +147,24 @@ ${dueLine ? `<tr><td colspan="2" style="color:#6e6e78;font-size:13px;padding-top
 </table>
 <p style="margin:24px 0"><a href="${link}" style="background:#203ad8;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
 <p style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(business)}</p></div>`;
-    const result = await sendEmail(to, subject, html, text);
-
-    await admin.from("invoice_reminders").insert({
-      user_id: ownerId,
-      invoice_id: invoice.id,
-      kind,
-      channel: "email",
-      recipient: to,
-      status: result.ok ? "sent" : "failed",
-      error: result.ok ? null : (result.error ?? "Unknown error").slice(0, 500),
-      sent_by: caller.id,
-      sent_by_email: caller.email ?? null,
-    });
-
-    if (!result.ok) return json({ error: "Could not send the email.", detail: result.error }, 422);
-
+     const results: { to: string; ok: boolean; error?: string }[] = [];
+    for (const addr of recipients) {
+      const sent = await sendEmail(addr, subject, html, text);
+      results.push({ to: addr, ok: sent.ok, error: sent.error });
+      await admin.from("invoice_reminders").insert({
+        user_id: ownerId,
+        invoice_id: invoice.id,
+        kind,
+        channel: "email",
+        recipient: addr,
+        status: sent.ok ? "sent" : "failed",
+        error: sent.ok ? null : (sent.error ?? "Unknown error").slice(0, 500),
+        sent_by: caller.id,
+        sent_by_email: caller.email ?? null,
+      });
+    }
+    const sentTo = results.filter((r) => r.ok).map((r) => r.to);
+    if (sentTo.length === 0) return json({ error: "Could not send the email.", detail: results[0]?.error }, 422);
     // First successful send moves a draft to "sent".
     if (invoice.status === "draft") {
       await admin.from("invoices").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", invoice.id).eq("user_id", ownerId);
@@ -171,10 +177,10 @@ ${dueLine ? `<tr><td colspan="2" style="color:#6e6e78;font-size:13px;padding-top
       action: kind === "reminder" ? "invoice_reminder_sent" : kind === "resend" ? "invoice_resent" : "invoice_sent",
       target_table: "invoices",
       target_id: invoice.id,
-      details: { recipient: to, kind },
+      details: { recipient: sentTo[0], recipients: sentTo, kind },
     });
 
-    return json({ ok: true, recipient: to });
+    return json({ ok: true, recipient: sentTo[0], recipients: sentTo });
   } catch (err) {
     return json({ error: err instanceof Error ? err.message : "Unexpected error." }, 500);
   }
