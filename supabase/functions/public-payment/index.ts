@@ -3,7 +3,8 @@ import { stripeRequest } from "../_shared/stripe/client.ts";
 import { computeTip, firstName, TIP_PRESET_PERCENTS, type TipSelection } from "../_shared/payments/tip.ts";
 import { stripeGet } from "../_shared/stripe/terminalPayments.ts";
 import { buildRegionalPaymentMethodOptions, normalizeChargeCurrency } from "../_shared/payments/regionalMethods.ts";
-import { buildIntentMetadata, buildPaymentIntentParams, isReusableIntentStatus } from "../_shared/payments/paymentIntent.ts";
+import { buildIntentMetadata, buildPaymentIntentParams, CLEARED_FEE_METADATA, isReusableIntentStatus } from "../_shared/payments/paymentIntent.ts";
+import { buildPricingDisclosure, buildReceiptLines, checkoutPricing, itemizedDescription, settingsFromRow } from "../_shared/payments/pricing.ts";
 import { buildBankIntentExtras, buildBankOffer, mergeIntentParams } from "../_shared/bankPayments/logic.ts";
 
 const corsHeaders = {
@@ -32,11 +33,20 @@ Deno.serve(async (req: Request) => {
 
     const { data: request } = await admin
       .from("payment_requests")
-      .select("id, user_id, job_id, customer_name, customer_email, amount, status, technician_id, stripe_checkout_session_id, stripe_payment_intent_id")
+      .select("id, user_id, job_id, customer_name, customer_email, amount, status, technician_id, stripe_checkout_session_id, stripe_payment_intent_id, tip_cents, fee_cents, fee_refunded_cents, fee_label")
       .eq("public_token", token)
       .maybeSingle();
     if (!request) return json({ status: "not_found" });
-    if (request.status === "paid") return json({ status: "paid" });
+    if (request.status === "paid") {
+      const receipt = buildReceiptLines({
+        baseCents: Math.round(Number(request.amount) * 100),
+        tipCents: request.tip_cents ?? 0,
+        feeCents: request.fee_cents ?? 0,
+        feeRefundedCents: request.fee_refunded_cents ?? 0,
+        feeLabel: request.fee_label ?? "",
+      });
+      return json({ status: "paid", receipt });
+    }
     if (!PAYABLE.includes(request.status)) return json({ status: "canceled" });
 
     const [{ data: connect }, { data: job }, { data: tech }] = await Promise.all([
@@ -61,6 +71,15 @@ Deno.serve(async (req: Request) => {
         : null;
 
     const baseCents = Math.round(Number(request.amount) * 100);
+    const { data: pricingRow } = await admin
+      .from("payment_pricing_settings")
+      .select("mode, surcharge_bps, flat_fee_cents, cash_discount_bps, exclude_debit, business_state, label, disclosure")
+      .eq("user_id", request.user_id)
+      .maybeSingle();
+    const pricingSettings = settingsFromRow(pricingRow);
+    // Recurring membership billing is never surcharged: the renewal charge would not carry the same fee.
+    const feeEligible = !membership;
+    const quote = checkoutPricing(baseCents, 0, pricingSettings, feeEligible);
     const tipEnabled = !!connect?.tip_enabled && !!request.technician_id;
     const techFirstName = tech ? firstName((tech as Record<string, string | null>).full_name ?? (tech as Record<string, string | null>).member_name ?? (tech as Record<string, string | null>).name) : "";
 
@@ -78,6 +97,13 @@ const bankPolicy = { platformEnabled: Deno.env.get("STRIPE_ACH_DEBIT_ENABLED") =
         presets: TIP_PRESET_PERCENTS,
         publishable_key: Deno.env.get("STRIPE_PUBLISHABLE_KEY") ?? null,
         auto_renew_offer: autoRenewOffer,
+        pricing: {
+          fee_cents: quote.feeCents,
+          fee_label: quote.feeLabel,
+          cash_price_cents: quote.cashPriceCents,
+          cash_discount_cents: quote.cashDiscountCents,
+          disclosure: quote.feeCents > 0 || quote.cashDiscountCents > 0 ? buildPricingDisclosure(pricingSettings) : "",
+        },
         bank_offer: buildBankOffer({ ...bankPolicy, amountCents: baseCents }),
       });
     }
@@ -120,12 +146,18 @@ const bankPolicy = { platformEnabled: Deno.env.get("STRIPE_ACH_DEBIT_ENABLED") =
         technicianId: request.technician_id,
         membershipId: membership?.id ?? null,
         membershipSignup: membership?.status === "offered",
+        feeCents: quote.feeCents,
+        feeMode: quote.feeMode,
+        feeBps: quote.feeMode === "surcharge" ? pricingSettings.surchargeBps : null,
+        feeLabel: quote.feeLabel,
+        excludeDebit: pricingSettings.excludeDebit,
       });
       const baseParams = buildPaymentIntentParams({
         baseCents,
         tipCents: tip.tipCents,
+        feeCents: quote.feeCents,
         destinationAccountId: connect.stripe_account_id,
-        description: intentDescription,
+        description: itemizedDescription(intentDescription, { baseCents, tipCents: tip.tipCents, feeCents: quote.feeCents, feeLabel: quote.feeLabel }),
         receiptEmail: request.customer_email,
         customerId: stripeCustomerId,
         saveCard,
@@ -149,7 +181,7 @@ const bankPolicy = { platformEnabled: Deno.env.get("STRIPE_ACH_DEBIT_ENABLED") =
           if (isReusableIntentStatus(existing.status) && (existing.setup_future_usage === "off_session") === saveCard) {
             intent = await stripeRequest(
               `payment_intents/${existing.id}`,
-              { amount: params.amount, description: params.description, receipt_email: params.receipt_email, metadata },
+              { amount: params.amount, description: params.description, receipt_email: params.receipt_email, metadata: quote.feeCents > 0 ? metadata : { ...metadata, ...CLEARED_FEE_METADATA } },
               secretKey,
             );
           }
