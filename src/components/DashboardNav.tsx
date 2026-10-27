@@ -302,6 +302,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Voice Platform', href: '/dashboard/voice-platform', icon: Mic, requiresPermission: 'can_manage_numbers' },
   { label: 'Blocklist & DNC', href: '/dashboard/blocklist', icon: Ban, requiresPermission: 'can_manage_numbers' },
   { label: 'Call Routing', href: '/dashboard/call-routing', icon: Workflow, requiresPermission: 'can_manage_numbers' },
+  { label: 'Call Flows', href: '/dashboard/calls/flows', icon: GitBranch, requiresPermission: 'can_manage_numbers' },
   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Decision Engine', href: '/dashboard/decision-engine', icon: Cpu, requiresPermission: 'can_view_billing' },
