@@ -193,6 +193,7 @@ const TalentWorkerPage = lazy(() => import('@/pages/TalentWorkerPage').then((m) 
 const TalentNetworkPage = lazy(() => import('@/pages/TalentNetworkPage').then((m) => ({ default: m.TalentNetworkPage })));
 const PrevailingWagePage = lazy(() => import('@/pages/PrevailingWagePage').then((m) => ({ default: m.PrevailingWagePage })));
 const ChartOfAccountsPage = lazy(() => import('@/pages/ChartOfAccountsPage').then((m) => ({ default: m.ChartOfAccountsPage })));
+const FixedAssetsPage = lazy(() => import('@/pages/FixedAssetsPage').then((m) => ({ default: m.FixedAssetsPage })));
 const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
 const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
@@ -2790,6 +2791,22 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <ChartOfAccountsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/fixed-assets"
+  element={
+    <ProtectedRoute>
+      <FixedAssetsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/accounting/fixed-assets"
+  element={
+    <ProtectedRoute>
+      <FixedAssetsPage />
     </ProtectedRoute>
   }
 />
