@@ -5,6 +5,7 @@
 
 import { idb, getMeta, setMeta, notifyData, type PingRecord } from './db';
 import { getCachedIdentity } from './identity';
+import { isTrackingAllowedNow } from '../trackingGate';
 import { getNativeFix, hasNativeLocationPermission } from '../native/geolocation';
 import { isNative } from '../native/platform';
 
@@ -304,7 +305,7 @@ export function startLocationTracking(getJobId: () => string | null): () => void
         accuracy: p.coords.accuracy,
       };
       lastFix = { lat: next.lat, lng: next.lng, accuracy: next.accuracy, at: next.at };
-      if (!identity || !shouldRecordPing(prev, next)) return;
+      if (!identity || !isTrackingAllowedNow() || !shouldRecordPing(prev, next)) return;
       prev = next;
       const ping: PingRecord = {
         recorded_at: next.at,
