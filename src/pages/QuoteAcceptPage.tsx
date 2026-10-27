@@ -7,6 +7,7 @@ import { Footer } from '@/components/Footer';
 import { fetchQuoteForToken, respondToQuote, recordQuoteView, calculateQuoteTotals, formatCents, PublicQuoteInfo } from '@/lib/quotes';
 import { isTieredQuote } from '@/lib/estimates';
 import { QuoteVideoSection } from '@/components/quotes/QuoteVideoSection';
+import { QuoteArSection } from '@/components/quotes/QuoteArSection';
 import { EstimatePresentation } from '@/components/quotes/EstimatePresentation';
 import { QuoteAddonsPicker } from '@/components/quotes/QuoteAddonsPicker';
 import { acceptErrorMessage, acceptQuoteWithAddons, addonTotals, fetchQuoteAddons } from '@/lib/quoteAddons';
@@ -70,6 +71,7 @@ const handleRespond = async (
     <div className="flex min-h-screen flex-col bg-bg-primary">
       <Header />
       {token && quote ? <QuoteVideoSection token={token} customerName={quote.customer_name} quoteOpen={quote.status === 'sent' && !responded} /> : null}
+      {token && quote ? <QuoteArSection token={token} quoteOpen={quote.status === 'sent' && !responded} rawOptions={quote.options} /> : null}
       <main className="flex flex-1 items-center justify-center px-4 py-16">
         {tiered && quote && !responded && quote.status === 'sent' ? (
           <div className="w-full max-w-5xl">
