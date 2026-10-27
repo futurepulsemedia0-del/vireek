@@ -23,6 +23,8 @@ export interface InvoicePayment {
   reference: string | null;
   note: string | null;
   paid_at: string;
+  /** Set when the payment belongs to a payer on a split invoice. */
+  payer_id?: string | null;
   created_by_email: string | null;
   created_at: string;
 }
