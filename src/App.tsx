@@ -187,6 +187,8 @@ const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => (
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
 const BudgetsPage = lazy(() => import('@/pages/BudgetsPage').then((m) => ({ default: m.BudgetsPage })));
+const LocationPrivacyPage = lazy(() => import('@/pages/LocationPrivacyPage').then((m) => ({ default: m.LocationPrivacyPage })));
+const PerDiemPage = lazy(() => import('@/pages/PerDiemPage').then((m) => ({ default: m.PerDiemPage })));
 const SiteSketchesPage = lazy(() => import('@/pages/SiteSketchesPage').then((m) => ({ default: m.SiteSketchesPage })));
 const SiteSketchEditorPage = lazy(() => import('@/pages/SiteSketchEditorPage').then((m) => ({ default: m.SiteSketchEditorPage })));
 const TalentBoardPage = lazy(() => import('@/pages/TalentBoardPage').then((m) => ({ default: m.TalentBoardPage })));
@@ -2795,6 +2797,22 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <BudgetsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/location-privacy"
+  element={
+    <ProtectedRoute>
+      <LocationPrivacyPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/per-diem"
+  element={
+    <ProtectedRoute>
+      <PerDiemPage />
     </ProtectedRoute>
   }
 />
