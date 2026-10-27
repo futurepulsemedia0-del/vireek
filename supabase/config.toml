@@ -42,3 +42,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.closeout-deadline-engine]
 verify_jwt = false
+[functions.video-ice]
+verify_jwt = false
