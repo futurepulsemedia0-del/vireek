@@ -85,6 +85,8 @@ export interface Piece {
   scan_count: number;
   submitted_at: string | null;
   delivered_at: string | null;
+  verification_status?: 'unverified' | 'deliverable' | 'review' | 'undeliverable';
+  verification_note?: string | null;
 }
 
 export interface CampaignReportRow {
