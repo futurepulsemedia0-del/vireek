@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type { TipSelection } from '@/lib/tipping';
+import type { ReceiptLine } from '@/lib/paymentPricing';
 
 export interface PublicPaymentSummary {
   status: 'open' | 'paid' | 'canceled' | 'not_found';
@@ -11,6 +12,9 @@ export interface PublicPaymentSummary {
   presets?: number[];
   publishable_key?: string | null;
   /** Present on membership payments whose plan renews: lets the customer opt in to automatic renewal. */
+  pricing?: { fee_cents: number; fee_label: string; cash_price_cents: number | null; cash_discount_cents: number; disclosure: string };
+  /** Present once the invoice is paid: the itemised amounts actually charged. */
+  receipt?: { lines: ReceiptLine[]; totalCents: number };
   auto_renew_offer?: { interval: 'monthly' | 'yearly' } | null;
 }
 
@@ -41,7 +45,7 @@ export async function startPublicCheckout(token: string, tip: TipSelection): Pro
 }
 
 /** Creates (or re-uses) the PaymentIntent for this link and returns its client secret for Stripe.js. */
-eexport async function createPublicPaymentIntent(token: string, tip: TipSelection, saveCard = false): Promise<string> {
+export async function createPublicPaymentIntent(token: string, tip: TipSelection, saveCard = false): Promise<string> {
   const { data, error } = await supabase.functions.invoke('public-payment', { body: { action: 'intent', token, tip, save_card: saveCard } });
   if (error) throw new Error(await readError(error));
   if (!data?.client_secret) throw new Error('Could not start the payment.');
