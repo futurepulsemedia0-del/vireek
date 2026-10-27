@@ -364,6 +364,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Job Quality Gate', href: '/dashboard/job-quality-gate', icon: ClipboardCheck },
   { label: 'Evidence Chain', href: '/dashboard/evidence-chain', icon: Link2 },
   { label: 'Warranty Claim Recovery', href: '/dashboard/warranty-claims', icon: FileClock },
+  { label: 'Install Closeout', href: '/dashboard/install-closeout', icon: ClipboardCheck, requiresPermission: 'can_view_all_jobs' },
   { label: 'Protection Plans', href: '/dashboard/protection-plans', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Business Immune System', href: '/dashboard/immune-system', icon: Siren },
   { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: Sparkles },
