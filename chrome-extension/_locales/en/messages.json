@@ -1,0 +1,255 @@
+{
+  "extName": {
+    "message": "Vireek – Click-to-Call & Lead Capture"
+  },
+  "extDescription": {
+    "message": "Call any number on any web page and save leads to Vireek in one click."
+  },
+  "actionTitle": {
+    "message": "Vireek"
+  },
+  "menuCall": {
+    "message": "Call with Vireek"
+  },
+  "menuLead": {
+    "message": "Save as lead in Vireek"
+  },
+  "btnTitle": {
+    "message": "Call with Vireek"
+  },
+  "signInTitle": {
+    "message": "Sign in to Vireek"
+  },
+  "email": {
+    "message": "Email"
+  },
+  "password": {
+    "message": "Password"
+  },
+  "signIn": {
+    "message": "Sign in"
+  },
+  "signOut": {
+    "message": "Sign out"
+  },
+  "forgotPassword": {
+    "message": "Forgot or never set a password?"
+  },
+  "mfaTitle": {
+    "message": "Two-step verification"
+  },
+  "mfaHint": {
+    "message": "Enter the 6-digit code from your authenticator app."
+  },
+  "verify": {
+    "message": "Verify"
+  },
+  "notConfigured": {
+    "message": "This extension build is not configured yet. Set the Supabase URL, anon key and app URL in lib/config.js."
+  },
+  "tabLead": {
+    "message": "Lead"
+  },
+  "tabCall": {
+    "message": "Call"
+  },
+  "tabRecent": {
+    "message": "Recent"
+  },
+  "name": {
+    "message": "Name"
+  },
+  "company": {
+    "message": "Company"
+  },
+  "phone": {
+    "message": "Phone"
+  },
+  "service": {
+    "message": "Interested in"
+  },
+  "note": {
+    "message": "Note"
+  },
+  "saveLead": {
+    "message": "Save lead"
+  },
+  "saveAndCall": {
+    "message": "Save & call"
+  },
+  "openInVireek": {
+    "message": "Open in Vireek"
+  },
+  "callNumber": {
+    "message": "Phone number"
+  },
+  "call": {
+    "message": "Call"
+  },
+  "noRecent": {
+    "message": "No activity yet."
+  },
+  "settingsInline": {
+    "message": "Show call buttons next to phone numbers on web pages"
+  },
+  "leadSaved": {
+    "message": "Lead saved to Vireek."
+  },
+  "leadDuplicate": {
+    "message": "This contact already exists in Vireek."
+  },
+  "ringingYou": {
+    "message": "Ringing your phone first. Answer to connect the call."
+  },
+  "ringsFirst": {
+    "message": "We ring your phone first ($1), then connect the customer.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "cardCall": {
+    "message": "Call"
+  },
+  "cardSaveLead": {
+    "message": "Save lead"
+  },
+  "cardCancel": {
+    "message": "Close"
+  },
+  "cardNeedSignIn": {
+    "message": "Click the Vireek icon in the toolbar to sign in."
+  },
+  "errGeneric": {
+    "message": "Something went wrong. Please try again."
+  },
+  "errNetwork": {
+    "message": "No connection. Check your internet and try again."
+  },
+  "errLogin": {
+    "message": "Email or password is incorrect."
+  },
+  "errMfa": {
+    "message": "That code is not valid."
+  },
+  "err_invalid_number": {
+    "message": "That phone number is not valid."
+  },
+  "err_premium_rate": {
+    "message": "Premium-rate numbers cannot be called."
+  },
+  "err_service_code": {
+    "message": "Service numbers cannot be called."
+  },
+  "err_destination_not_permitted": {
+    "message": "Calling that country is not enabled for your account."
+  },
+  "err_calling_not_configured": {
+    "message": "Click-to-call is not enabled for this account yet."
+  },
+  "err_no_agent_phone": {
+    "message": "Add your mobile number in Vireek (Settings > Profile) so we can ring you first."
+  },
+  "err_self_call": {
+    "message": "That is your own phone number."
+  },
+  "err_rate_limited": {
+    "message": "Too many requests. Please wait a moment."
+  },
+  "err_dnc_suppressed": {
+    "message": "This number is on your Do-Not-Call list."
+  },
+  "err_quiet_hours": {
+    "message": "Outside permitted calling hours (local time $1).",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "err_no_caller_id": {
+    "message": "No active business phone number is available for calling."
+  },
+  "err_caller_id_not_verified": {
+    "message": "The business caller ID is not verified for calling."
+  },
+  "err_lead_not_found": {
+    "message": "Lead not found."
+  },
+  "err_lead_insert_failed": {
+    "message": "The lead could not be saved."
+  },
+  "err_invalid_input": {
+    "message": "Please check the form fields."
+  },
+  "err_mfa_required": {
+    "message": "Verify your authenticator code to continue."
+  },
+  "err_not_authenticated": {
+    "message": "Please sign in again."
+  },
+  "err_provider_error": {
+    "message": "The call could not be placed. Please try again."
+  },
+  "err_provider_busy": {
+    "message": "The phone provider is busy. Try again shortly."
+  },
+  "err_network": {
+    "message": "No connection. Check your internet and try again."
+  },
+  "err_internal_error": {
+    "message": "Something went wrong. Please try again."
+  },
+  "err_signed_out": {
+    "message": "Click the Vireek icon in the toolbar to sign in."
+  },
+  "err_not_configured": {
+    "message": "This extension build is not configured yet."
+  },
+  "unavail_calling_not_configured": {
+    "message": "Click-to-call is not enabled for this account yet."
+  },
+  "unavail_no_agent_phone": {
+    "message": "Add your mobile number in Vireek (Settings > Profile) to enable calling."
+  },
+  "unavail_no_caller_id": {
+    "message": "No active business phone number is available for calling."
+  },
+  "st_pending": {
+    "message": "Pending"
+  },
+  "st_captured": {
+    "message": "Saved"
+  },
+  "st_duplicate": {
+    "message": "Already existed"
+  },
+  "st_queued": {
+    "message": "Queued"
+  },
+  "st_ringing": {
+    "message": "Ringing"
+  },
+  "st_answered": {
+    "message": "Connected"
+  },
+  "st_completed": {
+    "message": "Completed"
+  },
+  "st_busy": {
+    "message": "Busy"
+  },
+  "st_no_answer": {
+    "message": "No answer"
+  },
+  "st_failed": {
+    "message": "Failed"
+  },
+  "st_canceled": {
+    "message": "Canceled"
+  },
+  "st_blocked": {
+    "message": "Blocked"
+  }
+}
