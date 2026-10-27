@@ -289,10 +289,20 @@ export function evaluateShift(shift: ShiftRecord, settings: BreakSettings, now: 
       );
     }
     const firstMeal = meals[0];
+    const secondMeal = meals[1];
+    // The second meal is timed too when the rule ties each meal's deadline to its threshold
+    // (first deadline == first threshold, as in California: meals due before the 5th and 10th hour).
+    const secondDue =
+      settings.meal_thresholds.length > 1 && settings.meal_thresholds[0] === settings.meal_deadline_minutes ? settings.meal_thresholds[1] : null;
     if (firstMeal && firstMeal.workedBefore > settings.meal_deadline_minutes) {
       push(
         'meal_late',
         `The first meal break started after ${minutesLabel(firstMeal.workedBefore)} of work; it was due before ${minutesLabel(settings.meal_deadline_minutes)}.`,
+      );
+    } else if (secondMeal && secondDue !== null && secondMeal.workedBefore > secondDue) {
+      push(
+        'meal_late',
+        `The second meal break started after ${minutesLabel(secondMeal.workedBefore)} of work; it was due before ${minutesLabel(secondDue)}.`,
       );
     }
     if (rests.length < restsRequired) {
@@ -438,9 +448,10 @@ export interface ViolationCsvRow {
   detail: string;
   status: string;
   note: string;
+  ruleSet: string;
 }
 
-export function buildViolationCsvRows(list: ShiftCompliance[], nameOf: (memberId: string) => string): ViolationCsvRow[] {
+export function buildViolationCsvRows(list: ShiftCompliance[], nameOf: (memberId: string) => string, ruleSet = ''): ViolationCsvRow[] {
   const rows: ViolationCsvRow[] = [];
   for (const sc of list) {
     for (const v of sc.violations) {
@@ -454,6 +465,7 @@ export function buildViolationCsvRows(list: ShiftCompliance[], nameOf: (memberId
         detail: v.detail,
         status: REVIEW_LABELS[v.status],
         note: v.note ?? '',
+        ruleSet,
       });
     }
   }
@@ -470,6 +482,7 @@ export const VIOLATION_CSV_COLUMNS: { header: string; accessor: (r: ViolationCsv
   { header: 'Detail', accessor: (r) => r.detail },
   { header: 'Review status', accessor: (r) => r.status },
   { header: 'Review note', accessor: (r) => r.note },
+  { header: 'Rule set (not legal advice)', accessor: (r) => r.ruleSet },
 ];
 
 // ------------------------------------------------------------------
