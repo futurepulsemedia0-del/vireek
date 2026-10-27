@@ -584,6 +584,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, requiresPermission: 'can_edit_business_profile' },
   { label: 'Branding', href: '/dashboard/settings/branding', icon: Paintbrush, requiresPermission: 'can_edit_business_profile' },
   { label: 'Booking Settings', href: '/dashboard/booking-settings', icon: CalendarClock, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Payment Pricing', href: '/dashboard/payment-pricing', icon: BadgePercent, requiresPermission: 'can_edit_business_profile' },
   { label: 'Google Booking', href: '/dashboard/google-booking', icon: Globe, requiresPermission: 'can_edit_business_profile' },
   { label: 'Locations', href: '/dashboard/settings/locations', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Acquisitions', href: '/dashboard/acquisitions', icon: Building2, requiresPermission: 'can_edit_business_profile' },
