@@ -9,6 +9,7 @@ import { ClipboardList } from 'lucide-react';
 import { Coffee } from 'lucide-react';
 import { Landmark as ValuationIcon } from 'lucide-react';
 import { Mic } from 'lucide-react';
+import { DoorOpen } from 'lucide-react';
 import { CalendarRange } from 'lucide-react';
 import {
   BarChart3,
@@ -278,7 +279,8 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Email Campaigns', href: '/dashboard/email-campaigns', icon: MailPlus, requiresPermission: 'can_view_billing' },
-    { label: 'Direct Mail', href: '/dashboard/direct-mail', icon: MailPlus, requiresPermission: 'can_view_billing' },
+  { label: 'Direct Mail', href: '/dashboard/direct-mail', icon: MailPlus, requiresPermission: 'can_view_billing' },
+  { label: 'Canvassing', href: '/dashboard/marketing/canvassing', icon: DoorOpen },
   { label: 'Audiences', href: '/dashboard/audiences', icon: Filter, requiresPermission: 'can_view_billing' },
   { label: 'Landing Pages', href: '/dashboard/landing-pages', icon: LayoutTemplate, requiresPermission: 'can_edit_business_profile' },
   { label: 'Command Center', href: '/dashboard/command-center', icon: Radio },
@@ -656,6 +658,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       return location.pathname === href || (location.pathname.startsWith(href + '/') && !location.pathname.startsWith('/dashboard/settings/email'));
     }
     if (href === '/dashboard/inventory') return location.pathname === '/dashboard/inventory';
+    if (href === '/dashboard/marketing') return location.pathname === '/dashboard/marketing';
     if (href === '/dashboard/marketing') return location.pathname === href;
     return location.pathname.startsWith(href);
   };
