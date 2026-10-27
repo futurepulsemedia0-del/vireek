@@ -315,6 +315,8 @@ const QuoteTruthEnginePage = lazy(() => import('@/pages/QuoteTruthEnginePage').t
 const OperationalTruthPage = lazy(() => import('@/pages/OperationalTruthPage').then((m) => ({ default: m.OperationalTruthPage })));
 const IncentiveEnginePage = lazy(() => import('@/pages/IncentiveEnginePage').then((m) => ({ default: m.IncentiveEnginePage })));
 const InstallProjectsPage = lazy(() => import('@/pages/InstallProjectsPage').then((m) => ({ default: m.InstallProjectsPage })));
+const ChangeOrdersPage = lazy(() => import('@/pages/ChangeOrdersPage').then((m) => ({ default: m.ChangeOrdersPage })));
+const PublicChangeOrderPage = lazy(() => import('@/pages/PublicChangeOrderPage').then((m) => ({ default: m.PublicChangeOrderPage })));
 const ProjectProgressPage = lazy(() => import('@/pages/ProjectProgressPage').then((m) => ({ default: m.ProjectProgressPage })));
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
 const CloseoutBoardPage = lazy(() => import('@/pages/CloseoutBoardPage').then((m) => ({ default: m.CloseoutBoardPage })));
@@ -850,6 +852,7 @@ function AppRoutes() {
         <Route path="/t/:token" element={<PublicTagPage />} />
         <Route path="/warranty/register" element={<WarrantyRegisterPage />} />
         <Route path="/protection/:token" element={<PublicProtectionPlanPage />} />
+        <Route path="/change-order/:token" element={<PublicChangeOrderPage />} />
         <Route path="/h/:code" element={<PublicHomePassportPage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
@@ -3746,6 +3749,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <InstallProjectsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/change-orders"
+          element={
+            <ProtectedRoute>
+              <ChangeOrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/change-orders/:changeOrderId"
+          element={
+            <ProtectedRoute>
+              <ChangeOrdersPage />
             </ProtectedRoute>
           }
         />
