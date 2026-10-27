@@ -1,0 +1,255 @@
+{
+  "extName": {
+    "message": "Vireek – Llamada con un clic y captura de leads"
+  },
+  "extDescription": {
+    "message": "Llama a cualquier número de cualquier página web y guarda leads en Vireek con un clic."
+  },
+  "actionTitle": {
+    "message": "Vireek"
+  },
+  "menuCall": {
+    "message": "Llamar con Vireek"
+  },
+  "menuLead": {
+    "message": "Guardar como lead en Vireek"
+  },
+  "btnTitle": {
+    "message": "Llamar con Vireek"
+  },
+  "signInTitle": {
+    "message": "Inicia sesión en Vireek"
+  },
+  "email": {
+    "message": "Correo"
+  },
+  "password": {
+    "message": "Contraseña"
+  },
+  "signIn": {
+    "message": "Iniciar sesión"
+  },
+  "signOut": {
+    "message": "Cerrar sesión"
+  },
+  "forgotPassword": {
+    "message": "¿Olvidaste o nunca configuraste tu contraseña?"
+  },
+  "mfaTitle": {
+    "message": "Verificación en dos pasos"
+  },
+  "mfaHint": {
+    "message": "Introduce el código de 6 dígitos de tu app de autenticación."
+  },
+  "verify": {
+    "message": "Verificar"
+  },
+  "notConfigured": {
+    "message": "Esta compilación de la extensión aún no está configurada. Define la URL de Supabase, la clave anon y la URL de la app en lib/config.js."
+  },
+  "tabLead": {
+    "message": "Lead"
+  },
+  "tabCall": {
+    "message": "Llamar"
+  },
+  "tabRecent": {
+    "message": "Reciente"
+  },
+  "name": {
+    "message": "Nombre"
+  },
+  "company": {
+    "message": "Empresa"
+  },
+  "phone": {
+    "message": "Teléfono"
+  },
+  "service": {
+    "message": "Interesado en"
+  },
+  "note": {
+    "message": "Nota"
+  },
+  "saveLead": {
+    "message": "Guardar lead"
+  },
+  "saveAndCall": {
+    "message": "Guardar y llamar"
+  },
+  "openInVireek": {
+    "message": "Abrir en Vireek"
+  },
+  "callNumber": {
+    "message": "Número de teléfono"
+  },
+  "call": {
+    "message": "Llamar"
+  },
+  "noRecent": {
+    "message": "Aún no hay actividad."
+  },
+  "settingsInline": {
+    "message": "Mostrar botones de llamada junto a los teléfonos en las páginas web"
+  },
+  "leadSaved": {
+    "message": "Lead guardado en Vireek."
+  },
+  "leadDuplicate": {
+    "message": "Este contacto ya existe en Vireek."
+  },
+  "ringingYou": {
+    "message": "Primero suena tu teléfono. Contesta para conectar la llamada."
+  },
+  "ringsFirst": {
+    "message": "Primero llamamos a tu teléfono ($1) y luego conectamos al cliente.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "cardCall": {
+    "message": "Llamar"
+  },
+  "cardSaveLead": {
+    "message": "Guardar lead"
+  },
+  "cardCancel": {
+    "message": "Cerrar"
+  },
+  "cardNeedSignIn": {
+    "message": "Haz clic en el icono de Vireek de la barra para iniciar sesión."
+  },
+  "errGeneric": {
+    "message": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "errNetwork": {
+    "message": "Sin conexión. Revisa tu internet e inténtalo de nuevo."
+  },
+  "errLogin": {
+    "message": "Correo o contraseña incorrectos."
+  },
+  "errMfa": {
+    "message": "Ese código no es válido."
+  },
+  "err_invalid_number": {
+    "message": "Ese número de teléfono no es válido."
+  },
+  "err_premium_rate": {
+    "message": "No se pueden llamar números de tarifa premium."
+  },
+  "err_service_code": {
+    "message": "No se pueden llamar números de servicio."
+  },
+  "err_destination_not_permitted": {
+    "message": "Llamar a ese país no está habilitado en tu cuenta."
+  },
+  "err_calling_not_configured": {
+    "message": "La llamada con un clic aún no está habilitada para esta cuenta."
+  },
+  "err_no_agent_phone": {
+    "message": "Añade tu móvil en Vireek (Ajustes > Perfil) para que te llamemos primero."
+  },
+  "err_self_call": {
+    "message": "Ese es tu propio número."
+  },
+  "err_rate_limited": {
+    "message": "Demasiadas solicitudes. Espera un momento."
+  },
+  "err_dnc_suppressed": {
+    "message": "Este número está en tu lista de No Llamar."
+  },
+  "err_quiet_hours": {
+    "message": "Fuera del horario permitido para llamar (hora local $1).",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "err_no_caller_id": {
+    "message": "No hay un número de empresa activo disponible para llamar."
+  },
+  "err_caller_id_not_verified": {
+    "message": "El identificador de llamada de la empresa no está verificado."
+  },
+  "err_lead_not_found": {
+    "message": "Lead no encontrado."
+  },
+  "err_lead_insert_failed": {
+    "message": "No se pudo guardar el lead."
+  },
+  "err_invalid_input": {
+    "message": "Revisa los campos del formulario."
+  },
+  "err_mfa_required": {
+    "message": "Verifica tu código de autenticación para continuar."
+  },
+  "err_not_authenticated": {
+    "message": "Inicia sesión de nuevo."
+  },
+  "err_provider_error": {
+    "message": "No se pudo realizar la llamada. Inténtalo de nuevo."
+  },
+  "err_provider_busy": {
+    "message": "El proveedor telefónico está ocupado. Inténtalo en breve."
+  },
+  "err_network": {
+    "message": "Sin conexión. Revisa tu internet e inténtalo de nuevo."
+  },
+  "err_internal_error": {
+    "message": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "err_signed_out": {
+    "message": "Haz clic en el icono de Vireek de la barra para iniciar sesión."
+  },
+  "err_not_configured": {
+    "message": "Esta compilación de la extensión aún no está configurada."
+  },
+  "unavail_calling_not_configured": {
+    "message": "La llamada con un clic aún no está habilitada para esta cuenta."
+  },
+  "unavail_no_agent_phone": {
+    "message": "Añade tu móvil en Vireek (Ajustes > Perfil) para habilitar las llamadas."
+  },
+  "unavail_no_caller_id": {
+    "message": "No hay un número de empresa activo disponible para llamar."
+  },
+  "st_pending": {
+    "message": "Pendiente"
+  },
+  "st_captured": {
+    "message": "Guardado"
+  },
+  "st_duplicate": {
+    "message": "Ya existía"
+  },
+  "st_queued": {
+    "message": "En cola"
+  },
+  "st_ringing": {
+    "message": "Sonando"
+  },
+  "st_answered": {
+    "message": "Conectada"
+  },
+  "st_completed": {
+    "message": "Completada"
+  },
+  "st_busy": {
+    "message": "Ocupado"
+  },
+  "st_no_answer": {
+    "message": "Sin respuesta"
+  },
+  "st_failed": {
+    "message": "Fallida"
+  },
+  "st_canceled": {
+    "message": "Cancelada"
+  },
+  "st_blocked": {
+    "message": "Bloqueada"
+  }
+}
