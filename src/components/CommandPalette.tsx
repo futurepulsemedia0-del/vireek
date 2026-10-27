@@ -37,6 +37,7 @@ const PAGES: StaticPage[] = [
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
   { label: 'Blocklist & DNC', href: '/dashboard/blocklist', icon: PhoneCall, keywords: 'spam robocall block dnc do not call' },
   { label: 'Call Routing', href: '/dashboard/call-routing', icon: PhoneCall, keywords: 'routing hours holiday voicemail overflow language department' },
+   { label: 'Call Flows', href: '/dashboard/calls/flows', icon: PhoneCall, keywords: 'ivr menu press key hours routing fallback flow builder' },
   { label: 'AI Disclosure Ledger', href: '/dashboard/ai-disclosure-ledger', icon: PhoneCall, keywords: 'ai disclosure proof compliance audit' },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Customers', href: '/dashboard/customers', icon: BookUser },
