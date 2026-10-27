@@ -272,6 +272,8 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Quotes', href: '/dashboard/quotes', icon: FileText },
   { label: 'Outbound Campaigns', href: '/dashboard/outbound-campaigns', icon: PhoneOutgoing },
   { label: 'Voicemail Drops', href: '/dashboard/voicemail-drops', icon: AudioLines, requiresPermission: 'can_view_billing' },
+  { label: 'Power Dialer', href: '/dashboard/power-dialer', icon: PhoneOutgoing, requiresPermission: 'can_view_all_jobs' },
+  { label: 'Call Masking', href: '/dashboard/call-masking', icon: ShieldCheck },
   { label: 'Speed to Lead', href: '/dashboard/speed-to-lead', icon: Zap, requiresPermission: 'can_view_billing' },
   { label: 'Leak Report', href: '/dashboard/leak-report', icon: PhoneMissed, requiresPermission: 'can_view_billing' },
   { label: 'Neighborhood Revenue', href: '/dashboard/neighborhood-revenue', icon: MapPinned, requiresPermission: 'can_view_billing' },
