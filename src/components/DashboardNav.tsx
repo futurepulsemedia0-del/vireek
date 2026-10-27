@@ -481,6 +481,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Causal Shock Simulator', href: '/dashboard/causal-shock-simulator', icon: Waves },
   { label: 'Technician Performance', href: '/dashboard/technician-performance', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Lead Marketplaces', href: '/dashboard/lead-marketplaces', icon: Target, requiresPermission: 'can_view_billing' },
+  { label: 'Third-Party Intake', href: '/dashboard/third-party-intake', icon: Inbox, requiresPermission: 'can_view_billing' },
   { label: 'Click-to-Cash', href: '/dashboard/click-to-cash', icon: MousePointerClick, requiresPermission: 'can_view_billing' },
   { label: 'Demand OS', href: '/dashboard/demand-os', icon: Megaphone, requiresPermission: 'can_view_billing' },
   { label: 'Skill Graph', href: '/dashboard/skill-graph', icon: GitBranch, requiresPermission: 'can_view_billing' },
