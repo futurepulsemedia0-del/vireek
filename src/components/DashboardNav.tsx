@@ -399,6 +399,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
+  { label: 'Video Sessions', href: '/dashboard/video-sessions', icon: Video },
   { label: 'Field Messages', href: '/dashboard/field-messages', icon: MessageSquare },
   { label: 'Price Book', href: '/dashboard/price-book', icon: DollarSign },
   { label: 'AI Takeoff', href: '/dashboard/takeoff', icon: Ruler },
