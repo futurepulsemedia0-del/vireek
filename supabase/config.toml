@@ -6,6 +6,8 @@ verify_jwt = false
 verify_jwt = false
 [functions.quote-video-public]
 verify_jwt = false
+[functions.quote-ar-public]
+verify_jwt = false
 [functions.number-reputation-sync]
 verify_jwt = false
 [functions.google-booking-feed]
