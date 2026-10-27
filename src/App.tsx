@@ -418,6 +418,7 @@ const InsightsPublicPage = lazy(() => import('@/pages/InsightsPublicPage').then(
 const InsightsSettingsPage = lazy(() => import('@/pages/InsightsSettingsPage').then((m) => ({ default: m.InsightsSettingsPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
 const LeadMarketplacesPage = lazy(() => import('@/pages/LeadMarketplacesPage').then((m) => ({ default: m.LeadMarketplacesPage })));
+const ThirdPartyIntakePage = lazy(() => import('@/pages/ThirdPartyIntakePage').then((m) => ({ default: m.ThirdPartyIntakePage })));
 const DemandOsPage = lazy(() => import('@/pages/DemandOsPage').then((m) => ({ default: m.DemandOsPage })));
 const AdvancedRoutingPage = lazy(() => import('@/pages/AdvancedRoutingPage').then((m) => ({ default: m.AdvancedRoutingPage })));
 const BlocklistPage = lazy(() => import('@/pages/BlocklistPage').then((m) => ({ default: m.BlocklistPage })));
@@ -4042,6 +4043,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <LeadMarketplacesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/third-party-intake"
+          element={
+            <ProtectedRoute>
+              <ThirdPartyIntakePage />
             </ProtectedRoute>
           }
         />
