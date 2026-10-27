@@ -19,6 +19,9 @@ import type { OutboxOp } from '@/lib/offline/db';
 import { dismissOp, enqueue, listOutboxForJob } from '@/lib/offline/outbox';
 import { MAX_EVIDENCE_PHOTOS, verifyJobEvidence, type JobEvidenceVerdict } from '@/lib/jobEvidence';
 import { supabase } from '@/lib/supabase';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { CONSENT_NOTICE_LINES, fetchMyTrackingStatus, gateCopy, recordLocationConsent } from '@/lib/locationPrivacy';
+import type { TrackingGateReason } from '@/lib/trackingGate';
 
 type Kind = 'photo' | 'signature' | 'voice_note' | 'barcode' | 'nfc' | 'form';
 
@@ -73,6 +76,8 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
   const [manualCode, setManualCode] = useState('');
 
   const [gps, setGps] = useState(false);
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [gate, setGate] = useState<TrackingGateReason>('allowed');
   const [caps, setCaps] = useState({ scan: false, nfc: false });
   const [form, setForm] = useState({
     work_performed: '', parts_used: '', system_tested: false, area_cleaned: false,
@@ -109,6 +114,16 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
     };
   }, [jobId, sync.online, sync.lastSyncAt]);
 
+  useEffect(() => {
+    if (!sync.online) return undefined;
+    let cancelled = false;
+    const refresh = () => {
+      void fetchMyTrackingStatus().then((s) => { if (!cancelled) setGate(s.reason); }).catch(() => undefined);
+    };
+    refresh();
+    const t = window.setInterval(refresh, 60_000);
+    return () => { cancelled = true; window.clearInterval(t); };
+  }, [sync.online]);
   useEffect(() => {
     let cancelled = false;
     void detectCapabilities().then((c) => {
@@ -241,16 +256,45 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
     }
   }
 
-  async function toggleGps() {
-    const next = !gps;
-    if (next && !(await ensureTrailPermission())) {
+    async function enableGps() {
+    if (!(await ensureTrailPermission())) {
       toast('Location permission is needed to share the GPS trail.', 'error');
       return;
     }
-    await setTrackingEnabled(next);
-    setGps(next);
+    await setTrackingEnabled(true);
+    setGps(true);
   }
 
+  async function toggleGps() {
+    if (gps) {
+      await setTrackingEnabled(false);
+      setGps(false);
+      void recordLocationConsent('revoked').catch(() => undefined);
+      return;
+    }
+    try {
+      const s = await fetchMyTrackingStatus();
+      setGate(s.reason);
+      if (s.requiresConsent && !s.consentCurrent) {
+        setConsentOpen(true);
+        return;
+      }
+    } catch {
+      /* offline: the server still filters points; do not block the technician */
+    }
+    await enableGps();
+  }
+
+  async function agreeToConsent() {
+    try {
+      await recordLocationConsent('granted');
+      setConsentOpen(false);
+      setGate('allowed');
+      await enableGps();
+    } catch {
+      toast('Could not save your consent. Try again when you have signal.', 'error');
+    }
+  }
   async function saveForm() {
     if (!form.work_performed.trim()) {
       toast('Describe the work performed first.', 'error');
@@ -318,7 +362,7 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
           <ActionButton onClick={() => void readNfc()} icon={<Nfc className="h-4 w-4" />}>Read NFC tag</ActionButton>
         )}
         <ActionButton onClick={() => void toggleGps()} active={gps} icon={<MapPin className="h-4 w-4" />}>
-          {gps ? 'GPS trail on' : 'GPS trail off'}
+          {gps ? (gate === 'allowed' ? 'GPS trail on' : gateCopy(gate).title) : 'GPS trail off'}
         </ActionButton>
       </div>
 
@@ -385,6 +429,14 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
           )}
         </div>
       )}
+      <ConfirmDialog
+        open={consentOpen}
+        title="Share your location with dispatch?"
+        description={CONSENT_NOTICE_LINES.join(' ')}
+        confirmLabel="I agree"
+        onConfirm={agreeToConsent}
+        onCancel={() => setConsentOpen(false)}
+      />
     </section>
   );
 }
