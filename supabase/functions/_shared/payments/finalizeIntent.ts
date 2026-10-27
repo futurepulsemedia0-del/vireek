@@ -4,6 +4,7 @@
 // (e.g. Terminal / Tap to Pay intents, which carry job_payment_id instead).
 import { walletFromCharge } from "./paymentIntent.ts";
 import { cardFromCharge } from "../membershipRenewal/logic.ts";
+import { decideFeeOutcome } from "./pricing.ts";
 
 export interface FinalizeOutcome {
   handled: boolean;
@@ -13,6 +14,8 @@ export interface FinalizeOutcome {
 export interface FinalizeOptions {
   /** Optional: loads the charge so the log can say which wallet paid. Failures are ignored (analytics only). */
   fetchCharge?: (chargeId: string) => Promise<any>;
+  /** Refunds the card fee to the customer (destination charge, transfer reversed). Injected so tests need no Stripe. */
+  refundFee?: (args: { paymentIntentId: string; amountCents: number; requestId: string }) => Promise<void>;
 }
 
 /** First-time public membership signup: offered -> active once the first payment lands. Idempotent. */
@@ -68,6 +71,42 @@ export async function saveMembershipCard(admin: any, membershipId: string, pi: a
     .eq("user_id", pi?.metadata?.user_id ?? "");
 }
 
+/**
+ * Decides whether the card fee stays or goes back to the customer (surcharge: credit cards only), refunds it when
+ * needed, then records the outcome. Safe to repeat: fixed idempotency key, never refunds an already-refunded charge,
+ * and the record RPC is idempotent. Throws on failure so Stripe retries the webhook.
+ */
+async function settleCardFee(admin: any, pi: any, charge: any, requestId: string, feeCents: number, opts: FinalizeOptions): Promise<void> {
+  if (!charge) throw new Error("charge_unavailable_for_fee_settlement");
+  const details = charge.payment_method_details ?? {};
+  const methodType = typeof details.type === "string" ? details.type : null;
+  const funding = typeof details.card?.funding === "string" ? details.card.funding : null;
+  const outcome = decideFeeOutcome({
+    feeCents,
+    mode: pi.metadata?.fee_mode,
+    excludeDebit: pi.metadata?.fee_excl_debit !== "0",
+    methodType,
+    funding,
+  });
+  if (outcome.refundCents > 0 && (Number(charge.amount_refunded) || 0) < outcome.refundCents) {
+    if (!opts.refundFee) throw new Error("fee_refund_not_configured");
+    await opts.refundFee({ paymentIntentId: pi.id, amountCents: outcome.refundCents, requestId });
+  }
+  const bps = Number.parseInt(pi.metadata?.fee_bps ?? "", 10);
+  const { error } = await admin.rpc("record_payment_request_fee", {
+    p_request_id: requestId,
+    p_fee_cents: feeCents,
+    p_refunded_cents: outcome.refundCents,
+    p_mode: pi.metadata?.fee_mode ?? "",
+    p_label: pi.metadata?.fee_label ?? "",
+    p_bps: Number.isFinite(bps) ? bps : null,
+    p_refund_reason: outcome.refundCents > 0 ? outcome.reason : "",
+    p_method_type: methodType ?? "",
+    p_funding: funding ?? "",
+  });
+  if (error) throw error;
+  console.log(JSON.stringify({ event: "payment_fee_settled", requestId, kept: outcome.keepCents, refunded: outcome.refundCents, reason: outcome.reason }));
+}
 export async function finalizePaymentRequestFromIntent(admin: any, pi: any, opts: FinalizeOptions = {}): Promise<FinalizeOutcome> {
   const requestId = pi?.metadata?.payment_request_id as string | undefined;
   if (!requestId) return { handled: false };
@@ -80,6 +119,9 @@ export async function finalizePaymentRequestFromIntent(admin: any, pi: any, opts
 
   const tipCents = Number.parseInt(pi.metadata?.tip_cents ?? "0", 10) || 0;
   const received = typeof pi.amount_received === "number" && pi.amount_received > 0 ? pi.amount_received : pi.amount;
+  // The card fee rides on the same charge but is not part of the invoice: strip it for the amount check, settle it below.
+  const feeCents = Number.parseInt(pi.metadata?.fee_cents ?? "0", 10) || 0;
+  const invoiceAndTip = feeCents > 0 && feeCents < received ? received - feeCents : received;
 
   // Keep any Checkout session id already stored on the row (legacy links) instead of overwriting it with null.
   const { data: row } = await admin.from("payment_requests").select("stripe_checkout_session_id").eq("id", requestId).maybeSingle();
@@ -88,7 +130,7 @@ export async function finalizePaymentRequestFromIntent(admin: any, pi: any, opts
     p_request_id: requestId,
     p_session_id: row?.stripe_checkout_session_id ?? null,
     p_payment_intent_id: pi.id,
-    p_amount_total_cents: received,
+    p_amount_total_cents: invoiceAndTip,
     p_tip_cents: tipCents,
   });
   if (error) throw error;
@@ -108,6 +150,7 @@ export async function finalizePaymentRequestFromIntent(admin: any, pi: any, opts
       try { charge = await opts.fetchCharge(pi.latest_charge); } catch { /* the wallet label is optional */ }
     }
     const wallet = walletFromCharge(charge);
+    if (feeCents > 0) await settleCardFee(admin, pi, charge, requestId, feeCents, opts);
       if (pi.metadata?.save_card === "true" && pi.metadata?.membership_id && charge?.payment_method_details?.type !== "us_bank_account") {
       try {
         await saveMembershipCard(admin, pi.metadata.membership_id, pi, charge);
