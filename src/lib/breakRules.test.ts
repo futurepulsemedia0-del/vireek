@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_SETTINGS,
+  VIOLATION_CSV_COLUMNS,
+  buildViolationCsvRows,
   evaluateShift,
   premiumMinutesFor,
   settingsToForm,
@@ -151,12 +153,35 @@ describe('missed-break detection per rule set', () => {
     expect(codes(shift(480, [[200, 215]]), 'IL')).toEqual(['meal_missing']);
   });
 
+  it('Nevada: meal at 8 continuous hours, rest breaks at 3.5h and 7h', () => {
+    expect(codes(shift(200), 'NV')).toEqual([]);
+    expect(codes(shift(215), 'NV')).toEqual(['rest_missing']);
+    expect(codes(shift(440, [[100, 110]]), 'NV')).toEqual(['rest_missing']);
+    expect(codes(shift(520, [[100, 110], [250, 260]]), 'NV')).toEqual(['meal_missing']);
+    expect(codes(shift(520, [[100, 110], [250, 260], [300, 330]]), 'NV')).toEqual([]);
+  });
+
+  it('California: a second meal that starts after the 10th hour is late', () => {
+    const rests: [number, number][] = [[100, 110], [250, 260], [400, 410]];
+    expect(codes(shift(720, [...rests, [200, 230], [680, 710]]), 'CA')).toEqual(['meal_late']);
+    expect(codes(shift(720, [...rests, [200, 230], [500, 530]]), 'CA')).toEqual([]);
+  });
+
   it('Federal baseline: nothing is ever flagged', () => {
     expect(codes(shift(720), 'FED')).toEqual([]);
   });
 
   it('late first meal is still caught under a state rule set', () => {
     expect(codes(shift(480, [[100, 110], [250, 260], [350, 380]]), 'WA')).toEqual(['meal_late']);
+  });
+});
+
+describe('manager report CSV', () => {
+  it('stamps every row with the rule set', () => {
+    const sc = evaluateShift(shift(360), cfg('CA'), NOW);
+    const rows = buildViolationCsvRows([sc], () => 'Sam', 'California');
+    expect(rows[0].ruleSet).toBe('California');
+    expect(VIOLATION_CSV_COLUMNS[VIOLATION_CSV_COLUMNS.length - 1].accessor(rows[0])).toBe('California');
   });
 });
 
