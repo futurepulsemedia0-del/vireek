@@ -11,6 +11,9 @@ import {
   validateCheckNumber,
 } from '@/lib/inPersonPayments';
 import { tapToPayDriver } from '@/lib/terminalDriver';
+import { cashDiscountForBps } from '@/lib/paymentPricing';
+import { describeDiscountError, fetchCashDiscountOffer, recordDiscountedPayment } from '@/lib/paymentPricingApi';
+import { JobPricingLedger } from '@/components/technician/JobPricingLedger';
 
 type Mode = null | 'card' | ManualMethod;
 
@@ -116,6 +119,7 @@ export function JobPaymentPanel({ jobId, onChanged }: { jobId: string; onChanged
 
       {summary.payments.length > 0 && <ul className="mt-3 divide-y divide-border">{summary.payments.map((p) => <PaymentRow key={p.id} p={p} />)}</ul>}
 
+      <JobPricingLedger jobId={jobId} refreshKey={summary.paid_cents} />
       {mode === 'card' && <CardSheet jobId={jobId} balance={due} onClose={() => setMode(null)} onDone={done} />}
       {(mode === 'cash' || mode === 'check') && <ManualSheet jobId={jobId} method={mode} balance={due} onClose={() => setMode(null)} onDone={done} />}
     </section>
@@ -129,6 +133,9 @@ function ManualSheet({ jobId, method, balance, onClose, onDone }: {
   onDone: (n?: { tone: 'success' | 'warning'; text: string }) => Promise<void>;
 }) {
   const requestId = useRef(newRequestId());
+  const touched = useRef(false);
+  const [offer, setOffer] = useState<{ bps: number } | null>(null);
+  const [useDiscount, setUseDiscount] = useState(true);
   const [amount, setAmount] = useState((balance / 100).toFixed(2));
   const [checkNumber, setCheckNumber] = useState('');
   const [bank, setBank] = useState('');
@@ -137,29 +144,59 @@ function ManualSheet({ jobId, method, balance, onClose, onDone }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    let alive = true;
+    fetchCashDiscountOffer()
+      .then((o) => {
+        if (!alive || !o) return;
+        setOffer(o);
+        const d = cashDiscountForBps(balance, o.bps);
+        if (d > 0 && !touched.current) setAmount(((balance - d) / 100).toFixed(2));
+      })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, [balance]);
+
+  const discount = offer && useDiscount ? cashDiscountForBps(balance, offer.bps) : 0;
+  const due = balance - discount;
   const entered = parseMoneyToCents(amount);
-  const cash = method === 'cash' && entered ? computeCashChange(entered, balance) : null;
+  const cash = method === 'cash' && entered ? computeCashChange(entered, due) : null;
   const checkValidation = method === 'check' ? validateCheckNumber(checkNumber) : null;
+
+  function toggleDiscount(on: boolean) {
+    setUseDiscount(on);
+    touched.current = false;
+    const d = offer && on ? cashDiscountForBps(balance, offer.bps) : 0;
+    setAmount(((balance - d) / 100).toFixed(2));
+  }
 
   async function submit() {
     setError(null);
     if (!entered) return setError('Enter a valid amount.');
     if (checkValidation && !checkValidation.ok) return setError(checkValidation.error);
-    const applied = cash ? cash.appliedCents : entered;
-    if (applied > balance) return setError(describePaymentError('exceeds_balance'));
+    if (discount > 0) {
+      if (method === 'check' && entered !== due) return setError(`The check must be ${formatCents(due)} to get the cash discount.`);
+      if (method === 'cash' && entered < due) return setError(describeDiscountError('tendered_less_than_amount'));
+    }
+    const applied = discount > 0 ? due : cash ? cash.appliedCents : entered;
+    if (discount === 0 && applied > balance) return setError(describePaymentError('exceeds_balance'));
     setBusy(true);
     try {
-      const res = await recordManualPayment({
-        jobId, method, amountCents: applied, clientRequestId: requestId.current,
+      const common = {
+        jobId, method, clientRequestId: requestId.current,
         tenderedCents: method === 'cash' ? entered : undefined,
         checkNumber: checkValidation?.ok ? checkValidation.value : undefined,
         checkBank: bank || undefined, checkPayer: payer || undefined, note: note || undefined,
-      });
-      if (!res.success) { setError(describePaymentError(res.error)); return; }
+      };
+      const res: { success: boolean; error?: string; invoice_gate_blocked?: boolean; warning?: string | null } = discount > 0
+        ? await recordDiscountedPayment({ ...common, settledCents: balance, expectedDiscountCents: discount })
+        : await recordManualPayment({ ...common, amountCents: applied });
+      if (!res.success) { setError(describeDiscountError(res.error)); return; }
       const warn = res.invoice_gate_blocked ? 'Payment recorded, but the invoice can’t be marked paid until the job’s required proof is complete.'
         : res.warning === 'check_number_seen_elsewhere' ? 'Payment recorded. This check number was used on another job recently — double-check it.' : null;
       const change = cash && cash.changeCents > 0 ? ` Give ${formatCents(cash.changeCents)} change.` : '';
-      await onDone(warn ? { tone: 'warning', text: warn + change } : { tone: 'success', text: `${formatCents(applied)} ${method} recorded.${change}` });
+      const saved = discount > 0 ? ` (${formatCents(discount)} cash discount applied)` : '';
+      await onDone(warn ? { tone: 'warning', text: warn + change } : { tone: 'success', text: `${formatCents(applied)} ${method} recorded${saved}.${change}` });
     } catch {
       setError('Network problem. Your entry is safe — tap Record again to retry without double-charging.');
     } finally {
@@ -170,7 +207,16 @@ function ManualSheet({ jobId, method, balance, onClose, onDone }: {
   return (
     <Sheet title={method === 'cash' ? 'Record cash payment' : 'Record check payment'} onClose={onClose} busy={busy}>
       <div className="space-y-3">
-        <Input label={method === 'cash' ? 'Cash received' : 'Check amount'} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
+        {offer && cashDiscountForBps(balance, offer.bps) > 0 && (
+          <label className="flex cursor-pointer items-start gap-2 rounded-md bg-bg-primary p-2 text-sm text-text-secondary">
+            <input type="checkbox" className="mt-0.5 h-4 w-4" checked={useDiscount} disabled={busy} onChange={(e) => toggleDiscount(e.target.checked)} />
+            <span>
+              <span className="font-medium text-text-primary">Cash price {formatCents(balance - cashDiscountForBps(balance, offer.bps))}</span>
+              {' '}(saves {formatCents(cashDiscountForBps(balance, offer.bps))}). Applies when the full balance is paid in {method === 'cash' ? 'cash' : 'one check'}.
+            </span>
+          </label>
+        )}
+        <Input label={method === 'cash' ? 'Cash received' : 'Check amount'} inputMode="decimal" value={amount} onChange={(e) => { touched.current = true; setAmount(e.target.value); }} autoFocus />
         {cash && (
           <p className="text-sm text-text-secondary" aria-live="polite">
             Applied {formatCents(cash.appliedCents)}{cash.changeCents > 0 && <> · <strong className="text-text-primary">Change due {formatCents(cash.changeCents)}</strong></>}
