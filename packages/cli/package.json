@@ -1,0 +1,38 @@
+{
+  "name": "@vireek/cli",
+  "version": "0.1.0",
+  "description": "Official Vireek command-line interface: API access, data exports and webhook testing.",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "bin": {
+    "vireek": "bin/vireek.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.3"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "vireek",
+    "cli",
+    "api",
+    "webhooks",
+    "export"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.3"
+  }
+}
