@@ -66,6 +66,10 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
   'quote.accepted': 'Quote accepted',
   'payment.received': 'Payment received',
   'review.completed': 'Review submitted',
+  'job.video_session_started': 'Live video session started',
+'job.video_session_ended': 'Live video session ended',
+'job.video_clip_added': 'Video clip saved',
+'job.video_clip_removed': 'Video clip removed',
 };
 
 export function activityEventLabel(type: string): string {
