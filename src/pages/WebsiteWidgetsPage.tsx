@@ -5,6 +5,9 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { Card } from '@/components/ui/Card';
 import { WidgetPreview } from '@/components/websiteWidgets/WidgetPreview';
+import { EstimatorOptionsCard } from '@/components/websiteWidgets/EstimatorOptionsCard';
+import { getEstimatorIssues, type CatalogItem } from '@/lib/websiteEstimator';
+import { fetchPriceBookCatalog } from '@/lib/websiteEstimatorApi';
 import {
   INSTALL_TIPS,
   LIMITS,
@@ -101,6 +104,9 @@ export function WebsiteWidgetsPage() {
   const [drafts, setDrafts] = useState<Record<WidgetType, WidgetSettings>>(() => ({ booking: buildDefaults('booking'), quote: buildDefaults('quote'), reviews: buildDefaults('reviews') }));
   const [domainsText, setDomainsText] = useState<Record<WidgetType, string>>({ booking: '', quote: '', reviews: '' });
   const [servicesText, setServicesText] = useState('');
+  const [catalog, setCatalog] = useState<CatalogItem[] | null>(null);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogFailed, setCatalogFailed] = useState(false);
   const [stats, setStats] = useState<DailyStatRow[]>([]);
   const [readiness, setReadiness] = useState<ReadinessContext>({ bookingEnabled: false, bookingSlug: null, serviceCount: 0, reviewCount: 0 });
   const [previewData, setPreviewData] = useState<Record<string, unknown> | null>(null);
@@ -142,6 +148,23 @@ export function WebsiteWidgetsPage() {
   }, [accountOwnerId]);
 
   useEffect(() => { load(); }, [load]);
+  const loadCatalog = useCallback(async () => {
+    if (!accountOwnerId) return;
+    setCatalogLoading(true);
+    setCatalogFailed(false);
+    try {
+      setCatalog(await fetchPriceBookCatalog(accountOwnerId));
+    } catch {
+      setCatalogFailed(true);
+    } finally {
+      setCatalogLoading(false);
+    }
+  }, [accountOwnerId]);
+
+  // The price book is only needed by the estimator, so it is loaded the first time that tab is opened.
+  useEffect(() => {
+    if (active === 'estimator' && catalog === null && !catalogFailed && !catalogLoading) loadCatalog();
+  }, [active, catalog, catalogFailed, catalogLoading, loadCatalog]);
 
   const row: WidgetRow | null = rows[active];
   const parsedDomains = useMemo(() => parseDomains(domainsText[active]), [domainsText, active]);
@@ -161,7 +184,13 @@ export function WebsiteWidgetsPage() {
   }, [effective, parsedDomains.invalid]);
   const dirty = row === null ? true : !settingsEqual(effective, saved);
   const showErr = (k: keyof typeof errors) => (submitted ? errors[k] : undefined);
-  const issues = useMemo(() => getReadinessIssues(effective, readiness), [effective, readiness]);
+  const issues = useMemo(
+    () => [
+      ...getReadinessIssues(effective, readiness),
+      ...(effective.widget_type === 'estimator' ? getEstimatorIssues(effective.options, catalog) : []),
+    ],
+    [effective, readiness, catalog],
+  );
 
   // Real data (hours, busy slots, services, ratings) for the preview; refetched when the data-shaping options change.
   const optionsKey = JSON.stringify(effective.options);
@@ -425,6 +454,17 @@ export function WebsiteWidgetsPage() {
               </Card>
             )}
 
+            {effective.widget_type === 'estimator' && (
+              <EstimatorOptionsCard
+                options={effective.options}
+                catalog={catalog}
+                catalogLoading={catalogLoading}
+                catalogFailed={catalogFailed}
+                errors={submitted ? errors : {}}
+                onChange={(p) => patchOptions(p)}
+                onRefreshCatalog={loadCatalog}
+              />
+            )}
             <Card className="space-y-3 p-5">
               <h2 className="text-sm font-semibold text-text-primary">Allowed websites</h2>
               <Field label="Domains (one per line)" error={showErr('allowed_domains')} hint="Leave empty to allow any site. A domain also covers its subdomains. Best-effort protection — the install key is public.">
@@ -489,7 +529,7 @@ export function WebsiteWidgetsPage() {
                   <dl className="grid grid-cols-3 gap-3 text-center">
                     <div><dt className="text-[11px] text-text-secondary">Views</dt><dd className="text-lg font-semibold text-text-primary">{formatCount(summary.views)}</dd></div>
                     <div><dt className="text-[11px] text-text-secondary">{active === 'reviews' ? 'Opened' : 'Opened'}</dt><dd className="text-lg font-semibold text-text-primary">{formatCount(summary.opens)} <span className="text-xs font-normal text-text-secondary">{formatPercent(summary.openRate)}</span></dd></div>
-                    <div><dt className="text-[11px] text-text-secondary">{active === 'booking' ? 'Bookings' : active === 'quote' ? 'Requests' : 'Link clicks'}</dt><dd className="text-lg font-semibold text-text-primary">{formatCount(summary.conversions)} <span className="text-xs font-normal text-text-secondary">{formatPercent(summary.conversionRate)}</span></dd></div>
+                    <div><dt className="text-[11px] text-text-secondary">{active === 'booking' ? 'Bookings' : active === 'quote' || active === 'estimator' ? 'Requests' : 'Link clicks'}</dt><dd className="text-lg font-semibold text-text-primary">{formatCount(summary.conversions)} <span className="text-xs font-normal text-text-secondary">{formatPercent(summary.conversionRate)}</span></dd></div>
                   </dl>
                   <div className="flex justify-center"><Sparkline points={summary.series.map((p) => p.views)} /></div>
                   <p className="text-xs text-text-secondary">A view is counted once per visitor session. Bookings and requests are counted on the server, so they can’t be inflated from a page.</p>
