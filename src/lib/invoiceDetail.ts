@@ -226,6 +226,11 @@ const AUDIT_LABELS: Record<string, string> = {
   invoice_payment_recorded: 'Payment recorded',
   invoice_refund_recorded: 'Refund recorded',
   invoice_voided: 'Invoice voided',
+  invoice_split_saved: 'Split saved',
+  invoice_split_removed: 'Split removed',
+  invoice_split_payment_recorded: 'Split payment recorded',
+  invoice_split_payment_needs_review: 'Online payment needs review',
+  invoice_split_link_sent: 'Payment link emailed',
 };
 
 export function auditActionLabel(action: string): string {
