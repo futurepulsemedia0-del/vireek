@@ -294,6 +294,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Economic Autopilot', href: '/dashboard/economic-autopilot', icon: Rocket, requiresPermission: 'can_view_billing' },
   { label: 'Parts & Inventory', href: '/dashboard/inventory', icon: Package },
   { label: 'Cycle Counts', href: '/dashboard/inventory/counts', icon: ClipboardCheck },
+  { label: 'Vendor Returns', href: '/dashboard/inventory/rma', icon: Undo2 },
   { label: 'Tool Crib', href: '/dashboard/tools', icon: Wrench },
   { label: 'Break Compliance', href: '/dashboard/break-compliance', icon: Coffee, requiresPermission: 'can_view_billing' },
   { label: 'Truck Operations', href: '/dashboard/inventory/trucks', icon: Truck },
