@@ -17,6 +17,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { handleMarketplaceEmail } from "../_shared/lead-marketplace/emailEntry.ts";
 import { createDeps } from "../_shared/lead-marketplace/runtime.ts";
+import { handleThirdPartyEmail } from "../_shared/third-party-intake/emailEntry.ts";
 import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
 
 function json(body: unknown, status = 200) {
@@ -67,6 +68,16 @@ Deno.serve(async (req: Request) => {
       return json({ received: true });
     }
 
+    const thirdParty = await handleThirdPartyEmail(admin, {
+      userId: profile.id,
+      toLocalPart: localPart,
+      from,
+      subject,
+      text: text || null,
+      html,
+    });
+    if (thirdParty.handled) return json({ received: true });
+    
     const marketplace = await handleMarketplaceEmail(createDeps(admin), {
       userId: profile.id,
       toLocalPart: localPart,
