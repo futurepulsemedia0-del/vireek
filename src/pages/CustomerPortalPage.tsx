@@ -1,5 +1,6 @@
 import { PortalJobSummaries } from '@/components/portal/PortalJobSummaries';
 import { PortalWalletCard } from '@/components/portal/PortalWalletCard';
+import { PortalContactsCard } from '@/components/portal/PortalContactsCard';
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -500,6 +501,7 @@ export function CustomerPortalPage() {
               )}
 
               {/* Profile */}
+              {tab === 'profile' && token && <PortalContactsCard portalToken={token} />}
               {tab === 'profile' && (
                 <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                   <h2 className="text-sm font-semibold text-text-primary">My Info</h2>
