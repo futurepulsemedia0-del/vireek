@@ -300,6 +300,7 @@ const VehiclesPage = lazy(() => import('@/pages/VehiclesPage').then((m) => ({ de
 const TechnicianDvirPage = lazy(() => import('@/pages/TechnicianDvirPage').then((m) => ({ default: m.TechnicianDvirPage })));
 const FleetDvirPage = lazy(() => import('@/pages/FleetDvirPage').then((m) => ({ default: m.FleetDvirPage })));
 const FuelCardsPage = lazy(() => import('@/pages/FuelCardsPage').then((m) => ({ default: m.FuelCardsPage })));
+const VendorRmaPage = lazy(() => import('@/pages/VendorRmaPage').then((m) => ({ default: m.VendorRmaPage })));
 const LiveMapPage = lazy(() => import('@/pages/LiveMapPage').then((m) => ({ default: m.LiveMapPage })));
 const WallboardPage = lazy(() => import('@/pages/WallboardPage').then((m) => ({ default: m.WallboardPage })));
 const WallboardSettingsPage = lazy(() => import('@/pages/WallboardSettingsPage').then((m) => ({ default: m.WallboardSettingsPage })));
@@ -3408,6 +3409,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <InventoryCountsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/inventory/rma"
+          element={
+            <ProtectedRoute>
+              <VendorRmaPage />
             </ProtectedRoute>
           }
         />
