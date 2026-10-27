@@ -244,6 +244,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Reputation', href: '/dashboard/reputation', icon: Star, requiresPermission: 'can_edit_business_profile' },
   { label: 'Listings', href: '/dashboard/listings', icon: MapPin, requiresPermission: 'can_edit_business_profile' },
   { label: 'Install Projects', href: '/dashboard/projects', icon: FolderKanban, requiresPermission: 'can_view_billing' },
+  { label: 'Change Orders', href: '/dashboard/change-orders', icon: FileText, requiresPermission: 'can_view_billing' },
   { label: 'Tasks', href: '/dashboard/tasks', icon: ListChecks },
   { label: 'Operating Cadence', href: '/dashboard/cadence', icon: CalendarCheck },
   { label: 'Team Chat', href: '/dashboard/team-chat', icon: MessagesSquare },
