@@ -40,3 +40,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.rich-fallback-sweep]
 verify_jwt = false
+[functions.closeout-deadline-engine]
+verify_jwt = false
