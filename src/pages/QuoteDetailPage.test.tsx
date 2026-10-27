@@ -28,6 +28,7 @@ vi.mock('@/components/DashboardNav', () => ({
   DashboardLayout: ({ children }: { children: ReactNode }) => children,
 }));
 vi.mock('@/lib/quoteWorkspaceApi', () => api);
+vi.mock('@/components/quotes/QuoteHvacPanel', () => ({ QuoteHvacPanel: () => null }));
 
 function rawWorkspace(quote: Record<string, unknown> = {}, rest: Record<string, unknown> = {}) {
   return {
