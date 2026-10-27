@@ -242,7 +242,7 @@ function Compliance({ accountOwnerId, toast }: { accountOwnerId: string; toast: 
   const setTab = (k: TabKey) => setParams(k === 'report' ? {} : { tab: k });
 
   const exportCsv = () => {
-    const rows = buildViolationCsvRows(filterShifts(evaluated, memberId, 'all'), nameOf);
+    const rows = buildViolationCsvRows(filterShifts(evaluated, memberId, 'all'), nameOf, jurisdictionLabel(jurisdiction));
     if (rows.length === 0) {
       toast('There are no violations to export for this selection', 'info');
       return;
