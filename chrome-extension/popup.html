@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vireek</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <img src="icons/icon.png" alt="" width="22" height="22" /><span id="who" dir="auto"
+          >Vireek</span
+        >
+      </div>
+      <button id="logout" class="link" hidden data-i18n="signOut"></button>
+    </header>
+    <main>
+      <p id="msg" role="status" aria-live="polite" hidden></p>
+
+      <section id="v-config" hidden><p data-i18n="notConfigured"></p></section>
+
+      <form id="v-login" hidden>
+        <h1 data-i18n="signInTitle"></h1>
+        <label
+          ><span data-i18n="email"></span
+          ><input id="l-email" type="email" autocomplete="username" required
+        /></label>
+        <label
+          ><span data-i18n="password"></span
+          ><input id="l-pass" type="password" autocomplete="current-password" required
+        /></label>
+        <button class="primary" type="submit" data-i18n="signIn"></button>
+        <a id="forgot" class="link" target="_blank" rel="noreferrer" data-i18n="forgotPassword"></a>
+      </form>
+
+      <form id="v-mfa" hidden>
+        <h1 data-i18n="mfaTitle"></h1>
+        <p class="hint" data-i18n="mfaHint"></p>
+        <input
+          id="m-code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          maxlength="6"
+          pattern="[0-9]{6}"
+          dir="ltr"
+          required
+        />
+        <button class="primary" type="submit" data-i18n="verify"></button>
+      </form>
+
+      <section id="v-app" hidden>
+        <nav role="tablist">
+          <button role="tab" data-tab="lead" aria-selected="true" data-i18n="tabLead"></button>
+          <button role="tab" data-tab="call" aria-selected="false" data-i18n="tabCall"></button>
+          <button role="tab" data-tab="recent" aria-selected="false" data-i18n="tabRecent"></button>
+        </nav>
+
+        <form id="p-lead" data-panel="lead">
+          <div class="row2">
+            <label
+              ><span data-i18n="name"></span><input id="f-name" maxlength="120" autocomplete="off"
+            /></label>
+            <label
+              ><span data-i18n="company"></span
+              ><input id="f-company" maxlength="120" autocomplete="off"
+            /></label>
+          </div>
+          <div class="row2">
+            <label
+              ><span data-i18n="phone"></span
+              ><input id="f-phone" type="tel" dir="ltr" maxlength="40" autocomplete="off"
+            /></label>
+            <label
+              ><span data-i18n="email"></span
+              ><input id="f-email" type="email" dir="ltr" maxlength="254" autocomplete="off"
+            /></label>
+          </div>
+          <label
+            ><span data-i18n="service"></span
+            ><input id="f-service" maxlength="200" autocomplete="off"
+          /></label>
+          <label
+            ><span data-i18n="note"></span
+            ><textarea id="f-note" rows="2" maxlength="2000"></textarea>
+          </label>
+          <div class="actions">
+            <button class="primary" id="b-save" type="submit" data-i18n="saveLead"></button>
+            <button id="b-savecall" type="button" data-i18n="saveAndCall"></button>
+          </div>
+          <a
+            id="open-lead"
+            class="link"
+            target="_blank"
+            rel="noreferrer"
+            hidden
+            data-i18n="openInVireek"
+          ></a>
+        </form>
+
+        <form id="p-call" data-panel="call" hidden>
+          <label
+            ><span data-i18n="callNumber"></span
+            ><input id="c-number" type="tel" dir="ltr" maxlength="40" autocomplete="off" required
+          /></label>
+          <div id="chips" class="chips"></div>
+          <button class="primary" id="b-call" type="submit" data-i18n="call"></button>
+          <p id="call-note" class="hint" hidden></p>
+        </form>
+
+        <div id="p-recent" data-panel="recent" hidden>
+          <ul id="recent-list"></ul>
+          <p id="recent-empty" class="hint" data-i18n="noRecent"></p>
+        </div>
+
+        <label class="check"
+          ><input id="s-inline" type="checkbox" /><span data-i18n="settingsInline"></span
+        ></label>
+      </section>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
