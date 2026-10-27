@@ -56,6 +56,7 @@ import type { JobNotesPatch, JobStatus, JobTechnician } from '@/lib/jobDetail';
 import { JobStatusTimeline, JobCustomerCard, JobTechnicianCard, JobNotesCard } from '@/components/jobs/detail/JobOverviewCards';
 import { JobPhotosCard, JobPartsCard } from '@/components/jobs/detail/JobWorkSections';
 import { JobPartsOrderingPanel } from '@/components/jobs/JobPartsOrderingPanel';
+import { JobVideoSessionPanel } from '@/components/jobs/JobVideoSessionPanel';
 import { JobLineItemsCard } from '@/components/jobs/detail/JobLineItemsCard';
 import { JobCostsCard, JobInvoiceCard } from '@/components/jobs/detail/JobMoneySections';
 import { JobActivityFeed } from '@/components/jobs/detail/JobActivityFeed';
@@ -526,6 +527,7 @@ export function JobDetailPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <JobNotesCard job={j} canEdit={access.canEdit} onSave={saveNotes} />
+          {ownerId && <JobVideoSessionPanel jobId={j.id} ownerId={ownerId} canEdit={access.canEdit} />}
           <CommentsPanel entityType="job" entityId={j.id} entityLabel={j.customer_name} />
           <JobPhotosCard job={j} canEdit={access.canEdit} uploading={uploading} onUpload={(slot, files) => void uploadPhotos(slot, files)} />
           <JobPartsCard required={required} used={used} />
