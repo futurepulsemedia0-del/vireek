@@ -32,6 +32,7 @@ import type { Job } from '@/lib/supabase';
 import { CommentsPanel } from '@/components/comments/CommentsPanel';
 import { createInvoiceFromQuote } from '@/lib/invoices';
 import { isQualityGateError, parseQualityGateError } from '@/lib/jobQualityGate';
+import { isCloseoutGateError, parseCloseoutGateError } from '@/lib/installCloseoutLogic';
 import { isEvidenceChainError, parseEvidenceChainError } from '@/lib/jobEvidenceChain';
 import {
   STATUS_BADGE,
@@ -322,7 +323,8 @@ export function JobDetailPage() {
     setBlockers([]);
     try {
       const result = await updateJobStatusScoped(job.id, ownerId, status, (message) =>
-        isQualityGateError(message) ? parseQualityGateError(message) : isEvidenceChainError(message) ? parseEvidenceChainError(message) : null,
+        isQualityGateError(message) ? parseQualityGateError(message) : isEvidenceChainError(message) ? parseEvidenceChainError(message) : isCloseoutGateError(message)
+  ? parseCloseoutGateError(message): null,
       );
       if (result.ok) {
         setCore((prev) => (prev.kind === 'ready' ? { kind: 'ready', job: { ...prev.job, job_status: status } } : prev));
