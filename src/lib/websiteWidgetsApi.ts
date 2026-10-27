@@ -28,7 +28,7 @@ function toRow(data: unknown): WidgetRow {
 export async function fetchWidgets(accountOwnerId: string): Promise<WidgetMap> {
   const { data, error } = await supabase.from('website_widgets').select(COLUMNS).eq('account_owner_id', accountOwnerId);
   if (error) throw error;
-  const map: WidgetMap = { booking: null, quote: null, reviews: null };
+  const map: WidgetMap = { booking: null, quote: null, reviews: null, estimator: null };
   for (const row of (data ?? []) as WidgetRow[]) {
     if (WIDGET_TYPES.includes(row.widget_type)) map[row.widget_type] = toRow(row);
   }
