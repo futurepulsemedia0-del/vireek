@@ -19,7 +19,7 @@ import {
 } from '@/lib/directMail';
 
 const PIECE_COLUMNS =
-  'id,campaign_id,tracking_code,recipient_name,line1,line2,city,state,zip,status,provider_url,expected_delivery,cost_cents,cost_estimated,last_error,scan_count,submitted_at,delivered_at';
+  'id,campaign_id,tracking_code,recipient_name,line1,line2,city,state,zip,status,provider_url,expected_delivery,cost_cents,cost_estimated,last_error,scan_count,submitted_at,delivered_at,verification_status,verification_note';
 
 const fail = (error: { code?: string; message?: string }, fallback: string): never => {
   throw new Error(directMailErrorMessage(error, fallback));
