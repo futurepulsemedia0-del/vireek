@@ -4,6 +4,13 @@ Print-and-mail postcards through **Lob**, with a unique QR code + offer code on 
 existing landing pages, and cost-per-booked-job reporting. Dashboard: `/dashboard/direct-mail` (account owner, or team
 members with billing access).
 
+## Audience, address check, cost estimate
+- **Audience:** campaign → "Add from a saved audience" uses your Audiences (customer segments only; leads have no address). `marketing_opt_in` is not filtered (postal mail does not need it).
+- **Address check:** "Check addresses" calls Lob US verification. Live key: undeliverable addresses are removed from the send (not printed, not charged). Test key: results are shown but nothing is removed.
+- **Cost estimate:** mailers × your per-mailer estimate, against the budget cap; Lob's real price replaces it after sending.
+
+> **Status: not live-verified.** Built from Lob's documentation and tested against mocks only. Send 2–3 test-mode proofs before the first live mailing.
+
 ## How attribution works
 1. Every mailer gets a 9-symbol code (8 random + 1 check symbol, no I/L/O/U), e.g. `7QX2-M9PD-K`.
 2. The QR code is `{SITE_URL}/m/{CODE}`. Scanning records one scan, then redirects to
@@ -39,6 +46,7 @@ supabase db push                                   # migration 20271102000000_di
 supabase secrets set DIRECT_MAIL_KEY=$(openssl rand -base64 32) SITE_URL=https://vireek.com
 supabase functions deploy direct-mail-settings
 supabase functions deploy direct-mail-send
+supabase functions deploy direct-mail-verify
 supabase functions deploy direct-mail-webhook --no-verify-jwt   # public: protected by token + HMAC signature
 ```
 
