@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { verifyStripeSignature } from "../_shared/stripe/client.ts";
+import { stripeRequest, verifyStripeSignature } from "../_shared/stripe/client.ts";
 import { applyPaymentIntentResult, stripeGet } from "../_shared/stripe/terminalPayments.ts";
 import { finalizePaymentRequestFromIntent } from "../_shared/payments/finalizeIntent.ts";
 import { finalizeSplitPaymentFromIntent } from "../_shared/payments/finalizeSplit.ts";
@@ -106,6 +106,14 @@ Deno.serve(async (req: Request) => {
         const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
         const finalized = await finalizePaymentRequestFromIntent(admin, event.data.object, {
           fetchCharge: (chargeId) => stripeGet(`charges/${chargeId}`, stripeKey),
+          refundFee: async ({ paymentIntentId, amountCents, requestId }) => {
+            await stripeRequest(
+              "refunds",
+              { payment_intent: paymentIntentId, amount: amountCents, reverse_transfer: true, metadata: { kind: "card_fee_refund", payment_request_id: requestId } },
+              stripeKey,
+              { idempotencyKey: `card-fee-refund-${paymentIntentId}` },
+            );
+          },
         });
         await processBankStripeEvent(admin, event); // after finalize, so the invoice is already paid when the ledger posts
         if (finalized.handled) break;
