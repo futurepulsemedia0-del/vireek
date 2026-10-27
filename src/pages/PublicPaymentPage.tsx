@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { CircleCheck, Loader2, X } from 'lucide-react';
+import { PricingBreakdown } from '@/components/payments/PricingBreakdown';
+import { PricingBreakdown } from '@/components/payments/PricingBreakdown';
+import { buildReceiptLines } from '@/lib/paymentPricing';
 import { TipSelector } from '@/components/payments/TipSelector';
 import { createPublicPaymentIntent, fetchPublicPayment, type PublicPaymentSummary } from '@/lib/publicPayment';
 import { StripePaymentForm, type PaymentOutcome } from '@/components/payments/StripePaymentForm';
@@ -42,6 +45,15 @@ export function PublicPaymentPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [summary, tip],
   );
+    const receipt = summary?.amount_cents
+    ? buildReceiptLines({
+        baseCents: summary.amount_cents,
+        tipCents: tipResult?.ok ? tipResult.tipCents : 0,
+        feeCents: summary.pricing?.fee_cents ?? 0,
+        feeRefundedCents: 0,
+        feeLabel: summary.pricing?.fee_label ?? '',
+      })
+    : null;
 
   async function createIntent(): Promise<string> {
     if (!tipResult?.ok) throw new Error('Please check the tip amount.');
@@ -66,6 +78,7 @@ export function PublicPaymentPage() {
             ? 'Thank you — your payment was successful. You can close this page.'
             : 'Thanks — your payment is being processed and we’ll confirm it shortly. You can close this page.'}
         </p>
+        {receipt && <PricingBreakdown className="mt-5 text-left" lines={receipt.lines} totalCents={receipt.totalCents} totalLabel="Total paid" />}
       </div>,
     );
   }
@@ -76,6 +89,7 @@ export function PublicPaymentPage() {
         <CircleCheck className="mx-auto mb-3 h-10 w-10 text-success" />
         <h1 className="text-lg font-bold text-text-primary">Already paid</h1>
         <p className="mt-1 text-sm text-text-secondary">Thank you — this invoice has been paid.</p>
+        {summary.receipt && <PricingBreakdown className="mt-5 text-left" lines={summary.receipt.lines} totalCents={summary.receipt.totalCents} totalLabel="Total paid" />}
       </div>,
     );
   }
@@ -89,7 +103,7 @@ export function PublicPaymentPage() {
     );
   }
 
-  const total = summary.amount_cents + (tipResult?.ok ? tipResult.tipCents : 0);
+  const total = receipt?.totalCents ?? summary.amount_cents;
 
   return shell(
     <div className="space-y-5">
@@ -105,12 +119,15 @@ export function PublicPaymentPage() {
         <TipSelector baseCents={summary.amount_cents} presets={summary.presets ?? []} value={tip} onChange={setTip} disabled={submitting} technicianName={summary.technician_first_name} />
       )}
 
-      <dl className="space-y-1 border-t border-border-primary pt-4 text-sm">
-        <div className="flex justify-between text-text-secondary"><dt>Invoice</dt><dd>{formatUsd(summary.amount_cents)}</dd></div>
-        {tipResult?.ok && tipResult.tipCents > 0 && <div className="flex justify-between text-text-secondary"><dt>Tip</dt><dd>{formatUsd(tipResult.tipCents)}</dd></div>}
-        <div className="flex justify-between text-base font-bold text-text-primary"><dt>Total</dt><dd>{formatUsd(total)}</dd></div>
-      </dl>
+      {receipt && <PricingBreakdown className="border-t border-border-primary pt-4" lines={receipt.lines} totalCents={receipt.totalCents} />}
 
+      {summary.pricing?.cash_price_cents != null && (
+        <p className="text-sm font-medium text-text-primary">Cash or check price: {formatUsd(summary.pricing.cash_price_cents)}</p>
+      )}
+      {summary.pricing?.disclosure && (
+        <p className="rounded-lg bg-bg-tertiary px-3 py-2 text-xs leading-relaxed text-text-secondary">{summary.pricing.disclosure}</p>
+      )}
+      
       {summary.auto_renew_offer && (
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border-primary p-3 text-sm text-text-secondary">
           <input type="checkbox" className="mt-0.5 h-4 w-4" checked={autoRenew} disabled={submitting} onChange={(e) => setAutoRenew(e.target.checked)} />
