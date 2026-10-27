@@ -15,6 +15,8 @@ import {
   addRecipients, deleteCampaign, listCampaigns, listCustomersForMail, listLandingOptions, listPieces, saveCampaign,
   sendCampaign, setCampaignStatus, suppressPiece,
 } from '@/lib/directMailApi';
+import { PreSendPanel, VerificationNote } from '@/components/directmail/PreSendPanel';
+import { SegmentAudienceBox } from '@/components/directmail/SegmentAudienceBox';
 
 const TONE: Record<Tone, string> = {
   ok: 'bg-success/10 text-success', warn: 'bg-warning-500/10 text-warning-500', bad: 'bg-danger/10 text-danger',
@@ -252,7 +254,13 @@ function CampaignDetail({ campaign, ownerId, settings, landings, onBack, onChang
         {sending && <p role="status" className="mt-3 text-xs font-medium text-accent">Sending… {progress} — keep this tab open.</p>}
       </section>
 
-      {!locked && <ImportBox campaignId={campaign.id} ownerId={ownerId} onDone={() => void load()} />}
+{!locked && (
+  <>
+    <ImportBox campaignId={campaign.id} ownerId={ownerId} onDone={() => void load()} />
+    <SegmentAudienceBox campaignId={campaign.id} ownerId={ownerId} onDone={() => void load()} />
+    <PreSendPanel campaign={campaign} settings={settings} queued={queued} onChanged={() => void load()} />
+  </>
+)}
 
       <section className="rounded-2xl border border-border bg-bg-secondary p-5" aria-label="Mailers">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -280,7 +288,7 @@ function CampaignDetail({ campaign, ownerId, settings, landings, onBack, onChang
                     <tr key={p.id} className="border-b border-border/60 last:border-0">
                       <th scope="row" className="px-2 py-2 font-medium text-text-primary">{p.recipient_name}<span className="block font-normal text-text-secondary">{p.line1}, {p.city}, {p.state} {p.zip}</span></th>
                       <td className="px-2 py-2 font-mono">{formatTrackingCode(p.tracking_code)}</td>
-                      <td className="px-2 py-2"><Pill tone={PIECE_STATUS[p.status].tone}>{PIECE_STATUS[p.status].label}</Pill>{p.last_error && <span className="mt-1 block text-danger">{p.last_error}</span>}</td>
+                      <td className="px-2 py-2"><Pill tone={PIECE_STATUS[p.status].tone}>{PIECE_STATUS[p.status].label}</Pill>{p.last_error && <span className="mt-1 block text-danger">{p.last_error}</span>}<VerificationNote piece={p} /></td>
                       <td className="px-2 py-2">{p.scan_count}</td>
                       <td className="px-2 py-2">{formatCents(p.cost_cents)}{p.cost_estimated ? '*' : ''}</td>
                       <td className="px-2 py-2 text-right whitespace-nowrap">
