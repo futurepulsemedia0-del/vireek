@@ -1,0 +1,255 @@
+{
+  "extName": {
+    "message": "ویریک – تماس با یک کلیک و ثبت سرنخ"
+  },
+  "extDescription": {
+    "message": "با یک کلیک روی هر صفحه وب تماس بگیرید و سرنخ را در ویریک ذخیره کنید."
+  },
+  "actionTitle": {
+    "message": "ویریک"
+  },
+  "menuCall": {
+    "message": "تماس با ویریک"
+  },
+  "menuLead": {
+    "message": "ذخیره به‌عنوان سرنخ در ویریک"
+  },
+  "btnTitle": {
+    "message": "تماس با ویریک"
+  },
+  "signInTitle": {
+    "message": "ورود به ویریک"
+  },
+  "email": {
+    "message": "ایمیل"
+  },
+  "password": {
+    "message": "رمز عبور"
+  },
+  "signIn": {
+    "message": "ورود"
+  },
+  "signOut": {
+    "message": "خروج"
+  },
+  "forgotPassword": {
+    "message": "رمز را فراموش کرده‌اید یا هرگز تنظیم نکرده‌اید؟"
+  },
+  "mfaTitle": {
+    "message": "تأیید دو مرحله‌ای"
+  },
+  "mfaHint": {
+    "message": "کد ۶ رقمی برنامه احراز هویت را وارد کنید."
+  },
+  "verify": {
+    "message": "تأیید"
+  },
+  "notConfigured": {
+    "message": "این نسخه افزونه هنوز پیکربندی نشده است. آدرس Supabase، کلید anon و آدرس برنامه را در lib/config.js تنظیم کنید."
+  },
+  "tabLead": {
+    "message": "سرنخ"
+  },
+  "tabCall": {
+    "message": "تماس"
+  },
+  "tabRecent": {
+    "message": "اخیر"
+  },
+  "name": {
+    "message": "نام"
+  },
+  "company": {
+    "message": "شرکت"
+  },
+  "phone": {
+    "message": "تلفن"
+  },
+  "service": {
+    "message": "علاقه‌مند به"
+  },
+  "note": {
+    "message": "یادداشت"
+  },
+  "saveLead": {
+    "message": "ذخیره سرنخ"
+  },
+  "saveAndCall": {
+    "message": "ذخیره و تماس"
+  },
+  "openInVireek": {
+    "message": "باز کردن در ویریک"
+  },
+  "callNumber": {
+    "message": "شماره تلفن"
+  },
+  "call": {
+    "message": "تماس"
+  },
+  "noRecent": {
+    "message": "هنوز فعالیتی نیست."
+  },
+  "settingsInline": {
+    "message": "نمایش دکمه تماس کنار شماره‌های تلفن در صفحات وب"
+  },
+  "leadSaved": {
+    "message": "سرنخ در ویریک ذخیره شد."
+  },
+  "leadDuplicate": {
+    "message": "این مخاطب قبلاً در ویریک وجود دارد."
+  },
+  "ringingYou": {
+    "message": "ابتدا گوشی شما زنگ می‌خورد. برای برقراری تماس پاسخ دهید."
+  },
+  "ringsFirst": {
+    "message": "ابتدا به گوشی شما ($1) زنگ می‌زنیم، سپس مشتری را وصل می‌کنیم.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "cardCall": {
+    "message": "تماس"
+  },
+  "cardSaveLead": {
+    "message": "ذخیره سرنخ"
+  },
+  "cardCancel": {
+    "message": "بستن"
+  },
+  "cardNeedSignIn": {
+    "message": "برای ورود روی آیکون ویریک در نوار ابزار کلیک کنید."
+  },
+  "errGeneric": {
+    "message": "مشکلی پیش آمد. دوباره تلاش کنید."
+  },
+  "errNetwork": {
+    "message": "اتصال برقرار نیست. اینترنت را بررسی و دوباره تلاش کنید."
+  },
+  "errLogin": {
+    "message": "ایمیل یا رمز عبور نادرست است."
+  },
+  "errMfa": {
+    "message": "این کد معتبر نیست."
+  },
+  "err_invalid_number": {
+    "message": "این شماره تلفن معتبر نیست."
+  },
+  "err_premium_rate": {
+    "message": "با شماره‌های پرهزینه نمی‌توان تماس گرفت."
+  },
+  "err_service_code": {
+    "message": "با شماره‌های خدماتی نمی‌توان تماس گرفت."
+  },
+  "err_destination_not_permitted": {
+    "message": "تماس با این کشور برای حساب شما فعال نیست."
+  },
+  "err_calling_not_configured": {
+    "message": "تماس با یک کلیک هنوز برای این حساب فعال نیست."
+  },
+  "err_no_agent_phone": {
+    "message": "شماره موبایل خود را در ویریک (تنظیمات > پروفایل) اضافه کنید تا ابتدا به شما زنگ بزنیم."
+  },
+  "err_self_call": {
+    "message": "این شماره تلفن خود شماست."
+  },
+  "err_rate_limited": {
+    "message": "درخواست‌ها زیاد است. کمی صبر کنید."
+  },
+  "err_dnc_suppressed": {
+    "message": "این شماره در فهرست «تماس نگیرید» شماست."
+  },
+  "err_quiet_hours": {
+    "message": "خارج از ساعات مجاز تماس (زمان محلی $1).",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "err_no_caller_id": {
+    "message": "هیچ شماره کسب‌وکار فعالی برای تماس در دسترس نیست."
+  },
+  "err_caller_id_not_verified": {
+    "message": "شماره شناسه تماس‌گیرنده کسب‌وکار برای تماس تأیید نشده است."
+  },
+  "err_lead_not_found": {
+    "message": "سرنخ پیدا نشد."
+  },
+  "err_lead_insert_failed": {
+    "message": "ذخیره سرنخ ممکن نشد."
+  },
+  "err_invalid_input": {
+    "message": "لطفاً فیلدهای فرم را بررسی کنید."
+  },
+  "err_mfa_required": {
+    "message": "برای ادامه کد برنامه احراز هویت را تأیید کنید."
+  },
+  "err_not_authenticated": {
+    "message": "لطفاً دوباره وارد شوید."
+  },
+  "err_provider_error": {
+    "message": "تماس برقرار نشد. دوباره تلاش کنید."
+  },
+  "err_provider_busy": {
+    "message": "ارائه‌دهنده تلفن مشغول است. کمی بعد تلاش کنید."
+  },
+  "err_network": {
+    "message": "اتصال برقرار نیست. اینترنت را بررسی و دوباره تلاش کنید."
+  },
+  "err_internal_error": {
+    "message": "مشکلی پیش آمد. دوباره تلاش کنید."
+  },
+  "err_signed_out": {
+    "message": "برای ورود روی آیکون ویریک در نوار ابزار کلیک کنید."
+  },
+  "err_not_configured": {
+    "message": "این نسخه افزونه هنوز پیکربندی نشده است."
+  },
+  "unavail_calling_not_configured": {
+    "message": "تماس با یک کلیک هنوز برای این حساب فعال نیست."
+  },
+  "unavail_no_agent_phone": {
+    "message": "برای فعال‌سازی تماس، شماره موبایل خود را در ویریک (تنظیمات > پروفایل) اضافه کنید."
+  },
+  "unavail_no_caller_id": {
+    "message": "هیچ شماره کسب‌وکار فعالی برای تماس در دسترس نیست."
+  },
+  "st_pending": {
+    "message": "در انتظار"
+  },
+  "st_captured": {
+    "message": "ذخیره شد"
+  },
+  "st_duplicate": {
+    "message": "قبلاً وجود داشت"
+  },
+  "st_queued": {
+    "message": "در صف"
+  },
+  "st_ringing": {
+    "message": "در حال زنگ"
+  },
+  "st_answered": {
+    "message": "وصل شد"
+  },
+  "st_completed": {
+    "message": "تمام شد"
+  },
+  "st_busy": {
+    "message": "مشغول"
+  },
+  "st_no_answer": {
+    "message": "بدون پاسخ"
+  },
+  "st_failed": {
+    "message": "ناموفق"
+  },
+  "st_canceled": {
+    "message": "لغو شد"
+  },
+  "st_blocked": {
+    "message": "مسدود"
+  }
+}
