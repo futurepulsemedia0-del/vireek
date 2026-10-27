@@ -14,6 +14,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { resolveContactRecipients } from "../_shared/customers/contactRecipients.ts";
 import { sendGatedEmail } from "../_shared/messaging/gatedSend.ts";
 import { normalizeSettings } from "../_shared/messaging/quietHoursCore.ts";
 import { buildEmail, buildSmsText, type WindowMessageInput, type WindowNotifyKind } from "../_shared/arrival-window/message.ts";
@@ -98,6 +99,28 @@ Deno.serve(async (req: Request) => {
         link: r.token ? `${siteUrl}/reschedule/${r.token}` : null,
       };
 
+      // Site / tenant contacts get the same notice. Best effort: the row outcome below still reflects the customer.
+      const customerDigits = (r.customer_phone ?? "").replace(/\D/g, "").slice(-10);
+      for (const c of await resolveContactRecipients(admin, r.user_id, r.customer_id, "service")) {
+        if (c.isFallback) continue;
+        if (c.phone && c.phone.replace(/\D/g, "").slice(-10) !== customerDigits) {
+          await sendCompliantSms(admin, r.user_id, c.phone, buildSmsText(input), {
+            purpose: "service",
+            customerId: r.customer_id,
+            source: "arrival-window",
+            dedupeKey: `arrival-window:${r.id}:${c.contactId}`,
+          }).catch(() => undefined);
+        } else if (!c.phone && c.email && c.email.toLowerCase() !== (r.customer_email ?? "").toLowerCase()) {
+          const m = buildEmail(input);
+          await sendGatedEmail(admin, r.user_id, c.email, m.subject, m.html, m.text, {
+            purpose: "service",
+            customerId: r.customer_id,
+            source: "arrival-window",
+            dedupeKey: `arrival-window-email:${r.id}:${c.contactId}`,
+          }).catch(() => undefined);
+        }
+      }
+      
       let smsNote = "";
       if (r.customer_phone) {
         const sms = await sendCompliantSms(admin, r.user_id, r.customer_phone, buildSmsText(input), {
