@@ -72,6 +72,8 @@ const ExecutionReliabilityPage = lazy(() => import('@/pages/ExecutionReliability
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
 const ReferralsPage = lazy(() => import('@/pages/ReferralsPage').then((m) => ({ default: m.ReferralsPage })));
 const VoicemailDropsPage = lazy(() => import('@/pages/VoicemailDropsPage').then((m) => ({ default: m.VoicemailDropsPage })));
+const CallMaskingPage = lazy(() => import('@/pages/CallMaskingPage').then((m) => ({ default: m.CallMaskingPage })));
+const PowerDialerPage = lazy(() => import('@/pages/PowerDialerPage').then((m) => ({ default: m.PowerDialerPage })));
 const SpeedToLeadPage = lazy(() => import('@/pages/SpeedToLeadPage').then((m) => ({ default: m.SpeedToLeadPage })));
 const NeighborhoodRevenuePage = lazy(() => import('@/pages/NeighborhoodRevenuePage').then((m) => ({ default: m.NeighborhoodRevenuePage })));
 const JobsPage = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })));
@@ -2272,6 +2274,30 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <VoicemailDropsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/call-masking"
+          element={
+            <ProtectedRoute>
+              <CallMaskingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/power-dialer"
+          element={
+            <ProtectedRoute>
+              <PowerDialerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/power-dialer/:campaignId"
+          element={
+            <ProtectedRoute>
+              <PowerDialerPage />
             </ProtectedRoute>
           }
         />
