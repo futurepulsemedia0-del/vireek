@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { ChevronDown, ClipboardCheck } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { ComplianceLogPanel } from '@/components/tradePacks/ComplianceLogPanel';
+import { PoolChemistryPanel } from '@/components/tradePacks/PoolChemistryPanel';
 import { useTradePacks } from '@/lib/tradePacksApi';
-import { TRADE_PACKS, jobMatchesPack } from '@/lib/tradePacks';
+import { POOL_CHEMISTRY_LOG_TYPES, TRADE_PACKS, jobMatchesPack } from '@/lib/tradePacks';
 
 /** Minimal shape so both the dashboard `Job` and the technician job brief can use the panel. */
 export interface TradePackPanelJob {
@@ -36,7 +37,18 @@ export function JobTradePackPanel({ job }: { job: TradePackPanelJob }) {
               </span>
               <ChevronDown size={18} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
-            {isOpen && <ComplianceLogPanel pack={p} ownerId={ownerId} install={installs.find((i) => i.pack_key === p.key)} job={job} />}
+            {isOpen && (
+              <div className="space-y-6">
+                {p.key === 'pool_service' && <PoolChemistryPanel pack={p} ownerId={ownerId} job={job} />}
+                <ComplianceLogPanel
+                  pack={p}
+                  ownerId={ownerId}
+                  install={installs.find((i) => i.pack_key === p.key)}
+                  job={job}
+                  excludeTypes={p.key === 'pool_service' ? POOL_CHEMISTRY_LOG_TYPES : undefined}
+                />
+              </div>
+            )}
           </Card>
         );
       })}
