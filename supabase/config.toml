@@ -56,3 +56,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.job-feeds]
 verify_jwt = false
+[functions.siem-stream]
+verify_jwt = false
