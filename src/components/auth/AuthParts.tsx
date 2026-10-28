@@ -287,7 +287,7 @@ export function AuthSidePanel() {
           {/* Trust badges */}
           <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
             {[
-              { icon: 'shield', label: 'SOC 2 aligned' },
+              { icon: 'shield', label: 'Tenant data isolation' },
               { icon: 'lock', label: 'Encrypted at rest' },
               { icon: 'check', label: 'No card required' },
             ].map((badge) => (
