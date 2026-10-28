@@ -16,6 +16,10 @@ import {
 } from "../_shared/pbx/logic.ts";
 import { LEG_STATUS, twiml, validTwilioSignature } from "../_shared/pbx/twilio.ts";
 import {
+  appendIvrPath, decideIvr, ivrDepth, ivrPromptText, ivrRetryMessage, IVR_MAX_DEPTH, toIvrMenuConfig,
+  type IvrMenuConfig, type IvrReason,
+} from "../_shared/pbx/logic.ts";
+import {
   FALLBACK_HOLD_MUSIC, TERMINAL, callerIdFor, cancelLegs, confSid, createLeg, endLeg, hook,
   lineE164, loadSettings, resolveCallerId, setHold, storeMedia, twilioApiSafe, type Row,
 } from "../_shared/pbx/runtime.ts";
@@ -229,6 +233,52 @@ async function directTwiml(a: Admin, call: Row, dest: Destination, settings: Row
     return "<Hangup/>";
   }
   return voicemailTwiml(a, call, dest.type === "voicemail" ? dest.id : undefined, settings);
+}
+
+// ---------------------------------------------------------------- phone menu (IVR)
+const sayAttrs = (m: Row) => ` language="${xml(m.language || "en-US")}"` + (m.voice ? ` voice="${xml(m.voice)}"` : "");
+
+/** Same rule as the main router: no schedule => open (a misconfiguration never silences the phones). */
+async function lineIsOpen(a: Admin, call: Row): Promise<boolean> {
+  if (!call.line_id) return true;
+  const { data: line } = await a.from("pbx_lines").select("schedule_id").eq("id", call.line_id).maybeSingle();
+  if (!line?.schedule_id) return true;
+  const { data: s } = await a.from("pbx_schedules").select("timezone, weekly, exceptions, include_business_holidays")
+    .eq("id", line.schedule_id).eq("account_owner_id", call.account_owner_id).maybeSingle();
+  const { data: bp } = await a.from("business_profile").select("holidays").eq("user_id", call.account_owner_id).maybeSingle();
+  const holidays = ((bp?.holidays ?? []) as Row[]).map((h) => String(h?.date ?? "")).filter(Boolean);
+  return isOpenNow((s as Schedule | null) ?? null, new Date(), holidays).open;
+}
+
+/** Menu + options, always scoped to the call's account. null => disabled / missing / no usable options. */
+async function loadIvr(a: Admin, owner: string, menuId: string): Promise<{ menu: Row; config: IvrMenuConfig } | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(menuId)) return null;
+  const { data: menu } = await a.from("pbx_ivr_menus").select("*").eq("id", menuId).eq("account_owner_id", owner).eq("enabled", true).maybeSingle();
+  if (!menu) return null;
+  const { data: opts } = await a.from("pbx_ivr_options").select("digit, label, destination, closed_destination, position")
+    .eq("menu_id", menu.id).eq("account_owner_id", owner);
+  const config = toIvrMenuConfig(menu, (opts ?? []) as Row[]);
+  return config.options.length ? { menu, config } : null;
+}
+
+/** Greeting + "press 1 for..." inside a <Gather> (callers can key in early). Silence falls through to the Redirect. */
+async function ivrTwiml(a: Admin, call: Row, menuId: string, attempt: number, reason: IvrReason | null, settings: Row): Promise<string> {
+  const loaded = await loadIvr(a, call.account_owner_id, menuId);
+  if (!loaded || ivrDepth(call.ivr_path) > IVR_MAX_DEPTH) return voicemailTwiml(a, call, undefined, settings); // fallback: voicemail
+  const { menu, config } = loaded;
+  if (attempt === 0 && !reason) {
+    await a.from("pbx_calls").update({ ivr_menu_id: menu.id }).eq("id", call.id).in("status", ["ringing", "queued"]);
+  }
+  const say = (t: string) => `<Say${sayAttrs(menu)}>${xml(t)}</Say>`;
+  const greeting = menu.greeting_audio_url ? `<Play>${xml(menu.greeting_audio_url)}</Play>` : say(menu.greeting_text);
+  const spoken = ivrPromptText(config.options);
+  const options = menu.read_options && spoken ? say(spoken) : "";
+  const inner = attempt === 0 ? greeting + options : (options || greeting); // retries replay only the options
+  const retry = reason ? ivrRetryMessage(reason, { invalid: menu.invalid_message, timeout: menu.timeout_message }) : "";
+  const q = { call: call.id, menu: menu.id, try: String(attempt) };
+  return (retry ? say(retry) : "") +
+    `<Gather input="dtmf" numDigits="1" timeout="${Number(menu.timeout_seconds) || 6}" method="POST" action="${xml(hook("ivr-choice", q))}">${inner}</Gather>` +
+    `<Redirect method="POST">${xml(hook("ivr-choice", { ...q, to: "1" }))}</Redirect>`;
 }
 
 // ---------------------------------------------------------------- call lifecycle
