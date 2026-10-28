@@ -9,6 +9,10 @@ export type SalaryPeriod = 'year' | 'hour';
 export type ApplicationStatus = 'new' | 'reviewing' | 'interview' | 'offer' | 'hired' | 'rejected';
 
 export interface JobPosting {
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  postal_code: string | null;
   id: string;
   slug: string;
   title: string;
@@ -169,6 +173,10 @@ export function splitLines(text: string): string[] {
 // ============================================================
 
 export interface PostingFormValues {
+  city: string;
+  region: string;
+  country: string;
+  postalCode: string;
   title: string;
   slug: string;
   department: string;
@@ -187,6 +195,10 @@ export interface PostingFormValues {
 export type PostingErrors = FormErrors<keyof PostingFormValues & string>;
 
 export interface PostingPayload {
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  postal_code: string | null;
   slug: string;
   title: string;
   department: string;
@@ -219,6 +231,10 @@ export function emptyPostingForm(): PostingFormValues {
     salaryMax: '',
     salaryCurrency: 'USD',
     salaryPeriod: 'year',
+    city: '',
+    region: '',
+    country: '',
+    postalCode: '',
   };
 }
 
@@ -238,6 +254,10 @@ export function postingToForm(p: JobPosting): PostingFormValues {
     salaryMax: p.salary_max === null ? '' : String(p.salary_max),
     salaryCurrency: p.salary_currency,
     salaryPeriod: p.salary_period,
+    city: p.city ?? '',
+    region: p.region ?? '',
+    country: p.country ?? '',
+    postalCode: p.postal_code ?? '',
   };
 }
 
@@ -285,6 +305,10 @@ export function validatePostingForm(v: PostingFormValues): PostingErrors {
     else if (min > max) e.salaryMin = 'Minimum cannot be higher than the maximum.';
   }
   if (!/^[A-Za-z]{3}$/.test(v.salaryCurrency.trim())) e.salaryCurrency = 'Use a 3-letter code, e.g. USD.';
+    if (v.country.trim() && !/^[A-Za-z]{2}$/.test(v.country.trim())) e.country = 'Use a 2-letter country code, e.g. US.';
+  if (v.city.trim() && (len(v.city) < 2 || len(v.city) > 80)) e.city = 'City needs 2 to 80 characters.';
+  if (v.region.trim() && (len(v.region) < 2 || len(v.region) > 80)) e.region = 'State/region needs 2 to 80 characters.';
+  if (v.postalCode.trim() && (len(v.postalCode) < 2 || len(v.postalCode) > 12)) e.postalCode = 'Postal code needs 2 to 12 characters.';
   return e;
 }
 
@@ -305,6 +329,10 @@ export function formToPayload(v: PostingFormValues): PostingPayload {
     salary_max: hasSalary ? parseSalary(v.salaryMax) : null,
     salary_currency: v.salaryCurrency.trim().toUpperCase(),
     salary_period: v.salaryPeriod,
+    city: v.city.trim() || null,
+    region: v.region.trim() || null,
+    country: v.country.trim().toUpperCase() || null,
+    postal_code: v.postalCode.trim() || null,
   };
 }
 
@@ -434,7 +462,13 @@ export function buildJobPostingJsonLd(p: JobPosting, siteUrl = 'https://vireek.c
   } else {
     ld.jobLocation = {
       '@type': 'Place',
-      address: { '@type': 'PostalAddress', addressLocality: p.location },
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: p.city ?? p.location,
+        ...(p.region ? { addressRegion: p.region } : {}),
+        ...(p.country ? { addressCountry: p.country } : {}),
+        ...(p.postal_code ? { postalCode: p.postal_code } : {}),
+      },
     };
   }
   if (p.salary_min !== null && p.salary_max !== null) {
