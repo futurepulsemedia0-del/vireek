@@ -236,7 +236,7 @@ export async function exportEvidenceChainPdf(input: {
   y += 6;
   write('How to verify this report', { size: 11, bold: true, gap: 3 });
   write(
-    'Every entry is sealed with a SHA-256 hash that includes the previous entry\'s hash, the server timestamp, the recorded identity and the fingerprint of every attached file. Entries cannot be edited or deleted; corrections are new entries that reference the original. Re-running the verification in Vireek must reproduce the chain head hash below.',
+    'Every entry is sealed with a SHA-256 hash that includes the previous entry\'s hash, the server timestamp, the recorded identity and the fingerprint of every attached file. Entries cannot be edited or deleted; corrections are new entries that reference the original. Re-running the verification in ' + getPdfBrand().productName + ' must reproduce the chain head hash below.',
     { size: 8.5, color: MUTED, gap: 4 },
   );
   write(`Chain head hash: ${report.integrity.head_hash ?? '—'}`, { size: 8, bold: true, gap: 2 });
