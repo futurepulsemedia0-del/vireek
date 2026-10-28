@@ -3,3 +3,4 @@ node_modules
 coverage
 supabase/functions/**/*.ts
 *.min.js
+public/openapi.json
