@@ -66,6 +66,7 @@ import {
   updatePosting,
   type ApplicationPatch,
 } from '@/lib/careersApi';
+import { JobBoardSyndication } from '@/components/hiring/JobBoardSyndication';
 
 // ============================================================
 // HELPERS
@@ -270,6 +271,40 @@ function PostingFormDialog({ posting, onClose, onSaved }: PostingFormDialogProps
               value={values.employmentType}
               options={EMPLOYMENT_TYPE_OPTIONS}
               onChange={(v) => set('employmentType', v)}
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label="City"
+              maxLength={80}
+              value={values.city}
+              onChange={(e) => set('city', e.target.value)}
+              error={errors.city}
+              helperText="Needed for job boards on on-site and hybrid roles."
+            />
+            <Input
+              label="State / region"
+              maxLength={80}
+              value={values.region}
+              onChange={(e) => set('region', e.target.value)}
+              error={errors.region}
+            />
+            <Input
+              label="Country code"
+              maxLength={2}
+              value={values.country}
+              onChange={(e) => set('country', e.target.value.toUpperCase())}
+              error={errors.country}
+              placeholder="US"
+              helperText="2 letters, e.g. US, CA, GB. For remote roles: where candidates must live."
+            />
+            <Input
+              label="Postal code"
+              maxLength={12}
+              value={values.postalCode}
+              onChange={(e) => set('postalCode', e.target.value)}
+              error={errors.postalCode}
             />
           </div>
 
@@ -933,6 +968,7 @@ export function HiringPage() {
                 </ul>
               )}
             </div>
+            <JobBoardSyndication postings={postings} />
           </>
         )}
       </div>
