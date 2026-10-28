@@ -38,8 +38,8 @@ describe('toOpenApiPath', () => {
 describe('buildOpenApiSpec', () => {
   const spec = buildOpenApiSpec(BASE);
 
-  it('is OpenAPI 3.0.3 with the given server and bearer auth', () => {
-    expect(spec.openapi).toBe('3.0.3');
+  it('is OpenAPI 3.1.0 with the given server and bearer auth', () => {
+    expect(spec.openapi).toBe('3.1.0');
     expect(spec.servers[0].url).toBe(BASE);
     expect(spec.security).toEqual([{ bearerAuth: [] }]);
     expect(spec.components.securitySchemes).toHaveProperty('bearerAuth');
