@@ -37,6 +37,7 @@ import {
   buildToolCsvColumns,
   buildToolCsvRows,
   checkInCribTool,
+  defaultVehicleFor,
   checkOutCribTool,
   cribErrorMessage,
   dueLabel,
@@ -542,7 +543,8 @@ function Crib({ accountOwnerId, canViewCosts, toast }: { accountOwnerId: string;
                         </div>
                         {loan && (
                           <p className="text-sm text-text-secondary">
-                            <span className="font-medium text-text-primary">{loan.technician_name}</span> · {dueLabel(loan, now)}
+                           <span className="font-medium text-text-primary">{loan.technician_name}</span>
+                            {loan.vehicle_label ? ` · ${loan.vehicle_label}` : ''} · {dueLabel(loan, now)}
                           </p>
                         )}
                         <div className="mt-auto flex gap-2">
@@ -757,7 +759,8 @@ function LoanRow({
         <p className="truncate font-medium text-text-primary">{loan.tool_name}</p>
         <p className="text-xs text-text-secondary">
           {loan.tool_number}
-          {showTool ? ` · ${loan.technician_name}` : ''} · {dueLabel(loan, now)}
+         {showTool ? ` · ${loan.technician_name}` : ''}
+          {loan.vehicle_label ? ` · ${loan.vehicle_label}` : ''} · {dueLabel(loan, now)}
           {loan.extended_count > 0 ? ` · extended ${loan.extended_count}×` : ''}
         </p>
       </div>
@@ -824,6 +827,7 @@ function ScanSheet({ onClose, onCode }: { onClose: () => void; onCode: (code: st
 function CheckOutSheet({ tool, options, toast, onClose, onDone }: SheetProps & { tool: CribTool; options: CribOptions }) {
   const defaultHours = tool.default_loan_hours ?? options.settings.default_loan_hours;
   const [techId, setTechId] = useState(options.self_member_id ?? '');
+  const [vehicleId, setVehicleId] = useState(() => defaultVehicleFor(options.vehicles, options.self_member_id));
   const [hours, setHours] = useState(String(defaultHours));
   const [condition, setCondition] = useState<'good' | 'worn'>('good');
   const [note, setNote] = useState('');
@@ -844,8 +848,8 @@ function CheckOutSheet({ tool, options, toast, onClose, onDone }: SheetProps & {
     setBusy(true);
     setError(null);
     try {
-      const r = await checkOutCribTool({ toolId: tool.id, technicianId: techId, loanHours: h.value, condition, note });
-      onDone(`${r.tool_name} checked out to ${r.technician_name}`);
+      const r = await checkOutCribTool({ toolId: tool.id, technicianId: techId, loanHours: h.value, condition, note, vehicleId: vehicleId || null });
+      onDone(`${r.tool_name} checked out to ${r.technician_name}${r.vehicle_label ? ` (${r.vehicle_label})` : ''}`);
     } catch (e) {
       const m = cribErrorMessage(e);
       setError(m);
@@ -861,7 +865,11 @@ function CheckOutSheet({ tool, options, toast, onClose, onDone }: SheetProps & {
           <label htmlFor="co-tech" className={labelClass}>
             Taken by
           </label>
-          <select id="co-tech" className={selectClass} value={techId} onChange={(e) => setTechId(e.target.value)} disabled={busy || options.self_only}>
+          <select id="co-tech" className={selectClass} value={techId} onChange={(e) => {
+              setTechId(e.target.value);
+              const v = defaultVehicleFor(options.vehicles, e.target.value);
+              if (v) setVehicleId(v);
+            }} disabled={busy || options.self_only}>
             <option value="">Choose a team member…</option>
             {options.technicians.map((t) => (
               <option key={t.id} value={t.id}>
@@ -873,6 +881,22 @@ function CheckOutSheet({ tool, options, toast, onClose, onDone }: SheetProps & {
             <p className="mt-1.5 text-xs text-text-secondary">No active team members yet. Invite your technicians from the Team page.</p>
           )}
         </div>
+        {options.vehicles.length > 0 && (
+          <div>
+            <label htmlFor="co-vehicle" className={labelClass}>
+              Vehicle (optional)
+            </label>
+            <select id="co-vehicle" className={selectClass} value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} disabled={busy}>
+              <option value="">No vehicle</option>
+              {options.vehicles.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.label}
+                  {v.plate ? ` (${v.plate})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <Input label="Return within (hours)" inputMode="numeric" value={hours} onChange={(e) => setHours(e.target.value)} disabled={busy} helperText="Default comes from the tool or the crib settings." />
         <div>
           <label htmlFor="co-cond" className={labelClass}>
@@ -1286,6 +1310,12 @@ function DetailSheet({
               <dd className="text-text-primary">
                 {loan.technician_name} · {dueLabel(loan, Date.now())}
               </dd>
+              {loan.vehicle_label && (
+                <>
+                  <dt className="text-text-secondary">Vehicle</dt>
+                  <dd className="text-text-primary">{loan.vehicle_label}</dd>
+                </>
+              )}
             </>
           )}
         </dl>
