@@ -16,8 +16,8 @@ import {
   type ProductUnit,
   type RateOverrides,
   type TradePack,
+  type ChemId,
 } from '@/lib/tradePacks';
-
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
 /* ------------------------------------------------------------------ */
@@ -47,6 +47,10 @@ export interface RegulatedProduct {
   sds_url: string | null;
   notes: string | null;
   archived_at: string | null;
+  /** Pool pack: which chemical this product is, so dosing recommendations can use it. */
+  chem_key: ChemId | null;
+  /** Strength of that chemical in percent (e.g. 12.5 for 12.5% liquid chlorine). */
+  strength_pct: number | null;
 }
 
 export interface ProductInput {
@@ -62,6 +66,8 @@ export interface ProductInput {
   reentry_hours: string;
   sds_url: string;
   notes: string;
+  chem_key?: ChemId | '';
+  strength_pct?: string;
 }
 
 export interface TradeLogEntry {
@@ -268,7 +274,7 @@ export function useTradePacks() {
 /* ------------------------------------------------------------------ */
 
 const PRODUCT_COLS =
-  'id, pack_key, name, kind, unit, epa_reg_number, epa_exempt_25b, active_ingredient, restricted_use, signal_word, label_max_rate, reentry_hours, sds_url, notes, archived_at';
+  'id, pack_key, name, kind, unit, epa_reg_number, epa_exempt_25b, active_ingredient, restricted_use, signal_word, label_max_rate, reentry_hours, sds_url, notes, archived_at, chem_key, strength_pct';
 
 export async function fetchProducts(ownerId: string | null | undefined, packKey: PackKey, includeArchived = false): Promise<RegulatedProduct[]> {
   let q = supabase.from('trade_regulated_products').select(PRODUCT_COLS).eq('user_id', owner(ownerId)).eq('pack_key', packKey).order('name');
@@ -299,9 +305,10 @@ export function productPayload(input: ProductInput) {
     reentry_hours: num(input.reentry_hours),
     sds_url: input.sds_url.trim() || null,
     notes: input.notes.trim() || null,
+    chem_key: input.chem_key || null,
+    strength_pct: input.chem_key ? num(input.strength_pct ?? '') : null,
   };
 }
-
 export async function saveProduct(ownerId: string | null | undefined, packKey: PackKey, input: ProductInput, id?: string): Promise<void> {
   const o = owner(ownerId);
   const payload = productPayload(input);
