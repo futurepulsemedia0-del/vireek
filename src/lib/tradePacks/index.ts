@@ -8,6 +8,8 @@ export * from './types';
 export * from './framework';
 export { PEST_CONTROL_PACK, PEST_CREDENTIAL, PEST_RESTRICTED_CREDENTIAL, computeStockBalance, summarizeActivity } from './pestControl';
 export { POOL_SERVICE_PACK, CHEM_RANGES, evaluateChemistry, langelierIndex, saturation, chemStatus } from './poolService';
+export type { ChemKey, ChemRange, ChemReadings, ChemStatus, ChemEvaluation, Saturation } from './poolService';
+export * from './poolChemistry';
 
 export const TRADE_PACKS: TradePack[] = [PEST_CONTROL_PACK, POOL_SERVICE_PACK];
 
