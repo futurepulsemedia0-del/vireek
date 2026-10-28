@@ -594,6 +594,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Acquisitions', href: '/dashboard/acquisitions', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Regional Packs', href: '/dashboard/settings/regional-packs', icon: Globe, requiresPermission: 'can_edit_business_profile' }, 
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
+  { label: 'Org Chart', href: '/dashboard/team/org-chart', icon: Network },
   { label: 'Time Off', href: '/dashboard/time-off', icon: CalendarOff, requiresPermission: 'can_manage_team' },
   { label: 'HR & Onboarding', href: '/dashboard/hr', icon: ClipboardList, ownerOnly: true }, 
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
