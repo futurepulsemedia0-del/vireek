@@ -15,6 +15,7 @@ import {
   shouldRecord, toE164, xml, type Destination, type Schedule, type Strategy,
 } from "../_shared/pbx/logic.ts";
 import { LEG_STATUS, twiml, validTwilioSignature } from "../_shared/pbx/twilio.ts";
+import { SEALED_UNAVAILABLE, getSealPolicy, sealField } from "../_shared/trust/vault.ts";
 import {
   appendIvrPath, decideIvr, ivrDepth, ivrPromptText, ivrRetryMessage, IVR_MAX_DEPTH, toIvrMenuConfig,
   type IvrMenuConfig, type IvrReason,
@@ -703,13 +704,27 @@ Deno.serve(async (req: Request) => {
         const call = await loadCall(admin, q("call"));
         if (!call || !params.RecordingSid) return empty();
         const ok = params.TranscriptionStatus === "completed" && params.TranscriptionText;
+        const text: string | null = ok ? params.TranscriptionText.slice(0, 20000) : null;
+        // Sealing tenants (encryption policy, or pinned to another region) never get plaintext in this plane.
+        const sealing = text ? !!(await getSealPolicy(admin, call.account_owner_id).catch(() => null))?.transcripts : false;
         await admin.from("pbx_voicemails").upsert({
           account_owner_id: call.account_owner_id, call_id: call.id, recording_sid: params.RecordingSid,
           mailbox_extension_id: q("mb") || null,
-          transcript: ok ? params.TranscriptionText.slice(0, 20000) : null,
-          transcript_status: ok ? "completed" : "failed",
+          transcript: sealing ? null : text,
+          transcript_status: ok ? (sealing ? "unavailable" : "completed") : "failed",
         }, { onConflict: "recording_sid" });
-        if (ok && call.calls_id) await admin.from("calls").update({ transcript: params.TranscriptionText.slice(0, 20000) }).eq("id", call.calls_id);
+        if (text && call.calls_id) {
+          let stored: string = text;
+          if (sealing) {
+            try {
+              stored = await sealField(admin, { ownerId: call.account_owner_id, table: "calls", rowId: call.calls_id, column: "transcript", value: text });
+            } catch (e) {
+              stored = SEALED_UNAVAILABLE; // fail closed: plaintext is not stored
+              console.error(JSON.stringify({ event: "pbx_voicemail_seal_failed", error: String(e) }));
+            }
+          }
+          await admin.from("calls").update({ transcript: stored }).eq("id", call.calls_id);
+        }
         return empty();
       }
 
