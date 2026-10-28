@@ -153,6 +153,7 @@ Callback functions are deployed with `--no-verify-jwt`. Redirect URI = the callb
 | `HUBSPOT_CLIENT_ID`, `HUBSPOT_CLIENT_SECRET`, `HUBSPOT_STATE_SECRET` | `hubspot-oauth-start/-callback` | HubSpot developer app |
 | `JOBBER_CLIENT_ID`, `JOBBER_CLIENT_SECRET`, `JOBBER_STATE_SECRET` | `jobber-oauth-start/-callback`, `_shared/price-book/jobber.ts` | Jobber developer app |
 | `ADS_STATE_SECRET`, `ADS_TOKEN_ENCRYPTION_KEY` (32-byte base64), `ADS_CRON_SECRET` | `ads-oauth-start/-callback`, `_shared/ads/common.ts` | generate locally |
+| `SIEM_ENCRYPTION_KEY` (32-byte base64), `SIEM_CRON_SECRET` | `siem-stream` | `openssl rand -base64 32` / `openssl rand -hex 32` |
 | `GOOGLE_ADS_CLIENT_ID`, `GOOGLE_ADS_CLIENT_SECRET`, `GOOGLE_ADS_DEVELOPER_TOKEN`, `GOOGLE_ADS_API_VERSION` (default `v24`) | `_shared/ads/google.ts` | Google Ads API access |
 | `META_APP_ID`, `META_APP_SECRET`, `META_GRAPH_VERSION` (default `v23.0`) | `_shared/ads/meta.ts` | Meta for Developers |
 | `GOOGLE_MAPS_API_KEY` | `optimize-route` | Google Cloud → Maps |
