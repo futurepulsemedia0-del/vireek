@@ -52,6 +52,8 @@ interface Props {
   /** When set, entries are logged against this job (and only this job's entries are listed). */
   job?: LogJobContext;
   onChanged?: () => void;
+  /** Record types handled by a dedicated panel: kept in the ledger, hidden from the entry form. */
+  excludeTypes?: readonly string[];
 }
 
 function FieldInput({ f, value, onChange }: { f: LogFieldDef; value: unknown; onChange: (v: unknown) => void }) {
@@ -135,10 +137,10 @@ function summarize(entry: TradeLogEntry, pack: TradePack): string {
     .join(' · ');
 }
 
-export function ComplianceLogPanel({ pack, ownerId, install, job, onChanged }: Props) {
+export function ComplianceLogPanel({ pack, ownerId, install, job, onChanged, excludeTypes }: Props) {
   const { toast } = useToast();
   const { isOwner } = useAuth();
-  const types = useMemo(() => (job ? pack.logTypes : pack.logTypes.filter((t) => !t.requiresJob)), [pack, job]);
+  const types = useMemo(() => (job ? pack.logTypes : pack.logTypes.filter((t) => !t.requiresJob)).filter((t) => !excludeTypes?.includes(t.key)), [pack, job, excludeTypes]);
 
   const [entries, setEntries] = useState<TradeLogEntry[]>([]);
   const [products, setProducts] = useState<RegulatedProduct[]>([]);
