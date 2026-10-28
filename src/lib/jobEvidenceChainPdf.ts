@@ -118,7 +118,7 @@ export async function exportEvidenceChainPdf(input: {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(...ACCENT);
-  doc.text('VIREEK · JOB EVIDENCE CHAIN', M, y);
+  doc.text(`${getPdfBrand().wordmark.toUpperCase().slice(0, 28)} · JOB EVIDENCE CHAIN`, M, y);
   y += 22;
   write('Evidence Chain Report', { size: 22, bold: true, gap: 6 });
   write(
