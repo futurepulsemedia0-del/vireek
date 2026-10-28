@@ -133,7 +133,7 @@ export function buildEvidencePacket(input: PacketInput): jsPDF {
   y += 10;
   doc.setDrawColor(...LINE); doc.line(M, y, W - M, y); y += 12;
   text(RULES_DISCLAIMER, 8, MUTED);
-  text('This packet is a worksheet. Nothing has been submitted to any manufacturer, utility or government portal by Vireek.', 8, MUTED);
+  text(`This packet is a worksheet. Nothing has been submitted to any manufacturer, utility or government portal by ${getPdfBrand().productName}.`, 8, MUTED);
 
   const pages = doc.getNumberOfPages();
   for (let i = 1; i <= pages; i++) {
