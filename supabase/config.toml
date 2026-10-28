@@ -54,3 +54,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.bi-export-run]
 verify_jwt = false
+[functions.job-feeds]
+verify_jwt = false
