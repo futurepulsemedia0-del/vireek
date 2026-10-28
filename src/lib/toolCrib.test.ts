@@ -290,3 +290,17 @@ describe('cribErrorMessage', () => {
     expect(cribErrorMessage(null)).toBe('Something went wrong. Please try again.');
   });
 });
+describe('defaultVehicleFor', () => {
+  const vehicles = [
+    { id: 'v1', label: 'Truck 1', plate: null, assigned_technician_id: 'tech-a' },
+    { id: 'v2', label: 'Truck 2', plate: 'XY-1', assigned_technician_id: null },
+  ];
+  it('picks the truck assigned to the technician', () => {
+    expect(defaultVehicleFor(vehicles, 'tech-a')).toBe('v1');
+  });
+  it('returns empty when nobody is chosen or no truck is assigned', () => {
+    expect(defaultVehicleFor(vehicles, '')).toBe('');
+    expect(defaultVehicleFor(vehicles, null)).toBe('');
+    expect(defaultVehicleFor(vehicles, 'tech-z')).toBe('');
+  });
+});
