@@ -1,3 +1,4 @@
+import { getPdfBrand } from '@/lib/pdfBrand';
 import type { jsPDF as JsPdfType } from 'jspdf';
 import { formatCents, type Invoice } from '@/lib/invoices';
 import {
@@ -10,7 +11,6 @@ import {
 // Manual vector layout (same approach as src/lib/pdf.ts). jsPDF is loaded on
 // demand so it never lands in the main dashboard bundle.
 
-const ACCENT: [number, number, number] = [32, 58, 216];
 const INK: [number, number, number] = [23, 23, 23];
 const MUTED: [number, number, number] = [110, 110, 120];
 const SUCCESS: [number, number, number] = [22, 130, 87];
@@ -41,6 +41,8 @@ export function invoicePdfFilename(invoice: Pick<Invoice, 'invoice_number'>): st
 export async function buildInvoicePdf(input: InvoicePdfInput): Promise<JsPdfType> {
   const { jsPDF } = await import('jspdf');
   const { invoice, ledger, payments, refunds, businessName } = input;
+  const brand = getPdfBrand();
+  const ACCENT = brand.primary;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   let y = 0;
 
@@ -52,7 +54,7 @@ export async function buildInvoicePdf(input: InvoicePdfInput): Promise<JsPdfType
       doc.setFontSize(8);
       doc.setTextColor(...MUTED);
       doc.text(`${invoice.invoice_number} · Page ${i} of ${pages}`, M, PAGE_H - 36);
-      doc.text('Generated with Vireek', RIGHT, PAGE_H - 36, { align: 'right' });
+      if (brand.attribution) doc.text(brand.attribution, RIGHT, PAGE_H - 36, { align: 'right' });
     }
   };
 
@@ -69,6 +71,11 @@ export async function buildInvoicePdf(input: InvoicePdfInput): Promise<JsPdfType
   doc.setFillColor(...ACCENT);
   doc.rect(0, 0, PAGE_W, 6, 'F');
   y = 52;
+  if (brand.logo) {
+    const lh = 28;
+    doc.addImage(brand.logo.dataUrl, 'PNG', M, 18, Math.min(120, lh * brand.logo.aspect), lh);
+    y = 18 + lh + 22;
+  }
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(...INK);
