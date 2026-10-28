@@ -280,6 +280,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Neighborhood Revenue', href: '/dashboard/neighborhood-revenue', icon: MapPinned, requiresPermission: 'can_view_billing' },
   { label: 'Marketing Automation', href: '/dashboard/marketing', icon: Megaphone },
   { label: 'Content Calendar', href: '/dashboard/marketing/calendar', icon: CalendarRange, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Creative Studio', href: '/dashboard/marketing/creative', icon: Sparkles, requiresPermission: 'can_edit_business_profile' },
   { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Loyalty', href: '/dashboard/loyalty', icon: Crown, requiresPermission: 'can_view_billing' },
