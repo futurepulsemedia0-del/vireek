@@ -48,6 +48,8 @@ export interface CribLoan {
   tool_number: string;
   technician_id: string | null;
   technician_name: string;
+  vehicle_id: string | null;
+  vehicle_label: string | null;
   status: LoanStatus;
   checked_out_at: string;
   due_at: string;
@@ -79,6 +81,12 @@ export interface CribTechnician {
   role: string;
 }
 
+export interface CribVehicle {
+  id: string;
+  label: string;
+  plate: string | null;
+  assigned_technician_id: string | null;
+}
 export interface CribSettings {
   default_loan_hours: number;
   lost_after_hours: number;
@@ -87,6 +95,7 @@ export interface CribSettings {
 
 export interface CribOptions {
   technicians: CribTechnician[];
+  vehicles: CribVehicle[];
   /** The caller's own team_members.id; null for the account owner. */
   self_member_id: string | null;
   /** Technician without can_manage_team: may only act on their own loans. */
@@ -380,6 +389,11 @@ export interface ToolCsvRow {
   loan: CribLoan | null;
 }
 
+/** The vehicle assigned to this team member, if any (used to pre-select the truck at check-out). */
+export function defaultVehicleFor(vehicles: CribVehicle[], techId: string | null | undefined): string {
+  if (!techId) return '';
+  return vehicles.find((v) => v.assigned_technician_id === techId)?.id ?? '';
+}
 export function buildToolCsvRows(tools: CribTool[], loans: CribLoan[]): ToolCsvRow[] {
   const open = new Map<string, CribLoan>();
   for (const l of loans) if (l.status === 'out') open.set(l.tool_id, l);
@@ -395,6 +409,7 @@ export function buildToolCsvColumns(showCosts: boolean): CsvColumn<ToolCsvRow>[]
     { header: 'Barcode', accessor: (r) => r.tool.barcode },
     { header: 'Status', accessor: (r) => TOOL_STATUS_LABELS[r.tool.status] },
     { header: 'Held by', accessor: (r) => r.loan?.technician_name ?? '' },
+    { header: 'Vehicle', accessor: (r) => r.loan?.vehicle_label ?? '' },
     { header: 'Due', accessor: (r) => r.loan?.due_at ?? '' },
   ];
   if (showCosts) cols.push({ header: 'Purchase cost', accessor: (r) => (r.tool.purchase_cost_cents === null ? null : (r.tool.purchase_cost_cents / 100).toFixed(2)) });
@@ -513,18 +528,19 @@ export async function checkOutCribTool(params: {
   loanHours: number | null;
   condition: 'good' | 'worn';
   note: string;
-}): Promise<{ loan_id: string; tool_name: string; technician_name: string; due_at: string }> {
+  vehicleId?: string | null;
+}): Promise<{ loan_id: string; tool_name: string; technician_name: string; vehicle_label: string | null; due_at: string }> {
   const { data, error } = await supabase.rpc('check_out_crib_tool', {
     p_tool_id: params.toolId,
     p_technician_id: params.technicianId,
     p_loan_hours: params.loanHours,
     p_condition: params.condition,
     p_note: params.note,
+    p_vehicle_id: params.vehicleId ?? null,
   });
   if (error) throw error;
-  return data as { loan_id: string; tool_name: string; technician_name: string; due_at: string };
+  return data as { loan_id: string; tool_name: string; technician_name: string; vehicle_label: string | null; due_at: string };
 }
-
 export async function checkInCribTool(params: {
   loanId: string;
   condition: ToolCondition;
