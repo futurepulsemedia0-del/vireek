@@ -7,6 +7,7 @@ import {
   buildToolCsvColumns,
   buildToolCsvRows,
   cribErrorMessage,
+  defaultVehicleFor,
   dueLabel,
   filterTools,
   findToolByCode,
@@ -71,6 +72,8 @@ const loan = (over: Partial<CribLoan> = {}): CribLoan => {
     lost_note: null,
     overdue_alerted_at: null,
     lost_alerted_at: null,
+    vehicle_id: null,
+    vehicle_label: null,
     ...over,
   };
 };
