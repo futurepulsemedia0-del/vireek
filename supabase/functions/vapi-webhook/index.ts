@@ -1936,6 +1936,38 @@ async function resolveCallSource(admin: SupabaseClient, phoneNumberId: string | 
     .maybeSingle();
   return data?.source ?? null;
 }
+// Dynamic number insertion (website call tracking) — see 20280102093000_dynamic_number_insertion.sql.
+// Best-effort: never throws; null when the dialled number is not a DNI tracking number.
+interface DniAttribution {
+  mode: string;
+  source_key: string;
+  source_label: string;
+  session_id?: string;
+  attribution?: Record<string, unknown>;
+}
+
+async function resolveDniAttribution(
+  admin: SupabaseClient,
+  ownerId: string,
+  dialedNumber: string | undefined,
+  phoneNumberId: string | undefined,
+  startedAt: string | undefined,
+): Promise<DniAttribution | null> {
+  if (!dialedNumber && !phoneNumberId) return null;
+  try {
+    const at = startedAt && !Number.isNaN(Date.parse(startedAt)) ? startedAt : new Date().toISOString();
+    const { data, error } = await admin.rpc("dni_resolve_call", {
+      p_owner: ownerId,
+      p_dialed: dialedNumber ?? null,
+      p_vapi_phone_number_id: phoneNumberId ?? null,
+      p_at: at,
+    });
+    if (error || !data) return null;
+    return data as DniAttribution;
+  } catch {
+    return null;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // capture_insurance_claim — for restoration businesses (water/fire/storm
@@ -2100,6 +2132,19 @@ async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMess
     }
   }
 
+  // Dynamic number insertion: only fills the source if Call Sources did not already set it.
+  const dniDialed =
+    message.phoneNumber?.number ??
+    (message.call as { phoneNumber?: { number?: string } } | undefined)?.phoneNumber?.number;
+  const dni = await resolveDniAttribution(admin, tenant.userId, dniDialed, dialedPhoneNumberId, message.call?.startedAt);
+  if (dni) {
+    patch.dni_source_key = dni.source_key;
+    if (dni.session_id) patch.dni_session_id = dni.session_id;
+    if (dni.attribution) patch.dni_attribution = dni.attribution;
+    if (!patch.source_label) patch.source_label = dni.source_label;
+    if (!patch.source_channel) patch.source_channel = dni.source_key;
+  }
+  
   let transcript: string | null = null;
   if (message.type === "end-of-call-report") {
 const pciSess = vapiCallId
