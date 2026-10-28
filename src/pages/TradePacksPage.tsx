@@ -12,15 +12,17 @@ import { ComplianceLogPanel } from '@/components/tradePacks/ComplianceLogPanel';
 import { PlansPricingPanel } from '@/components/tradePacks/PlansPricingPanel';
 import { ProductRegisterPanel } from '@/components/tradePacks/ProductRegisterPanel';
 import { RoutesPanel } from '@/components/tradePacks/RoutesPanel';
+import { UsageReportsPanel } from '@/components/tradePacks/UsageReportsPanel';
 import { Pill } from '@/components/tradePacks/shared';
 
-type Tab = 'overview' | 'log' | 'products' | 'routes' | 'plans';
+type Tab = 'overview' | 'log' | 'products' | 'routes' | 'plans' | 'reports';
 const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'overview', label: 'Overview' },
   { key: 'log', label: 'Compliance log' },
   { key: 'products', label: 'Products' },
   { key: 'routes', label: 'Routes' },
   { key: 'plans', label: 'Plans & pricing' },
+  { key: 'reports', label: 'Usage reports' },
 ];
 
 function Overview({ pack }: { pack: TradePack }) {
@@ -169,7 +171,7 @@ export function TradePacksPage() {
             {isOn && ownerId && install ? (
               <>
                 <nav className="flex flex-wrap gap-1 border-b border-border" aria-label="Pack sections">
-                  {TABS.map((t) => (
+                  {TABS.filter((t) => t.key !== 'reports' || pack.key === 'pest_control').map((t) => (
                     <button
                       key={t.key}
                       type="button"
@@ -193,6 +195,7 @@ export function TradePacksPage() {
                 {tab === 'products' && <ProductRegisterPanel pack={pack} ownerId={ownerId} canManage={canManage} />}
                 {tab === 'routes' && <RoutesPanel pack={pack} ownerId={ownerId} canManage={canManage} />}
                 {tab === 'plans' && <PlansPricingPanel pack={pack} ownerId={ownerId} install={install} canManage={canManage} onSaved={reload} />}
+                {tab === 'reports' && pack.key === 'pest_control' && <UsageReportsPanel ownerId={ownerId} canManage={canManage} />}
               </>
             ) : (
               <Overview pack={pack} />
