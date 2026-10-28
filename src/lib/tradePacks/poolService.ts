@@ -126,7 +126,7 @@ export const POOL_LOG_TYPES: LogTypeDef[] = [
     requiredCredentials: [],
     restrictedCredentials: [],
     retentionYears: 2,
-    atLeastOneOf: ['fc', 'tc', 'ph', 'ta', 'cya', 'ch', 'salt'],
+    atLeastOneOf: ['fc', 'tc', 'br', 'ph', 'ta', 'cya', 'ch', 'salt'],
     fields: [
       { key: 'fc', label: 'Free chlorine (ppm)', type: 'number', min: 0, max: 100, unit: 'ppm' },
       { key: 'tc', label: 'Total chlorine (ppm)', type: 'number', min: 0, max: 100, unit: 'ppm' },
@@ -138,6 +138,10 @@ export const POOL_LOG_TYPES: LogTypeDef[] = [
       { key: 'temp_f', label: 'Water temperature (°F)', type: 'number', min: 32, max: 120, unit: '°F' },
       { key: 'filter_psi', label: 'Filter pressure (psi)', type: 'number', min: 0, max: 100, unit: 'psi' },
       { key: 'clarity', label: 'Water clarity', type: 'select', options: ['Clear', 'Hazy', 'Cloudy', 'Green', 'Black spot / mustard'] },
+      { key: 'br', label: 'Bromine (ppm)', type: 'number', min: 0, max: 50, unit: 'ppm' },
+      { key: 'water_body', label: 'Water body', type: 'select', options: ['Pool', 'Spa / hot tub'] },
+      { key: 'sanitizer', label: 'Sanitizer system', type: 'select', options: ['Liquid chlorine', 'Trichlor tablets', 'Salt (SWG)', 'Bromine', 'Mineral / ozone', 'Other'] },
+      { key: 'volume_gal', label: 'Water volume (gal)', type: 'number', min: 20, max: 5000000, unit: 'gal' },
     ],
   },
   {
@@ -154,8 +158,9 @@ export const POOL_LOG_TYPES: LogTypeDef[] = [
     fields: [
       { key: 'amount', label: 'Amount added', type: 'number', required: true, min: 0.0001, max: 100000 },
       { key: 'amount_unit', label: 'Unit', type: 'select', required: true, options: [...PRODUCT_UNITS] },
-      { key: 'target', label: 'Purpose', type: 'select', required: true, options: ['Raise chlorine', 'Lower pH', 'Raise pH', 'Raise alkalinity', 'Raise stabilizer', 'Raise calcium', 'Add salt', 'Shock / oxidize', 'Algae treatment', 'Clarify', 'Other'] },
+      { key: 'target', label: 'Purpose', type: 'select', required: true, options: ['Raise chlorine', 'Raise bromine', 'Lower pH', 'Raise pH', 'Raise alkalinity', 'Lower alkalinity', 'Raise stabilizer', 'Raise calcium', 'Add salt', 'Shock / oxidize', 'Algae treatment', 'Clarify', 'Other'] },
       { key: 'method', label: 'Method', type: 'select', options: ['Broadcast', 'Pre-dissolved', 'Feeder / floater', 'Through skimmer', 'Automated dosing'] },
+      { key: 'from_recommendation', label: 'From dosing recommendation', type: 'boolean' },
     ],
   },
   {
