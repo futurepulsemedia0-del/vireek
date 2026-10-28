@@ -6,6 +6,18 @@
       "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/mcp-server/a2a/agent-card"
     },
     {
+      "source": "/feeds/indeed.xml",
+      "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/job-feeds?board=indeed"
+    },
+    {
+      "source": "/feeds/ziprecruiter.xml",
+      "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/job-feeds?board=ziprecruiter"
+    },
+    {
+      "source": "/feeds/linkedin.xml",
+      "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/job-feeds?board=linkedin"
+    },
+    {
       "source": "/sitemap-careers.xml",
       "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/careers-sitemap"
     },
