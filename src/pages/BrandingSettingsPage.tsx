@@ -29,6 +29,10 @@ import { Skeleton } from '@/components/Skeleton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { Link } from 'react-router-dom';
+import { fetchBrandEntitlements, effectiveShowVireek, WHITE_LABEL_PLAN_LABEL, type BrandEntitlements } from '@/lib/whiteLabel';
+import { notifyBrandChanged } from '@/lib/pdfBrand';
+import { fetchEmailSettings, STATUS_LABEL as SENDER_STATUS_LABEL, type EmailSettingsRow } from '@/lib/emailSettings';
 import {
   COLOR_PRESETS,
   DEFAULT_FORM,
@@ -240,7 +244,7 @@ function PreviewShell({ title, children }: { title: string; children: React.Reac
   );
 }
 
-function PortalPreview({ form, logoUrl, businessName }: { form: BrandForm; logoUrl: string | null; businessName: string }) {
+function PortalPreview({ form, logoUrl, businessName, showVireek }: { form: BrandForm; logoUrl: string | null; businessName: string; showVireek: boolean }) {
   const vars = brandCssVars(form.primary_color, form.accent_color) as React.CSSProperties;
   const dark = form.portal_theme === 'dark';
   const bg = dark ? '#0B1220' : '#FFFFFF';
@@ -274,7 +278,7 @@ function PortalPreview({ form, logoUrl, businessName }: { form: BrandForm; logoU
             My jobs
           </span>
         </div>
-        {form.portal_show_powered_by && (
+        {showVireek && (
           <p className="pt-1 text-[10px]" style={{ color: muted }}>Powered by Vireek</p>
         )}
       </div>
@@ -350,6 +354,34 @@ export function BrandingSettingsPage() {
   const [confirmRemoveLogo, setConfirmRemoveLogo] = useState(false);
   const [previewTab, setPreviewTab] = useState<'portal' | 'email' | 'sms'>('portal');
   const fileRef = useRef<HTMLInputElement>(null);
+  const [entitlements, setEntitlements] = useState<BrandEntitlements>({
+    plan: null,
+    white_label: true,
+    business_name: null,
+    known: false,
+  });
+  const [senderDomain, setSenderDomain] = useState<EmailSettingsRow | null>(null);
+
+  useEffect(() => {
+    if (!canManage) return;
+    let cancelled = false;
+    void fetchBrandEntitlements().then((e) => {
+      if (!cancelled) setEntitlements(e);
+    });
+    fetchEmailSettings()
+      .then((s) => {
+        if (!cancelled) setSenderDomain(s.settings);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [canManage]);
+
+  // Any save/logo change → refresh the brand used by exported PDFs.
+  useEffect(() => {
+    if (saved) notifyBrandChanged();
+  }, [saved]);
 
   const load = useCallback(async () => {
     if (!accountOwnerId) return;
@@ -408,7 +440,9 @@ export function BrandingSettingsPage() {
     } catch (err) {
       const code = (err as { code?: string })?.code;
       toast(
-        code === '23505'
+        String((err as { message?: string })?.message ?? '').includes('PLAN_REQUIRED')
+          ? `Custom domains and hiding Vireek branding need the ${WHITE_LABEL_PLAN_LABEL} plan or higher.`
+          : code === '23505'
           ? 'That domain is already verified by another account.'
           : 'Could not save your branding. Please try again.',
         'error',
@@ -460,10 +494,13 @@ export function BrandingSettingsPage() {
     try {
       const result = await verifyCustomDomain();
       if (accountOwnerId) setSaved(await fetchBrandSettings(accountOwnerId));
-      if (result.status === 'verified') toast('Domain verified.', 'success');
+      if (result.status === 'verified') {
+        if (result.provisioning === 'failed') toast(result.provision_error ?? 'Verified — activation is still pending.', 'info');
+        else toast('Domain verified.', 'success');
+      }
       else toast(result.error ?? 'Not verified yet.', 'info');
-    } catch {
-      toast('Could not check the domain right now. Please try again.', 'error');
+    } catch (err) {
+      toast(err instanceof Error && err.message ? err.message : 'Could not check the domain right now. Please try again.', 'error');
     } finally {
       setVerifying(false);
     }
@@ -603,6 +640,19 @@ export function BrandingSettingsPage() {
             {/* Email & SMS */}
             <Card className={SECTION}>
               <SectionHeader icon={Mail} title="Email & SMS identity" description="How messages from your business appear in a customer's inbox and phone." />
+              <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-bg-primary px-3 py-2 text-xs text-text-secondary">
+                <Mail size={13} aria-hidden="true" />
+                {senderDomain?.sender_domain ? (
+                  <span>
+                    Sending from <strong className="text-text-primary">{senderDomain.sender_domain}</strong> · {SENDER_STATUS_LABEL[senderDomain.domain_status]}
+                  </span>
+                ) : (
+                  <span>Emails currently send from a shared address.</span>
+                )}
+                <Link to="/dashboard/settings/email" className="ml-auto font-medium text-accent hover:underline">
+                  {senderDomain?.sender_domain ? 'Manage' : 'Verify your sender domain'}
+                </Link>
+              </div>
               <div className="space-y-4">
                 <Input
                   label="Sender name"
@@ -686,13 +736,16 @@ export function BrandingSettingsPage() {
                 <label className="flex cursor-pointer items-start gap-3">
                   <input
                     type="checkbox"
-                    checked={form.portal_show_powered_by}
+                    checked={effectiveShowVireek(form.portal_show_powered_by, entitlements.white_label)}
+                    disabled={!entitlements.white_label}
                     onChange={(e) => set('portal_show_powered_by', e.target.checked)}
                     className="focus-ring mt-1 h-4 w-4 rounded border-border"
                   />
                   <span>
-                    <span className="block text-sm font-medium text-text-primary">Show &ldquo;Powered by Vireek&rdquo;</span>
-                    <span className="block text-xs text-text-secondary">Turn off for a fully white-labeled portal.</span>
+                    <span className="block text-sm font-medium text-text-primary">Show Vireek branding</span>
+                    <span className="block text-xs text-text-secondary">{entitlements.white_label
+                      ? 'Applies to the portal, emails and PDFs. Turn off for a fully white-labeled experience.'
+                      : `Hiding Vireek branding is available on the ${WHITE_LABEL_PLAN_LABEL} plan and above.`}</span>
                   </span>
                 </label>
               </div>
@@ -701,10 +754,17 @@ export function BrandingSettingsPage() {
             {/* Domain */}
             <Card className={SECTION}>
               <SectionHeader icon={Globe} title="Custom domain" description="Serve your customer portal from your own address, e.g. portal.yourcompany.com." />
+              {!entitlements.white_label && (
+                <p role="note" className="mb-4 flex items-start gap-2 rounded-xl bg-bg-tertiary px-4 py-3 text-sm text-text-secondary">
+                  <Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+                  Custom domains are available on the {WHITE_LABEL_PLAN_LABEL} plan and above.
+                </p>
+              )}
               <Input
                 label="Domain"
                 value={form.custom_domain}
                 onChange={(e) => set('custom_domain', e.target.value)}
+                disabled={!entitlements.white_label && !saved?.custom_domain}
                 placeholder="portal.yourcompany.com"
                 spellCheck={false}
                 autoCapitalize="none"
@@ -753,10 +813,16 @@ export function BrandingSettingsPage() {
                       {saved?.domain_error && domainStatus !== 'verified' && (
                         <p role="alert" className="mt-3 text-sm text-danger">{saved.domain_error}</p>
                       )}
-                      {domainStatus !== 'verified' && (
+                      {domainStatus === 'verified' && saved?.domain_provision_error && (
+                        <p role="alert" className="mt-3 text-sm text-danger">{saved.domain_provision_error}</p>
+                      )}
+                      {domainStatus === 'verified' && saved?.domain_provisioned_at && (
+                        <p className="mt-3 text-sm text-text-secondary">Connected to our hosting. HTTPS is issued automatically once your CNAME resolves.</p>
+                      )}
+                      {(domainStatus !== 'verified' || saved?.domain_provision_error) && (
                         <Button variant="secondary" size="sm" className="mt-4" onClick={() => void handleVerify()} disabled={verifying || dirty}>
                           {verifying ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-                          {verifying ? 'Checking DNS…' : 'Check DNS records'}
+                         {verifying ? 'Checking DNS…' : domainStatus === 'verified' ? 'Retry activation' : 'Check DNS records'}
                         </Button>
                       )}
                       {dirty && domainStatus !== 'verified' && (
@@ -795,7 +861,7 @@ export function BrandingSettingsPage() {
               <div role="tabpanel">
                 {previewTab === 'portal' && (
                   <PreviewShell title="Customer portal">
-                    <PortalPreview form={form} logoUrl={logoUrl} businessName={businessName} />
+                    <PortalPreview form={form} logoUrl={logoUrl} businessName={businessName} showVireek={effectiveShowVireek(form.portal_show_powered_by, entitlements.white_label)} />
                   </PreviewShell>
                 )}
                 {previewTab === 'email' && (
