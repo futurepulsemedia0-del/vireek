@@ -1,3 +1,4 @@
+import { applyFooter, brandedFrom, type EmailBrand } from "../branding/brand.ts";
 // Shared SMS (Twilio) + email (Resend) senders for transactional
 // messages triggered outside a live call. Sarah's in-call SMS/email
 // goes through Vapi directly — this is only for things the app itself
@@ -42,14 +43,28 @@ export async function sendVoiceCall(to: string, message: string): Promise<{ ok: 
   return { ok: true };
 }
 
-export async function sendEmail(to: string, subject: string, html: string, text: string): Promise<{ ok: boolean; error?: string }> {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  text: string,
+  brand?: EmailBrand,
+): Promise<{ ok: boolean; error?: string }> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
-  const from = Deno.env.get("RESEND_FROM_EMAIL") || "Vireek <onboarding@resend.dev>";
+  const platformFrom = Deno.env.get("RESEND_FROM_EMAIL") || "Vireek <onboarding@resend.dev>";
   if (!apiKey) return { ok: false, error: "Email isn't configured yet (missing RESEND_API_KEY)." };
+  const body = brand ? applyFooter(html, text, brand) : { html, text };
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to: [to], subject, html, text }),
+    body: JSON.stringify({
+      from: brandedFrom(brand, platformFrom),
+      to: [to],
+      subject,
+      html: body.html,
+      text: body.text,
+      ...(brand?.replyTo ? { reply_to: brand.replyTo } : {}),
+    }),
   });
   if (!res.ok) return { ok: false, error: await res.text() };
   return { ok: true };
