@@ -606,6 +606,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Hours Audit', href: '/dashboard/hours-audit', icon: Timer, requiresPermission: 'can_view_billing' },
   { label: 'Hidden Technician', href: '/dashboard/hidden-technician', icon: Timer, requiresPermission: 'can_view_billing' },
   { label: 'Integrations', href: '/dashboard/integrations', icon: Plug },
+  { label: 'Accounting Sync', href: '/dashboard/accounting', icon: Calculator, requiresPermission: 'can_view_billing' },
   { label: 'Data Imports', href: '/dashboard/imports', icon: FileUp, requiresPermission: 'can_edit_business_profile' },
   { label: 'Phone Payments', href: '/dashboard/phone-payments', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
