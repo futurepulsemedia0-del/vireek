@@ -16,7 +16,7 @@ import type {
 } from '@/lib/careers';
 
 const POSTING_COLUMNS =
-  'id, slug, title, department, location, location_type, employment_type, summary, description, responsibilities, requirements, salary_min, salary_max, salary_currency, salary_period, status, published_at, closed_at, created_at, updated_at';
+  'id, slug, title, department, location, location_type, employment_type, summary, description, responsibilities, requirements, salary_min, salary_max, salary_currency, salary_period, city, region, country, postal_code, status, published_at, closed_at, created_at, updated_at';
 const APPLICATION_COLUMNS =
   'id, posting_id, full_name, email, phone, location, linkedin_url, portfolio_url, resume_url, cover_note, referral_source, status, rating, staff_notes, created_at, updated_at';
 
