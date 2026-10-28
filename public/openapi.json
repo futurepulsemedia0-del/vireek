@@ -1,0 +1,1036 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Vireek API",
+    "summary": "Read-only REST API for your Vireek calls, leads and jobs.",
+    "version": "1.0.0",
+    "description": "Read-only access to your Vireek calls, leads and jobs.\n\n**Authentication** — send a scoped API key as `Authorization: Bearer vrk_live_…`. Create, rotate and revoke keys under Settings → API Keys. Every request is logged per key.\n\n**Rate limit** — 120 requests per minute per key. Exceeding it returns `429` with a `Retry-After` header.\n\n**Pagination** — list endpoints return newest first as `{ data, has_more, next_before }`. Pass `next_before` back as `before` for the next page (`limit`: 1–100, default 25).\n\nOnly `GET` is supported; other methods return `405`.",
+    "contact": {
+      "name": "Vireek Developers",
+      "url": "https://vireek.com/developers/api-reference"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/api-v1",
+      "description": "Vireek API"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Calls",
+      "description": "Inbound calls handled by your AI receptionist — recordings, transcripts, summaries and sentiment."
+    },
+    {
+      "name": "Leads",
+      "description": "Leads captured from calls."
+    },
+    {
+      "name": "Jobs",
+      "description": "Booked and scheduled jobs."
+    }
+  ],
+  "externalDocs": {
+    "description": "Guides & webhooks",
+    "url": "https://vireek.com/docs"
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/calls": {
+      "get": {
+        "operationId": "listCalls",
+        "summary": "List calls, newest first (cursor-paginated).",
+        "description": "List calls, newest first (cursor-paginated). Inbound calls handled by your AI receptionist — recordings, transcripts, summaries and sentiment. Requires the `calls:read` scope.",
+        "tags": [
+          "Calls"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/before"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "calls:read"
+            ]
+          }
+        ],
+        "x-required-scope": "calls:read",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -sS \"https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/api-v1/calls?limit=25\" \\\n  -H \"Authorization: Bearer vrk_live_YOUR_KEY\""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of calls, newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CallList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/calls/{id}": {
+      "get": {
+        "operationId": "getCall",
+        "summary": "Fetch a single call by ID.",
+        "description": "Fetch a single call by ID. Inbound calls handled by your AI receptionist — recordings, transcripts, summaries and sentiment. Requires the `calls:read` scope.",
+        "tags": [
+          "Calls"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "calls:read"
+            ]
+          }
+        ],
+        "x-required-scope": "calls:read",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -sS \"https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/api-v1/calls/3f2b8c1e-7a4d-4e0b-9c5a-1d2e3f4a5b6c\" \\\n  -H \"Authorization: Bearer vrk_live_YOUR_KEY\""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The call.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Call"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/leads": {
+      "get": {
+        "operationId": "listLeads",
+        "summary": "List leads, newest first (cursor-paginated).",
+        "description": "List leads, newest first (cursor-paginated). Leads captured from calls. Requires the `leads:read` scope.",
+        "tags": [
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/before"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "leads:read"
+            ]
+          }
+        ],
+        "x-required-scope": "leads:read",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -sS \"https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/api-v1/leads?limit=25\" \\\n  -H \"Authorization: Bearer vrk_live_YOUR_KEY\""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of leads, newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/leads/{id}": {
+      "get": {
+        "operationId": "getLead",
+        "summary": "Fetch a single lead by ID.",
+        "description": "Fetch a single lead by ID. Leads captured from calls. Requires the `leads:read` scope.",
+        "tags": [
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "leads:read"
+            ]
+          }
+        ],
+        "x-required-scope": "leads:read",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -sS \"https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/api-v1/leads/3f2b8c1e-7a4d-4e0b-9c5a-1d2e3f4a5b6c\" \\\n  -H \"Authorization: Bearer vrk_live_YOUR_KEY\""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The lead.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Lead"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/jobs": {
+      "get": {
+        "operationId": "listJobs",
+        "summary": "List jobs, newest first (cursor-paginated).",
+        "description": "List jobs, newest first (cursor-paginated). Booked and scheduled jobs. Requires the `jobs:read` scope.",
+        "tags": [
+          "Jobs"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/before"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "jobs:read"
+            ]
+          }
+        ],
+        "x-required-scope": "jobs:read",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -sS \"https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/api-v1/jobs?limit=25\" \\\n  -H \"Authorization: Bearer vrk_live_YOUR_KEY\""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of jobs, newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/jobs/{id}": {
+      "get": {
+        "operationId": "getJob",
+        "summary": "Fetch a single job by ID.",
+        "description": "Fetch a single job by ID. Booked and scheduled jobs. Requires the `jobs:read` scope.",
+        "tags": [
+          "Jobs"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "jobs:read"
+            ]
+          }
+        ],
+        "x-required-scope": "jobs:read",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -sS \"https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/api-v1/jobs/3f2b8c1e-7a4d-4e0b-9c5a-1d2e3f4a5b6c\" \\\n  -H \"Authorization: Bearer vrk_live_YOUR_KEY\""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The job.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "vrk_live_…",
+        "description": "API key, sent as `Authorization: Bearer vrk_live_…`. Scopes are enforced per endpoint (see `x-required-scope`)."
+      }
+    },
+    "parameters": {
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Record ID (UUID).",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "Max rows to return (1–100). Defaults to 25. Out-of-range values are clamped.",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 25
+        }
+      },
+      "before": {
+        "name": "before",
+        "in": "query",
+        "required": false,
+        "description": "Return rows created before this timestamp — pass the previous page's next_before. URL-encode it.",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "headers": {
+      "RetryAfter": {
+        "description": "Seconds to wait before retrying.",
+        "schema": {
+          "type": "integer",
+          "examples": [
+            60
+          ]
+        }
+      }
+    },
+    "responses": {
+      "400": {
+        "description": "Malformed request: id is not a UUID, or before is not an ISO 8601 timestamp.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Missing, invalid or revoked API key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "The key is missing the scope this endpoint requires.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "The requested record does not exist on your account.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Rate limit exceeded (120 requests/minute per key). Wait the number of seconds in the Retry-After header.",
+        "headers": {
+          "Retry-After": {
+            "$ref": "#/components/headers/RetryAfter"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Unexpected server error.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message."
+          }
+        },
+        "examples": [
+          {
+            "error": "Invalid or revoked API key"
+          }
+        ]
+      },
+      "Call": {
+        "type": "object",
+        "description": "Inbound calls handled by your AI receptionist — recordings, transcripts, summaries and sentiment. Additional fields may be present and can be added over time.",
+        "required": [
+          "id",
+          "user_id",
+          "call_datetime",
+          "is_emergency",
+          "status",
+          "tags",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique call ID.",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Owning account ID.",
+            "format": "uuid"
+          },
+          "external_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ID of the call in the telephony provider."
+          },
+          "caller_phone": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Caller phone number."
+          },
+          "caller_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Caller name, when captured."
+          },
+          "call_datetime": {
+            "type": "string",
+            "description": "When the call happened.",
+            "format": "date-time"
+          },
+          "duration_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Call length in seconds."
+          },
+          "summary": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "AI-written summary of the call."
+          },
+          "transcript": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Full call transcript."
+          },
+          "recording_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "URL of the call recording."
+          },
+          "is_emergency": {
+            "type": "boolean",
+            "description": "True when the call was flagged as an emergency."
+          },
+          "sentiment": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Caller sentiment label."
+          },
+          "status": {
+            "type": "string",
+            "description": "Pipeline status, e.g. new_lead or booked."
+          },
+          "tags": {
+            "type": "array",
+            "description": "Free-form tags.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Linked customer ID.",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "When the record was created.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": true,
+        "examples": [
+          {
+            "id": "3f2b8c1e-7a4d-4e0b-9c5a-1d2e3f4a5b6c",
+            "user_id": "9a1c5e72-2b3d-4f60-8a7e-6c5d4b3a2f10",
+            "external_id": "call_01HV3K8Q2M",
+            "caller_phone": "+15551234567",
+            "caller_name": "Jordan Lee",
+            "call_datetime": "2026-10-09T14:32:07.512+00:00",
+            "duration_seconds": 187,
+            "summary": "Homeowner reported an AC failure and asked for a morning appointment tomorrow.",
+            "transcript": "Caller: Hi, my AC stopped working this morning.\nAgent: I’m sorry to hear that. Can I get your address?",
+            "recording_url": "https://example.com/recordings/call_01HV3K8Q2M.mp3",
+            "is_emergency": false,
+            "sentiment": "neutral",
+            "status": "new_lead",
+            "tags": [
+              "hvac",
+              "repair"
+            ],
+            "customer_id": "c7d6e5f4-a3b2-4c1d-9e8f-0a1b2c3d4e5f",
+            "created_at": "2026-10-09T14:32:07.512+00:00"
+          }
+        ]
+      },
+      "CallList": {
+        "type": "object",
+        "required": [
+          "data",
+          "has_more",
+          "next_before"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Call"
+            }
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "True when another page may exist."
+          },
+          "next_before": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Pass as `before` to fetch the next page. Null when the page is empty."
+          }
+        }
+      },
+      "Lead": {
+        "type": "object",
+        "description": "Leads captured from calls. Additional fields may be present and can be added over time.",
+        "required": [
+          "id",
+          "user_id",
+          "name",
+          "stage",
+          "tags",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique lead ID.",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Owning account ID.",
+            "format": "uuid"
+          },
+          "call_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Call this lead came from.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Lead name."
+          },
+          "phone": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Lead phone number."
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Lead email address."
+          },
+          "service_interested": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Service the lead asked about."
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Free-form notes."
+          },
+          "stage": {
+            "type": "string",
+            "description": "Pipeline stage, e.g. new."
+          },
+          "tags": {
+            "type": "array",
+            "description": "Free-form tags.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customer_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Linked customer ID.",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "When the record was created.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": true,
+        "examples": [
+          {
+            "id": "3f2b8c1e-7a4d-4e0b-9c5a-1d2e3f4a5b6c",
+            "user_id": "9a1c5e72-2b3d-4f60-8a7e-6c5d4b3a2f10",
+            "call_id": "5e4d3c2b-1a09-4f8e-b7d6-c5b4a3928170",
+            "name": "Jordan Lee",
+            "phone": "+15551234567",
+            "email": "jordan.lee@example.com",
+            "service_interested": "AC repair",
+            "notes": "Prefers a morning window.",
+            "stage": "new",
+            "tags": [
+              "hvac"
+            ],
+            "customer_id": "c7d6e5f4-a3b2-4c1d-9e8f-0a1b2c3d4e5f",
+            "created_at": "2026-10-09T14:32:07.512+00:00"
+          }
+        ]
+      },
+      "LeadList": {
+        "type": "object",
+        "required": [
+          "data",
+          "has_more",
+          "next_before"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Lead"
+            }
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "True when another page may exist."
+          },
+          "next_before": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Pass as `before` to fetch the next page. Null when the page is empty."
+          }
+        }
+      },
+      "Job": {
+        "type": "object",
+        "description": "Booked and scheduled jobs. Additional fields may be present and can be added over time.",
+        "required": [
+          "id",
+          "user_id",
+          "customer_name",
+          "job_status",
+          "invoice_status",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique job ID.",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Owning account ID.",
+            "format": "uuid"
+          },
+          "lead_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Source lead.",
+            "format": "uuid"
+          },
+          "call_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Source call.",
+            "format": "uuid"
+          },
+          "customer_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Linked customer ID.",
+            "format": "uuid"
+          },
+          "customer_name": {
+            "type": "string",
+            "description": "Customer name."
+          },
+          "service_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Type of service."
+          },
+          "address": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Service address."
+          },
+          "scheduled_datetime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Scheduled start time.",
+            "format": "date-time"
+          },
+          "assigned_technician_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Assigned technician.",
+            "format": "uuid"
+          },
+          "job_status": {
+            "type": "string",
+            "description": "Job status, e.g. scheduled."
+          },
+          "invoice_amount": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Invoice total."
+          },
+          "invoice_status": {
+            "type": "string",
+            "description": "Invoice status, e.g. not_sent."
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Free-form notes."
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "When the job was completed.",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "When the record was created.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": true,
+        "examples": [
+          {
+            "id": "3f2b8c1e-7a4d-4e0b-9c5a-1d2e3f4a5b6c",
+            "user_id": "9a1c5e72-2b3d-4f60-8a7e-6c5d4b3a2f10",
+            "lead_id": "2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f",
+            "call_id": "5e4d3c2b-1a09-4f8e-b7d6-c5b4a3928170",
+            "customer_id": "c7d6e5f4-a3b2-4c1d-9e8f-0a1b2c3d4e5f",
+            "customer_name": "Jordan Lee",
+            "service_type": "HVAC diagnostic",
+            "address": "742 Evergreen Terrace, Springfield",
+            "scheduled_datetime": "2026-10-10T09:00:00+00:00",
+            "assigned_technician_id": "8b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d",
+            "job_status": "scheduled",
+            "invoice_amount": 189,
+            "invoice_status": "not_sent",
+            "notes": null,
+            "completed_at": null,
+            "created_at": "2026-10-09T14:32:07.512+00:00"
+          }
+        ]
+      },
+      "JobList": {
+        "type": "object",
+        "required": [
+          "data",
+          "has_more",
+          "next_before"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Job"
+            }
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "True when another page may exist."
+          },
+          "next_before": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Pass as `before` to fetch the next page. Null when the page is empty."
+          }
+        }
+      }
+    }
+  }
+}
