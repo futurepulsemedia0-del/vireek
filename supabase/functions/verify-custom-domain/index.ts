@@ -21,6 +21,46 @@ const TXT_PREFIX = "_vireek-verify";
 const CNAME_TARGET = "cname.vercel-dns.com";
 const MIN_SECONDS_BETWEEN_CHECKS = 10;
 
+const WHITE_LABEL_PLANS = ["business", "enterprise"]; // keep in sync with brand_plan_is_white_label()
+const RESERVED_DOMAIN_SUFFIXES = ["vireek.com", "vireek.app", "vercel.app", "supabase.co", "localhost"];
+
+// Attaches the verified domain to the Vercel project so TLS can be issued.
+// Needs secrets VERCEL_API_TOKEN + VERCEL_PROJECT_ID (and VERCEL_TEAM_ID for team projects).
+// Without them the result is "manual" and nothing is attempted.
+async function attachToVercel(domain: string): Promise<{ state: "ok" | "manual" | "failed"; error: string | null }> {
+  const token = Deno.env.get("VERCEL_API_TOKEN");
+  const projectId = Deno.env.get("VERCEL_PROJECT_ID");
+  if (!token || !projectId) return { state: "manual", error: null };
+  const team = Deno.env.get("VERCEL_TEAM_ID");
+  const qs = team ? `?teamId=${encodeURIComponent(team)}` : "";
+  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(`https://api.vercel.com/v10/projects/${encodeURIComponent(projectId)}/domains${qs}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ name: domain }),
+      signal: controller.signal,
+    });
+    if (res.ok) return { state: "ok", error: null };
+    if (res.status === 409) {
+      // Re-verify of a domain we already attached is fine; another project holding it is not.
+      const chk = await fetch(
+        `https://api.vercel.com/v9/projects/${encodeURIComponent(projectId)}/domains/${encodeURIComponent(domain)}${qs}`,
+        { headers, signal: controller.signal },
+      );
+      if (chk.ok) return { state: "ok", error: null };
+      return { state: "failed", error: "This domain is already attached elsewhere in our hosting account. Contact support." };
+    }
+    return { state: "failed", error: "Our hosting provider couldn't activate this domain yet. Press Retry activation in a minute." };
+  } catch {
+    return { state: "failed", error: "Hosting provider unreachable. Press Retry activation in a minute." };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -91,6 +131,14 @@ Deno.serve(async (req: Request) => {
     }
   }
 
+    const { data: ownerProfile } = await admin.from("profiles").select("plan").eq("id", row.user_id).maybeSingle();
+  if (!WHITE_LABEL_PLANS.includes(String(ownerProfile?.plan ?? ""))) {
+    return json({ error: "Custom domains need the Business plan or higher.", code: "PLAN_REQUIRED" }, 403);
+  }
+  const claimed = String(row.custom_domain).toLowerCase();
+  if (RESERVED_DOMAIN_SUFFIXES.some((s) => claimed === s || claimed.endsWith(`.${s}`))) {
+    return json({ error: "That domain belongs to a platform we host on — use your own domain." }, 400);
+  }
   const domain: string = row.custom_domain;
   const expected = `vireek-verify=${row.domain_verification_token}`;
 
@@ -149,5 +197,21 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Could not save the verification result." }, 500);
   }
 
-  return json({ status, txt_found: txtFound, cname_ok: cnameOk, error });
+  let provisioning: "ok" | "manual" | "failed" | "n/a" = "n/a";
+  let provisionError: string | null = null;
+  if (status === "verified") {
+    const prov = await attachToVercel(domain);
+    provisioning = prov.state;
+    provisionError = prov.error;
+    await admin
+      .from("brand_settings")
+      .update({
+        domain_provisioned_at: prov.state === "ok" ? new Date().toISOString() : null,
+        domain_provision_error: prov.error,
+      })
+      .eq("user_id", row.user_id)
+      .eq("custom_domain", domain);
+  }
+
+  return json({ status, txt_found: txtFound, cname_ok: cnameOk, error, provisioning, provision_error: provisionError });
 });
