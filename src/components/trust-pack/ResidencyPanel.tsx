@@ -39,7 +39,7 @@ export function ResidencyPanel({ ownerId, isOwner }: { ownerId: string; isOwner:
 
   const current: RegionCode = data?.residency?.region && isRegionCode(data.residency.region) ? data.residency.region : 'us';
   const impact = useMemo(() => residencyImpact(current), [current]);
-  const available = useMemo(() => new Set((data?.regions ?? []).filter((r) => r.is_available).map((r) => r.code)), [data]);
+  const available = useMemo(() => new Set((data?.regions ?? []).filter((r) => r.is_available && !!r.enforced_at).map((r) => r.code)), [data]);
 
   if (status === 'loading') return <PanelSkeleton />;
   if (status === 'error' || !data) return <PanelError message={error || 'Could not load residency settings.'} onRetry={retry} />;
