@@ -337,6 +337,7 @@ export const HELP_PAGE_LABELS: Record<string, string> = {
   '/dashboard/phone-numbers': 'Phone Numbers',
   '/dashboard/business-profile': 'Business Profile',
   '/dashboard/team': 'Team',
+  '/dashboard/team/org-chart': 'Org Chart',
   '/dashboard/billing': 'Billing',
   '/dashboard/integrations': 'Integrations',
 };
