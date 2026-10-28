@@ -28,7 +28,7 @@ const must = <T,>(r: { data: T | null; error: { message: string } | null }): T =
 };
 
 // ------------------------------------------------------------------ residency
-export interface DataRegionRow { code: RegionCode; label: string; is_available: boolean }
+export interface DataRegionRow { code: RegionCode; label: string; is_available: boolean; enforced_at: string | null }
 export interface ResidencyRow { region: RegionCode; selected_at: string }
 export interface ChangeRequest {
   id: string; user_id: string; from_region: RegionCode; to_region: RegionCode; reason: string;
