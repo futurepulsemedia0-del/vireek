@@ -142,7 +142,7 @@ export function drawPassportLabels(doc: PdfDoc, y: number, passports: PdfPasspor
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
     doc.setTextColor(...ACCENT);
-    doc.text('VIREEK EQUIPMENT PASSPORT', textX, y + 22);
+    doc.text(`${getPdfBrand().wordmark.toUpperCase().slice(0, 22)} EQUIPMENT PASSPORT`, textX, y + 22);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
