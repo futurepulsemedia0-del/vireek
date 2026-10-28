@@ -1,3 +1,4 @@
+import { VIREEK_PDF_BRAND, getPdfBrand, type PdfBrand } from '@/lib/pdfBrand';
 import { jsPDF } from 'jspdf';
 import type { CaseStudy } from '@/components/sections/CaseStudies';
 import type { InsuranceClaim } from '@/lib/supabase';
@@ -34,20 +35,25 @@ function formatToday(): string {
   return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-function drawHeader(doc: jsPDF, eyebrow: string, title: string): number {
-  doc.setFillColor(...ACCENT);
+function drawHeader(doc: jsPDF, eyebrow: string, title: string, brand: PdfBrand = VIREEK_PDF_BRAND): number {
+  doc.setFillColor(...brand.primary);
   doc.rect(0, 0, PAGE_WIDTH, 6, 'F');
 
   let y = 44;
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(...ACCENT);
-  doc.text('Vireek', MARGIN, y);
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(...MUTED);
-  doc.text('AI Voice Receptionist for Home Service Businesses', MARGIN, y + 13);
+  if (brand.logo) {
+    doc.addImage(brand.logo.dataUrl, 'PNG', MARGIN, y - 18, Math.min(120, 26 * brand.logo.aspect), 26);
+  } else {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(...brand.primary);
+    doc.text(brand.wordmark, MARGIN, y);
+  }
+  if (brand.tagline) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...MUTED);
+    doc.text(brand.tagline, MARGIN, y + 13);
+  }
 
   y += 40;
   doc.setFont('helvetica', 'bold');
@@ -86,7 +92,7 @@ function drawParagraph(doc: jsPDF, text: string, y: number, opts?: { size?: numb
   return y + lines.length * (opts?.size ?? 10.5) * 1.45;
 }
 
-function drawFooter(doc: jsPDF, note: string): void {
+function drawFooter(doc: jsPDF, note: string, brand: PdfBrand = VIREEK_PDF_BRAND): void {
   const y = 800;
   doc.setDrawColor(...LINE);
   doc.setLineWidth(1);
@@ -96,7 +102,7 @@ function drawFooter(doc: jsPDF, note: string): void {
   doc.setTextColor(...MUTED);
   const lines = doc.splitTextToSize(note, CONTENT_WIDTH);
   doc.text(lines, MARGIN, y + 14);
-  doc.text(`Generated ${formatToday()} · vireek.com`, MARGIN, y + 14 + lines.length * 11 + 6);
+  doc.text(`Generated ${formatToday()}${brand.site ? ` · ${brand.site}` : ''}`, MARGIN, y + 14 + lines.length * 11 + 6);
 }
 
 function currency(n: number): string {
@@ -685,6 +691,6 @@ export function downloadSignatureCertificatePdf(request: SignatureRequest, event
     }
   }
 
-  drawFooter(doc, 'This certificate reflects Vireek e-signature audit data captured at the time each event occurred.');
+  drawFooter(doc, '`This certificate reflects ${getPdfBrand().productName} e-signature audit data captured at the time each event occurred.`');
   doc.save(`signature-certificate-${request.title.trim().replace(/\s+/g, '-').toLowerCase() || 'document'}.pdf`);
 }
