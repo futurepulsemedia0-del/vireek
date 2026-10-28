@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import type { ReactNode } from 'react';
 import { isCustomLandingHost, parseAppHosts } from '@/lib/landingPageUtils';
+import { isCustomerRoute } from '@/lib/whiteLabel';
 
 const PublicLandingPage = lazy(() =>
   import('@/pages/PublicLandingPage').then((m) => ({ default: m.PublicLandingPage })),
@@ -15,7 +16,7 @@ const APP_HOSTS = parseAppHosts(import.meta.env.VITE_APP_HOSTS);
  */
 export function CustomDomainGate({ children }: { children: ReactNode }) {
   const host = typeof window !== 'undefined' ? window.location.hostname.toLowerCase() : '';
-  if (!host || !isCustomLandingHost(host, APP_HOSTS)) return <>{children}</>;
+    if (!host || !isCustomLandingHost(host, APP_HOSTS) || isCustomerRoute(window.location.pathname)) return <>{children}</>;
 
   return (
     <Suspense
