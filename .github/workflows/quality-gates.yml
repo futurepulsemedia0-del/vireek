@@ -32,6 +32,20 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: node scripts/lint-migrations.mjs
 
+  openapi-drift:
+    name: OpenAPI drift (api-v1 routes vs published spec)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 22 runs the TypeScript contract natively — no `npm ci` needed, so this gate is fast.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Fail if api-v1, its contract and public/openapi.json disagree
+        run: node scripts/openapi.mjs check
   bundle-size:
     name: Bundle-size budget
     runs-on: ubuntu-latest
