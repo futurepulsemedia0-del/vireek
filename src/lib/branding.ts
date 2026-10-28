@@ -36,6 +36,8 @@ export interface BrandSettings {
   domain_verified_at: string | null;
   domain_last_checked_at: string | null;
   domain_error: string | null;
+  domain_provisioned_at?: string | null;
+  domain_provision_error?: string | null;
   updated_at: string;
 }
 
@@ -401,11 +403,21 @@ export interface VerifyDomainResult {
   txt_found: boolean;
   cname_ok: boolean;
   error: string | null;
+  provisioning?: 'ok' | 'manual' | 'failed' | 'n/a';
+  provision_error?: string | null;
 }
 
 export async function verifyCustomDomain(): Promise<VerifyDomainResult> {
   const { data, error } = await supabase.functions.invoke('verify-custom-domain', { body: {} });
-  if (error) throw error;
+  if (error) {
+    // supabase-js hides the real reason inside error.context — surface it (plan, rate limit…).
+    const ctx = (error as { context?: unknown }).context;
+    if (typeof Response !== 'undefined' && ctx instanceof Response) {
+      const body = (await ctx.clone().json().catch(() => null)) as { error?: string } | null;
+      if (body?.error) throw new Error(body.error);
+    }
+    throw error;
+  }
   return data as VerifyDomainResult;
 }
 
