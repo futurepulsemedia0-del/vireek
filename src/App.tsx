@@ -1,4 +1,5 @@
 import { CustomDomainGate } from '@/components/CustomDomainGate';
+import { PdfBrandSync } from '@/components/PdfBrandSync';
 import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
@@ -4408,6 +4409,7 @@ function AppRoutes() {
 function App() {
   return (
     <CustomDomainGate>
+      <PdfBrandSync />
       <AppRoutes />
     </CustomDomainGate>
   );
