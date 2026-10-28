@@ -207,6 +207,7 @@ const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ defa
 const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
 const SessionsPage = lazy(() => import('@/pages/SessionsPage').then((m) => ({ default: m.SessionsPage })));
 const CommissionsPage = lazy(() => import('@/pages/CommissionsPage').then((m) => ({ default: m.CommissionsPage })));
+const PayrollConnectorsPage = lazy(() => import('@/pages/PayrollConnectorsPage').then((m) => ({ default: m.PayrollConnectorsPage })));
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));|
 const ChatWidgetSettingsPage = lazy(() => import('@/pages/ChatWidgetSettingsPage').then((m) => ({ default: m.ChatWidgetSettingsPage })));
@@ -2931,6 +2932,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <CommissionsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/payroll-connectors"
+  element={
+    <ProtectedRoute>
+      <PayrollConnectorsPage />
     </ProtectedRoute>
   }
 />
