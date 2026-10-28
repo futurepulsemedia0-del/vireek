@@ -41,7 +41,7 @@ const ITEMS: HighlightItem[] = [
   { icon: Languages, tone: 'accent', title: 'Speaks Their Language', detail: 'English & Spanish, natively' },
   { icon: TrendingUp, tone: 'cta', title: 'Recovers Missed Revenue', detail: 'Every unanswered call, followed up' },
   { icon: DatabaseZap, tone: 'neutral', title: 'Syncs to Your CRM', detail: 'Automatically, every time' },
-  { icon: ShieldCheck, tone: 'success', title: 'Bank-Grade Security', detail: 'SOC 2-ready infrastructure' },
+  { icon: ShieldCheck, tone: 'success', title: 'Bank-Grade Security', detail: 'Encrypted, tenant-isolated data' },
   { icon: MessageSquareText, tone: 'accent', title: 'Texts Customers Back', detail: 'Instant confirmations' },
   { icon: Sparkles, tone: 'cta', title: 'Sounds Human', detail: 'Not a robotic phone tree' },
 ];
@@ -248,7 +248,7 @@ export function HighlightBanner() {
         Vireek answers every call 24/7, gets set up in under 15 minutes, detects emergencies and
         prioritizes them automatically, books the job straight to your calendar, speaks to
         customers in their own language, follows up on every missed call to recover lost revenue,
-        syncs to your CRM automatically, runs on SOC 2-ready infrastructure, texts customers back
+        syncs to your CRM automatically, keeps each account's data isolated, texts customers back
         instantly, and sounds like a real person rather than a robotic phone tree.
       </p>
     </section>
