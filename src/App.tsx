@@ -20,6 +20,7 @@ import { HomeTargetGate } from '@/pages/home/HomeTargetGate';
 const MarketingPage = lazy(() => import('@/pages/MarketingPage'));
 const InstallCloseoutPage = lazy(() => import('@/pages/InstallCloseoutPage'));
 const ContentCalendarPage = lazy(() => import('@/pages/ContentCalendarPage'));
+const MarketingCreativeStudioPage = lazy(() => import('@/pages/MarketingCreativeStudioPage'));
 const LifecycleTouchesPage = lazy(() => import('@/pages/LifecycleTouchesPage'));
 const AudiencesPage = lazy(() => import('@/pages/AudiencesPage'));
 const EmailCampaignsPage = lazy(() => import('@/pages/EmailCampaignsPage'));
@@ -2363,6 +2364,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ContentCalendarPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/marketing/creative"
+          element={
+            <ProtectedRoute>
+              <MarketingCreativeStudioPage />
             </ProtectedRoute>
           }
         />
