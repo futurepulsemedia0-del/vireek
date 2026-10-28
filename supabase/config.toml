@@ -44,3 +44,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.call-bridge-voice]
 verify_jwt = false
+[functions.payroll-connector-oauth-callback]
+verify_jwt = false
