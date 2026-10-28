@@ -127,7 +127,12 @@ export interface SealPolicy { recordings: boolean; transcripts: boolean }
 
 export async function getSealPolicy(admin: SupabaseClient, ownerId: string): Promise<SealPolicy> {
   const { data } = await admin.from("tenant_encryption_policy").select("seal_recordings,seal_transcripts").eq("user_id", ownerId).maybeSingle();
-  return { recordings: !!data?.seal_recordings, transcripts: !!data?.seal_transcripts };
+  // A tenant pinned to a region other than this (primary) plane's must never leave plaintext here:
+  // residency implies sealing, regardless of the encryption toggles.
+  const { data: res } = await admin.from("tenant_residency").select("region").eq("user_id", ownerId).maybeSingle();
+  const primary = env("PRIMARY_REGION") ?? "us";
+  const pinnedAway = !!res?.region && res.region !== primary;
+  return { recordings: pinnedAway || !!data?.seal_recordings, transcripts: pinnedAway || !!data?.seal_transcripts };
 }
 
 // ---------------------------------------------------------------------------
