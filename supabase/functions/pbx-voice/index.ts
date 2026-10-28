@@ -228,6 +228,7 @@ async function directTwiml(a: Admin, call: Row, dest: Destination, settings: Row
       return `<Redirect method="POST">${xml(line.ai_fallback_url)}</Redirect>`;
     }
   }
+  if (dest.type === "ivr" && dest.id) return ivrTwiml(a, call, dest.id, 0, null, settings);
   if (dest.type === "hangup") {
     await a.from("pbx_calls").update({ status: "completed", ended_at: nowIso() }).eq("id", call.id).in("status", ["ringing", "queued"]);
     return "<Hangup/>";
@@ -423,6 +424,10 @@ async function tick(a: Admin): Promise<void> {
   await a.from("pbx_calls").update({ ended_at: now }).eq("status", "voicemail").is("ended_at", null)
     .lt("started_at", new Date(Date.now() - 15 * 60_000).toISOString());
 
+  // Caller hung up inside the phone menu (nothing else ever ends that call): close it as abandoned.
+  const { data: lost } = await a.from("pbx_calls").select("id").eq("status", "ringing").not("ivr_menu_id", "is", null)
+    .lt("started_at", new Date(Date.now() - 15 * 60_000).toISOString()).limit(25);
+  for (const c of (lost ?? []) as Row[]) await finalizeCall(a, c.id);
   const { data: old } = await a.from("pbx_recordings").select("id, storage_path")
     .is("deleted_at", null).eq("legal_hold", false).lt("retention_until", now).limit(50);
   for (const r of (old ?? []) as Row[]) {
@@ -644,6 +649,30 @@ Deno.serve(async (req: Request) => {
         return empty();
       }
 
+      // ---- phone menu: a keypress (or silence) at the IVR. Signature already verified above.
+      case "ivr-choice": {
+        const call = await loadCall(admin, q("call"));
+        if (!call || call.direction !== "inbound" || !["ringing", "queued"].includes(call.status) ||
+            (params.CallSid && params.CallSid !== call.call_sid)) return twiml("<Hangup/>");
+        const settings = await loadSettings(admin, call.account_owner_id);
+        const loaded = await loadIvr(admin, call.account_owner_id, q("menu"));
+        if (!loaded) return twiml(await voicemailTwiml(admin, call, undefined, settings));
+        const attempt = Math.min(5, Math.max(0, parseInt(q("try"), 10) || 0));
+        const decision = decideIvr(loaded.config, {
+          digits: q("to") === "1" ? null : (params.Digits ?? ""),
+          attempt, open: await lineIsOpen(admin, call), depth: ivrDepth(call.ivr_path),
+        });
+        if (decision.kind === "retry") return twiml(await ivrTwiml(admin, call, loaded.menu.id, decision.attempt, decision.reason, settings));
+        const dest = decision.destination;
+        const path = appendIvrPath(call.ivr_path, decision.kind === "route" ? decision.digit : decision.reason);
+        await admin.from("pbx_calls").update({ ivr_path: path, ivr_menu_id: dest.type === "ivr" ? dest.id : null }).eq("id", call.id);
+        const next = { ...call, ivr_path: path };
+        if (dest.type === "ivr" && dest.id) return twiml(await ivrTwiml(admin, next, dest.id, 0, null, settings));
+        const routed = await route(admin, next, dest);
+        if (!routed.people) return twiml(await directTwiml(admin, next, routed.dest, settings));
+        bg(kick(admin, call.id));
+        return twiml(customerConference(next, settings));
+      }
       // ---- non-people destinations (also reached via REST redirect)
       case "direct": {
         const call = await loadCall(admin, q("call"));
@@ -689,7 +718,7 @@ Deno.serve(async (req: Request) => {
     }
   } catch (e) {
     console.error(JSON.stringify({ event: "pbx_voice_error", action, error: String(e) }));
-    const voice = ["inbound", "app", "agent-join", "agent-accept", "pstn-join", "direct", "direct-done", "wait"].includes(action);
+    const voice = ["inbound", "app", "agent-join", "agent-accept", "pstn-join", "direct", "direct-done", "wait", "ivr-choice"].includes(action);
     return voice ? twiml("<Say>We are sorry, something went wrong. Please try again later.</Say><Hangup/>") : empty();
   }
 });
