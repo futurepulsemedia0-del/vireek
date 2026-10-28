@@ -23,6 +23,9 @@ import {
   PRODUCT_UNITS,
   UNIT_LABELS,
   computeStockBalance,
+  CHEMICALS,
+  CHEM_IDS,
+  type ChemId,
   type ProductKind,
   type ProductUnit,
   type TradePack,
@@ -31,7 +34,8 @@ import { Pill, SelectField } from './shared';
 
 const EMPTY: ProductInput = {
   name: '', kind: 'other', unit: 'fl_oz', epa_reg_number: '', epa_exempt_25b: false, active_ingredient: '',
-  restricted_use: false, signal_word: '', label_max_rate: '', reentry_hours: '', sds_url: '', notes: '',
+restricted_use: false, signal_word: '', label_max_rate: '', reentry_hours: '', sds_url: '', notes: '',
+  chem_key: '', strength_pct: '',
 };
 
 const toForm = (p: RegulatedProduct): ProductInput => ({
@@ -39,6 +43,7 @@ const toForm = (p: RegulatedProduct): ProductInput => ({
   active_ingredient: p.active_ingredient ?? '', restricted_use: p.restricted_use, signal_word: p.signal_word ?? '',
   label_max_rate: p.label_max_rate == null ? '' : String(p.label_max_rate), reentry_hours: p.reentry_hours == null ? '' : String(p.reentry_hours),
   sds_url: p.sds_url ?? '', notes: p.notes ?? '',
+  chem_key: p.chem_key ?? '', strength_pct: p.strength_pct == null ? '' : String(p.strength_pct),
 });
 
 export function ProductRegisterPanel({ pack, ownerId, canManage }: { pack: TradePack; ownerId: string; canManage: boolean }) {
@@ -95,6 +100,11 @@ export function ProductRegisterPanel({ pack, ownerId, canManage }: { pack: Trade
     if (form.label_max_rate.trim() && !(Number(form.label_max_rate) > 0)) e.push('Label maximum rate must be a positive number');
     if (form.reentry_hours.trim() && !(Number(form.reentry_hours) >= 0)) e.push('Re-entry hours must be 0 or more');
     if (form.sds_url.trim() && !/^https?:\/\//i.test(form.sds_url.trim())) e.push('SDS link must start with http(s)://');
+    if (form.chem_key) {
+      const def = CHEMICALS[form.chem_key];
+      const pct = Number(form.strength_pct);
+      if (!form.strength_pct?.trim() || !Number.isFinite(pct) || pct < def.minStrengthPct || pct > def.maxStrengthPct) e.push(`Strength for ${def.label} must be between ${def.minStrengthPct}% and ${def.maxStrengthPct}%`);
+    }
     return e;
   };
 
@@ -153,6 +163,33 @@ export function ProductRegisterPanel({ pack, ownerId, canManage }: { pack: Trade
               ))}
             </SelectField>
             <Input label="Active ingredient" value={form.active_ingredient} onChange={(e) => set('active_ingredient', e.target.value)} />
+            {pack.key === 'pool_service' && (
+              <>
+                <SelectField
+                  label="Chemical (for dosing recommendations)"
+                  value={form.chem_key ?? ''}
+                  helperText="Pick what this product is so water-chemistry doses can be calculated and logged with it."
+                  onChange={(v) => {
+                    const id = v as ChemId | '';
+                    setForm((s) => ({
+                      ...s,
+                      chem_key: id,
+                      strength_pct: id ? String(CHEMICALS[id].defaultStrengthPct) : '',
+                      kind: id ? CHEMICALS[id].kind : s.kind,
+                      unit: id ? (CHEMICALS[id].form === 'liquid' ? 'fl_oz' : 'oz') : s.unit,
+                    }));
+                  }}
+                >
+                  <option value="">Not used for recommendations</option>
+                  {CHEM_IDS.map((id) => (
+                    <option key={id} value={id}>{CHEMICALS[id].label}</option>
+                  ))}
+                </SelectField>
+                {form.chem_key && (
+                  <Input label="Strength (%)" type="number" step="any" helperText={CHEMICALS[form.chem_key].strengthHelp} value={form.strength_pct ?? ''} onChange={(e) => set('strength_pct', e.target.value)} />
+                )}
+              </>
+            )}
             {isPest && (
               <>
                 <Input label="EPA registration no." required={needsEpa && !form.epa_exempt_25b} placeholder="432-1217" value={form.epa_reg_number} onChange={(e) => set('epa_reg_number', e.target.value)} />
@@ -222,6 +259,7 @@ export function ProductRegisterPanel({ pack, ownerId, canManage }: { pack: Trade
                   {p.signal_word && <Pill tone={p.signal_word === 'danger' ? 'danger' : 'warning'}>{p.signal_word}</Pill>}
                   {p.label_max_rate != null && <Pill>max {p.label_max_rate} {UNIT_LABELS[p.unit]}/1,000 sq ft</Pill>}
                   {p.reentry_hours != null && <Pill>re-entry {p.reentry_hours} h</Pill>}
+                  {p.chem_key && CHEMICALS[p.chem_key] && <Pill>{CHEMICALS[p.chem_key].label}{p.strength_pct != null ? ` · ${p.strength_pct}%` : ''}</Pill>}
                 </div>
                 {isPest && b && (
                   <p className="mt-2 text-text-secondary">
