@@ -11,6 +11,9 @@ const TYPE_LABELS: Record<string, string> = {
   jobber: 'Jobber',
   service_titan: 'ServiceTitan',
   quickbooks: 'QuickBooks',
+  xero: 'Xero',
+  zoho_books: 'Zoho Books',
+  netsuite: 'NetSuite',
 };
 
 interface Props {
