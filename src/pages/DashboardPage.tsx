@@ -762,6 +762,7 @@ export function DashboardPage() {
   const [editingLayout, setEditingLayout] = useState(false);
   const overview = useOverviewLayout({
     userId: profileLoading ? undefined : user?.id,
+    accountOwnerId: accountOwnerId ?? null,
     defaultPreset: resolveRolePreset({
       isOwner,
       teamRole: teamMember?.role,
