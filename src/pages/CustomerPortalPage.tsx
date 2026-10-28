@@ -7,7 +7,7 @@ import { Link, useParams } from 'react-router-dom';
 import {
   AlertCircle,
   Briefcase,
-  FileText,
+  FileText,ش
   Award,
   Send,
   User,
@@ -21,8 +21,7 @@ import {
   History as HistoryIcon,
   Home as HomeIcon,
 } from 'lucide-react';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { PortalBrandShell } from '@/components/portal/PortalBrandShell';
 import {
   fetchPortalBundle,
   submitServiceRequest,
@@ -165,8 +164,7 @@ export function CustomerPortalPage() {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg-primary">
-      <Header />
+    <PortalBrandShell token={token} welcome>
       <main className="flex-1 px-4 py-12">
         <div className="mx-auto w-full max-w-3xl">
           {bundle === undefined && (
@@ -552,7 +550,6 @@ export function CustomerPortalPage() {
           )}
         </div>
       </main>
-      <Footer />
-    </div>
+      </PortalBrandShell>
   );
 }
