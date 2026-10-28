@@ -46,3 +46,9 @@ verify_jwt = false
 verify_jwt = false
 [functions.payroll-connector-oauth-callback]
 verify_jwt = false
+[functions.acct-sync-run]
+verify_jwt = false
+[functions.acct-oauth-callback]
+verify_jwt = false
+[functions.acct-webhook]
+verify_jwt = false
