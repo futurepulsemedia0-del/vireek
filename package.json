@@ -12,6 +12,8 @@
     "native:assets": "node scripts/make-native-assets.mjs && capacitor-assets generate --ios --android",
     "mobile:preflight": "node scripts/mobile-preflight.mjs",
     "lint:design": "node scripts/check-design-system.mjs",
+    "openapi:generate": "node scripts/openapi.mjs generate",
+    "openapi:check": "node scripts/openapi.mjs check",
     "migrations:check": "node scripts/migrations-dedupe.mjs check",
     "migrations:plan": "node scripts/migrations-dedupe.mjs plan",
     "sitemap:locations": "node scripts/generate-locations-sitemap.mjs",
