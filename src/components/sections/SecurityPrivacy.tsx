@@ -36,8 +36,8 @@ const SECURITY_FEATURES: SecurityFeature[] = [
   },
   {
     icon: FileCheck,
-    title: 'Compliance Ready',
-    body: 'Built with SOC 2 and GDPR principles in mind — encryption, audit logs, and data retention controls included.',
+    title: 'Security Controls Built In',
+    body: 'Encryption, audit logs, and data retention controls included. See the Trust Center for our current compliance status.',
   },
   {
     icon: Server,
@@ -57,7 +57,7 @@ const SECURITY_FEATURES: SecurityFeature[] = [
 ];
 
 const TRUST_BADGES = [
-  { label: 'SOC 2', value: 'Aligned' },
+  { label: 'Tenant isolation', value: 'Row-level security' },
   { label: 'GDPR', value: 'Aligned' },
   { label: 'Uptime SLA', value: '99.9% Target' },
   { label: 'Data Ownership', value: 'Yours' },
