@@ -328,6 +328,7 @@ const InstallProjectsPage = lazy(() => import('@/pages/InstallProjectsPage').the
 const ChangeOrdersPage = lazy(() => import('@/pages/ChangeOrdersPage').then((m) => ({ default: m.ChangeOrdersPage })));
 const PublicChangeOrderPage = lazy(() => import('@/pages/PublicChangeOrderPage').then((m) => ({ default: m.PublicChangeOrderPage })));
 const ProjectProgressPage = lazy(() => import('@/pages/ProjectProgressPage').then((m) => ({ default: m.ProjectProgressPage })));
+const PublicLienWaiverPage = lazy(() => import('@/pages/PublicLienWaiverPage').then((m) => ({ default: m.PublicLienWaiverPage })));
 const RebateIntelligencePage = lazy(() => import('@/pages/RebateIntelligencePage').then((m) => ({ default: m.RebateIntelligencePage })));
 const CloseoutBoardPage = lazy(() => import('@/pages/CloseoutBoardPage').then((m) => ({ default: m.CloseoutBoardPage })));
 const RepairReplaceAdvisorPage = lazy(() => import('@/pages/RepairReplaceAdvisorPage').then((m) => ({ default: m.RepairReplaceAdvisorPage })));
@@ -833,6 +834,7 @@ function AppRoutes() {
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
         <Route path="/track/:token" element={<TrackingPage />} />
         <Route path="/project/:token" element={<ProjectProgressPage />} />
+        <Route path="/lien-waiver/:token" element={<PublicLienWaiverPage />} />ش
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/s/:token" element={<SurveyResponsePage />} />
         <Route path="/preferences/:token" element={<PreferencesPage />} />
