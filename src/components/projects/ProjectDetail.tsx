@@ -22,6 +22,7 @@ import { OverviewTab } from './OverviewTab';
 import { PhasesTab } from './PhasesTab';
 import { ScheduleTab } from './scheduler/ScheduleTab';
 import { WipTab } from './WipTab';
+import { LienWaiversTab } from './LienWaiversTab';
 import { Pill, projectStatusTone, scheduleTone, useAction, useConfirm } from './projectUi';
 
 const TABS = [
@@ -29,6 +30,7 @@ const TABS = [
   { key: 'phases', label: 'Phases' },
   { key: 'schedule', label: 'Schedule' },
   { key: 'billing', label: 'Billing' },
+  { key: 'lien_waivers', label: 'Lien waivers' },
   { key: 'wip', label: 'WIP' },
   { key: 'jobs', label: 'Jobs' },
   { key: 'materials', label: 'Materials' },
