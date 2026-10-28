@@ -61,6 +61,7 @@ const PAGES: StaticPage[] = [
   { label: 'Email settings', href: '/dashboard/settings/email', icon: Mail, keywords: 'reply-to signature domain spf dkim inbound' },
   { label: 'Sessions & devices', href: '/dashboard/settings/sessions', icon: ShieldCheck, keywords: 'sessions devices sign out login alerts' },
   { label: 'Audit log', href: '/dashboard/settings/audit-log', icon: ShieldCheck, keywords: 'audit history activity export' },
+  { label: 'SIEM log streaming', href: '/dashboard/settings/siem-streaming', icon: ShieldCheck, keywords: 'siem splunk datadog log streaming security events forward' },
 ];
 
 interface SearchResult {
