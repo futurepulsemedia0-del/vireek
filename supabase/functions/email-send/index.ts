@@ -7,6 +7,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { buildFromAddress, buildInboundAddress, composeOutboundText, resolveReplyTo } from "../_shared/messaging/emailSettings.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
+import { loadEmailBrand } from "../_shared/branding/brand.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,6 +61,7 @@ const { conversationId, subject, body, overrideReason } = await req.json();
   if (!apiKey) return json({ error: "NOT_CONFIGURED", detail: "Email isn't configured yet (missing RESEND_API_KEY)." }, 422);
 
   const finalSubject = subject?.trim() || conversation.subject || "Re: your message";
+  const brand = await loadEmailBrand(admin, userId);
   const replyTo = resolveReplyTo(es?.reply_to_email, buildInboundAddress(profile?.inbound_email_token, inboundDomain));
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -67,7 +69,7 @@ const { conversationId, subject, body, overrideReason } = await req.json();
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from: buildFromAddress({
-        senderName: es?.sender_name,
+        senderName: es?.sender_name ?? brand.fromName,
         companyName: profile?.company_name,
         domain: es?.sender_domain,
         domainStatus: es?.domain_status,
@@ -77,7 +79,7 @@ const { conversationId, subject, body, overrideReason } = await req.json();
       to: [conversation.customer_email],
       reply_to: replyTo,
       subject: finalSubject,
-      text: composeOutboundText(body, es?.signature),
+      text: composeOutboundText(body, [es?.signature ?? brand.footer, brand.attribution].filter(Boolean).join("\n")),
     }),
   });
   
