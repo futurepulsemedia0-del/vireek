@@ -21,10 +21,13 @@ import {
   buildPostmanCollection,
   downloadJsonFile,
   resolveApiBaseUrl,
+  listOperations,
   resourceOfEndpoint,
   type ResourceDef,
 } from '@/lib/openapi';
 
+/** One entry per route in the contract the API runs on (same list the OpenAPI spec is built from). */
+const OPERATIONS = listOperations();
 const METHOD_CLASS = 'rounded-md bg-success-500/10 px-2 py-0.5 font-mono text-xs font-bold text-success-500';
 
 function SEO() {
@@ -153,6 +156,15 @@ export function ApiReferencePage() {
                 <BookOpen className="h-4 w-4" />
                 Guides &amp; webhooks
               </Link>
+              <a
+                href="/openapi.json"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="focus-ring mt-4 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text-primary transition-colors hover:text-accent sm:ml-2"
+              >
+                <FileJson className="h-4 w-4" />
+                View openapi.json
+              </a>
             </motion.div>
           </div>
         </section>
@@ -220,11 +232,11 @@ export function ApiReferencePage() {
             <div>
               <h2 className={sectionHeadingClass()}>Endpoints</h2>
               <p className={`mt-2 max-w-2xl ${bodyClass()}`}>
-                Generated from the same catalog as the spec and the playground, so this page never drifts from what you download.
+                Generated from the same contract the API runs on — CI fails if the API and the published spec ever differ.
               </p>
             </div>
             {RESOURCES.map((resource) => {
-              const endpoints = SANDBOX_ENDPOINTS.filter((ep) => resourceOfEndpoint(ep) === resource.name);
+              const endpoints = OPERATIONS.filter((ep) => ep.resource === resource.name);
               return (
                 <div key={resource.name} id={resource.name} className="scroll-mt-28">
                   <h3 className="text-xl font-bold text-text-primary">{resource.tag}</h3>
@@ -244,6 +256,18 @@ export function ApiReferencePage() {
                             <span className="rounded-full bg-accent/10 px-2.5 py-0.5 font-mono text-[11px] text-accent">{ep.scope}</span>
                           </div>
                           <p className="mt-2 text-sm text-text-secondary">{ep.description}</p>
+                          <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Response status codes">
+                            {ep.statuses.map((code) => (
+                              <li
+                                key={code}
+                                className={`rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold ${
+                                  code === '200' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'
+                                }`}
+                              >
+                                {code}
+                              </li>
+                            ))}
+                          </ul>
                           <div className="relative mt-3">
                             <pre className="overflow-x-auto rounded-xl border border-border bg-bg-primary p-3 pr-12 font-mono text-xs leading-relaxed text-text-primary">
                               {curl}
