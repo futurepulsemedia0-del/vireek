@@ -214,6 +214,7 @@ const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSett
 const ChatWidgetSettingsPage = lazy(() => import('@/pages/ChatWidgetSettingsPage').then((m) => ({ default: m.ChatWidgetSettingsPage })));
 const VideoSessionRoomPage = lazy(() => import('@/pages/VideoSessionRoomPage').then((m) => ({ default: m.VideoSessionRoomPage })));
 const VideoSessionsPage = lazy(() => import('@/pages/VideoSessionsPage').then((m) => ({ default: m.VideoSessionsPage })));
+const DynamicNumbersPage = lazy(() => import('@/pages/DynamicNumbersPage').then((m) => ({ default: m.DynamicNumbersPage })));
 const WebsiteWidgetsPage = lazy(() => import('@/pages/WebsiteWidgetsPage').then((m) => ({ default: m.WebsiteWidgetsPage })));
 const EvidenceChainPage = lazy(() => import('@/pages/EvidenceChainPage').then((m) => ({ default: m.EvidenceChainPage })));
 const WarrantyClaimRecoveryPage = lazy(() => import('@/pages/WarrantyClaimRecoveryPage').then((m) => ({ default: m.WarrantyClaimRecoveryPage })));
@@ -2988,6 +2989,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <WebsiteWidgetsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/call-tracking"
+          element={
+            <ProtectedRoute>
+              <DynamicNumbersPage />
             </ProtectedRoute>
           }
         />
