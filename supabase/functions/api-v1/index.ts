@@ -6,18 +6,15 @@
 // value with the same SHA-256 the frontend used at creation time and
 // looking up the hash — the raw key is never stored anywhere.
 //
-// Routes:
-//   GET /api-v1/calls          list  (scope: calls:read)
-//   GET /api-v1/calls/:id      one   (scope: calls:read)
-//   GET /api-v1/leads          list  (scope: leads:read)
-//   GET /api-v1/leads/:id      one   (scope: leads:read)
-//   GET /api-v1/jobs           list  (scope: jobs:read)
-//   GET /api-v1/jobs/:id       one   (scope: jobs:read)
+// Routes, scopes, limits and validation live in ./contract.ts (single source of
+// truth for this function, the OpenAPI spec and the CI drift check).
+// Published spec: /openapi.json — regenerate with `npm run openapi:generate`.
 //
 // Deploy:
 //   supabase functions deploy api-v1 --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { NOT_FOUND_MESSAGE, RATE_LIMIT_PER_MINUTE, isUuid, parseBefore, parseLimit, resolveRoute } from "./contract.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,12 +42,6 @@ interface LogCtx {
   resource: string | null;
 }
 
-const TABLE_BY_RESOURCE: Record<string, { table: string; scope: string }> = {
-  calls: { table: "calls", scope: "calls:read" },
-  leads: { table: "leads", scope: "leads:read" },
-  jobs: { table: "jobs", scope: "jobs:read" },
-};
-const RATE_LIMIT_PER_MINUTE = 120;
 async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
@@ -97,33 +88,30 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   // Fire-and-forget last_used_at update — doesn't block the response.
   admin.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", keyRow.id).then(() => {});
 
-  // ---- Route -------------------------------------------------------------
+  // ---- Route (single source of truth: ./contract.ts) ---------------------
   const url = new URL(req.url);
-  const segments = url.pathname.replace(/^\/api-v1\/?/, "").split("/").filter(Boolean);
-  const [resource, id] = segments;
-
-  const resourceConfig = resource ? TABLE_BY_RESOURCE[resource] : undefined;
-  ctx.resource = resourceConfig ? resource : null;
-  if (!resourceConfig) {
-    return json({ error: "Not found. Available resources: calls, leads, jobs" }, 404);
-  }
-  if (!(keyRow.scopes as string[]).includes(resourceConfig.scope)) {
-    return json({ error: `This key is missing the required scope: ${resourceConfig.scope}` }, 403);
+  const route = resolveRoute(url.pathname);
+  ctx.resource = route.kind === "ok" ? route.resource : null;
+  if (route.kind !== "ok") return json({ error: NOT_FOUND_MESSAGE }, 404);
+  if (!(keyRow.scopes as string[]).includes(route.scope)) {
+    return json({ error: `This key is missing the required scope: ${route.scope}` }, 403);
   }
 
-  let query = admin.from(resourceConfig.table).select("*").eq("user_id", keyRow.user_id);
+  let query = admin.from(route.table).select("*").eq("user_id", keyRow.user_id);
 
-  if (id) {
-    const { data, error } = await query.eq("id", id).maybeSingle();
+  if (route.id !== null) {
+    if (!isUuid(route.id)) return json({ error: "Invalid id: expected a UUID" }, 400);
+    const { data, error } = await query.eq("id", route.id).maybeSingle();
     if (error) return json({ error: "Query failed" }, 500);
-    if (!data) return json({ error: `${resource} not found` }, 404);
+    if (!data) return json({ error: `${route.resource} not found` }, 404);
     return json({ data });
   }
 
-  const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 25, 1), 100);
-  const before = url.searchParams.get("before");
+  const limit = parseLimit(url.searchParams.get("limit"));
+  const before = parseBefore(url.searchParams.get("before"));
+  if (!before.ok) return json({ error: "Invalid before: expected an ISO 8601 timestamp" }, 400);
   query = query.order("created_at", { ascending: false }).limit(limit);
-  if (before) query = query.lt("created_at", before);
+  if (before.value) query = query.lt("created_at", before.value);
 
   const { data, error } = await query;
   if (error) return json({ error: "Query failed" }, 500);
