@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { ShieldCheck, Lock, Server, Clock, Globe, Headphones } from 'lucide-react';
 
 const TRUST_ITEMS = [
-  { icon: ShieldCheck, label: 'SOC 2 Ready' },
+  { icon: ShieldCheck, label: 'Row-Level Security' },
   { icon: Lock, label: 'End-to-End Encrypted' },
   { icon: Server, label: '99.9% Uptime SLA' },
   { icon: Clock, label: '24/7 Availability' },
