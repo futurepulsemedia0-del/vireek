@@ -613,6 +613,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Property Management', href: '/dashboard/property-management', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, requiresPermission: 'can_edit_business_profile' },
   { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, requiresPermission: 'can_export_data' },
+  { label: 'BI Export', href: '/dashboard/bi-export', icon: BarChart3, requiresPermission: 'can_export_data' },
   { label: 'Data Platform', href: '/dashboard/data-platform', icon: Database, requiresPermission: 'can_export_data' },
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
   { label: 'Compliance Rules', href: '/dashboard/compliance-rules', icon: Scale, requiresPermission: 'can_edit_business_profile' },
