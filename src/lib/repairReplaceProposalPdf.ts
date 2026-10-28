@@ -148,7 +148,7 @@ export async function buildProposalPdf(p: Proposal): Promise<Blob> {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(...MUTED);
-    doc.text(`${p.preparedBy ?? 'Vireek'} · ${p.title}`, M, PAGE_H - 28);
+    doc.text(`${p.preparedBy ?? getPdfBrand().wordmark} · ${p.title}`, M, PAGE_H - 28);
     doc.text(`Page ${i} of ${pages}`, PAGE_W - M, PAGE_H - 28, { align: 'right' });
   }
   return doc.output('blob');
