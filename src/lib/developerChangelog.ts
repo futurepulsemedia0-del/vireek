@@ -27,6 +27,16 @@ export interface DeveloperChangelogRelease {
 
 export const DEVELOPER_CHANGELOG_RELEASES: DeveloperChangelogRelease[] = [
   {
+    date: 'October 28, 2026',
+    entries: [
+      {
+        type: 'api',
+        title: 'OpenAPI 3.1 spec published at /openapi.json',
+        body: 'The API Reference now renders from the same contract the API runs on. api-v1 returns 400 for a malformed id or before value (previously 500), paths with extra segments such as /calls/<id>/x now return 404, and 429 responses are documented with Retry-After.',
+      },
+    ],
+  },
+  {
   {
     date: 'October 9, 2026',
     entries: [
