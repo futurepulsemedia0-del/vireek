@@ -158,6 +158,6 @@ export function buildLeakReportPdf(meta: LeakPdfMeta, r: LeakReport): jsPDF {
   doc.setDrawColor(...LINE).line(M, PAGE_H - 52, PAGE_W - M, PAGE_H - 52);
   doc.setFont('helvetica', 'normal').setFontSize(8).setTextColor(...MUTED);
   doc.text('Estimates based on observed call data, not a guarantee of future revenue.', M, PAGE_H - 38);
-  doc.text('vireek.com', PAGE_W - M, PAGE_H - 38, { align: 'right' });
+  if (getPdfBrand().site) doc.text(getPdfBrand().site, PAGE_W - M, PAGE_H - 38, { align: 'right' });
   return doc;
 }
