@@ -2,7 +2,7 @@
 // Pure PBX decisions: NO imports, NO I/O. Shared by the edge functions and the
 // dashboard (re-exported from src/lib), and unit-tested in logic.test.ts.
 
-export type DestType = 'extension' | 'ring_group' | 'queue' | 'voicemail' | 'ai' | 'external' | 'hangup';
+export type DestType = 'extension' | 'ring_group' | 'queue' | 'voicemail' | 'ai' | 'external' | 'hangup' | 'ivr';
 export interface Destination { type: DestType; id?: string; number?: string }
 export type Strategy = 'simultaneous' | 'sequential' | 'round_robin' | 'longest_idle';
 export type Interval = [string, string];
@@ -145,4 +145,111 @@ export function shouldRecord(mode: RecordingMode, direction: 'inbound' | 'outbou
   if (direction === 'internal') return false;
   const m = override ?? mode;
   return m === 'all' || m === direction;
+}
+
+// ---------------------------------------------------------------- phone menu (IVR)
+export const IVR_MAX_DEPTH = 4;
+export type IvrReason = 'invalid' | 'timeout' | 'repeat';
+export interface IvrOption { digit: string; label: string; destination: Destination; closedDestination?: Destination | null }
+export interface IvrMenuConfig {
+  maxRetries: number;
+  timeoutDestination: Destination;
+  invalidDestination: Destination;
+  options: IvrOption[];
+}
+export type IvrDecision =
+  | { kind: 'route'; digit: string; destination: Destination; afterHours: boolean }
+  | { kind: 'retry'; reason: IvrReason; attempt: number }
+  | { kind: 'fallback'; reason: IvrReason | 'depth'; destination: Destination };
+
+const VOICEMAIL: Destination = { type: 'voicemail' };
+const DEST_TYPES = new Set<string>(['extension', 'ring_group', 'queue', 'voicemail', 'ai', 'external', 'hangup', 'ivr']);
+const UUID_LIKE = /^[0-9a-f-]{36}$/i;
+const IVR_DIGIT = /^[0-9*]$/;
+
+/** Untrusted jsonb -> a safe Destination. Anything malformed becomes the fallback (voicemail), never a throw. */
+export function parseDestination(raw: unknown, fallback: Destination = VOICEMAIL): Destination {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fallback;
+  const r = raw as Record<string, unknown>;
+  const type = String(r.type ?? '');
+  if (!DEST_TYPES.has(type)) return fallback;
+  const id = typeof r.id === 'string' ? r.id : undefined;
+  if (['extension', 'ring_group', 'queue', 'ivr'].includes(type)) return id && UUID_LIKE.test(id) ? { type: type as DestType, id } : fallback;
+  if (type === 'external') return isValidE164(r.number) ? { type: 'external', number: r.number } : fallback;
+  if (type === 'voicemail') return id && UUID_LIKE.test(id) ? { type: 'voicemail', id } : { type: 'voicemail' };
+  return { type: type as DestType };
+}
+
+/** DB rows -> menu config. Drops invalid / duplicate digits, orders by position then digit. */
+export function toIvrMenuConfig(
+  menu: { max_retries?: number | null; timeout_destination?: unknown; invalid_destination?: unknown },
+  options: { digit?: unknown; label?: unknown; destination?: unknown; closed_destination?: unknown; position?: number | null }[],
+): IvrMenuConfig {
+  const seen = new Set<string>();
+  const list = [...options]
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0) || String(a.digit).localeCompare(String(b.digit)))
+    .flatMap((o) => {
+      const digit = String(o.digit ?? '');
+      if (!IVR_DIGIT.test(digit) || seen.has(digit)) return [];
+      seen.add(digit);
+      return [{
+        digit, label: String(o.label ?? '').trim(), destination: parseDestination(o.destination),
+        closedDestination: o.closed_destination ? parseDestination(o.closed_destination) : null,
+      }];
+    });
+  const retries = Number(menu.max_retries);
+  return {
+    maxRetries: Number.isFinite(retries) ? Math.min(5, Math.max(0, Math.floor(retries))) : 2,
+    timeoutDestination: parseDestination(menu.timeout_destination),
+    invalidDestination: parseDestination(menu.invalid_destination),
+    options: list,
+  };
+}
+
+export const ivrDepth = (path: string | null | undefined): number => (path ? path.split('>').filter(Boolean).length : 0);
+export const appendIvrPath = (path: string | null | undefined, step: string): string =>
+  path ? `${path}>${step}` : step;
+
+/** "Press 1 for Sales. Press 2 for Support." — the spoken option list. */
+export function ivrPromptText(options: { digit: string; label: string }[]): string {
+  return options
+    .filter((o) => o.label)
+    .map((o) => `Press ${o.digit === '*' ? 'star' : o.digit} for ${o.label}.`)
+    .join(' ');
+}
+
+export function ivrRetryMessage(reason: IvrReason, custom?: { invalid?: string | null; timeout?: string | null }): string {
+  if (reason === 'invalid') return custom?.invalid || 'Sorry, that is not a valid option.';
+  if (reason === 'timeout') return custom?.timeout || 'Sorry, we did not receive your selection.';
+  return '';
+}
+
+/**
+ * One keypress (or silence) -> what happens next. `attempt` = failed tries so far.
+ * digits === null means the caller pressed nothing; '' means they pressed only "#" (repeat the menu).
+ * After-hours: an option may carry its own closed destination, used when the line's schedule says closed.
+ */
+export function decideIvr(
+  menu: IvrMenuConfig,
+  i: { digits: string | null; attempt: number; open: boolean; depth: number },
+): IvrDecision {
+  const attempt = Math.max(0, Math.floor(i.attempt) || 0);
+  const guard = (d: Destination): Destination => (d.type === 'ivr' && i.depth >= IVR_MAX_DEPTH ? VOICEMAIL : d);
+  const fail = (reason: IvrReason): IvrDecision => {
+    const next = attempt + 1;
+    if (next > Math.max(0, menu.maxRetries)) {
+      return { kind: 'fallback', reason, destination: guard(reason === 'timeout' ? menu.timeoutDestination : menu.invalidDestination) };
+    }
+    return { kind: 'retry', reason, attempt: next };
+  };
+  if (i.digits === null) return fail('timeout');
+  const digit = i.digits.trim();
+  if (!digit) return fail('repeat');
+  const opt = menu.options.find((o) => o.digit === digit);
+  if (!opt) return fail('invalid');
+  const afterHours = !i.open && !!opt.closedDestination;
+  const wanted = afterHours ? (opt.closedDestination as Destination) : opt.destination;
+  const destination = guard(wanted);
+  if (destination !== wanted) return { kind: 'fallback', reason: 'depth', destination };
+  return { kind: 'route', digit, destination, afterHours };
 }
