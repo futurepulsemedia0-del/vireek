@@ -375,6 +375,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Tax Center', href: '/dashboard/tax', icon: Receipt, requiresPermission: 'can_view_billing' },
   { label: 'Expenses', href: '/dashboard/expenses', icon: Receipt },
   { label: 'Commissions', href: '/dashboard/commissions', icon: Coins, requiresPermission: 'can_view_billing' },
+  { label: 'Payroll Connectors', href: '/dashboard/payroll-connectors', icon: ArrowRightLeft, requiresPermission: 'can_view_billing' },
   { label: 'Job Quality Gate', href: '/dashboard/job-quality-gate', icon: ClipboardCheck },
   { label: 'Evidence Chain', href: '/dashboard/evidence-chain', icon: Link2 },
   { label: 'Warranty Claim Recovery', href: '/dashboard/warranty-claims', icon: FileClock },
