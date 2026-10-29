@@ -568,6 +568,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Vendor & Procurement', href: '/dashboard/procurement', icon: Truck, requiresPermission: 'can_view_billing' },
   { label: 'Vendor Management', href: '/dashboard/vendors', icon: Building2, requiresPermission: 'can_view_billing' },
   { label: 'Supplier Catalog', href: '/dashboard/supplier-catalog', icon: Package, requiresPermission: 'can_view_billing' },
+  { label: 'Supplier PunchOut', href: '/dashboard/supplier-punchout', icon: Handshake, requiresPermission: 'can_view_billing' },
   { label: 'AI Parts Market', href: '/dashboard/parts-market', icon: Store, requiresPermission: 'can_view_billing' },
   { label: 'Parts Intelligence', href: '/dashboard/parts-intelligence', icon: PackageSearch, requiresPermission: 'can_view_billing' },
   { label: 'Supplier Intelligence', href: '/dashboard/supplier-intelligence', icon: Handshake, requiresPermission: 'can_view_billing' },
