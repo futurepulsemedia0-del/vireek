@@ -57,6 +57,7 @@ const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ 
 const CallDetailPage = lazy(() => import('@/pages/CallDetailPage').then((m) => ({ default: m.CallDetailPage })));
 const UnifiedInboxPage = lazy(() => import('@/pages/UnifiedInboxPage').then((m) => ({ default: m.UnifiedInboxPage })));
 const RichMessagingSettingsPage = lazy(() => import('@/pages/RichMessagingSettingsPage').then((m) => ({ default: m.RichMessagingSettingsPage })));
+const MessagingChannelsSettingsPage = lazy(() => import('@/pages/MessagingChannelsSettingsPage').then((m) => ({ default: m.MessagingChannelsSettingsPage })));
 const GoalOrchestratorPage = lazy(() => import('@/pages/GoalOrchestratorPage').then((m) => ({ default: m.GoalOrchestratorPage })));
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
@@ -1518,6 +1519,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <RichMessagingSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/messaging-channels"
+          element={
+            <ProtectedRoute>
+              <MessagingChannelsSettingsPage />
             </ProtectedRoute>
           }
         />
