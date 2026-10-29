@@ -349,6 +349,7 @@ const TakeoffDetailPage = lazy(() => import('@/pages/TakeoffDetailPage').then((m
 const PriceListsPage = lazy(() => import('@/pages/PriceListsPage').then((m) => ({ default: m.PriceListsPage })));
 const FormBuilderPage = lazy(() => import('@/pages/FormBuilderPage').then((m) => ({ default: m.FormBuilderPage })));
 const JobTemplatesPage = lazy(() => import('@/pages/JobTemplatesPage').then((m) => ({ default: m.JobTemplatesPage })));
+const DocumentTemplatesPage = lazy(() => import('@/pages/DocumentTemplatesPage').then((m) => ({ default: m.DocumentTemplatesPage })));
 const SopLibraryPage = lazy(() => import('@/pages/SopLibraryPage').then((m) => ({ default: m.SopLibraryPage })));
 const SdsLibraryPage = lazy(() => import('@/pages/SdsLibraryPage').then((m) => ({ default: m.SdsLibraryPage })));
 const ValuationPage = lazy(() => import('@/pages/ValuationPage').then((m) => ({ default: m.ValuationPage })));
@@ -3684,6 +3685,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TemplatesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/document-templates"
+          element={
+            <ProtectedRoute>
+              <DocumentTemplatesPage />
             </ProtectedRoute>
           }
         />
