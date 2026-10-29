@@ -12,6 +12,7 @@ import { supabase, Profile, TeamMember } from '@/lib/supabase';
 import { clearSessionStart } from '@/lib/enterpriseSecurity';
 import { recordLoginEvent } from '@/lib/loginSecurity';
 import { clearScheduleCache } from '@/lib/technicianSchedule';
+import { isIntentionalSignOut } from '@/lib/session/signOutIntent';
 
 export interface UserPermissions {
   can_view_billing: boolean;
@@ -145,6 +146,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {{
+      if (event === 'SIGNED_OUT' && !isIntentionalSignOut()) {
+        // The session died (expired/revoked refresh token). Keep the last-known state so the
+        // page and unsaved work survive; SessionGuard shows the re-auth modal.
+        return;
+      }
       (async () => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
