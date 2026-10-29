@@ -14,7 +14,9 @@ import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { LanguagePersistenceSync } from '@/components/LanguagePersistenceSync';
 import { SiteAssistant } from '@/components/SiteAssistant';
 import { LiveChatWidget } from '@/components/LiveChatWidget';
-import { ScrollToTop } from '@/components/ScrollToTop';
+import { RouteEffects } from '@/components/nav/RouteEffects';
+import { RouteProgressBar } from '@/components/nav/RouteProgress';
+import { SessionGuard } from '@/components/session/SessionGuard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ProductTourProvider } from '@/contexts/ProductTourContext';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
@@ -48,7 +50,8 @@ if (!isNative() && 'serviceWorker' in navigator) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <ScrollToTop />
+      <RouteEffects />
+      <RouteProgressBar />
       <AnalyticsListener />
       <ThemeProvider>
         <AccessibilityProvider>
@@ -64,6 +67,7 @@ createRoot(document.getElementById('root')!).render(
 </ToastProvider>
                 <ConnectivityProvider>
                   <AuthProvider>
+                  <SessionGuard />
                     <RegionalProvider>
                     <ErrorBoundary>
                     <AppLockGate>
