@@ -17,6 +17,7 @@ import {
   PROJECT_TYPE_LABEL,
   SCHEDULE_LABEL,
   formatDate,
+  revisedContractCents,
   formatMoney,
   friendlyError,
   type ProjectFormValues,
@@ -81,7 +82,7 @@ function ProjectList({ ownerId }: { ownerId: string }) {
     const open = projects.filter((p) => p.status === 'planning' || p.status === 'active' || p.status === 'on_hold');
     return {
       openCount: open.length,
-      pipeline: open.reduce((s, p) => s + p.contract_value_cents, 0),
+      pipeline: open.reduce((s, p) => s + revisedContractCents(p), 0),
       outstanding: projects.reduce((s, p) => s + (rollups[p.id]?.billing.outstandingCents ?? 0), 0),
       overdue: projects.reduce((s, p) => s + (rollups[p.id]?.billing.overdueCents ?? 0), 0),
       late: open.filter((p) => rollups[p.id]?.schedule.state === 'late').length,
@@ -161,7 +162,7 @@ function ProjectList({ ownerId }: { ownerId: string }) {
                             <ProgressBar value={r.progress} label={`${p.name} progress`} tone={r.schedule.state === 'late' ? 'danger' : r.schedule.state === 'at_risk' ? 'warning' : r.progress === 100 ? 'success' : 'info'} />
                           </div>
                           <div className="flex flex-wrap justify-between gap-x-6 gap-y-1 text-xs text-text-secondary">
-                            <span>Contract <span className="font-semibold text-text-primary">{formatMoney(p.contract_value_cents, true)}</span></span>
+                            <span>Contract <span className="font-semibold text-text-primary">{formatMoney(revisedContractCents(p), true)}</span></span>
                             <span>Next: <span className="text-text-primary">{r.nextMilestone ? `${r.nextMilestone.title}${r.nextMilestone.due_date ? ` · ${formatDate(r.nextMilestone.due_date)}` : ''}` : '—'}</span></span>
                             {r.billing.overdueCents > 0 && <span className="font-semibold text-danger-500">{formatMoney(r.billing.overdueCents)} overdue</span>}
                           </div>
