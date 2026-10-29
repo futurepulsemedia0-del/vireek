@@ -82,3 +82,14 @@ export function disconnectChannel(channel: DmChannelKey) {
 export function sendDmReply(conversationId: string, body: string) {
   return invokeDm('dm-send', { conversationId, body });
 }
+
+export interface SuggestResult { ok: boolean; draft?: string; grounded?: boolean; error?: string }
+
+/** Asks the assistant for a DRAFT reply (never sent). `grounded` = answer came from the Knowledge Base. */
+export async function suggestDmReply(conversationId: string): Promise<SuggestResult> {
+  const { data, error } = await supabase.functions.invoke('dm-suggest', { body: { conversationId } });
+  if (error) return { ok: false, error: error.message || 'Request failed' };
+  const res = (data ?? {}) as { ok?: boolean; draft?: string; grounded?: boolean; message?: string };
+  if (res.ok && res.draft) return { ok: true, draft: res.draft, grounded: res.grounded === true };
+  return { ok: false, error: res.message ?? 'Could not draft a reply.' };
+}
