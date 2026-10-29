@@ -60,3 +60,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.geo-grid-scan]
 verify_jwt = false
+[functions.telegram-webhook]
+verify_jwt = false
+[functions.messenger-webhook]
+verify_jwt = false
