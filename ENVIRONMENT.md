@@ -157,6 +157,7 @@ Callback functions are deployed with `--no-verify-jwt`. Redirect URI = the callb
 | `GOOGLE_ADS_CLIENT_ID`, `GOOGLE_ADS_CLIENT_SECRET`, `GOOGLE_ADS_DEVELOPER_TOKEN`, `GOOGLE_ADS_API_VERSION` (default `v24`) | `_shared/ads/google.ts` | Google Ads API access |
 | `META_APP_ID`, `META_APP_SECRET`, `META_GRAPH_VERSION` (default `v23.0`) | `_shared/ads/meta.ts` | Meta for Developers |
 | `GOOGLE_MAPS_API_KEY` | `optimize-route` | Google Cloud → Maps |
+| `GOOGLE_PLACES_API_KEY` (falls back to `GOOGLE_MAPS_API_KEY`; enable **Places API (New)**), `GEO_GRID_MONTHLY_POINT_LIMIT` (default `5000`, `0` = no cap) | `geo-grid-scan` | Google Cloud → Places API (New) |
 | `VIREK_MANAGEMENT_TOKEN`, `VIREK_PROJECT_REF` | `admin-sso` | Supabase **Management API** personal access token (`supabase.com/dashboard/account/tokens`) and the project ref |
 
 ### B9. Banking, financing, telematics, encryption keys
