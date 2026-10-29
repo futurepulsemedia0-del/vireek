@@ -20,6 +20,7 @@ import { BillingTab } from './BillingTab';
 import { ChangeOrdersTab } from './ChangeOrdersTab';
 import { JobsTab } from './JobsTab';
 import { MaterialsTab } from './MaterialsTab';
+import { DailyLogsTab } from './DailyLogsTab';
 import { OverviewTab } from './OverviewTab';
 import { PhasesTab } from './PhasesTab';
 import { RfisTab } from './RfisTab';
@@ -38,6 +39,7 @@ const TABS = [
   { key: 'wip', label: 'WIP' },
   { key: 'jobs', label: 'Jobs' },
   { key: 'materials', label: 'Materials' },
+  { key: 'daily-logs', label: 'Daily logs' },
   { key: 'rfis', label: 'RFIs' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
@@ -162,6 +164,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
         {tab === 'wip' && <WipTab {...tabProps} />}
         {tab === 'jobs' && <JobsTab {...tabProps} />}
         {tab === 'materials' && <MaterialsTab {...tabProps} />}
+        {tab === 'daily-logs' && <DailyLogsTab {...tabProps} />}
         {tab === 'rfis' && <RfisTab {...tabProps} />}
       </div>
       {dialog}
