@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Download, FileText, Layers, Wallet } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -184,7 +185,7 @@ export function StatementsTab({ ownerId, employees, range, onRangeChange }: { ow
               <Button variant="secondary" size="sm" onClick={() => setPayOpen(true)} disabled={payable.length === 0 || bulkBusy}><Wallet size={14} /> Mark paid ({payable.length})</Button>
             </div>
           </div>
-          <p className="text-xs text-text-secondary">Approved statements flow into the next pay run automatically. Use the CSV export and “Mark paid” only when an outside payroll provider pays them. Those payments are not posted to the general ledger by Vireek.</p>
+             <p className="text-xs text-text-secondary">Approved statements flow into the next pay run automatically. To pay through an outside payroll provider, <Link to="/dashboard/payroll-sync" className="text-accent underline">send them from Payroll sync</Link> (reviewed and approved first), or use the CSV export and “Mark paid”. Those payments are not posted to the general ledger by Vireek.</p>
 
           {visible.length === 0 ? (
             <EmptyState icon={FileText} title="Nothing in this view" description="No statements match this filter." />
