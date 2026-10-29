@@ -370,6 +370,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Prevailing Wage', href: '/dashboard/prevailing-wage', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Refunds', href: '/dashboard/refunds', icon: Undo2, requiresPermission: 'can_view_billing' },
   { label: 'Chart of Accounts', href: '/dashboard/chart-of-accounts', icon: Layers, requiresPermission: 'can_view_billing' },
+  { label: 'Multi-Entity Accounting', href: '/dashboard/multi-entity', icon: Network, requiresPermission: 'can_view_billing' },
   { label: 'Fixed Assets', href: '/dashboard/fixed-assets', icon: Package, requiresPermission: 'can_view_billing' },
   { label: 'Bank Intelligence', href: '/dashboard/bank-intelligence', icon: Landmark },
   { label: 'Payroll', href: '/dashboard/payroll', icon: DollarSign },
