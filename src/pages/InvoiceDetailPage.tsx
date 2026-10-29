@@ -40,6 +40,7 @@ import {
   type ReminderKind,
 } from '@/lib/invoiceDetail';
 import { downloadInvoicePdf } from '@/lib/invoicePdf';
+import { downloadInvoiceWithDefaultTemplate } from '@/lib/invoiceTemplatePdf';
 import { SplitPaymentsCard } from '@/components/invoicing/SplitPaymentsCard';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -215,7 +216,9 @@ export function InvoiceDetailPage() {
   const downloadPdf = async () => {
     setBusy('pdf');
     try {
-      await downloadInvoicePdf({ invoice, ledger, payments, refunds, businessName });
+      const pdfInput = { invoice, ledger, payments, refunds, businessName };
+      const usedTemplate = accountOwnerId ? await downloadInvoiceWithDefaultTemplate(accountOwnerId, pdfInput) : false;
+      if (!usedTemplate) await downloadInvoicePdf(pdfInput);
     } catch {
       toast('Could not generate the PDF.', 'error');
     } finally {
