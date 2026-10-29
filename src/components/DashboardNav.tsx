@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutTemplate } from 'lucide-react';
+import { PlugZap } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { FlaskConical } from 'lucide-react';
 import { PackageCheck } from 'lucide-react';
@@ -622,6 +623,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, requiresPermission: 'can_export_data' },
   { label: 'BI Export', href: '/dashboard/bi-export', icon: BarChart3, requiresPermission: 'can_export_data' },
   { label: 'Data Platform', href: '/dashboard/data-platform', icon: Database, requiresPermission: 'can_export_data' },
+   { label: 'BI Connectors', href: '/dashboard/bi-connectors', icon: PlugZap, requiresPermission: 'can_export_data' },
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
   { label: 'Compliance Rules', href: '/dashboard/compliance-rules', icon: Scale, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trash', href: '/dashboard/trash', icon: Trash2, requiresPermission: 'can_view_billing' },
