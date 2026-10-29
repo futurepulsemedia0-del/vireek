@@ -16,6 +16,7 @@ import {
   type ProjectStatus,
 } from '@/lib/installProjects';
 import { BillingTab } from './BillingTab';
+import { ChangeOrdersTab } from './ChangeOrdersTab';
 import { JobsTab } from './JobsTab';
 import { MaterialsTab } from './MaterialsTab';
 import { OverviewTab } from './OverviewTab';
@@ -30,6 +31,7 @@ const TABS = [
   { key: 'phases', label: 'Phases' },
   { key: 'schedule', label: 'Schedule' },
   { key: 'billing', label: 'Billing' },
+  { key: 'changes', label: 'Changes' },
   { key: 'lien_waivers', label: 'Lien waivers' },
   { key: 'wip', label: 'WIP' },
   { key: 'jobs', label: 'Jobs' },
@@ -151,6 +153,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
         {tab === 'phases' && <PhasesTab {...tabProps} />}
         {tab === 'schedule' && <ScheduleTab {...tabProps} />}
         {tab === 'billing' && <BillingTab {...tabProps} />}
+        {tab === 'changes' && <ChangeOrdersTab {...tabProps} />}
         {tab === 'wip' && <WipTab {...tabProps} />}
         {tab === 'jobs' && <JobsTab {...tabProps} />}
         {tab === 'materials' && <MaterialsTab {...tabProps} />}
