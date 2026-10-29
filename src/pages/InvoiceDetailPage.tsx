@@ -400,6 +400,7 @@ export function InvoiceDetailPage() {
             </dl>
           </section>
 
+          <LoyaltyRedeemPanel invoiceId={invoice.id} onApplied={() => void refreshAll()} />
           <InvoiceProtectionCard
             invoiceId={invoice.id}
             invoiceLabel={invoice.invoice_number}
