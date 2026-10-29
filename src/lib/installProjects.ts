@@ -28,6 +28,10 @@ export interface InstallProject {
   start_date: string | null;
   target_end_date: string | null;
   work_weekends?: boolean;
+  // Change orders (maintained by the database; see 20280105000000_change_orders.sql).
+  approved_change_cents?: number;
+  approved_change_cost_cents?: number;
+  approved_schedule_days?: number;
   completed_at: string | null;
   retainage_invoice_id: string | null;
   notes: string | null;
@@ -152,6 +156,26 @@ export const MATERIAL_STATUS_LABEL: Record<MaterialStatus, string> = {
 export const MATERIAL_STATUS_ORDER: MaterialStatus[] = ['planned', 'ordered', 'delivered', 'installed'];
 
 export const MAX_RETAINAGE_PERCENT = 25;
+
+/** The slice of a change order the billing math needs. */
+export interface ChangeOrderLite {
+  status: string;
+  cost_delta_cents: number;
+  invoice_id: string | null;
+  invoiced_gross_cents: number | null;
+}
+
+/** Original contract plus every approved change order. Progress draws bill against the ORIGINAL value. */
+export function revisedContractCents(project: Pick<InstallProject, 'contract_value_cents' | 'approved_change_cents'>): number {
+  return project.contract_value_cents + (project.approved_change_cents ?? 0);
+}
+
+/** "$18,500 original + $1,200 change orders", or null when nothing was approved. */
+export function contractBreakdownHint(project: Pick<InstallProject, 'contract_value_cents' | 'approved_change_cents'>): string | null {
+  const change = project.approved_change_cents ?? 0;
+  if (change === 0) return null;
+  return `${formatMoney(project.contract_value_cents, true)} original ${change > 0 ? '+' : '−'} ${formatMoney(Math.abs(change), true)} changes`;
+}
 
 // ------------------------------------------------------------------
 // Formatting & parsing
@@ -350,10 +374,11 @@ export interface BillingSummary {
 }
 
 export function billingSummary(
-  project: Pick<InstallProject, 'contract_value_cents' | 'retainage_percent' | 'retainage_invoice_id'>,
+  project: Pick<InstallProject, 'contract_value_cents' | 'approved_change_cents' | 'retainage_percent' | 'retainage_invoice_id'>,
   billing: ProjectBilling[],
   invoices: Record<string, InvoiceLite>,
   today: string,
+  changeOrders: ChangeOrderLite[] = [],
 ): BillingSummary {
   let invoicedGross = 0;
   let paid = 0;
@@ -373,14 +398,27 @@ export function billingSummary(
       if (inv.due_date && inv.due_date < today) overdue += net;
     }
   }
+  // Approved change orders are invoiced separately, in full (no retainage).
+  for (const co of changeOrders) {
+    if (co.status !== 'approved' || !co.invoice_id) continue;
+    const coInvoice = liveInvoice({ invoice_id: co.invoice_id }, invoices);
+    if (!coInvoice) continue;
+    const gross = co.invoiced_gross_cents ?? co.cost_delta_cents;
+    invoicedGross += gross;
+    if (coInvoice.status === 'paid') paid += gross;
+    else {
+      outstanding += gross;
+      if (coInvoice.due_date && coInvoice.due_date < today) overdue += gross;
+    }
+  }
   const scheduledPercent = Math.round(billing.reduce((s, b) => s + b.percent_of_contract, 0) * 1000) / 1000;
   const released = project.retainage_invoice_id ? liveInvoice({ invoice_id: project.retainage_invoice_id }, invoices) !== null : false;
   return {
-    contractCents: project.contract_value_cents,
+    contractCents: revisedContractCents(project),
     scheduledPercent,
     unscheduledPercent: Math.max(0, Math.round((100 - scheduledPercent) * 1000) / 1000),
     invoicedGrossCents: invoicedGross,
-    billedPercent: project.contract_value_cents > 0 ? (invoicedGross / project.contract_value_cents) * 100 : 0,
+    billedPercent: revisedContractCents(project) > 0 ? (invoicedGross / revisedContractCents(project)) * 100 : 0,
     paidCents: paid,
     outstandingCents: outstanding,
     overdueCents: overdue,
@@ -443,13 +481,14 @@ export interface MarginForecast {
 }
 
 export function marginForecast(
-  project: Pick<InstallProject, 'contract_value_cents' | 'estimated_labor_cost_cents'>,
+  project: Pick<InstallProject, 'contract_value_cents' | 'estimated_labor_cost_cents' | 'approved_change_cents' | 'approved_change_cost_cents'>,
   materialsCents: number,
 ): MarginForecast {
-  const costCents = materialsCents + project.estimated_labor_cost_cents;
-  const marginCents = project.contract_value_cents - costCents;
-  if (project.contract_value_cents <= 0) return { costCents, marginCents, marginPercent: null, level: 'unknown' };
-  const marginPercent = (marginCents / project.contract_value_cents) * 100;
+  const costCents = materialsCents + project.estimated_labor_cost_cents + (project.approved_change_cost_cents ?? 0);
+  const revised = revisedContractCents(project);
+  const marginCents = revised - costCents;
+  if (revised <= 0) return { costCents, marginCents, marginPercent: null, level: 'unknown' };
+  const marginPercent = (marginCents / revised) * 100;
   return { costCents, marginCents, marginPercent, level: marginPercent >= 25 ? 'healthy' : marginPercent >= 10 ? 'thin' : 'at_risk' };
 }
 
@@ -603,6 +642,20 @@ const ERROR_COPY: Record<string, string> = {
   invalid_range: 'The end date must be on or after the start date.',
   invalid_technician: 'That team member is not in your account.',
   sharing_not_found: 'Project not found.',
+  change_order_not_found: 'That change order no longer exists.',
+  change_order_locked: 'Only a draft change order can be edited. Recall or revise it first.',
+  change_order_fields_locked: 'Status, signature and invoice details are managed automatically.',
+  change_order_empty: 'Add a price or schedule change before sending.',
+  change_order_not_approved: 'Only an approved change order can be invoiced.',
+  change_totals_locked: 'Approved change totals are managed automatically.',
+  invalid_transition: 'That status change is not allowed for this change order.',
+  invalid_line_items: 'One of the line items is invalid. Check descriptions, quantities and prices.',
+  too_many_line_items: 'A change order can have at most 100 line items.',
+  nothing_to_invoice: 'This change order has no price change to invoice.',
+  schedule_before_start: 'Approving would move the target end date before the project start. Edit the project dates first.',
+  signature_mismatch: 'That signature request does not belong to this change order.',
+  invalid_project: 'That project is not in your account.',
+  project_not_found: 'Project not found.',
 };
 
 export function friendlyError(error: unknown, fallback: string): string {
@@ -656,11 +709,12 @@ export function buildRollup(
   billing: ProjectBilling[],
   invoices: Record<string, InvoiceLite>,
   today: string,
+  changeOrders: ChangeOrderLite[] = [],
 ): ProjectRollup {
   return {
     progress: projectProgress(project, phases, milestones),
     schedule: scheduleHealth(project, phases, milestones, today),
-    billing: billingSummary(project, billing, invoices, today),
+    billing: billingSummary(project, billing, invoices, today, changeOrders),
     nextMilestone: nextPendingMilestone(phases, milestones),
   };
 }
