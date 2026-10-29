@@ -251,6 +251,7 @@ const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) =>
 const MembershipRenewalsPage = lazy(() => import('@/pages/MembershipRenewalsPage').then((m) => ({ default: m.MembershipRenewalsPage })));
 const RenewMembershipPage = lazy(() => import('@/pages/RenewMembershipPage').then((m) => ({ default: m.RenewMembershipPage })));
 const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
+const LoyaltyPage = lazy(() => import('@/pages/LoyaltyPage').then((m) => ({ default: m.LoyaltyPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TradePacksPage = lazy(() => import('@/pages/TradePacksPage').then((m) => ({ default: m.TradePacksPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
@@ -3188,6 +3189,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <GiftCardsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/loyalty"
+          element={
+            <ProtectedRoute>
+              <LoyaltyPage />
             </ProtectedRoute>
           }
         />
