@@ -19,7 +19,7 @@ import {
   type ChangeOrderFormValues,
   type ChangeOrderPayload,
   type ChangeOrderReason,
-} from '@/lib/changeOrders';
+} from '@/lib/projectChangeOrders';
 import { formatDate, formatMoney, type InstallProject } from '@/lib/installProjects';
 import { compactInput, panelClass, selectClass } from './projectUi';
 
@@ -32,7 +32,7 @@ interface Props {
   onCancel: () => void;
 }
 
-export function ChangeOrderForm({ mode, project, initial = EMPTY_CHANGE_ORDER_FORM, submitting, onSubmit, onCancel }: Props) {
+export function ProjectChangeOrderForm({ mode, project, initial = EMPTY_CHANGE_ORDER_FORM, submitting, onSubmit, onCancel }: Props) {
   const [v, setV] = useState<ChangeOrderFormValues>(initial);
   const [touched, setTouched] = useState(false);
   const errors = useMemo(() => validateChangeOrderForm(v), [v]);
