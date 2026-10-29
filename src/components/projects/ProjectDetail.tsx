@@ -15,12 +15,14 @@ import {
   todayIso,
   type ProjectStatus,
 } from '@/lib/installProjects';
+import { rfiSummary } from '@/lib/projectRfis';
 import { BillingTab } from './BillingTab';
 import { ChangeOrdersTab } from './ChangeOrdersTab';
 import { JobsTab } from './JobsTab';
 import { MaterialsTab } from './MaterialsTab';
 import { OverviewTab } from './OverviewTab';
 import { PhasesTab } from './PhasesTab';
+import { RfisTab } from './RfisTab';
 import { ScheduleTab } from './scheduler/ScheduleTab';
 import { WipTab } from './WipTab';
 import { LienWaiversTab } from './LienWaiversTab';
@@ -36,6 +38,7 @@ const TABS = [
   { key: 'wip', label: 'WIP' },
   { key: 'jobs', label: 'Jobs' },
   { key: 'materials', label: 'Materials' },
+  { key: 'rfis', label: 'RFIs' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
@@ -87,6 +90,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
   }
 
   const { project, milestones } = bundle;
+  const rfiOverdue = rfiSummary(bundle.rfis, today).overdue;
   const pending = milestones.filter((m) => m.status === 'pending').length;
   const changeStatus = (status: ProjectStatus, success: string) => run('status', () => setProjectStatus(ownerId, project.id, status), success);
 
@@ -126,7 +130,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {actions.map((a) => <Button key={a.label} size="sm" variant={a.variant} disabled={busyKey === 'status'} onClick={a.onClick}>{a.label}</Button>)}
-            <button type="button" aria-label="Delete project" onClick={() => ask({ title: 'Delete this project?', description: 'Phases, milestones, billing steps, links and materials are deleted permanently. Invoices already created stay in Invoicing.', label: 'Delete project', confirmPhrase: 'delete project', onConfirm: async () => { const ok = await run('delete', () => deleteProject(ownerId, project.id), 'Project deleted.'); if (ok) navigate('/dashboard/projects'); } })} className="focus-ring rounded-xl p-2.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={18} aria-hidden="true" /></button>
+            <button type="button" aria-label="Delete project" onClick={() => ask({ title: 'Delete this project?', description: 'Phases, milestones, billing steps, links, materials, RFIs and change orders are deleted permanently. Invoices already created stay in Invoicing.', label: 'Delete project', confirmPhrase: 'delete project', onConfirm: async () => { const ok = await run('delete', () => deleteProject(ownerId, project.id), 'Project deleted.'); if (ok) navigate('/dashboard/projects'); } })} className="focus-ring rounded-xl p-2.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={18} aria-hidden="true" /></button>
           </div>
         </div>
       </div>
@@ -144,6 +148,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
             className={`focus-ring -mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${tab === t.key ? 'border-accent text-text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
           >
             {t.label}
+            {t.key === 'rfis' && rfiOverdue > 0 && <span className="ml-1.5 rounded-full bg-danger-500/15 px-1.5 py-0.5 text-xs font-semibold text-danger-500" aria-label={`${rfiOverdue} overdue`}>{rfiOverdue}</span>}
           </button>
         ))}
       </div>
@@ -157,6 +162,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
         {tab === 'wip' && <WipTab {...tabProps} />}
         {tab === 'jobs' && <JobsTab {...tabProps} />}
         {tab === 'materials' && <MaterialsTab {...tabProps} />}
+        {tab === 'rfis' && <RfisTab {...tabProps} />}
       </div>
       {dialog}
     </div>
