@@ -12,6 +12,7 @@ import {
   formatDate,
   formatMoney,
   formatPercent,
+  contractBreakdownHint,
   marginForecast,
   materialsSummary,
   projectProgress,
@@ -76,7 +77,7 @@ export function OverviewTab({ ownerId, bundle, today, onChanged }: TabProps) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Progress" value={`${progress}%`} hint={`${milestones.filter((m) => m.status === 'done').length} of ${milestones.filter((m) => m.status !== 'skipped').length} milestones`} />
-        <Stat label="Contract" value={formatMoney(project.contract_value_cents, true)} hint={project.retainage_percent > 0 ? `${formatPercent(project.retainage_percent, 1)} retainage` : 'No retainage'} />
+        <Stat label="Contract" value={formatMoney(bill.contractCents, true)} hint={contractBreakdownHint(project) ?? (project.retainage_percent > 0 ? `${formatPercent(project.retainage_percent, 1)} retainage` : 'No retainage')} />
         <Stat label="Collected" value={formatMoney(bill.paidCents, true)} hint={`${formatMoney(bill.outstandingCents, true)} outstanding`} tone={bill.overdueCents > 0 ? 'danger' : undefined} />
         <Stat
           label="Forecast margin"
