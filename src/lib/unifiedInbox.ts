@@ -8,9 +8,10 @@
 // how messages get in and out.
 
 import { supabase } from '@/lib/supabase';
+import { sendDmReply } from '@/lib/dmChannels';
 import { normalizeEmail, normalizePhone } from '@/lib/customerContacts';
 
-export type Channel = 'whatsapp' | 'instagram' | 'sms' | 'email' | 'chat' | 'rcs' | 'amb';
+export type Channel = 'whatsapp' | 'instagram' | 'sms' | 'email' | 'chat' | 'rcs' | 'amb''telegram' | 'messenger';
 
 /** Delivery state of an outbound RCS / Apple Messages message (rich_messages.status). */
 export type RichStatus = 'queued' | 'deferred' | 'sent' | 'delivered' | 'read' | 'failed' | 'fallback_sent' | 'cancelled' | 'received';
@@ -44,6 +45,8 @@ export interface UnifiedConversation {
   optedOut?: boolean;
   /** Apple Messages only: the customer deleted the conversation, the business cannot message. */
   closedByCustomer?: boolean;
+  /** Messenger: when the customer last wrote (24h reply window). */
+  lastInboundAt?: string | null;
 }
 
 export interface UnifiedMessage {
@@ -70,6 +73,9 @@ export async function fetchConversations(): Promise<UnifiedConversation[]> {
     supabase.from('rich_conversations').select('*').order('last_message_at', { ascending: false }),
   ]);
 
+  // If every channel query failed (offline / auth), surface an error instead of a silently empty inbox.
+  const failed = [dm, sms, email, chat, rich].filter((r) => r.error);
+  if (failed.length === 5) throw new Error(failed[0].error?.message ?? 'Could not load conversations');
   const out: UnifiedConversation[] = [];
 
   for (const row of dm.data ?? []) {
@@ -78,6 +84,8 @@ export async function fetchConversations(): Promise<UnifiedConversation[]> {
       channel: row.channel as Channel,
       customerLabel: row.customer_name || row.customer_external_id,
       customerContact: row.customer_external_id,
+      lastInboundAt: row.last_inbound_at ?? null,
+      optedOut: !!row.opted_out_at,
       subject: null,
       unread: row.unread ?? false,
       lastMessageAt: row.last_message_at,
@@ -137,6 +145,8 @@ export async function fetchConversations(): Promise<UnifiedConversation[]> {
 const TABLE_BY_CHANNEL: Record<Channel, { conversations: string; messages: string }> = {
   whatsapp: { conversations: 'dm_conversations', messages: 'dm_messages' },
   instagram: { conversations: 'dm_conversations', messages: 'dm_messages' },
+  telegram: { conversations: 'dm_conversations', messages: 'dm_messages' },
+  messenger: { conversations: 'dm_conversations', messages: 'dm_messages' },
   sms: { conversations: 'sms_conversations', messages: 'sms_messages' },
   email: { conversations: 'email_conversations', messages: 'email_messages' },
   chat: { conversations: 'support_conversations', messages: 'support_messages' },
@@ -233,6 +243,9 @@ export async function sendReply(channel: Channel, conversationId: string, body: 
     return { ok: true };
   }
 
+  if (channel === 'telegram' || channel === 'messenger') {
+    return sendDmReply(conversationId, trimmed);
+  }
   if (channel === 'rcs' || channel === 'amb') {
     const { data, error } = await supabase.functions.invoke('rich-send', { body: { conversationId, text: trimmed } });
     if (error || data?.error) return { ok: false, error: data?.detail ?? data?.error ?? error?.message };
