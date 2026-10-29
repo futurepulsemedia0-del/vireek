@@ -102,6 +102,9 @@ Chain order and task routing: `_shared/ai-core/registry.ts`. A provider without 
 | `STATUS_NOTIFY_WEBHOOK_SECRET` | `notify-status-subscribers` | Optional but recommended: callers must send `X-Webhook-Secret`. `openssl rand -hex 32` |
 | `ESCALATION_WEBHOOK_SECRET` | `escalate-emergency` | Optional: if set, callers must send `X-Webhook-Secret` |
 | `WHATSAPP_VERIFY_TOKEN` | `whatsapp-webhook` | Any string; enter the same value as "Verify Token" in the Meta webhook setup |
+| `META_APP_SECRET` | `messenger-webhook` | Meta App › Settings › Basic › App Secret. Required: the webhook rejects every request without it |
+| `MESSENGER_VERIFY_TOKEN` | `messenger-webhook` | Any string; enter the same value as "Verify Token" in Meta › Messenger › Webhooks |
+| `META_GRAPH_VERSION` | `dm-connect`, `dm-send`, `messenger-webhook` | Optional, e.g. `v25.0` (default is pinned in `_shared/dmChannels/protocol.ts`) |
 | `DNC_SCRUB_API_URL`, `DNC_SCRUB_API_KEY` | `_shared/compliance/dncCheck.ts` | Optional second layer: external National DNC registry scrub |
 
 ### B5. Voice
