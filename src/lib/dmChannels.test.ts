@@ -22,6 +22,7 @@ import {
   mapConnectionRow,
   replyWindow,
   sendDmReply,
+  suggestDmReply,
 } from '@/lib/dmChannels';
 
 beforeEach(() => {
@@ -89,5 +90,23 @@ describe('edge function calls', () => {
     expect(await sendDmReply('conv', 'hi')).toEqual({ ok: false, error: 'Failed to fetch' });
     invoke.mockResolvedValueOnce({ data: null, error: null });
     expect(await sendDmReply('conv', 'hi')).toEqual({ ok: false, error: 'Request failed' });
+  });
+});
+
+describe('suggestDmReply', () => {
+  it('returns the draft and whether it was grounded in the knowledge base', async () => {
+    invoke.mockResolvedValueOnce({ data: { ok: true, draft: 'We can come Friday.', grounded: true }, error: null });
+    expect(await suggestDmReply('conv')).toEqual({ ok: true, draft: 'We can come Friday.', grounded: true });
+    expect(invoke).toHaveBeenLastCalledWith('dm-suggest', { body: { conversationId: 'conv' } });
+    invoke.mockResolvedValueOnce({ data: { ok: true, draft: 'A team member will follow up.' }, error: null });
+    expect(await suggestDmReply('conv')).toEqual({ ok: true, draft: 'A team member will follow up.', grounded: false });
+  });
+  it('surfaces server and transport failures', async () => {
+    invoke.mockResolvedValueOnce({ data: { ok: false, code: 'blocked', message: 'Blocked by safety checks.' }, error: null });
+    expect(await suggestDmReply('conv')).toEqual({ ok: false, error: 'Blocked by safety checks.' });
+    invoke.mockResolvedValueOnce({ data: null, error: { message: 'Failed to fetch' } });
+    expect(await suggestDmReply('conv')).toEqual({ ok: false, error: 'Failed to fetch' });
+    invoke.mockResolvedValueOnce({ data: { ok: true }, error: null });
+    expect(await suggestDmReply('conv')).toEqual({ ok: false, error: 'Could not draft a reply.' });
   });
 });
