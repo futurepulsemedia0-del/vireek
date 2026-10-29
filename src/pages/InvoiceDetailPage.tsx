@@ -13,6 +13,7 @@ import { ArrowLeft, BellRing, Copy, Download, FileX2, Loader2, Lock, Mail, Plus,
 import { DashboardLayout } from '@/components/DashboardNav';
 import { EmptyState } from '@/components/EmptyState';
 import { InvoiceProtectionCard } from '@/components/protection/InvoiceProtectionCard';
+import { LoyaltyRedeemPanel } from '@/components/loyalty/LoyaltyRedeemPanel';
 import { Button } from '@/components/ui/Button';
 import { InvoiceAuditTrail, InvoiceTimeline, fmtDateTime } from '@/components/invoicing/InvoiceActivity';
 import { RecordPaymentDialog, RefundDialog, VoidDialog } from '@/components/invoicing/InvoiceDialogs';
