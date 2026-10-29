@@ -64,3 +64,11 @@ verify_jwt = false
 verify_jwt = false
 [functions.messenger-webhook]
 verify_jwt = false
+[functions.bi-gateway]
+verify_jwt = false
+
+[functions.bi-export-run]
+verify_jwt = false
+
+[functions.bi-sftp-upload]
+verify_jwt = false
