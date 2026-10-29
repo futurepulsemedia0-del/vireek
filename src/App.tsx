@@ -11,6 +11,7 @@ import { PartnerRoute } from '@/components/PartnerRoute';
 import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { AriaLiveRegion } from '@/lib/a11y/announcer';
 import { HomeTargetGate } from '@/pages/home/HomeTargetGate';
+import { RouteProgressSignal } from '@/components/nav/RouteProgress';
 
 // Performance pass: only the landing page (the route almost every first-time
 // visitor lands on) ships eagerly in the main bundle. Every other route —
@@ -662,6 +663,7 @@ const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) 
 
 function RouteLoadingFallback() {
   return (
+  <RouteProgressSignal />
     <div className="flex min-h-screen items-center justify-center bg-bg-primary">
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
     </div>
