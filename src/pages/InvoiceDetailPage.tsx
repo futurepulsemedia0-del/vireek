@@ -13,6 +13,7 @@ import { ArrowLeft, BellRing, Copy, Download, FileX2, Loader2, Lock, Mail, Plus,
 import { DashboardLayout } from '@/components/DashboardNav';
 import { EmptyState } from '@/components/EmptyState';
 import { InvoiceProtectionCard } from '@/components/protection/InvoiceProtectionCard';
+import { PointsRedeemPanel } from '@/components/loyalty/PointsRedeemPanel';
 import { LoyaltyRedeemPanel } from '@/components/loyalty/LoyaltyRedeemPanel';
 import { Button } from '@/components/ui/Button';
 import { InvoiceAuditTrail, InvoiceTimeline, fmtDateTime } from '@/components/invoicing/InvoiceActivity';
@@ -399,8 +400,8 @@ export function InvoiceDetailPage() {
               <div><dt className="text-xs text-text-secondary">Created</dt><dd className="text-text-primary">{fmtDateTime(invoice.created_at)}</dd></div>
             </dl>
           </section>
-
-          <LoyaltyRedeemPanel invoiceId={invoice.id} onApplied={() => void refreshAll()} />
+          
+          <PointsRedeemPanel invoiceId={invoice.id} onApplied={() => void refreshAll()} />
           <InvoiceProtectionCard
             invoiceId={invoice.id}
             invoiceLabel={invoice.invoice_number}
