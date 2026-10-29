@@ -72,3 +72,5 @@ verify_jwt = false
 
 [functions.bi-sftp-upload]
 verify_jwt = false
+[functions.punchout-return]
+verify_jwt = false
