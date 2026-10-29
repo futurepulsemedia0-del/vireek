@@ -20,6 +20,9 @@ import { BillingTab } from './BillingTab';
 import { ChangeOrdersTab } from './ChangeOrdersTab';
 import { JobsTab } from './JobsTab';
 import { MaterialsTab } from './MaterialsTab';
+import { PunchListTab } from './PunchListTab';
+import { SubmittalsTab } from './SubmittalsTab';
+import { countOpenPunchItems } from '@/lib/punchListApi';
 import { DailyLogsTab } from './DailyLogsTab';
 import { OverviewTab } from './OverviewTab';
 import { PhasesTab } from './PhasesTab';
@@ -41,6 +44,8 @@ const TABS = [
   { key: 'wip', label: 'WIP' },
   { key: 'jobs', label: 'Jobs' },
   { key: 'materials', label: 'Materials' },
+  { key: 'submittals', label: 'Submittals' },
+  { key: 'punch', label: 'Punch list' },
   { key: 'daily-logs', label: 'Daily logs' },
   { key: 'rfis', label: 'RFIs' },
 ] as const;
@@ -98,16 +103,22 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
   const pending = milestones.filter((m) => m.status === 'pending').length;
   const changeStatus = (status: ProjectStatus, success: string) => run('status', () => setProjectStatus(ownerId, project.id, status), success);
 
-  const actions: { label: string; variant: 'primary' | 'secondary'; onClick: () => void }[] = [];
-  if (project.status === 'planning') actions.push({ label: 'Start project', variant: 'primary', onClick: () => void changeStatus('active', 'Project started.') });
-  if (project.status === 'active') {
     actions.push({
       label: 'Mark completed',
       variant: 'primary',
       onClick: () =>
-        pending > 0
-          ? ask({ title: 'Complete with open milestones?', description: `${pending} milestone${pending === 1 ? ' is' : 's are'} still pending. The project will be marked completed anyway.`, label: 'Mark completed', onConfirm: () => changeStatus('completed', 'Project completed.') })
-          : void changeStatus('completed', 'Project completed.'),
+        void (async () => {
+          const openPunch = await countOpenPunchItems(ownerId, project.id).catch(() => 0);
+          if (pending > 0 || openPunch > 0) {
+            const parts = [
+              pending > 0 ? `${pending} milestone${pending === 1 ? ' is' : 's are'} still pending` : '',
+              openPunch > 0 ? `${openPunch} punch item${openPunch === 1 ? ' is' : 's are'} not closed` : '',
+            ].filter(Boolean).join(' and ');
+            ask({ title: 'Complete with open items?', description: `${parts}. The project will be marked completed anyway.`, label: 'Mark completed', onConfirm: () => changeStatus('completed', 'Project completed.') });
+          } else {
+            void changeStatus('completed', 'Project completed.');
+          }
+        })(),
     });
     actions.push({ label: 'Put on hold', variant: 'secondary', onClick: () => void changeStatus('on_hold', 'Project put on hold.') });
   }
@@ -167,6 +178,8 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
         {tab === 'wip' && <WipTab {...tabProps} />}
         {tab === 'jobs' && <JobsTab {...tabProps} />}
         {tab === 'materials' && <MaterialsTab {...tabProps} />}
+        {tab === 'submittals' && <SubmittalsTab {...tabProps} />}
+        {tab === 'punch' && <PunchListTab {...tabProps} />}
         {tab === 'daily-logs' && <DailyLogsTab {...tabProps} />}
         {tab === 'rfis' && <RfisTab {...tabProps} />}
       </div>
