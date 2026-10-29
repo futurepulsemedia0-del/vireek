@@ -194,6 +194,7 @@ const ScheduledReportsPage = lazy(() => import('@/pages/ScheduledReportsPage').t
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
 const AutonomyReadinessPage = lazy(() => import('@/pages/AutonomyReadinessPage').then((m) => ({ default: m.AutonomyReadinessPage })));
 const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => ({ default: m.AccountingPage })));
+const MultiEntityAccountingPage = lazy(() => import('@/pages/MultiEntityAccountingPage').then((m) => ({ default: m.MultiEntityAccountingPage })));
 const BudgetsPage = lazy(() => import('@/pages/BudgetsPage').then((m) => ({ default: m.BudgetsPage })));
 const LocationPrivacyPage = lazy(() => import('@/pages/LocationPrivacyPage').then((m) => ({ default: m.LocationPrivacyPage })));
 const PerDiemPage = lazy(() => import('@/pages/PerDiemPage').then((m) => ({ default: m.PerDiemPage })));
@@ -1070,6 +1071,14 @@ function AppRoutes() {
       </ProtectedRoute>
     }
   />
+<Route
+  path="/dashboard/multi-entity"
+  element={
+    <ProtectedRoute>
+      <MultiEntityAccountingPage />
+    </ProtectedRoute>
+  }
+/>
   <Route path="/dashboard/accounting" element={<ProtectedRoute><AccountingHubPage /></ProtectedRoute>} />
   <Route path="/dashboard/accounting/:provider" element={<ProtectedRoute><AccountingSyncPage /></ProtectedRoute>} />
     <Route
