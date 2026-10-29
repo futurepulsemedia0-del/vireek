@@ -23,6 +23,7 @@ import { MaterialsTab } from './MaterialsTab';
 import { DailyLogsTab } from './DailyLogsTab';
 import { OverviewTab } from './OverviewTab';
 import { PhasesTab } from './PhasesTab';
+import { PayAppsTab } from './PayAppsTab';
 import { RfisTab } from './RfisTab';
 import { ScheduleTab } from './scheduler/ScheduleTab';
 import { WipTab } from './WipTab';
@@ -34,6 +35,7 @@ const TABS = [
   { key: 'phases', label: 'Phases' },
   { key: 'schedule', label: 'Schedule' },
   { key: 'billing', label: 'Billing' },
+  { key: 'payapps', label: 'Pay apps' },
   { key: 'changes', label: 'Changes' },
   { key: 'lien_waivers', label: 'Lien waivers' },
   { key: 'wip', label: 'WIP' },
@@ -160,6 +162,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
         {tab === 'phases' && <PhasesTab {...tabProps} />}
         {tab === 'schedule' && <ScheduleTab {...tabProps} />}
         {tab === 'billing' && <BillingTab {...tabProps} />}
+        {tab === 'payapps' && <PayAppsTab {...tabProps} />}
         {tab === 'changes' && <ChangeOrdersTab {...tabProps} />}
         {tab === 'wip' && <WipTab {...tabProps} />}
         {tab === 'jobs' && <JobsTab {...tabProps} />}
