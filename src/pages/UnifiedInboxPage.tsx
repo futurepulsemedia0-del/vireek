@@ -18,7 +18,7 @@ import {
   messagesTableFor,
   sendReply,
 } from '@/lib/unifiedInbox';
-import { replyWindow } from '@/lib/dmChannels';
+import { replyWindow, suggestDmReply } from '@/lib/dmChannels';
 
 const CHANNEL_META: Record<Channel, { label: string; icon: typeof MessageSquare }> = {
   whatsapp: { label: 'WhatsApp', icon: MessageCircle },
@@ -55,6 +55,8 @@ export function UnifiedInboxPage() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestNote, setSuggestNote] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [loading, setLoading] = useState(true);
@@ -95,6 +97,7 @@ export function UnifiedInboxPage() {
     setSelected(conversation);
     setSendError(null);
     setLinkedCustomerId(null);
+    setSuggestNote(null);
     setMessages([]);
     setThreadLoading(true);
     try {
@@ -133,6 +136,24 @@ export function UnifiedInboxPage() {
     },
   });
 
+  const handleSuggest = async () => {
+    if (!selected || suggesting) return;
+    setSuggesting(true);
+    setSuggestNote(null);
+    setSendError(null);
+    const result = await suggestDmReply(selected.id);
+    if (result.ok && result.draft) {
+      setInput(result.draft);
+      setSuggestNote(
+        result.grounded
+          ? 'AI draft from your knowledge base. Review before sending.'
+          : 'AI draft. No matching knowledge-base answer was found, so it only promises a follow-up. Review before sending.',
+      );
+    } else {
+      setSendError(result.error ?? 'Could not draft a reply.');
+    }
+    setSuggesting(false);
+  };
   const handleSend = async () => {
     const trimmed = input.trim();
     if (!trimmed || !selected || !user || sending) return;
@@ -294,6 +315,19 @@ export function UnifiedInboxPage() {
                 ))}
               </div>
 
+              {selected && (selected.channel === 'telegram' || selected.channel === 'messenger') && canReply && windowOpen && !replyBlocked && (
+                <div className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-2">
+                  <button
+                    type="button"
+                    onClick={handleSuggest}
+                    disabled={suggesting || sending}
+                    className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary disabled:opacity-50"
+                  >
+                    {suggesting ? 'Drafting…' : 'Suggest reply'}
+                  </button>
+                  {suggestNote && <span className="text-[11px] text-text-secondary">{suggestNote}</span>}
+                </div>
+              )}
               {sendError && <p className="px-5 pb-1 text-xs text-red-500">{sendError}</p>}
 
               {replyBlocked ? (
