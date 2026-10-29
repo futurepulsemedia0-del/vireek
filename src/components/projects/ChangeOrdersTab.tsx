@@ -21,7 +21,7 @@ import {
   signedMoney,
   type ChangeOrder,
   type ChangeOrderStatus,
-} from '@/lib/changeOrders';
+} from '@/lib/projectChangeOrders';
 import {
   createChangeOrder,
   deleteChangeOrder,
@@ -33,9 +33,9 @@ import {
   updateChangeOrder,
   voidChangeOrder,
   type CustomerContact,
-} from '@/lib/changeOrdersApi';
+} from '@/lib/projectChangeOrdersApi';
 import { addDaysIso, formatDate, formatMoney, friendlyError, liveInvoice } from '@/lib/installProjects';
-import { ChangeOrderForm } from './ChangeOrderForm';
+import { ProjectChangeOrderForm } from './ProjectChangeOrderForm';
 import { Pill, SectionHeader, Stat, panelClass, useAction, useConfirm, type TabProps } from './projectUi';
 
 const DEFAULT_TERMS_DAYS = 14;
@@ -48,7 +48,7 @@ const STATUS_TONE: Record<ChangeOrderStatus, 'neutral' | 'info' | 'success' | 'w
   voided: 'neutral',
 };
 
-export function ChangeOrdersTab({ ownerId, bundle, today, onChanged }: TabProps) {
+export function ProjectChangeOrdersTab({ ownerId, bundle, today, onChanged }: TabProps) {
   const { project, invoices } = bundle;
   const changeOrders = bundle.changeOrders;
   const { toast } = useToast();
@@ -121,7 +121,7 @@ export function ChangeOrdersTab({ ownerId, bundle, today, onChanged }: TabProps)
     return (
       <div className="space-y-4">
         <SectionHeader title={editing ? `Edit ${editing.co_number ?? 'change order'}` : 'New change order'} description="Drafts can be edited freely. Once sent, the customer signs the exact scope and totals below." />
-        <ChangeOrderForm mode={editing ? 'edit' : 'create'} project={project} initial={editing ? formFromChangeOrder(editing) : undefined} submitting={busyKey === 'save'} onSubmit={(p) => void save(p)} onCancel={() => setForm(null)} />
+        <ProjectChangeOrderForm mode={editing ? 'edit' : 'create'} project={project} initial={editing ? formFromChangeOrder(editing) : undefined} submitting={busyKey === 'save'} onSubmit={(p) => void save(p)} onCancel={() => setForm(null)} />
         {dialog}
       </div>
     );
