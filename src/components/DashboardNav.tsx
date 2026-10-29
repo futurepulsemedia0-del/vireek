@@ -412,6 +412,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Memberships', href: '/dashboard/memberships', icon: Award },
   { label: 'Renewals', href: '/dashboard/memberships/renewals', icon: RotateCcw, requiresPermission: 'can_view_billing' },
   { label: 'Gift Cards', href: '/dashboard/gift-cards', icon: Gift, requiresPermission: 'can_view_billing' },
+  { label: 'Loyalty Points', href: '/dashboard/loyalty', icon: Award, requiresPermission: 'can_view_billing' },
   { label: 'Wallet Passes', href: '/dashboard/wallet-passes', icon: Wallet },
   { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
   { label: 'Trade Packs', href: '/dashboard/trade-packs', icon: PackageCheck, requiresPermission: 'can_edit_business_profile' },
