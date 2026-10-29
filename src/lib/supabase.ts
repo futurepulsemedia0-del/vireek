@@ -3,11 +3,16 @@ import type { PlanId } from '@/lib/pricing';
 import type { WorkflowStatus } from '@/lib/jobWorkflow';
 import { isNative } from '@/lib/native/platform';
 import { nativeAuthStorage } from '@/lib/native/secureStorage';
+import { createReauthFetch } from '@/lib/session/reauthFetch';
+import { reauthGate } from '@/lib/session/reauthGate';
+import { installSignOutIntent } from '@/lib/session/signOutIntent';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+// Late-bound: the client below needs a token provider that itself uses the client.
+let tokenProvider: () => Promise<string | null> = async () => null;
 
 if (!isSupabaseConfigured) {
   // eslint-disable-next-line no-console
@@ -18,6 +23,13 @@ export const supabase = createClient(
   supabaseUrl || 'https://missing-env.invalid',
   supabaseAnonKey || 'missing-env-key',
   {
+    global: {
+      fetch: createReauthFetch({
+        baseFetch: (input, init) => fetch(input, init),
+        requestReauth: () => reauthGate.request('expired'),
+        getAccessToken: () => tokenProvider(),
+      }),
+    },
     auth: {
       ...(isNative() ? { storage: nativeAuthStorage } : {}),
       persistSession: true,
@@ -28,6 +40,8 @@ export const supabase = createClient(
   },
 );
 
+tokenProvider = async () => (await supabase.auth.getSession()).data.session?.access_token ?? null;
+installSignOutIntent(supabase.auth);
 export interface Profile {
   id: string;
   email: string;
