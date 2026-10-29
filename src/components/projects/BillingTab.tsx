@@ -53,7 +53,7 @@ export function BillingTab({ ownerId, bundle, today, onChanged }: TabProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Contract" value={formatMoney(project.contract_value_cents, true)} hint={`${formatPercent(summary.scheduledPercent, 1)} scheduled`} />
+        <Stat label="Contract" value={formatMoney(summary.contractCents, true)} hint={`${formatPercent(summary.scheduledPercent, 1)} of original scheduled`} />
         <Stat label="Invoiced" value={formatMoney(summary.invoicedGrossCents, true)} hint={`${formatPercent(summary.billedPercent, 0)} of contract`} />
         <Stat label="Outstanding" value={formatMoney(summary.outstandingCents, true)} hint={summary.overdueCents > 0 ? `${formatMoney(summary.overdueCents)} overdue` : 'Nothing overdue'} tone={summary.overdueCents > 0 ? 'danger' : undefined} />
         <Stat label="Retainage held" value={formatMoney(summary.retainageHeldCents, true)} hint={summary.retainageReleased ? 'Released' : `${formatPercent(project.retainage_percent, 1)} of each draw`} />
