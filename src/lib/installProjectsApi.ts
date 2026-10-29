@@ -19,6 +19,8 @@ import {
   type ProjectRollup,
   type ProjectStatus,
 } from '@/lib/installProjects';
+import type { ChangeOrder, ProjectRfi, RfiAttachment } from '@/lib/projectRfis';
+import { collectProjectRfiFiles, fetchProjectRfiData } from '@/lib/projectRfisApi';
 import type { ChangeOrder } from '@/lib/changeOrders';
 
 // Install Projects data layer. Every query is scoped to the account owner
@@ -140,6 +142,9 @@ export interface ProjectBundle {
   jobs: LinkedJob[];
   changeOrders: ChangeOrder[];
   invoices: Record<string, InvoiceLite>;
+  rfis: ProjectRfi[];
+  rfiAttachments: RfiAttachment[];
+  changeOrders: ChangeOrder[];
 }
 
 interface JobLinkRow {
@@ -159,13 +164,14 @@ interface JobRow {
 
 export async function fetchProjectBundle(ownerId: string, projectId: string): Promise<ProjectBundle | null> {
   const scoped = (table: string) => supabase.from(table).select('*').eq('user_id', ownerId).eq('project_id', projectId);
-  const [project, phases, milestones, billing, materials, links, cos] = await Promise.all([
+  const [project, phases, milestones, billing, materials, links, rfiData] = await Promise.all([
     supabase.from('install_projects').select('*').eq('user_id', ownerId).eq('id', projectId).maybeSingle(),
     scoped('install_project_phases').order('sort_order').order('created_at'),
     scoped('install_project_milestones').order('sort_order').order('created_at'),
     scoped('install_project_billing').order('sort_order').order('created_at'),
     scoped('install_project_materials').order('created_at'),
     scoped('install_change_orders').order('seq'),
+    fetchProjectRfiData(ownerId, projectId),
   ]);
   const proj = unwrap(project as Res<InstallProject>, 'Could not load this project.');
   if (!proj) return null;
@@ -201,6 +207,7 @@ export async function fetchProjectBundle(ownerId: string, projectId: string): Pr
     materials: unwrap(materials as Res<ProjectMaterial[]>, 'Could not load materials.') ?? [],
     jobs,
     invoices,
+    ...rfiData,
   };
 }
 
@@ -282,7 +289,11 @@ export type ProjectPatch = Partial<
 
 export const updateProject = (ownerId: string, id: string, values: ProjectPatch) => patch('install_projects', ownerId, id, values, 'Could not update the project.');
 export const setProjectStatus = (ownerId: string, id: string, status: ProjectStatus) => updateProject(ownerId, id, { status });
-export const deleteProject = (ownerId: string, id: string) => remove('install_projects', ownerId, id, 'Could not delete the project.');
+export async function deleteProject(ownerId: string, id: string): Promise<void> {
+  const cleanupFiles = await collectProjectRfiFiles(ownerId, id).catch(() => async () => undefined);
+  await remove('install_projects', ownerId, id, 'Could not delete the project.');
+  await cleanupFiles();
+}
 
 // ------------------------------------------------------------------
 // Phases & milestones
