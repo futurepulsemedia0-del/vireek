@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Send, Inbox as InboxIcon, MessageSquare, Phone as PhoneIcon, Mail, MessageCircle, ExternalLink, Smartphone, Settings } from 'lucide-react';
+import { Send, Inbox as InboxIcon, MessageSquare, Phone as PhoneIcon, Mail, MessageCircle, MessagesSquare, ArrowLeft, ExternalLink, Smartphone, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { DashboardLayout } from '@/components/DashboardNav';
@@ -18,6 +18,7 @@ import {
   messagesTableFor,
   sendReply,
 } from '@/lib/unifiedInbox';
+import { replyWindow } from '@/lib/dmChannels';
 
 const CHANNEL_META: Record<Channel, { label: string; icon: typeof MessageSquare }> = {
   whatsapp: { label: 'WhatsApp', icon: MessageCircle },
@@ -27,6 +28,8 @@ const CHANNEL_META: Record<Channel, { label: string; icon: typeof MessageSquare 
   chat: { label: 'Site chat', icon: MessageSquare },
   rcs: { label: 'RCS', icon: Smartphone },
   amb: { label: 'Apple Messages', icon: MessageSquare },
+  telegram: { label: 'Telegram', icon: Send },
+  messenger: { label: 'Messenger', icon: MessagesSquare },
 };
 
 const FILTER_TABS: Array<{ key: 'all' | Channel; label: string }> = [
@@ -35,6 +38,8 @@ const FILTER_TABS: Array<{ key: 'all' | Channel; label: string }> = [
   { key: 'email', label: 'Email' },
   { key: 'whatsapp', label: 'WhatsApp' },
   { key: 'instagram', label: 'Instagram' },
+  { key: 'telegram', label: 'Telegram' },
+  { key: 'messenger', label: 'Messenger' },
   { key: 'rcs', label: 'RCS' },
   { key: 'amb', label: 'Apple' },
   { key: 'chat', label: 'Site chat' },
@@ -52,10 +57,20 @@ export function UnifiedInboxPage() {
   const [sendError, setSendError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const load = useCallback(async () => {
-    setConversations(await fetchConversations());
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [threadLoading, setThreadLoading] = useState(false);
 
+  const load = useCallback(async () => {
+    try {
+      setConversations(await fetchConversations());
+      setLoadError(null);
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : 'Could not load conversations.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   useEffect(() => {
     load();
   }, [load]);
@@ -80,7 +95,13 @@ export function UnifiedInboxPage() {
     setSelected(conversation);
     setSendError(null);
     setLinkedCustomerId(null);
-    setMessages(await fetchMessages(conversation.channel, conversation.id));
+    setMessages([]);
+    setThreadLoading(true);
+    try {
+      setMessages(await fetchMessages(conversation.channel, conversation.id));
+    } finally {
+      setThreadLoading(false);
+    }
     setLinkedCustomerId(await findLinkedCustomerId(conversation.customerContact));
     setConversations((prev) => prev.map((c) => (c.id === conversation.id ? { ...c, unread: false } : c)));
   };
@@ -128,18 +149,25 @@ export function UnifiedInboxPage() {
   };
 
   const canReply = selected && selected.channel !== 'whatsapp' && selected.channel !== 'instagram';
+  const windowOpen = selected ? replyWindow(selected.channel, selected.lastInboundAt).open : true;
   const replyBlocked = !!selected && (selected.optedOut === true || selected.closedByCustomer === true);
 
   return (
     <DashboardLayout activeLabel="Inbox">
       <div className="flex h-[calc(100vh-4rem)] bg-bg-primary">
-        <aside className="w-80 shrink-0 overflow-y-auto border-r border-border">
+        <aside className={`${selected ? 'hidden md:block' : 'block'} w-full shrink-0 overflow-y-auto border-r border-border md:w-80`}">
           <div className="flex items-center gap-2 border-b border-border px-4 py-4">
             <InboxIcon size={16} className="text-accent" />
             <h1 className="text-sm font-semibold text-text-primary">Inbox</h1>
             <Link
+              to="/dashboard/settings/messaging-channels"
+              className="focus-ring ml-auto rounded-lg px-2 py-1 text-[11px] font-medium text-text-secondary hover:text-text-primary"
+            >
+              Channels
+            </Link>
+            <Link
               to="/dashboard/settings/rich-messaging"
-              className="focus-ring ml-auto rounded-lg p-1.5 text-text-secondary hover:text-text-primary"
+              className="focus-ring rounded-lg p-1.5 text-text-secondary hover:text-text-primary"
               aria-label="RCS and Apple Messages settings"
               title="RCS & Apple Messages settings"
             >
@@ -160,7 +188,23 @@ export function UnifiedInboxPage() {
               </button>
             ))}
           </div>
-          {filtered.length === 0 ? (
+          {loading ? (
+            <p className="p-4 text-sm text-text-secondary">Loading conversations…</p>
+          ) : loadError ? (
+            <div role="alert" className="m-3 rounded-xl bg-red-500/10 p-3 text-xs text-red-500">
+              <p>{loadError}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoading(true);
+                  load();
+                }}
+                className="focus-ring mt-2 rounded-lg border border-red-500/30 px-3 py-1 font-medium"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filtered.length === 0 ? (
             <p className="p-4 text-sm text-text-secondary">No conversations here yet.</p>
           ) : (
             filtered.map((c) => {
@@ -189,11 +233,18 @@ export function UnifiedInboxPage() {
           )}
         </aside>
 
-        <main className="flex flex-1 flex-col">
+        <main className={`${selected ? 'flex' : 'hidden md:flex'} min-w-0 flex-1 flex-col`}>
           {!selected ? (
             <div className="flex flex-1 items-center justify-center text-sm text-text-secondary">Select a conversation</div>
           ) : (
             <>
+              <button
+                type="button"
+                onClick={() => setSelected(null)}
+                className="focus-ring flex items-center gap-1.5 border-b border-border px-4 py-2.5 text-xs text-text-secondary md:hidden"
+              >
+                <ArrowLeft size={14} /> Inbox
+              </button>
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <div>
                   <p className="text-sm font-semibold text-text-primary">{selected.customerLabel}</p>
@@ -219,10 +270,12 @@ export function UnifiedInboxPage() {
                 />
               )}
               <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
+                {threadLoading && <p className="text-center text-xs text-text-secondary">Loading messages…</p>}
+                {!threadLoading && messages.length === 0 && <p className="text-center text-xs text-text-secondary">No messages yet.</p>}
                 {messages.map((m) => (
                   <div key={m.id} className={`flex ${m.direction === 'inbound' ? 'justify-start' : 'justify-end'}`}>
                     <div
-                      className={`max-w-[70%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                      className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
                         m.direction === 'inbound'
                           ? 'rounded-bl-sm border border-border/70 bg-bg-tertiary text-text-primary'
                           : 'rounded-br-sm bg-gradient-to-br from-accent to-accent-600 text-white'
@@ -246,8 +299,14 @@ export function UnifiedInboxPage() {
               {replyBlocked ? (
                 <p className="border-t border-border p-3 text-center text-xs text-text-secondary">
                   {selected?.optedOut
-                    ? 'This customer opted out (STOP). Messages are blocked on every channel until they reply START.'
+                    ? selected && isRichChannel(selected.channel)
+                      ? 'This customer opted out (STOP). Messages are blocked on every channel until they reply START.'
+                      : 'This customer opted out (STOP). Messages are blocked on this channel until they reply START.'
                     : 'The customer deleted this Apple Messages conversation. They need to message you first.'}
+                </p>
+              ) : selected && !windowOpen ? (
+                <p className="border-t border-border p-3 text-center text-xs text-text-secondary">
+                  Outside Messenger&apos;s 24-hour reply window. The customer needs to message you again before you can reply.
                 </p>
               ) : canReply ? (
                 <form
@@ -261,6 +320,7 @@ export function UnifiedInboxPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Reply…"
+                    maxLength={selected?.channel === 'telegram' ? 4096 : selected?.channel === 'messenger' ? 2000 : undefined}
                     className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary"
                   />
                   <button
