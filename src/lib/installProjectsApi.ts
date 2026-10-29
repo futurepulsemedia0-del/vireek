@@ -19,6 +19,7 @@ import {
   type ProjectRollup,
   type ProjectStatus,
 } from '@/lib/installProjects';
+import type { ChangeOrder } from '@/lib/changeOrders';
 
 // Install Projects data layer. Every query is scoped to the account owner
 // (`user_id = accountOwnerId`) on top of the RLS policies, so a team member
@@ -87,8 +88,13 @@ export async function fetchPortfolio(ownerId: string): Promise<Portfolio> {
     ),
   ]);
 
+  const changeOrders = await fetchAll<ChangeOrder>(
+    (a, b) => supabase.from('install_change_orders').select('*').eq('user_id', ownerId).order('id').range(a, b) as unknown as PromiseLike<Res<ChangeOrder[]>>,
+    'Could not load change orders.',
+  );
   const invoices = await fetchInvoicesById(ownerId, [
     ...billing.map((b) => b.invoice_id ?? ''),
+    ...changeOrders.map((c) => c.invoice_id ?? ''),
     ...projects.map((p) => p.retainage_invoice_id ?? ''),
   ]);
 
@@ -101,10 +107,11 @@ export async function fetchPortfolio(ownerId: string): Promise<Portfolio> {
   const ph = group(phases);
   const ms = group(milestones);
   const bl = group(billing);
+  const co = group(changeOrders);
 
   const rollups: Record<string, ProjectRollup> = {};
   for (const p of projects) {
-    rollups[p.id] = buildRollup(p, ph.get(p.id) ?? [], ms.get(p.id) ?? [], bl.get(p.id) ?? [], invoices, today);
+    rollups[p.id] = buildRollup(p, ph.get(p.id) ?? [], ms.get(p.id) ?? [], bl.get(p.id) ?? [], invoices, today, co.get(p.id) ?? []);
   }
   return { projects, rollups };
 }
@@ -131,6 +138,7 @@ export interface ProjectBundle {
   billing: ProjectBilling[];
   materials: ProjectMaterial[];
   jobs: LinkedJob[];
+  changeOrders: ChangeOrder[];
   invoices: Record<string, InvoiceLite>;
 }
 
@@ -151,18 +159,18 @@ interface JobRow {
 
 export async function fetchProjectBundle(ownerId: string, projectId: string): Promise<ProjectBundle | null> {
   const scoped = (table: string) => supabase.from(table).select('*').eq('user_id', ownerId).eq('project_id', projectId);
-  const [project, phases, milestones, billing, materials, links] = await Promise.all([
+  const [project, phases, milestones, billing, materials, links, cos] = await Promise.all([
     supabase.from('install_projects').select('*').eq('user_id', ownerId).eq('id', projectId).maybeSingle(),
     scoped('install_project_phases').order('sort_order').order('created_at'),
     scoped('install_project_milestones').order('sort_order').order('created_at'),
     scoped('install_project_billing').order('sort_order').order('created_at'),
     scoped('install_project_materials').order('created_at'),
-    scoped('install_project_jobs').order('created_at'),
+    scoped('install_change_orders').order('seq'),
   ]);
   const proj = unwrap(project as Res<InstallProject>, 'Could not load this project.');
   if (!proj) return null;
   const billingRows = unwrap(billing as Res<ProjectBilling[]>, 'Could not load billing.') ?? [];
-  const linkRows = unwrap(links as Res<JobLinkRow[]>, 'Could not load linked jobs.') ?? [];
+  const coRows = unwrap(cos as Res<ChangeOrder[]>, 'Could not load change orders.') ?? [];, 'Could not load linked jobs.') ?? [];
 
   const jobIds = linkRows.map((l) => l.job_id);
   const [jobRows, invoices] = await Promise.all([
@@ -173,7 +181,7 @@ export async function fetchProjectBundle(ownerId: string, projectId: string): Pr
             'Could not load linked jobs.',
           ) ?? [])()
       : Promise.resolve([] as JobRow[]),
-    fetchInvoicesById(ownerId, [...billingRows.map((b) => b.invoice_id ?? ''), proj.retainage_invoice_id ?? '']),
+        fetchInvoicesById(ownerId, [...billingRows.map((b) => b.invoice_id ?? ''), ...coRows.map((c) => c.invoice_id ?? ''), proj.retainage_invoice_id ?? '']),(b) => b.invoice_id ?? ''), proj.retainage_invoice_id ?? '']),
   ]);
 
   const jobMap = new Map(jobRows.map((j) => [j.id, j]));
@@ -189,6 +197,7 @@ export async function fetchProjectBundle(ownerId: string, projectId: string): Pr
     phases: unwrap(phases as Res<ProjectPhase[]>, 'Could not load phases.') ?? [],
     milestones: unwrap(milestones as Res<ProjectMilestone[]>, 'Could not load milestones.') ?? [],
     billing: billingRows,
+    changeOrders: coRows,
     materials: unwrap(materials as Res<ProjectMaterial[]>, 'Could not load materials.') ?? [],
     jobs,
     invoices,
