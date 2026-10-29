@@ -298,6 +298,7 @@ const LocationsSettingsPage = lazy(() => import('@/pages/LocationsSettingsPage')
 const TimeOffPage = lazy(() => import('@/pages/TimeOffPage').then((m) => ({ default: m.TimeOffPage })));
 const HrOnboardingPage = lazy(() => import('@/pages/HrOnboardingPage').then((m) => ({ default: m.HrOnboardingPage })));
 const TemplatesPage = lazy(() => import('@/pages/TemplatesPage').then((m) => ({ default: m.TemplatesPage })));
+const GeoGridPage = lazy(() => import('@/pages/GeoGridPage').then((m) => ({ default: m.GeoGridPage })));
 const UniversalIdentityPage = lazy(() => import('@/pages/UniversalIdentityPage').then((m) => ({ default: m.UniversalIdentityPage })));
 const FieldIntelligencePage = lazy(() => import('@/pages/FieldIntelligencePage').then((m) => ({ default: m.FieldIntelligencePage })));
 const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
@@ -3656,6 +3657,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TemplatesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/geo-grid"
+          element={
+            <ProtectedRoute>
+              <GeoGridPage />
             </ProtectedRoute>
           }
         />
