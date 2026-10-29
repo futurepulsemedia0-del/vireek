@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CalendarClock, Pencil, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyStateInline } from '@/components/EmptyState';
@@ -19,11 +20,12 @@ import {
   scheduleHealth,
   type ProjectFormValues,
 } from '@/lib/installProjects';
+import { rfiAttention, rfiDaysOverdue, rfiDueText } from '@/lib/projectRfis';
 import { ProjectForm } from './ProjectForm';
 import { Pill, ProgressBar, SectionHeader, Stat, marginTone, panelClass, scheduleTone, useAction, type TabProps } from './projectUi';
 
 export function OverviewTab({ ownerId, bundle, today, onChanged }: TabProps) {
-  const { project, phases, milestones, billing, materials, invoices } = bundle;
+  const { project, phases, milestones, billing, materials, invoices, rfis } = bundle;
   const { busyKey, run } = useAction(onChanged);
   const [editing, setEditing] = useState(false);
 
@@ -32,6 +34,8 @@ export function OverviewTab({ ownerId, bundle, today, onChanged }: TabProps) {
   const bill = useMemo(() => billingSummary(project, billing, invoices, today), [project, billing, invoices, today]);
   const margin = useMemo(() => marginForecast(project, materialsSummary(materials).totalCents), [project, materials]);
   const balance = billingBalance(bill.billedPercent, progress);
+  const rfiAlerts = useMemo(() => rfiAttention(rfis, today), [rfis, today]);
+  const rfiAlertRows = [...rfiAlerts.overdue, ...rfiAlerts.dueSoon];
   const phaseName = (id: string) => phases.find((p) => p.id === id)?.name ?? '';
   const upcoming = milestones
     .filter((m) => m.status === 'pending')
@@ -99,6 +103,29 @@ export function OverviewTab({ ownerId, bundle, today, onChanged }: TabProps) {
           </dl>
         </section>
 
+      {rfiAlertRows.length > 0 && (
+        <section className={panelClass} aria-label="RFIs needing attention">
+          <SectionHeader
+            title="RFIs needing attention"
+            description={rfiAlerts.overdue.length > 0 ? `${rfiAlerts.overdue.length} overdue${rfiAlerts.dueSoon.length > 0 ? `, ${rfiAlerts.dueSoon.length} due soon` : ''}` : `${rfiAlerts.dueSoon.length} due within 2 days`}
+            action={<Link to={{ search: '?tab=rfis' }} className="focus-ring rounded text-sm font-medium text-accent hover:underline">View all RFIs</Link>}
+          />
+          <ul className="divide-y divide-border">
+            {rfiAlertRows.slice(0, 5).map((r) => (
+              <li key={r.id}>
+                <Link to={{ search: `?tab=rfis&rfi=${r.id}` }} className="focus-ring flex flex-wrap items-center justify-between gap-2 rounded-lg py-2.5 hover:bg-bg-tertiary/50">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-text-primary">{r.rfi_number} · {r.subject}</p>
+                    <p className="text-xs text-text-secondary">{r.direction === 'incoming' ? 'We owe a response to' : 'Waiting on'} {r.party_name}</p>
+                  </div>
+                  <Pill tone={rfiDaysOverdue(r, today) > 0 ? 'danger' : 'warning'}>{rfiDueText(r, today)}</Pill>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {rfiAlertRows.length > 5 && <p className="mt-2 text-xs text-text-secondary">and {rfiAlertRows.length - 5} more</p>}
+        </section>
+      )}
         <section className={panelClass}>
           <SectionHeader title="Billing vs. progress" />
           <div className="space-y-3">
