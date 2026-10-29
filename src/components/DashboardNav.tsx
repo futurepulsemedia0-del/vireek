@@ -8,6 +8,7 @@ import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
 import { Coffee } from 'lucide-react';
 import { Landmark as ValuationIcon } from 'lucide-react';
+import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
 import { Mic } from 'lucide-react';
 import { Crown } from 'lucide-react';
 import { DoorOpen } from 'lucide-react';
@@ -945,6 +946,7 @@ export function DashboardLayout({
         <DashboardNav activeLabel={activeLabel} />
         <div className="lg:pl-60 print:pl-0">
           <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-24 lg:px-8 lg:py-8 print:max-w-none print:p-0">
+            <Breadcrumbs className="no-print mb-4" />
             <div className="no-print">
                             <UpgradeBanner />
               <SurgeModeBanner />
