@@ -173,7 +173,7 @@ const InvoicePage = lazy(() => import('@/pages/InvoicePage').then((m) => ({ defa
 const DashboardSnapshotsPage = lazy(() => import('@/pages/DashboardSnapshotsPage').then((m) => ({ default: m.DashboardSnapshotsPage })));
 const SharedDashboardPage = lazy(() => import('@/pages/SharedDashboardPage').then((m) => ({ default: m.SharedDashboardPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
-  const DispatchRulesPage = lazy(() => import('@/pages/DispatchRulesPage').then((m) => ({ default: m.DispatchRulesPage })));
+const DispatchRulesPage = lazy(() => import('@/pages/DispatchRulesPage').then((m) => ({ default: m.DispatchRulesPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InventoryCountsPage = lazy(() => import('@/pages/InventoryCountsPage').then((m) => ({ default: m.InventoryCountsPage })));
 const ToolCribPage = lazy(() => import('@/pages/ToolCribPage').then((m) => ({ default: m.ToolCribPage })));
@@ -184,13 +184,14 @@ const SupplierPunchoutPage = lazy(() => import('@/pages/SupplierPunchoutPage').t
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
 const RiskIntelligencePage = lazy(() => import('@/pages/RiskIntelligencePage').then((m) => ({ default: m.RiskIntelligencePage })));
 const ComplianceCenterPage = lazy(() => import('@/pages/ComplianceCenterPage').then((m) => ({ default: m.ComplianceCenterPage })));
+const LeakCasesPage = lazy(() => import('@/pages/LeakCasesPage').then((m) => ({ default: m.LeakCasesPage })));
 const PermitCenterPage = lazy(() => import('@/pages/PermitCenterPage').then((m) => ({ default: m.PermitCenterPage })));
 const DocumentsPage = lazy(() => import('@/pages/DocumentsPage').then((m) => ({ default: m.DocumentsPage })));
 const GalleryPage = lazy(() => import('@/pages/GalleryPage').then((m) => ({ default: m.GalleryPage })));
 const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage').then((m) => ({ default: m.CallbackRootCausePage })));
 const ReportsPage = lazy(() => import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage })));
 const DataPlatformPage = lazy(() => import('@/pages/DataPlatformPage').then((m) => ({ default: m.DataPlatformPage })));
-   const BiConnectorsPage = lazy(() => import('@/pages/BiConnectorsPage').then((m) => ({ default: m.BiConnectorsPage })));
+const BiConnectorsPage = lazy(() => import('@/pages/BiConnectorsPage').then((m) => ({ default: m.BiConnectorsPage })));
 const BiExportPage = lazy(() => import('@/pages/BiExportPage').then((m) => ({ default: m.BiExportPage })));
 const ScheduledReportsPage = lazy(() => import('@/pages/ScheduledReportsPage').then((m) => ({ default: m.ScheduledReportsPage })));
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
@@ -2810,6 +2811,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route path="/dashboard/refrigerant-leaks" element={<ProtectedRoute><LeakCasesPage /></ProtectedRoute>} />
         <Route
           path="/dashboard/documents"
           element={
