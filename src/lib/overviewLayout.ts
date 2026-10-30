@@ -35,7 +35,7 @@ export const WIDGET_IDS = [
   'quick_actions',
   'recent_activity',
   'kpi_renewal_rate',
-  'data_health',
+   'data_health',
 ] as const;
 
 export type OverviewWidgetId = (typeof WIDGET_IDS)[number];
@@ -83,6 +83,7 @@ export const WIDGETS: Record<OverviewWidgetId, WidgetDef> = {
   recent_activity: { id: 'recent_activity', title: 'Recent activity', minW: 4 },
   kpi_renewal_rate: { id: 'kpi_renewal_rate', title: 'Agreement renewal rate', minW: 3, permission: 'can_view_billing' },
   data_health: { id: 'data_health', title: 'Data health', minW: 4, permission: 'can_view_billing' },
+leak_cases: { id: 'leak_cases', title: 'Refrigerant leak cases', minW: 4, permission: 'can_view_all_jobs' },
 };
 
 export const PRESET_LABELS: Record<OverviewPreset, string> = {
@@ -105,6 +106,7 @@ const PRESET_ENTRIES: Record<OverviewPresetId, readonly PresetEntry[]> = {
     ['metric_minutes', 3], ['metric_sentiment', 3], ['metric_conversion', 3], ['metric_missed', 3],
     ['call_volume', 6], ['needs_attention', 6],
     ['data_health', 12],
+    ['leak_cases', 12],
     ['attribution', 6], ['kpi_renewal_rate', 6], ['ai_insights', 12], ['quick_actions', 12], ['recent_activity', 12],
   ],
   dispatcher: [
