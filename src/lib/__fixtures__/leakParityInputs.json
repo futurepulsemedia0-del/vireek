@@ -1,0 +1,12 @@
+{
+  "asOf": "2026-10-18T12:00:00.000Z",
+  "vectors": [
+    { "name": "comfort 20% over 10%", "charge": 40, "category": "comfort_cooling", "refrigerant": "R-410A", "installDaysAgo": 800, "adds": [{ "lbs": 8, "daysAgo": 3 }] },
+    { "name": "commercial 15% under 20%", "charge": 100, "category": "commercial_refrigeration", "refrigerant": "R-404A", "installDaysAgo": 800, "adds": [{ "lbs": 15, "daysAgo": 5 }] },
+    { "name": "industrial two additions annualised", "charge": 50, "category": "industrial_process", "refrigerant": "R-410A", "installDaysAgo": 900, "adds": [{ "lbs": 10, "daysAgo": 200 }, { "lbs": 12, "daysAgo": 20 }] },
+    { "name": "annualised beats rolling", "charge": 60, "category": "comfort_cooling", "refrigerant": "R-410A", "installDaysAgo": 900, "adds": [{ "lbs": 3, "daysAgo": 400 }, { "lbs": 3, "daysAgo": 100 }, { "lbs": 3, "daysAgo": 10 }] },
+    { "name": "exactly at threshold is not over", "charge": 100, "category": "comfort_cooling", "refrigerant": "R-410A", "installDaysAgo": null, "adds": [{ "lbs": 10, "daysAgo": 30 }] },
+    { "name": "same-day additions", "charge": 25, "category": "other", "refrigerant": "R-134a", "installDaysAgo": 10, "adds": [{ "lbs": 1, "daysAgo": 2 }, { "lbs": 1.5, "daysAgo": 1 }] },
+    { "name": "no additions", "charge": 30, "category": "comfort_cooling", "refrigerant": "R-410A", "installDaysAgo": 100, "adds": [] }
+  ]
+}
