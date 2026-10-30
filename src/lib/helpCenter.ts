@@ -244,6 +244,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
     keywords: ['tool', 'tools', 'crib', 'check out', 'check in', 'borrow', 'overdue', 'lost', 'equipment', 'drill'],
     routes: ['/dashboard/tools'],
+  '/dashboard/fixed-assets': 'Fixed Assets',
   },
   {
     id: 'break-compliance',
