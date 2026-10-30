@@ -291,8 +291,11 @@ export function JobRefrigerantPanel({ job }: { job: RefrigerantPanelJob }) {
             Leak rate over limit
           </span>
         )}
-      </button>
-
+         </button>
+      <JobLeakBanner
+        jobId={job.id}
+       unitIds={units.map((u) => u.id)}
+          />
       {expanded && (
         <div className="mt-4 space-y-4">
           {!customerId || units.length === 0 ? (
