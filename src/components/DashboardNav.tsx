@@ -14,6 +14,7 @@ import { Mic } from 'lucide-react';
 import { Crown } from 'lucide-react';
 import { DoorOpen } from 'lucide-react';
 import { CalendarRange } from 'lucide-react';
+import { Warehouse } from 'lucide-react';
 import {
   BarChart3,
   Ruler,
@@ -371,6 +372,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Prevailing Wage', href: '/dashboard/prevailing-wage', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Refunds', href: '/dashboard/refunds', icon: Undo2, requiresPermission: 'can_view_billing' },
   { label: 'Chart of Accounts', href: '/dashboard/chart-of-accounts', icon: Layers, requiresPermission: 'can_view_billing' },
+  { label: 'Fixed Assets', href: '/dashboard/fixed-assets', icon: Warehouse, requiresPermission: 'can_view_billing' },
   { label: 'Multi-Entity Accounting', href: '/dashboard/multi-entity', icon: Network, requiresPermission: 'can_view_billing' },
   { label: 'Fixed Assets', href: '/dashboard/fixed-assets', icon: Package, requiresPermission: 'can_view_billing' },
   { label: 'Bank Intelligence', href: '/dashboard/bank-intelligence', icon: Landmark },
