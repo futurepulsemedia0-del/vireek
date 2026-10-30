@@ -10,6 +10,7 @@ import { supabase, Call, Job, Lead, AiInsight, BusinessProfile } from '@/lib/sup
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
+import { LeakCasesCard } from '@/components/overview/LeakCasesCard';
 import { RevenueRecoveredCard } from '@/components/RevenueRecoveredCard';
 import { LeakReportCard } from '@/components/LeakReportCard';
 import { SinceYesterdayCard } from '@/components/SinceYesterdayCard';
@@ -962,6 +963,7 @@ export function DashboardPage() {
           </div>
         );
       case 'data_health':
+      case 'leak_cases': return <LeakCasesCard />;
         return <DataHealthCard />;
       case 'recent_activity':
         return <RecentActivity items={metrics.activityItems} highlightId={newlyArrivedId ? `call-${newlyArrivedId}` : null} />;
