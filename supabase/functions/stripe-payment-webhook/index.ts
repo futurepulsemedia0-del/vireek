@@ -140,6 +140,29 @@ Deno.serve(async (req: Request) => {
         }
         break;
       }
+      case "payout.updated":
+      case "payout.paid":
+      case "payout.failed":
+      case "payout.canceled": {
+        // Instant payouts we started carry metadata.instant_payout_id; the RPC ignores every other (scheduled) payout.
+        const payout = event.data.object;
+        if (payout?.id && typeof event.account === "string") {
+          const metaId = payout.metadata?.instant_payout_id;
+          const stripeStatus = event.type === "payout.failed" ? "failed" : event.type === "payout.canceled" ? "canceled" : payout.status;
+          const { error: payoutError } = await admin.rpc("instant_payout_apply_stripe_update", {
+            p_stripe_payout_id: payout.id,
+            p_stripe_account_id: event.account,
+            p_instant_payout_id: typeof metaId === "string" && /^[0-9a-f-]{36}$/i.test(metaId) ? metaId : null,
+            p_status: stripeStatus === "paid" ? "paid" : stripeStatus === "failed" ? "failed" : stripeStatus === "canceled" ? "canceled" : "in_transit",
+            p_failure_code: payout.failure_code ?? null,
+            p_failure_message: payout.failure_message ?? null,
+            p_arrival: Number.isFinite(payout.arrival_date) ? new Date(payout.arrival_date * 1000).toISOString() : null,
+            p_fee_cents: Number.isInteger(payout.application_fee_amount) ? payout.application_fee_amount : null,
+          });
+          if (payoutError) throw new Error(payoutError.message);
+        }
+        break;
+      }
       case "account.updated": {
         const account = event.data.object;
         await admin
