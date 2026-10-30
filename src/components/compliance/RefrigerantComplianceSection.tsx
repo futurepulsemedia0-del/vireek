@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Snowflake, Download, AlertTriangle, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { exportToCsv } from '@/lib/csvExport';
+import { Link } from 'react-router-dom';
 import { useToast } from '@/contexts/ToastContext';
 import {
   EXPORT_COLUMNS,
@@ -123,6 +124,7 @@ export function RefrigerantComplianceSection() {
           <p className="text-sm text-text-secondary">
             Leak-rate watchlist and audit-ready export. Records are kept for at least{' '}
             {RECORD_RETENTION_YEARS} years.
+            <Link to="/dashboard/refrigerant-leaks" className="font-medium text-accent underline">Leak repair cases →</Link>
           </p>
         </div>
       </div>
