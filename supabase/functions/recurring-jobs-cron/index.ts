@@ -51,6 +51,7 @@ Deno.serve(async (req: Request) => {
 
   let generation: unknown = null;
   let invoicing: unknown = null;
+  let leakLoop: unknown = null;
   const errors: string[] = [];
 
   try {
@@ -72,6 +73,15 @@ Deno.serve(async (req: Request) => {
     console.error(JSON.stringify({ event: "recurring_invoicing_failed", error: message }));
   }
 
+try {
+  const { data, error } = await admin.rpc("leak_loop_tick");
+  if (error) throw error;
+  leakLoop = data;
+} catch (error) {
+  const message = error instanceof Error ? error.message : String((error as { message?: string })?.message ?? error);
+  errors.push(`leak_loop: ${message}`);
+  console.error(JSON.stringify({ event: "leak_loop_tick_failed", error: message }));
+}
   console.log(JSON.stringify({ event: "recurring_jobs_cron_complete", generation, invoicing, errors }));
   return jsonResponse({ generation, invoicing, errors }, errors.length > 0 && !generation && !invoicing ? 500 : 200);
 });
