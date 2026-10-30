@@ -3582,6 +3582,14 @@ function AppRoutes() {
           }
         />
         <Route
+          path="/dashboard/fixed-assets"
+          element={
+            <ProtectedRoute>
+              <FixedAssetsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/break-compliance"
           element={
             <ProtectedRoute>
