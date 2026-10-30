@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutTemplate } from 'lucide-react';
 import { PlugZap } from 'lucide-react';
 import { Banknote } from 'lucide-react';
+import { Snowflake } from 'lucide-react';
 import { FlaskConical } from 'lucide-react';
 import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
@@ -358,6 +359,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Insurance Claims', href: '/dashboard/insurance-claims', icon: ShieldAlert },
   { label: 'Risk Intelligence', href: '/dashboard/risk-intelligence', icon: Gauge },
   { label: 'Compliance Center', href: '/dashboard/compliance', icon: ShieldCheck },
+  { label: 'Refrigerant Leaks', href: '/dashboard/refrigerant-leaks', icon: Snowflake },
   { label: 'Permit Center', href: '/dashboard/permits', icon: ClipboardCheck },
   { label: 'Documents', href: '/dashboard/documents', icon: FolderLock },
   { label: 'Gallery', href: '/dashboard/gallery', icon: Images },
