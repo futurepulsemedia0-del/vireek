@@ -1,0 +1,63 @@
+/* src/styles/print-documents.css
+ *
+ * Document-grade print rules. Loaded AFTER print.css (which keeps its
+ * baseline: page margin, white background, .no-print, no shadows).
+ * Opt-in classes keep it safe for the rest of the app:
+ *   .print-article  → long-form reading (help articles, blog posts): expands
+ *                     external links, serif-free black-on-white, orphan control.
+ *   .print-doc      → tabular/document pages (invoices, reports, dashboards).
+ *   .print-only     → visible on paper only.
+ */
+
+.print-only { display: none; }
+
+@media print {
+  @page { size: auto; margin: 1.5cm 1.5cm 1.8cm; }
+
+  .print-only { display: block !important; }
+
+  /* Chrome that never belongs on paper. */
+  nav,
+  [role='navigation'],
+  [role='banner'] nav,
+  [data-print='hide'],
+  .print-hide { display: none !important; }
+
+  /* Ink-friendly: black text on white, no tinted surfaces. */
+  .print-article,
+  .print-article *,
+  .print-doc,
+  .print-doc * {
+    color: #000 !important;
+    background: transparent !important;
+    background-image: none !important;
+  }
+  .print-article { font-size: 11pt; line-height: 1.5; }
+
+  /* Keep headings with their content; avoid splitting figures/code. */
+  h1, h2, h3, h4 { break-after: avoid-page; page-break-after: avoid; }
+  img, svg, figure, pre, blockquote { break-inside: avoid; page-break-inside: avoid; max-width: 100% !important; }
+  p, li { orphans: 3; widows: 3; }
+
+  /* Tables: repeat header on each page, never split a row. */
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  tr { break-inside: avoid; page-break-inside: avoid; }
+  .print-doc table { width: 100% !important; border-collapse: collapse; }
+  .print-doc th,
+  .print-doc td { border-bottom: 0.5pt solid #999 !important; padding: 4pt 6pt; }
+  .print-doc td.tabular, .print-doc .tabular { font-variant-numeric: tabular-nums; }
+
+  /* Wide dashboards/tables must not be clipped by scroll containers. */
+  .print-doc [class*='overflow-'] { overflow: visible !important; }
+
+  /* Expand external links so the destination survives on paper. */
+  .print-article a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 9pt;
+    word-break: break-all;
+  }
+  .print-article a[href^='#']::after,
+  .print-article a[href^='mailto:']::after,
+  .print-article a[href^='tel:']::after { content: ''; }
+}
