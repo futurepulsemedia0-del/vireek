@@ -277,7 +277,8 @@ export async function fetchDailySeries(pageId: string | null, days: number): Pro
 const VISITOR_KEY = 'vk_lp_vid';
 let memoryVisitorId: string | null = null;
 
-// Honor Global Privacy Control: no persistent identifiers when it is on.
+// Persistent identifiers / attribution need marketing consent. The engine already forces
+// marketing OFF when Global Privacy Control or Do Not Track is set.
 function privacySignalOn(): boolean {
   return !hasConsent('marketing');
 }
@@ -385,6 +386,9 @@ export async function trackLandingEvent(args: {
   type: 'view' | 'cta_click';
   attribution: Attribution;
 }): Promise<void> {
+  // Page-view / CTA analytics only with analytics consent. Lead and booking
+  // submissions are user-requested transactions and stay ungated.
+  if (!hasConsent('analytics')) return;
   try {
     await supabase.rpc('track_landing_event', {
       p_page_id: args.pageId,
