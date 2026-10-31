@@ -8,7 +8,10 @@ import {
   formatList,
   type ListType,
   formatNumber,
+   formatDuration,
   formatPercent,
+  formatPhone,
+  formatRelative,
   formatRelativeTime,
   formatTime,
   resolveLocale,
@@ -40,6 +43,11 @@ export function useFormat() {
         formatDateTime(v, o, lang),
       relative: (v: Parameters<typeof formatRelativeTime>[0], now?: number) => formatRelativeTime(v, now, lang),
       list: (items: string[], type?: ListType) => formatList(items, type, lang),
+      phone: (v: string | null | undefined) => formatPhone(v),
+      duration: (seconds: number | null | undefined, o?: Omit<NonNullable<Parameters<typeof formatDuration>[1]>, 'lang'>) =>
+        formatDuration(seconds, { ...o, lang }),
+      relativeOrDate: (v: Parameters<typeof formatRelative>[0], o?: Omit<NonNullable<Parameters<typeof formatRelative>[1]>, 'lang'>) =>
+        formatRelative(v, { ...o, lang }),
     }),
     [lang],
   );
