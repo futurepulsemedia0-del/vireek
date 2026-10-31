@@ -90,6 +90,15 @@ Deno.serve(async (req: Request) => {
     if (invoice.status === "void") return json({ error: "This invoice is void." }, 400);
     if (invoice.status === "paid" && kind === "reminder") return json({ error: "This invoice is already paid." }, 400);
 
+    // Approval-to-cash gate: the FIRST send of a draft must pass BEFORE anything is emailed.
+    if (invoice.status === "draft") {
+      const { data: gate, error: gateError } = await admin.rpc("a2c_gate_for_service", { p_owner: ownerId, p_invoice_id: invoice.id });
+      if (gateError) return json({ error: "Could not run the approval check. Please try again." }, 500);
+      if (gate && gate.ok === false) {
+        const blocks = (gate.findings ?? []).filter((f: { severity: string }) => f.severity === "block").map((f: { message: string }) => f.message);
+        return json({ error: `Approval check failed: ${blocks.join(" ")}`, code: "APPROVAL_GATE", findings: gate.findings }, 409);
+      }
+    }
 
     const billingContacts = await resolveContactRecipients(admin, ownerId, invoice.customer_id, "invoice");
     const recipients = invoiceRecipientEmails(invoice.customer_email, billingContacts, (v) => EMAIL_RE.test(v));
