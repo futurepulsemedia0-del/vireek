@@ -1,0 +1,64 @@
+{
+  "banner": {
+    "title": "Ihre Cookie-Auswahl",
+    "body": "Wir verwenden notwendige Cookies, damit Vireek funktioniert. Mit Ihrer Einwilligung nutzen wir außerdem Analyse (Google Analytics) und Kampagnenmessung. Nichts Optionales wird geladen, bevor Sie entscheiden.",
+    "accept": "Alle akzeptieren",
+    "reject": "Nicht notwendige ablehnen",
+    "customize": "Einstellungen wählen",
+    "privacy": "Datenschutzerklärung",
+    "cookies": "Cookie-Richtlinie"
+  },
+  "center": {
+    "title": "Cookie-Einstellungen",
+    "intro": "Wählen Sie, welche optionalen Cookies und ähnlichen Speicher Vireek nutzen darf. Sie können das jederzeit ändern; ein Widerruf gilt sofort.",
+    "close": "Cookie-Einstellungen schließen",
+    "save": "Auswahl speichern",
+    "acceptAll": "Alle akzeptieren",
+    "rejectAll": "Nicht notwendige ablehnen",
+    "lastSaved": "Zuletzt aktualisiert: {{date}}",
+    "neverSaved": "Noch keine Auswahl gespeichert. Optionale Cookies sind aus.",
+    "saved": "Ihre Cookie-Auswahl wurde gespeichert.",
+    "showDetails": "Details anzeigen",
+    "hideDetails": "Details ausblenden",
+    "alwaysOn": "Immer aktiv",
+    "on": "Ein",
+    "off": "Aus",
+    "signalLocked": "Aus. Ihr Browser sendet ein Global-Privacy-Control- oder Do-Not-Track-Signal, das wir beachten.",
+    "label": {
+      "collected": "Was erhoben wird",
+      "purpose": "Wozu",
+      "retention": "Wie lange",
+      "recipients": "Wer es erhält",
+      "storage": "Cookies und Speicher"
+    }
+  },
+  "categories": {
+    "essential": {
+      "title": "Notwendig",
+      "summary": "Erforderlich für Anmeldung, Sicherheit und das Merken Ihrer Auswahl. Nicht abschaltbar.",
+      "collected": "Ihre Anmeldesitzung, Ihre Cookie-Auswahl, Design- und Spracheinstellungen sowie Sicherheits-Tokens.",
+      "purpose": "Betrieb und Schutz der Website und des Dashboards.",
+      "retention": "Anmeldung: bis zur Abmeldung oder zum Ablauf. Cookie-Auswahl: bis zu 12 Monate. Design und Sprache: bis Sie sie löschen.",
+      "recipients": "Vireek und sein Hosting- und Authentifizierungsanbieter (Supabase).",
+      "storage": "Supabase-Sitzung, vireek-consent-v3, vireek-theme, vireek-a11y-lang (Browser-Speicher)."
+    },
+    "analytics": {
+      "title": "Analyse",
+      "summary": "Zeigt uns, welche Seiten genutzt werden, damit wir Vireek verbessern können.",
+      "collected": "Besuchte Seiten, Referrer, Browser- und Gerätetyp, ungefährer Standort, eine zufällige Besucher-ID und welche A/B-Test-Variante Sie sahen.",
+      "purpose": "Nutzung verstehen und das Produkt verbessern. Keine Werbenutzung.",
+      "retention": "Google-Analytics-Cookies halten bis zu 2 Jahre. Die Berichtsaufbewahrung ist in unserem Google-Analytics-Konto festgelegt.",
+      "recipients": "Google LLC (Google Analytics), USA.",
+      "storage": "_ga und _ga_* (Cookies); vireek-visitor-id und vireek-experiment-assignments (Browser-Speicher)."
+    },
+    "marketing": {
+      "title": "Marketing-Messung",
+      "summary": "Merkt sich, über welchen Kampagnenlink Sie kamen, damit wir wissen, welche Kampagnen wirken.",
+      "collected": "Kampagnendaten aus dem Link, über den Sie kamen (z. B. utm_source), und eine zufällige Besucher-ID auf Kampagnenseiten.",
+      "purpose": "Messen, welche Kampagnen zu Anmeldungen führen. Keine Werbenetzwerke, keine Werbeprofile.",
+      "retention": "Kampagnendaten: 30 Tage. Besucher-ID: bis zum Widerruf oder bis Sie den Browser-Speicher löschen.",
+      "recipients": "Vireek und sein Datenbank-Hoster (Supabase). Keine Weitergabe an Werbetreibende.",
+      "storage": "vk_lp_vid und vk_lp_attr:* (Browser-Speicher)."
+    }
+  }
+}
