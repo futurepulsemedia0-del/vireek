@@ -1,0 +1,169 @@
+# Vireek Pulse migration report
+
+Converted: 691 Loader2, 15 border spinners, 236 skeleton pulses (458 files).
+
+Not converted on purpose (158):
+
+## rotating icon (intentional) (113)
+- `src/components/DailyBriefingCard.tsx:106` <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
+- `src/components/call-scripts/ExperimentPanel.tsx:221` <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
+- `src/components/commissions/OverviewTab.tsx:142` <RefreshCw size={16} className={generating ? 'animate-spin' : ''} /> {generating ? 'Generating…' : 'Generate c
+- `src/components/developers/ApiRequestLogs.tsx:197` <RefreshCw size={14} className={logsLoading ? 'animate-spin' : ''} />
+- `src/components/dispatch/DispatchIntelligencePanel.tsx:236` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+- `src/components/feedback/FeedbackAnalyticsPanel.tsx:76` <Button variant="ghost" size="sm" onClick={() => void load(windowFor(days))} disabled={loading} aria-label="Re
+- `src/components/fuel/FuelSettingsPanel.tsx:102` <Button type="button" variant="secondary" onClick={rescan} disabled={scanning || saving}><RefreshCw size={16} 
+- `src/components/imports/ImportHistory.tsx:66` <Button variant="ghost" size="sm" onClick={onRefresh} disabled={loading} aria-label="Refresh history"><Refresh
+- `src/components/jobs/JobUnknownsPanel.tsx:302` <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/components/knowledge-capture/CapturePanel.tsx:229` <RefreshCw size={14} className={scanning ? 'animate-spin' : ''} aria-hidden="true" />{' '}
+- `src/components/overview/SystemHealthStrip.tsx:100` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} aria-hidden="true" />
+- `src/components/projects/WipTab.tsx:132` <RefreshCw size={14} aria-hidden="true" className={loading ? 'animate-spin' : undefined} /> Refresh
+- `src/components/security/RecoveryCodesPanel.tsx:153` <RefreshCw size={15} className={generating ? 'animate-spin' : ''} />
+- `src/components/staff/AtRiskAccountsPanel.tsx:124` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} aria-hidden="true" /> Refresh
+- `src/components/websiteWidgets/EstimatorOptionsCard.tsx:73` <RefreshCw size={13} className={catalogLoading ? 'animate-spin' : ''} /> Reload
+- `src/pages/ActivityLedgerPage.tsx:160` <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/AiReliabilityPage.tsx:1161` <RefreshCw size={14} className={busy ? 'animate-spin' : ''} /> Analyse
+- `src/pages/AiReliabilityPage.tsx:1273` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/AiSecurityCenterPage.tsx:603` <RefreshCw size={14} className={running ? 'animate-spin' : ''} /> {isolation ? 'Re-run' : 'Run audit'}
+- `src/pages/AiSecurityCenterPage.tsx:747` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/AiTransparencyPage.tsx:325` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/ApiKeysPage.tsx:259` <RefreshCw size={13} className={rotatingId === k.id ? 'animate-spin' : ''} />
+- `src/pages/ApiUsagePage.tsx:254` <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
+- `src/pages/AudiencesPage.tsx:443` {counting && result && <RefreshCw className="h-4 w-4 animate-spin text-text-secondary" aria-label="Updating co
+- `src/pages/AutonomyReadinessPage.tsx:167` <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} /> Snapshot now
+- `src/pages/BankIntelligencePage.tsx:147` <RefreshCw size={16} className={busy === 'sync' ? 'animate-spin' : ''} /> Sync & analyze
+- `src/pages/BottleneckMarketMakerPage.tsx:70` <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/BreakCompliancePage.tsx:291` <RotateCcw size={16} className={refreshing ? 'animate-spin' : ''} /> {refreshing ? 'Refreshing…' : 'Refresh'}
+- `src/pages/BuildingTelemetryPage.tsx:184` <RefreshCw size={12} className={'mr-1 inline ${analysing ? 'animate-spin' : ''}'} />Run analysis now
+- `src/pages/BusinessDecisionEnginePage.tsx:162` <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> Run Analysis
+- `src/pages/BusinessForecastPage.tsx:190` <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/BusinessRealityPage.tsx:69` <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Re-scan
+- `src/pages/CallQueuePage.tsx:136` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> {refreshing ? 'Updating…' : 'Refresh'}
+- `src/pages/CashFlowForecastPage.tsx:140` <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> Run Forecast
+- `src/pages/CashFlowWarRoomPage.tsx:111` <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> {plan ? 'Refresh Battle Plan' : 'Generate Ba
+- `src/pages/ChartOfAccountsPage.tsx:430` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/ChatWidgetSettingsPage.tsx:392` <RefreshCw size={14} className={rotating ? 'animate-spin' : ''} /> {rotating ? 'Rotating…' : 'Rotate key'}
+- `src/pages/CloseoutBoardPage.tsx:208` <RefreshCw size={14} className={running ? 'animate-spin' : ''} />
+- `src/pages/CollectionsPage.tsx:594` <RefreshCw size={14} className={busy === 'refresh' ? 'animate-spin' : ''} /> Refresh
+- `src/pages/ContinuousImprovementPage.tsx:536` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/CustomerStatementsPage.tsx:731` <Button type="button" variant="secondary" size="sm" onClick={() => void refresh()} disabled={loading || refres
+- `src/pages/CustomerTrustLayerPage.tsx:280` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Recalculate
+- `src/pages/DataQualityCenterPage.tsx:186` <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Re-scan
+- `src/pages/DemandOsPage.tsx:220` <RefreshCw size={14} className={busy === 'sync' ? 'animate-spin' : ''} /> Sync now
+- `src/pages/DisputesPage.tsx:136` <RefreshCw className={'h-4 w-4 ${refreshing ? 'animate-spin' : ''}'} /> Refresh
+- `src/pages/EmergencyNetworkPage.tsx:556` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/EventPredictionMeshPage.tsx:463` <RefreshCw size={14} className={running ? 'animate-spin' : ''} />
+- `src/pages/EvidenceMarketplacePage.tsx:288` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/FieldIntelligencePage.tsx:188` <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> Run learning cycle
+- `src/pages/FinancingCenterPage.tsx:360` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/FixedAssetsPage.tsx:725` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/FleetEconomicsPage.tsx:155` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> {refreshing ? 'Refreshing…' : 'Refresh'}
+- `src/pages/FleetIntelligencePage.tsx:150` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> {refreshing ? 'Computing…' : 'Refresh'}
+- `src/pages/HiddenTechnicianPage.tsx:145` <Button size="sm" onClick={() => void load()} disabled={busy}><RefreshCw size={16} className={busy ? 'animate-
+- `src/pages/HomePassportNetworkPage.tsx:480` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/InsightsPage.tsx:245` <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+- `src/pages/InsightsPage.tsx:306` <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+- `src/pages/InvisibleRevenueMapPage.tsx:67` <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Re-scan
+- `src/pages/KnowledgeBasePage.tsx:694` <RefreshCw size={12} className={busy ? 'animate-spin' : ''} /> Refresh index
+- `src/pages/LandingPagesPage.tsx:813` <RefreshCw size={14} className={data.loading ? 'animate-spin' : ''} aria-hidden="true" /> Refresh
+- `src/pages/LearningCompilerPage.tsx:300` <RefreshCw size={13} className={evaluating ? 'animate-spin' : ''} /> Evaluate active
+- `src/pages/LoyaltyPage.tsx:174` <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/NextBestActionsPage.tsx:80` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> {refreshing ? 'Ranking…' : 'Refresh'}
+- `src/pages/OfflinePage.tsx:148` <RefreshCw size={16} className={checking ? 'animate-spin' : ''} />
+- `src/pages/OperationsLoopPage.tsx:195` <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} /> Sync loop
+- `src/pages/OperationsSandboxPage.tsx:660` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh twin
+- `src/pages/OrgChartPage.tsx:257` <RotateCcw size={16} className={refreshing ? 'animate-spin' : ''} /> {refreshing ? 'Refreshing…' : 'Refresh'}
+- `src/pages/OutcomeAssurancePage.tsx:494` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/OutcomeBenchmarkNetworkPage.tsx:347` <RefreshCw size={12} className={adviceBusy ? 'animate-spin' : ''} /> Refresh
+- `src/pages/PartsIntelligencePage.tsx:457` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/PartsMarketPage.tsx:580` <RefreshCw size={13} className={inputLoading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/PayByBankPage.tsx:189` <RefreshCw className={'h-4 w-4 ${refreshing ? 'animate-spin' : ''}'} aria-hidden="true" /> Refresh
+- `src/pages/PaymentPlansPage.tsx:124` <Button variant="secondary" size="sm" onClick={() => void load(true)} disabled={refreshing} aria-label="Refres
+- `src/pages/PermitIntelligencePage.tsx:485` <Button size="sm" variant="secondary" onClick={reload} disabled={refreshing} aria-label="Refresh"><RefreshCw s
+- `src/pages/PredictiveFailurePage.tsx:551` <RefreshCw size={15} className={busy ? 'animate-spin' : ''} aria-hidden="true" /> Scan equipment
+- `src/pages/PreventiveMaintenanceCommandCenterPage.tsx:541` <RefreshCw size={15} className={loading ? 'animate-spin' : ''} aria-hidden="true" /> Refresh
+- `src/pages/PriceBookPage.tsx:153` <RefreshCw size={12} className={syncingProvider === provider ? 'animate-spin' : ''} /> Sync now
+- `src/pages/PricingFlywheelPage.tsx:290` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> {isOwner ? 'Learn from jobs' : 'Refresh'}
+- `src/pages/ProcurementNetworkPage.tsx:163` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/PropertyIntelligencePage.tsx:467` <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> {running ? 'Scanning…' : 'Run scan now'}
+- `src/pages/QuickBooksSyncPage.tsx:521` <RefreshCw size={16} className={running || busy === 'sync' ? 'animate-spin' : ''} /> Sync now
+- `src/pages/RecallCenterPage.tsx:447` <RefreshCw size={14} className={scanning ? 'animate-spin' : ''} aria-hidden="true" /> {scanning ? 'Scanning…' 
+- `src/pages/ReportsPage.tsx:740` <RefreshCw size={16} className={dataLoading ? 'animate-spin' : ''} />
+- `src/pages/RescueLoopPage.tsx:185` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> <span className="hidden sm:inline">{refre
+- `src/pages/RevenueCausalityGraphPage.tsx:249` <RefreshCw size={14} className={computing ? 'animate-spin' : ''} /> {data ? 'Recalculate' : 'Analyze'}
+- `src/pages/RevenueProtectionPage.tsx:600` <RefreshCw size={13} className={scanning ? 'animate-spin' : ''} /> Scan now
+- `src/pages/RevenueRecoveryLedgerPage.tsx:366` <RefreshCw size={13} className={backfilling ? 'animate-spin' : ''} /> Scan history
+- `src/pages/SeasonalRevenueStabilizerPage.tsx:483` <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Recalculate
+- `src/pages/ServiceGraphPage.tsx:511` <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+- `src/pages/ServiceGuaranteePage.tsx:711` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/SmsCompliancePage.tsx:206` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> {refreshing ? 'Refreshing…' : 'Refresh st
+- `src/pages/SupplierAuditPage.tsx:74` {allowed && <button type="button" className={btnPrimary} onClick={runAudit} disabled={running || loading || !d
+- `src/pages/SupplierIntelligencePage.tsx:317` <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/SurveysPage.tsx:326` <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} aria-hidden="true" /> Refresh
+- `src/pages/TechEarningsPage.tsx:275` <RefreshCw className={'h-5 w-5 ${earnings.refreshing ? 'animate-spin' : ''}'} />
+- `src/pages/TechTruckTransfersPage.tsx:151` <RefreshCw className={'h-5 w-5 ${refreshing ? 'animate-spin' : ''}'} />
+- `src/pages/TechnicianRetentionPage.tsx:160` <RefreshCw size={16} className={running ? 'animate-spin' : ''} />
+- `src/pages/TechnicianSchedulePage.tsx:159` <RefreshCw className={'h-5 w-5 ${refreshing ? 'animate-spin' : ''}'} />
+- `src/pages/TelematicsOSPage.tsx:130` <RefreshCw size={14} className={recomputing ? 'animate-spin' : ''} /> {recomputing ? 'Recomputing…' : 'Recompu
+- `src/pages/TradePlaybooksPage.tsx:307` <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
+- `src/pages/TruckRollEliminationPage.tsx:557` <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+- `src/pages/TruckStockPage.tsx:145` <RefreshCw className={'h-5 w-5 ${stock.refreshing ? 'animate-spin' : ''}'} />
+- `src/pages/UncertaintyMapPage.tsx:80` <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/UniversalIdentityPage.tsx:156` <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} aria-hidden="true" /> {syncing ? 'Syncing…' : '
+- `src/pages/UnknownsEnginePage.tsx:91` <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/ValueAtRiskPage.tsx:63` <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/VerificationNetworkPage.tsx:216` <RefreshCw size={12} className={busy ? 'animate-spin' : ''} />
+- `src/pages/WalletPassesPage.tsx:79` <RefreshCw className={'h-4 w-4 ${refreshing ? 'animate-spin' : ''}'} />
+- `src/pages/WebsiteWidgetsPage.tsx:509` <RefreshCw size={14} className={rotating ? 'animate-spin' : ''} /> {rotating ? 'Rotating…' : 'Rotate key'}
+- `src/pages/WorkflowCompilerPage.tsx:467` <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/WorkflowsPage.tsx:352` <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/WorkforceEquilibriumPage.tsx:106` <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> {run ? 'Re-run Analysis' : 'Run Analysis'}
+- `src/pages/admin/StaffUsagePage.tsx:220` <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} aria-hidden="true" /> Refresh
+
+## pulse (live dot / non-skeleton) (30)
+- `src/components/Skeleton.tsx:12` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/components/data-platform/ui.tsx:20` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/components/forms/BluetoothReadingButton.tsx:77` <BluetoothSearching size={16} className="shrink-0 animate-pulse text-accent" />
+- `src/components/gallery/PhotoLightbox.tsx:236` className="aspect-[4/3] w-full animate-pulse rounded-xl bg-white/10"
+- `src/components/imports/ImportWizard.tsx:227` <div className="mx-auto mt-5 h-1.5 max-w-sm overflow-hidden rounded-full bg-bg-tertiary"><div className="h-ful
+- `src/components/settings/ArrivalWindowSettingsCard.tsx:62` {state === 'loading' && <div className="mt-4 h-24 animate-pulse rounded-xl bg-bg-primary" aria-busy="true" />}
+- `src/components/team/OnTimeRateCard.tsx:80` <div className="mt-4 h-24 animate-pulse rounded-xl bg-bg-primary" aria-busy="true" />
+- `src/components/video/VideoCallRoom.tsx:109` <Circle size={8} className="animate-pulse fill-white" aria-hidden="true" />
+- `src/components/wallboard/WallboardPanels.tsx:86` const border = { ok: 'border-emerald-400/30', warn: 'border-amber-400/50', bad: 'border-red-400/70 animate-pul
+- `src/components/wallboard/WallboardPanels.tsx:257` <p className={'mt-[0.2em] text-[0.9em] font-semibold ${e.technician ? 'text-emerald-300' : 'animate-pulse text
+- `src/pages/AnalyticsPage.tsx:51` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/BankIntelligencePage.tsx:233` <Sparkles size={16} className={busy === 'bulk' ? 'animate-pulse' : ''} /> Approve {bulkItems.length} high-conf
+- `src/pages/CalendarPage.tsx:161` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/CallsPage.tsx:91` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/CrmSyncPage.tsx:81` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/DashboardPage.tsx:37` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/ExportsPage.tsx:66` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/JobsPage.tsx:161` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/LeadsPage.tsx:148` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/LiveCopilotPage.tsx:252` <span className="h-2 w-2 animate-pulse rounded-full bg-danger-500" /> Recording {cam.elapsed}s / {LIVE_LIMITS.
+- `src/pages/LtvAutopilotPage.tsx:130` <Rocket size={14} className={recomputing ? 'animate-pulse' : ''} />
+- `src/pages/MaintenancePage.tsx:52` dot: 'bg-accent animate-pulse motion-reduce:animate-none',
+- `src/pages/PhoneNumbersPage.tsx:30` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/ProfitabilityPage.tsx:56` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/RegionalDemandPage.tsx:82` <Sparkles size={16} className={analyzing ? 'animate-pulse' : ''} /> Get AI Take
+- `src/pages/UsageDashboardPage.tsx:43` return <div className={'animate-pulse rounded bg-bg-tertiary ${className}'} />;
+- `src/pages/WallboardPage.tsx:256` <span className={'h-[0.6em] w-[0.6em] rounded-full ${liveOk ? 'animate-pulse bg-emerald-400' : 'bg-amber-400'}
+- `src/pages/WallboardPage.tsx:272` <div role="alert" className="mx-[1.5em] mb-[0.6em] animate-pulse rounded-[0.7em] border border-red-400/70 bg-r
+- `src/pages/onboarding/steps/LaunchStep.tsx:29` launched ? '' : 'animate-pulse'
+- `src/pages/onboarding/steps/TestCallStep.tsx:74` callState === 'active' ? 'animate-pulse bg-success-500/15 text-success-500' : 'bg-accent/10 text-accent'
+
+## spin (non-standard markup) (15)
+- `src/components/auth/AuthParts.tsx:408` <svg className="animate-spin text-text-secondary" width="20" height="20" viewBox="0 0 24 24" fill="none" strok
+- `src/components/auth/AuthParts.tsx:444` <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" str
+- `src/components/auth/SocialAuthButtons.tsx:13` <svg className="animate-spin text-text-secondary" width="20" height="20" viewBox="0 0 24 24" fill="none" strok
+- `src/components/bulk/BulkActionBar.tsx:193` {busy && <Loader2 size={14} className="animate-spin text-text-secondary" aria-label="Working" />}
+- `src/components/payments/StripePaymentForm.tsx:127` <Loader2 className="h-5 w-5 animate-spin text-text-secondary" aria-label="Loading secure payment form" />
+- `src/components/payroll-connectors/MappingTab.tsx:169` {saving === r.employee_id ? <Loader2 size={16} className="animate-spin text-text-secondary" aria-label="Saving
+- `src/pages/CompoundingFlywheelPage.tsx:94` <RefreshCcw size={14} className={running ? 'animate-spin' : ''} /> {running ? 'Running…' : 'Run flywheel now'}
+- `src/pages/DispatchRulesPage.tsx:157` {loading ? <Loader2 size={16} className="animate-spin text-text-secondary" aria-label="Loading" /> : rows.leng
+- `src/pages/DispatchRulesPage.tsx:263` {rows === null ? <Loader2 size={16} className="animate-spin text-text-secondary" aria-label="Loading" /> : row
+- `src/pages/DispatchRulesPage.tsx:330` {!bundle && !error && <div className="flex justify-center py-12"><Loader2 className="animate-spin text-text-se
+- `src/pages/DurationIntelligencePage.tsx:259` <RefreshCcw size={14} aria-hidden="true" className={loading ? 'animate-spin' : ''} /> Refresh
+- `src/pages/PublicPaymentPage.tsx:70` if (!summary) return shell(<Loader2 className="mx-auto h-6 w-6 animate-spin text-text-secondary" aria-label="L
+- `src/pages/RenewMembershipPage.tsx:66` if (state === 'loading') return shell(<Loader2 className="mx-auto h-6 w-6 animate-spin text-text-secondary" ar
+- `src/pages/ServiceIntelligenceLoopPage.tsx:146` <RefreshCcw size={14} className={busy === 'verify' ? 'animate-spin' : ''} aria-hidden="true" />
+- `src/pages/SplitPayerPayPage.tsx:82` <Loader2 className="mx-auto h-6 w-6 animate-spin text-text-secondary" aria-label="Loading" />
