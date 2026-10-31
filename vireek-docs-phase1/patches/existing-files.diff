@@ -1,0 +1,479 @@
+--- a/src/lib/invoicePdf.ts
++++ b/src/lib/invoicePdf.ts
+@@ -1,30 +1,13 @@
+ import { getPdfBrand } from '@/lib/pdfBrand';
+ import type { jsPDF as JsPdfType } from 'jspdf';
+-import { formatCents, type Invoice } from '@/lib/invoices';
+-import {
+-  PAYMENT_METHOD_LABELS,
+-  type InvoiceLedger,
+-  type InvoicePayment,
+-  type InvoiceRefund,
+-} from '@/lib/invoiceDetail';
++import type { Invoice } from '@/lib/invoices';
++import { PAYMENT_METHOD_LABELS, type InvoiceLedger, type InvoicePayment, type InvoiceRefund } from '@/lib/invoiceDetail';
++import { formatCentsIn, getActiveRegional } from '@/lib/regional';
++import { docLabels, isRtlLang, pdfLocaleTag, renderableLang } from '@/lib/documents/locale';
++import { renderInvoiceDocument, type InvoiceDocInput } from '@/lib/documents/invoiceDocument';
+ 
+-// Manual vector layout (same approach as src/lib/pdf.ts). jsPDF is loaded on
+-// demand so it never lands in the main dashboard bundle.
+-
+-const INK: [number, number, number] = [23, 23, 23];
+-const MUTED: [number, number, number] = [110, 110, 120];
+-const SUCCESS: [number, number, number] = [22, 130, 87];
+-const DANGER: [number, number, number] = [200, 55, 55];
+-const LINE: [number, number, number] = [225, 225, 232];
+-
+-const PAGE_W = 595.28;
+-const PAGE_H = 841.89;
+-const M = 48;
+-const RIGHT = PAGE_W - M;
+-const BOTTOM = PAGE_H - 64;
+-
+-const fmtDate = (iso: string | null | undefined) =>
+-  iso ? new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
++// Layout lives in the shared document design system (src/lib/documents). jsPDF is
++// loaded on demand so it never lands in the main dashboard bundle.
+ 
+ export interface InvoicePdfInput {
+   invoice: Invoice;
+@@ -40,205 +23,20 @@
+ 
+ export async function buildInvoicePdf(input: InvoicePdfInput): Promise<JsPdfType> {
+   const { jsPDF } = await import('jspdf');
+-  const { invoice, ledger, payments, refunds, businessName } = input;
+-  const brand = getPdfBrand();
+-  const ACCENT = brand.primary;
+-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+-  let y = 0;
+-
+-  const footer = () => {
+-    const pages = doc.getNumberOfPages();
+-    for (let i = 1; i <= pages; i++) {
+-      doc.setPage(i);
+-      doc.setFont('helvetica', 'normal');
+-      doc.setFontSize(8);
+-      doc.setTextColor(...MUTED);
+-      doc.text(`${invoice.invoice_number} · Page ${i} of ${pages}`, M, PAGE_H - 36);
+-      if (brand.attribution) doc.text(brand.attribution, RIGHT, PAGE_H - 36, { align: 'right' });
+-    }
+-  };
+-
+-  const ensure = (needed: number) => {
+-    if (y + needed > BOTTOM) {
+-      doc.addPage();
+-      doc.setFillColor(...ACCENT);
+-      doc.rect(0, 0, PAGE_W, 6, 'F');
+-      y = 48;
+-    }
+-  };
+-
+-  // Header band
+-  doc.setFillColor(...ACCENT);
+-  doc.rect(0, 0, PAGE_W, 6, 'F');
+-  y = 52;
+-  if (brand.logo) {
+-    const lh = 28;
+-    doc.addImage(brand.logo.dataUrl, 'PNG', M, 18, Math.min(120, lh * brand.logo.aspect), lh);
+-    y = 18 + lh + 22;
+-  }
+-  doc.setFont('helvetica', 'bold');
+-  doc.setFontSize(16);
+-  doc.setTextColor(...INK);
+-  doc.text(businessName || 'Invoice', M, y);
+-
+-  doc.setFontSize(26);
+-  doc.setTextColor(...ACCENT);
+-  doc.text('INVOICE', RIGHT, y, { align: 'right' });
+-
+-  y += 20;
+-  doc.setFont('helvetica', 'normal');
+-  doc.setFontSize(10);
+-  doc.setTextColor(...MUTED);
+-  doc.text(invoice.invoice_number, RIGHT, y, { align: 'right' });
+-
+-  // Status stamp
+-  const stamp =
+-    invoice.status === 'void' ? { t: 'VOID', c: DANGER } :
+-    ledger.state === 'paid' ? { t: 'PAID', c: SUCCESS } :
+-    ledger.state === 'partial' ? { t: 'PARTIALLY PAID', c: ACCENT } : null;
+-  if (stamp) {
+-    doc.setFont('helvetica', 'bold');
+-    doc.setFontSize(10);
+-    doc.setTextColor(...stamp.c);
+-    doc.text(stamp.t, RIGHT, y + 16, { align: 'right' });
+-  }
+-
+-  // Bill to / dates
+-  y += 40;
+-  doc.setDrawColor(...LINE);
+-  doc.line(M, y, RIGHT, y);
+-  y += 22;
+-  doc.setFont('helvetica', 'bold');
+-  doc.setFontSize(8);
+-  doc.setTextColor(...MUTED);
+-  doc.text('BILL TO', M, y);
+-  doc.text('ISSUED', 340, y);
+-  doc.text('DUE', 450, y);
+-  y += 15;
+-  doc.setFont('helvetica', 'bold');
+-  doc.setFontSize(11);
+-  doc.setTextColor(...INK);
+-  doc.text(invoice.customer_name, M, y);
+-  doc.setFont('helvetica', 'normal');
+-  doc.setFontSize(10);
+-  doc.text(fmtDate(invoice.sent_at ?? invoice.created_at), 340, y);
+-  doc.text(fmtDate(invoice.due_date), 450, y);
+-  const contact = [invoice.customer_email, invoice.customer_phone].filter(Boolean) as string[];
+-  for (const c of contact) {
+-    y += 14;
+-    doc.setFontSize(9);
+-    doc.setTextColor(...MUTED);
+-    doc.text(c, M, y);
+-  }
+-
+-  // Line items table
+-  y += 34;
+-  const COL_QTY = 360;
+-  const COL_UNIT = 450;
+-  const drawTableHead = () => {
+-    doc.setFillColor(245, 245, 248);
+-    doc.rect(M, y - 12, RIGHT - M, 22, 'F');
+-    doc.setFont('helvetica', 'bold');
+-    doc.setFontSize(8);
+-    doc.setTextColor(...MUTED);
+-    doc.text('DESCRIPTION', M + 8, y + 2);
+-    doc.text('QTY', COL_QTY, y + 2, { align: 'right' });
+-    doc.text('UNIT', COL_UNIT, y + 2, { align: 'right' });
+-    doc.text('AMOUNT', RIGHT - 8, y + 2, { align: 'right' });
+-    y += 24;
+-  };
+-  drawTableHead();
+-
+-  doc.setFont('helvetica', 'normal');
+-  doc.setFontSize(10);
+-  for (const li of invoice.line_items) {
+-    const lines: string[] = doc.splitTextToSize(li.description || '—', COL_QTY - M - 50);
+-    const rowH = Math.max(18, lines.length * 13 + 6);
+-    if (y + rowH > BOTTOM) {
+-      ensure(rowH + 40);
+-      drawTableHead();
+-    }
+-    doc.setFont('helvetica', 'normal');
+-    doc.setFontSize(10);
+-    doc.setTextColor(...INK);
+-    doc.text(lines, M + 8, y);
+-    doc.text(String(li.quantity), COL_QTY, y, { align: 'right' });
+-    doc.text(formatCents(li.unit_price_cents), COL_UNIT, y, { align: 'right' });
+-    doc.text(formatCents(li.quantity * li.unit_price_cents), RIGHT - 8, y, { align: 'right' });
+-    y += rowH;
+-    doc.setDrawColor(...LINE);
+-    doc.line(M, y - 10, RIGHT, y - 10);
+-  }
+-
+-  // Totals
+-  const totalRow = (label: string, value: string, opts: { bold?: boolean; color?: [number, number, number] } = {}) => {
+-    ensure(22);
+-    doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+-    doc.setFontSize(opts.bold ? 12 : 10);
+-    doc.setTextColor(...(opts.color ?? INK));
+-    doc.text(label, 380, y);
+-    doc.text(value, RIGHT - 8, y, { align: 'right' });
+-    y += opts.bold ? 22 : 17;
+-  };
+-  y += 8;
+-  totalRow('Subtotal', formatCents(ledger.subtotalCents));
+-  if (invoice.tax_percent > 0) totalRow(`Tax (${invoice.tax_percent}%)`, formatCents(ledger.taxCents));
+-  totalRow('Total', formatCents(ledger.totalCents), { bold: true });
+-  if (ledger.paidCents > 0) totalRow('Payments received', `-${formatCents(ledger.paidCents)}`, { color: SUCCESS });
+-  if (ledger.refundedCents > 0) totalRow('Refunded', formatCents(ledger.refundedCents), { color: DANGER });
+-  totalRow('Balance due', formatCents(invoice.status === 'void' ? 0 : ledger.balanceCents), { bold: true, color: ACCENT });
+-
+-  // Payment history
+-  if (payments.length > 0) {
+-    y += 14;
+-    ensure(60);
+-    doc.setFont('helvetica', 'bold');
+-    doc.setFontSize(9);
+-    doc.setTextColor(...MUTED);
+-    doc.text('PAYMENT HISTORY', M, y);
+-    y += 16;
+-    doc.setFontSize(10);
+-    for (const p of payments) {
+-      ensure(18);
+-      doc.setFont('helvetica', 'normal');
+-      doc.setTextColor(...INK);
+-      const refunded = refunds.filter((r) => r.payment_id === p.id).reduce((s, r) => s + r.amount_cents, 0);
+-      doc.text(`${fmtDate(p.paid_at)} · ${PAYMENT_METHOD_LABELS[p.method] ?? p.method}${p.reference ? ` · ${p.reference}` : ''}`, M, y);
+-      doc.text(formatCents(p.amount_cents), RIGHT - 8, y, { align: 'right' });
+-      y += 15;
+-      if (refunded > 0) {
+-        ensure(15);
+-        doc.setFontSize(9);
+-        doc.setTextColor(...DANGER);
+-        doc.text('Refunded', M + 12, y);
+-        doc.text(`-${formatCents(refunded)}`, RIGHT - 8, y, { align: 'right' });
+-        doc.setFontSize(10);
+-        y += 15;
+-      }
+-    }
+-  }
+-
+-  // Notes
+-  if (invoice.notes?.trim()) {
+-    y += 14;
+-    ensure(50);
+-    doc.setFont('helvetica', 'bold');
+-    doc.setFontSize(9);
+-    doc.setTextColor(...MUTED);
+-    doc.text('NOTES', M, y);
+-    y += 15;
+-    doc.setFont('helvetica', 'normal');
+-    doc.setFontSize(10);
+-    doc.setTextColor(...INK);
+-    const noteLines: string[] = doc.splitTextToSize(invoice.notes.trim(), RIGHT - M);
+-    for (const line of noteLines) {
+-      ensure(14);
+-      doc.text(line, M, y);
+-      y += 13;
+-    }
+-  }
+-
+-  footer();
++  const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
++  const { default: i18n } = await import('@/i18n');
++  const lang = i18n.resolvedLanguage ?? i18n.language ?? 'en';
++  const docLang = renderableLang(lang); // only languages the embedded fonts can draw
++  const localeTag = pdfLocaleTag(getActiveRegional().locale); // Latin digits: Helvetica cannot draw Persian/Arabic-Indic digits
++  renderInvoiceDocument(doc as unknown as Parameters<typeof renderInvoiceDocument>[0], input satisfies InvoiceDocInput, {
++    brand: getPdfBrand(),
++    labels: docLabels(lang),
++    localeTag,
++    lang: docLang,
++    rtl: isRtlLang(docLang),
++    money: (cents) => formatCentsIn(cents, undefined, { locale: localeTag }),
++    paymentMethodLabel: (m) => (PAYMENT_METHOD_LABELS as Record<string, string>)[m] ?? m,
++  });
+   return doc;
+ }
+ 
+--- a/src/lib/csvExport.ts
++++ b/src/lib/csvExport.ts
+@@ -1,36 +1,21 @@
+-type CsvValue = string | number | boolean | null | undefined;
++import { buildCsv, downloadBlob, type CsvValue } from '@/lib/documents/exportFile';
+ 
+ export interface CsvColumn<T> {
+   header: string;
+   accessor: (row: T) => CsvValue;
+ }
+ 
+-function escapeCsvCell(value: CsvValue): string {
+-  const str = value === null || value === undefined ? '' : String(value);
+-  if (/[",\n]/.test(str)) {
+-    return `"${str.replace(/"/g, '""')}"`;
+-  }
+-  return str;
+-}
+-
+ /**
+  * Exports rows to a downloaded .csv file.
+  * - Prefixes a UTF-8 BOM so Excel renders non-Latin scripts (Arabic,
+  *   Farsi, Chinese, Hindi, Japanese) correctly instead of as garbled text.
+  * - Escapes commas/quotes/newlines per RFC 4180.
++ * - Neutralises spreadsheet-formula injection (cells starting with = + - @).
+  */
+ export function exportToCsv<T>(rows: T[], columns: CsvColumn<T>[], filename: string): void {
+-  const header = columns.map((c) => escapeCsvCell(c.header)).join(',');
+-  const lines = rows.map((row) => columns.map((c) => escapeCsvCell(c.accessor(row))).join(','));
+-  const csv = [header, ...lines].join('\r\n');
+-
+-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+-  const url = URL.createObjectURL(blob);
+-  const link = document.createElement('a');
+-  link.href = url;
+-  link.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
+-  document.body.appendChild(link);
+-  link.click();
+-  document.body.removeChild(link);
+-  URL.revokeObjectURL(url);
++  const csv = buildCsv(
++    columns.map((c) => c.header),
++    rows.map((row) => columns.map((c) => c.accessor(row))),
++  );
++  downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), filename.endsWith('.csv') ? filename : `${filename}.csv`);
+ }
+--- a/src/lib/pdf.ts
++++ b/src/lib/pdf.ts
+@@ -691,6 +691,6 @@
+     }
+   }
+ 
+-  drawFooter(doc, '`This certificate reflects ${getPdfBrand().productName} e-signature audit data captured at the time each event occurred.`');
++  drawFooter(doc, `This certificate reflects ${getPdfBrand().productName} e-signature audit data captured at the time each event occurred.`);
+   doc.save(`signature-certificate-${request.title.trim().replace(/\s+/g, '-').toLowerCase() || 'document'}.pdf`);
+ }
+--- a/src/main.tsx
++++ b/src/main.tsx
+@@ -33,6 +33,7 @@
+ import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
+ import './index.css';
+ import './styles/print.css';
++import './styles/print-documents.css';
+ 
+ initSentry();
+ initNativeRuntime();
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -20,6 +20,7 @@
+ // stays small regardless of how large the app grows. Named exports are kept
+ // consistent across pages specifically so this mapping stays mechanical.
+ const MarketingPage = lazy(() => import('@/pages/MarketingPage'));
++const DocumentsGalleryPage = import.meta.env.DEV ? lazy(() => import('@/pages/dev/DocumentsGalleryPage')) : null;
+ const InstallCloseoutPage = lazy(() => import('@/pages/InstallCloseoutPage'));
+ const ContentCalendarPage = lazy(() => import('@/pages/ContentCalendarPage'));
+ const MarketingCreativeStudioPage = lazy(() => import('@/pages/MarketingCreativeStudioPage'));
+@@ -703,6 +704,7 @@
+         <Route path="/onboarding-guide" element={<OnboardingGuidePage />} />
+         <Route path="/academy" element={<AcademyPage />} />
+         <Route path="/academy/certificate" element={<AcademyCertificatePage />} />
++        {DocumentsGalleryPage && <Route path="/dev/documents" element={<DocumentsGalleryPage />} />}
+         <Route path="/community" element={<CommunityPage />} />
+         <Route path="/ambassador" element={<AmbassadorPage />} />
+         <Route
+--- a/src/pages/HelpArticlePage.tsx
++++ b/src/pages/HelpArticlePage.tsx
+@@ -8,6 +8,7 @@
+ import { HelpSearch } from '@/components/HelpSearch';
+ import { HelpFeedback } from '@/components/HelpFeedback';
+ import { useSEO } from '@/lib/seo';
++import { PrintFooter } from '@/components/PrintFooter';
+ import { HELP_CATEGORIES } from '@/lib/helpContent';
+ import {
+   HELP_ARTICLES, getHelpArticle, getHelpCategory, getRelatedHelpArticles, type HelpArticleRecord,
+@@ -151,7 +152,7 @@
+ 
+               <HelpSearch className="mb-8" />
+ 
+-              <article>
++              <article className="print-article">
+                 <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent">
+                   <CategoryIcon className="h-4 w-4" aria-hidden="true" />
+                   {article.categoryName}
+@@ -165,6 +166,7 @@
+                   ))}
+                 </div>
+               </article>
++              <PrintFooter />
+ 
+               <div className="mt-10">
+                 <HelpFeedback key={article.slug} slug={article.slug} />
+--- a/src/pages/BlogPostPage.tsx
++++ b/src/pages/BlogPostPage.tsx
+@@ -10,6 +10,7 @@
+ import { CookieConsent } from '@/components/CookieConsent';
+ import { EASE, viewport } from '@/lib/motion';
+ import { useSEO } from '@/lib/seo';
++import { PrintFooter } from '@/components/PrintFooter';
+ import { getCategoryBySlug, getPostBySlug, getRelatedPosts, type BlogPost } from '@/lib/blog';
+ 
+ function formatDate(iso: string): string {
+@@ -105,7 +106,7 @@
+     <>
+       <SEO post={post} />
+       <Header />
+-      <main className="min-h-screen overflow-hidden bg-bg-primary pt-24">
++      <main className="print-article min-h-screen overflow-hidden bg-bg-primary pt-24">
+         <section className="relative bg-gradient-mesh bg-noise px-6 py-16 sm:py-20">
+           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
+           <div className="mx-auto max-w-3xl">
+@@ -216,6 +217,7 @@
+             </div>
+           </section>
+         )}
++        <PrintFooter />
+       </main>
+       <Footer />
+       <CookieConsent />
+--- a/src/pages/QuoteDetailPage.tsx
++++ b/src/pages/QuoteDetailPage.tsx
+@@ -15,7 +15,7 @@
+ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+ import { Link, useNavigate, useParams } from 'react-router-dom';
+ import {
+-  Briefcase, CalendarClock, Check, Copy, ExternalLink, Eye, FileText, GitCompare, History, Lock,
++  Briefcase, CalendarClock, Check, Copy, Download, ExternalLink, Eye, FileText, GitCompare, History, Lock,
+   Mail, MapPin, MessageSquare, Phone, RefreshCw, SkipForward, TriangleAlert,
+ } from 'lucide-react';
+ import { DashboardLayout } from '@/components/DashboardNav';
+@@ -31,6 +31,7 @@
+ import { SiteSketchPanel } from '@/components/sketch/SiteSketchPanel';
+ import { QuoteHvacPanel } from '@/components/quotes/QuoteHvacPanel';
+ import { QUOTE_STATUS_COLORS, QUOTE_STATUS_LABELS, getQuoteLink } from '@/lib/quotes';
++import type { QuotePdfSource } from '@/lib/quotePdf';
+ import {
+   UUID_RE,
+   buildFollowUpPlan,
+@@ -564,8 +565,21 @@
+   const { id } = useParams<{ id: string }>();
+   const navigate = useNavigate();
+   const { toast } = useToast();
+-  const { accountOwnerId, permissions, loading: authLoading, profileLoading } = useAuth();
++  const { accountOwnerId, permissions, loading: authLoading, profileLoading, profile } = useAuth();
+   const canView = permissions.can_view_billing;
++  const [pdfBusy, setPdfBusy] = useState(false);
++
++  const handleDownloadPdf = async (q: QuotePdfSource) => {
++    setPdfBusy(true);
++    try {
++      const { downloadQuotePdf } = await import('@/lib/quotePdf'); // loads jsPDF only on demand
++      await downloadQuotePdf(q, profile?.company_name ?? null);
++    } catch {
++      toast('Could not generate the PDF.', 'error');
++    } finally {
++      setPdfBusy(false);
++    }
++  };
+ 
+   const [state, setState] = useState<LoadState>({ kind: 'loading' });
+   const [planBusy, setPlanBusy] = useState(false);
+@@ -788,6 +802,9 @@
+             <Button size="sm" variant="secondary" onClick={() => void load(true)} aria-label="Refresh quote">
+               <RefreshCw size={14} aria-hidden="true" /> Refresh
+             </Button>
++            <Button size="sm" variant="secondary" disabled={pdfBusy} onClick={() => void handleDownloadPdf(quote)}>
++              <Download size={14} aria-hidden="true" /> {pdfBusy ? 'Preparing…' : 'Download PDF'}
++            </Button>
+             {quote.status !== 'draft' ? (
+               <>
+                 <Button size="sm" variant="secondary" onClick={() => void handleCopyLink(quote)}>
+--- a/src/pages/InvoiceDetailPage.tsx
++++ b/src/pages/InvoiceDetailPage.tsx
+@@ -228,6 +228,18 @@
+     }
+   };
+ 
++  const downloadReceipt = async (payment: (typeof payments)[number]) => {
++    setBusy('receipt');
++    try {
++      const { downloadReceiptPdf } = await import('@/lib/receiptPdf'); // loads jsPDF only on demand
++      await downloadReceiptPdf({ invoice, ledger, payment, refunds, businessName });
++    } catch {
++      toast('Could not generate the receipt.', 'error');
++    } finally {
++      setBusy(null);
++    }
++  };
++
+   return (
+     <Shell>
+       <BackLink />
+@@ -368,6 +380,7 @@
+                         </div>
+                         <div className="text-right">
+                           <p className="text-sm font-semibold tabular-nums text-success-500">{formatCents(p.amount_cents)}</p>
++                          <button type="button" disabled={busy !== null} onClick={() => void downloadReceipt(p)} className="focus-ring ml-auto mt-0.5 block rounded text-xs font-medium text-text-secondary underline-offset-2 hover:text-text-primary hover:underline disabled:opacity-50">Receipt</button>
+                           {left > 0 && !isVoid && (
+                             <button type="button" onClick={() => setDialog({ type: 'refund', paymentId: p.id })} className="focus-ring mt-0.5 rounded text-xs font-medium text-text-secondary underline-offset-2 hover:text-text-primary hover:underline">Refund</button>
+                           )}
