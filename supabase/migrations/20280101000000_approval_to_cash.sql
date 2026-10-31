@@ -968,8 +968,8 @@ $$;
 -- =============================================================
 CREATE OR REPLACE FUNCTION public.a2c_followup_candidates(p_today date, p_limit integer DEFAULT 200)
 RETURNS TABLE (
-  invoice_id uuid, owner_id uuid, customer_id uuid, customer_name text, customer_email text, customer_phone text,
-  invoice_number text, invoice_token uuid, due_date date, invoice_status text, balance_cents bigint,
+  invoice_id uuid, owner_id uuid, customer_id text, customer_name text, customer_email text, customer_phone text,
+  invoice_number text, invoice_token text, due_date date, invoice_status text, balance_cents bigint,
   ap_state text, followups_paused boolean, last_ladder_step integer, ladder integer[], business_name text
 )
 LANGUAGE sql
@@ -977,11 +977,11 @@ STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT i.id, i.user_id, i.customer_id, i.customer_name, i.customer_email, i.customer_phone,
-         i.invoice_number, i.invoice_token, i.due_date, i.status,
-         GREATEST(public.invoice_total_cents(i.line_items, i.tax_percent) - public._a2c_net_paid(i.id), 0),
-         t.ap_state, t.followups_paused, t.last_ladder_step,
-         COALESCE(bp.a2c_followup_days, '{3,7,14,30}'::integer[]), p.company_name
+  SELECT i.id::uuid, i.user_id::uuid, i.customer_id::text, i.customer_name::text, i.customer_email::text, i.customer_phone::text,
+         i.invoice_number::text, i.invoice_token::text, i.due_date::date, i.status::text,
+         GREATEST(public.invoice_total_cents(i.line_items, i.tax_percent) - public._a2c_net_paid(i.id), 0)::bigint,
+         t.ap_state::text, t.followups_paused::boolean, t.last_ladder_step::integer,
+         COALESCE(bp.a2c_followup_days, '{3,7,14,30}'::integer[])::integer[], p.company_name::text
     FROM public.invoice_ar_tracking t
     JOIN public.invoices i ON i.id = t.invoice_id
     LEFT JOIN public.business_profile bp ON bp.user_id = i.user_id
