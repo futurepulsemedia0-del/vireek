@@ -10,6 +10,7 @@ import {
   type ImportJobRecord, type ImportJobStatus,
 } from '@/lib/importWizard';
 
+const IMPORT_TYPE_LABELS: Record<string, string> = { customers: 'Customers', jobs: 'Jobs', invoices: 'Invoices', line_items: 'Invoice lines', payments: 'Payments', equipment: 'Equipment' };
 const TONE: Record<ImportJobStatus, string> = {
   pending: 'bg-bg-tertiary text-text-secondary',
   running: 'bg-accent/10 text-accent',
@@ -82,7 +83,7 @@ export function ImportHistory({ accountOwnerId, jobs, loading, error, onRefresh 
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${TONE[job.status]}`}>{STATUS_LABELS[job.status]}</span>
                 <span className="min-w-0 truncate text-sm font-semibold text-text-primary">{job.file_name ?? 'Untitled file'}</span>
-                <span className="text-xs text-text-secondary">{SOURCE_LABELS[job.source] ?? job.source} · {job.import_type === 'customers' ? 'Customers' : 'Jobs'}</span>
+                <span className="text-xs text-text-secondary">{SOURCE_LABELS[job.source] ?? job.source} · {IMPORT_TYPE_LABELS[job.import_type] ?? job.import_type}</span>
               </div>
               <p className="mt-1 text-xs tabular-nums text-text-secondary">
                 {new Date(job.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })} · {job.created_count.toLocaleString()} added · {job.updated_count.toLocaleString()} updated · {job.skipped_count.toLocaleString()} skipped · {job.error_count.toLocaleString()} errors
