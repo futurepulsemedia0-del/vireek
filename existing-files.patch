@@ -1,0 +1,624 @@
+diff -u -r a/src/components/DashboardNav.tsx b/src/components/DashboardNav.tsx
+--- a/src/components/DashboardNav.tsx	2026-10-31 17:49:10.412050090 +0000
++++ b/src/components/DashboardNav.tsx	2026-10-31 17:49:10.412919962 +0000
+@@ -378,7 +378,7 @@
+   { label: 'Payroll Connectors', href: '/dashboard/payroll-connectors', icon: ArrowRightLeft, requiresPermission: 'can_view_billing' },
+   { label: 'Job Quality Gate', href: '/dashboard/job-quality-gate', icon: ClipboardCheck },
+   { label: 'Evidence Chain', href: '/dashboard/evidence-chain', icon: Link2 },
+-  { label: 'Warranty Claim Recovery', href: '/dashboard/warranty-claims', icon: FileClock },
++  { label: 'Warranty Claim Recovery', href: '/dashboard/warranty-claims', icon: FileClock, requiresPermission: 'can_view_all_jobs' },
+   { label: 'Install Closeout', href: '/dashboard/install-closeout', icon: ClipboardCheck, requiresPermission: 'can_view_all_jobs' },
+   { label: 'Protection Plans', href: '/dashboard/protection-plans', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+   { label: 'Business Immune System', href: '/dashboard/immune-system', icon: Siren },
+diff -u -r a/src/lib/homeCapitalUnderwriting.ts b/src/lib/homeCapitalUnderwriting.ts
+--- a/src/lib/homeCapitalUnderwriting.ts	2026-10-31 17:49:10.402609627 +0000
++++ b/src/lib/homeCapitalUnderwriting.ts	2026-10-31 17:49:10.403645570 +0000
+@@ -660,7 +660,7 @@
+     list.push(c);
+     claimsByEquipment.set(c.equipment_id, list);
+   }
+-  const OPEN_CLAIM = new Set(['eligible', 'packet_pending', 'submitted']);
++  const OPEN_CLAIM = new Set(['needs_review', 'ready', 'eligible', 'packet_pending', 'submitted']);
+   const disruption = DISRUPTION_COST[econ.segment];
+ 
+   const items: CapitalItem[] = [];
+diff -u -r a/src/lib/oemGraph.ts b/src/lib/oemGraph.ts
+--- a/src/lib/oemGraph.ts	2026-10-31 17:49:10.392687675 +0000
++++ b/src/lib/oemGraph.ts	2026-10-31 17:49:10.394249209 +0000
+@@ -312,7 +312,7 @@
+ };
+ 
+ const SEVERITY_RANK: Record<Severity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+-const OPEN_CLAIM_STATUSES = new Set(['eligible', 'packet_pending', 'submitted']);
++const OPEN_CLAIM_STATUSES = new Set(['needs_review', 'ready', 'eligible', 'packet_pending', 'submitted']);
+ const DAY_MS = 86_400_000;
+ 
+ // ---------------------------------------------------------------- tiny coercion helpers
+diff -u -r a/src/lib/pdf.ts b/src/lib/pdf.ts
+--- a/src/lib/pdf.ts	2026-10-31 17:49:10.424544713 +0000
++++ b/src/lib/pdf.ts	2026-10-31 17:49:10.425503642 +0000
+@@ -2,6 +2,7 @@
+ import type { CaseStudy } from '@/components/sections/CaseStudies';
+ import type { InsuranceClaim } from '@/lib/supabase';
+ import type { WarrantyClaim } from '@/lib/supabase';
++import type { WarrantyClaimPacket } from '@/lib/warrantyClaimRecovery';
+ import type { CommercialContract, ContractSlaBreach } from '@/lib/supabase';
+ import type { SignatureRequest, SignatureEvent } from '@/lib/signatures';
+ 
+@@ -500,7 +501,7 @@
+ // WARRANTY CLAIM PACKET PDF
+ // ============================================================
+ 
+-export function downloadWarrantyClaimPacketPdf(claim: WarrantyClaim): void {
++export function downloadWarrantyClaimPacketPdf(claim: WarrantyClaim, packet?: WarrantyClaimPacket | null): void {
+   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+   let y = drawHeader(doc, 'Manufacturer Warranty Claim Packet', claim.customer_name);
+ 
+@@ -543,8 +544,89 @@
+   y = drawSectionLabel(doc, 'Failure description', y);
+   y = drawParagraph(doc, claim.failure_description || 'Not recorded', y);
+ 
++  if (packet) {
++    // Every line below is copied from recorded data; missing items are flagged, never filled in.
++    const room = (need: number) => { if (y + need > 760) { doc.addPage(); y = 50; } };
++    const dash = (v: string | number | null | undefined, empty = 'MISSING') => (v === null || v === undefined || v === '' ? empty : String(v));
++
++    y += 10; room(90);
++    y = drawSectionLabel(doc, 'Coverage and installation (from records)', y);
++    const reg = packet.unit.registration;
++    y = drawParagraph(
++      doc,
++      `Install date: ${dash(packet.unit.install_date)}\n` +
++        `Warranty through: ${dash(packet.unit.warranty_expires_at, 'Not on file')}\n` +
++        `Owner registration: ${reg?.registered ? `Registered${reg.registered_on ? ` on ${reg.registered_on}` : ''}` : 'No verified registration on file'}\n` +
++        `Job completed: ${dash(packet.job.completed_at ? packet.job.completed_at.slice(0, 10) : null, 'Not on file')}`,
++      y
++    );
++
++    y += 10; room(60);
++    y = drawSectionLabel(doc, 'Technician notes', y);
++    y = drawParagraph(
++      doc,
++      packet.failure_notes.text
++        ? `${packet.failure_notes.text}\n(Source: ${(packet.failure_notes.source ?? 'record').replace(/_/g, ' ')})`
++        : 'MISSING - no failure or diagnosis notes are recorded.',
++      y
++    );
++
++    y += 10; room(50);
++    y = drawSectionLabel(doc, `Parts used on the job (${packet.parts.length})`, y);
++    if (packet.parts.length === 0) {
++      y = drawParagraph(doc, 'MISSING - no parts usage is recorded for this job.', y);
++    } else {
++      for (const part of packet.parts.slice(0, 25)) {
++        room(18);
++        y = drawParagraph(
++          doc,
++          `${part.quantity} x ${part.name}${part.part_number ? ` (#${part.part_number})` : ''}${part.unit_cost_cents != null ? ` - ${currency(part.unit_cost_cents / 100)} each` : ''}`,
++          y
++        );
++      }
++    }
++
++    y += 10; room(40);
++    y = drawSectionLabel(doc, 'Labor', y);
++    y = drawParagraph(
++      doc,
++      packet.labor.hours != null
++        ? `${packet.labor.hours} hours across ${packet.labor.entries} approved timesheet entr${packet.labor.entries === 1 ? 'y' : 'ies'}`
++        : 'MISSING - no approved timesheet hours are linked to this job.',
++      y
++    );
++
++    y += 10; room(50);
++    y = drawSectionLabel(doc, `Photos on file (${packet.photos.length})`, y);
++    if (packet.photos.length === 0) {
++      y = drawParagraph(doc, 'MISSING - no job photos are recorded.', y);
++    } else {
++      for (const ph of packet.photos.slice(0, 20)) {
++        room(18);
++        y = drawParagraph(
++          doc,
++          `${(ph.kind ?? 'photo').replace(/_/g, ' ')}: ${ph.caption || ph.file_name || 'unnamed'}${ph.taken_at ? ` (${ph.taken_at.slice(0, 10)})` : ''}`,
++          y
++        );
++      }
++      room(18);
++      y = drawParagraph(doc, 'Photo files are stored in Vireek job photos - attach them when you file.', y, { color: MUTED, size: 9 });
++    }
++
++    y += 10; room(30 + packet.items.length * 16);
++    y = drawSectionLabel(doc, 'Packet checklist', y);
++    y = drawParagraph(
++      doc,
++      packet.items
++        .map((it) => `[${it.present ? 'OK' : 'MISSING'}] ${it.label}${it.blocking ? ' (required)' : ''}`)
++        .join('\n'),
++      y
++    );
++  }
++
+   if (claim.notes) {
+     y += 10;
++    if (y > 740) { doc.addPage(); y = 50; }
+     y = drawSectionLabel(doc, 'Notes', y);
+     drawParagraph(doc, claim.notes, y, { color: MUTED });
+   }
+diff -u -r a/src/lib/riskIntelligenceApi.ts b/src/lib/riskIntelligenceApi.ts
+--- a/src/lib/riskIntelligenceApi.ts	2026-10-31 17:49:10.397852413 +0000
++++ b/src/lib/riskIntelligenceApi.ts	2026-10-31 17:49:10.398923545 +0000
+@@ -208,7 +208,7 @@
+   claim_deadline: string | null;
+ }
+ 
+-const OPEN_WARRANTY_STATUSES = new Set(['eligible', 'packet_pending', 'submitted']);
++const OPEN_WARRANTY_STATUSES = new Set(['needs_review', 'ready', 'eligible', 'packet_pending', 'submitted']);
+ const CLOSED_INSURANCE_STATUSES = new Set(['denied', 'closed']);
+ 
+ export interface RiskInputsResult {
+diff -u -r a/src/lib/supabase.ts b/src/lib/supabase.ts
+--- a/src/lib/supabase.ts	2026-10-31 17:49:10.407319401 +0000
++++ b/src/lib/supabase.ts	2026-10-31 17:49:10.408319090 +0000
+@@ -633,7 +633,7 @@
+   failure_date: string | null;
+   warranty_expires_at: string | null;
+   claim_deadline: string | null;
+-  status: 'eligible' | 'packet_pending' | 'submitted' | 'approved' | 'denied' | 'credit_received' | 'closed';
++  status: 'needs_review' | 'ready' | 'eligible' | 'packet_pending' | 'submitted' | 'approved' | 'denied' | 'credit_received' | 'expired' | 'closed';
+   part_cost_cents: number | null;
+   labor_cost_cents: number | null;
+   claimed_amount_cents: number | null;
+@@ -647,6 +647,13 @@
+   denial_reason: string | null;
+   packet_checklist: Record<string, boolean>;
+   notes: string | null;
++  // Recovery workflow (20280210000000). Optional so existing fixtures/consumers keep compiling.
++  claim_type?: 'manufacturer' | 'protection_plan';
++  detection_source?: 'manual' | 'auto';
++  detected_at?: string | null;
++  detection_basis?: Record<string, unknown> | null;
++  ready_approved_at?: string | null;
++  ready_approved_by?: string | null;
+   created_at: string;
+   updated_at: string;
+ }
+diff -u -r a/src/lib/warrantyClaimRecovery.ts b/src/lib/warrantyClaimRecovery.ts
+--- a/src/lib/warrantyClaimRecovery.ts	2026-10-31 17:49:10.429430624 +0000
++++ b/src/lib/warrantyClaimRecovery.ts	2026-10-31 17:49:10.430381431 +0000
+@@ -1,18 +1,28 @@
+-export type ClaimStatus = 'eligible' | 'packet_pending' | 'submitted' | 'approved' | 'denied' | 'credit_received' | 'closed';
++// Workflow: needs_review > ready > submitted > credit_received ("Paid") / denied / expired.
++// `eligible`, `packet_pending`, `approved` are legacy values kept valid for existing rows and other features.
++export type ClaimStatus =
++  | 'needs_review' | 'ready' | 'eligible' | 'packet_pending' | 'submitted' | 'approved'
++  | 'denied' | 'credit_received' | 'expired' | 'closed';
+ 
+ export type CreditMethod = 'account_credit' | 'check' | 'ach' | 'other';
+ 
+ export const CLAIM_STATUS_LABELS: Record<ClaimStatus, string> = {
++  needs_review: 'Needs review',
++  ready: 'Ready to submit',
++  expired: 'Expired',
+   eligible: 'Eligible — not started',
+   packet_pending: 'Building packet',
+   submitted: 'Submitted to manufacturer',
+   approved: 'Approved',
+   denied: 'Denied',
+-  credit_received: 'Credit received',
++  credit_received: 'Paid',
+   closed: 'Closed',
+ };
+ 
+ export const CLAIM_STATUS_COLORS: Record<ClaimStatus, string> = {
++  needs_review: 'bg-warning-500/10 text-warning-500',
++  ready: 'bg-accent/10 text-accent',
++  expired: 'bg-danger/10 text-danger',
+   eligible: 'bg-bg-tertiary text-text-secondary',
+   packet_pending: 'bg-accent/10 text-accent',
+   submitted: 'bg-warning-500/10 text-warning-500',
+@@ -25,6 +35,8 @@
+ // Ordered pipeline — used for the status <select>, in the sequence a
+ // claim actually moves through; "denied" set apart as the off-ramp.
+ export const CLAIM_STATUS_OPTIONS: ClaimStatus[] = [
++  'needs_review',
++  'ready',
+   'eligible',
+   'packet_pending',
+   'submitted',
+@@ -32,6 +44,7 @@
+   'credit_received',
+   'closed',
+   'denied',
++  'expired',
+ ];
+ 
+ export const CREDIT_METHOD_LABELS: Record<CreditMethod, string> = {
+@@ -67,7 +80,7 @@
+ 
+ // A claim still actively moving — drives the "open claims" stat/filter.
+ export function isOpenClaim(status: ClaimStatus): boolean {
+-  return status !== 'denied' && status !== 'closed';
++  return status !== 'denied' && status !== 'closed' && status !== 'expired';
+ }
+ 
+ export function packetProgress(checklist: PacketChecklist | null | undefined): { done: number; total: number } {
+@@ -85,11 +98,129 @@
+   return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
+ }
+ 
++// Claims not yet filed with the manufacturer.
++export const UNSUBMITTED_STATUSES: ClaimStatus[] = ['needs_review', 'ready', 'eligible', 'packet_pending'];
++
+ // True once a claim has a deadline that's already passed and hasn't been
+ // submitted yet — this is the "we're about to lose this money" flag.
+ export function isDeadlineAtRisk(status: ClaimStatus, claimDeadline: string | null | undefined): boolean {
+   if (!claimDeadline) return false;
+-  if (status !== 'eligible' && status !== 'packet_pending') return false;
++  if (!UNSUBMITTED_STATUSES.includes(status)) return false;
+   const d = daysUntil(claimDeadline);
+   return d !== null && d <= 7;
+ }
++
++
++// ---------------------------------------------------------------------------------------------------
++// Workflow (mirrors public.warranty_claim_transition_allowed in the database — the DB is authoritative;
++// src/lib/warrantyClaimRecovery.test.ts pins this table so UI and SQL cannot silently drift).
++// ---------------------------------------------------------------------------------------------------
++export const CLAIM_TRANSITIONS: Record<ClaimStatus, ClaimStatus[]> = {
++  needs_review: ['ready', 'expired', 'closed'],
++  eligible: ['needs_review', 'ready', 'expired', 'closed'],
++  packet_pending: ['needs_review', 'ready', 'expired', 'closed'],
++  ready: ['needs_review', 'submitted', 'expired', 'closed'],
++  submitted: ['credit_received', 'denied', 'expired'],
++  approved: ['credit_received', 'denied', 'expired', 'closed'],
++  credit_received: ['closed'],
++  denied: ['closed'],
++  expired: ['closed'],
++  closed: [],
++};
++
++export function canTransition(from: ClaimStatus, to: ClaimStatus): boolean {
++  return CLAIM_TRANSITIONS[from]?.includes(to) ?? false;
++}
++
++export type ClaimAction = 'approve' | 'submit' | 'record_payment' | 'deny' | 'expire' | 'back_to_review' | 'close';
++
++export const CLAIM_ACTION_LABELS: Record<ClaimAction, string> = {
++  approve: 'Approve for submission',
++  submit: 'Mark as submitted',
++  record_payment: 'Record payment',
++  deny: 'Mark denied',
++  expire: 'Mark expired',
++  back_to_review: 'Send back to review',
++  close: 'Close',
++};
++
++// Actions a user can take from a status (payment correction is allowed on an already-paid claim).
++export function availableActions(status: ClaimStatus): ClaimAction[] {
++  const out: ClaimAction[] = [];
++  if (canTransition(status, 'ready')) out.push('approve');
++  if (canTransition(status, 'submitted')) out.push('submit');
++  if (canTransition(status, 'credit_received') || status === 'credit_received') out.push('record_payment');
++  if (canTransition(status, 'denied')) out.push('deny');
++  if (canTransition(status, 'needs_review') && status === 'ready') out.push('back_to_review');
++  if (canTransition(status, 'expired')) out.push('expire');
++  if (canTransition(status, 'closed')) out.push('close');
++  return out;
++}
++
++// ---------------------------------------------------------------------------------------------------
++// Packet (compiled live by public.warranty_claim_packet from recorded data — nothing is invented)
++// ---------------------------------------------------------------------------------------------------
++export type PacketItemKey =
++  | 'manufacturer' | 'model_number' | 'serial_number' | 'install_date' | 'failure_notes'
++  | 'claim_deadline' | 'parts' | 'labor_hours' | 'photos';
++
++export interface PacketItem {
++  key: PacketItemKey;
++  label: string;
++  present: boolean;
++  blocking: boolean;
++}
++
++export interface WarrantyClaimPacket {
++  claim_id: string;
++  status: ClaimStatus;
++  customer_name: string;
++  property_address: string | null;
++  unit: {
++    manufacturer: string | null;
++    model_number: string | null;
++    serial_number: string | null;
++    install_date: string | null;
++    warranty_expires_at: string | null;
++    registration: { registered: boolean; purchase_date?: string | null; install_date?: string | null; registered_on?: string | null };
++  };
++  job: { id: string | null; completed_at: string | null; service_type: string | null };
++  failure_notes: { text: string | null; source: 'claim' | 'job_outcome' | 'job_notes' | null };
++  parts: { name: string; part_number: string | null; quantity: number; unit_cost_cents: number | null }[];
++  labor: { hours: number | null; entries: number; source: string };
++  photos: { id: string; kind: string | null; caption: string | null; file_name: string | null; taken_at: string | null }[];
++  claim_deadline: string | null;
++  detection_basis: Record<string, unknown> | null;
++  checklist: PacketChecklist | null;
++  items: PacketItem[];
++  missing: PacketItemKey[];
++  blocking_missing: PacketItemKey[];
++  complete: boolean;
++}
++
++// Maps database error codes (RAISE EXCEPTION text) to plain-language messages.
++export function warrantyErrorMessage(raw: string | null | undefined): string {
++  const m = raw ?? '';
++  if (m.includes('WARRANTY_PACKET_INCOMPLETE')) {
++    const keys = (m.split('WARRANTY_PACKET_INCOMPLETE:')[1] ?? '').split(',').map((k) => k.trim()).filter(Boolean);
++    return keys.length ? `Packet is missing required items: ${keys.join(', ').replace(/_/g, ' ')}.` : 'Packet is missing required items.';
++  }
++  if (m.includes('WARRANTY_HUMAN_APPROVAL_REQUIRED')) return 'Please confirm the approval to continue.';
++  if (m.includes('WARRANTY_REF_REQUIRED')) return 'Enter the manufacturer reference / claim number you received.';
++  if (m.includes('WARRANTY_REF_TOO_LONG')) return 'Reference number is too long (120 characters max).';
++  if (m.includes('WARRANTY_AMOUNT_INVALID')) return 'Enter an amount greater than $0.';
++  if (m.includes('WARRANTY_DATE_IN_FUTURE')) return 'The payment date cannot be in the future.';
++  if (m.includes('WARRANTY_INVALID_TRANSITION')) return 'That status change is not allowed from the current status.';
++  if (m.includes('WARRANTY_FORBIDDEN')) return 'You do not have permission to manage warranty claims.';
++  if (m.includes('WARRANTY_CLAIM_NOT_FOUND')) return 'Claim not found.';
++  if (m.includes('WARRANTY_STATUS_VIA_RPC_ONLY') || m.includes('WARRANTY_PROTECTED_FIELDS')) return 'Use the claim actions to change status or payment.';
++  return 'Something went wrong. Please try again.';
++}
++
++// Parse a dollar string ("1,250.50") to whole cents; null when invalid or not > 0.
++export function dollarsToCents(input: string): number | null {
++  const cleaned = input.replace(/[$,\s]/g, '');
++  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
++  const cents = Math.round(Number(cleaned) * 100);
++  return cents > 0 && cents <= 2_147_483_647 ? cents : null;
++}
+diff -u -r a/src/pages/WarrantyClaimRecoveryPage.tsx b/src/pages/WarrantyClaimRecoveryPage.tsx
+--- a/src/pages/WarrantyClaimRecoveryPage.tsx	2026-10-31 17:49:10.433537774 +0000
++++ b/src/pages/WarrantyClaimRecoveryPage.tsx	2026-10-31 17:49:10.434618181 +0000
+@@ -7,13 +7,14 @@
+ import { ConfirmDialog } from '@/components/ConfirmDialog';
+ import { supabase, WarrantyClaim } from '@/lib/supabase';
+ import { downloadWarrantyClaimPacketPdf } from '@/lib/pdf';
++import { ClaimWorkflowPanel } from '@/components/warranty/ClaimWorkflowPanel';
++import { FilingWindowSetting } from '@/components/warranty/FilingWindowSetting';
++import { fetchClaimPacket } from '@/lib/warrantyClaimRecoveryApi';
+ import {
+   ClaimStatus,
+   CLAIM_STATUS_LABELS,
+   CLAIM_STATUS_COLORS,
+-  CLAIM_STATUS_OPTIONS,
+   CreditMethod,
+-  CREDIT_METHOD_LABELS,
+   PacketChecklist,
+   PACKET_ITEM_LABELS,
+   EMPTY_CHECKLIST,
+@@ -97,7 +98,7 @@
+   failure_description: '',
+   failure_date: '',
+   claim_deadline: '',
+-  status: 'eligible',
++  status: 'needs_review',
+   part_cost: '',
+   labor_cost: '',
+   rma_number: '',
+@@ -165,11 +166,9 @@
+       <div className="mt-3 grid gap-3 sm:grid-cols-3">
+         <input type="number" min={0} step="0.01" value={form.part_cost} onChange={(e) => set('part_cost', e.target.value)} placeholder="Part cost ($)" className={inputClass} />
+         <input type="number" min={0} step="0.01" value={form.labor_cost} onChange={(e) => set('labor_cost', e.target.value)} placeholder="Labor cost ($)" className={inputClass} />
+-        <select value={form.status} onChange={(e) => set('status', e.target.value as ClaimStatus)} className={inputClass}>
+-          {CLAIM_STATUS_OPTIONS.map((s) => (
+-            <option key={s} value={s}>{CLAIM_STATUS_LABELS[s]}</option>
+-          ))}
+-        </select>
++        <div className={`${inputClass} flex items-center text-text-secondary`} aria-label="Claim status">
++          Status: {CLAIM_STATUS_LABELS[form.status]}
++        </div>
+       </div>
+ 
+       <p className="mb-2 mt-4 text-xs font-medium text-text-secondary">Claim packet checklist</p>
+@@ -182,25 +181,10 @@
+         ))}
+       </div>
+ 
+-      {(form.status === 'approved' || form.status === 'credit_received' || form.status === 'closed') && (
+-        <>
+-          <p className="mb-2 mt-4 text-xs font-medium text-text-secondary">Recovery</p>
+-          <div className="grid gap-3 sm:grid-cols-3">
+-            <input type="number" min={0} step="0.01" value={form.approved_amount} onChange={(e) => set('approved_amount', e.target.value)} placeholder="Approved amount ($)" className={inputClass} />
+-            <input type="number" min={0} step="0.01" value={form.credit_received} onChange={(e) => set('credit_received', e.target.value)} placeholder="Credit received ($)" className={inputClass} />
+-            <select value={form.credit_method} onChange={(e) => set('credit_method', e.target.value as CreditMethod)} className={inputClass}>
+-              {(Object.keys(CREDIT_METHOD_LABELS) as CreditMethod[]).map((m) => (
+-                <option key={m} value={m}>{CREDIT_METHOD_LABELS[m]}</option>
+-              ))}
+-            </select>
+-            <input type="date" value={form.credit_received_at} onChange={(e) => set('credit_received_at', e.target.value)} className={inputClass} />
+-          </div>
+-        </>
+-      )}
+-
+-      {form.status === 'denied' && (
+-        <input type="text" value={form.denial_reason} onChange={(e) => set('denial_reason', e.target.value)} placeholder="Denial reason" className={`${inputClass} mt-3`} />
++      {(form.status === 'submitted' || form.status === 'approved') && (
++        <input type="number" min={0} step="0.01" value={form.approved_amount} onChange={(e) => set('approved_amount', e.target.value)} placeholder="Approved amount ($) — optional" className={`${inputClass} mt-3`} />
+       )}
++      <p className="mt-3 text-xs text-text-secondary">Status, submission and payments are changed with the claim actions on the card, not here.</p>
+ 
+       <textarea value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Internal notes…" rows={2} className={`${inputClass} mt-3`} />
+ 
+@@ -221,8 +205,10 @@
+ // ============================================================
+ 
+ export function WarrantyClaimRecoveryPage() {
+-  const { user } = useAuth();
++  const { user, isOwner, permissions } = useAuth();
+   const { toast } = useToast();
++  const canManage = isOwner || Boolean(permissions.can_view_all_jobs);
++  const [loadError, setLoadError] = useState(false);
+ 
+   const [claims, setClaims] = useState<WarrantyClaim[]>([]);
+   const [eligibleJobs, setEligibleJobs] = useState<EligibleJob[]>([]);
+@@ -236,12 +222,14 @@
+   const fetchAll = useCallback(async () => {
+     if (!user) return;
+     setLoading(true);
++    setLoadError(false);
+     const [claimsRes, eligibleRes] = await Promise.all([
+       supabase.from('warranty_claims').select('*').eq('claim_type', 'manufacturer').order('created_at', { ascending: false }),
+       supabase.from('warranty_eligible_jobs').select('*').order('completed_at', { ascending: false }).limit(50),
+     ]);
+ 
+     if (claimsRes.error) {
++      setLoadError(true);
+       toast('Failed to load warranty claims', 'error');
+     } else {
+       setClaims((claimsRes.data as WarrantyClaim[]) || []);
+@@ -268,11 +256,12 @@
+     return { openCount: open.length, claimedCents, recoveredCents, atRisk };
+   }, [claims]);
+ 
+-  const buildPayload = (form: ClaimFormState, userId: string) => {
++  // Status, credit received and denial are NOT written here: the database only accepts them through
++  // warranty_claim_transition / warranty_claim_record_payment (human approval gate + audit + ledger).
++  const buildPayload = (form: ClaimFormState) => {
+     const partCents = form.part_cost.trim() ? Math.round(Number(form.part_cost) * 100) : null;
+     const laborCents = form.labor_cost.trim() ? Math.round(Number(form.labor_cost) * 100) : null;
+     return {
+-      user_id: userId,
+       job_id: form.job_id,
+       equipment_id: form.equipment_id,
+       customer_name: form.customer_name.trim(),
+@@ -286,17 +275,12 @@
+       failure_description: form.failure_description.trim() || null,
+       failure_date: form.failure_date || null,
+       claim_deadline: form.claim_deadline || null,
+-      status: form.status,
+       part_cost_cents: partCents,
+       labor_cost_cents: laborCents,
+       claimed_amount_cents: partCents != null || laborCents != null ? (partCents ?? 0) + (laborCents ?? 0) : null,
+       rma_number: form.rma_number.trim() || null,
+       claim_number: form.claim_number.trim() || null,
+       approved_amount_cents: form.approved_amount.trim() ? Math.round(Number(form.approved_amount) * 100) : null,
+-      credit_received_cents: form.credit_received.trim() ? Math.round(Number(form.credit_received) * 100) : null,
+-      credit_received_at: form.credit_received_at || null,
+-      credit_method: form.credit_method,
+-      denial_reason: form.denial_reason.trim() || null,
+       packet_checklist: form.packet_checklist,
+       notes: form.notes.trim() || null,
+     };
+@@ -304,10 +288,10 @@
+ 
+   const handleSaveClaim = async (form: ClaimFormState, claimId?: string) => {
+     if (!user) return;
+-    const payload = buildPayload(form, user.id);
++    const payload = buildPayload(form);
+     const query = claimId
+       ? supabase.from('warranty_claims').update(payload).eq('id', claimId)
+-      : supabase.from('warranty_claims').insert(payload);
++      : supabase.from('warranty_claims').insert({ ...payload, user_id: user.id, status: 'needs_review' });
+ 
+     const { error } = await query;
+     if (error) {
+@@ -321,15 +305,15 @@
+     fetchAll();
+   };
+ 
+-  const handleQuickStatusChange = async (claim: WarrantyClaim, status: ClaimStatus) => {
+-    const patch: Record<string, unknown> = { status };
+-    if (status === 'submitted' && !claim.submitted_at) patch.submitted_at = new Date().toISOString();
+-    const { error } = await supabase.from('warranty_claims').update(patch).eq('id', claim.id);
+-    if (error) {
+-      toast('Could not update status', 'error');
+-      return;
++  const handleDownload = async (claim: WarrantyClaim) => {
++    try {
++      const packet = await fetchClaimPacket(claim.id);
++      downloadWarrantyClaimPacketPdf(claim, packet);
++    } catch {
++      // Packet could not be compiled (e.g. view-only role): fall back to the claim-only PDF.
++      downloadWarrantyClaimPacketPdf(claim);
++      toast('Downloaded the basic claim sheet — the full packet could not be compiled.', 'error');
+     }
+-    setClaims((prev) => prev.map((c) => (c.id === claim.id ? { ...c, ...patch } as WarrantyClaim : c)));
+   };
+ 
+   const handleDelete = async () => {
+@@ -383,6 +367,11 @@
+               <div key={i} className="h-24 animate-pulse rounded-2xl bg-bg-tertiary" />
+             ))}
+           </div>
++        ) : loadError ? (
++          <div className="rounded-2xl border border-danger/30 bg-danger/5 p-6 text-center">
++            <p className="text-sm text-danger">We couldn’t load your warranty claims.</p>
++            <button type="button" onClick={fetchAll} className="focus-ring mt-3 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-tertiary">Try again</button>
++          </div>
+         ) : (
+           <>
+             <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+@@ -404,6 +393,8 @@
+               </div>
+             </div>
+ 
++            {isOwner && user && <FilingWindowSetting userId={user.id} />}
++
+             {eligibleJobs.length > 0 && (
+               <div className="mb-6 rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-4">
+                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-accent">
+@@ -517,17 +508,19 @@
+                           <p className="mt-1 text-xs font-medium text-text-primary">
+                             Claimed: {formatCents(claim.claimed_amount_cents)} · Credited: {formatCents(claim.credit_received_cents)}
+                           </p>
+-                          <p className="mt-1 text-xs text-text-secondary">Packet: {progress.done}/{progress.total} documents ready</p>
++                          <p className="mt-1 text-xs text-text-secondary">
++                            Packet: {progress.done}/{progress.total} documents ready
++                            {claim.detection_source === 'auto' ? ' · Auto-detected from a completed job' : ''}
++                            {!claim.claim_deadline && isOpenClaim(claim.status) ? ' · Filing deadline not set' : ''}
++                          </p>
+                         </div>
+ 
+                         <div className="flex shrink-0 flex-col items-end gap-2">
+-                          <select value={claim.status} onChange={(e) => handleQuickStatusChange(claim, e.target.value as ClaimStatus)} className={`rounded-full border-0 px-3 py-1 text-xs font-medium ${CLAIM_STATUS_COLORS[claim.status]}`}>
+-                            {CLAIM_STATUS_OPTIONS.map((s) => (
+-                              <option key={s} value={s}>{CLAIM_STATUS_LABELS[s]}</option>
+-                            ))}
+-                          </select>
++                          <span className={`rounded-full px-3 py-1 text-xs font-medium ${CLAIM_STATUS_COLORS[claim.status]}`}>
++                            {CLAIM_STATUS_LABELS[claim.status]}
++                          </span>
+                           <div className="flex items-center gap-1">
+-                            <button type="button" onClick={() => downloadWarrantyClaimPacketPdf(claim)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Download claim packet PDF">
++                            <button type="button" onClick={() => void handleDownload(claim)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Download claim packet PDF">
+                               <Download size={14} />
+                             </button>
+                             <button type="button" onClick={() => setEditingId(claim.id)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Edit claim">
+@@ -539,6 +532,7 @@
+                           </div>
+                         </div>
+                       </div>
++                      <ClaimWorkflowPanel claim={claim} canManage={canManage} onChanged={fetchAll} />
+                     </motion.div>
+                   );
+                 })}
+diff -u -r a/supabase/config.toml b/supabase/config.toml
+--- a/supabase/config.toml	2026-10-31 17:49:10.416540190 +0000
++++ b/supabase/config.toml	2026-10-31 17:49:10.417401010 +0000
+@@ -40,6 +40,8 @@
+ verify_jwt = false
+ [functions.closeout-deadline-engine]
+ verify_jwt = false
++[functions.detect-warranty-claims]
++verify_jwt = false
+ [functions.video-ice]
+ verify_jwt = false
+ [functions.call-bridge-voice]
+diff -u -r a/supabase/functions/check-warranty-claim-deadlines/index.ts b/supabase/functions/check-warranty-claim-deadlines/index.ts
+--- a/supabase/functions/check-warranty-claim-deadlines/index.ts	2026-10-31 17:49:10.420511972 +0000
++++ b/supabase/functions/check-warranty-claim-deadlines/index.ts	2026-10-31 17:49:10.421364785 +0000
+@@ -34,7 +34,7 @@
+       .from("warranty_claims")
+       .select("id, user_id, customer_name, manufacturer, claim_deadline, deadline_alert_stage, status")
+       .not("claim_deadline", "is", null)
+-      .not("status", "in", "(denied,closed,credit_received)");
++      .not("status", "in", "(denied,closed,credit_received,expired)");
+ 
+     if (claimsError) throw claimsError;
