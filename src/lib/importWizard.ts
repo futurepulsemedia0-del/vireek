@@ -34,6 +34,8 @@ export interface ValidateResult {
   rows_truncated: boolean;
   can_import: boolean;
   blocking_reason?: string;
+  /** ledger imports: file-level money total (cents) over valid rows */
+  ledger_totals?: { rows: number; sum_cents: number } | null;
 }
 
 export interface RunResult {
