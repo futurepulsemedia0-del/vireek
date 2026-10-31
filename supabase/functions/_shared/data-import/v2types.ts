@@ -4,7 +4,7 @@
 // types.ts is left untouched so the legacy request shape keeps working.
 
 export type ImportSourceV2 = "csv" | "service_titan" | "jobber" | "housecall_pro";
-export type ImportTypeV2 = "customers" | "jobs";
+export type ImportTypeV2 = "customers" | "jobs" | "invoices" | "line_items" | "payments" | "equipment";
 export type DedupeStrategy = "skip" | "fill_blanks" | "overwrite";
 export type ImportActionV2 = "validate" | "run" | "rollback";
 
@@ -106,6 +106,7 @@ export interface ValidateResultV2 {
   rows_truncated: boolean;
   can_import: boolean;
   blocking_reason?: string;
+  ledger_totals?: { rows: number; sum_cents: number } | null;
 }
 
 export interface RunResultV2 {
