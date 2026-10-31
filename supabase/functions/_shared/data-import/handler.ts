@@ -14,6 +14,8 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { parseCsv } from "./csv.ts";
 import { cleanText, isValidTimeZone, parseDateTime } from "./normalize.ts";
 import { planCustomers, planJobs, requiredCustomerFieldsMapped, requiredJobFieldsMapped, summarize } from "./plan.ts";
+import { LEDGER_FIELDS, isLedgerType, ledgerRequirementMessage, ledgerTotals, planLedger, requiredLedgerFieldsMapped, type LedgerPlanned } from "./ledger.ts";
+import { applyLedgerPlan, loadLedgerContext, rollbackLedger } from "./ledgerApply.ts";
 import type {
   DedupeStrategy, ExistingCustomer, ExistingJob, FieldMap, ImportRequestV2, ImportSourceV2, ImportTypeV2,
   PlannedRow, RollbackResultV2, RunResultV2, ValidateResultV2, ValidateRowResult,
@@ -90,7 +92,7 @@ interface Prepared {
 
 function prepare(body: ImportRequestV2): Prepared {
   if (!body.source || !SOURCES.has(body.source)) throw new HttpError(400, "Unsupported import source.");
-  if (body.import_type !== "customers" && body.import_type !== "jobs") throw new HttpError(400, 'import_type must be "customers" or "jobs".');
+  if (body.import_type !== "customers" && body.import_type !== "jobs" && !isLedgerType(body.import_type)) throw new HttpError(400, "Unsupported import type.");
   const strategy = (body.dedupe_strategy ?? "fill_blanks") as DedupeStrategy;
   if (!STRATEGIES.has(strategy)) throw new HttpError(400, "Unknown duplicate-handling option.");
   const timezone = body.timezone ?? "UTC";
@@ -103,15 +105,19 @@ function prepare(body: ImportRequestV2): Prepared {
   if (rows.length > MAX_ROWS) throw new HttpError(400, `This file has ${rows.length} rows — split it into files of ${MAX_ROWS} rows or fewer.`);
 
   const map: FieldMap = {};
-  const allowed = body.import_type === "customers" ? CUSTOMER_FIELDS : JOB_FIELDS;
+  const allowed = isLedgerType(body.import_type) ? new Set<string>(LEDGER_FIELDS[body.import_type]) : body.import_type === "customers" ? CUSTOMER_FIELDS : JOB_FIELDS;
   for (const [field, header] of Object.entries(body.column_mapping ?? {})) {
     if (!header) continue;
     if (!allowed.has(field)) throw new HttpError(400, `Unknown field "${field}" in the column mapping.`);
     if (!headers.includes(header)) throw new HttpError(400, `Column "${header}" (mapped to ${field}) isn't in the file.`);
     map[field] = header;
   }
-  const mapped = body.import_type === "customers" ? requiredCustomerFieldsMapped(map) : requiredJobFieldsMapped(map);
-  if (!mapped) throw new HttpError(400, body.import_type === "customers" ? "Map a name column (or first/last name, or company)." : "Map a customer name column.");
+  if (isLedgerType(body.import_type)) {
+    if (!requiredLedgerFieldsMapped(body.import_type, map)) throw new HttpError(400, ledgerRequirementMessage(body.import_type));
+  } else {
+    const mapped = body.import_type === "customers" ? requiredCustomerFieldsMapped(map) : requiredJobFieldsMapped(map);
+    if (!mapped) throw new HttpError(400, body.import_type === "customers" ? "Map a name column (or first/last name, or company)." : "Map a customer name column.");
+  }
 
   return {
     source: body.source, importType: body.import_type, strategy, timezone,
@@ -155,6 +161,7 @@ async function loadJobsForPlan(client: SupabaseClient, ownerId: string, p: Prepa
 }
 
 async function buildPlan(client: SupabaseClient, ownerId: string, p: Prepared): Promise<PlannedRow[]> {
+  if (isLedgerType(p.importType)) return planLedger(p.importType, p.rows, p.map, await loadLedgerContext(client, ownerId, p.importType, p.source));
   const customers = await loadCustomers(client, ownerId);
   if (p.importType === "customers") return planCustomers(p.rows, p.map, p.source, p.strategy, customers);
   const existingJobs = await loadJobsForPlan(client, ownerId, p);
@@ -193,12 +200,13 @@ function sampleForPreview(plan: PlannedRow[]): { rows: ValidateRowResult[]; trun
 
 // ------------------------------------------------------------------ validate
 
-function validate(plan: PlannedRow[]): ValidateResultV2 {
+function validate(plan: PlannedRow[], ledgerType?: ImportTypeV2): ValidateResultV2 {
   const summary = summarize(plan);
   const { rows, truncated } = sampleForPreview(plan);
   const writable = summary.create + summary.update;
   return {
     summary, rows, rows_truncated: truncated, can_import: writable > 0,
+    ledger_totals: ledgerType && isLedgerType(ledgerType) ? ledgerTotals(plan as LedgerPlanned[], ledgerType) : undefined,
     blocking_reason: writable > 0 ? undefined
       : summary.error === summary.total ? "Every row has an error — check the column mapping or the file."
       : "Nothing to import — every row is a duplicate or already up to date.",
@@ -282,8 +290,10 @@ async function run(client: SupabaseClient, ownerId: string, userId: string, body
   try {
     const plan = await buildPlan(client, ownerId, p);
     const summary = summarize(plan);
-    const table = p.importType === "customers" ? "customers" : "jobs";
-    const { errors, effects, created, updated } = await applyPlan(client, ownerId, table, plan, p.rows);
+    // Ledger types (invoices/lines/payments/equipment) are written by the import_external_apply RPC, which also records rollback data.
+    const { errors, effects, created, updated } = isLedgerType(p.importType)
+      ? await applyLedgerPlan(client, jobId, plan as LedgerPlanned[], p.rows)
+      : await applyPlan(client, ownerId, p.importType === "customers" ? "customers" : "jobs", plan, p.rows);
 
     for (let i = 0; i < errors.length; i += 500) {
       await client.from("data_import_row_errors").insert(errors.slice(i, i + 500).map((e) => ({ import_job_id: jobId, user_id: ownerId, ...e })));
@@ -334,6 +344,20 @@ async function rollback(client: SupabaseClient, ownerId: string, userId: string,
 
   const { data: locked } = await client.from("data_import_jobs").update({ status: "rolling_back", rollback_started_at: new Date().toISOString() }).eq("id", j.id).eq("user_id", ownerId).eq("status", j.status).select("id");
   if (!locked || locked.length === 0) throw new HttpError(409, "This import is already being changed. Refresh and try again.");
+
+  if (isLedgerType(j.import_type)) {
+    try {
+      const r = await rollbackLedger(client, j.id);
+      await client.from("data_import_jobs").update({
+        status: "rolled_back", rolled_back_at: new Date().toISOString(), rolled_back_by_user: userId,
+        rollback_summary: { deleted: r.deleted, restored: r.restored, kept_modified: 0, blocked: 0, failures: [] },
+      }).eq("id", j.id);
+      return respond({ import_job_id: j.id, deleted: r.deleted, restored: r.restored, kept_modified: 0, blocked: 0, failures: [] } satisfies RollbackResultV2);
+    } catch (e) {
+      await client.from("data_import_jobs").update({ status: j.status }).eq("id", j.id); // let the user retry
+      throw e;
+    }
+  }
 
   const table = j.import_type === "customers" ? "customers" : "jobs";
   const result: RollbackResultV2 = { import_job_id: j.id, deleted: 0, restored: 0, kept_modified: 0, blocked: 0, failures: [] };
@@ -404,7 +428,10 @@ export async function handleImportV2(client: SupabaseClient, body: ImportRequest
       return respond({ error: "You don't have permission to import data. Ask the account owner for the “Edit Business Profile” permission." }, 403);
     }
 
-    if (body.action === "validate") return respond(validate(await buildPlan(client, ownerId, prepare(body))));
+    if (body.action === "validate") {
+      const prepared = prepare(body);
+      return respond(validate(await buildPlan(client, ownerId, prepared), prepared.importType));
+    }
     if (body.action === "run") return await run(client, ownerId, userId, body, respond);
     if (body.action === "rollback") return await rollback(client, ownerId, userId, body, respond);
     return respond({ error: "Unknown action." }, 400);
