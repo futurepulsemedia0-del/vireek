@@ -16,6 +16,7 @@ import {
 } from "../_shared/money-recovered/engine.ts";
 import { renderStatementEmail } from "../_shared/money-recovered/render.ts";
 import { buildStatementPdf } from "../_shared/money-recovered/pdf.ts";
+import { handlePilotOwner, runPilotSweep } from "./pilot.ts";
 import { parsePilotResults, renderPilotBlock } from "../_shared/pilot-results/engine.ts";
 
 const corsHeaders = {
@@ -333,6 +334,7 @@ Deno.serve(async (req: Request) => {
     if (cronHeader !== null) {
       const secret = Deno.env.get("MONEY_RECOVERED_CRON_SECRET");
       if (!secret || !safeEqual(cronHeader, secret)) return json({ error: "Unauthorized." }, 401);
+      if (body.action === "pilot_sweep") return json(await runPilotSweep(admin, { sendMail, siteUrl }));
       return json(await runSweep(admin));
     }
 
@@ -342,6 +344,10 @@ Deno.serve(async (req: Request) => {
     });
     const { data: { user } } = await authClient.auth.getUser();
     if (!user) return json({ error: "Unauthorized." }, 401);
+    if (String(body.action ?? "").startsWith("pilot_")) {
+      const [out, status] = await handlePilotOwner(admin, { sendMail, siteUrl }, user.id, String(body.action));
+      return json(out, status);
+    }
     return await handleOwner(admin, user.id, user.email ?? null, body);
   } catch (e) {
     console.error(JSON.stringify({ event: "money_recovered_failed", error: e instanceof Error ? e.message : String(e) }));
