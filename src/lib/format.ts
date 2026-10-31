@@ -16,6 +16,7 @@
 
 import i18n from '@/i18n';
 import { DEFAULT_LANGUAGE, LOCALE_TAGS, type LanguageCode } from '@/lib/i18n';
+import { getActiveRegional } from '@/lib/regional';
 
 export const CALENDAR_OVERRIDES: Partial<Record<LanguageCode, string>> = {};
 export const NUMBERING_OVERRIDES: Partial<Record<LanguageCode, string>> = {
@@ -63,7 +64,18 @@ function getNumberFormat(locale: string, options?: Intl.NumberFormatOptions) {
   return nf;
 }
 
-function getDateTimeFormat(locale: string, options?: Intl.DateTimeFormatOptions) {
+/** Applies the organization's clock style (12h/24h) unless the caller chose one. */
+function withOrgDefaults(options?: Intl.DateTimeFormatOptions): Intl.DateTimeFormatOptions | undefined {
+  if (!options || options.hour12 !== undefined || options.hourCycle !== undefined) return options;
+  if (!options.timeStyle && !options.hour) return options;
+  const cycle = getActiveRegional().hourCycle;
+  if (cycle === '12h') return { ...options, hourCycle: 'h12' };
+  if (cycle === '24h') return { ...options, hourCycle: 'h23' };
+  return options;
+}
+
+function getDateTimeFormat(locale: string, rawOptions?: Intl.DateTimeFormatOptions) {
+  const options = withOrgDefaults(rawOptions);
   const key = `${locale}|${JSON.stringify(options ?? {})}`;
   let dtf = dtfCache.get(key);
   if (!dtf) {
@@ -187,4 +199,97 @@ export function formatList(items: string[], type: ListType = 'conjunction', lang
   const Ctor = (Intl as unknown as { ListFormat?: ListFormatCtor }).ListFormat;
   if (!Ctor) return items.join(', ');
   return new Ctor(resolveLocale(lang), { style: 'long', type }).format(items);
+}
+/* ---- Relative time with an absolute-date cutoff ---- */
+
+export interface RelativeOptions {
+  now?: number;
+  lang?: string;
+  /** Show an absolute date once the gap is this large or larger. Default: 7 days. */
+  absoluteAfterMs?: number;
+  absoluteStyle?: DatePreset;
+}
+
+const DEFAULT_ABSOLUTE_AFTER_MS = 7 * 86_400_000;
+const rtfCache = new Map<string, Intl.RelativeTimeFormat>();
+
+/**
+ * "now" / "5 minutes ago" / "in 3 hours", switching to "Oct 11, 2026" after the cutoff.
+ * Pair with <RelativeTime> for live updates and an exact-time tooltip.
+ */
+export function formatRelative(value: DateInput, options: RelativeOptions = {}): string {
+  const d = toDate(value);
+  if (!d) return EMPTY_VALUE;
+  const now = options.now ?? Date.now();
+  const diff = d.getTime() - now;
+  if (Math.abs(diff) >= (options.absoluteAfterMs ?? DEFAULT_ABSOLUTE_AFTER_MS)) {
+    return formatDate(d, options.absoluteStyle ?? 'medium', options.lang);
+  }
+  if (Math.abs(diff) < 45_000) {
+    const locale = resolveLocale(options.lang);
+    let rtf = rtfCache.get(locale);
+    if (!rtf) {
+      rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+      rtfCache.set(locale, rtf);
+    }
+    return rtf.format(0, 'second');
+  }
+  return formatRelativeTime(d, now, options.lang);
+}
+
+/* ---- Durations ---- */
+
+export interface DurationOptions {
+  style?: 'narrow' | 'short' | 'long';
+  /** Largest N non-zero units to show (truncates, never rounds up). Default 2. */
+  maxUnits?: number;
+  lang?: string;
+}
+
+const DURATION_UNITS: ['day' | 'hour' | 'minute' | 'second', number][] = [
+  ['day', 86_400],
+  ['hour', 3_600],
+  ['minute', 60],
+  ['second', 1],
+];
+
+/** 4500 → "1 hr, 15 min" (localized). Negative values clamp to 0. */
+export function formatDuration(seconds: number | null | undefined, options: DurationOptions = {}): string {
+  if (seconds === null || seconds === undefined || !Number.isFinite(seconds)) return EMPTY_VALUE;
+  const style = options.style ?? 'short';
+  const max = Math.max(1, options.maxUnits ?? 2);
+  let rest = Math.max(0, Math.round(seconds));
+  const parts: string[] = [];
+  for (const [unit, size] of DURATION_UNITS) {
+    const n = Math.floor(rest / size);
+    rest -= n * size;
+    if (n > 0 && parts.length < max) {
+      parts.push(formatNumber(n, { style: 'unit', unit, unitDisplay: style, maximumFractionDigits: 0 }, options.lang));
+    }
+  }
+  if (parts.length === 0) {
+    return formatNumber(0, { style: 'unit', unit: 'second', unitDisplay: style }, options.lang);
+  }
+  return formatList(parts, 'unit', options.lang);
+}
+
+/* ---- Phone numbers ---- */
+
+/**
+ * US/Canada (NANP) numbers → "(415) 555-0132". Every other number is returned as
+ * normalized "+digits" — no guessed grouping, because wrong grouping is worse than none.
+ * Input with letters, extensions or symbols is returned as typed. In RTL UIs render
+ * the result inside <Bidi> so the digits keep their order.
+ */
+export function formatPhone(raw: string | null | undefined): string {
+  if (!raw || !raw.trim()) return EMPTY_VALUE;
+  const text = raw.trim();
+  if (/[A-Za-z#*]/.test(text)) return text;
+  const digits = text.replace(/\D/g, '');
+  const plus = text.startsWith('+');
+  if (digits.length < 7) return text;
+  const national =
+    digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : !plus && digits.length === 10 ? digits : null;
+  if (national) return `(${national.slice(0, 3)}) ${national.slice(3, 6)}-${national.slice(6)}`;
+  return plus ? `+${digits}` : digits;
 }
