@@ -3,10 +3,10 @@ name: Edge Functions
 on:
   push:
     branches: [main]
-    paths: ['supabase/functions/**', '.github/workflows/edge-functions.yml']
+    paths: ['supabase/functions/**', 'src/lib/workflow*.ts', 'src/lib/warrantyClaimRecovery*.ts', 'supabase/migrations/**', 'package.json', 'package-lock.json', 'vite.config.ts', '.github/workflows/edge-functions.yml']
   pull_request:
     branches: [main]
-    paths: ['supabase/functions/**', '.github/workflows/edge-functions.yml']
+    paths: ['supabase/functions/**', 'src/lib/workflow*.ts', 'src/lib/warrantyClaimRecovery*.ts', 'supabase/migrations/**', 'package.json', 'package-lock.json', 'vite.config.ts', '.github/workflows/edge-functions.yml']
   workflow_dispatch:
 
 concurrency:
@@ -89,10 +89,31 @@ jobs:
           deno-version: v2.x
       - run: deno test -A supabase/functions/_shared/testing/auth_gates_test.ts
 
+  reliability-tests:
+    name: Reliability tests (vitest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # estimate-recovery-agent, money-recovered-run, payment-plan-runner, dispute-evidence,
+      # check-warranty-claim-deadlines, send-payment-reminders + the estimate-to-cash / warranty-recovery workflow contracts.
+      # Runs the real index.ts files against an in-memory supabase fake - no network, no secrets.
+      - name: Edge-function & workflow reliability tests
+        run: npm run test:edge
+
   deploy:
     name: Deploy changed functions
     runs-on: ubuntu-latest
-    needs: typecheck
+    needs: [typecheck, reliability-tests]
     # OFF by default. Enable with repo variable EDGE_DEPLOY_ENABLED=true AFTER
     # supabase/config.toml lists verify_jwt = false for every webhook/public function.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.EDGE_DEPLOY_ENABLED == 'true'
