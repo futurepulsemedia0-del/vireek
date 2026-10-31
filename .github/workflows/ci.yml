@@ -31,6 +31,12 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Localization gates (raw Intl ratchet, voice, translation keys)
+        run: |
+          npm run lint:locale
+          npm run lint:voice
+          npm run i18n:keys
+
       - name: Unit tests
         run: npm run test -- --coverage
 
