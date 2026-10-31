@@ -2,11 +2,14 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
+  future: { hoverOnlyWhenSupported: true },
   theme: {
     extend: {
       fontFamily: {
         display: ['"Sora"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
+      transitionDuration: { fast: '120ms', base: '180ms', slow: '280ms' },
+      transitionTimingFunction: { 'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)' },
       letterSpacing: {
         tightest: '-0.045em',
       },
