@@ -11,6 +11,7 @@
 //   { action: "resolve_conflict", link_id, winner: "vireek"|"qbo" }  -> { ok }
 //   { action: "cron" }    + header X-Cron-Secret                     -> 202   scheduled sync of all due connections
 //   { action: "webhook", realm_ids } + header X-Cron-Secret          -> 202   called by qbo-webhook
+//   { action: "reconcile", connection_id } -> 202 { run_id }   READ-ONLY audit vs QuickBooks invoices
 //
 // REQUIRED SECRETS: see qbo-oauth-start/index.ts. Schedule with the pg_cron snippet at the bottom of
 // supabase/migrations/20271011000000_quickbooks_sync.sql.
@@ -55,6 +56,7 @@ import {
   apiBaseFor,
   buildFindRequest,
   buildGetRequest,
+  buildInvoiceAuditQuery,
   buildQboInvoicePayload,
   buildQboPaymentPayload,
   buildQueryRequest,
@@ -107,6 +109,14 @@ import {
   type VireekAccountType,
 } from "../_shared/quickbooks/engine.ts";
 
+import {
+  DEFAULT_DATE_WINDOW_DAYS,
+  DEFAULT_TAX_TOLERANCE_CENTS,
+  reconcileInvoices,
+  toReconQbo,
+  type ReconQboInvoice,
+  type ReconVireekInvoice,
+} from "../_shared/quickbooks/reconcile.ts";
 declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void } | undefined;
 // deno-lint-ignore no-explicit-any
 type AnyClient = SupabaseClient<any, any, any>;
@@ -1311,6 +1321,138 @@ async function listOptions(ctx: Ctx) {
 }
 
 // ============================================================
+// RECONCILIATION AUDIT (read-only)
+//   Reads QuickBooks invoices with the SAME authenticated, allow-listed `api()` helper (GET queries only) and
+//   compares them to Vireek invoices with the pure engine in _shared/quickbooks/reconcile.ts. It writes only
+//   qbo_recon_* rows (through qbo_recon_apply). It never calls a QuickBooks write endpoint, never touches
+//   ar_invoices / ar_payments / the ledger, and therefore never voids or edits an invoice with payments.
+// ============================================================
+
+const RECON_PAGE = 1000;
+const RECON_QBO_CAP = 5000;
+const RECON_STALE_MS = 15 * 60_000;
+const chunk = <T,>(a: T[], n: number): T[][] => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, (i + 1) * n));
+
+async function pageAll(build: (from: number, to: number) => PromiseLike<{ data: unknown[] | null; error: { message: string } | null }>): Promise<Record<string, unknown>[]> {
+  const out: Record<string, unknown>[] = [];
+  for (let from = 0; ; from += RECON_PAGE) {
+    const { data, error } = await build(from, from + RECON_PAGE - 1);
+    if (error) throw new Error(error.message);
+    const rows = (data ?? []) as Record<string, unknown>[];
+    out.push(...rows);
+    if (rows.length < RECON_PAGE) return out;
+  }
+}
+
+const addDays = (iso: string, days: number): string => new Date(Date.parse(`${iso}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+
+async function executeReconcile(admin: AnyClient, conn: ConnRow, runId: string) {
+  let status: "success" | "partial" | "failed" = "success";
+  let error: string | null = null;
+  let summary: Record<string, unknown> = {};
+  try {
+    const ctx = await buildCtx(admin, conn, null, Date.now() + RUN_BUDGET_MS);
+    const owner = ctx.ownerId;
+
+    const inv = await pageAll((a, b) =>
+      admin.from("ar_invoices").select("id, customer_id, invoice_number, status, issue_date, subtotal_cents, tax_cents, total_cents, amount_paid_cents, source_system, source_id, bill_to_role").eq("user_id", owner).order("id").range(a, b),
+    );
+    const imported = inv.filter((r) => r.source_system && typeof r.issue_date === "string");
+    const settings = { taxToleranceCents: DEFAULT_TAX_TOLERANCE_CENTS, dateWindowDays: DEFAULT_DATE_WINDOW_DAYS, billToRule: ctx.settings.defaults.billToRule };
+
+    if (!imported.length) {
+      summary = { note: "no_imported_invoices", vireek_considered: inv.length };
+      await admin.rpc("qbo_recon_apply", { p_owner: owner, p_connection: conn.id, p_run: runId, p_findings: [], p_complete: true });
+    } else {
+      const fromDate = addDays(imported.map((r) => r.issue_date as string).sort()[0], -settings.dateWindowDays);
+
+      // QuickBooks side (GET queries only).
+      const parsed: ReconQboInvoice[] = [];
+      const unparsed: { id: string | null; reason: string }[] = [];
+      let truncated = false;
+      let fetched = 0;
+      for (let pos = 1; ; pos += QBO_QUERY_PAGE) {
+        if (overDeadline(ctx) || fetched >= RECON_QBO_CAP) { truncated = true; break; }
+        const rows = await queryQbo(ctx, buildInvoiceAuditQuery({ base: ctx.base, realm: ctx.realm, fromDate, pos, pageSize: QBO_QUERY_PAGE }), "invoice");
+        for (const raw of rows) {
+          const r = toReconQbo(raw);
+          if (r.ok) parsed.push(r.inv);
+          else unparsed.push({ id: r.id, reason: r.reason });
+        }
+        fetched += rows.length;
+        if (rows.length < QBO_QUERY_PAGE) break;
+      }
+
+      // Vireek side.
+      const links = await pageAll((a, b) => admin.from("qbo_record_links").select("vireek_id, entity, external_id, base").eq("connection_id", conn.id).in("entity", ["invoice", "customer"]).order("id").range(a, b));
+      const invLink = new Map<string, { externalId: string; baseAmounts: string | null }>();
+      const custLink = new Map<string, string>();
+      for (const l of links) {
+        if (l.entity === "invoice") invLink.set(l.vireek_id as string, { externalId: l.external_id as string, baseAmounts: typeof (l.base as Record<string, unknown> | null)?.amounts === "string" ? ((l.base as Record<string, unknown>).amounts as string) : null });
+        else custLink.set(l.vireek_id as string, l.external_id as string);
+      }
+      const custIds = [...new Set(inv.map((r) => r.customer_id as string | null).filter((x): x is string => !!x))];
+      const names = new Map<string, string>();
+      for (const ids of chunk(custIds, 200)) {
+        const { data } = await admin.from("customers").select("id, name").eq("user_id", owner).in("id", ids);
+        for (const c of (data ?? []) as { id: string; name: string }[]) names.set(c.id, c.name);
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: ex } = await admin.from("tax_exemptions").select("customer_id, expires_on").eq("user_id", owner).eq("status", "verified");
+      const exempt = new Set(((ex ?? []) as { customer_id: string; expires_on: string | null }[]).filter((e) => !e.expires_on || e.expires_on >= today).map((e) => e.customer_id));
+      const memos = new Map<string, number>();
+      for (const m of await pageAll((a, b) => admin.from("credit_memos").select("ar_invoice_id, amount_cents").eq("user_id", owner).eq("status", "issued").not("ar_invoice_id", "is", null).order("id").range(a, b))) {
+        memos.set(m.ar_invoice_id as string, (memos.get(m.ar_invoice_id as string) ?? 0) + Number(m.amount_cents));
+      }
+
+      const vireek: ReconVireekInvoice[] = inv.map((r) => ({
+        id: r.id as string,
+        invoiceNumber: String(r.invoice_number ?? ""),
+        customerId: (r.customer_id as string | null) ?? null,
+        customerName: r.customer_id ? names.get(r.customer_id as string) ?? null : null,
+        qboCustomerId: r.customer_id ? custLink.get(r.customer_id as string) ?? null : null,
+        status: r.status as ReconVireekInvoice["status"],
+        issueDate: String(r.issue_date),
+        subtotalCents: Number(r.subtotal_cents),
+        taxCents: Number(r.tax_cents),
+        totalCents: Number(r.total_cents),
+        amountPaidCents: Number(r.amount_paid_cents),
+        creditMemoCents: memos.get(r.id as string) ?? 0,
+        sourceSystem: (r.source_system as string | null) ?? null,
+        sourceId: (r.source_id as string | null) ?? null,
+        billToRole: r.bill_to_role === "owner" || r.bill_to_role === "tenant" ? r.bill_to_role : null,
+        customerTaxExempt: !!r.customer_id && exempt.has(r.customer_id as string),
+        link: invLink.get(r.id as string) ?? null,
+      }));
+
+      const result = reconcileInvoices({ vireek, qbo: parsed, settings, fromDate, unparsed });
+      const complete = !truncated;
+      const { error: applyErr } = await admin.rpc("qbo_recon_apply", {
+        p_owner: owner,
+        p_connection: conn.id,
+        p_run: runId,
+        p_findings: result.findings.map((f) => ({
+          fingerprint: f.fingerprint, bucket: f.bucket, severity: f.severity, cents_at_stake: f.centsAtStake, vireek_id: f.vireekId, qbo_id: f.qboId,
+          has_payments: f.hasPayments, evidence: f.evidence, evidence_sig: f.evidenceSig, suggested_action: f.suggestedAction,
+        })),
+        p_complete: complete,
+      });
+      if (applyErr) throw new Error(`Could not save findings: ${applyErr.message}`);
+      summary = { ...result.summary, skipped: result.summary.skipped.slice(0, 50), skipped_count: result.summary.skipped.length, qbo_fetched: fetched, vireek_considered: inv.length, imported: imported.length, from_date: fromDate, truncated };
+      if (truncated) {
+        status = "partial";
+        error = "Only part of your QuickBooks invoices could be read in one audit. Findings were saved, but nothing was marked cleared. Run it again.";
+      }
+    }
+  } catch (err) {
+    status = "failed";
+    error = err instanceof AuthError ? "QuickBooks needs to be re-authorised. Disconnect and connect again." : err instanceof RateLimitError ? "QuickBooks is rate limiting requests. Try again shortly." : err instanceof Error ? err.message.slice(0, 300) : "Unexpected audit error.";
+    console.error("qbo reconcile failed", conn.id, err);
+  } finally {
+    await admin.from("qbo_recon_runs").update({ status, error, summary, finished_at: new Date().toISOString() }).eq("id", runId);
+  }
+}
+// ============================================================
 // HTTP ENTRY
 // ============================================================
 
@@ -1476,6 +1618,18 @@ Deno.serve(async (req: Request) => {
       if (ctx) await flushLogs(ctx);
     }
   }
-
+  if (body.action === "reconcile") {
+    const conn = await loadConn(body.connection_id);
+    if (!conn) return json({ error: "Connection not found." }, 404);
+    if (conn.status !== "connected") return json({ error: "QuickBooks is not connected." }, 409);
+    const { data: lock } = await admin.from("qbo_connections").select("sync_locked_until").eq("id", conn.id).maybeSingle();
+    const until = (lock as { sync_locked_until: string | null } | null)?.sync_locked_until;
+    if (until && Date.parse(until) > Date.now()) return json({ error: "A sync is running. Run the audit when it finishes so the comparison is consistent." }, 409);
+    await admin.from("qbo_recon_runs").update({ status: "failed", error: "Interrupted.", finished_at: new Date().toISOString() }).eq("connection_id", conn.id).eq("status", "running").lt("started_at", new Date(Date.now() - RECON_STALE_MS).toISOString());
+    const { data: run, error: runErr } = await admin.from("qbo_recon_runs").insert({ user_id: ownerId, connection_id: conn.id, status: "running", started_by: userData.user.id }).select("id").single();
+    if (runErr || !run) return json({ error: "An audit is already running." }, 409);
+    background(executeReconcile(admin, conn, run.id as string));
+    return json({ run_id: run.id }, 202);
+  }
   return json({ error: "Unknown action." }, 400);
 });
