@@ -516,7 +516,7 @@ export function WarrantyClaimRecoveryPage() {
                         <div className="flex shrink-0 flex-col items-end gap-2">
                           <WarrantyClaimActions claim={claim} onChanged={fetchAll}
                           <div className="flex items-center gap-1">
-                            <button type="button" onClick={() => downloadWarrantyClaimPacketPdf(claim)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Download claim packet PDF">
+                            <button type="button" onClick={() => { void supabase.rpc('log_claim_packet_export', { p_claim: claim.id }); downloadWarrantyClaimPacketPdf(claim); }} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Download claim packet PDF">
                               <Download size={14} />
                             </button>
                             <button type="button" onClick={() => setEditingId(claim.id)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Edit claim">
