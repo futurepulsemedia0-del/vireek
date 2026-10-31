@@ -1,0 +1,64 @@
+{
+  "banner": {
+    "title": "Cookie の選択",
+    "body": "Vireek の動作に必要な Cookie を使用します。ご同意いただいた場合のみ、分析（Google Analytics）とキャンペーン計測も使用します。選択するまで、任意のものは読み込まれません。",
+    "accept": "すべて許可",
+    "reject": "必須以外を拒否",
+    "customize": "設定を選ぶ",
+    "privacy": "プライバシーポリシー",
+    "cookies": "Cookie ポリシー"
+  },
+  "center": {
+    "title": "Cookie 設定",
+    "intro": "Vireek が使用できる任意の Cookie と類似のストレージを選択してください。いつでも変更でき、同意の撤回はすぐに反映されます。",
+    "close": "Cookie 設定を閉じる",
+    "save": "選択を保存",
+    "acceptAll": "すべて許可",
+    "rejectAll": "必須以外を拒否",
+    "lastSaved": "最終更新：{{date}}",
+    "neverSaved": "まだ選択が保存されていません。任意の Cookie はオフです。",
+    "saved": "Cookie の選択を保存しました。",
+    "showDetails": "詳細を表示",
+    "hideDetails": "詳細を隠す",
+    "alwaysOn": "常にオン",
+    "on": "オン",
+    "off": "オフ",
+    "signalLocked": "オフ。お使いのブラウザが Global Privacy Control または Do Not Track のシグナルを送信しており、当社はこれを尊重します。",
+    "label": {
+      "collected": "収集する情報",
+      "purpose": "目的",
+      "retention": "保存期間",
+      "recipients": "提供先",
+      "storage": "Cookie とストレージ"
+    }
+  },
+  "categories": {
+    "essential": {
+      "title": "必須",
+      "summary": "ログイン、セキュリティ、選択内容の記憶に必要です。オフにできません。",
+      "collected": "ログインセッション、Cookie の選択、テーマと言語の設定、セキュリティトークン。",
+      "purpose": "サイトとダッシュボードの運用と保護。",
+      "retention": "ログイン：ログアウトまたは期限切れまで。Cookie の選択：最長12か月。テーマと言語：削除するまで。",
+      "recipients": "Vireek と、そのホスティング・認証プロバイダー（Supabase）。",
+      "storage": "Supabase のログインセッション、vireek-consent-v3、vireek-theme、vireek-a11y-lang（ブラウザストレージ）。"
+    },
+    "analytics": {
+      "title": "分析",
+      "summary": "どのページが使われているかを把握し、Vireek を改善するために使います。",
+      "collected": "閲覧ページ、参照元、ブラウザとデバイスの種類、おおよその所在地、ランダムな訪問者 ID、表示された A/B テストのバリアント。",
+      "purpose": "利用状況の把握と製品の改善。広告には使用しません。",
+      "retention": "Google Analytics の Cookie は最長2年。レポートの保持期間は当社の Google Analytics アカウントで設定されています。",
+      "recipients": "Google LLC（Google Analytics）、米国。",
+      "storage": "_ga と _ga_*（Cookie）、vireek-visitor-id と vireek-experiment-assignments（ブラウザストレージ）。"
+    },
+    "marketing": {
+      "title": "マーケティング計測",
+      "summary": "どのキャンペーンリンクから来たかを記憶し、効果のあるキャンペーンを把握します。",
+      "collected": "アクセス元リンクのキャンペーン情報（utm_source など）と、キャンペーンのランディングページでのランダムな訪問者 ID。",
+      "purpose": "どのキャンペーンが登録につながるかの測定。広告ネットワークや広告プロファイルは使用しません。",
+      "retention": "キャンペーン情報：30日。訪問者 ID：同意を撤回するかブラウザのストレージを消去するまで。",
+      "recipients": "Vireek と、そのデータベースホスト（Supabase）。広告主とは共有しません。",
+      "storage": "vk_lp_vid と vk_lp_attr:*（ブラウザストレージ）。"
+    }
+  }
+}
