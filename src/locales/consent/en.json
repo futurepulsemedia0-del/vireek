@@ -1,0 +1,64 @@
+{
+  "banner": {
+    "title": "Your cookie choices",
+    "body": "We use essential cookies to run Vireek. With your permission we also use analytics (Google Analytics) and campaign measurement. Nothing optional loads until you choose.",
+    "accept": "Accept all",
+    "reject": "Reject non-essential",
+    "customize": "Choose settings",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy"
+  },
+  "center": {
+    "title": "Cookie settings",
+    "intro": "Choose which optional cookies and similar storage Vireek may use. You can change this at any time; withdrawing takes effect immediately.",
+    "close": "Close cookie settings",
+    "save": "Save choices",
+    "acceptAll": "Accept all",
+    "rejectAll": "Reject non-essential",
+    "lastSaved": "Last updated: {{date}}",
+    "neverSaved": "No choice saved yet. Optional cookies are off.",
+    "saved": "Your cookie choices were saved.",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "alwaysOn": "Always on",
+    "on": "On",
+    "off": "Off",
+    "signalLocked": "Off. Your browser sends a Global Privacy Control or Do Not Track signal, and we honor it.",
+    "label": {
+      "collected": "What is collected",
+      "purpose": "Why",
+      "retention": "How long",
+      "recipients": "Who receives it",
+      "storage": "Cookies and storage"
+    }
+  },
+  "categories": {
+    "essential": {
+      "title": "Essential",
+      "summary": "Needed for sign-in, security and to remember your choices. Cannot be turned off.",
+      "collected": "Your sign-in session, your cookie choice, theme and language settings, and security tokens.",
+      "purpose": "To run and protect the site and dashboard.",
+      "retention": "Sign-in: until you sign out or it expires. Cookie choice: up to 12 months. Theme and language: until you clear them.",
+      "recipients": "Vireek and its hosting and authentication provider (Supabase).",
+      "storage": "Supabase sign-in session, vireek-consent-v3, vireek-theme, vireek-a11y-lang (browser storage)."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "summary": "Shows us which pages are used so we can improve Vireek.",
+      "collected": "Pages visited, referrer, browser and device type, approximate location, a random visitor ID, and which A/B test variant you saw.",
+      "purpose": "To understand usage and improve the product. Not used for advertising.",
+      "retention": "Google Analytics cookies last up to 2 years. Report retention is set in our Google Analytics account.",
+      "recipients": "Google LLC (Google Analytics), United States.",
+      "storage": "_ga and _ga_* (cookies); vireek-visitor-id and vireek-experiment-assignments (browser storage)."
+    },
+    "marketing": {
+      "title": "Marketing measurement",
+      "summary": "Remembers which campaign link brought you here, so we can tell which campaigns work.",
+      "collected": "Campaign details from the link you arrived on (such as utm_source) and a random visitor ID on campaign landing pages.",
+      "purpose": "To measure which campaigns lead to sign-ups. No ad networks and no ad profiles.",
+      "retention": "Campaign details: 30 days. Visitor ID: until you withdraw consent or clear your browser storage.",
+      "recipients": "Vireek and its database host (Supabase). Not shared with advertisers.",
+      "storage": "vk_lp_vid and vk_lp_attr:* (browser storage)."
+    }
+  }
+}
