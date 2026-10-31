@@ -1,0 +1,48 @@
+name: Ask Vireek knowledge sync
+
+# Keeps the public assistant's knowledge base in step with the code: whenever a source of truth
+# changes on main, verify the generated artifacts are committed, then re-embed ONLY changed chunks.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/lib/pricing.ts'
+      - 'src/lib/industries.ts'
+      - 'src/lib/integrations.ts'
+      - 'src/lib/competitors.ts'
+      - 'src/lib/glossary.ts'
+      - 'src/lib/helpContent.ts'
+      - 'src/lib/useCases.ts'
+      - 'src/lib/brandFacts.ts'
+      - 'src/lib/supportHours.ts'
+      - 'src/pages/FeaturesPage.tsx'
+      - 'src/components/sections/*Content.tsx'
+      - 'knowledge/**'
+      - 'scripts/knowledge-build.mjs'
+      - 'scripts/lib/knowledgeChunker.mjs'
+  workflow_dispatch:
+
+concurrency:
+  group: knowledge-embed
+  cancel-in-progress: false
+
+jobs:
+  embed:
+    name: Verify + embed changed chunks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Generated artifacts must be committed and drift-free
+        run: npm run knowledge:check
+      - name: Embed changed chunks into site_kb_chunks
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+          COHERE_EMBED_MODEL: embed-multilingual-v3.0
+        run: npm run knowledge:embed
