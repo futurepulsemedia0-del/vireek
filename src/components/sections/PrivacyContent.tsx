@@ -176,7 +176,7 @@ export function PrivacyContent() {
               <h1 className="mt-3 text-4xl font-bold leading-[1.15] tracking-tight text-text-primary md:text-5xl">
                 Privacy Policy
               </h1>
-              <p className="mt-4 text-sm text-text-secondary">Last updated: August 20, 2026</p>
+              <p className="mt-4 text-sm text-text-secondary">Last updated: October 31, 2026</p>
             </motion.div>
 
             {/* Intro paragraph */}
@@ -245,7 +245,8 @@ export function PrivacyContent() {
                 <li>• Website usage data</li>
                 <li>• Pages visited</li>
                 <li>• Browser type</li>
-                <li>• General location information from IP address through analytics tools</li>
+                <li>• General location information from IP address through analytics tools (only if you accept analytics cookies; see our Cookie Policy)</li>
+                <li>• A record of your cookie choice: date, policy version, your choices, whether a Global Privacy Control or Do Not Track signal was present, and a random ID (no name, email or IP address; linked to your account ID if you are signed in)</li>
               </ul>
             </SectionBody>
 
