@@ -44,6 +44,7 @@ import {
 import { downloadInvoicePdf } from '@/lib/invoicePdf';
 import { downloadInvoiceWithDefaultTemplate } from '@/lib/invoiceTemplatePdf';
 import { SplitPaymentsCard } from '@/components/invoicing/SplitPaymentsCard';
+import { CommercialApprovalPanel } from '@/components/CommercialApprovalPanel';
 import { ApprovalToCashCard } from '@/components/invoicing/ApprovalToCashCard';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
