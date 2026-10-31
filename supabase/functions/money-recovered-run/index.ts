@@ -16,6 +16,7 @@ import {
 } from "../_shared/money-recovered/engine.ts";
 import { renderStatementEmail } from "../_shared/money-recovered/render.ts";
 import { buildStatementPdf } from "../_shared/money-recovered/pdf.ts";
+import { parsePilotResults, renderPilotBlock } from "../_shared/pilot-results/engine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -39,7 +40,7 @@ interface Settings {
   include_owner: boolean; include_co_owners: boolean; extra_recipients: string[];
 }
 interface Profile { id: string; email: string | null; company_name: string | null; invoice_currency: string | null; status: string | null; role: string | null }
-interface Stored { id: string; snapshot: Statement; status: string; send_attempts: number; generated_at: string }
+snapshot: Statement & { pilot?: unknown }; status: string; send_attempts: number; generated_at: string }
 
 const DEFAULT_SETTINGS = (userId: string): Settings => ({
   user_id: userId, enabled: false, send_hour: 8, timezone: "America/New_York",
@@ -102,6 +103,16 @@ async function loadBaseline(admin: Admin, userId: string): Promise<Baseline | nu
   return (data as Baseline | null) ?? null;
 }
 
+async function loadPilot(admin: Admin, userId: string): Promise<unknown> {
+  try {
+    const { data, error } = await admin.rpc("pilot_results_core", { p_tenant: userId });
+    return error ? null : data;
+  } catch { return null; }
+}
+function pilotBlockFor(profile: Profile, snapshot: { pilot?: unknown }) {
+  const p = parsePilotResults(snapshot.pilot);
+  return p ? renderPilotBlock(p, currencyOf(profile), `${siteUrl()}/dashboard/pilot-results`) : null;
+}
 // ---------------------------------------------------------------- statement
 async function getOrCreateStatement(admin: Admin, profile: Profile, w: Window, trigger: "scheduled" | "manual"): Promise<Stored> {
   const select = "id,snapshot,status,send_attempts,generated_at";
@@ -115,7 +126,7 @@ async function getOrCreateStatement(admin: Admin, profile: Profile, w: Window, t
   });
   const ins = await admin.from("money_recovered_statements").insert({
     user_id: profile.id, week_start: w.start, week_end: w.end, period_label: w.label, method_version: statement.methodVersion,
-    credited_cents: statement.creditedCents, snapshot: statement, trigger,
+    credited_cents: statement.creditedCents, snapshot: { ...statement, pilot: await loadPilot(admin, profile.id) }, trigger,
   }).select(select).single();
   if (ins.data) return ins.data as Stored;
 
@@ -203,7 +214,7 @@ async function claimDelivery(admin: Admin, statementId: string, userId: string, 
 
 async function deliver(admin: Admin, profile: Profile, stored: Stored, recipients: string[]) {
   const st = stored.snapshot;
-  const mail = renderStatementEmail({ companyName: companyOf(profile), statement: st, siteUrl: siteUrl() });
+  const mail = renderStatementEmail({ companyName: companyOf(profile), statement: st, siteUrl: siteUrl() } , pilot: pilotBlockFor(profile, st));
   const pdf = tryPdf(profile, st);
   let lastError: string | null = null;
 
@@ -292,7 +303,7 @@ async function handleOwner(admin: Admin, userId: string, userEmail: string | nul
   if (action === "send_test") {
     const to = (userEmail ?? profile.email ?? "").toLowerCase();
     if (!EMAIL_RE.test(to)) return json({ error: "Your account has no valid email address." }, 400);
-    const mail = renderStatementEmail({ companyName: companyOf(profile as Profile), statement: current.snapshot, siteUrl: siteUrl(), subjectPrefix: "[Test] " });
+    const mail = renderStatementEmail({ companyName: companyOf(profile as Profile), statement: current.snapshot, siteUrl: siteUrl(), subjectPrefix: "[Test] " , pilot: pilotBlockFor(profile as Profile, current.snapshot) });
     const res = await sendMail({
       to, subject: mail.subject, html: mail.html, text: mail.text,
       filename: fileName(profile as Profile, current.snapshot), pdf: tryPdf(profile as Profile, current.snapshot),
