@@ -106,7 +106,14 @@ export function ImportWizard({ accountOwnerId, onFinished }: Props) {
     setAutoKeys(r.auto);
     setValidation(null);
     setFilter(null);
-  }, []);
+    // The mapping confirmed last time for this source + type wins over auto-detection.
+    void loadSavedMapping(accountOwnerId, presetId, type).then((saved) => {
+      if (!saved) return;
+      const merged = mergeSavedMapping(r.mapping, saved, t.headers, fieldsFor(type).map((f) => f.key));
+      setMapping(merged.mapping);
+      setAutoKeys(merged.auto);
+    }).catch(() => undefined);
+  }, [accountOwnerId]);
 
   const loadFile = useCallback(async (f: File, sheet?: string) => {
     setReading(true);
