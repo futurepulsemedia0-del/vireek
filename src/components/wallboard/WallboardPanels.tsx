@@ -109,7 +109,7 @@ function JobCard({ job, tz }: { job: WallJob; tz: string }) {
       </div>
       <div className="flex items-center justify-between gap-[0.5em] text-[0.8em] text-slate-400">
         <span className="truncate">{job.service ?? 'Service call'}</span>
-        <span className="shrink-0">{job.late ? <span className="font-bold text-amber-300">LATE · </span> : null}{job.technician ?? 'Unassigned'}</span>
+        <span className="shrink-0">{job.late ? <span className="font-bold text-amber-300">Late ·  </span> : null}{job.technician ?? 'Unassigned'}</span>
       </div>
     </li>
   );
