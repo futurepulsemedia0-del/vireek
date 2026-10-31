@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Lock } from 'lucide-react';
 import { Check, Copy, Lock } from 'lucide-react';
 
 export const SELECT =
@@ -61,27 +61,7 @@ export function NoAccess({ what }: { what: string }) {
   );
 }
 
-export function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(text);
-          setDone(true);
-          window.setTimeout(() => setDone(false), 1800);
-        } catch {
-          /* clipboard blocked: the text stays selectable */
-        }
-      }}
-      className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-text-primary hover:bg-bg-tertiary"
-    >
-      {done ? <Check size={14} className="text-success-500" /> : <Copy size={14} />}
-      {done ? 'Copied' : label}
-    </button>
-  );
-}
+export { CopyButton } from '@/components/ui/CopyButton';
 
 export function CodeBlock({ code }: { code: string }) {
   return (
