@@ -1,0 +1,64 @@
+{
+  "banner": {
+    "title": "您的 Cookie 选择",
+    "body": "我们使用必要 Cookie 来运行 Vireek。经您同意，我们还会使用分析（Google Analytics）和营销活动测量。在您做出选择之前，不会加载任何可选项。",
+    "accept": "全部接受",
+    "reject": "拒绝非必要项",
+    "customize": "选择设置",
+    "privacy": "隐私政策",
+    "cookies": "Cookie 政策"
+  },
+  "center": {
+    "title": "Cookie 设置",
+    "intro": "选择 Vireek 可以使用哪些可选 Cookie 和类似存储。您可随时更改；撤回同意会立即生效。",
+    "close": "关闭 Cookie 设置",
+    "save": "保存选择",
+    "acceptAll": "全部接受",
+    "rejectAll": "拒绝非必要项",
+    "lastSaved": "最后更新：{{date}}",
+    "neverSaved": "尚未保存任何选择。可选 Cookie 处于关闭状态。",
+    "saved": "您的 Cookie 选择已保存。",
+    "showDetails": "显示详情",
+    "hideDetails": "隐藏详情",
+    "alwaysOn": "始终开启",
+    "on": "开",
+    "off": "关",
+    "signalLocked": "已关闭。您的浏览器发送了全球隐私控制（GPC）或“请勿跟踪”信号，我们予以遵守。",
+    "label": {
+      "collected": "收集的内容",
+      "purpose": "用途",
+      "retention": "保存期限",
+      "recipients": "接收方",
+      "storage": "Cookie 与存储"
+    }
+  },
+  "categories": {
+    "essential": {
+      "title": "必要",
+      "summary": "用于登录、安全并记住您的选择，无法关闭。",
+      "collected": "您的登录会话、Cookie 选择、主题和语言设置以及安全令牌。",
+      "purpose": "运行并保护网站和控制台。",
+      "retention": "登录：直到退出或过期。Cookie 选择：最长 12 个月。主题和语言：直到您清除。",
+      "recipients": "Vireek 及其托管和身份验证服务商（Supabase）。",
+      "storage": "Supabase 登录会话、vireek-consent-v3、vireek-theme、vireek-a11y-lang（浏览器存储）。"
+    },
+    "analytics": {
+      "title": "分析",
+      "summary": "让我们了解哪些页面被使用，以便改进 Vireek。",
+      "collected": "访问的页面、来源页、浏览器和设备类型、大致位置、随机访客 ID，以及您看到的 A/B 测试版本。",
+      "purpose": "了解使用情况并改进产品。不用于广告。",
+      "retention": "Google Analytics Cookie 最长保存 2 年。报告保留期在我们的 Google Analytics 账户中设置。",
+      "recipients": "Google LLC（Google Analytics），美国。",
+      "storage": "_ga 和 _ga_*（Cookie）；vireek-visitor-id 和 vireek-experiment-assignments（浏览器存储）。"
+    },
+    "marketing": {
+      "title": "营销测量",
+      "summary": "记住是哪个活动链接把您带来的，以便了解哪些活动有效。",
+      "collected": "您所用链接中的活动信息（如 utm_source），以及活动落地页上的随机访客 ID。",
+      "purpose": "衡量哪些活动带来注册。不使用广告网络，不建立广告画像。",
+      "retention": "活动信息：30 天。访客 ID：直到您撤回同意或清除浏览器存储。",
+      "recipients": "Vireek 及其数据库托管方（Supabase）。不与广告主共享。",
+      "storage": "vk_lp_vid 和 vk_lp_attr:*（浏览器存储）。"
+    }
+  }
+}
