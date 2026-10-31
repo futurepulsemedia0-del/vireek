@@ -35,7 +35,8 @@
     "cap:ios": "npm run cap:sync && cap open ios",
     "cap:android": "npm run cap:sync && cap open android",
     "build:home": "vite build --mode home --outDir dist-home",
-    "cap:home": "node scripts/cap-home.mjs"
+    "cap:home": "node scripts/cap-home.mjs",
+    "test:e2e:home": "playwright test e2e/homepage.spec.ts"
   },
   "dependencies": {
     "@sentry/react": "^10.74.0",
@@ -53,6 +54,7 @@
     "read-excel-file": "^5.8.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
     "@eslint/js": "^9.9.1",
     "@playwright/test": "^1.49.1",
     "@testing-library/jest-dom": "^6.6.3",
