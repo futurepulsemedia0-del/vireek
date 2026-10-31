@@ -8,6 +8,8 @@ import {
   type FieldMapping, type ImportPresetId, type ImportType,
 } from '@/lib/importPresets';
 import { ImportFileError, readImportFile, tableToCsv, type ParsedTable } from '@/lib/importFile';
+import { LEDGER_HOW_TO_EXPORT, LEDGER_IMPORT_TYPES, LEDGER_TYPE_LABELS, isLedgerImportType } from '@/lib/importLedgerProfiles';
+import { loadSavedMapping, mergeSavedMapping, saveMapping } from '@/lib/importSavedMappings';
 import {
   downloadTextFile, listImportRowErrors, rollbackImport, rowErrorsToCsv, runImport, validateImport,
   type DedupeStrategy, type RunResult, type ValidateResult,
@@ -173,6 +175,7 @@ export function ImportWizard({ accountOwnerId, onFinished }: Props) {
     setRunError(null);
     try {
       const r = await runImport(params);
+      void saveMapping(accountOwnerId, preset, importType, mapping).catch(() => undefined);
       setResult(r);
       setStep('done');
       onFinished();
@@ -243,15 +246,16 @@ export function ImportWizard({ accountOwnerId, onFinished }: Props) {
         <div className="space-y-6">
           <fieldset>
             <legend className="mb-2 text-sm font-semibold text-text-primary">What are you importing?</legend>
-            <div className="inline-flex rounded-xl border border-border p-1" role="radiogroup">
-              {(['customers', 'jobs'] as ImportType[]).map((t) => (
+            <div className="flex flex-wrap rounded-xl border border-border p-1" role="radiogroup">
+              {(['customers', 'jobs', ...LEDGER_IMPORT_TYPES] as ImportType[]).map((t) => (
                 <label key={t} className={`focus-within:ring-2 focus-within:ring-accent/40 cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold ${importType === t ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
                   <input type="radio" name="import-type" className="sr-only" checked={importType === t} onChange={() => changeType(t)} />
-                  {t === 'customers' ? 'Customers' : 'Job history'}
+                  {t === 'customers' ? 'Customers' : t === 'jobs' ? 'Job history' : LEDGER_TYPE_LABELS[t]}
                 </label>
               ))}
             </div>
             {importType === 'jobs' && <p className="mt-2 text-xs text-text-secondary">Tip: import customers first, so each job links to its customer automatically.</p>}
+            {isLedgerImportType(importType) && <p className="mt-2 text-xs text-text-secondary">Stays on your current system? Import customers → jobs → invoices → invoice lines → payments → equipment. Imported invoices, lines and payments are read-only history — Vireek never bills, emails or changes anything in your old system.</p>}
           </fieldset>
 
           <fieldset>
@@ -266,7 +270,7 @@ export function ImportWizard({ accountOwnerId, onFinished }: Props) {
               ))}
             </div>
             <ol className="mt-3 list-decimal space-y-1 pl-5 text-xs text-text-secondary">
-              {PRESET_BY_ID[preset].howToExport[importType].map((line) => <li key={line}>{line}</li>)}
+              {(PRESET_BY_ID[preset].howToExport[importType] ?? (isLedgerImportType(importType) ? LEDGER_HOW_TO_EXPORT[preset][importType] : [])).map((line) => <li key={line}>{line}</li>)}
             </ol>
           </fieldset>
 
@@ -352,7 +356,7 @@ export function ImportWizard({ accountOwnerId, onFinished }: Props) {
             ))}
           </ul>
 
-          {!mapping.external_id && (
+          {!mapping.external_id && !isLedgerImportType(importType) && (
             <p className="flex items-start gap-2 text-xs text-text-secondary"><Info size={14} className="mt-0.5 shrink-0" /> No ID column mapped. Duplicates will be found by {importType === 'customers' ? 'phone, email or name + address' : 'customer + date + service + amount'}; an ID from your old system is the most reliable.</p>
           )}
 
