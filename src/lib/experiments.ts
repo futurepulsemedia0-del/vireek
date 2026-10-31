@@ -19,6 +19,7 @@
 /* ------------------------------------------------------------------ */
 
 import { trackEvent } from '@/lib/analytics';
+import { hasConsent } from '@/lib/consent/engine';
 
 /**
  * Register every experiment here. Add a new id + variant list to run a
