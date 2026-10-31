@@ -98,6 +98,7 @@ const WorkflowCompilerPage = lazy(() => import('@/pages/WorkflowCompilerPage').t
 const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedgerPage').then((m) => ({ default: m.RevenueRecoveryLedgerPage })));
 const LeakReportPage = lazy(() => import('@/pages/LeakReportPage').then((m) => ({ default: m.LeakReportPage })));
 const MoneyRecoveredStatementsPage = lazy(() => import('@/pages/MoneyRecoveredStatementsPage').then((m) => ({ default: m.MoneyRecoveredStatementsPage })));
+const PilotResultsPage = lazy(() => import('@/pages/PilotResultsPage').then((m) => ({ default: m.PilotResultsPage })));
 const ValueScoreboardPage = lazy(() => import('@/pages/ValueScoreboardPage').then((m) => ({ default: m.ValueScoreboardPage })));
 const StaffValueScoreboardPage = lazy(() => import('@/pages/StaffValueScoreboardPage').then((m) => ({ default: m.StaffValueScoreboardPage })));
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
@@ -2581,6 +2582,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/dashboard/pilot-results" element={<ProtectedRoute><PilotResultsPage /></ProtectedRoute>} />
         <Route
           path="/dashboard/results"
           element={
