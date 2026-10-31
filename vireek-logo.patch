@@ -1,0 +1,2094 @@
+diff --git a/docs/brand/logo-concepts.html b/docs/brand/logo-concepts.html
+new file mode 100644
+index 0000000..33529b3
+--- /dev/null
++++ b/docs/brand/logo-concepts.html
+@@ -0,0 +1,35 @@
++<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
++<title>Vireek logo concepts</title><style>
++:root{--bg:#FDFCFA;--card:#fff;--tx:#17171A;--mut:#676770;--bd:#E7E5E0;--i:#203AD8;--a:#D6582A}
++@media (prefers-color-scheme:dark){:root{--bg:#090A0D;--card:#101115;--tx:#F2F1EE;--mut:#9A9AA3;--bd:#25252C}}
++*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 Inter,system-ui,sans-serif}
++main{max-width:1080px;margin:0 auto;padding:40px 16px 80px}h1{font:700 32px/1.2 Sora,Inter,sans-serif;margin:0 0 8px}
++.lead{color:var(--mut);max-width:70ch}.grid{display:grid;gap:24px;margin-top:32px}
++.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:24px}.card h2{font:600 20px Sora,Inter,sans-serif;margin:0 0 6px}
++.rec{font:600 12px Inter;background:#203AD815;color:var(--i);border-radius:99px;padding:3px 10px;margin-left:8px;vertical-align:middle}
++.idea{color:var(--mut);margin:0 0 16px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
++.panel{border-radius:14px;padding:28px;display:flex;align-items:center;justify-content:center;gap:20px;min-height:120px;border:1px solid var(--bd)}
++.light{background:#FDFCFA;--i:#203AD8;--a:#D6582A}.dark{background:#090A0D;--i:#6C82FF;--a:#FF8A5A}
++.g .i{fill:var(--i)}.g .a{fill:var(--a)}.g{display:block;flex:none}
++.sizes{gap:18px}table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}td{padding:4px 0;border-bottom:1px solid var(--bd)}.dots{text-align:right;letter-spacing:2px;color:var(--i)}
++.verdict{font-size:14px;color:var(--mut)}.reco{margin-top:32px}.reco h2{font:600 22px Sora,Inter,sans-serif}
++@media(max-width:700px){.row{grid-template-columns:1fr}}
++</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="wA" viewBox="21 -766 3190.8 775"><path style="fill:var(--i)" d="M2625.3 -730H2767.3V-283.4L2967 -534H3135.7L2970.7 -326.8L3211.8 0H3047.8L2885.5 -219.9L2767.3 -71.6V0H2625.3ZM1959.3 -267C1959.3 -249.2 1957.6 -231.8 1954.4 -215H1551.1C1571.9 -162.3 1623.2 -125 1683.3 -125C1714.8 -125 1743.9 -135.2 1767.4 -152.6L1877.5 -70.9C1827.6 -21.5 1759 9 1683.3 9C1530.9 9 1407.3 -114.6 1407.3 -267C1407.3 -419.4 1530.9 -543 1683.3 -543C1819.3 -543 1932.4 -444.5 1955.1 -315C1957.9 -299.4 1959.3 -283.4 1959.3 -267ZM2565.3 -267C2565.3 -249.2 2563.6 -231.8 2560.4 -215H2157.1C2177.9 -162.3 2229.2 -125 2289.3 -125C2320.8 -125 2349.9 -135.2 2373.4 -152.6L2483.5 -70.9C2433.6 -21.5 2365 9 2289.3 9C2136.9 9 2013.3 -114.6 2013.3 -267C2013.3 -419.4 2136.9 -543 2289.3 -543C2425.3 -543 2538.4 -444.5 2561.1 -315C2563.9 -299.4 2565.3 -283.4 2565.3 -267ZM21 -730H168L346 -118H380L558 -730H705L480 0H246ZM965 -534H1107V-505C1143 -523.5 1183.8 -534 1227 -534C1282.9 -534 1334.7 -516.5 1377.3 -486.6L1300.4 -376.9C1279.6 -391.4 1254.3 -400 1227 -400C1172 -400 1125.1 -365.3 1107 -316.6V0H965ZM745 -534H887V0H745ZM1817 -315C1797.3 -369.8 1744.9 -409 1683.3 -409C1621.7 -409 1569.3 -369.8 1549.6 -315ZM2423 -315C2403.3 -369.8 2350.9 -409 2289.3 -409C2227.7 -409 2175.3 -369.8 2155.6 -315Z"/><path style="fill:var(--a)" d="M896 -686C896 -641.8 860.2 -606 816 -606C771.8 -606 736 -641.8 736 -686C736 -730.2 771.8 -766 816 -766C860.2 -766 896 -730.2 896 -686Z"/></symbol><symbol id="sA" viewBox="21 -730 684 730"><path style="fill:var(--i)" d="M21 -730H168L346 -118H380L558 -730H705L480 0H246Z"/><path style="fill:var(--a)" d="M435 -575C435 -535.2 402.8 -503 363 -503C323.2 -503 291 -535.2 291 -575C291 -614.8 323.2 -647 363 -647C402.8 -647 435 -614.8 435 -575Z"/></symbol><symbol id="wB" viewBox="21 -762 3190.8 771"><path style="fill:var(--i)" d="M2625.3 -730H2767.3V-283.4L2967 -534H3135.7L2970.7 -326.8L3211.8 0H3047.8L2885.5 -219.9L2767.3 -71.6V0H2625.3ZM21 -730H168L346 -118H380L558 -730H705L480 0H246ZM2565.3 -267C2565.3 -249.2 2563.6 -231.8 2560.4 -215H2422.5C2428.8 -231.1 2432.3 -248.7 2432.3 -267C2432.3 -283.8 2429.4 -300 2424 -315H2423C2403.3 -369.8 2350.9 -409 2289.3 -409C2227.7 -409 2175.3 -369.8 2155.6 -315H2154.5C2149.2 -300 2146.3 -283.8 2146.3 -267C2146.3 -248.7 2149.7 -231.1 2156 -215H2157.1C2177.9 -162.3 2229.2 -125 2289.3 -125C2320.8 -125 2349.9 -135.2 2373.4 -152.6L2483.5 -70.9C2433.6 -21.5 2365 9 2289.3 9C2136.9 9 2013.3 -114.6 2013.3 -267C2013.3 -419.4 2136.9 -543 2289.3 -543C2425.3 -543 2538.4 -444.5 2561.1 -315C2563.9 -299.4 2565.3 -283.4 2565.3 -267ZM1959.3 -267C1959.3 -249.2 1957.6 -231.8 1954.4 -215H1816.5C1822.8 -231.1 1826.3 -248.7 1826.3 -267C1826.3 -283.8 1823.4 -300 1818 -315H1817C1797.3 -369.8 1744.9 -409 1683.3 -409C1621.7 -409 1569.3 -369.8 1549.6 -315H1548.5C1543.2 -300 1540.3 -283.8 1540.3 -267C1540.3 -248.7 1543.7 -231.1 1550 -215H1551.1C1571.9 -162.3 1623.2 -125 1683.3 -125C1714.8 -125 1743.9 -135.2 1767.4 -152.6L1877.5 -70.9C1827.6 -21.5 1759 9 1683.3 9C1530.9 9 1407.3 -114.6 1407.3 -267C1407.3 -419.4 1530.9 -543 1683.3 -543C1819.3 -543 1932.4 -444.5 1955.1 -315C1957.9 -299.4 1959.3 -283.4 1959.3 -267ZM965 -534H1107V-505C1143 -523.5 1183.8 -534 1227 -534C1282.9 -534 1334.7 -516.5 1377.3 -486.6L1300.4 -376.9C1279.6 -391.4 1254.3 -400 1227 -400C1172 -400 1125.1 -365.3 1107 -316.6V0H965ZM745 -534H887V0H745ZM892 -686C892 -644 858 -610 816 -610C774 -610 740 -644 740 -686C740 -728 774 -762 816 -762C858 -762 892 -728 892 -686Z"/><path style="fill:var(--a)" d="M2432.3 -267C2432.3 -248.7 2428.8 -231.1 2422.5 -215H2156C2149.7 -231.1 2146.3 -248.7 2146.3 -267C2146.3 -283.8 2149.2 -300 2154.5 -315H2424C2429.4 -300 2432.3 -283.8 2432.3 -267ZM1826.3 -267C1826.3 -248.7 1822.8 -231.1 1816.5 -215H1550C1543.7 -231.1 1540.3 -248.7 1540.3 -267C1540.3 -283.8 1543.2 -300 1548.5 -315H1818C1823.4 -300 1826.3 -283.8 1826.3 -267Z"/></symbol><symbol id="sB" viewBox="21 -730 684 730"><path style="fill:var(--i)" d="M21 -730H168L346 -118H380L558 -730H705L480 0H246Z"/><path style="fill:var(--a)" d="M389 -668C389 -680.2 398.8 -690 411 -690C423.2 -690 433 -680.2 433 -668V-452C433 -439.8 423.2 -430 411 -430C398.8 -430 389 -439.8 389 -452ZM293 -618C293 -630.2 302.8 -640 315 -640C327.2 -640 337 -630.2 337 -618V-472C337 -459.8 327.2 -450 315 -450C302.8 -450 293 -459.8 293 -472Z"/></symbol><symbol id="wC" viewBox="21 -850 3190.8 859"><path style="fill:var(--i)" d="M2625.3 -730H2767.3V-283.4L2967 -534H3135.7L2970.7 -326.8L3211.8 0H3047.8L2885.5 -219.9L2767.3 -71.6V0H2625.3ZM1959.3 -267C1959.3 -249.2 1957.6 -231.8 1954.4 -215H1551.1C1571.9 -162.3 1623.2 -125 1683.3 -125C1714.8 -125 1743.9 -135.2 1767.4 -152.6L1877.5 -70.9C1827.6 -21.5 1759 9 1683.3 9C1530.9 9 1407.3 -114.6 1407.3 -267C1407.3 -419.4 1530.9 -543 1683.3 -543C1819.3 -543 1932.4 -444.5 1955.1 -315C1957.9 -299.4 1959.3 -283.4 1959.3 -267ZM2565.3 -267C2565.3 -249.2 2563.6 -231.8 2560.4 -215H2157.1C2177.9 -162.3 2229.2 -125 2289.3 -125C2320.8 -125 2349.9 -135.2 2373.4 -152.6L2483.5 -70.9C2433.6 -21.5 2365 9 2289.3 9C2136.9 9 2013.3 -114.6 2013.3 -267C2013.3 -419.4 2136.9 -543 2289.3 -543C2425.3 -543 2538.4 -444.5 2561.1 -315C2563.9 -299.4 2565.3 -283.4 2565.3 -267ZM246 0 21 -730H168L346 -118H380L558 -730H705L480 0ZM965 -534H1107V-505C1143 -523.5 1183.8 -534 1227 -534C1282.9 -534 1334.7 -516.5 1377.3 -486.6L1300.4 -376.9C1279.6 -391.4 1254.3 -400 1227 -400C1172 -400 1125.1 -365.3 1107 -316.6V0H965ZM745 -534H887V0H745ZM1817 -315C1797.3 -369.8 1744.9 -409 1683.3 -409C1621.7 -409 1569.3 -369.8 1549.6 -315ZM2423 -315C2403.3 -369.8 2350.9 -409 2289.3 -409C2227.7 -409 2175.3 -369.8 2155.6 -315ZM892 -686C892 -644 858 -610 816 -610C774 -610 740 -644 740 -686C740 -728 774 -762 816 -762C858 -762 892 -728 892 -686Z"/><path style="fill:var(--a)" d="M705 -730H558L592.9 -850H742L705 -730Z"/></symbol><symbol id="sC" viewBox="21 -850 720.986 850"><path style="fill:var(--i)" d="M246 0 21 -730H168L346 -118H380L558 -730H705L480 0Z"/><path style="fill:var(--a)" d="M705 -730H558L592.9 -850H742L705 -730Z"/></symbol><symbol id="wAl" viewBox="0 -766 3012.79 775"><path style="fill:var(--i)" d="M2426.3 -730H2568.3V-283.4L2767.9 -534H2936.7L2771.6 -326.8L3012.8 0H2848.7L2686.5 -219.9L2568.3 -71.6V0H2426.3ZM2366.3 -267C2366.3 -249.2 2364.6 -231.8 2361.4 -215H1958.1C1978.9 -162.3 2030.2 -125 2090.3 -125C2121.8 -125 2150.8 -135.2 2174.4 -152.6L2284.5 -70.9C2234.6 -21.5 2166 9 2090.3 9C1937.8 9 1814.3 -114.6 1814.3 -267C1814.3 -419.4 1937.8 -543 2090.3 -543C2226.3 -543 2339.4 -444.5 2362.1 -315C2364.9 -299.4 2366.3 -283.4 2366.3 -267ZM1760.3 -267C1760.3 -249.2 1758.6 -231.8 1755.4 -215H1352.1C1372.9 -162.3 1424.2 -125 1484.3 -125C1515.8 -125 1544.8 -135.2 1568.4 -152.6L1678.5 -70.9C1628.6 -21.5 1560 9 1484.3 9C1331.8 9 1208.3 -114.6 1208.3 -267C1208.3 -419.4 1331.8 -543 1484.3 -543C1620.3 -543 1733.4 -444.5 1756.1 -315C1758.9 -299.4 1760.3 -283.4 1760.3 -267ZM107.5 -534 237.7 -86.3H262.6L392.8 -534H500.4L335.8 0H164.6L0 -534ZM766 -534H908V-505C943.9 -523.5 984.7 -534 1028 -534C1083.9 -534 1135.7 -516.5 1178.3 -486.6L1101.4 -376.9C1080.6 -391.4 1055.3 -400 1028 -400C973 -400 926.1 -365.3 908 -316.6V0H766ZM546 -534H688V0H546ZM1618 -315C1598.3 -369.8 1545.9 -409 1484.3 -409C1422.7 -409 1370.3 -369.8 1350.6 -315ZM2224 -315C2204.3 -369.8 2151.9 -409 2090.3 -409C2028.7 -409 1976.3 -369.8 1956.6 -315Z"/><path style="fill:var(--a)" d="M697 -686C697 -641.8 661.2 -606 617 -606C572.8 -606 537 -641.8 537 -686C537 -730.2 572.8 -766 617 -766C661.2 -766 697 -730.2 697 -686Z"/></symbol></defs></svg>
++<main><h1>Vireek — logo concepts</h1><p class="lead">Three wordmark concepts, original geometric letterforms (no typeface), outlined. Each is shown on light and dark, then at 96/64/32/24/16 px for the symbol and 48/32/24/16 px (height) for the wordmark.</p>
++<div class="grid"><article class="card"><h2>Concept A — Pulse tittle <span class="rec">Recommended · shipped</span></h2><p class="idea">The i-dot becomes a separate orange circle — the “call coming in” pulse. The symbol puts the same dot inside the V, so wordmark and monogram share one idea.</p>
++<div class="row"><div class="panel light"><svg class="g" style="height:64px;width:263.5px" aria-hidden="true"><use href="#wA"/></svg></div><div class="panel dark"><svg class="g" style="height:64px;width:263.5px" aria-hidden="true"><use href="#wA"/></svg></div></div>
++<div class="row"><div class="panel light sizes"><svg class="g" style="height:96px;width:90.0px" aria-hidden="true"><use href="#sA"/></svg><svg class="g" style="height:64px;width:60.0px" aria-hidden="true"><use href="#sA"/></svg><svg class="g" style="height:32px;width:30.0px" aria-hidden="true"><use href="#sA"/></svg><svg class="g" style="height:24px;width:22.5px" aria-hidden="true"><use href="#sA"/></svg><svg class="g" style="height:16px;width:15.0px" aria-hidden="true"><use href="#sA"/></svg></div>
++<div class="panel light sizes"><svg class="g" style="height:48px;width:197.6px" aria-hidden="true"><use href="#wA"/></svg><svg class="g" style="height:32px;width:131.7px" aria-hidden="true"><use href="#wA"/></svg><svg class="g" style="height:24px;width:98.8px" aria-hidden="true"><use href="#wA"/></svg><svg class="g" style="height:16px;width:65.9px" aria-hidden="true"><use href="#wA"/></svg></div></div>
++<table><tr><td>Distinctiveness</td><td class='dots'>●●●○○</td></tr><tr><td>Legibility @16px</td><td class='dots'>●●●●●</td></tr><tr><td>Trademark-ability</td><td class='dots'>●●●○○</td></tr><tr><td>System fit (symbol, loader, favicon)</td><td class='dots'>●●●●●</td></tr></table><p class="verdict">Strongest at small sizes and the only one that scales cleanly into a favicon, loader and avatar. Weakness: a coloured i-dot is a common device; ownability comes from dot + V together, not the dot alone.</p></article><article class="card"><h2>Concept B — Voice bars</h2><p class="idea">Both e-crossbars become orange bars — two level-meter bars sitting in the word. In the symbol, two bars of unequal height sit in the V.</p>
++<div class="row"><div class="panel light"><svg class="g" style="height:64px;width:264.9px" aria-hidden="true"><use href="#wB"/></svg></div><div class="panel dark"><svg class="g" style="height:64px;width:264.9px" aria-hidden="true"><use href="#wB"/></svg></div></div>
++<div class="row"><div class="panel light sizes"><svg class="g" style="height:96px;width:90.0px" aria-hidden="true"><use href="#sB"/></svg><svg class="g" style="height:64px;width:60.0px" aria-hidden="true"><use href="#sB"/></svg><svg class="g" style="height:32px;width:30.0px" aria-hidden="true"><use href="#sB"/></svg><svg class="g" style="height:24px;width:22.5px" aria-hidden="true"><use href="#sB"/></svg><svg class="g" style="height:16px;width:15.0px" aria-hidden="true"><use href="#sB"/></svg></div>
++<div class="panel light sizes"><svg class="g" style="height:48px;width:198.6px" aria-hidden="true"><use href="#wB"/></svg><svg class="g" style="height:32px;width:132.4px" aria-hidden="true"><use href="#wB"/></svg><svg class="g" style="height:24px;width:99.3px" aria-hidden="true"><use href="#wB"/></svg><svg class="g" style="height:16px;width:66.2px" aria-hidden="true"><use href="#wB"/></svg></div></div>
++<table><tr><td>Distinctiveness</td><td class='dots'>●●●●○</td></tr><tr><td>Legibility @16px</td><td class='dots'>●●●○○</td></tr><tr><td>Trademark-ability</td><td class='dots'>●●●●○</td></tr><tr><td>System fit (symbol, loader, favicon)</td><td class='dots'>●●●○○</td></tr></table><p class="verdict">Most ownable idea, but below ~24px the orange bars merge into a strike-through and the e’s lose their eye. The two-bar symbol is busy at 16px.</p></article><article class="card"><h2>Concept C — Uptick V</h2><p class="idea">The right arm of the V rises past the cap line and its tip turns orange — recovered revenue.</p>
++<div class="row"><div class="panel light"><svg class="g" style="height:64px;width:237.7px" aria-hidden="true"><use href="#wC"/></svg></div><div class="panel dark"><svg class="g" style="height:64px;width:237.7px" aria-hidden="true"><use href="#wC"/></svg></div></div>
++<div class="row"><div class="panel light sizes"><svg class="g" style="height:96px;width:81.4px" aria-hidden="true"><use href="#sC"/></svg><svg class="g" style="height:64px;width:54.3px" aria-hidden="true"><use href="#sC"/></svg><svg class="g" style="height:32px;width:27.1px" aria-hidden="true"><use href="#sC"/></svg><svg class="g" style="height:24px;width:20.4px" aria-hidden="true"><use href="#sC"/></svg><svg class="g" style="height:16px;width:13.6px" aria-hidden="true"><use href="#sC"/></svg></div>
++<div class="panel light sizes"><svg class="g" style="height:48px;width:178.3px" aria-hidden="true"><use href="#wC"/></svg><svg class="g" style="height:32px;width:118.9px" aria-hidden="true"><use href="#wC"/></svg><svg class="g" style="height:24px;width:89.1px" aria-hidden="true"><use href="#wC"/></svg><svg class="g" style="height:16px;width:59.4px" aria-hidden="true"><use href="#wC"/></svg></div></div>
++<table><tr><td>Distinctiveness</td><td class='dots'>●●●○○</td></tr><tr><td>Legibility @16px</td><td class='dots'>●●●●○</td></tr><tr><td>Trademark-ability</td><td class='dots'>●●○○○</td></tr><tr><td>System fit (symbol, loader, favicon)</td><td class='dots'>●●○○○</td></tr></table><p class="verdict">Reads as a check-mark/“broken V” and the orange chip looks detached. Risk of resembling existing V-tick marks. Not recommended.</p></article>
++<article class="card"><h2>Typographic test — Title case vs lowercase</h2><p class="idea">Concept A in both cases. Title case is shipped: the capital V is the same V as the monogram, and the dot sits tight against the i stem; lowercase “v” is too small to anchor the word and the dot floats.</p>
++<div class="row"><div class="panel light"><svg class="g" style="height:64px;width:263.5px" aria-hidden="true"><use href="#wA"/></svg></div><div class="panel light"><svg class="g" style="height:64px;width:248.8px" aria-hidden="true"><use href="#wAl"/></svg></div></div></article></div>
++<section class="reco"><h2>Recommendation: Concept A</h2><p class="lead">It is the only concept that stays legible at 16 px, and its single idea (a pulse dot) transfers to the monogram, the animated loader and the favicon without redrawing anything. See the honest self-review in the delivery notes: the dot alone is not trademark-strong, so a professional should refine the V and the dot relationship before filing.</p></section>
++</main></body></html>
+\ No newline at end of file
+diff --git a/e2e/logo.spec.ts b/e2e/logo.spec.ts
+new file mode 100644
+index 0000000..178887b
+--- /dev/null
++++ b/e2e/logo.spec.ts
+@@ -0,0 +1,76 @@
++import { test, expect, type Page } from '@playwright/test';
++import { createRequire } from 'node:module';
++
++/**
++ * Logo checks: accessible name (axe), no layout shift while the logo loads,
++ * and visual snapshots in light / dark / RTL.
++ *
++ * First run on a new machine/CI image: `npx playwright test e2e/logo.spec.ts --update-snapshots`
++ * (baselines are OS/browser specific, so they are not shipped with the change).
++ * LOGO_E2E_HARNESS=1 maps routes onto a component harness (used only to verify this spec in isolation).
++ */
++const require = createRequire(import.meta.url);
++const HARNESS = process.env.LOGO_E2E_HARNESS === '1';
++const PAGES: { name: string; path: string; harness: string }[] = [
++  { name: 'home-header', path: '/', harness: '/harness.html?c=header' },
++  { name: 'brand', path: '/brand', harness: '/harness.html?c=brand' },
++  { name: 'not-found', path: '/this-page-does-not-exist', harness: '/harness.html?c=notfound' },
++];
++const url = (p: { path: string; harness: string }) => (HARNESS ? p.harness : p.path);
++
++async function prepare(page: Page, theme: 'light' | 'dark', rtl: boolean) {
++  await page.addInitScript((t) => {
++    localStorage.setItem('vireek-theme', t);
++    localStorage.setItem('vireek-consent-v2', JSON.stringify({ essential: true, analytics: false, personalization: false, marketing: false, ai: false, version: 2, timestamp: '2026-01-01T00:00:00.000Z' }));
++  }, theme);
++  if (rtl) await page.addInitScript(() => { document.addEventListener('DOMContentLoaded', () => { document.documentElement.dir = 'rtl'; }); });
++}
++
++for (const theme of ['light', 'dark'] as const) {
++  for (const rtl of [false, true]) {
++    for (const p of PAGES) {
++      test(`${p.name} · ${theme}${rtl ? ' · rtl' : ''}: logo has an accessible name and renders crisp`, async ({ page }) => {
++        await prepare(page, theme, rtl);
++        await page.goto(url(p));
++        const logo = page.getByRole('link', { name: /vireek/i }).first();
++        await expect(logo).toBeVisible();
++        const svg = logo.locator('svg').first();
++        await expect(svg).toBeVisible();
++        const box = await svg.boundingBox();
++        expect(box && box.height).toBeGreaterThan(10);
++        await expect(logo).toHaveScreenshot(`${p.name}-${theme}${rtl ? '-rtl' : ''}.png`, { animations: 'disabled', maxDiffPixelRatio: 0.01 });
++      });
++    }
++  }
++}
++
++test('axe: logo links/images have accessible names and valid ARIA', async ({ page }) => {
++  await prepare(page, 'light', false);
++  await page.goto(url(PAGES[0]));
++  await page.addScriptTag({ path: require.resolve('axe-core') });
++  const violations = await page.evaluate(async () => {
++    // @ts-expect-error injected global
++    const r = await window.axe.run(document, { runOnly: ['link-name', 'svg-img-alt', 'role-img-alt', 'aria-allowed-attr', 'aria-valid-attr-value', 'image-alt'] });
++    return r.violations.map((v: { id: string }) => v.id);
++  });
++  expect(violations).toEqual([]);
++});
++
++test('no layout shift is attributable to the logo (inline SVG with intrinsic size)', async ({ page }) => {
++  await prepare(page, 'light', false);
++  await page.addInitScript(() => {
++    (window as unknown as { __shifts: number[] }).__shifts = [];
++    new PerformanceObserver((list) => {
++      for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean; sources?: { node?: Node }[] }[]) {
++        if (e.hadRecentInput) continue;
++        const hitsLogo = (e.sources ?? []).some((s) => s.node instanceof Element && !!s.node.closest?.('svg.vrk-logo, a[aria-label="Vireek home"]'));
++        if (hitsLogo) (window as unknown as { __shifts: number[] }).__shifts.push(e.value);
++      }
++    }).observe({ type: 'layout-shift', buffered: true });
++  });
++  await page.goto(url(PAGES[0]));
++  await page.waitForLoadState('networkidle');
++  await page.waitForTimeout(500);
++  const shifts = await page.evaluate(() => (window as unknown as { __shifts: number[] }).__shifts);
++  expect(shifts.reduce((a, b) => a + b, 0)).toBeLessThan(0.001);
++});
+diff --git a/index.html b/index.html
+index cdbf151..983499d 100644
+--- a/index.html
++++ b/index.html
+@@ -14,13 +14,14 @@
+     <meta name="author" content="Vireek" />
+ 
+     <!-- Favicon -->
++    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
+     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+     <link rel="shortcut icon" href="/favicon.ico" />
+     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+     <meta name="apple-mobile-web-app-title" content="Vireek" />
+     <link rel="manifest" href="/site.webmanifest" />
+-    <meta name="theme-color" content="#4F46E5" />
++    <meta name="theme-color" content="#203AD8" />
+ 
+     <!-- Open Graph (Facebook, LinkedIn, WhatsApp, iMessage...) -->
+     <meta property="og:type" content="website" />
+@@ -63,7 +64,7 @@
+       "@type": "Organization",
+       "name": "Vireek",
+       "url": "https://vireek.com/",
+-      "logo": "https://vireek.com/favicon-96x96.png",
++      "logo": "https://vireek.com/web-app-manifest-512x512.png",
+       "sameAs": []
+     }
+     </script>
+diff --git a/package.json b/package.json
+index b62bb10..8f091ba 100644
+--- a/package.json
++++ b/package.json
+@@ -62,6 +62,7 @@
+     "@vitejs/plugin-react": "^4.3.1",
+     "@vitest/coverage-v8": "^2.1.9",
+     "autoprefixer": "^10.4.18",
++    "axe-core": "^4.10.2",
+     "eslint": "^9.9.0",
+     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+     "eslint-plugin-react-refresh": "^0.4.11",
+diff --git a/public/site.webmanifest b/public/site.webmanifest
+index 2639f7b..24dc897 100644
+--- a/public/site.webmanifest
++++ b/public/site.webmanifest
+@@ -6,30 +6,30 @@
+   "start_url": "/dashboard?source=pwa",
+   "scope": "/",
+   "display": "standalone",
+-  "theme_color": "#4F46E5",
++  "theme_color": "#203AD8",
+   "background_color": "#ffffff",
+   "categories": ["business", "productivity"],
+   "icons": [
+-    { "src": "/web-app-manifest-192x192.png?v=1", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+-    { "src": "/web-app-manifest-512x512.png?v=1", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+-    { "src": "/web-app-manifest-192x192.png?v=1", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+-    { "src": "/web-app-manifest-512x512.png?v=1", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
++    { "src": "/web-app-manifest-192x192.png?v=2", "sizes": "192x192", "type": "image/png", "purpose": "any" },
++    { "src": "/web-app-manifest-512x512.png?v=2", "sizes": "512x512", "type": "image/png", "purpose": "any" },
++    { "src": "/web-app-manifest-maskable-192x192.png?v=2", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
++    { "src": "/web-app-manifest-maskable-512x512.png?v=2", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+   ],
+   "shortcuts": [
+     {
+       "name": "Jobs",
+       "url": "/dashboard/jobs?source=shortcut",
+-      "icons": [{ "src": "/web-app-manifest-192x192.png?v=1", "sizes": "192x192", "type": "image/png" }]
++      "icons": [{ "src": "/web-app-manifest-192x192.png?v=2", "sizes": "192x192", "type": "image/png" }]
+     },
+     {
+       "name": "Calls",
+       "url": "/dashboard/calls?source=shortcut",
+-      "icons": [{ "src": "/web-app-manifest-192x192.png?v=1", "sizes": "192x192", "type": "image/png" }]
++      "icons": [{ "src": "/web-app-manifest-192x192.png?v=2", "sizes": "192x192", "type": "image/png" }]
+     },
+     {
+       "name": "Inbox",
+       "url": "/dashboard/inbox?source=shortcut",
+-      "icons": [{ "src": "/web-app-manifest-192x192.png?v=1", "sizes": "192x192", "type": "image/png" }]
++      "icons": [{ "src": "/web-app-manifest-192x192.png?v=2", "sizes": "192x192", "type": "image/png" }]
+     }
+   ]
+ }
+diff --git a/scripts/brand/build_brand.py b/scripts/brand/build_brand.py
+new file mode 100644
+index 0000000..ac4c3aa
+--- /dev/null
++++ b/scripts/brand/build_brand.py
+@@ -0,0 +1,206 @@
++#!/usr/bin/env python3
++"""Generate every Vireek brand asset (SVG, PNG, ICO, TS path data) from geometry.py.
++
++  pip install fonttools skia-pathops cairosvg pillow
++  # The logo itself uses NO font (letters.py draws them). A font is only used to outline the
++  # tagline inside the raster og-image.png: Sora Medium, SIL OFL 1.1.
++  npm i --no-save @fontsource/sora
++  VIREEK_SORA_WOFF=node_modules/@fontsource/sora/files/sora-latin-600-normal.woff \
++  VIREEK_SORA_WOFF_500=node_modules/@fontsource/sora/files/sora-latin-500-normal.woff \
++  python3 scripts/brand/build_brand.py
++
++Writes: public/brand/*.svg, public/*.png|ico|svg (favicons, PWA, OG, avatar),
++        assets/*.png (Capacitor sources), chrome-extension/icons/icon.png,
++        src/components/brand/logoPaths.generated.ts, supabase/functions/_shared/brand/*.
++"""
++import io, json, os, struct, sys
++sys.path.insert(0, os.path.dirname(__file__))
++from geometry import *
++from fontTools.ttLib import TTFont
++import cairosvg
++from PIL import Image
++
++ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
++def out(*p):
++    path = os.path.join(ROOT, *p); os.makedirs(os.path.dirname(path), exist_ok=True); return path
++def write(path, s):
++    with open(path, 'w') as f: f.write(s)
++    return len(s.encode())
++
++TILE_BLUE = INDIGO         # tiles are fixed-colour brand assets (not theme-switched)
++TILE_V = '#FFFFFF'
++TILE_DOT = ORANGE_DK       # lighter orange: 3.1:1 on the indigo tile
++
++# ---- shapes ----------------------------------------------------------------------
++W_ink, W_dot = wordmark_paths(); W_y0 = bounds(W_ink, W_dot)[1];           (W_ink, W_dot), WW, WH = normalize([W_ink, W_dot])
++S_v, S_dot = symbol_paths();                (S_v, S_dot), SW, SH = normalize([S_v, S_dot])
++bg, tv, td, tmono = tile_parts(1000)
++LH = lockup_horizontal(); LS = lockup_stacked()
++def lock_bounds(L):
++    return bounds(L['bg'], L['ink'], L['dot'])
++def norm_lock(L):
++    x0, y0, x1, y1 = lock_bounds(L)
++    f = lambda p: xform(p, 1, -x0, -y0)
++    return {k: f(v) for k, v in L.items()}, x1 - x0, y1 - y0
++LH, LHW, LHH = norm_lock(LH); LS, LSW, LSH = norm_lock(LS)
++
++SHAPES = {
++    'wordmark': dict(w=WW, h=WH, layers=[('ink', W_ink), ('acc', W_dot)], mono=[W_ink, W_dot]),
++    'symbol':   dict(w=SW, h=SH, layers=[('ink', S_v), ('acc', S_dot)], mono=[S_v, S_dot]),
++    'tile':     dict(w=1000, h=1000, layers=[('tile', bg), ('tv', tv), ('td', td)], mono=[tmono]),
++    'lockup':   dict(w=LHW, h=LHH, layers=[('tile', LH['bg']), ('tv', LH['tv']), ('td', LH['td']), ('ink', LH['ink']), ('acc', LH['dot'])],
++                     mono=[LH['mono'], LH['ink'], LH['dot']]),
++    'stacked':  dict(w=LSW, h=LSH, layers=[('tile', LS['bg']), ('tv', LS['tv']), ('td', LS['td']), ('ink', LS['ink']), ('acc', LS['dot'])],
++                     mono=[LS['mono'], LS['ink'], LS['dot']]),
++}
++
++# ---- colourways -----------------------------------------------------------------
++COLORWAYS = {
++    'color':   dict(ink=INDIGO, acc=ORANGE),                  # on light backgrounds
++    'reverse': dict(ink=INDIGO_DK, acc=ORANGE_DK),            # on dark backgrounds
++}
++MONO = {'black': INK, 'white': '#FFFFFF'}
++ROLE_FIXED = dict(tile=TILE_BLUE, tv=TILE_V, td=TILE_DOT)
++
++def svg_doc(name, shape, fills=None, mono=None, adaptive=False, title='Vireek'):
++    s = SHAPES[shape]; w, h = s['w'], s['h']
++    head = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {num(w)} {num(h)}" role="img" aria-label="{title}"><title>{title}</title>'
++    body = ''
++    if adaptive:
++        # <img>/CSS-background safe theme switch via prefers-color-scheme (OS level)
++        head += f'<style>.i{{fill:{INDIGO}}}.a{{fill:{ORANGE}}}@media(prefers-color-scheme:dark){{.i{{fill:{INDIGO_DK}}}.a{{fill:{ORANGE_DK}}}}}</style>'
++        for role, p in s['layers']:
++            if role == 'ink': body += f'<path class="i" d="{D(p)}"/>'
++            elif role == 'acc': body += f'<path class="a" d="{D(p)}"/>'
++            else: body += f'<path fill="{ROLE_FIXED[role]}" d="{D(p)}"/>'
++    elif mono:
++        body = ''.join(f'<path fill="{mono}" d="{D(p)}"/>' for p in s['mono'])
++        # merge into one path element to save bytes
++        body = f'<path fill="{mono}" d="{" ".join(D(p) for p in s["mono"])}"/>'
++    else:
++        for role, p in s['layers']:
++            fill = fills['ink'] if role == 'ink' else fills['acc'] if role == 'acc' else ROLE_FIXED[role]
++            body += f'<path fill="{fill}" d="{D(p)}"/>'
++    return head + body + '</svg>'
++
++report = []
++def emit(fname, svg):
++    n = write(out('public', 'brand', fname), svg); report.append((fname, n))
++    assert n < 3000, f'{fname} is {n} bytes (>=3 KB)'
++
++NAMES = {'wordmark': 'vireek-wordmark', 'symbol': 'vireek-symbol', 'lockup': 'vireek-lockup-horizontal', 'stacked': 'vireek-lockup-stacked'}
++for shape, base in NAMES.items():
++    emit(f'{base}.svg', svg_doc(base, shape, adaptive=True))
++    for cw, fills in COLORWAYS.items(): emit(f'{base}-{cw}.svg', svg_doc(base, shape, fills=fills))
++    for m, col in MONO.items(): emit(f'{base}-{m}.svg', svg_doc(base, shape, mono=col))
++emit('vireek-tile.svg', svg_doc('vireek-tile', 'tile', fills=COLORWAYS['color']))
++for m, col in MONO.items(): emit(f'vireek-tile-{m}.svg', svg_doc('vireek-tile', 'tile', mono=col))
++
++# ---- favicon.svg (tile, ~0.5 KB) --------------------------------------------------
++fav = svg_doc('favicon', 'tile', fills=COLORWAYS['color']).replace(' role="img" aria-label="Vireek"', '').replace('<title>Vireek</title>', '')
++n = write(out('public', 'favicon.svg'), fav); report.append(('favicon.svg', n))
++
++# ---- app icon sources (full bleed) ------------------------------------------------
++def icon_svg(size, vh, dy=0.0, bgfill=TILE_BLUE, with_bg=True, v=TILE_V, dot=TILE_DOT):
++    b, tvv, tdd = fullbleed_icon(size, vh, dy)
++    s = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size} {size}">'
++    if with_bg: s += f'<path fill="{bgfill}" d="{D(b)}"/>'
++    s += f'<path fill="{v}" d="{D(tvv)}"/><path fill="{dot}" d="{D(tdd)}"/></svg>'
++    return s
++ICON_FULL = icon_svg(1024, 0.50)            # iOS / store icon, full-bleed
++ICON_MASKABLE = icon_svg(1024, 0.42)        # inside 80% Android/PWA safe-zone
++ICON_FG = icon_svg(1024, 0.36, with_bg=False)   # adaptive foreground (66% safe zone)
++emit('vireek-app-icon.svg', ICON_FULL)
++emit('vireek-app-icon-foreground.svg', ICON_FG)
++
++def png(svg, px, path, bg=None):
++    cairosvg.svg2png(bytestring=svg.encode(), write_to=path, output_width=px, output_height=int(px * 1) if False else None, background_color=bg)
++def png_sq(svg, px, path): cairosvg.svg2png(bytestring=svg.encode(), write_to=path, output_width=px, output_height=px)
++
++# ---- favicon / PWA / touch icons ---------------------------------------------------
++TILE_SVG = svg_doc('t', 'tile', fills=COLORWAYS['color'])
++for px in (16, 32, 48, 96): png_sq(TILE_SVG, px, out('public', f'favicon-{px}x{px}.png'))
++os.replace(out('public', 'favicon-96x96.png'), out('public', 'favicon-96x96.png'))
++# crisp ICO: separate renders for 16/32/48 (PNG-compressed entries)
++blobs = []
++for px in (16, 32, 48):
++    b = io.BytesIO(); Image.open(out('public', f'favicon-{px}x{px}.png')).convert('RGBA').save(b, 'PNG'); blobs.append((px, b.getvalue()))
++ico = struct.pack('<HHH', 0, 1, len(blobs)); off = 6 + 16 * len(blobs); data = b''
++for px, blob in blobs:
++    ico += struct.pack('<BBBBHHII', px, px, 0, 0, 1, 32, len(blob), off + len(data)); data += blob
++open(out('public', 'favicon.ico'), 'wb').write(ico + data)
++for px in (16, 32, 48): os.remove(out('public', f'favicon-{px}x{px}.png')) if px != 32 else None
++png_sq(ICON_FULL, 180, out('public', 'apple-touch-icon.png'))
++png_sq(TILE_SVG, 192, out('public', 'web-app-manifest-192x192.png'))
++png_sq(TILE_SVG, 512, out('public', 'web-app-manifest-512x512.png'))
++png_sq(ICON_MASKABLE, 192, out('public', 'web-app-manifest-maskable-192x192.png'))
++png_sq(ICON_MASKABLE, 512, out('public', 'web-app-manifest-maskable-512x512.png'))
++png_sq(ICON_FULL, 128, out('chrome-extension', 'icons', 'icon.png'))
++# social avatar + 1024 store icon
++png_sq(ICON_FULL, 1024, out('public', 'brand', 'vireek-app-icon-1024.png'))
++png_sq(TILE_SVG, 800, out('public', 'brand', 'vireek-avatar-800.png'))
++# Capacitor sources
++png_sq(ICON_FULL, 1024, out('assets', 'icon-only.png'))
++png_sq(icon_svg(1024, 0.36, with_bg=False), 1024, out('assets', 'icon-foreground.png'))
++cairosvg.svg2png(bytestring=f'<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024"><rect width="1024" height="1024" fill="{TILE_BLUE}"/></svg>'.encode(), write_to=out('assets', 'icon-background.png'))
++def splash(bgc, px=2732):
++    b, tvv, tdd = fullbleed_icon(px, 0.16)
++    # use the bare symbol on the splash background (no tile)
++    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {px} {px}"><rect width="{px}" height="{px}" fill="{bgc}"/><path fill="{TILE_V if bgc != PAPER_BG else INDIGO}" d="{D(tvv)}"/><path fill="{ORANGE_DK if bgc != PAPER_BG else ORANGE}" d="{D(tdd)}"/></svg>'
++PAPER_BG = '#FDFCFA'
++png_sq(splash(PAPER_BG), 2732, out('assets', 'splash.png'))
++png_sq(splash('#090A0D'), 2732, out('assets', 'splash-dark.png'))
++
++
++# ---- press-kit PNGs (transparent) ------------------------------------------------
++for shape, base, wpx in (('wordmark', 'vireek-wordmark', 1600), ('symbol', 'vireek-symbol', 800)):
++    for cw in ('color',): png(svg_doc(base, shape, fills=COLORWAYS[cw]), wpx, out('public', 'brand', f'{base}-{cw}.png'))
++    for m, col in MONO.items(): png(svg_doc(base, shape, mono=col), wpx, out('public', 'brand', f'{base}-{m}.png'))
++png(svg_doc('l', 'lockup', fills=COLORWAYS['color']), 1600, out('public', 'brand', 'vireek-lockup-horizontal-color.png'))
++png(svg_doc('l', 'stacked', fills=COLORWAYS['color']), 1000, out('public', 'brand', 'vireek-lockup-stacked-color.png'))
++png_sq(TILE_SVG, 1024, out('public', 'brand', 'vireek-tile-1024.png'))
++
++# ---- email PNGs (SVG is unsupported by Gmail/Outlook) -----------------------------
++EM = svg_doc('e', 'wordmark', fills=COLORWAYS['color'])
++png(EM, 480, out('public', 'brand', 'email', 'vireek-wordmark-email.png'))        # shown at 120px wide (4x)
++
++# ---- OG image 1200x630 ---------------------------------------------------------------
++f500 = TTFont(os.environ.get('VIREEK_SORA_WOFF_500', FONT.replace('-600-', '-500-'))); g5 = f500.getGlyphSet(); c5 = f500.getBestCmap()
++def text_path(txt, size, x, y, track=0):
++    p = None; cx = 0
++    for ch in txt:
++        gl = Path(); g5[c5[ord(ch)]].draw(TransformPen(gl.getPen(), (size / 1000, 0, 0, -size / 1000, x + cx, y)))
++        p = gl if p is None else op(p, gl, PathOp.UNION); cx += g5[c5[ord(ch)]].width * size / 1000 + track
++    return p
++def og_svg():
++    s = LH  # horizontal lockup, scaled
++    scale = 0.34; w = LHW * scale; h = LHH * scale
++    tx = 96; ty = 120
++    body = ''
++    for role, p in SHAPES['lockup']['layers']:
++        fill = INDIGO if role == 'ink' else ORANGE if role == 'acc' else ROLE_FIXED[role]
++        body += f'<path fill="{fill}" d="{D(xform(p, scale, tx, ty))}"/>'
++    l1 = text_path('Never miss a call.', 84, 96, 400); l2 = text_path('Book more jobs.', 84, 96, 500)
++    sub = text_path('AI voice receptionist for home-service trades', 34, 96, 575)
++    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#FDFCFA"/>'
++            f'<circle cx="1130" cy="40" r="360" fill="{INDIGO}" fill-opacity=".07"/><circle cx="1180" cy="640" r="260" fill="{ORANGE}" fill-opacity=".08"/>'
++            + body + f'<path fill="{INK}" d="{D(l1)}"/><path fill="{INK}" d="{D(l2)}"/><path fill="#676770" d="{D(sub)}"/></svg>')
++OG = og_svg(); png_sq  # noqa
++cairosvg.svg2png(bytestring=OG.encode(), write_to=out('public', 'og-image.png'), output_width=1200, output_height=630)
++
++# ---- TS path data for <Logo/> and PDF/email helpers ----------------------------------
++ts = {k: dict(w=round(v['w'], 1), h=round(v['h'], 1), layers=[[r, D(p)] for r, p in v['layers']], mono=' '.join(D(p) for p in v['mono'])) for k, v in SHAPES.items()}
++ts['symbolDot'] = dict(cx=round(S_dot.bounds[0] / 2 + S_dot.bounds[2] / 2, 1), cy=round(S_dot.bounds[1] / 2 + S_dot.bounds[3] / 2, 1), r=round((S_dot.bounds[2] - S_dot.bounds[0]) / 2, 1))
++ts['wordmarkDot'] = dict(cx=round(W_dot.bounds[0] / 2 + W_dot.bounds[2] / 2, 1), cy=round(W_dot.bounds[1] / 2 + W_dot.bounds[3] / 2, 1), r=round((W_dot.bounds[2] - W_dot.bounds[0]) / 2, 1))
++header = '/* AUTO-GENERATED by scripts/brand/build_brand.py — do not edit by hand. */\n'
++write(out('src', 'components', 'brand', 'logoPaths.generated.ts'),
++      header + 'export type LogoRole = \'ink\' | \'acc\' | \'tile\' | \'tv\' | \'td\';\n'
++      'export interface LogoShape { w: number; h: number; layers: [LogoRole, string][]; mono: string }\n'
++      'export const LOGO_SHAPES: Record<\'wordmark\' | \'symbol\' | \'tile\' | \'lockup\' | \'stacked\', LogoShape> = ' + json.dumps({k: ts[k] for k in SHAPES}, separators=(',', ':')) + ' as never;\n'
++      'export const SYMBOL_DOT = ' + json.dumps(ts['symbolDot']) + ';\n'
++      'export const WORDMARK_DOT = ' + json.dumps(ts['wordmarkDot']) + ';\n'
++      '/** Wordmark construction metrics in artwork units (y down): baseline, cap-height line, x-height line. */\n'
++      'export const WORDMARK_METRICS = ' + json.dumps(dict(baseline=round(-W_y0, 1), cap=round(-W_y0 - 730, 1), xh=round(-W_y0 - 534, 1))) + ';\n')
++
++for fname, n in sorted(report): print(f'{n:5d} B  {fname}')
++print('OK')
+diff --git a/scripts/brand/build_preview.py b/scripts/brand/build_preview.py
+new file mode 100644
+index 0000000..0e17e91
+--- /dev/null
++++ b/scripts/brand/build_preview.py
+@@ -0,0 +1,68 @@
++#!/usr/bin/env python3
++"""Builds docs/brand/logo-concepts.html — a single self-contained preview page with the 3 concepts."""
++import os, sys
++sys.path.insert(0, os.path.dirname(__file__))
++from concepts import *
++
++ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
++def box(*ps):
++    x0, y0, x1, y1 = bounds(*[p for p in ps if p is not None]); return x0, y0, x1 - x0, y1 - y0
++def sym(id_, ink, acc):
++    x, y, w, h = box(ink, acc)
++    return (f'<symbol id="{id_}" viewBox="{x:g} {y:g} {w:g} {h:g}"><path style="fill:var(--i)" d="{D(ink)}"/>' + (f'<path style="fill:var(--a)" d="{D(acc)}"/>' if acc else '') + '</symbol>'), w / h
++defs = ''; ratio = {}
++C = {k: concept(k) for k in 'ABC'}
++for k in 'ABC':
++    s, r = sym(f'w{k}', *C[k]['word']); defs += s; ratio[f'w{k}'] = r
++    s, r = sym(f's{k}', *C[k]['sym']); defs += s; ratio[f's{k}'] = r
++s, r = sym('wAl', *C['A']['lower']); defs += s; ratio['wAl'] = r
++def use(id_, h): return f'<svg class="g" style="height:{h}px;width:{h*ratio[id_]:.1f}px" aria-hidden="true"><use href="#{id_}"/></svg>'
++
++META = {
++ 'A': ('Pulse tittle', 'The i-dot becomes a separate orange circle — the “call coming in” pulse. The symbol puts the same dot inside the V, so wordmark and monogram share one idea.',
++       [('Distinctiveness', 3), ('Legibility @16px', 5), ('Trademark-ability', 3), ('System fit (symbol, loader, favicon)', 5)],
++       'Strongest at small sizes and the only one that scales cleanly into a favicon, loader and avatar. Weakness: a coloured i-dot is a common device; ownability comes from dot + V together, not the dot alone.'),
++ 'B': ('Voice bars', 'Both e-crossbars become orange bars — two level-meter bars sitting in the word. In the symbol, two bars of unequal height sit in the V.',
++       [('Distinctiveness', 4), ('Legibility @16px', 3), ('Trademark-ability', 4), ('System fit (symbol, loader, favicon)', 3)],
++       'Most ownable idea, but below ~24px the orange bars merge into a strike-through and the e’s lose their eye. The two-bar symbol is busy at 16px.'),
++ 'C': ('Uptick V', 'The right arm of the V rises past the cap line and its tip turns orange — recovered revenue.',
++       [('Distinctiveness', 3), ('Legibility @16px', 4), ('Trademark-ability', 2), ('System fit (symbol, loader, favicon)', 2)],
++       'Reads as a check-mark/“broken V” and the orange chip looks detached. Risk of resembling existing V-tick marks. Not recommended.'),
++}
++def stars(n): return '●' * n + '○' * (5 - n)
++cards = ''
++for k in 'ABC':
++    name, idea, scores, verdict = META[k]
++    rec = ' <span class="rec">Recommended · shipped</span>' if k == 'A' else ''
++    cards += f'''<article class="card"><h2>Concept {k} — {name}{rec}</h2><p class="idea">{idea}</p>
++<div class="row"><div class="panel light">{use(f"w{k}",64)}</div><div class="panel dark">{use(f"w{k}",64)}</div></div>
++<div class="row"><div class="panel light sizes">{use(f"s{k}",96)}{use(f"s{k}",64)}{use(f"s{k}",32)}{use(f"s{k}",24)}{use(f"s{k}",16)}</div>
++<div class="panel light sizes">{use(f"w{k}",48)}{use(f"w{k}",32)}{use(f"w{k}",24)}{use(f"w{k}",16)}</div></div>
++<table>{''.join(f"<tr><td>{a}</td><td class='dots'>{stars(b)}</td></tr>" for a, b in scores)}</table><p class="verdict">{verdict}</p></article>'''
++
++html = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
++<title>Vireek logo concepts</title><style>
++:root{{--bg:#FDFCFA;--card:#fff;--tx:#17171A;--mut:#676770;--bd:#E7E5E0;--i:#203AD8;--a:#D6582A}}
++@media (prefers-color-scheme:dark){{:root{{--bg:#090A0D;--card:#101115;--tx:#F2F1EE;--mut:#9A9AA3;--bd:#25252C}}}}
++*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 Inter,system-ui,sans-serif}}
++main{{max-width:1080px;margin:0 auto;padding:40px 16px 80px}}h1{{font:700 32px/1.2 Sora,Inter,sans-serif;margin:0 0 8px}}
++.lead{{color:var(--mut);max-width:70ch}}.grid{{display:grid;gap:24px;margin-top:32px}}
++.card{{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:24px}}.card h2{{font:600 20px Sora,Inter,sans-serif;margin:0 0 6px}}
++.rec{{font:600 12px Inter;background:#203AD815;color:var(--i);border-radius:99px;padding:3px 10px;margin-left:8px;vertical-align:middle}}
++.idea{{color:var(--mut);margin:0 0 16px}}.row{{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}}
++.panel{{border-radius:14px;padding:28px;display:flex;align-items:center;justify-content:center;gap:20px;min-height:120px;border:1px solid var(--bd)}}
++.light{{background:#FDFCFA;--i:#203AD8;--a:#D6582A}}.dark{{background:#090A0D;--i:#6C82FF;--a:#FF8A5A}}
++.g .i{{fill:var(--i)}}.g .a{{fill:var(--a)}}.g{{display:block;flex:none}}
++.sizes{{gap:18px}}table{{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}}td{{padding:4px 0;border-bottom:1px solid var(--bd)}}.dots{{text-align:right;letter-spacing:2px;color:var(--i)}}
++.verdict{{font-size:14px;color:var(--mut)}}.reco{{margin-top:32px}}.reco h2{{font:600 22px Sora,Inter,sans-serif}}
++@media(max-width:700px){{.row{{grid-template-columns:1fr}}}}
++</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>{defs}</defs></svg>
++<main><h1>Vireek — logo concepts</h1><p class="lead">Three wordmark concepts, original geometric letterforms (no typeface), outlined. Each is shown on light and dark, then at 96/64/32/24/16 px for the symbol and 48/32/24/16 px (height) for the wordmark.</p>
++<div class="grid">{cards}
++<article class="card"><h2>Typographic test — Title case vs lowercase</h2><p class="idea">Concept A in both cases. Title case is shipped: the capital V is the same V as the monogram, and the dot sits tight against the i stem; lowercase “v” is too small to anchor the word and the dot floats.</p>
++<div class="row"><div class="panel light">{use("wA",64)}</div><div class="panel light">{use("wAl",64)}</div></div></article></div>
++<section class="reco"><h2>Recommendation: Concept A</h2><p class="lead">It is the only concept that stays legible at 16 px, and its single idea (a pulse dot) transfers to the monogram, the animated loader and the favicon without redrawing anything. See the honest self-review in the delivery notes: the dot alone is not trademark-strong, so a professional should refine the V and the dot relationship before filing.</p></section>
++</main></body></html>'''
++os.makedirs(os.path.join(ROOT, 'docs', 'brand'), exist_ok=True)
++open(os.path.join(ROOT, 'docs', 'brand', 'logo-concepts.html'), 'w').write(html)
++print('ok', len(html))
+diff --git a/scripts/brand/concepts.py b/scripts/brand/concepts.py
+new file mode 100644
+index 0000000..846558f
+--- /dev/null
++++ b/scripts/brand/concepts.py
+@@ -0,0 +1,20 @@
++"""Three explored wordmark concepts (A is shipped). Used only by build_preview.py."""
++from geometry import *
++from letters import build_word, rect, diff, inter
++
++def rpill(x0, y0, x1, y1):
++    r = (x1 - x0) / 2; k = 0.5522847498 * r; p = Path(); pen = p.getPen()
++    pen.moveTo((x0, y0 + r)); pen.curveTo((x0, y0 + r - k), (x0 + r - k, y0), (x0 + r, y0)); pen.curveTo((x0 + r + k, y0), (x1, y0 + r - k), (x1, y0 + r))
++    pen.lineTo((x1, y1 - r)); pen.curveTo((x1, y1 - r + k), (x0 + r + k, y1), (x0 + r, y1)); pen.curveTo((x0 + r - k, y1), (x0, y1 - r + k), (x0, y1 - r)); pen.closePath(); return p
++
++def concept(key):
++    """returns dict(word=(ink,acc), sym=(ink,acc), lower=(ink,acc))"""
++    if key == 'A':
++        return dict(word=build_word('A', True), sym=symbol_paths(), lower=build_word('A', False))
++    if key == 'B':
++        bars = union(rpill(363 - 70, -640, 363 - 26, -450), rpill(363 + 26, -690, 363 + 70, -430))
++        return dict(word=build_word('B', True), sym=(V(), bars))
++    ext = 120; idx = (558 - 380) / 612; odx = (705 - 480) / 730
++    v = poly([(246, 0), (21, -730), (168, -730), (346, -118), (380, -118), (558 + idx * ext, -730 - ext), (705 + odx * ext, -730 - ext), (480, 0)])
++    cut = rect(-100, -2000, 1000, -730)
++    return dict(word=build_word('C', True), sym=(diff(v, cut), inter(v, cut)))
+diff --git a/scripts/brand/geometry.py b/scripts/brand/geometry.py
+index 3cd2e23..21bb2f9 100644
+--- a/scripts/brand/geometry.py
++++ b/scripts/brand/geometry.py
+@@ -1,10 +1,6 @@
+ """Vireek logo geometry. Single source of truth for every brand SVG/PNG.
+ 
+-Letterforms: Sora SemiBold (SIL OFL 1.1) outlines for i, r, e, k  +  a redrawn,
+-perfectly symmetric "V". Spacing is hand-kerned; the i-tittle is replaced by a
+-separate accent circle. Output contains outlines only — no font dependency.
+-
+-Requires: fonttools, skia-pathops.  Font path: env VIREEK_SORA_WOFF (Sora 600 .woff/.ttf).
++Letterforms: ORIGINAL — V, i, r, e, k are constructed in letters.py from circles,\nrectangles and polygons (no font outlines, nothing derived from a typeface).\nOutput is paths only.\n\nRequires: fonttools (path pens), skia-pathops.
+ """
+ import os
+ from fontTools.ttLib import TTFont
+@@ -12,20 +8,14 @@ from fontTools.pens.transformPen import TransformPen
+ from fontTools.pens.svgPathPen import SVGPathPen
+ from pathops import Path, op, PathOp
+ 
+-FONT = os.environ.get('VIREEK_SORA_WOFF')
+-if not FONT:
+-    raise SystemExit('Set VIREEK_SORA_WOFF to sora-latin-600-normal.woff (npm i @fontsource/sora)')
+-_f = TTFont(FONT); _gs = _f.getGlyphSet(); _cm = _f.getBestCmap()
++FONT = os.environ.get('VIREEK_SORA_WOFF')   # only needed for the OG-image tagline (raster); the logo itself uses no font
+ 
+ # ---- palette (matches src/index.css tokens) ---------------------------------
+ INDIGO, INDIGO_DK = '#203AD8', '#6C82FF'     # --accent-primary light / dark
+-ORANGE, ORANGE_DK = '#D6582A', '#FF8A5A'     # --accent-secondary light / dark
++ORANGE, ORANGE_DK = '#C14F26', '#FF8A5A'     # --logo-accent light (AA, 4.6:1) / dark = --accent-secondary dark
+ INK, PAPER = '#17171A', '#F2F1EE'            # --text-primary light / dark
+ 
+ # ---- helpers ------------------------------------------------------------------
+-def glyph(ch, x=0):
+-    p = Path(); _gs[_cm[ord(ch)]].draw(TransformPen(p.getPen(), (1, 0, 0, -1, x, 0))); return p
+-def adv(ch): return _gs[_cm[ord(ch)]].width
+ def poly(pts):
+     p = Path(); pen = p.getPen(); pen.moveTo(pts[0])
+     for q in pts[1:]: pen.lineTo(q)
+@@ -59,18 +49,13 @@ V_PTS = [(21, -730), (168, -730), (346, -118), (380, -118), (558, -730), (705, -
+ def V(x=0, dy=0): return poly([(px + x, py + dy) for px, py in V_PTS])
+ 
+ # ---- wordmark -------------------------------------------------------------------
+-KERN = {'Vi': -22, 'ir': -30, 're': -4, 'ee': 0, 'ek': -24}   # font units (1000/em)
+-DOT_R = 84
++DOT_R = 80
+ def wordmark_paths():
+-    """returns (ink Path, dot Path); baseline y=0, x starts at 0 (V left edge at 21)."""
+-    ink = []; x = 0; prev = None
+-    for ch in 'Vireek':
+-        if prev: x += KERN.get(prev + ch, 0)
+-        if ch == 'V': ink.append(V(x))
+-        elif ch == 'i': ink.append(glyph('ı', x)); dot = circle(x + 156, -686, DOT_R)
+-        else: ink.append(glyph(ch, x))
+-        x += adv('V') if ch == 'V' else adv(ch); prev = ch
+-    return union(*ink), dot
++    """returns (ink Path, dot Path); original letterforms, baseline y=0."""
++    from letters import build_word
++    ink, dot = build_word('A', True)
++    # separate the accent circle from the ink for two-colour output
++    return ink, dot
+ 
+ # ---- symbol: V with the pulse dot in its opening -----------------------------
+ SYM_DOT = (VCX, -575, 72)
+diff --git a/scripts/brand/letters.py b/scripts/brand/letters.py
+new file mode 100644
+index 0000000..ae5b321
+--- /dev/null
++++ b/scripts/brand/letters.py
+@@ -0,0 +1,94 @@
++"""Original Vireek letterforms (i r e k) built from geometric primitives — no font outlines.
++
++Units: 1000/em, y down, baseline y=0, x-height 534, cap/ascender 730.
++Stroke: STEM (straight stems) / RING (round strokes, optically a touch lighter).
++Every shape is a boolean of circles, rectangles and polygons, so curves stay exact and compact.
++"""
++import math
++from pathops import Path, op, PathOp
++from geometry import poly, circle, union, xform
++
++STEM = 142
++RING = 134
++XH = 534
++OVER = 9          # round overshoot above/below x-height and baseline
++ASC = 730
++
++def rect(x0, y0, x1, y1): return poly([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
++def diff(a, b): return op(a, b, PathOp.DIFFERENCE)
++def inter(a, b): return op(a, b, PathOp.INTERSECTION)
++def pol(c, r, deg): return (c[0] + r * math.cos(math.radians(deg)), c[1] - r * math.sin(math.radians(deg)))   # y-down, CCW-positive degrees
++
++def stroke_seg(p0, p1, w, ext=0):
++    dx, dy = p1[0] - p0[0], p1[1] - p0[1]; L = math.hypot(dx, dy); ux, uy = dx / L, dy / L; nx, ny = -uy, ux
++    a = (p0[0] - ux * ext, p0[1] - uy * ext); b = (p1[0] + ux * ext, p1[1] + uy * ext)
++    return poly([(a[0] + nx * w / 2, a[1] + ny * w / 2), (b[0] + nx * w / 2, b[1] + ny * w / 2),
++                 (b[0] - nx * w / 2, b[1] - ny * w / 2), (a[0] - nx * w / 2, a[1] - ny * w / 2)])
++
++def letter_i():
++    return rect(0, -XH, STEM, 0), STEM          # path, advance width of ink
++
++def letter_r():
++    Ro = 262; Ri = Ro - RING
++    cx = Ro; cy = -XH + Ro                 # arc centre; left leg flush with stem x=0
++    ring = diff(circle(cx, cy, Ro), circle(cx, cy, Ri))
++    far = 900
++    wedge = poly([(cx, cy), pol((cx, cy), far, 180), pol((cx, cy), far, 90), pol((cx, cy), far, 55)])
++    return union(rect(0, -XH, STEM, 0), inter(ring, wedge))
++
++def letter_e(parts=False):
++    R = (XH + 2 * OVER) / 2; r = R - RING
++    cx, cy = R, -XH / 2
++    ring = diff(circle(cx, cy, R), circle(cx, cy, r))
++    bar_h = 100; bar_y0 = cy - bar_h / 2 + 2
++    bar = inter(rect(cx - r - 4, bar_y0, cx + R, bar_y0 + bar_h), circle(cx, cy, R))
++    wedge = poly([(cx, bar_y0 + bar_h), (cx + 700, bar_y0 + bar_h), pol((cx, cy), 700, -40)])
++    glyph = union(diff(ring, wedge), bar)
++    if parts:
++        return glyph, inter(bar, circle(cx, cy, r + 1))      # inner crossbar only (concept B accent)
++    return glyph
++
++def letter_k():
++    stem = rect(0, -ASC, STEM, 0)
++    w = 132
++    P0 = (STEM - 10, -165); P1 = (STEM + 300, -XH - 20)
++    arm = inter(stroke_seg(P0, P1, w, ext=120), rect(STEM * 0.5, -XH, 900, 100))
++    t = 0.42; J = (P0[0] + (P1[0] - P0[0]) * t, P0[1] + (P1[1] - P0[1]) * t)
++    leg = inter(stroke_seg(J, (STEM + 392, 40), w, ext=0), rect(STEM * 0.5, -XH - 100, 900, 0))
++    return union(stem, arm, leg)
++
++
++# ---- word layout (ink-to-ink gaps tuned by eye, in font units) ------------------------------
++from geometry import V, V_PTS, DOT_R
++GAPS = dict(i_x=745, ir=78, re=30, ee=54, ek=60)
++DOT_Y = -686
++
++def build_word(mode='A', title=True):
++    """mode A: orange i-dot | B: orange e-crossbars | C: raised orange V tip. returns (ink, acc|None)."""
++    ink, acc = [], []
++    if title:
++        if mode == 'C':
++            ext = 120; idx = (558 - 380) / 612; odx = (705 - 480) / 730
++            v = poly([(246, 0), (21, -730), (168, -730), (346, -118), (380, -118), (558 + idx * ext, -730 - ext), (705 + odx * ext, -730 - ext), (480, 0)])
++            cut = rect(-100, -2000, 1000, -730)
++            ink.append(diff(v, cut)); acc.append(inter(v, cut))
++        else: ink.append(V())
++        ix = GAPS['i_x']
++    else:
++        ink.append(xform(V(), XH / 730, -21 * XH / 730, 0)); ix = 21 + (705 - 21) * XH / 730 - 21 * XH / 730 + 40   # small v for the case test
++    ink.append(xform(letter_i()[0], 1, ix, 0))
++    if mode == 'A': dot = circle(ix + STEM / 2, DOT_Y, DOT_R); acc.append(dot)
++    else: ink.append(circle(ix + STEM / 2, DOT_Y, 76))
++    x = ix + STEM + GAPS['ir']
++    r = letter_r(); rb = r.bounds; ink.append(xform(r, 1, x - rb[0], 0)); x = x - rb[0] + rb[2] + GAPS['re']
++    for gap in (0, GAPS['ee']):
++        x += gap
++        if mode == 'B':
++            g, bar = letter_e(parts=True); b = g.bounds
++            ink.append(diff(xform(g, 1, x - b[0], 0), xform(bar, 1, x - b[0], 0))); acc.append(xform(bar, 1, x - b[0], 0))
++        else:
++            g = letter_e(); b = g.bounds; ink.append(xform(g, 1, x - b[0], 0))
++        x = x - b[0] + b[2]
++    x += GAPS['ek']
++    k = letter_k(); kb = k.bounds; ink.append(xform(k, 1, x - kb[0], 0))
++    return union(*ink), (union(*acc) if acc else None)
+diff --git a/scripts/make-native-assets.mjs b/scripts/make-native-assets.mjs
+index de06058..f8e65be 100644
+--- a/scripts/make-native-assets.mjs
++++ b/scripts/make-native-assets.mjs
+@@ -1,27 +1,29 @@
+-// Builds the icon + splash sources that `capacitor-assets generate` expects, from the brand logo.
++// Builds the icon + splash sources that `capacitor-assets generate` expects, from the Vireek brand artwork.
++// Sources: public/brand/vireek-app-icon.svg (full-bleed tile), public/brand/vireek-app-icon-foreground.svg
++// (adaptive foreground, inside the 66% safe zone) and public/brand/vireek-symbol-{color,white}.svg (splash).
++// All artwork is generated by scripts/brand/build_brand.py — regenerate there, not here.
+ // Usage: npm run native:assets
+ import { mkdirSync } from 'node:fs';
+ import sharp from 'sharp';
+ 
+-const LOGO = 'public/favicon.svg';
+-const BG = '#000000';
++const ICON = 'public/brand/vireek-app-icon.svg';
++const FOREGROUND = 'public/brand/vireek-app-icon-foreground.svg';
++const INDIGO = '#203AD8';
+ mkdirSync('assets', { recursive: true });
+ 
+-const logo = (size) =>
+-  sharp(LOGO, { density: 300 }).resize(size, size, { fit: 'contain', background: BG }).flatten({ background: BG });
++const render = (src, size) => sharp(src, { density: 300 }).resize(size, size, { fit: 'contain' });
+ 
+-async function padded(size, scale) {
+-  const inner = Math.round(size * scale);
+-  const buf = await logo(inner).png().toBuffer();
+-  const edge = Math.floor((size - inner) / 2);
+-  return sharp(buf).extend({ top: edge, bottom: size - inner - edge, left: edge, right: size - inner - edge, background: BG });
+-}
++await render(ICON, 1024).png().toFile('assets/icon-only.png');
++await sharp({ create: { width: 1024, height: 1024, channels: 3, background: INDIGO } }).png().toFile('assets/icon-background.png');
++await render(FOREGROUND, 1024).png().toFile('assets/icon-foreground.png');
+ 
+-await logo(1024).png().toFile('assets/icon-only.png');
+-await sharp({ create: { width: 1024, height: 1024, channels: 3, background: BG } }).png().toFile('assets/icon-background.png');
+-// Android adaptive icons crop to a circle: keep the mark inside the 66% safe zone.
+-await (await padded(1024, 0.85)).png().toFile('assets/icon-foreground.png');
+-for (const name of ['splash', 'splash-dark']) {
+-  await (await padded(2732, 0.34)).png().toFile(`assets/${name}.png`);
++async function splash(name, bg, symbol) {
++  const mark = await sharp(symbol, { density: 300 }).resize({ height: 440 }).png().toBuffer();
++  await sharp({ create: { width: 2732, height: 2732, channels: 3, background: bg } })
++    .composite([{ input: mark, gravity: 'centre' }])
++    .png()
++    .toFile(`assets/${name}.png`);
+ }
++await splash('splash', '#FDFCFA', 'public/brand/vireek-symbol-color.svg');
++await splash('splash-dark', '#090A0D', 'public/brand/vireek-symbol-reverse.svg');
+ console.log('assets/ ready — now run: npx capacitor-assets generate');
+diff --git a/src/components/CookieConsent.tsx b/src/components/CookieConsent.tsx
+index 7f6339d..8351ec7 100644
+--- a/src/components/CookieConsent.tsx
++++ b/src/components/CookieConsent.tsx
+@@ -14,6 +14,7 @@ import {
+   ChevronRight,
+ } from 'lucide-react';
+ import { setAnalyticsConsent } from '@/lib/analytics';
++import { Logo } from '@/components/brand/Logo';
+ 
+ /* ------------------------------------------------------------------ */
+ /*  Consent engine                                                     */
+@@ -463,9 +464,9 @@ export function CookieConsent() {
+                     initial={{ scale: 0.8, opacity: 0 }}
+                     animate={{ scale: 1, opacity: 1 }}
+                     transition={{ delay: 0.15, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white shadow-glow-accent"
++                    className="shrink-0"
+                   >
+-                    <ShieldCheck size={21} />
++                    <Logo variant="tile" size={44} decorative />
+                   </motion.span>
+                   <div>
+                     <h3 className="text-base font-bold tracking-tight text-white sm:text-lg">
+diff --git a/src/components/DashboardNav.tsx b/src/components/DashboardNav.tsx
+index 4e27f60..05a646b 100644
+--- a/src/components/DashboardNav.tsx
++++ b/src/components/DashboardNav.tsx
+@@ -1,4 +1,5 @@
+ import { useEffect, useMemo, useState } from 'react';
++import { Logo } from '@/components/brand/Logo';
+ import { Link, useLocation, useNavigate } from 'react-router-dom';
+ import { AnimatePresence, motion } from 'framer-motion';
+ import { LayoutTemplate } from 'lucide-react';
+@@ -803,10 +804,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
+             <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
+         <div className="flex items-center justify-between gap-2.5 px-5 py-5">
+           <Link to="/dashboard" className="flex items-center gap-2.5">
+-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+-              <Phone size={16} strokeWidth={2.5} />
+-            </span>
+-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
++            <Logo variant="wordmark" size={26} />
+           </Link>
+           <div className="flex items-center gap-1">
+           <ReplayTourMenu align="start" />
+@@ -836,10 +834,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
+             <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden print:hidden">
+         <div className="flex items-center justify-between px-4 py-3">
+           <Link to="/dashboard" className="flex items-center gap-2.5">
+-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+-              <Phone size={16} strokeWidth={2.5} />
+-            </span>
+-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
++            <Logo variant="symbol" size={30} />
+           </Link>
+           <div className="flex items-center gap-2">
+           <ReplayTourMenu align="end" />
+diff --git a/src/components/Footer.tsx b/src/components/Footer.tsx
+index d6f0745..a20767a 100644
+--- a/src/components/Footer.tsx
++++ b/src/components/Footer.tsx
+@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
+ import { SARAH_PHONE } from '@/lib/site';
+ import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
++import { Logo } from '@/components/brand/Logo';
+ 
+ const FOOTER_COLUMN_TITLE_KEYS: Record<string, string> = {
+   Product: 'footer.product',
+@@ -458,7 +459,9 @@ const { t } = useTranslation();
+             instead of squeezed into the first grid track, so it reads
+             cleanly at every breakpoint including mobile. */}
+         <div className="mt-12 max-w-sm sm:mt-16">
+-          <span className="text-xl font-bold tracking-tight text-accent">Vireek</span>
++          <Link to="/" aria-label="Vireek home" className="inline-block text-text-primary">
++            <Logo variant="wordmark" tone="mono" size={28} decorative />
++          </Link>
+           <p className="mt-4 text-sm leading-relaxed text-text-secondary">
+             An AI voice receptionist for home-service businesses. Sarah answers every call, 24/7,
+             so you never lose a job to voicemail.
+diff --git a/src/components/Header.tsx b/src/components/Header.tsx
+index bfd1ae0..fccee49 100644
+--- a/src/components/Header.tsx
++++ b/src/components/Header.tsx
+@@ -5,44 +5,9 @@ import { LogIn, ArrowRight, ChevronDown } from 'lucide-react';
+ import { useTranslation } from 'react-i18next';
+ import { ThemeToggle } from '@/components/ThemeToggle';
+ import { NAV_LINKS } from '@/lib/site';
+-import { useTheme } from '@/contexts/ThemeContext';
++import { Logo } from '@/components/brand/Logo';
+ import { INDUSTRIES } from '@/lib/industries';
+ 
+-/* ------------------------------------------------------------------ */
+-/*  Logo                                                               */
+-/* ------------------------------------------------------------------ */
+-
+-function Logo({ size = 'h-9 w-9' }: { size?: string }) {
+-  const { theme } = useTheme();
+-  return (
+-    <span className={`relative block shrink-0 ${size}`}>
+-      <img
+-        src="/assets/logos/logo-dark.png"
+-        alt="Vireek"
+-        width={36}
+-        height={36}
+-        decoding="async"
+-        loading="eager"
+-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
+-          theme === 'light' ? 'opacity-100' : 'opacity-0'
+-        }`}
+-      />
+-      <img
+-        src="/assets/logos/logo-light.png"
+-        alt=""
+-        aria-hidden="true"
+-        width={36}
+-        height={36}
+-        decoding="async"
+-        loading="eager"
+-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
+-          theme === 'dark' ? 'opacity-100' : 'opacity-0'
+-        }`}
+-      />
+-    </span>
+-  );
+-}
+-
+ /* ------------------------------------------------------------------ */
+ /*  Industries dropdown data                                           */
+ /* ------------------------------------------------------------------ */
+@@ -326,8 +291,9 @@ export function Header() {
+               className="flex items-center gap-2.5 transition-transform duration-200 ease-out hover:scale-[1.02]"
+               aria-label="Vireek home"
+             >
+-              <Logo />
+-              <span className="text-base font-bold tracking-tight text-text-primary">Vireek</span>
++              {/* Wordmark from sm up, compact symbol on small phones. Link carries the accessible name. */}
++              <Logo variant="wordmark" size={26} decorative className="hidden sm:block" />
++              <Logo variant="symbol" size={28} decorative className="sm:hidden" />
+             </Link>
+ 
+             {/* Desktop nav */}
+@@ -394,8 +360,7 @@ export function Header() {
+               {/* Drawer header */}
+               <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                 <Link to="/" className="flex items-center gap-2.5" onClick={() => setDrawerOpen(false)}>
+-                  <Logo size="h-8 w-8" />
+-                  <span className="text-base font-bold tracking-tight text-text-primary">Vireek</span>
++                  <Logo variant="wordmark" size={24} decorative />
+                 </Link>
+                 <button
+                   type="button"
+diff --git a/src/components/RouteLoader.tsx b/src/components/RouteLoader.tsx
+index c9c4026..559b3bb 100644
+--- a/src/components/RouteLoader.tsx
++++ b/src/components/RouteLoader.tsx
+@@ -1,95 +1,20 @@
+-import { useEffect, useState } from 'react';
++import { Logo } from '@/components/brand/Logo';
+ 
+ /**
+- * Global route-transition indicator.
+- *
+- * Deliberately not a logo, wordmark, or a plain spinner — just one
+- * abstract kinetic mark: a comet-trail ring (a conic gradient masked
+- * into a hairline ring, so the fade reads as motion instead of a hard
+- * cut edge) orbiting a small breathing core. It says "something is
+- * working" without borrowing any brand furniture, so it's safe to show
+- * before we can guarantee the rest of the brand has painted in yet.
+- *
+- * Pure CSS (no framer-motion) on purpose — this can appear mid
+- * route-transition, so it needs to be as cheap and immediate as
+- * possible, and it fully respects prefers-reduced-motion.
++ * Global route-transition / Suspense loader: the Vireek symbol with a calm
++ * "incoming call" pulse on the orange dot. The animation is CSS-only (see
++ * `.vrk-logo--animated` in index.css) so it is cheap mid-transition, and it
++ * is disabled under `prefers-reduced-motion` and the in-app "reduce motion"
++ * accessibility setting (`.a11y-reduce-motion`).
+  */
+ export function RouteLoader() {
+-  const [reduceMotion, setReduceMotion] = useState(false);
+-
+-  useEffect(() => {
+-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+-    setReduceMotion(mq.matches);
+-    const onChange = () => setReduceMotion(mq.matches);
+-    mq.addEventListener('change', onChange);
+-    return () => mq.removeEventListener('change', onChange);
+-  }, []);
+-
+   return (
+     <div
+       role="status"
+       aria-label="Loading"
+       className="flex min-h-screen items-center justify-center bg-bg-primary"
+     >
+-      <div className={`vrk-loader${reduceMotion ? ' vrk-loader--still' : ''}`}>
+-        <span className="vrk-loader__ring" aria-hidden="true" />
+-        <span className="vrk-loader__core" aria-hidden="true" />
+-      </div>
+-
+-      <style>{`
+-        .vrk-loader {
+-          position: relative;
+-          width: 56px;
+-          height: 56px;
+-        }
+-
+-        .vrk-loader__ring {
+-          position: absolute;
+-          inset: 0;
+-          border-radius: 9999px;
+-          background: conic-gradient(
+-            from 0deg,
+-            transparent 0deg,
+-            rgb(var(--accent-primary) / 0.9) 300deg,
+-            transparent 360deg
+-          );
+-          -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+-                  mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+-          animation: vrk-spin 1.1s linear infinite;
+-        }
+-
+-        .vrk-loader__core {
+-          position: absolute;
+-          top: 50%;
+-          left: 50%;
+-          width: 8px;
+-          height: 8px;
+-          margin: -4px 0 0 -4px;
+-          border-radius: 9999px;
+-          background: rgb(var(--accent-primary));
+-          animation: vrk-pulse 1.8s ease-in-out infinite;
+-        }
+-
+-        .vrk-loader--still .vrk-loader__ring,
+-        .vrk-loader--still .vrk-loader__core {
+-          animation: none;
+-        }
+-
+-        @keyframes vrk-spin {
+-          to { transform: rotate(360deg); }
+-        }
+-
+-        @keyframes vrk-pulse {
+-          0%, 100% {
+-            transform: scale(0.85);
+-            box-shadow: 0 0 0 0 rgb(var(--accent-primary) / 0.45);
+-          }
+-          50% {
+-            transform: scale(1.15);
+-            box-shadow: 0 0 0 10px rgb(var(--accent-primary) / 0);
+-          }
+-        }
+-      `}</style>
++      <Logo variant="symbol" size={56} animated decorative />
+     </div>
+   );
+ }
+diff --git a/src/components/auth/AuthParts.tsx b/src/components/auth/AuthParts.tsx
+index 20837d6..711c2b2 100644
+--- a/src/components/auth/AuthParts.tsx
++++ b/src/components/auth/AuthParts.tsx
+@@ -1,42 +1,15 @@
+ import { forwardRef, InputHTMLAttributes, ReactNode, useState } from 'react';
+ import { motion, AnimatePresence } from 'framer-motion';
+ import { Eye, EyeOff, AlertCircle, Check, ArrowLeft } from 'lucide-react';
+-import { useTheme } from '@/contexts/ThemeContext';
++import { Logo } from '@/components/brand/Logo';
+ import { Link } from 'react-router-dom';
+ 
+ /* ------------------------------------------------------------------ */
+ /*  Shared logo                                                        */
+ /* ------------------------------------------------------------------ */
+ 
+-export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
+-  const { theme } = useTheme();
+-  return (
+-    <span className={`relative block ${size}`}>
+-      <img
+-        src="/assets/logos/logo-dark.png"
+-        alt="Vireek"
+-        width={48}
+-        height={48}
+-        decoding="async"
+-        loading="eager"
+-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
+-          theme === 'light' ? 'opacity-100' : 'opacity-0'
+-        }`}
+-      />
+-      <img
+-        src="/assets/logos/logo-light.png"
+-        alt=""
+-        aria-hidden="true"
+-        width={48}
+-        height={48}
+-        decoding="async"
+-        loading="eager"
+-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
+-          theme === 'dark' ? 'opacity-100' : 'opacity-0'
+-        }`}
+-      />
+-    </span>
+-  );
++export function AuthLogo({ size = 40 }: { size?: number }) {
++  return <Logo variant="lockup" size={size} />;
+ }
+ 
+ /* ------------------------------------------------------------------ */
+@@ -190,8 +163,7 @@ export function AuthShell({
+         {/* Top bar */}
+         <div className="flex items-center justify-between px-6 py-5 sm:px-8">
+           <Link to="/" className="flex items-center gap-2.5">
+-            <AuthLogo size="h-10 w-10" />
+-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
++            <AuthLogo size={40} />
+           </Link>
+           {/* ThemeToggle is injected by the page via children to avoid circular imports */}
+         </div>
+diff --git a/src/components/brand/BrandLogoGuide.tsx b/src/components/brand/BrandLogoGuide.tsx
+new file mode 100644
+index 0000000..8909f9b
+--- /dev/null
++++ b/src/components/brand/BrandLogoGuide.tsx
+@@ -0,0 +1,214 @@
++import { Check, X } from 'lucide-react';
++import { Card } from '@/components/ui/Card';
++import { Logo } from './Logo';
++import { LogoConstruction } from './LogoConstruction';
++
++/**
++ * Logo section of /brand: primary versions, construction grid, clear space,
++ * minimum sizes, color specs, and correct / incorrect usage. All artwork is
++ * the same SVG paths the product renders (see logoPaths.generated.ts).
++ */
++
++const MIN_SIZES: { label: string; node: JSX.Element; digital: string; print: string }[] = [
++  { label: 'Wordmark', node: <Logo variant="wordmark" size={16} tone="mono" decorative />, digital: '72 px wide', print: '18 mm' },
++  { label: 'Symbol', node: <Logo variant="symbol" size={16} tone="mono" decorative />, digital: '16 px tall', print: '5 mm' },
++  { label: 'App tile', node: <Logo variant="tile" size={16} decorative />, digital: '16 px', print: '5 mm' },
++  { label: 'Horizontal lockup', node: <Logo variant="lockup" size={24} tone="mono" decorative />, digital: '98 px wide', print: '25 mm' },
++  { label: 'Stacked lockup', node: <Logo variant="stacked" size={40} tone="mono" decorative />, digital: '45 px wide', print: '12 mm' },
++];
++
++const COLOR_SPECS: { name: string; hex: string; rgb: string; use: string }[] = [
++  { name: 'Cobalt (light)', hex: '#203AD8', rgb: '32 58 216', use: 'Letters, tile — on light backgrounds (7.7:1 on #FDFCFA)' },
++  { name: 'Cobalt (dark)', hex: '#6C82FF', rgb: '108 130 255', use: 'Letters — on dark backgrounds (5.9:1 on #090A0D)' },
++  { name: 'Copper — logo dot (light)', hex: '#C14F26', rgb: '193 79 38', use: 'The pulse dot on light backgrounds (4.6:1 on #FDFCFA). Slightly deeper than the UI copper #D6582A (3.9:1) so the mark meets 4.5:1' },
++  { name: 'Copper — logo dot (dark)', hex: '#FF8A5A', rgb: '255 138 90', use: 'The pulse dot on dark backgrounds (8.5:1) and on the app tile (3.4:1, graphic)' },
++  { name: 'Ink', hex: '#17171A', rgb: '23 23 26', use: 'One-color black version (17.5:1)' },
++  { name: 'White', hex: '#FFFFFF', rgb: '255 255 255', use: 'One-color white version, V on the tile' },
++];
++
++const SWATCH_TEXT = 'text-text-secondary';
++
++const DOS: string[] = [
++  'Use the provided SVG or PNG files exactly as delivered',
++  'Keep clear space of at least x (half the height of the V) on every side',
++  'Use full color on light, the dark-background version on dark, and one-color white or black on photos',
++  'Scale proportionally; never go below the minimum sizes',
++];
++
++function Panel({ children, className = '', label }: { children: React.ReactNode; className?: string; label: string }) {
++  return (
++    <Card className={`flex flex-col items-center justify-center gap-5 py-14 ${className}`}>
++      {children}
++      <span className="text-sm font-medium opacity-70">{label}</span>
++    </Card>
++  );
++}
++
++function Example({ ok, caption, children, bg = 'bg-white' }: { ok: boolean; caption: string; children: React.ReactNode; bg?: string }) {
++  return (
++    <figure className="overflow-hidden rounded-2xl border border-border bg-bg-secondary">
++      <div className={`relative flex h-36 items-center justify-center overflow-hidden ${bg}`}>
++        {children}
++        <span
++          className={`absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-white ${ok ? 'bg-success' : 'bg-danger'}`}
++          aria-hidden="true"
++        >
++          {ok ? <Check size={14} /> : <X size={14} />}
++        </span>
++      </div>
++      <figcaption className="px-4 py-3 text-sm text-text-secondary">
++        <span className="sr-only">{ok ? 'Correct: ' : 'Incorrect: '}</span>
++        {caption}
++      </figcaption>
++    </figure>
++  );
++}
++
++export function BrandLogoGuide() {
++  return (
++    <div className="mt-12 space-y-16">
++      {/* Primary versions — fixed-color files so the panels are correct in either theme */}
++      <div className="grid gap-6 sm:grid-cols-2">
++        <Panel className="!bg-[#FDFCFA] text-neutral-500" label="Full color — on light backgrounds">
++          <img src="/brand/vireek-wordmark-color.svg" alt="Vireek wordmark, full color" width={260} height={64} className="h-16 w-auto" />
++        </Panel>
++        <Panel className="!bg-[#090A0D] text-neutral-400" label="Dark-background version">
++          <img src="/brand/vireek-wordmark-reverse.svg" alt="Vireek wordmark, dark-background version" width={260} height={64} className="h-16 w-auto" />
++        </Panel>
++        <Panel className="!bg-[#FDFCFA] text-neutral-500" label="Horizontal lockup">
++          <img src="/brand/vireek-lockup-horizontal-color.svg" alt="Vireek horizontal lockup" width={260} height={64} className="h-14 w-auto" />
++        </Panel>
++        <Panel className="!bg-[#FDFCFA] text-neutral-500" label="Symbol and app tile">
++          <div className="flex items-center gap-8">
++            <img src="/brand/vireek-symbol-color.svg" alt="Vireek symbol" width={52} height={56} className="h-14 w-auto" />
++            <img src="/brand/vireek-tile.svg" alt="Vireek app tile" width={56} height={56} className="h-14 w-14" />
++          </div>
++        </Panel>
++      </div>
++
++      {/* Construction + clear space */}
++      <div className="grid gap-6 lg:grid-cols-2">
++        <Card>
++          <h3 className="text-lg font-semibold text-text-primary">Construction</h3>
++          <p className="mt-2 text-sm leading-relaxed text-text-secondary">
++            Outlined, hand-spaced letterforms on one stroke weight. The only accent is the dot of the i:
++            a circle 1.13× the stem width, centered on the stem axis with its top on the top guide. Every letter is
++            original geometry (circles, stems and cuts), not a typeface. The symbol places the same dot inside the V.
++          </p>
++          <div className="mt-6"><LogoConstruction mode="grid" /></div>
++        </Card>
++        <Card>
++          <h3 className="text-lg font-semibold text-text-primary">Clear space</h3>
++          <p className="mt-2 text-sm leading-relaxed text-text-secondary">
++            Keep an empty margin of <strong className="text-text-primary">x</strong> on every side, where
++            x is half the height of the V. Nothing — text, edges, other logos — enters this zone.
++          </p>
++          <div className="mt-6"><LogoConstruction mode="clearspace" /></div>
++        </Card>
++      </div>
++
++      {/* Minimum sizes */}
++      <Card>
++        <h3 className="text-lg font-semibold text-text-primary">Minimum sizes</h3>
++        <p className="mt-2 text-sm leading-relaxed text-text-secondary">
++          Shown here at their smallest allowed size. Below these, switch to the symbol.
++        </p>
++        <div className="mt-6 grid grid-cols-2 gap-6 text-text-primary sm:grid-cols-5">
++          {MIN_SIZES.map((m) => (
++            <div key={m.label} className="flex flex-col items-start gap-3">
++              <div className="flex h-12 items-center">{m.node}</div>
++              <div>
++                <p className="text-sm font-semibold">{m.label}</p>
++                <p className={`text-xs ${SWATCH_TEXT}`}>{m.digital} · {m.print} print</p>
++              </div>
++            </div>
++          ))}
++        </div>
++      </Card>
++
++      {/* Color specs */}
++      <Card>
++        <h3 className="text-lg font-semibold text-text-primary">Logo color specifications</h3>
++        <div className="mt-5 overflow-x-auto">
++          <table className="w-full min-w-[560px] text-left text-sm">
++            <thead>
++              <tr className="border-b border-border text-xs uppercase tracking-wider text-text-secondary">
++                <th className="py-2 pr-4 font-semibold">Color</th>
++                <th className="py-2 pr-4 font-semibold">HEX</th>
++                <th className="py-2 pr-4 font-semibold">RGB</th>
++                <th className="py-2 font-semibold">Use &amp; contrast</th>
++              </tr>
++            </thead>
++            <tbody>
++              {COLOR_SPECS.map((c) => (
++                <tr key={c.name} className="border-b border-border/60 align-top">
++                  <td className="py-3 pr-4">
++                    <span className="flex items-center gap-2 font-medium text-text-primary">
++                      <span aria-hidden="true" className="h-4 w-4 rounded border border-border" style={{ backgroundColor: c.hex }} />
++                      {c.name}
++                    </span>
++                  </td>
++                  <td className="py-3 pr-4 font-mono text-xs text-text-primary">{c.hex}</td>
++                  <td className="py-3 pr-4 font-mono text-xs text-text-secondary">{c.rgb}</td>
++                  <td className="py-3 text-text-secondary">{c.use}</td>
++                </tr>
++              ))}
++            </tbody>
++          </table>
++        </div>
++        <p className="mt-4 text-xs leading-relaxed text-text-secondary">
++          The app tile is a fixed-color asset (Cobalt #203AD8, white V, Copper #FF8A5A dot) in both themes,
++          like any app icon. The wordmark switches between the light and dark Cobalt/Copper pairs automatically
++          when drawn with the in-app component.
++        </p>
++      </Card>
++
++      {/* Correct / incorrect */}
++      <div>
++        <div className="grid gap-6 lg:grid-cols-2">
++          <div className="rounded-2xl border border-success/30 bg-success/[0.04] p-6 md:p-8">
++            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-success">Do</p>
++            <ul className="space-y-2 text-sm leading-relaxed text-text-secondary">
++              {DOS.map((d) => (<li key={d}>• {d}</li>))}
++            </ul>
++          </div>
++          <div className="rounded-2xl border border-danger/30 bg-danger/[0.04] p-6 md:p-8">
++            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-danger">Don&apos;t</p>
++            <ul className="space-y-2 text-sm leading-relaxed text-text-secondary">
++              <li>• Recolor, outline, add gradients, shadows or glows</li>
++              <li>• Stretch, skew or rotate; move or remove the dot</li>
++              <li>• Retype the name in another font or redraw the mark</li>
++              <li>• Place it on low-contrast or busy backgrounds without a scrim</li>
++            </ul>
++          </div>
++        </div>
++        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
++          <Example ok caption="Full color on a light surface.">
++            <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
++          </Example>
++          <Example ok caption="Dark-background version on dark." bg="bg-[#090A0D]">
++            <img src="/brand/vireek-wordmark-reverse.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
++          </Example>
++          <Example ok caption="One-color white on a photo with a dark scrim." bg="bg-gradient-to-br from-slate-700 to-slate-900">
++            <img src="/brand/vireek-wordmark-white.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
++          </Example>
++          <Example ok caption="Symbol when space is tight (avatars, tabs).">
++            <img src="/brand/vireek-tile.svg" alt="" aria-hidden="true" className="h-14 w-14" />
++          </Example>
++          <Example ok={false} caption="Stretched or squashed.">
++            <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-7 w-60 max-w-full" style={{ objectFit: 'fill' }} />
++          </Example>
++          <Example ok={false} caption="Recolored.">
++            <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" style={{ filter: 'hue-rotate(120deg) saturate(1.4)' }} />
++          </Example>
++          <Example ok={false} caption="Effects such as shadows and glows.">
++            <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" style={{ filter: 'drop-shadow(4px 6px 3px rgba(0,0,0,.45))' }} />
++          </Example>
++          <Example ok={false} caption="Low contrast on a busy background." bg="bg-[conic-gradient(at_30%_40%,#3b82f6,#22c55e,#eab308,#ec4899,#3b82f6)]">
++            <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
++          </Example>
++        </div>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/brand/Logo.test.tsx b/src/components/brand/Logo.test.tsx
+new file mode 100644
+index 0000000..b36e242
+--- /dev/null
++++ b/src/components/brand/Logo.test.tsx
+@@ -0,0 +1,68 @@
++import { afterEach, describe, expect, it } from 'vitest';
++import { cleanup, render } from '@testing-library/react';
++import axe from 'axe-core';
++import { Logo, type LogoVariant } from './Logo';
++import { LOGO_SHAPES } from './logoPaths.generated';
++
++afterEach(cleanup);
++
++const VARIANTS: LogoVariant[] = ['wordmark', 'symbol', 'lockup', 'stacked', 'tile'];
++
++describe('<Logo />', () => {
++  it.each(VARIANTS)('%s exposes role=img and the accessible name "Vireek"', (variant) => {
++    const { getByRole } = render(<Logo variant={variant} />);
++    const svg = getByRole('img', { name: 'Vireek' });
++    expect(svg.tagName.toLowerCase()).toBe('svg');
++  });
++
++  it.each(VARIANTS)('%s sets width and height so it cannot shift layout', (variant) => {
++    const { container } = render(<Logo variant={variant} size={40} />);
++    const svg = container.querySelector('svg')!;
++    const shape = LOGO_SHAPES[variant];
++    expect(svg.getAttribute('height')).toBe('40');
++    expect(Number(svg.getAttribute('width'))).toBeCloseTo((40 * shape.w) / shape.h, 0);
++    expect(svg.getAttribute('viewBox')).toBe(`0 0 ${shape.w} ${shape.h}`);
++  });
++
++  it('decorative logos are hidden from assistive tech and have no img role', () => {
++    const { container, queryByRole } = render(<Logo decorative />);
++    expect(queryByRole('img')).toBeNull();
++    expect(container.querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
++  });
++
++  it('auto tone uses the theme tokens (no hard-coded theme colors on letters)', () => {
++    const { container } = render(<Logo variant="wordmark" />);
++    const fills = [...container.querySelectorAll('path')].map((p) => p.getAttribute('fill'));
++    expect(fills[0]).toContain('--accent-primary');
++    expect(fills[1]).toContain('--logo-accent');
++  });
++
++  it('mono uses currentColor and white uses #FFFFFF', () => {
++    const mono = render(<Logo variant="lockup" tone="mono" />).container.querySelectorAll('path');
++    expect([...mono].every((p) => p.getAttribute('fill') === 'currentColor')).toBe(true);
++    const white = render(<Logo variant="wordmark" tone="white" />).container.querySelectorAll('path');
++    expect([...white].every((p) => p.getAttribute('fill') === '#FFFFFF')).toBe(true);
++  });
++
++  it('animated adds the pulse classes only where an accent dot exists', () => {
++    const { container } = render(<Logo variant="symbol" animated />);
++    expect(container.querySelector('svg')!.getAttribute('class')).toContain('vrk-logo--animated');
++    expect(container.querySelector('.vrk-logo-dot')).not.toBeNull();
++    expect(container.querySelector('.vrk-logo-ring')).not.toBeNull();
++  });
++
++  it('has no axe violations (accessible name present, valid ARIA)', async () => {
++    const { container } = render(
++      <main>
++        {VARIANTS.map((v) => (
++          <Logo key={v} variant={v} />
++        ))}
++        <a href="/" aria-label="Vireek home">
++          <Logo decorative />
++        </a>
++      </main>,
++    );
++    const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false }, region: { enabled: false } } });
++    expect(results.violations.map((v) => v.id)).toEqual([]);
++  });
++});
+diff --git a/src/components/brand/Logo.tsx b/src/components/brand/Logo.tsx
+new file mode 100644
+index 0000000..0eba3f4
+--- /dev/null
++++ b/src/components/brand/Logo.tsx
+@@ -0,0 +1,109 @@
++import { type CSSProperties } from 'react';
++import {
++  LOGO_SHAPES,
++  SYMBOL_DOT,
++  WORDMARK_DOT,
++  type LogoRole,
++} from './logoPaths.generated';
++
++/**
++ * Vireek logo — inline SVG, outlined letterforms (no font dependency).
++ *
++ *   variant  wordmark | symbol | lockup (tile + wordmark) | stacked | tile
++ *   size     rendered HEIGHT in px (width follows the artwork's aspect ratio,
++ *            both attributes are set so the logo never causes layout shift)
++ *   tone     auto  → indigo letters + orange accent, follows --accent-* tokens
++ *                    (light/dark theme switch is automatic, no PNG pairs)
++ *            mono  → everything currentColor (tile is knocked out)
++ *            white → #fff
++ *   animated subtle pulse on the orange dot (+ a soft ring on wordmark/symbol).
++ *            Disabled under prefers-reduced-motion (see index.css).
++ *
++ * Use ONE logo per view. Geometry is generated by scripts/brand/build_brand.py.
++ */
++export type LogoVariant = 'wordmark' | 'symbol' | 'lockup' | 'stacked' | 'tile';
++export type LogoTone = 'auto' | 'mono' | 'white';
++
++export interface LogoProps {
++  variant?: LogoVariant;
++  size?: number;
++  tone?: LogoTone;
++  animated?: boolean;
++  className?: string;
++  /** Hide from assistive tech when the brand name is already announced next to the logo. */
++  decorative?: boolean;
++}
++
++const DEFAULT_SIZE: Record<LogoVariant, number> = { wordmark: 28, symbol: 32, lockup: 40, stacked: 96, tile: 40 };
++
++// Tiles are fixed-colour brand assets (like an app icon) and do not follow the theme.
++const TILE_FILL: Record<string, string> = { tile: '#203AD8', tv: '#FFFFFF', td: '#FF8A5A' };
++
++function fillFor(role: LogoRole, tone: LogoTone): string {
++  if (tone === 'mono') return 'currentColor';
++  if (tone === 'white') return '#FFFFFF';
++  if (role === 'ink') return 'rgb(var(--accent-primary, 32 58 216))';
++  if (role === 'acc') return 'rgb(var(--logo-accent, 193 79 38))';
++  return TILE_FILL[role];
++}
++
++export function Logo({
++  variant = 'wordmark',
++  size,
++  tone = 'auto',
++  animated = false,
++  className,
++  decorative = false,
++}: LogoProps) {
++  const shape = LOGO_SHAPES[variant];
++  const h = size ?? DEFAULT_SIZE[variant];
++  const w = Math.round((h * shape.w * 10) / shape.h) / 10;
++  const hasTile = variant === 'tile' || variant === 'lockup' || variant === 'stacked';
++  const letters = variant === 'wordmark' || variant === 'symbol';
++  // Mono/white: one merged path (tile knocked out). Animated letters-only variants keep layers so the dot can pulse.
++  const useMono = tone !== 'auto' && (hasTile || !animated);
++  const ring = animated && letters ? (variant === 'symbol' ? SYMBOL_DOT : WORDMARK_DOT) : null;
++  const a11y = decorative
++    ? ({ 'aria-hidden': true, focusable: 'false' } as const)
++    : ({ role: 'img', 'aria-label': 'Vireek' } as const);
++  const cls = ['vrk-logo', animated ? 'vrk-logo--animated' : '', className ?? ''].filter(Boolean).join(' ');
++  const style: CSSProperties = { flex: 'none', overflow: animated ? 'visible' : undefined };
++
++  return (
++    <svg
++      xmlns="http://www.w3.org/2000/svg"
++      viewBox={`0 0 ${shape.w} ${shape.h}`}
++      width={w}
++      height={h}
++      className={cls}
++      style={style}
++      {...a11y}
++    >
++      {ring && (
++        <circle
++          className="vrk-logo-ring"
++          cx={ring.cx}
++          cy={ring.cy}
++          r={ring.r}
++          fill="none"
++          stroke={fillFor('acc', tone)}
++          strokeWidth={ring.r * 0.28}
++        />
++      )}
++      {useMono ? (
++        <path d={shape.mono} fill={tone === 'white' ? '#FFFFFF' : 'currentColor'} />
++      ) : (
++        shape.layers.map(([role, d], i) => (
++          <path
++            key={i}
++            d={d}
++            fill={fillFor(role, tone)}
++            className={animated && (role === 'acc' || role === 'td') ? 'vrk-logo-dot' : undefined}
++          />
++        ))
++      )}
++    </svg>
++  );
++}
++
++export default Logo;
+diff --git a/src/components/brand/LogoConstruction.tsx b/src/components/brand/LogoConstruction.tsx
+new file mode 100644
+index 0000000..b9354f9
+--- /dev/null
++++ b/src/components/brand/LogoConstruction.tsx
+@@ -0,0 +1,57 @@
++import { LOGO_SHAPES, WORDMARK_DOT, WORDMARK_METRICS } from './logoPaths.generated';
++
++/**
++ * Brand-guideline diagram: the wordmark with its construction lines and the
++ * clear-space box. Purely illustrative (aria-hidden, described by the caption
++ * in the page); numbers come from the generated artwork so it cannot drift.
++ */
++export function LogoConstruction({ mode }: { mode: 'grid' | 'clearspace' }) {
++  const s = LOGO_SHAPES.wordmark;
++  const { baseline, cap, xh } = WORDMARK_METRICS;
++  const x = (baseline - cap) / 2; // clear space unit = half the height of the V
++  const pad = mode === 'clearspace' ? x : 60;
++  const vb = mode === 'grid' ? `-60 -60 ${s.w + 60 + 760} ${s.h + 120}` : `${-pad} ${-pad} ${s.w + pad * 2} ${s.h + pad * 2}`;
++  const line = { stroke: 'rgb(var(--logo-accent, 193 79 38))', strokeWidth: 5, strokeDasharray: '14 10', opacity: 0.9 } as const;
++  const label = { fontSize: 96, fill: 'rgb(var(--text-secondary, 103 103 112))', fontFamily: 'Inter, system-ui, sans-serif' } as const;
++  return (
++    <svg viewBox={vb} className="h-auto w-full" aria-hidden="true">
++      {mode === 'clearspace' && (
++        <>
++          <rect x={-x} y={-x} width={s.w + x * 2} height={s.h + x * 2} fill="rgb(var(--accent-primary, 32 58 216) / 0.06)" stroke="rgb(var(--accent-primary, 32 58 216))" strokeWidth={3} strokeDasharray="14 10" />
++          <rect x={0} y={0} width={s.w} height={s.h} fill="var(--bg-card, #fff)" opacity={0.0} />
++          {[
++            [s.w / 2 - x / 2, -x],
++            [s.w / 2 - x / 2, s.h],
++            [-x, s.h / 2 - x / 2],
++            [s.w, s.h / 2 - x / 2],
++          ].map(([bx, by], i) => (
++            <g key={i}>
++              <rect x={bx} y={by} width={x} height={x} fill="rgb(var(--accent-primary, 32 58 216) / 0.16)" />
++              <text x={bx + x / 2} y={by + x / 2 + 16} textAnchor="middle" {...label}>x</text>
++            </g>
++          ))}
++        </>
++      )}
++      {mode === 'grid' && (
++        <>
++          {[
++            [0, ''],
++            [cap, 'cap'],
++            [xh, 'x-height'],
++            [baseline, 'baseline'],
++          ].map(([y, t]) => (
++            <g key={String(t)}>
++              <line x1={-40} x2={s.w + 40} y1={y as number} y2={y as number} {...line} />
++              <text x={s.w + 50} y={(y as number) + 14} {...label}>{t}</text>
++            </g>
++          ))}
++          <circle cx={WORDMARK_DOT.cx} cy={WORDMARK_DOT.cy} r={WORDMARK_DOT.r + 10} fill="none" {...line} />
++          <line x1={WORDMARK_DOT.cx} x2={WORDMARK_DOT.cx} y1={-30} y2={s.h + 30} {...line} />
++        </>
++      )}
++      {s.layers.map(([role, d], i) => (
++        <path key={i} d={d} fill={role === 'ink' ? 'rgb(var(--accent-primary, 32 58 216))' : 'rgb(var(--logo-accent, 193 79 38))'} />
++      ))}
++    </svg>
++  );
++}
+diff --git a/src/components/brand/index.ts b/src/components/brand/index.ts
+new file mode 100644
+index 0000000..fcbc44d
+--- /dev/null
++++ b/src/components/brand/index.ts
+@@ -0,0 +1 @@
++export { Logo, type LogoProps, type LogoVariant, type LogoTone } from './Logo';
+diff --git a/src/components/brand/logoPaths.generated.ts b/src/components/brand/logoPaths.generated.ts
+new file mode 100644
+index 0000000..e3b92d7
+--- /dev/null
++++ b/src/components/brand/logoPaths.generated.ts
+@@ -0,0 +1,8 @@
++/* AUTO-GENERATED by scripts/brand/build_brand.py — do not edit by hand. */
++export type LogoRole = 'ink' | 'acc' | 'tile' | 'tv' | 'td';
++export interface LogoShape { w: number; h: number; layers: [LogoRole, string][]; mono: string }
++export const LOGO_SHAPES: Record<'wordmark' | 'symbol' | 'tile' | 'lockup' | 'stacked', LogoShape> = {"wordmark":{"w":3190.8,"h":775.0,"layers":[["ink","M2604.3 36H2746.3V482.6L2946 232H3114.7L2949.7 439.2L3190.8 766H3026.8L2864.5 546.1L2746.3 694.4V766H2604.3ZM1938.3 499C1938.3 516.8 1936.6 534.2 1933.4 551H1530.1C1550.9 603.7 1602.2 641 1662.3 641C1693.8 641 1722.9 630.8 1746.4 613.4L1856.5 695.1C1806.6 744.5 1738 775 1662.3 775C1509.9 775 1386.3 651.4 1386.3 499C1386.3 346.6 1509.9 223 1662.3 223C1798.3 223 1911.4 321.5 1934.1 451C1936.9 466.6 1938.3 482.6 1938.3 499ZM2544.3 499C2544.3 516.8 2542.6 534.2 2539.4 551H2136.1C2156.9 603.7 2208.2 641 2268.3 641C2299.8 641 2328.9 630.8 2352.4 613.4L2462.5 695.1C2412.6 744.5 2344 775 2268.3 775C2115.9 775 1992.3 651.4 1992.3 499C1992.3 346.6 2115.9 223 2268.3 223C2404.3 223 2517.4 321.5 2540.1 451C2542.9 466.6 2544.3 482.6 2544.3 499ZM0 36H147L325 648H359L537 36H684L459 766H225ZM944 232H1086V261C1122 242.5 1162.8 232 1206 232C1261.9 232 1313.7 249.5 1356.3 279.4L1279.4 389.1C1258.6 374.6 1233.3 366 1206 366C1151 366 1104.1 400.7 1086 449.4V766H944ZM724 232H866V766H724ZM1796 451C1776.3 396.2 1723.9 357 1662.3 357C1600.7 357 1548.3 396.2 1528.6 451ZM2402 451C2382.3 396.2 2329.9 357 2268.3 357C2206.7 357 2154.3 396.2 2134.6 451Z"],["acc","M875 80C875 124.2 839.2 160 795 160C750.8 160 715 124.2 715 80C715 35.8 750.8 0 795 0C839.2 0 875 35.8 875 80Z"]],"mono":"M2604.3 36H2746.3V482.6L2946 232H3114.7L2949.7 439.2L3190.8 766H3026.8L2864.5 546.1L2746.3 694.4V766H2604.3ZM1938.3 499C1938.3 516.8 1936.6 534.2 1933.4 551H1530.1C1550.9 603.7 1602.2 641 1662.3 641C1693.8 641 1722.9 630.8 1746.4 613.4L1856.5 695.1C1806.6 744.5 1738 775 1662.3 775C1509.9 775 1386.3 651.4 1386.3 499C1386.3 346.6 1509.9 223 1662.3 223C1798.3 223 1911.4 321.5 1934.1 451C1936.9 466.6 1938.3 482.6 1938.3 499ZM2544.3 499C2544.3 516.8 2542.6 534.2 2539.4 551H2136.1C2156.9 603.7 2208.2 641 2268.3 641C2299.8 641 2328.9 630.8 2352.4 613.4L2462.5 695.1C2412.6 744.5 2344 775 2268.3 775C2115.9 775 1992.3 651.4 1992.3 499C1992.3 346.6 2115.9 223 2268.3 223C2404.3 223 2517.4 321.5 2540.1 451C2542.9 466.6 2544.3 482.6 2544.3 499ZM0 36H147L325 648H359L537 36H684L459 766H225ZM944 232H1086V261C1122 242.5 1162.8 232 1206 232C1261.9 232 1313.7 249.5 1356.3 279.4L1279.4 389.1C1258.6 374.6 1233.3 366 1206 366C1151 366 1104.1 400.7 1086 449.4V766H944ZM724 232H866V766H724ZM1796 451C1776.3 396.2 1723.9 357 1662.3 357C1600.7 357 1548.3 396.2 1528.6 451ZM2402 451C2382.3 396.2 2329.9 357 2268.3 357C2206.7 357 2154.3 396.2 2134.6 451Z M875 80C875 124.2 839.2 160 795 160C750.8 160 715 124.2 715 80C715 35.8 750.8 0 795 0C839.2 0 875 35.8 875 80Z"},"symbol":{"w":684.0,"h":730.0,"layers":[["ink","M0 0H147L325 612H359L537 0H684L459 730H225Z"],["acc","M414 155C414 194.8 381.8 227 342 227C302.2 227 270 194.8 270 155C270 115.2 302.2 83 342 83C381.8 83 414 115.2 414 155Z"]],"mono":"M0 0H147L325 612H359L537 0H684L459 730H225Z M414 155C414 194.8 381.8 227 342 227C302.2 227 270 194.8 270 155C270 115.2 302.2 83 342 83C381.8 83 414 115.2 414 155Z"},"tile":{"w":1000,"h":1000,"layers":[["tile","M225 0H775C899.3 0 1000 100.7 1000 225V775C1000 899.3 899.3 1000 775 1000H225C100.7 1000 0 899.3 0 775V225C0 100.7 100.7 0 225 0Z"],["tv","M242.3 225H353.1L487.2 686.1H512.8L646.9 225H757.7L588.2 775H411.8Z"],["td","M554.2 341.8C554.2 371.7 530 396 500 396C470 396 445.8 371.7 445.8 341.8C445.8 311.8 470 287.5 500 287.5C530 287.5 554.2 311.8 554.2 341.8Z"]],"mono":"M225 0H775C899.3 0 1000 100.7 1000 225V775C1000 899.3 899.3 1000 775 1000H225C100.7 1000 0 899.3 0 775V225C0 100.7 100.7 0 225 0ZM242.3 225 411.8 775H588.2L757.7 225H646.9L512.8 686.1H487.2L353.1 225ZM554.2 341.8C554.2 311.8 530 287.5 500 287.5C470 287.5 445.8 311.8 445.8 341.8C445.8 371.7 470 396 500 396C530 396 554.2 371.7 554.2 341.8Z"},"lockup":{"w":4044.1,"h":1000.0,"layers":[["tile","M225 0H775C899.3 0 1000 100.7 1000 225V775C1000 899.3 899.3 1000 775 1000H225C100.7 1000 0 899.3 0 775V225C0 100.7 100.7 0 225 0Z"],["tv","M242.3 225H353.1L487.2 686.1H512.8L646.9 225H757.7L588.2 775H411.8Z"],["td","M554.2 341.8C554.2 371.7 530 396 500 396C470 396 445.8 371.7 445.8 341.8C445.8 311.8 470 287.5 500 287.5C530 287.5 554.2 311.8 554.2 341.8Z"],["ink","M3539.7 186.1H3661.8V570.1L3833.5 354.7H3978.7L3836.7 532.8L4044.1 813.9H3903L3763.4 624.7L3661.8 752.3V813.9H3539.7ZM2966.9 584.3C2966.9 599.6 2965.5 614.5 2962.7 629H2615.9C2633.7 674.3 2677.9 706.4 2729.6 706.4C2756.6 706.4 2781.7 697.6 2801.9 682.7L2896.6 752.9C2853.7 795.4 2794.7 821.6 2729.6 821.6C2598.5 821.6 2492.2 715.4 2492.2 584.3C2492.2 453.2 2598.5 346.9 2729.6 346.9C2846.6 346.9 2943.8 431.6 2963.4 543C2965.7 556.4 2966.9 570.2 2966.9 584.3ZM3488.1 584.3C3488.1 599.6 3486.6 614.5 3483.9 629H3137.1C3154.9 674.3 3199.1 706.4 3250.7 706.4C3277.8 706.4 3302.8 697.6 3323.1 682.7L3417.7 752.9C3374.9 795.4 3315.9 821.6 3250.7 821.6C3119.6 821.6 3013.4 715.4 3013.4 584.3C3013.4 453.2 3119.6 346.9 3250.7 346.9C3367.7 346.9 3465 431.6 3484.5 543C3486.9 556.4 3488.1 570.2 3488.1 584.3ZM1300 186.1H1426.4L1579.5 712.4H1608.7L1761.8 186.1H1888.2L1694.7 813.9H1493.5ZM2111.8 354.7H2234V379.6C2264.9 363.7 2300 354.7 2337.2 354.7C2385.2 354.7 2429.8 369.7 2466.4 395.4L2400.3 489.8C2382.4 477.3 2360.7 469.9 2337.2 469.9C2289.9 469.9 2249.5 499.7 2234 541.6V813.9H2111.8ZM1922.6 354.7H2044.8V813.9H1922.6ZM2844.5 543C2827.6 495.9 2782.5 462.2 2729.6 462.2C2676.6 462.2 2631.5 495.9 2614.6 543ZM3365.7 543C3348.8 495.9 3303.7 462.2 3250.7 462.2C3197.8 462.2 3152.7 495.9 3135.8 543Z"],["acc","M2052.5 223.9C2052.5 261.9 2021.7 292.7 1983.7 292.7C1945.7 292.7 1914.9 261.9 1914.9 223.9C1914.9 185.9 1945.7 155.1 1983.7 155.1C2021.7 155.1 2052.5 185.9 2052.5 223.9Z"]],"mono":"M225 0H775C899.3 0 1000 100.7 1000 225V775C1000 899.3 899.3 1000 775 1000H225C100.7 1000 0 899.3 0 775V225C0 100.7 100.7 0 225 0ZM242.3 225 411.8 775H588.2L757.7 225H646.9L512.8 686.1H487.2L353.1 225ZM554.2 341.8C554.2 311.8 530 287.5 500 287.5C470 287.5 445.8 311.8 445.8 341.8C445.8 371.7 470 396 500 396C530 396 554.2 371.7 554.2 341.8Z M3539.7 186.1H3661.8V570.1L3833.5 354.7H3978.7L3836.7 532.8L4044.1 813.9H3903L3763.4 624.7L3661.8 752.3V813.9H3539.7ZM2966.9 584.3C2966.9 599.6 2965.5 614.5 2962.7 629H2615.9C2633.7 674.3 2677.9 706.4 2729.6 706.4C2756.6 706.4 2781.7 697.6 2801.9 682.7L2896.6 752.9C2853.7 795.4 2794.7 821.6 2729.6 821.6C2598.5 821.6 2492.2 715.4 2492.2 584.3C2492.2 453.2 2598.5 346.9 2729.6 346.9C2846.6 346.9 2943.8 431.6 2963.4 543C2965.7 556.4 2966.9 570.2 2966.9 584.3ZM3488.1 584.3C3488.1 599.6 3486.6 614.5 3483.9 629H3137.1C3154.9 674.3 3199.1 706.4 3250.7 706.4C3277.8 706.4 3302.8 697.6 3323.1 682.7L3417.7 752.9C3374.9 795.4 3315.9 821.6 3250.7 821.6C3119.6 821.6 3013.4 715.4 3013.4 584.3C3013.4 453.2 3119.6 346.9 3250.7 346.9C3367.7 346.9 3465 431.6 3484.5 543C3486.9 556.4 3488.1 570.2 3488.1 584.3ZM1300 186.1H1426.4L1579.5 712.4H1608.7L1761.8 186.1H1888.2L1694.7 813.9H1493.5ZM2111.8 354.7H2234V379.6C2264.9 363.7 2300 354.7 2337.2 354.7C2385.2 354.7 2429.8 369.7 2466.4 395.4L2400.3 489.8C2382.4 477.3 2360.7 469.9 2337.2 469.9C2289.9 469.9 2249.5 499.7 2234 541.6V813.9H2111.8ZM1922.6 354.7H2044.8V813.9H1922.6ZM2844.5 543C2827.6 495.9 2782.5 462.2 2729.6 462.2C2676.6 462.2 2631.5 495.9 2614.6 543ZM3365.7 543C3348.8 495.9 3303.7 462.2 3250.7 462.2C3197.8 462.2 3152.7 495.9 3135.8 543Z M2052.5 223.9C2052.5 261.9 2021.7 292.7 1983.7 292.7C1945.7 292.7 1914.9 261.9 1914.9 223.9C1914.9 185.9 1945.7 155.1 1983.7 155.1C2021.7 155.1 2052.5 185.9 2052.5 223.9Z"},"stacked":{"w":1978.3,"h":1788.2,"layers":[["tile","M714.1 0H1264.1C1388.4 0 1489.1 100.7 1489.1 225V775C1489.1 899.3 1388.4 1000 1264.1 1000H714.1C589.9 1000 489.1 899.3 489.1 775V225C489.1 100.7 589.9 0 714.1 0Z"],["tv","M731.5 225H842.2L976.3 686.1H1002L1136.1 225H1246.8L1077.3 775H901Z"],["td","M1043.4 341.8C1043.4 371.7 1019.1 396 989.1 396C959.2 396 934.9 371.7 934.9 341.8C934.9 311.8 959.2 287.5 989.1 287.5C1019.1 287.5 1043.4 311.8 1043.4 341.8Z"],["ink","M1614.7 1330H1702.7V1606.9L1826.5 1451.5H1931.1L1828.8 1580L1978.3 1782.6H1876.6L1776 1646.2L1702.7 1738.2V1782.6H1614.7ZM1201.7 1617.1C1201.7 1628.1 1200.7 1638.9 1198.7 1649.3H948.7C961.5 1682 993.4 1705.1 1030.6 1705.1C1050.1 1705.1 1068.2 1698.7 1082.8 1688L1151 1738.7C1120.1 1769.3 1077.6 1788.2 1030.6 1788.2C936.1 1788.2 859.5 1711.6 859.5 1617.1C859.5 1522.6 936.1 1445.9 1030.6 1445.9C1115 1445.9 1185.1 1507 1199.2 1587.3C1200.9 1597 1201.7 1606.9 1201.7 1617.1ZM1577.5 1617.1C1577.5 1628.1 1576.4 1638.9 1574.4 1649.3H1324.4C1337.3 1682 1369.1 1705.1 1406.3 1705.1C1425.9 1705.1 1443.9 1698.7 1458.5 1688L1526.7 1738.7C1495.8 1769.3 1453.3 1788.2 1406.3 1788.2C1311.8 1788.2 1235.2 1711.6 1235.2 1617.1C1235.2 1522.6 1311.8 1445.9 1406.3 1445.9C1490.7 1445.9 1560.8 1507 1574.9 1587.3C1576.6 1597 1577.5 1606.9 1577.5 1617.1ZM0 1330H91.1L201.5 1709.4H222.6L332.9 1330H424.1L284.6 1782.6H139.5ZM585.3 1451.5H673.3V1469.5C695.6 1458 720.9 1451.5 747.7 1451.5C782.4 1451.5 814.5 1462.4 840.9 1480.9L793.2 1548.9C780.4 1539.9 764.7 1534.6 747.7 1534.6C713.6 1534.6 684.6 1556.1 673.3 1586.3V1782.6H585.3ZM448.9 1451.5H536.9V1782.6H448.9ZM1113.5 1587.3C1101.3 1553.3 1068.8 1529 1030.6 1529C992.4 1529 959.9 1553.3 947.7 1587.3ZM1489.2 1587.3C1477 1553.3 1444.5 1529 1406.3 1529C1368.2 1529 1335.7 1553.3 1323.5 1587.3Z"],["acc","M542.5 1357.3C542.5 1384.7 520.3 1406.9 492.9 1406.9C465.5 1406.9 443.3 1384.7 443.3 1357.3C443.3 1329.9 465.5 1307.7 492.9 1307.7C520.3 1307.7 542.5 1329.9 542.5 1357.3Z"]],"mono":"M714.1 0H1264.1C1388.4 0 1489.1 100.7 1489.1 225V775C1489.1 899.3 1388.4 1000 1264.1 1000H714.1C589.9 1000 489.1 899.3 489.1 775V225C489.1 100.7 589.9 0 714.1 0ZM731.5 225 901 775H1077.3L1246.8 225H1136.1L1002 686.1H976.3L842.2 225ZM1043.4 341.8C1043.4 311.8 1019.1 287.5 989.1 287.5C959.2 287.5 934.9 311.8 934.9 341.8C934.9 371.7 959.2 396 989.1 396C1019.1 396 1043.4 371.7 1043.4 341.8Z M1614.7 1330H1702.7V1606.9L1826.5 1451.5H1931.1L1828.8 1580L1978.3 1782.6H1876.6L1776 1646.2L1702.7 1738.2V1782.6H1614.7ZM1201.7 1617.1C1201.7 1628.1 1200.7 1638.9 1198.7 1649.3H948.7C961.5 1682 993.4 1705.1 1030.6 1705.1C1050.1 1705.1 1068.2 1698.7 1082.8 1688L1151 1738.7C1120.1 1769.3 1077.6 1788.2 1030.6 1788.2C936.1 1788.2 859.5 1711.6 859.5 1617.1C859.5 1522.6 936.1 1445.9 1030.6 1445.9C1115 1445.9 1185.1 1507 1199.2 1587.3C1200.9 1597 1201.7 1606.9 1201.7 1617.1ZM1577.5 1617.1C1577.5 1628.1 1576.4 1638.9 1574.4 1649.3H1324.4C1337.3 1682 1369.1 1705.1 1406.3 1705.1C1425.9 1705.1 1443.9 1698.7 1458.5 1688L1526.7 1738.7C1495.8 1769.3 1453.3 1788.2 1406.3 1788.2C1311.8 1788.2 1235.2 1711.6 1235.2 1617.1C1235.2 1522.6 1311.8 1445.9 1406.3 1445.9C1490.7 1445.9 1560.8 1507 1574.9 1587.3C1576.6 1597 1577.5 1606.9 1577.5 1617.1ZM0 1330H91.1L201.5 1709.4H222.6L332.9 1330H424.1L284.6 1782.6H139.5ZM585.3 1451.5H673.3V1469.5C695.6 1458 720.9 1451.5 747.7 1451.5C782.4 1451.5 814.5 1462.4 840.9 1480.9L793.2 1548.9C780.4 1539.9 764.7 1534.6 747.7 1534.6C713.6 1534.6 684.6 1556.1 673.3 1586.3V1782.6H585.3ZM448.9 1451.5H536.9V1782.6H448.9ZM1113.5 1587.3C1101.3 1553.3 1068.8 1529 1030.6 1529C992.4 1529 959.9 1553.3 947.7 1587.3ZM1489.2 1587.3C1477 1553.3 1444.5 1529 1406.3 1529C1368.2 1529 1335.7 1553.3 1323.5 1587.3Z M542.5 1357.3C542.5 1384.7 520.3 1406.9 492.9 1406.9C465.5 1406.9 443.3 1384.7 443.3 1357.3C443.3 1329.9 465.5 1307.7 492.9 1307.7C520.3 1307.7 542.5 1329.9 542.5 1357.3Z"}} as never;
++export const SYMBOL_DOT = {"cx": 342.0, "cy": 155.0, "r": 72.0};
++export const WORDMARK_DOT = {"cx": 795.0, "cy": 80.0, "r": 80.0};
++/** Wordmark construction metrics in artwork units (y down): baseline, cap-height line, x-height line. */
++export const WORDMARK_METRICS = {"baseline": 766.0, "cap": 36.0, "xh": 232.0};
+diff --git a/src/components/chat/ChatVisuals.tsx b/src/components/chat/ChatVisuals.tsx
+index 84a11ec..b000154 100644
+--- a/src/components/chat/ChatVisuals.tsx
++++ b/src/components/chat/ChatVisuals.tsx
+@@ -1,6 +1,7 @@
+ import { motion } from 'framer-motion';
+ import { Sparkles, User } from 'lucide-react';
+ import type { ReactNode } from 'react';
++import { Logo } from '@/components/brand/Logo';
+ 
+ // ---------------------------------------------------------------------
+ // Shared visual language for every chat surface on the site — the
+@@ -17,8 +18,8 @@ import type { ReactNode } from 'react';
+ export function ChatAvatar({ role }: { role: 'user' | 'assistant' }) {
+   if (role === 'assistant') {
+     return (
+-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-sm">
+-        <Sparkles size={14} strokeWidth={2.25} />
++      <span className="block h-8 w-8 shrink-0 overflow-hidden rounded-full shadow-sm">
++        <Logo variant="tile" size={32} decorative />
+       </span>
+     );
+   }
+diff --git a/src/index.css b/src/index.css
+index faea486..f870bcf 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -22,6 +22,7 @@
+   --border-default: 231 229 224;
+   --accent-primary: 32 58 216;
+   --accent-secondary: 214 88 42;
++  --logo-accent: 193 79 38; /* logo dot only: 4.6:1 on --bg-primary (the CTA copper is 3.9:1) */
+   --success: 22 132 88;
+   --danger: 200 48 48;
+   --warning: 160 94 18; /* AA fix: was 180 106 20 (4.10:1 on white) → now 5.01:1 */
+@@ -36,6 +37,7 @@
+   --border-default: 36 37 44;
+   --accent-primary: 108 130 255;
+   --accent-secondary: 255 138 90;
++  --logo-accent: 255 138 90;
+   --success: 74 199 140;
+   --danger: 240 100 100;
+   --warning: 235 170 70;
+@@ -390,3 +392,32 @@ html:lang(hi) body { font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal'
+     --vk-bottom-nav-h: calc(4rem + env(safe-area-inset-bottom, 0px));
+   }
+ }
++
++/* ------------------------------------------------------------------ */
++/*  Logo — optional animated accent (pulse dot + soft ring)             */
++/* ------------------------------------------------------------------ */
++/* zero-specificity so utilities like `hidden` / `sm:block` can override */
++:where(.vrk-logo) { display: block; }
++@keyframes vrk-logo-pulse {
++  0%, 100% { transform: scale(1); }
++  50% { transform: scale(1.16); }
++}
++@keyframes vrk-logo-ring {
++  0% { transform: scale(0.9); opacity: 0.55; }
++  100% { transform: scale(2.1); opacity: 0; }
++}
++.vrk-logo--animated .vrk-logo-dot {
++  transform-box: fill-box;
++  transform-origin: center;
++  animation: vrk-logo-pulse 2.4s ease-in-out infinite;
++}
++.vrk-logo--animated .vrk-logo-ring {
++  transform-box: fill-box;
++  transform-origin: center;
++  animation: vrk-logo-ring 2.4s ease-out infinite;
++}
++@media (prefers-reduced-motion: reduce) {
++  .vrk-logo--animated .vrk-logo-dot,
++  .vrk-logo--animated .vrk-logo-ring { animation: none; }
++  .vrk-logo--animated .vrk-logo-ring { display: none; }
++}
+diff --git a/src/lib/brand/pdfLogo.ts b/src/lib/brand/pdfLogo.ts
+new file mode 100644
+index 0000000..892c475
+--- /dev/null
++++ b/src/lib/brand/pdfLogo.ts
+@@ -0,0 +1,56 @@
++import type { jsPDF } from 'jspdf';
++import { LOGO_SHAPES } from '@/components/brand/logoPaths.generated';
++
++/** Minimal SVG-path → jsPDF path ops (handles M L H V Q C Z, absolute — what the generator emits). */
++type Op = { op: 'm' | 'l' | 'c' | 'h'; c: number[] };
++export function svgPathToPdfOps(d: string, scale: number, ox: number, oy: number): Op[] {
++  const tokens = d.match(/[MLHVQCZ]|-?\d*\.?\d+/g) ?? [];
++  const ops: Op[] = [];
++  let i = 0, cmd = '', cx = 0, cy = 0;
++  const n = () => parseFloat(tokens[i++]);
++  const X = (v: number) => ox + v * scale;
++  const Y = (v: number) => oy + v * scale;
++  while (i < tokens.length) {
++    if (/[MLHVQCZ]/.test(tokens[i])) cmd = tokens[i++];
++    switch (cmd) {
++      case 'M': cx = n(); cy = n(); ops.push({ op: 'm', c: [X(cx), Y(cy)] }); cmd = 'L'; break;
++      case 'L': cx = n(); cy = n(); ops.push({ op: 'l', c: [X(cx), Y(cy)] }); break;
++      case 'H': cx = n(); ops.push({ op: 'l', c: [X(cx), Y(cy)] }); break;
++      case 'V': cy = n(); ops.push({ op: 'l', c: [X(cx), Y(cy)] }); break;
++      case 'Q': {
++        const qx = n(), qy = n(), x = n(), y = n();
++        ops.push({ op: 'c', c: [X(cx + (2 / 3) * (qx - cx)), Y(cy + (2 / 3) * (qy - cy)), X(x + (2 / 3) * (qx - x)), Y(y + (2 / 3) * (qy - y)), X(x), Y(y)] });
++        cx = x; cy = y; break;
++      }
++      case 'C': {
++        const a = n(), b = n(), c = n(), e = n(), x = n(), y = n();
++        ops.push({ op: 'c', c: [X(a), Y(b), X(c), Y(e), X(x), Y(y)] }); cx = x; cy = y; break;
++      }
++      case 'Z': ops.push({ op: 'h', c: [] }); break;
++      default: i++;
++    }
++  }
++  return ops;
++}
++
++/** Draws the full-colour Vireek wordmark as vector paths. Returns the drawn width in pt. */
++export function drawVireekWordmark(
++  doc: jsPDF,
++  x: number,
++  y: number,
++  height: number,
++  ink: [number, number, number] = [32, 58, 216],
++  accent: [number, number, number] = [214, 88, 42],
++): number {
++  const shape = LOGO_SHAPES.wordmark;
++  const scale = height / shape.h;
++  // jsPDF's path() only builds the path; fill() paints it (both are public API, missing from the typings).
++  const api = doc as unknown as { path: (ops: Op[]) => void; fill: () => void };
++  for (const [role, d] of shape.layers) {
++    const c = role === 'acc' ? accent : ink;
++    doc.setFillColor(c[0], c[1], c[2]);
++    api.path(svgPathToPdfOps(d, scale, x, y));
++    api.fill();
++  }
++  return shape.w * scale;
++}
+diff --git a/src/lib/brandAssets.test.ts b/src/lib/brandAssets.test.ts
+new file mode 100644
+index 0000000..7ad6124
+--- /dev/null
++++ b/src/lib/brandAssets.test.ts
+@@ -0,0 +1,47 @@
++import { describe, expect, it } from 'vitest';
++import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
++import { join } from 'node:path';
++import { BRAND_DOWNLOADS } from './brandAssets';
++import { svgPathToPdfOps } from './brand/pdfLogo';
++
++const PUBLIC = join(process.cwd(), 'public');
++const brandSvgs = readdirSync(join(PUBLIC, 'brand')).filter((f) => f.endsWith('.svg'));
++
++describe('brand SVG assets', () => {
++  it('ships the full set', () => {
++    expect(brandSvgs.length).toBeGreaterThanOrEqual(24);
++  });
++  it.each(brandSvgs)('%s is < 3 KB, outlined (no text/font/image/script) and has no gradients', (f) => {
++    const raw = readFileSync(join(PUBLIC, 'brand', f), 'utf8');
++    expect(Buffer.byteLength(raw)).toBeLessThan(3000);
++    expect(raw).not.toMatch(/<text|font-family|<image|<script|Gradient/i);
++    expect(raw).toMatch(/viewBox="0 0 /);
++  });
++  it('favicon.svg is tiny (was 1.3 MB)', () => {
++    expect(statSync(join(PUBLIC, 'favicon.svg')).size).toBeLessThan(1000);
++  });
++  it('every advertised download exists', () => {
++    for (const d of BRAND_DOWNLOADS) for (const href of [d.svg, d.png]) if (href) expect(existsSync(join(PUBLIC, href))).toBe(true);
++  });
++  it('old raster logos are gone and nothing references them', () => {
++    expect(existsSync(join(PUBLIC, 'assets', 'logos', 'logo-dark.png'))).toBe(false);
++    const walk = (dir: string): string[] =>
++      readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]));
++    const offenders = walk(join(process.cwd(), 'src'))
++      .filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith('brandAssets.test.ts'))
++      .filter((f) => readFileSync(f, 'utf8').includes('assets/logos/'));
++    expect(offenders).toEqual([]);
++  });
++});
++
++describe('svgPathToPdfOps', () => {
++  it('converts M/L/H/V/Q/Z into jsPDF ops with scale and offset', () => {
++    const ops = svgPathToPdfOps('M0 0H10V10Q10 20 0 10Z', 2, 100, 50);
++    expect(ops[0]).toEqual({ op: 'm', c: [100, 50] });
++    expect(ops[1]).toEqual({ op: 'l', c: [120, 50] });
++    expect(ops[2]).toEqual({ op: 'l', c: [120, 70] });
++    expect(ops[3].op).toBe('c');
++    expect(ops[3].c.slice(4)).toEqual([100, 70]);
++    expect(ops[4].op).toBe('h');
++  });
++});
+diff --git a/src/lib/brandAssets.ts b/src/lib/brandAssets.ts
+new file mode 100644
+index 0000000..17e6da5
+--- /dev/null
++++ b/src/lib/brandAssets.ts
+@@ -0,0 +1,20 @@
++/** Downloadable brand files (served from /public/brand, generated by scripts/brand/build_brand.py). */
++export interface BrandDownload {
++  title: string;
++  description: string;
++  svg?: string;
++  png?: string;
++  meta: string;
++}
++
++export const BRAND_DOWNLOADS: BrandDownload[] = [
++  { title: 'Wordmark — full color', description: 'Primary logo for light backgrounds.', svg: '/brand/vireek-wordmark-color.svg', png: '/brand/vireek-wordmark-color.png', meta: 'SVG · PNG 1600 px wide, transparent' },
++  { title: 'Wordmark — for dark backgrounds', description: 'Tuned colors for dark surfaces.', svg: '/brand/vireek-wordmark-reverse.svg', meta: 'SVG' },
++  { title: 'Wordmark — black', description: 'One-color, for print and busy light imagery.', svg: '/brand/vireek-wordmark-black.svg', png: '/brand/vireek-wordmark-black.png', meta: 'SVG · PNG 1600 px wide' },
++  { title: 'Wordmark — white', description: 'One-color, for dark or photographic backgrounds.', svg: '/brand/vireek-wordmark-white.svg', png: '/brand/vireek-wordmark-white.png', meta: 'SVG · PNG 1600 px wide' },
++  { title: 'Symbol (V + pulse)', description: 'Compact mark for avatars and tight spaces.', svg: '/brand/vireek-symbol-color.svg', png: '/brand/vireek-symbol-color.png', meta: 'SVG · PNG 800 px wide' },
++  { title: 'Horizontal lockup', description: 'App tile + wordmark.', svg: '/brand/vireek-lockup-horizontal-color.svg', png: '/brand/vireek-lockup-horizontal-color.png', meta: 'SVG · PNG 1600 px wide' },
++  { title: 'Stacked lockup', description: 'App tile above wordmark, centered layouts.', svg: '/brand/vireek-lockup-stacked-color.svg', png: '/brand/vireek-lockup-stacked-color.png', meta: 'SVG · PNG 1000 px wide' },
++  { title: 'App icon / avatar', description: 'Rounded tile for stores and social profiles.', svg: '/brand/vireek-tile.svg', png: '/brand/vireek-tile-1024.png', meta: 'SVG · PNG 1024 × 1024' },
++  { title: 'Social / OG card', description: 'Preview image used when Vireek links are shared.', png: '/og-image.png', meta: 'PNG · 1200 × 630' },
++];
+diff --git a/src/lib/pdf.ts b/src/lib/pdf.ts
+index edb6bfe..83cf57d 100644
+--- a/src/lib/pdf.ts
++++ b/src/lib/pdf.ts
+@@ -1,5 +1,6 @@
+ import { VIREEK_PDF_BRAND, getPdfBrand, type PdfBrand } from '@/lib/pdfBrand';
+ import { jsPDF } from 'jspdf';
++import { drawVireekWordmark } from '@/lib/brand/pdfLogo';
+ import type { CaseStudy } from '@/components/sections/CaseStudies';
+ import type { InsuranceClaim } from '@/lib/supabase';
+ import type { WarrantyClaim } from '@/lib/supabase';
+@@ -42,6 +43,8 @@ function drawHeader(doc: jsPDF, eyebrow: string, title: string, brand: PdfBrand
+   let y = 44;
+   if (brand.logo) {
+     doc.addImage(brand.logo.dataUrl, 'PNG', MARGIN, y - 18, Math.min(120, 26 * brand.logo.aspect), 26);
++  } else if (brand.isVireek) {
++    drawVireekWordmark(doc, MARGIN, y - 16, 20, brand.primary, brand.accent);
+   } else {
+     doc.setFont('helvetica', 'bold');
+     doc.setFontSize(14);
+diff --git a/src/pages/BrandGuidelinesPage.tsx b/src/pages/BrandGuidelinesPage.tsx
+index f4d6d6b..b00ce50 100644
+--- a/src/pages/BrandGuidelinesPage.tsx
++++ b/src/pages/BrandGuidelinesPage.tsx
+@@ -18,6 +18,8 @@ import { BackButton } from '@/components/ui/BackButton';
+ import { CookieConsent } from '@/components/CookieConsent';
+ import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
+ import { useSEO } from '@/lib/seo';
++import { BrandLogoGuide } from '@/components/brand/BrandLogoGuide';
++import { BRAND_DOWNLOADS } from '@/lib/brandAssets';
+ 
+ /**
+  * Brand Guidelines / Style Guide — public reference for partners, media,
+@@ -73,7 +75,7 @@ const LOGO_DONT: { title: string; body: string }[] = [
+   { title: 'Recolor the mark', body: 'Never change the logo colors, apply gradients, or place it on a clashing background.' },
+   { title: 'Stretch or distort', body: 'Always scale proportionally — never stretch, skew, or rotate the logo.' },
+   { title: 'Add effects', body: 'No drop shadows, outlines, glows, or 3D effects added to the mark.' },
+-  { title: 'Crowd the mark', body: "Keep clear space around the logo at least equal to the mark's own height." },
++  { title: 'Crowd the mark', body: 'Keep clear space of at least x — half the height of the V — around the logo.' },
+   { title: 'Recreate it', body: 'Never redraw, trace, or reconstruct the logo — always use the provided files.' },
+   { title: 'Combine it with other logos', body: 'Do not merge the Vireek mark with another company\u2019s logo in a way that implies a partnership or merger unless approved in writing.' },
+ ];
+@@ -90,12 +92,6 @@ const VOICE_PRINCIPLES = [
+   { title: 'Plain language', body: 'Short sentences. No unnecessary acronyms. If a term needs explaining, explain it once and move on.' },
+ ];
+ 
+-const DOWNLOAD_ASSETS = [
+-  { title: 'Logo — Dark', description: 'For use on light backgrounds.', href: '/assets/logos/logo-dark.png', meta: 'PNG · 1024×1024' },
+-  { title: 'Logo — Light', description: 'For use on dark backgrounds.', href: '/assets/logos/logo-light.png', meta: 'PNG · 1024×1024' },
+-  { title: 'Favicon / Mark', description: 'Vector app icon, scales to any size.', href: '/favicon.svg', meta: 'SVG' },
+-];
+-
+ function SEO() {
+   useSEO({
+     title: 'Brand Guidelines — Vireek',
+@@ -221,52 +217,11 @@ export function BrandGuidelinesPage() {
+               <p className={`${eyebrowClass()} text-center`}>Logo</p>
+               <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>The mark, on any background</h2>
+               <p className={`${bodyClass()} mx-auto text-center`}>
+-                Two versions cover every surface — never generate a third by recoloring these.
++                A wordmark, a symbol and two lockups, each in full color, dark-background and one-color versions — never generate another by recoloring these.
+               </p>
+             </motion.div>
+ 
+-            <div className="mt-12 grid gap-6 sm:grid-cols-2">
+-              <Card className="flex flex-col items-center justify-center gap-6 !bg-white py-16">
+-                <img src="/assets/logos/logo-dark.png" alt="Vireek logo, dark version" className="h-20 w-20 object-contain" />
+-                <span className="text-sm font-medium text-neutral-500">On light backgrounds</span>
+-              </Card>
+-              <Card className="flex flex-col items-center justify-center gap-6 !bg-[#0A0A0C] py-16">
+-                <img src="/assets/logos/logo-light.png" alt="Vireek logo, light version" className="h-20 w-20 object-contain" />
+-                <span className="text-sm font-medium text-neutral-400">On dark backgrounds</span>
+-              </Card>
+-            </div>
+-
+-            <div className="mt-14 grid gap-6 lg:grid-cols-2">
+-              <div className="rounded-2xl border border-success/30 bg-success/[0.04] p-6 md:p-8">
+-                <div className="mb-4 flex items-center gap-3">
+-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-success/15 text-success">
+-                    <Check size={18} />
+-                  </span>
+-                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-success">Do</p>
+-                </div>
+-                <ul className="space-y-2 text-sm leading-relaxed text-text-secondary">
+-                  <li>• Use the provided PNG or SVG files exactly as delivered</li>
+-                  <li>• Keep clear space around the mark at least equal to its own height</li>
+-                  <li>• Choose the dark or light version based on background contrast</li>
+-                  <li>• Scale proportionally, keeping width and height locked together</li>
+-                </ul>
+-              </div>
+-              <div className="rounded-2xl border border-danger/30 bg-danger/[0.04] p-6 md:p-8">
+-                <div className="mb-4 flex items-center gap-3">
+-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-danger/15 text-danger">
+-                    <X size={18} />
+-                  </span>
+-                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-danger">Don&apos;t</p>
+-                </div>
+-                <ul className="space-y-2 text-sm leading-relaxed text-text-secondary">
+-                  {LOGO_DONT.map((item) => (
+-                    <li key={item.title}>
+-                      <span className="font-medium text-text-primary">{item.title}.</span> {item.body}
+-                    </li>
+-                  ))}
+-                </ul>
+-              </div>
+-            </div>
++            <BrandLogoGuide />
+           </div>
+         </section>
+ 
+@@ -398,20 +353,32 @@ export function BrandGuidelinesPage() {
+               initial="initial"
+               whileInView="whileInView"
+               viewport={viewport}
+-              className="mt-12 grid gap-6 sm:grid-cols-3"
++              className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+             >
+-              {DOWNLOAD_ASSETS.map((asset) => (
++              {BRAND_DOWNLOADS.map((asset) => (
+                 <motion.div key={asset.title} variants={fadeUpItem} transition={{ duration: 0.4, ease: EASE }}>
+                   <Card className="flex h-full flex-col">
+                     <h3 className="text-base font-semibold text-text-primary">{asset.title}</h3>
+                     <p className="mt-2 flex-1 text-sm leading-relaxed text-text-secondary">{asset.description}</p>
+                     <p className="mt-3 text-xs font-medium text-text-secondary/70">{asset.meta}</p>
+-                    <a href={asset.href} download className="mt-5">
+-                      <Button variant="secondary" size="sm" className="w-full">
+-                        <Download size={15} />
+-                        Download
+-                      </Button>
+-                    </a>
++                    <div className="mt-5 flex gap-2">
++                      {asset.svg && (
++                        <a href={asset.svg} download className="flex-1" aria-label={`Download ${asset.title} as SVG`}>
++                          <Button variant="secondary" size="sm" className="w-full">
++                            <Download size={15} />
++                            SVG
++                          </Button>
++                        </a>
++                      )}
++                      {asset.png && (
++                        <a href={asset.png} download className="flex-1" aria-label={`Download ${asset.title} as PNG`}>
++                          <Button variant="secondary" size="sm" className="w-full">
++                            <Download size={15} />
++                            PNG
++                          </Button>
++                        </a>
++                      )}
++                    </div>
+                   </Card>
+                 </motion.div>
+               ))}
+diff --git a/src/pages/PressPage.tsx b/src/pages/PressPage.tsx
+index f78e04b..59fb572 100644
+--- a/src/pages/PressPage.tsx
++++ b/src/pages/PressPage.tsx
+@@ -25,6 +25,7 @@ import { BackButton } from '@/components/ui/BackButton';
+ import { CookieConsent } from '@/components/CookieConsent';
+ import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
+ import { useSEO } from '@/lib/seo';
++import { BRAND_DOWNLOADS } from '@/lib/brandAssets';
+ 
+ const PRESS_EMAIL = 'ali@vireek.com';
+ 
+@@ -46,40 +47,19 @@ type BrandAsset = {
+   icon: typeof ImageIcon;
+   title: string;
+   description: string;
+-  href: string;
++  svg?: string;
++  png?: string;
+   meta: string;
+ };
+ 
+-const BRAND_ASSETS: BrandAsset[] = [
+-  {
+-    icon: ImageIcon,
+-    title: 'Logo — Dark',
+-    description: 'For use on light backgrounds.',
+-    href: '/assets/logos/logo-dark.png',
+-    meta: 'PNG · 1024×1024',
+-  },
+-  {
+-    icon: ImageIcon,
+-    title: 'Logo — Light',
+-    description: 'For use on dark backgrounds.',
+-    href: '/assets/logos/logo-light.png',
+-    meta: 'PNG · 1024×1024',
+-  },
+-  {
+-    icon: FileText,
+-    title: 'Favicon / Mark',
+-    description: 'Vector app icon, scales to any size.',
+-    href: '/favicon.svg',
+-    meta: 'SVG',
+-  },
+-  {
+-    icon: ImageIcon,
+-    title: 'Social / OG Card',
+-    description: 'Preview image used when Vireek links are shared.',
+-    href: '/og-image.png',
+-    meta: 'PNG · 1424×752',
+-  },
+-];
++const BRAND_ASSETS: BrandAsset[] = BRAND_DOWNLOADS.map((d) => ({
++  icon: d.svg ? FileText : ImageIcon,
++  title: d.title,
++  description: d.description,
++  svg: d.svg,
++  png: d.png,
++  meta: d.meta,
++}));
+ 
+ const SCREENSHOTS: { title: string; description: string; src: string }[] = [
+   { title: 'Command Center', description: 'Live call activity, dispatch, and revenue at a glance.', src: '/command-center.png' },
+@@ -254,9 +234,9 @@ export function PressPage() {
+               initial="initial"
+               whileInView="whileInView"
+               viewport={viewport}
+-              className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
++              className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+             >
+-              {BRAND_ASSETS.map(({ icon: Icon, title, description, href, meta }) => (
++              {BRAND_ASSETS.map(({ icon: Icon, title, description, svg, png, meta }) => (
+                 <motion.div key={title} variants={fadeUpItem} transition={{ duration: 0.4, ease: EASE }}>
+                   <Card className="flex h-full flex-col">
+                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
+@@ -265,12 +245,24 @@ export function PressPage() {
+                     <h3 className="mt-5 text-base font-semibold text-text-primary">{title}</h3>
+                     <p className="mt-2 flex-1 text-sm leading-relaxed text-text-secondary">{description}</p>
+                     <p className="mt-3 text-xs font-medium text-text-secondary/70">{meta}</p>
+-                    <a href={href} download className="mt-5">
+-                      <Button variant="secondary" size="sm" className="w-full">
+-                        <Download size={15} />
+-                        Download
+-                      </Button>
+-                    </a>
++                    <div className="mt-5 flex gap-2">
++                      {svg && (
++                        <a href={svg} download className="flex-1" aria-label={`Download ${title} as SVG`}>
++                          <Button variant="secondary" size="sm" className="w-full">
++                            <Download size={15} />
++                            SVG
++                          </Button>
++                        </a>
++                      )}
++                      {png && (
++                        <a href={png} download className="flex-1" aria-label={`Download ${title} as PNG`}>
++                          <Button variant="secondary" size="sm" className="w-full">
++                            <Download size={15} />
++                            PNG
++                          </Button>
++                        </a>
++                      )}
++                    </div>
+                   </Card>
+                 </motion.div>
+               ))}
+diff --git a/supabase/functions/_shared/brand/emailLogo.ts b/supabase/functions/_shared/brand/emailLogo.ts
+new file mode 100644
+index 0000000..513877a
+--- /dev/null
++++ b/supabase/functions/_shared/brand/emailLogo.ts
+@@ -0,0 +1,11 @@
++// Vireek wordmark for HTML email. Gmail/Outlook do not render SVG, so this points at a hosted
++// 4x PNG (public/brand/email/vireek-wordmark-email.png, generated by scripts/brand/build_brand.py).
++// Pure helper — no Deno/network. Use only in emails sent as Vireek (never in white-labelled mail).
++
++export const EMAIL_LOGO_PATH = "/brand/email/vireek-wordmark-email.png";
++
++/** siteUrl may be the app origin (https://app.vireek.com); the PNG is served from the same origin. */
++export function emailLogoHtml(siteUrl: string): string {
++  const origin = siteUrl.replace(/\/$/, "");
++  return `<img src="${origin}${EMAIL_LOGO_PATH}" width="120" height="29" alt="Vireek" style="display:block;border:0;outline:none;height:29px;width:120px;margin:0 0 16px" />`;
++}
+diff --git a/supabase/functions/_shared/reports/email.ts b/supabase/functions/_shared/reports/email.ts
+index 8f1f443..a368d0a 100644
+--- a/supabase/functions/_shared/reports/email.ts
++++ b/supabase/functions/_shared/reports/email.ts
+@@ -6,6 +6,8 @@
+ // HTML-escaped — caller names come from the public phone line and must never
+ // be able to inject markup into an email we send under the customer's brand.
+ 
++import { emailLogoHtml } from "../brand/emailLogo.ts";
++
+ import {
+   RANGE_LABELS,
+   formatCell,
+@@ -132,6 +134,7 @@ export function buildReportEmail(input: ReportEmailInput): ReportEmail {
+   const html = `<!doctype html><html><body style="margin:0;background:${C.soft};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${C.ink}">
+ <div style="max-width:640px;margin:0 auto;padding:24px 16px">
+ <div style="background:#ffffff;border:1px solid ${C.line};border-radius:16px;padding:24px">
++${emailLogoHtml(input.siteUrl)}
+ <p style="margin:0 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:${C.muted}">Scheduled report</p>
+ <h1 style="margin:0;font-size:22px;line-height:1.3">${escapeHtml(input.reportName)}</h1>
+ ${input.description ? `<p style="margin:8px 0 0;color:${C.muted};font-size:14px">${escapeHtml(input.description)}</p>` : ""}
+diff --git a/supabase/functions/_shared/value-scoreboard/render.ts b/supabase/functions/_shared/value-scoreboard/render.ts
+index 0cc3dc4..63f8862 100644
+--- a/supabase/functions/_shared/value-scoreboard/render.ts
++++ b/supabase/functions/_shared/value-scoreboard/render.ts
+@@ -11,6 +11,7 @@ export function escapeHtml(value: unknown): string {
+ /** Safe for a Subject header: no CR/LF, bounded length. */
+ const oneLine = (s: string, n = 70) => s.replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
+ 
++import { emailLogoHtml } from "../brand/emailLogo.ts";
+ export interface ValueEmailInput { companyName: string; board: Scoreboard; siteUrl: string }
+ 
+ export function costLine(b: Scoreboard): string {
+@@ -45,6 +46,7 @@ export function renderValueEmail(input: ValueEmailInput): { subject: string; htm
+   const html = `<!doctype html><html><body style="margin:0;background:#f5f5f8;font-family:Helvetica,Arial,sans-serif;color:#171717">
+ <div style="max-width:620px;margin:0 auto;padding:24px">
+   <div style="background:#fff;border-radius:14px;padding:28px;border:1px solid #e6e6ee">
++    ${emailLogoHtml(input.siteUrl)}
+     <p style="margin:0;color:#203ad8;font-weight:700;font-size:13px">${escapeHtml(company)}</p>
+     <h1 style="margin:6px 0 2px;font-size:22px">Your Vireek results for ${escapeHtml(b.window.label)}</h1>
+     <p style="margin:0 0 20px;color:#666;font-size:12px">Method ${escapeHtml(b.methodVersion)} - months in ${escapeHtml(b.window.timezone)}</p>
+diff --git a/supabase/functions/send-comment-email/index.ts b/supabase/functions/send-comment-email/index.ts
+index bfb0de1..0b6f9a5 100644
+--- a/supabase/functions/send-comment-email/index.ts
++++ b/supabase/functions/send-comment-email/index.ts
+@@ -93,7 +93,8 @@ Deno.serve(async (req: Request) => {
+ <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center">
+ <table role="presentation" width="560" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:16px;padding:28px">
+ <tr><td>
+-<p style="margin:0 0 6px;font-size:13px;color:#6b7280">Vireek · Comments</p>
++<img src="${siteUrl}/brand/email/vireek-wordmark-email.png" width="96" height="23" alt="Vireek" style="display:block;border:0;height:23px;width:96px;margin:0 0 10px" />
++<p style="margin:0 0 6px;font-size:13px;color:#6b7280">Comments</p>
+ <h1 style="margin:0 0 16px;font-size:18px;line-height:1.35">${esc(n.title)}</h1>
+ <p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:#374151;white-space:pre-wrap">${esc(n.message)}</p>
+ <a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:12px">Open the conversation</a>
