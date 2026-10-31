@@ -77,6 +77,17 @@ jobs:
             if [ "$incremental" = "true" ] || [ "$STRICT" = "true" ]; then exit 1; fi
             echo "::warning::Full typecheck is report-only (set repo variable EDGE_TYPECHECK_STRICT=true to enforce)."
           fi
+        
+  auth-gate-tests:
+    name: Auth-gate tests (deno test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno test -A supabase/functions/_shared/testing/auth_gates_test.ts
 
   deploy:
     name: Deploy changed functions
