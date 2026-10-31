@@ -66,11 +66,13 @@ verify_jwt = false
 verify_jwt = false
 [functions.bi-gateway]
 verify_jwt = false
-
 [functions.bi-export-run]
 verify_jwt = false
-
 [functions.bi-sftp-upload]
 verify_jwt = false
 [functions.punchout-return]
+verify_jwt = false
+[functions.warranty-claim-detector]
+verify_jwt = false
+[functions.check-warranty-claim-deadlines]
 verify_jwt = false
