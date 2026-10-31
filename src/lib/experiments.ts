@@ -20,6 +20,7 @@
 
 import { trackEvent } from '@/lib/analytics';
 import { hasConsent } from '@/lib/consent/engine';
+import { hasConsent } from '@/lib/consent/engine';
 
 /**
  * Register every experiment here. Add a new id + variant list to run a
@@ -74,10 +75,15 @@ function generateId(): string {
 let inMemoryVisitorId: string | null = null;
 
 function getVisitorId(): string {
+  // Without analytics consent nothing is written to storage: the id lives in memory for this visit only.
+  if (!hasConsent('analytics')) {
+    if (!inMemoryVisitorId) inMemoryVisitorId = generateId();
+    return inMemoryVisitorId;
+  }
   try {
     let id = localStorage.getItem(VISITOR_ID_KEY);
     if (!id) {
-      id = generateId();
+      id = inMemoryVisitorId ?? generateId();
       localStorage.setItem(VISITOR_ID_KEY, id);
     }
     return id;
@@ -108,6 +114,8 @@ function pickVariant(experiment: ExperimentConfig, visitorId: string): string {
 }
 
 function readStoredAssignments(): Record<string, string> {
+  if (!hasConsent('analytics')) return {};
+  try {
   try {
     return JSON.parse(localStorage.getItem(ASSIGNMENTS_KEY) || '{}');
   } catch {
@@ -116,6 +124,8 @@ function readStoredAssignments(): Record<string, string> {
 }
 
 function writeStoredAssignments(assignments: Record<string, string>) {
+  if (!hasConsent('analytics')) return;
+  try {
   try {
     localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments));
   } catch {
