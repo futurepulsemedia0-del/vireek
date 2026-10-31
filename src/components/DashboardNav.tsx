@@ -290,6 +290,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Loyalty', href: '/dashboard/loyalty', icon: Crown, requiresPermission: 'can_view_billing' },
   { label: 'Email Campaigns', href: '/dashboard/email-campaigns', icon: MailPlus, requiresPermission: 'can_view_billing' },
   { label: 'Direct Mail', href: '/dashboard/direct-mail', icon: MailPlus, requiresPermission: 'can_view_billing' },
+  { label: 'Work-Order Guard', href: '/dashboard/work-order-guard', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Canvassing', href: '/dashboard/marketing/canvassing', icon: DoorOpen },
   { label: 'Audiences', href: '/dashboard/audiences', icon: Filter, requiresPermission: 'can_view_billing' },
   { label: 'Landing Pages', href: '/dashboard/landing-pages', icon: LayoutTemplate, requiresPermission: 'can_edit_business_profile' },
