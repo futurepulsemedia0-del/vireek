@@ -76,3 +76,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.check-warranty-claim-deadlines]
 verify_jwt = false
+[functions.invoice-followup-ladder]
+verify_jwt = false
