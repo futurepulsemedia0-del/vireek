@@ -138,7 +138,11 @@ export interface QboDefaults {
   taxCodeId: string | null;
   /** Send the Vireek invoice number as the QuickBooks DocNumber. */
   sendDocNumber: boolean;
+  /** Who an invoice is billed to in QuickBooks. Used by the reconciliation audit only; it never changes what sync sends. */
+  billToRule: BillToRule;
 }
+export const BILL_TO_RULES = ['invoice_customer', 'owner', 'tenant'] as const;
+export type BillToRule = (typeof BILL_TO_RULES)[number];
 export interface QboSettings {
   version: 1;
   entities: Record<QboEntity, EntitySettings>;
@@ -166,7 +170,7 @@ export function defaultSettings(): QboSettings {
       invoice: mk('both', 'manual', 'invoice'),
       payment: mk('both', 'manual', 'payment'),
     },
-    defaults: { incomeAccountId: null, depositAccountId: null, fallbackItemId: null, taxCodeId: null, sendDocNumber: true },
+    defaults: { incomeAccountId: null, depositAccountId: null, fallbackItemId: null, taxCodeId: null, sendDocNumber: true, billToRule: 'invoice_customer' },
   };
 }
 
@@ -224,6 +228,10 @@ export function validateSettings(input: unknown): SettingsResult {
     if (typeof dflt.sendDocNumber !== 'boolean') return { ok: false, error: 'sendDocNumber must be true or false.' };
     out.defaults.sendDocNumber = dflt.sendDocNumber;
   }
+if (dflt.billToRule !== undefined) {
+  if (!BILL_TO_RULES.includes(dflt.billToRule as BillToRule)) return { ok: false, error: 'billToRule must be invoice_customer, owner or tenant.' };
+  out.defaults.billToRule = dflt.billToRule as BillToRule;
+}
   return { ok: true, settings: out };
 }
 
@@ -674,7 +682,12 @@ export function buildQueryRequest(c: { base: string; realm: string; entity: QboE
   const q = `select * from ${meta.qboObject}${where.length ? ` where ${where.join(' and ')}` : ''} order by Metadata.LastUpdatedTime startposition ${Math.max(1, Math.floor(c.pos))} maxresults ${Math.min(1000, Math.max(1, Math.floor(c.pageSize)))}`;
   return { method: 'GET', url: `${company(c.base, c.realm)}/query?minorversion=${QBO_MINOR_VERSION}&query=${encodeURIComponent(q)}` };
 }
-
+/** Read-only audit query: every QuickBooks invoice on/after `fromDate` (YYYY-MM-DD, validated), stable order. */
+export function buildInvoiceAuditQuery(c: { base: string; realm: string; fromDate: string; pos: number; pageSize: number }): HttpReq {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(c.fromDate)) throw new Error('Invalid audit start date.');
+  const q = `select * from Invoice where TxnDate >= '${c.fromDate}' order by Id startposition ${Math.max(1, Math.floor(c.pos))} maxresults ${Math.min(1000, Math.max(1, Math.floor(c.pageSize)))}`;
+  return { method: 'GET', url: `${company(c.base, c.realm)}/query?minorversion=${QBO_MINOR_VERSION}&query=${encodeURIComponent(q)}` };
+}
 /** Find an existing record by an exact value (used to link instead of creating a duplicate). */
 export function buildFindRequest(c: { base: string; realm: string; entity: 'customer' | 'item' | 'account' | 'invoice'; field: string; value: string }): HttpReq {
   const meta = ENTITY_META[c.entity];
