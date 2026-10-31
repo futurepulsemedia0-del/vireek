@@ -1,4 +1,4 @@
-import { Calculator, Calendar, CreditCard, Zap, Users, Cloud, MessageSquare, Mail, PhoneCall, Wrench, type LucideIcon } from 'lucide-react';
+import { Calculator, Calendar, CreditCard, Building2, Zap, Users, Cloud, MessageSquare, Mail, PhoneCall, Wrench, type LucideIcon } from 'lucide-react';
 
 export interface IntegrationFAQ {
   q: string;
@@ -60,6 +60,28 @@ export const INTEGRATIONS: Integration[] = [
         a: 'No. The connection only moves customer and job information you already collect through Vireek — see our Trust Center for how account data is isolated.',
       },
     ],
+  },
+  {
+    slug: 'netsuite',
+    name: 'NetSuite',
+    category: 'Accounting',
+    icon: Building2,
+    tagline: 'Sync customers, invoices and payments with NetSuite (not live-verified).',
+    summary: 'Connect NetSuite with token-based authentication and keep customers, items, invoices and payments in sync. This integration has not been verified against a live NetSuite account yet, so try it in a sandbox first.',
+    capabilities: [
+      'Customers, invoices and payments sync both ways with conflict rules you control.',
+      'Every record Vireek creates in NetSuite carries an external ID, so nothing is duplicated.',
+      'Field mapping and defaults are configurable before the first sync.',
+    ],
+    steps: [
+      { title: 'Create a token in NetSuite', detail: 'Create an integration record and an access token for a dedicated role.' },
+      { title: 'Paste the four values', detail: 'Open Vireek → NetSuite and verify the connection.' },
+      { title: 'Review the mapping, then sync', detail: 'Choose directions and defaults, then run the first sync.' },
+    ],
+    faq: [
+      { q: 'Is this verified against a live account?', a: 'Not yet. It follows the NetSuite REST documentation and is covered by mock tests. Use a sandbox account first.' },
+    ],
+    status: 'live',
   },
   {
     slug: 'google-calendar',
