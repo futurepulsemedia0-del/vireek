@@ -4,6 +4,7 @@ import { AlertTriangle, CheckCircle2, Download, Info, Loader2, RotateCcw, Undo2,
 import { Button } from '@/components/ui/Button';
 import { SkeletonStatGrid, SkeletonCardList } from '@/components/Skeleton';
 import type { ImportType } from '@/lib/importPresets';
+import { isLedgerImportType } from '@/lib/importLedgerProfiles';
 import {
   STRATEGY_OPTIONS, type DedupeStrategy, type RunResult, type ValidateResult, type ValidateRow,
 } from '@/lib/importWizard';
@@ -49,6 +50,7 @@ function ActionBadge({ row }: { row: ValidateRow }) {
 
 function detailLine(row: ValidateRow, type: ImportType): string {
   const d = row.display;
+  if (isLedgerImportType(type)) return Object.values(d).filter(Boolean).join(' · ');
   const parts = type === 'customers' ? [d.phone, d.email, d.address] : [d.service, when(d.date), money(d.amount)];
   return parts.filter(Boolean).join(' · ');
 }
@@ -85,7 +87,7 @@ export function ImportReviewStep({ importType, validation, validating, error, de
 
   return (
     <div className="space-y-5">
-      <fieldset>
+      <fieldset hidden={isLedgerImportType(importType)}>
         <legend className="mb-2 text-sm font-semibold text-text-primary">When a record already exists in Vireek</legend>
         <div className="grid gap-2 md:grid-cols-3" role="radiogroup">
           {STRATEGY_OPTIONS.map((o) => (
@@ -97,6 +99,12 @@ export function ImportReviewStep({ importType, validation, validating, error, de
           ))}
         </div>
       </fieldset>
+
+      {validation?.ledger_totals && !error && !validating && (
+        <p className="text-sm text-text-secondary">
+          File total: <span className="font-semibold tabular-nums text-text-primary">${(validation.ledger_totals.sum_cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> across {validation.ledger_totals.rows.toLocaleString()} valid rows. Nothing is saved until you confirm.
+        </p>
+      )}
 
       {error ? (
         <div role="alert" className="flex flex-col items-start gap-3 rounded-2xl border border-danger/30 bg-danger/5 p-5">
