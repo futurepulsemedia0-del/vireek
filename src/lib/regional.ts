@@ -13,6 +13,7 @@
 /*     by RegionalProvider.                                             */
 /* ------------------------------------------------------------------ */
 
+import { isValidTimeZone } from './timezone';
 export type TaxRegime = 'sales_tax' | 'vat' | 'gst' | 'none';
 export type UnitSystem = 'imperial' | 'metric';
 
@@ -30,6 +31,10 @@ export interface RegionalSettings {
   defaultTaxRate: number;
   unitSystem: UnitSystem;
   weekStart: 0 | 1 | 6;
+  /** IANA zone the business operates in (e.g. 'America/Chicago'). null = each viewer's own zone. */
+  timeZone: string | null;
+  /** Clock style. 'auto' follows the language/locale. */
+  hourCycle: 'auto' | '12h' | '24h';
 }
 
 /* ---------------- Currencies ---------------- */
@@ -114,6 +119,7 @@ export const DEFAULT_REGIONAL: RegionalSettings = {
   country: 'US', currency: 'USD', reportingCurrency: 'USD', locale: 'en-US',
   taxRegime: 'sales_tax', taxLabel: 'Sales tax', taxIdLabel: 'Tax ID', taxId: null,
   pricesIncludeTax: false, defaultTaxRate: 0, unitSystem: 'imperial', weekStart: 0,
+  timeZone: null, hourCycle: 'auto',
 };
 
 export function isValidLocale(tag: unknown): tag is string {
@@ -143,6 +149,8 @@ export function normalizeRegional(
   const regime = pick('taxRegime', 'tax_regime');
   const units = pick('unitSystem', 'unit_system');
   const week = Number(pick('weekStart', 'week_start'));
+  const tzRaw = pick('timeZone', 'time_zone');
+  const clock = pick('hourCycle', 'hour_cycle');
   return {
     country: /^[A-Z]{2}$/.test(country) ? country : DEFAULT_REGIONAL.country,
     currency,
@@ -156,6 +164,8 @@ export function normalizeRegional(
     defaultTaxRate: clampRate(pick('defaultTaxRate', 'default_tax_rate') ?? base.defaultTaxRate),
     unitSystem: units === 'metric' || units === 'imperial' ? units : base.unitSystem,
     weekStart: week === 0 || week === 1 || week === 6 ? week : base.weekStart,
+    timeZone: isValidTimeZone(tzRaw) ? tzRaw : null,
+    hourCycle: clock === '12h' || clock === '24h' ? clock : 'auto',
   };
 }
 
