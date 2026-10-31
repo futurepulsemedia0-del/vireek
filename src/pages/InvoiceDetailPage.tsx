@@ -44,6 +44,7 @@ import {
 import { downloadInvoicePdf } from '@/lib/invoicePdf';
 import { downloadInvoiceWithDefaultTemplate } from '@/lib/invoiceTemplatePdf';
 import { SplitPaymentsCard } from '@/components/invoicing/SplitPaymentsCard';
+import { ApprovalToCashCard } from '@/components/invoicing/ApprovalToCashCard';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const card = 'rounded-2xl border border-border bg-bg-secondary p-4 shadow-card sm:p-5 dark:shadow-card-dark';
@@ -343,6 +344,8 @@ export function InvoiceDetailPage() {
             )}
           </section>
 
+          {/* Approval to cash */}
+          <ApprovalToCashCard ownerId={accountOwnerId ?? ''} invoice={invoice} isOwner={isOwner} onChanged={refreshAll} />
           {/* Split payments */}
           <SplitPaymentsCard ownerId={accountOwnerId ?? ''} invoice={invoice} ledger={ledger} payments={payments} refunds={refunds} onChanged={refreshAll} />
           {/* Payments & refunds */}
