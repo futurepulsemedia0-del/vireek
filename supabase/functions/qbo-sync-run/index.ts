@@ -35,6 +35,16 @@
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import {
+  AuthError,
+  RateLimitError,
+  addRetry as addRetryCore,
+  conflictSig,
+  faultText,
+  isPaymentsBlock,
+  qboRequest,
+  writeWithStaleRetry,
+} from "../_shared/quickbooks/sync-core.ts";
+import {
   ENTITY_META,
   PAGE_CAP_PER_RUN,
   PULL_OVERLAP_MS,
@@ -62,7 +72,6 @@ import {
   escapeLike,
   generatedAccountCode,
   invoiceAmountSig,
-  isAllowedApiBase,
   isSyncableItem,
   isValidQboId,
   itemIncomeRef,
@@ -115,9 +124,6 @@ const LOCK_MS = 6 * 60_000;
 const LOG_RETENTION_DAYS = 30;
 const PUSH_PAGE = 100;
 const RETRY_CAP = 200;
-
-class AuthError extends Error {}
-class RateLimitError extends Error {}
 
 // ============================================================
 // TYPES
@@ -259,59 +265,18 @@ async function refreshAccess(ctx: Ctx) {
   await persistTokens(ctx, t.expiresInSec, t.refreshExpiresInSec);
 }
 
-async function api(ctx: Ctx, req: { method: string; url: string; body?: unknown }): Promise<ApiResult> {
-  if (!req.url.startsWith(`${ctx.base}/`) || !isAllowedApiBase(ctx.base)) {
-    throw new Error("Refusing to call an address outside QuickBooks.");
-  }
-  let refreshed = false;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    let res: Response;
-    try {
-      res = await fetch(req.url, {
-        method: req.method,
-        headers: {
-          Authorization: `Bearer ${ctx.access}`,
-          Accept: "application/json",
-          ...(req.body !== undefined ? { "Content-Type": "application/json" } : {}),
-        },
-        body: req.body !== undefined ? JSON.stringify(req.body) : undefined,
-      });
-    } catch (err) {
-      if (attempt < 2) {
-        await new Promise((r) => setTimeout(r, 800));
-        continue;
-      }
-      throw err;
-    }
-    if (res.status === 401 && !refreshed) {
-      refreshed = true;
-      await refreshAccess(ctx);
-      continue;
-    }
-    if (res.status === 401) throw new AuthError("QuickBooks rejected our credentials.");
-    if (res.status === 429) throw new RateLimitError("QuickBooks is rate limiting requests.");
-    if (res.status >= 500 && attempt < 2) {
-      await new Promise((r) => setTimeout(r, 1000));
-      continue;
-    }
-    const text = res.status === 204 ? "" : await res.text();
-    let body: unknown = null;
-    if (text) {
-      try {
-        body = JSON.parse(text);
-      } catch {
-        body = null;
-      }
-    }
-    return { status: res.status, json: body, tid: res.headers.get("intuit_tid") };
-  }
-  throw new Error("QuickBooks request failed.");
+function api(ctx: Ctx, req: { method: string; url: string; body?: unknown }): Promise<ApiResult> {
+  return qboRequest(
+    {
+      fetch: (url, init) => fetch(url, init),
+      sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+      getAccess: () => ctx.access,
+      refresh: () => refreshAccess(ctx),
+      base: ctx.base,
+    },
+    req,
+  );
 }
-
-const faultText = (r: ApiResult) => {
-  const f = classifyResponse(r.status, r.json).fault;
-  return f ? `${f.message}${f.detail ? `: ${f.detail}` : ""}`.slice(0, 300) : `HTTP ${r.status}`;
-};
 
 async function fetchQbo(ctx: Ctx, entity: QboEntity, id: string): Promise<RawRecord | null> {
   const r = await api(ctx, buildGetRequest({ base: ctx.base, realm: ctx.realm, entity, id }));
@@ -333,25 +298,14 @@ async function writeQbo(
   payload: RawRecord,
   requestId?: string,
 ): Promise<{ ok: true; record: RawRecord; tid: string | null } | { ok: false; kind: string; message: string; tid: string | null }> {
-  let body = payload;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const r = await api(ctx, buildWriteRequest({ base: ctx.base, realm: ctx.realm, entity, payload: body, requestId }));
-    const c = classifyResponse(r.status, r.json);
-    if (c.kind === "ok") {
-      const rec = parseEntityResponse(entity, r.json);
-      if (rec) return { ok: true, record: rec, tid: r.tid };
-      return { ok: false, kind: "error", message: "QuickBooks returned no record.", tid: r.tid };
-    }
-    if (c.kind === "stale" && attempt === 0 && typeof body.Id === "string") {
-      const fresh = await fetchQbo(ctx, entity, body.Id);
-      if (fresh) {
-        body = { ...body, SyncToken: recordMeta(fresh).syncToken };
-        continue;
-      }
-    }
-    return { ok: false, kind: c.kind, message: faultText(r), tid: r.tid };
-  }
-  return { ok: false, kind: "stale", message: "The record kept changing in QuickBooks.", tid: null };
+  return writeWithStaleRetry(
+    {
+      send: (body) => api(ctx, buildWriteRequest({ base: ctx.base, realm: ctx.realm, entity, payload: body, requestId })),
+      fetchFresh: (id) => fetchQbo(ctx, entity, id),
+    },
+    entity,
+    payload,
+  );
 }
 
 // ============================================================
@@ -437,19 +391,11 @@ async function saveLink(ctx: Ctx, link: LinkRow, patch: { base?: Canon; sync_tok
 
 // ---- retry lists (records skipped because a dependency isn't synced yet) ------
 
-function addRetry(list: string[] | undefined, id: string): string[] {
-  const set = new Set(list ?? []);
-  set.add(id);
-  return [...set].slice(-RETRY_CAP);
-}
+const addRetry = (list: string[] | undefined, id: string): string[] => addRetryCore(list, id, RETRY_CAP);
 
 // ============================================================
 // SIMPLE ENTITIES: accounts, customers, items
 // ============================================================
-
-function conflictSig(fields: string[], v: Canon, q: Canon): string {
-  return JSON.stringify([fields, fields.map((f) => [v[f] ?? null, q[f] ?? null])]);
-}
 
 async function applyVireekUpdate(ctx: Ctx, entity: Simple, id: string, values: Canon): Promise<string | null> {
   const cols = toColumns(entity, values);
@@ -790,8 +736,6 @@ async function revenueAccountFor(ctx: Ctx, itemId: string | null): Promise<strin
 
 const linesJson = async (ctx: Ctx, lines: InvoiceLine[]) =>
   Promise.all(lines.map(async (l) => ({ description: l.description, quantity: l.qty, unit_price_cents: l.unitPriceCents, amount_cents: l.amountCents, revenue_account_id: await revenueAccountFor(ctx, l.itemId) })));
-
-const isPaymentsBlock = (msg: string) => /PAYMENTS_EXIST/.test(msg);
 
 async function reconcileInvoice(
   ctx: Ctx,
