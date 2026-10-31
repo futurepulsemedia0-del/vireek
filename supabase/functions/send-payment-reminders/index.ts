@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
 import { resolveCustomerLanguage } from "../_shared/i18n/customerLanguage.ts";
+import { MAX_REMINDERS, nextReminderUpdate, reminderCutoffs } from "../_shared/payment-reminders/window.ts";
 import { escapeHtml, formatMoney, htmlLangAttrs, renderTemplate } from "../_shared/i18n/templates.ts";
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, X-Cron-Secret" };
@@ -8,10 +9,6 @@ const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-
 function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
-
-const MAX_REMINDERS = 3;
-const REMINDER_INTERVAL_DAYS = 3;
-const OVERDUE_AFTER_DAYS = 14;
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
@@ -22,8 +19,7 @@ Deno.serve(async (req: Request) => {
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
 
   try {
-    const cutoff = new Date(Date.now() - REMINDER_INTERVAL_DAYS * 86400000).toISOString();
-    const overdueCutoff = new Date(Date.now() - OVERDUE_AFTER_DAYS * 86400000).toISOString();
+    const { cutoff, overdueCutoff } = reminderCutoffs();
 
     const { data: due, error } = await admin
       .from("payment_requests")
@@ -51,10 +47,9 @@ Deno.serve(async (req: Request) => {
           smsText,
         );
       }
-      const isOverdue = request.created_at < overdueCutoff;
       await admin
         .from("payment_requests")
-        .update({ reminder_count: request.reminder_count + 1, last_reminder_sent_at: new Date().toISOString(), status: isOverdue ? "overdue" : request.status })
+        .update(nextReminderUpdate(request, overdueCutoff))
         .eq("id", request.id);
       sent += 1;
     }
