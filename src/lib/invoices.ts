@@ -11,6 +11,8 @@ export interface Invoice {
   id: string;
   job_id: string | null;
   quote_id: string | null;
+  /** Approval-to-cash: linked customer PO / work order (work_orders.id). */
+work_order_id?: string | null;
   invoice_number: string;
   customer_name: string;
   customer_email: string | null;
