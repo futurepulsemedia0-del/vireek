@@ -1,8 +1,40 @@
+// PASTE into src/lib/pdf.ts directly ABOVE the line:  export function downloadWarrantyClaimPacketPdf
+// Also add near the other type imports at the top:   import type { ClaimPacket } from '@/lib/warrantyClaimToCash';
+// Every value comes from wcc_packet() (database facts only); absent data prints "Not on file" and is listed as missing.
+export function downloadWarrantyClaimFullPacketPdf(p: ClaimPacket): void {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  let y = drawHeader(doc, 'Manufacturer Warranty Claim Packet', p.customer_name || 'Customer');
+  const nf = (v: unknown) => (v === null || v === undefined || v === '' ? 'Not on file' : String(v));
+  const money = (c: number) => currency(c / 100);
+  const section = (label: string, body: string) => {
+    if (y > 700) { doc.addPage(); y = 60; }
+    y += 10;
+    y = drawSectionLabel(doc, label, y);
+    y = drawParagraph(doc, body, y);
+  };
+
+  y = drawSectionLabel(doc, 'Unit', y);
+  y = drawParagraph(doc,
+    `Manufacturer: ${nf(p.manufacturer)}\nDistributor: ${nf(p.distributor)}\nModel #: ${nf(p.model_number)}\nSerial #: ${nf(p.serial_number)}\n` +
+    `Install date: ${nf(p.install_date)}\nWarranty through: ${nf(p.warranty_expires_at)}\nProperty: ${nf(p.property_address)}`, y);
+  section('Failure', `${nf(p.failure_description)}\nFailed part: ${nf(p.part_description)}`);
+  section('Parts used',
+    p.parts.length === 0 ? 'Not on file'
+      : p.parts.map((x) => `${x.quantity} x ${x.name}${x.part_number ? ` (${x.part_number})` : ''} - ${money(x.unit_cost_cents)} each`).join('\n'));
+  section('Labor and records',
+    `Labor hours: ${nf(p.labor_hours)}\nInvoice reference: ${nf(p.invoice_ref)}\nJob photos on file: ${p.photo_count}\n` +
+    `Estimated recovery: ${p.estimated_recovery_cents == null ? 'Not on file' : money(p.estimated_recovery_cents)}\nFiling deadline: ${nf(p.claim_deadline)}`);
+  section('Missing before submission',
+    p.missing.length === 0 ? 'Nothing missing.' : p.missing.map((m) => `- ${m.replace('checklist:', 'checklist: ').replace(/_/g, ' ')}`).join('\n'));
+  drawFooter(doc, 'Generated from job records only. Review before sending to the manufacturer.');
+  doc.save(`warranty-claim-${(p.serial_number || p.claim_id).toString().replace(/[^a-zA-Z0-9_-]/g, '')}.pdf`);
+}
 import { VIREEK_PDF_BRAND, getPdfBrand, type PdfBrand } from '@/lib/pdfBrand';
 import { jsPDF } from 'jspdf';
 import type { CaseStudy } from '@/components/sections/CaseStudies';
 import type { InsuranceClaim } from '@/lib/supabase';
 import type { WarrantyClaim } from '@/lib/supabase';
+import type { ClaimPacket } from '@/lib/warrantyClaimToCash';
 import type { CommercialContract, ContractSlaBreach } from '@/lib/supabase';
 import type { SignatureRequest, SignatureEvent } from '@/lib/signatures';
 
