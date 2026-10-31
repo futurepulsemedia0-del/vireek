@@ -5,6 +5,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { LiveIndicator } from '@/components/LiveIndicator';
+import { ReconciliationPanel } from '@/components/quickbooks/ReconciliationPanel';
 import { useToast } from '@/contexts/ToastContext';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import {
@@ -206,6 +207,15 @@ function MappingPanel({ conn, onSaved }: { conn: QboConnection; onSaved: () => v
           {pickList('Sales tax code (optional)', 'taxCodeId', options?.taxCodes ?? [], 'Applied to taxable lines. US companies with automatic sales tax may calculate their own tax.')}
         </div>
         <label className="mt-4 flex items-center gap-2.5 text-sm text-text-primary">
+                <label className="mt-4 flex max-w-sm flex-col gap-1.5 text-sm">
+          <span className="font-medium text-text-primary">Bill-to rule (reconciliation audit)</span>
+          <select className={selectCls} value={draft.defaults.billToRule} onChange={(e) => setDefault('billToRule', e.target.value)}>
+            <option value="invoice_customer">The invoice's customer</option>
+            <option value="owner">Property owner</option>
+            <option value="tenant">Tenant</option>
+          </select>
+          <span className="text-xs text-text-secondary">Used by the audit to flag invoices billed to the other party. It never changes what is sent to QuickBooks.</span>
+        </label>
           <input type="checkbox" checked={draft.defaults.sendDocNumber} onChange={(e) => setDefault('sendDocNumber', e.target.checked)} className="h-4 w-4" />
           Send the Vireek invoice number to QuickBooks
         </label>
@@ -537,6 +547,7 @@ export function QuickBooksSyncPage() {
             </div>
 
             <ConflictsPanel conn={conn} refreshKey={tick} onChanged={() => void loadAll(true)} />
+            <ReconciliationPanel conn={conn} />
             <MappingPanel conn={conn} onSaved={() => void loadAll(true)} />
             <LogPanel conn={conn} refreshKey={tick} />
           </>
