@@ -89,6 +89,13 @@ Deno.serve(async (req: Request) => {
     if (!invoice) return json({ error: "Invoice not found." }, 404);
     if (invoice.status === "void") return json({ error: "This invoice is void." }, 400);
     if (invoice.status === "paid" && kind === "reminder") return json({ error: "This invoice is already paid." }, 400);
+    if (invoice.status === "draft") {
+      const { data: gate, error: gateError } = await admin.rpc("commercial_precheck_core", { p_invoice_id: invoice.id });
+      if (gateError) return json({ error: "Could not verify commercial approval." }, 500);
+      if (gate?.applies && gate?.blocked) {
+        return json({ error: "Blocked: this invoice needs approval before it can be sent.", code: "blocked_needs_approval", reasons: gate.reasons }, 409);
+      }
+    }
 
     // Approval-to-cash gate: the FIRST send of a draft must pass BEFORE anything is emailed.
     if (invoice.status === "draft") {
