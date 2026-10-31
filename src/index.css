@@ -390,3 +390,34 @@ html:lang(hi) body { font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal'
     --vk-bottom-nav-h: calc(4rem + env(safe-area-inset-bottom, 0px));
   }
 }
+/* ---- LogoMarquee ---- */
+.logo-marquee {
+  --marquee-duration: 40s;
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.logo-marquee[data-entered='true'] { opacity: 1; transform: translate3d(0, 0, 0); }
+.logo-marquee__viewport {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+.logo-marquee__track {
+  animation: logo-marquee var(--marquee-duration) linear infinite;
+  animation-play-state: paused;
+  will-change: transform;
+}
+.logo-marquee[data-direction='right'] .logo-marquee__track { animation-direction: reverse; }
+.logo-marquee[data-entered='true'][data-visible='true'][data-paused='false'] .logo-marquee__track {
+  animation-play-state: running;
+}
+.logo-marquee:hover .logo-marquee__track,
+.logo-marquee:focus-within .logo-marquee__track { animation-play-state: paused !important; }
+@keyframes logo-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-marquee { opacity: 1; transform: none; transition: none; }
+  .logo-marquee__track { animation: none; }
+}
