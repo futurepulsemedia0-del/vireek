@@ -628,6 +628,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Data Imports', href: '/dashboard/imports', icon: FileUp, requiresPermission: 'can_edit_business_profile' },
   { label: 'Phone Payments', href: '/dashboard/phone-payments', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
+  { label: 'NetSuite', href: '/dashboard/netsuite', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Sage Intacct', href: '/dashboard/sage-intacct', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
   { label: 'Xero', href: '/dashboard/xero', icon: <همان آیکون QuickBooks> },
   { label: 'Property Management', href: '/dashboard/property-management', icon: Building2, requiresPermission: 'can_edit_business_profile' },
