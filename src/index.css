@@ -411,7 +411,9 @@ html:lang(hi) body { font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal'
 .logo-marquee[data-entered='true'][data-visible='true'][data-paused='false'] .logo-marquee__track {
   animation-play-state: running;
 }
-.logo-marquee:hover .logo-marquee__track,
+@media (hover: hover) {
+  .logo-marquee:hover .logo-marquee__track { animation-play-state: paused !important; }
+}
 .logo-marquee:focus-within .logo-marquee__track { animation-play-state: paused !important; }
 @keyframes logo-marquee {
   from { transform: translate3d(0, 0, 0); }
