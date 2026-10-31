@@ -27,6 +27,7 @@ export type RecoverySourceType =
   | 'quote_accepted_unbooked'
   | 'job_completed_unbilled'
   | 'invoice_overdue'
+  | 'invoice_rejected'
   | 'membership_cancelled'
   | 'membership_churned'
   | 'job_parts_unbilled'
@@ -40,7 +41,7 @@ export type ValueBasis = 'quote_amount' | 'job_invoice' | 'price_book_match' | '
 export interface RevenueRecoveryEvent {
   id: string;
   source_type: RecoverySourceType;
-  source_table: 'calls' | 'quotes' | 'jobs' | 'payment_requests' | 'memberships';
+  source_table: 'calls' | 'quotes' | 'jobs' | 'payment_requests' | 'memberships' | 'invoices';
   source_id: string;
   lead_id: string | null;
   call_id: string | null;
@@ -78,6 +79,7 @@ export const SOURCE_TYPE_LABELS: Record<RecoverySourceType, string> = {
   quote_accepted_unbooked: 'Accepted, not yet booked',
   job_completed_unbilled: 'Completed, not yet invoiced',
   invoice_overdue: 'Invoice overdue',
+  invoice_rejected: 'Invoice rejected',
   membership_cancelled: 'Membership cancelled',
   membership_churned: 'Membership churned',
   job_parts_unbilled: 'Parts installed, not fully billed',
@@ -95,6 +97,7 @@ export const SOURCE_TYPE_COLORS: Record<RecoverySourceType, string> = {
   quote_accepted_unbooked: 'bg-warning-500/10 text-warning-500',
   job_completed_unbilled: 'bg-danger/10 text-danger',
   invoice_overdue: 'bg-danger/10 text-danger',
+  invoice_rejected: 'bg-danger/10 text-danger',
   membership_cancelled: 'bg-bg-tertiary text-text-secondary',
   membership_churned: 'bg-danger/10 text-danger',
   job_parts_unbilled: 'bg-warning-500/10 text-warning-500',
