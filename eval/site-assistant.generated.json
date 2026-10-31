@@ -1,0 +1,1540 @@
+{
+  "schema": 1,
+  "cases": [
+    {
+      "mustInclude": [
+        [
+          "$0",
+          "free",
+          "no cost"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-free-price",
+      "category": "pricing",
+      "q": "How much does the Free plan cost per month?"
+    },
+    {
+      "mustInclude": [
+        [
+          "50"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-free-minutes",
+      "category": "plan-limits",
+      "q": "How many minutes are included in Free?"
+    },
+    {
+      "mustInclude": [
+        [
+          "1"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-free-seats",
+      "category": "plan-limits",
+      "q": "How many team seats come with the Free plan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "1"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-free-locations",
+      "category": "plan-limits",
+      "q": "How many locations can I run on Free?"
+    },
+    {
+      "mustInclude": [
+        [
+          "79"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-starter-price",
+      "category": "pricing",
+      "q": "How much does the Starter plan cost per month?"
+    },
+    {
+      "mustInclude": [
+        [
+          "400"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-starter-minutes",
+      "category": "plan-limits",
+      "q": "How many minutes are included in Starter?"
+    },
+    {
+      "mustInclude": [
+        [
+          "2"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-starter-seats",
+      "category": "plan-limits",
+      "q": "How many team seats come with the Starter plan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "1"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-starter-locations",
+      "category": "plan-limits",
+      "q": "How many locations can I run on Starter?"
+    },
+    {
+      "mustInclude": [
+        [
+          "0.2",
+          "0.20"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-starter-overage",
+      "category": "pricing",
+      "q": "What is the overage rate on the Starter plan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "790",
+          "790"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-starter-annual",
+      "category": "pricing",
+      "q": "What does Starter cost if I pay annually?"
+    },
+    {
+      "mustInclude": [
+        [
+          "199"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-professional-price",
+      "category": "pricing",
+      "q": "How much does the Professional plan cost per month?"
+    },
+    {
+      "mustInclude": [
+        [
+          "1,500"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-professional-minutes",
+      "category": "plan-limits",
+      "q": "How many minutes are included in Professional?"
+    },
+    {
+      "mustInclude": [
+        [
+          "5"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-professional-seats",
+      "category": "plan-limits",
+      "q": "How many team seats come with the Professional plan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "1"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-professional-locations",
+      "category": "plan-limits",
+      "q": "How many locations can I run on Professional?"
+    },
+    {
+      "mustInclude": [
+        [
+          "0.15",
+          "0.15"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-professional-overage",
+      "category": "pricing",
+      "q": "What is the overage rate on the Professional plan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "1990",
+          "1,990"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-professional-annual",
+      "category": "pricing",
+      "q": "What does Professional cost if I pay annually?"
+    },
+    {
+      "mustInclude": [
+        [
+          "399"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-business-price",
+      "category": "pricing",
+      "q": "How much does the Business plan cost per month?"
+    },
+    {
+      "mustInclude": [
+        [
+          "4,000"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-business-minutes",
+      "category": "plan-limits",
+      "q": "How many minutes are included in Business?"
+    },
+    {
+      "mustInclude": [
+        [
+          "15"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-business-seats",
+      "category": "plan-limits",
+      "q": "How many team seats come with the Business plan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "3"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-business-locations",
+      "category": "plan-limits",
+      "q": "How many locations can I run on Business?"
+    },
+    {
+      "mustInclude": [
+        [
+          "0.12",
+          "0.12"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-business-overage",
+      "category": "pricing",
+      "q": "What is the overage rate on the Business plan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "3990",
+          "3,990"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-business-annual",
+      "category": "pricing",
+      "q": "What does Business cost if I pay annually?"
+    },
+    {
+      "mustInclude": [
+        [
+          "999",
+          "$999"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-enterprise-price",
+      "category": "pricing",
+      "q": "How much does the Enterprise plan cost per month?"
+    },
+    {
+      "mustInclude": [
+        [
+          "unlimited"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-enterprise-minutes",
+      "category": "plan-limits",
+      "q": "How many minutes are included in Enterprise?"
+    },
+    {
+      "mustInclude": [
+        [
+          "unlimited"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-enterprise-seats",
+      "category": "plan-limits",
+      "q": "How many team seats come with the Enterprise plan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "unlimited"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "plan-enterprise-locations",
+      "category": "plan-limits",
+      "q": "How many locations can I run on Enterprise?"
+    },
+    {
+      "mustInclude": [
+        [
+          "hvac",
+          "hvac companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-hvac",
+      "category": "industries",
+      "q": "Does Vireek work for HVAC companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "plumbing",
+          "plumbing companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-plumbing",
+      "category": "industries",
+      "q": "Does Vireek work for plumbing companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "roofing",
+          "roofing companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-roofing",
+      "category": "industries",
+      "q": "Does Vireek work for roofing companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "electrical",
+          "electrical contractors"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-electrical",
+      "category": "industries",
+      "q": "Does Vireek work for electrical contractors?"
+    },
+    {
+      "mustInclude": [
+        [
+          "restoration",
+          "restoration companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-restoration",
+      "category": "industries",
+      "q": "Does Vireek work for restoration companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "locksmith",
+          "locksmith companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-locksmith",
+      "category": "industries",
+      "q": "Does Vireek work for locksmith companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "pest control",
+          "pest control companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-pest-control",
+      "category": "industries",
+      "q": "Does Vireek work for pest control companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "lawn care & landscaping",
+          "lawn care and landscaping companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-lawn-care",
+      "category": "industries",
+      "q": "Does Vireek work for lawn care and landscaping companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "cleaning services",
+          "residential and commercial cleaning companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-cleaning",
+      "category": "industries",
+      "q": "Does Vireek work for residential and commercial cleaning companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "pool service",
+          "pool cleaning and repair companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-pool-service",
+      "category": "industries",
+      "q": "Does Vireek work for pool cleaning and repair companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "appliance repair",
+          "appliance repair companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-appliance-repair",
+      "category": "industries",
+      "q": "Does Vireek work for appliance repair companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "solar",
+          "solar installation and service companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-solar",
+      "category": "industries",
+      "q": "Does Vireek work for solar installation and service companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "painting",
+          "painting companies"
+        ]
+      ],
+      "mustNotInclude": [
+        "re:\\b(doesn'?t|does not|no) (support|work)"
+      ],
+      "kind": "answer",
+      "id": "industry-painting",
+      "category": "industries",
+      "q": "Does Vireek work for painting companies?"
+    },
+    {
+      "mustInclude": [
+        [
+          "quickbooks"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-quickbooks",
+      "category": "integrations",
+      "q": "Does Vireek integrate with QuickBooks?"
+    },
+    {
+      "mustInclude": [
+        [
+          "google calendar"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-google-calendar",
+      "category": "integrations",
+      "q": "Does Vireek integrate with Google Calendar?"
+    },
+    {
+      "mustInclude": [
+        [
+          "stripe"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-stripe",
+      "category": "integrations",
+      "q": "Does Vireek integrate with Stripe?"
+    },
+    {
+      "mustInclude": [
+        [
+          "zapier"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-zapier",
+      "category": "integrations",
+      "q": "Does Vireek integrate with Zapier?"
+    },
+    {
+      "mustInclude": [
+        [
+          "hubspot"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-hubspot",
+      "category": "integrations",
+      "q": "Does Vireek integrate with HubSpot?"
+    },
+    {
+      "mustInclude": [
+        [
+          "salesforce"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-salesforce",
+      "category": "integrations",
+      "q": "Does Vireek integrate with Salesforce?"
+    },
+    {
+      "mustInclude": [
+        [
+          "slack"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-slack",
+      "category": "integrations",
+      "q": "Does Vireek integrate with Slack?"
+    },
+    {
+      "mustInclude": [
+        [
+          "microsoft 365 / outlook"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-microsoft-365",
+      "category": "integrations",
+      "q": "Does Vireek integrate with Microsoft 365 / Outlook?"
+    },
+    {
+      "mustInclude": [
+        [
+          "twilio"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-twilio",
+      "category": "integrations",
+      "q": "Does Vireek integrate with Twilio?"
+    },
+    {
+      "mustInclude": [
+        [
+          "jobber"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-jobber",
+      "category": "integrations",
+      "q": "Does Vireek integrate with Jobber?"
+    },
+    {
+      "mustInclude": [
+        [
+          "servicetitan"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "integration-servicetitan",
+      "category": "integrations",
+      "q": "Does Vireek integrate with ServiceTitan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "servicetitan"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-servicetitan",
+      "category": "competitors",
+      "q": "How does Vireek compare to ServiceTitan?"
+    },
+    {
+      "mustInclude": [
+        [
+          "housecall pro"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-housecall-pro",
+      "category": "competitors",
+      "q": "How does Vireek compare to Housecall Pro?"
+    },
+    {
+      "mustInclude": [
+        [
+          "jobber"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-jobber",
+      "category": "competitors",
+      "q": "How does Vireek compare to Jobber?"
+    },
+    {
+      "mustInclude": [
+        [
+          "answering service"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-answering-service",
+      "category": "competitors",
+      "q": "How does Vireek compare to Answering Service?"
+    },
+    {
+      "mustInclude": [
+        [
+          "avoca ai"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-avoca-ai",
+      "category": "competitors",
+      "q": "How does Vireek compare to Avoca AI?"
+    },
+    {
+      "mustInclude": [
+        [
+          "sameday ai"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-sameday-ai",
+      "category": "competitors",
+      "q": "How does Vireek compare to Sameday AI?"
+    },
+    {
+      "mustInclude": [
+        [
+          "smith.ai"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-smith-ai",
+      "category": "competitors",
+      "q": "How does Vireek compare to Smith.ai?"
+    },
+    {
+      "mustInclude": [
+        [
+          "podium"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-podium",
+      "category": "competitors",
+      "q": "How does Vireek compare to Podium?"
+    },
+    {
+      "mustInclude": [
+        [
+          "numa"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-numa",
+      "category": "competitors",
+      "q": "How does Vireek compare to Numa?"
+    },
+    {
+      "mustInclude": [
+        [
+          "goodcall"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-goodcall",
+      "category": "competitors",
+      "q": "How does Vireek compare to Goodcall?"
+    },
+    {
+      "mustInclude": [
+        [
+          "rosie & my ai front desk"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-rosie-my-ai-front-desk",
+      "category": "competitors",
+      "q": "How does Vireek compare to Rosie & My AI Front Desk?"
+    },
+    {
+      "mustInclude": [
+        [
+          "fieldroutes"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-fieldroutes",
+      "category": "competitors",
+      "q": "How does Vireek compare to FieldRoutes?"
+    },
+    {
+      "mustInclude": [
+        [
+          "service fusion"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-service-fusion",
+      "category": "competitors",
+      "q": "How does Vireek compare to Service Fusion?"
+    },
+    {
+      "mustInclude": [
+        [
+          "workiz"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-workiz",
+      "category": "competitors",
+      "q": "How does Vireek compare to Workiz?"
+    },
+    {
+      "mustInclude": [
+        [
+          "ruby receptionists"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-ruby-receptionists",
+      "category": "competitors",
+      "q": "How does Vireek compare to Ruby Receptionists?"
+    },
+    {
+      "mustInclude": [
+        [
+          "dialzara"
+        ]
+      ],
+      "mustNotInclude": [
+        "terrible",
+        "garbage",
+        "worst",
+        "scam",
+        "useless"
+      ],
+      "kind": "answer",
+      "id": "compare-dialzara",
+      "category": "competitors",
+      "q": "How does Vireek compare to Dialzara?"
+    },
+    {
+      "mustInclude": [
+        [
+          "ai voice receptionist"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-ai-voice-receptionist",
+      "category": "glossary",
+      "q": "What does \"AI Voice Receptionist\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "ai agent"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-ai-agent",
+      "category": "glossary",
+      "q": "What does \"AI Agent\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "turn-taking"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-turn-taking",
+      "category": "glossary",
+      "q": "What does \"Turn-Taking\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "call routing"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-call-routing",
+      "category": "glossary",
+      "q": "What does \"Call Routing\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "cold transfer"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-cold-transfer",
+      "category": "glossary",
+      "q": "What does \"Cold Transfer\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "local number"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-local-number",
+      "category": "glossary",
+      "q": "What does \"Local Number\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "hold time"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-hold-time",
+      "category": "glossary",
+      "q": "What does \"Hold Time\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "booking rate"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-booking-rate",
+      "category": "glossary",
+      "q": "What does \"Booking Rate\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "upsell"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-upsell",
+      "category": "glossary",
+      "q": "What does \"Upsell\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "flat-rate pricing"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-flat-rate-pricing",
+      "category": "glossary",
+      "q": "What does \"Flat-Rate Pricing\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "hvac"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-hvac",
+      "category": "glossary",
+      "q": "What does \"HVAC\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "field service management (fsm)"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-field-service-management",
+      "category": "glossary",
+      "q": "What does \"Field Service Management (FSM)\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "row level security (rls)"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-row-level-security",
+      "category": "glossary",
+      "q": "What does \"Row Level Security (RLS)\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "gdpr"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "glossary-gdpr",
+      "category": "glossary",
+      "q": "What does \"GDPR\" mean?"
+    },
+    {
+      "mustInclude": [
+        [
+          "answering"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-call-intelligence-24-7-ai-answering",
+      "category": "features",
+      "q": "Does Vireek have 24/7 AI Answering? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "summaries"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-call-intelligence-call-summaries",
+      "category": "features",
+      "q": "Does Vireek have Call Summaries? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "intent",
+          "detection"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-call-intelligence-intent-detection",
+      "category": "features",
+      "q": "Does Vireek have Intent Detection? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "escalation"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-call-intelligence-live-escalation",
+      "category": "features",
+      "q": "Does Vireek have Live Escalation? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "customer",
+          "capture"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-lead-management-customer-capture",
+      "category": "features",
+      "q": "Does Vireek have Customer Capture? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "qualification"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-lead-management-lead-qualification",
+      "category": "features",
+      "q": "Does Vireek have Lead Qualification? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "deduplication"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-lead-management-deduplication",
+      "category": "features",
+      "q": "Does Vireek have Deduplication? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "smart",
+          "booking"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-scheduling-smart-booking",
+      "category": "features",
+      "q": "Does Vireek have Smart Booking? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "google",
+          "calendar"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-scheduling-google-calendar-sync",
+      "category": "features",
+      "q": "Does Vireek have Google Calendar Sync? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "reschedule",
+          "handling"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-scheduling-reschedule-handling",
+      "category": "features",
+      "q": "Does Vireek have Reschedule Handling? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "confirmations"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-customer-communication-sms-confirmations",
+      "category": "features",
+      "q": "Does Vireek have SMS Confirmations? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "appointment",
+          "reminders"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-customer-communication-appointment-reminders",
+      "category": "features",
+      "q": "Does Vireek have Appointment Reminders? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "missed"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-customer-communication-missed-call-text-back",
+      "category": "features",
+      "q": "Does Vireek have Missed-Call Text-Back? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "whatsapp",
+          "instagram"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-customer-communication-whatsapp-instagram-dms",
+      "category": "features",
+      "q": "Does Vireek have WhatsApp & Instagram DMs? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "crm sync"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-crm-crm-sync",
+      "category": "features",
+      "q": "Does Vireek have CRM Sync? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "knowledge"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-crm-knowledge-base-sync",
+      "category": "features",
+      "q": "Does Vireek have Knowledge Base Sync? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "unified",
+          "inbox"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-crm-unified-inbox",
+      "category": "features",
+      "q": "Does Vireek have Unified Inbox? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "analytics"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-analytics-call-analytics",
+      "category": "features",
+      "q": "Does Vireek have Call Analytics? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "sentiment",
+          "scoring"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-analytics-sentiment-scoring",
+      "category": "features",
+      "q": "Does Vireek have Sentiment Scoring? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "call qa"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-analytics-call-qa",
+      "category": "features",
+      "q": "Does Vireek have Call QA? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "multi",
+          "location"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-operations-multi-location",
+      "category": "features",
+      "q": "Does Vireek have Multi-Location? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "dynamic",
+          "dispatch"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-operations-dynamic-dispatch",
+      "category": "features",
+      "q": "Does Vireek have Dynamic Dispatch? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "parts",
+          "intelligence"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-operations-parts-intelligence",
+      "category": "features",
+      "q": "Does Vireek have Parts Intelligence? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "follow",
+          "engine"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-automation-follow-up-engine",
+      "category": "features",
+      "q": "Does Vireek have Follow-Up Engine? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "review",
+          "generation"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-automation-review-generation",
+      "category": "features",
+      "q": "Does Vireek have Review Generation? What does it do?"
+    },
+    {
+      "mustInclude": [
+        [
+          "abandoned",
+          "recovery"
+        ]
+      ],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "feature-automation-abandoned-call-recovery",
+      "category": "features",
+      "q": "Does Vireek have Abandoned Call Recovery? What does it do?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-0-how-do-i-create-a-vireek-accou",
+      "category": "help",
+      "q": "How do I create a Vireek account?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-1-what-does-sarah-actually-do-on",
+      "category": "help",
+      "q": "What does Sarah actually do on a call?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-2-where-do-i-see-my-calls",
+      "category": "help",
+      "q": "Where do I see my calls?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-3-how-do-i-invite-a-team-member",
+      "category": "help",
+      "q": "How do I invite a team member?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-4-where-do-i-manage-billing-and-",
+      "category": "help",
+      "q": "Where do I manage billing and invoices?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-5-does-sarah-book-directly-onto-",
+      "category": "help",
+      "q": "Does Sarah book directly onto my calendar?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-6-where-can-i-see-my-full-notifi",
+      "category": "help",
+      "q": "Where can I see my full notification history?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-7-where-do-i-read-the-full-priva",
+      "category": "help",
+      "q": "Where do I read the full privacy policy?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "help-8-im-not-receiving-email-or-sms-",
+      "category": "help",
+      "q": "I’m not receiving email or SMS alerts."
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "usecase-missed-calls",
+      "category": "use-cases",
+      "q": "How does Vireek help with missed calls?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "usecase-emergency-dispatch",
+      "category": "use-cases",
+      "q": "How does Vireek help with emergency dispatch?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "usecase-after-hours",
+      "category": "use-cases",
+      "q": "How does Vireek help with after-hours calls?"
+    },
+    {
+      "mustInclude": [],
+      "mustNotInclude": [],
+      "kind": "answer",
+      "id": "usecase-estimate-follow-up",
+      "category": "use-cases",
+      "q": "How does Vireek help with estimate follow-up?"
+    }
+  ]
+}
