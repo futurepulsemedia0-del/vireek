@@ -1,0 +1,2877 @@
+diff -ruN -x node_modules -x android -x ios a/src/components/CookieConsent.tsx vireek-main/src/components/CookieConsent.tsx
+--- a/src/components/CookieConsent.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/CookieConsent.tsx	2026-10-31 05:59:09.355991001 +0000
+@@ -376,6 +376,15 @@
+     }
+   }, []);
+ 
++  // Tell other fixed UI (e.g. the homepage mobile CTA bar) when the banner or the preference
++  // centre is on screen, so nothing is drawn over it.
++  useEffect(() => {
++    const open = bannerVisible || centerOpen;
++    document.documentElement.toggleAttribute('data-cookie-banner', open);
++    window.dispatchEvent(new CustomEvent('vireek:cookie-banner', { detail: { open } }));
++    return () => document.documentElement.removeAttribute('data-cookie-banner');
++  }, [bannerVisible, centerOpen]);
++
+   const acceptAll = useCallback(() => {
+     const all = { ...DEFAULT_STATE, analytics: true, personalization: true, marketing: true, ai: true };
+     writeConsent(all);
+diff -ruN -x node_modules -x android -x ios a/src/components/VoiceDemoWidget.tsx vireek-main/src/components/VoiceDemoWidget.tsx
+--- a/src/components/VoiceDemoWidget.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/VoiceDemoWidget.tsx	2026-10-31 05:59:32.340902809 +0000
+@@ -47,7 +47,14 @@
+  * src/lib/vapi.ts) — never the production dispatch assistant, and never
+  * with the lookup_customer / book_appointment tools attached.
+  */
+-export function VoiceDemoWidget() {
++interface VoiceDemoWidgetProps {
++  /** Fired when a visitor starts the demo (consent-gated analytics hook lives in the caller). */
++  onStart?: () => void;
++  /** Fired when the browser has no usable microphone or the visitor denies access. */
++  onMicUnavailable?: () => void;
++}
++
++export function VoiceDemoWidget({ onStart, onMicUnavailable }: VoiceDemoWidgetProps = {}) {
+   const [state, setState] = useState<CallState>('idle');
+   const [muted, setMuted] = useState(false);
+   const [volume, setVolume] = useState(0);
+@@ -79,6 +86,20 @@
+     setTranscript([]);
+     setDuration(0);
+     setState('connecting');
++    onStart?.();
++
++    // Ask for the microphone ourselves first, so a denial is detected reliably and the page can
++    // offer the transcript fallback instead of a generic error.
++    try {
++      if (!navigator.mediaDevices?.getUserMedia) throw new DOMException('unsupported', 'NotSupportedError');
++      const probe = await navigator.mediaDevices.getUserMedia({ audio: true });
++      probe.getTracks().forEach((t) => t.stop());
++    } catch {
++      setState('error');
++      setErrorMessage(GENERIC_ERROR);
++      onMicUnavailable?.();
++      return;
++    }
+ 
+     let vapi;
+     try {
+@@ -133,7 +154,7 @@
+       setState('error');
+       setErrorMessage(GENERIC_ERROR);
+     }
+-  }, []);
++  }, [onStart, onMicUnavailable]);
+ 
+   const endCall = useCallback(() => {
+     try {
+diff -ruN -x node_modules -x android -x ios a/src/components/home/CostOfMissedCalls.tsx vireek-main/src/components/home/CostOfMissedCalls.tsx
+--- a/src/components/home/CostOfMissedCalls.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/CostOfMissedCalls.tsx	2026-10-31 05:58:26.009653091 +0000
+@@ -0,0 +1,95 @@
++import { useId, useState } from 'react';
++import { ArrowRight } from 'lucide-react';
++import { ButtonLink } from '@/components/ui/ButtonLink';
++import { CALCULATOR_DEFAULTS, calculateMissedCallCost, type MissedCallInputs } from '@/lib/missedCallMath';
++import { trackHomeCta } from '@/lib/homeAnalytics';
++import { container, eyebrow, h2, lead, panel, sectionY } from './sectionStyles';
++
++const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
++const num = (n: number) => (Math.round(n * 10) / 10).toLocaleString('en-US');
++
++function Slider({
++  label, value, min, max, step, onChange, format,
++}: {
++  label: string; value: number; min: number; max: number; step: number;
++  onChange: (v: number) => void; format: (v: number) => string;
++}) {
++  const id = useId();
++  return (
++    <div>
++      <div className="flex items-baseline justify-between gap-3">
++        <label htmlFor={id} className="text-sm font-medium text-text-primary">{label}</label>
++        <output htmlFor={id} className="font-mono text-sm font-semibold text-text-primary">{format(value)}</output>
++      </div>
++      <input
++        id={id}
++        type="range"
++        min={min}
++        max={max}
++        step={step}
++        value={value}
++        onChange={(e) => onChange(Number(e.target.value))}
++        className="mt-2 h-11 w-full cursor-pointer accent-accent"
++      />
++    </div>
++  );
++}
++
++/** Replaces WhyNow + MissedCallCalculator on the homepage. Shows its own formula; invents no benchmark statistics. */
++export function CostOfMissedCalls() {
++  const [inputs, setInputs] = useState<MissedCallInputs>(CALCULATOR_DEFAULTS);
++  const set = <K extends keyof MissedCallInputs>(k: K) => (v: number) => setInputs((p) => ({ ...p, [k]: v }));
++  const r = calculateMissedCallCost(inputs);
++
++  return (
++    <section id="calculator" aria-labelledby="cost-heading" className={sectionY}>
++      <div className={container}>
++        <p className={eyebrow}>The cost of a missed call</p>
++        <h2 id="cost-heading" className={h2}>What do unanswered calls cost your business?</h2>
++        <p className={lead}>
++          Callers who reach voicemail usually call the next company on the list. Enter your own numbers to see what
++          that could mean for you.
++        </p>
++
++        <div className={`${panel} mt-10 grid overflow-hidden md:grid-cols-2`}>
++          <div className="flex flex-col gap-5 p-6 sm:p-8">
++            <Slider label="Calls per week" value={inputs.callsPerWeek} min={10} max={200} step={5} onChange={set('callsPerWeek')} format={(v) => `${v}`} />
++            <Slider label="Share you miss" value={inputs.missedPercent} min={0} max={80} step={5} onChange={set('missedPercent')} format={(v) => `${v}%`} />
++            <Slider label="Missed callers who would have booked" value={inputs.bookRatePercent} min={5} max={80} step={5} onChange={set('bookRatePercent')} format={(v) => `${v}%`} />
++            <Slider label="Average job value" value={inputs.jobValue} min={50} max={2000} step={25} onChange={set('jobValue')} format={usd} />
++          </div>
++
++          <div className="flex flex-col justify-center gap-4 border-t border-border bg-bg-tertiary p-6 sm:p-8 md:border-s md:border-t-0">
++            <p className="text-sm font-medium text-text-secondary">Revenue at stake each month</p>
++            <p className="font-display text-4xl font-semibold tracking-tight text-text-primary sm:text-5xl" aria-live="polite" aria-atomic="true">
++              {usd(r.monthlyRevenueAtStake)}
++            </p>
++            <p className="text-sm text-text-secondary">About {usd(r.annualRevenueAtStake)} a year.</p>
++
++            <div className="rounded-xl border border-border bg-bg-secondary p-4 text-sm leading-relaxed text-text-secondary">
++              <p className="font-semibold text-text-primary">How this is calculated</p>
++              <p className="mt-1">
++                {inputs.callsPerWeek} calls a week × {inputs.missedPercent}% missed × 52 ÷ 12 ={' '}
++                <strong className="text-text-primary">{num(r.missedPerMonth)}</strong> missed calls a month.
++              </p>
++              <p className="mt-1">
++                × {inputs.bookRatePercent}% booked = <strong className="text-text-primary">{num(r.bookedJobsPerMonth)}</strong> jobs
++                × {usd(inputs.jobValue)} = <strong className="text-text-primary">{usd(r.monthlyRevenueAtStake)}</strong>.
++              </p>
++            </div>
++
++            <p className="text-xs leading-relaxed text-text-secondary">
++              This is an estimate from the numbers you entered, not a promise of results. Sarah can only recover the
++              calls she is able to answer and book.
++            </p>
++
++            <ButtonLink to="/signup" size="lg" className="w-full" onClick={() => trackHomeCta('calculator_primary')}>
++              Start free trial
++              <ArrowRight size={18} aria-hidden="true" className="rtl:-scale-x-100" />
++            </ButtonLink>
++          </div>
++        </div>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/DemoFallback.tsx vireek-main/src/components/home/DemoFallback.tsx
+--- a/src/components/home/DemoFallback.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/DemoFallback.tsx	2026-10-31 05:59:32.346087153 +0000
+@@ -0,0 +1,83 @@
++import { useEffect, useState } from 'react';
++import { Phone } from 'lucide-react';
++import { ButtonAnchor } from '@/components/ui/ButtonLink';
++import { SARAH_PHONE } from '@/lib/site';
++import { SARAH_SAMPLE_AUDIO } from '@/lib/homeContent';
++import { trackDemoStart } from '@/lib/homeAnalytics';
++import { exampleChip } from './sectionStyles';
++
++export type MicStatus = 'unknown' | 'ok' | 'unsupported' | 'denied';
++
++/** Best-effort microphone check. Never prompts; falls back to 'unknown' where the Permissions API lacks "microphone" (Safari). */
++export function useMicStatus(forceDenied: boolean): MicStatus {
++  const [status, setStatus] = useState<MicStatus>('unknown');
++
++  useEffect(() => {
++    if (!navigator.mediaDevices?.getUserMedia) {
++      setStatus('unsupported');
++      return;
++    }
++    let cancelled = false;
++    let result: PermissionStatus | null = null;
++    const apply = () => result && !cancelled && setStatus(result.state === 'denied' ? 'denied' : 'ok');
++    navigator.permissions
++      ?.query({ name: 'microphone' as PermissionName })
++      .then((r) => {
++        result = r;
++        apply();
++        r.addEventListener('change', apply);
++      })
++      .catch(() => undefined);
++    return () => {
++      cancelled = true;
++      result?.removeEventListener('change', apply);
++    };
++  }, []);
++
++  return forceDenied ? 'denied' : status;
++}
++
++const EXAMPLE_TRANSCRIPT = [
++  ['Caller', 'Hi, my water heater is leaking all over the garage.'],
++  ['Sarah', 'I’m sorry to hear that. Is water running right now, or has it stopped?'],
++  ['Caller', 'It’s still running.'],
++  ['Sarah', 'Thanks. I’m flagging this as an emergency. Can I get your address?'],
++  ['Sarah', 'I can have a technician there today at 2:30. Does that work?'],
++] as const;
++
++export function DemoFallback({ reason }: { reason: Exclude<MicStatus, 'ok' | 'unknown'> }) {
++  return (
++    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-bg-secondary p-6" data-testid="demo-fallback">
++      <div className="flex items-center justify-between gap-3">
++        <h3 className="text-base font-semibold text-text-primary">Can’t use your microphone? Read a call instead</h3>
++        <span className={exampleChip}>Example</span>
++      </div>
++      <p role="status" className="text-sm text-text-secondary">
++        {reason === 'denied'
++          ? 'Microphone access is blocked for this site. You can allow it in your browser settings, type to Sarah in the chat, call her, or read this example.'
++          : 'This browser can’t use a microphone here. Type to Sarah in the chat, call her, or read this example.'}
++      </p>
++
++      {SARAH_SAMPLE_AUDIO && (
++        <audio controls preload="none" src={SARAH_SAMPLE_AUDIO.src} className="w-full" onPlay={() => trackDemoStart('fallback_transcript')}>
++          Your browser does not support audio playback.
++        </audio>
++      )}
++
++      <ol className="space-y-2 text-sm" aria-label="Example call transcript">
++        {EXAMPLE_TRANSCRIPT.map(([who, line], i) => (
++          <li key={i} className="flex gap-2">
++            <span className="w-14 shrink-0 font-semibold text-text-primary">{who}</span>
++            <span className="text-text-secondary">{line}</span>
++          </li>
++        ))}
++      </ol>
++      <p className="text-xs text-text-secondary">Illustrative transcript written for this page, not a real customer call.</p>
++
++      <ButtonAnchor href={SARAH_PHONE} variant="secondary" onClick={() => trackDemoStart('phone')}>
++        <Phone size={16} aria-hidden="true" />
++        Call Sarah instead
++      </ButtonAnchor>
++    </div>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/ExampleUi.tsx vireek-main/src/components/home/ExampleUi.tsx
+--- a/src/components/home/ExampleUi.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/ExampleUi.tsx	2026-10-31 05:58:26.010830286 +0000
+@@ -0,0 +1,70 @@
++import { exampleChip } from './sectionStyles';
++
++/**
++ * Small UI illustrations built from markup (no images, no layout shift). Every one is labelled "Example"
++ * and uses made-up names. They stand in until real screenshots are supplied (see PRODUCT_SHOTS).
++ */
++function Frame({ title, children }: { title: string; children: React.ReactNode }) {
++  return (
++    <div className="overflow-hidden rounded-xl border border-border bg-bg-primary text-start" role="img" aria-label={`Example: ${title}`}>
++      <div className="flex items-center justify-between border-b border-border bg-bg-tertiary px-3 py-2">
++        <span className="text-xs font-semibold text-text-primary">{title}</span>
++        <span className={exampleChip}>Example</span>
++      </div>
++      <div className="space-y-2 p-3 text-xs text-text-secondary" aria-hidden="true">{children}</div>
++    </div>
++  );
++}
++
++const row = 'flex items-center justify-between rounded-lg border border-border bg-bg-secondary px-3 py-2';
++
++export function ForwardingExample() {
++  return (
++    <Frame title="Call forwarding">
++      <div className={row}><span>Your business line</span><strong className="text-text-primary">(555) 010-0123</strong></div>
++      <div className="text-center">↓ forwards to</div>
++      <div className={row}><span>Sarah</span><strong className="text-text-primary">Answering</strong></div>
++    </Frame>
++  );
++}
++
++export function CallExample() {
++  return (
++    <Frame title="Live call">
++      <p className="rounded-lg bg-bg-secondary p-2 italic">“My water heater is leaking.”</p>
++      <p className="rounded-lg bg-bg-tertiary p-2 italic text-text-primary">“Is water running right now? I can book someone today.”</p>
++      <div className={row}><span>Flagged</span><strong className="text-text-primary">Emergency</strong></div>
++    </Frame>
++  );
++}
++
++export function JobExample() {
++  return (
++    <Frame title="New job">
++      <div className={row}><span>Customer</span><strong className="text-text-primary">J. Rivera</strong></div>
++      <div className={row}><span>Issue</span><strong className="text-text-primary">Leaking water heater</strong></div>
++      <div className={row}><span>When</span><strong className="text-text-primary">Today, 2:30 PM</strong></div>
++      <div className={row}><span>Confirmation</span><strong className="text-text-primary">Text sent</strong></div>
++    </Frame>
++  );
++}
++
++export function RecoverExample() {
++  return (
++    <Frame title="Follow-up">
++      <div className={row}><span>Missed call</span><strong className="text-text-primary">9:41 PM</strong></div>
++      <p className="rounded-lg bg-bg-tertiary p-2 italic text-text-primary">“Sorry we missed you. What do you need help with?”</p>
++      <div className={row}><span>Status</span><strong className="text-text-primary">Reply received</strong></div>
++    </Frame>
++  );
++}
++
++export function DispatchExample() {
++  return (
++    <Frame title="Schedule">
++      <div className={row}><span>10:00</span><strong className="text-text-primary">Estimate · Oak St</strong></div>
++      <div className={row}><span>12:30</span><strong className="text-text-primary">Install · Pine Ave</strong></div>
++      <div className={row}><span>14:30</span><strong className="text-text-primary">Emergency · Elm Rd</strong></div>
++    </Frame>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/FinalCta.tsx vireek-main/src/components/home/FinalCta.tsx
+--- a/src/components/home/FinalCta.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/FinalCta.tsx	2026-10-31 05:59:09.236726202 +0000
+@@ -0,0 +1,29 @@
++import { ArrowRight } from 'lucide-react';
++import { Link } from 'react-router-dom';
++import { ButtonLink } from '@/components/ui/ButtonLink';
++import { SARAH_PHONE } from '@/lib/site';
++import { TRIAL } from '@/lib/homeContent';
++import { trackHomeCta } from '@/lib/homeAnalytics';
++import { container, h2, sectionY, textLink } from './sectionStyles';
++
++export function FinalCta() {
++  return (
++    <section id="contact" aria-labelledby="final-heading" className={`${sectionY} border-t border-border text-center`}>
++      <div className={`${container} flex flex-col items-center`}>
++        <h2 id="final-heading" className={`${h2} max-w-2xl`}>Stop sending your customers to voicemail</h2>
++        <ButtonLink to="/signup" size="lg" className="mt-8" onClick={() => trackHomeCta('final_primary')}>
++          Start free trial
++          <ArrowRight size={18} aria-hidden="true" className="rtl:-scale-x-100" />
++        </ButtonLink>
++        <p className="mt-3 text-sm text-text-secondary">{TRIAL.short}</p>
++        <a href={SARAH_PHONE} className={`${textLink} mt-2`} onClick={() => trackHomeCta('final_call')}>
++          Or call Sarah and hear her first
++        </a>
++        <p className="mt-6 text-xs text-text-secondary">
++          Sarah is an AI and tells callers so. <Link to="/security" className="underline underline-offset-2">Security</Link> ·{' '}
++          <Link to="/refund-policy" className="underline underline-offset-2">Cancellation policy</Link>
++        </p>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/FoundingProgram.tsx vireek-main/src/components/home/FoundingProgram.tsx
+--- a/src/components/home/FoundingProgram.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/FoundingProgram.tsx	2026-10-31 05:58:52.069495712 +0000
+@@ -0,0 +1,42 @@
++import { ArrowRight } from 'lucide-react';
++import { Link } from 'react-router-dom';
++import { ButtonLink } from '@/components/ui/ButtonLink';
++import { FOUNDING_OFFER, TRIAL } from '@/lib/homeContent';
++import { trackHomeCta } from '@/lib/homeAnalytics';
++import { container, eyebrow, h2, lead, panel, sectionY, textLink } from './sectionStyles';
++
++/**
++ * Replaces the fabricated "Coastal Plumbing Co." result. Contains no testimonials, logos or customer metrics.
++ * If a real founding offer is defined in homeContent.FOUNDING_OFFER it is shown; otherwise the section says so.
++ */
++export function FoundingProgram() {
++  return (
++    <section id="founding" aria-labelledby="founding-heading" className={`${sectionY} border-t border-border`}>
++      <div className={container}>
++        <div className={`${panel} grid gap-8 p-6 sm:p-10 md:grid-cols-[1.2fr_0.8fr] md:items-center`}>
++          <div>
++            <p className={eyebrow}>Founding customers</p>
++            <h2 id="founding-heading" className={h2}>We’re early, and we’ll say so</h2>
++            <p className={lead}>
++              Vireek is a young product. We don’t publish customer counts, logos or quotes we can’t back up. Start the
++              trial, listen to real calls on your own line, and judge Sarah on that.
++            </p>
++            {FOUNDING_OFFER && (
++              <p className="mt-4 text-sm text-text-primary">
++                <strong>{FOUNDING_OFFER.title}.</strong> {FOUNDING_OFFER.terms}
++              </p>
++            )}
++          </div>
++          <div className="flex flex-col gap-3">
++            <ButtonLink to="/signup" size="lg" className="w-full" onClick={() => trackHomeCta('founding_primary')}>
++              Start free trial
++              <ArrowRight size={18} aria-hidden="true" className="rtl:-scale-x-100" />
++            </ButtonLink>
++            <p className="text-sm text-text-secondary">{TRIAL.short}</p>
++            <Link to="/demo" className={textLink}>Prefer a walkthrough? Book a demo</Link>
++          </div>
++        </div>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/Hero.tsx vireek-main/src/components/home/Hero.tsx
+--- a/src/components/home/Hero.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/Hero.tsx	2026-10-31 05:58:26.003352738 +0000
+@@ -0,0 +1,151 @@
++import { useEffect, useState } from 'react';
++import { useReducedMotion } from 'framer-motion';
++import { ArrowRight, BellRing, CalendarCheck, Mic, PhoneIncoming, Siren } from 'lucide-react';
++import { ButtonAnchor, ButtonLink } from '@/components/ui/ButtonLink';
++import { useExperiment } from '@/contexts/ExperimentContext';
++import { LIVE_DEMO_SECTION_ID } from '@/lib/site';
++import { HERO_HEADLINES, HERO_PROOF, TRADES, TRIAL } from '@/lib/homeContent';
++import { trackHomeCta } from '@/lib/homeAnalytics';
++import { container, exampleChip } from './sectionStyles';
++
++// Example lines only — this is an illustration of a typical call, not a recording of a real customer.
++const EXAMPLE_LINES = [
++  '“Thanks for calling Example Plumbing, this is Sarah. How can I help?”',
++  '“Is water actively running right now, or has it stopped?”',
++  '“I can have someone out today at 2:30. Does that work?”',
++  '“You’re booked. A text confirmation is on its way.”',
++] as const;
++
++const EXAMPLE_STEPS = [
++  { icon: PhoneIncoming, label: 'Call answered' },
++  { icon: Siren, label: 'Emergency flagged' },
++  { icon: CalendarCheck, label: 'Job booked on your calendar' },
++  { icon: BellRing, label: 'Customer texted a confirmation' },
++] as const;
++
++function ExampleTranscript() {
++  const reduceMotion = useReducedMotion();
++  const [index, setIndex] = useState(0);
++
++  useEffect(() => {
++    if (reduceMotion) return;
++    const id = window.setInterval(() => setIndex((i) => (i + 1) % EXAMPLE_LINES.length), 3600);
++    return () => window.clearInterval(id);
++  }, [reduceMotion]);
++
++  // Reduced motion: show the whole exchange as static text instead of an auto-rotating line.
++  if (reduceMotion) {
++    return (
++      <ul className="space-y-1.5 px-4 py-4 text-[0.8125rem] italic leading-snug text-text-secondary">
++        {EXAMPLE_LINES.map((line) => (
++          <li key={line}>{line}</li>
++        ))}
++      </ul>
++    );
++  }
++
++  return (
++    <div className="flex h-16 items-center px-4" role="img" aria-label="Example of what Sarah says on a call">
++      <p key={index} className="motion-safe:animate-fade-in text-[0.8125rem] italic leading-snug text-text-secondary">
++        {EXAMPLE_LINES[index]}
++      </p>
++    </div>
++  );
++}
++
++/** Live recreation of the product flow. Clearly labelled as an example; contains no performance figures. */
++function ProductVisual() {
++  return (
++    <figure className="w-full max-w-md" aria-label="Example call handled by Sarah">
++      <div className="overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
++        <div className="flex items-center justify-between border-b border-border px-4 py-3">
++          <span className="text-sm font-semibold text-text-primary">Sarah · incoming call</span>
++          <span className={exampleChip}>Example</span>
++        </div>
++        <div className="border-b border-border bg-bg-tertiary/60">
++          <ExampleTranscript />
++        </div>
++        <ol className="divide-y divide-border/60">
++          {EXAMPLE_STEPS.map(({ icon: Icon, label }) => (
++            <li key={label} className="flex items-center gap-3 px-4 py-3">
++              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-bg-tertiary text-text-secondary">
++                <Icon size={15} aria-hidden="true" />
++              </span>
++              <span className="text-[0.8125rem] font-medium text-text-primary">{label}</span>
++            </li>
++          ))}
++        </ol>
++      </div>
++      <figcaption className="mt-3 text-xs text-text-secondary">
++        Illustration of a typical call. Business name and times are made up.
++      </figcaption>
++    </figure>
++  );
++}
++
++export function Hero() {
++  const variant = useExperiment('hero_headline');
++  const headline = variant === 'variant_b' ? HERO_HEADLINES.variant_b : HERO_HEADLINES.control;
++
++  return (
++    <section id="top" aria-labelledby="hero-heading" className="pt-28 pb-14 sm:pt-32 sm:pb-20 lg:pt-36">
++      <div className={`${container} grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16`}>
++        <div className="text-start">
++          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-secondary">
++            AI receptionist for {TRADES.map((t) => t.toLowerCase()).slice(0, 3).join(', ')} &amp; roofing contractors
++          </p>
++
++          {/* The page's only H1. Rendered without an entrance animation so it paints immediately (LCP). */}
++          <h1
++            id="hero-heading"
++            className="mt-4 font-display text-4xl font-semibold leading-[1.08] tracking-tightest text-text-primary sm:text-5xl lg:text-[3.5rem]"
++          >
++            {headline.line1} <span className="block">{headline.line2}</span>
++          </h1>
++
++          <p className="mt-5 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
++            Sarah picks up every call, even at 2 a.m., books the job on your calendar and texts the customer. You stop
++            losing work to voicemail.
++          </p>
++
++          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center" data-hero-cta>
++            <ButtonLink
++              to="/signup"
++              size="lg"
++              className="w-full sm:w-auto"
++              onClick={() => trackHomeCta('hero_primary')}
++            >
++              Start free trial
++              <ArrowRight size={18} aria-hidden="true" className="rtl:-scale-x-100" />
++            </ButtonLink>
++            <ButtonAnchor
++              href={`#${LIVE_DEMO_SECTION_ID}`}
++              variant="secondary"
++              size="lg"
++              className="w-full sm:w-auto"
++              onClick={() => trackHomeCta('hero_demo')}
++            >
++              <Mic size={16} aria-hidden="true" />
++              Hear Sarah live
++            </ButtonAnchor>
++          </div>
++          <p className="mt-3 text-sm text-text-secondary">{TRIAL.short}</p>
++
++          <dl className="mt-10 grid gap-5 border-t border-border pt-6 sm:grid-cols-3">
++            {HERO_PROOF.map((item) => (
++              <div key={item.label}>
++                <dt className="text-xs font-semibold uppercase tracking-wide text-text-secondary">{item.label}</dt>
++                <dd className="mt-1 font-display text-xl font-semibold text-text-primary">{item.value}</dd>
++                <dd className="mt-0.5 text-xs leading-snug text-text-secondary">{item.detail}</dd>
++              </div>
++            ))}
++          </dl>
++        </div>
++
++        <div className="flex justify-center lg:justify-end">
++          <ProductVisual />
++        </div>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/HomeFaq.tsx vireek-main/src/components/home/HomeFaq.tsx
+--- a/src/components/home/HomeFaq.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/HomeFaq.tsx	2026-10-31 05:59:09.235305990 +0000
+@@ -0,0 +1,32 @@
++import { Link } from 'react-router-dom';
++import { ChevronDown } from 'lucide-react';
++import { HOME_FAQS } from '@/lib/homeContent';
++import { container, eyebrow, h2, panel, sectionY, textLink } from './sectionStyles';
++
++/** Native <details> keeps this accessible, keyboard-operable and JS-free. Same HOME_FAQS feed the FAQPage JSON-LD. */
++export function HomeFaq() {
++  return (
++    <section id="faq" aria-labelledby="faq-heading" className={`${sectionY} border-t border-border`}>
++      <div className="mx-auto w-full max-w-3xl px-5 sm:px-6">
++        <p className={eyebrow}>FAQ</p>
++        <h2 id="faq-heading" className={h2}>Straight answers</h2>
++        <div className="mt-8 space-y-3">
++          {HOME_FAQS.map((f) => (
++            <details key={f.q} className={`${panel} group`}>
++              <summary className="focus-ring flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-5 py-3 text-start [&::-webkit-details-marker]:hidden">
++                <span className="text-base font-semibold text-text-primary">{f.q}</span>
++                <ChevronDown size={18} aria-hidden="true" className="shrink-0 text-text-secondary transition-transform motion-reduce:transition-none group-open:rotate-180" />
++              </summary>
++              <p className="px-5 pb-5 text-sm leading-relaxed text-text-secondary sm:text-base">{f.a}</p>
++            </details>
++          ))}
++        </div>
++        <div className="mt-6 flex flex-wrap gap-x-6">
++          <Link to="/faq" className={textLink}>More questions</Link>
++          <Link to="/security" className={textLink}>Security</Link>
++          <Link to="/privacy" className={textLink}>Privacy</Link>
++        </div>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/HomePricing.tsx vireek-main/src/components/home/HomePricing.tsx
+--- a/src/components/home/HomePricing.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/HomePricing.tsx	2026-10-31 05:58:52.070990601 +0000
+@@ -0,0 +1,92 @@
++import { useState } from 'react';
++import { Check } from 'lucide-react';
++import { Link } from 'react-router-dom';
++import { ButtonAnchor, ButtonLink } from '@/components/ui/ButtonLink';
++import { useCurrency } from '@/contexts/CurrencyContext';
++import { useExperiment } from '@/contexts/ExperimentContext';
++import { formatPrice } from '@/lib/currency';
++import { HOME_PLAN_IDS } from '@/lib/homeContent';
++import { trackHomeCta } from '@/lib/homeAnalytics';
++import { PRICING_PLANS, getPlanHref, isExternalLink, type BillingCycle, type PricingPlan } from '@/lib/pricing';
++import { container, eyebrow, h2, panel, sectionY, textLink } from './sectionStyles';
++
++const PLANS = HOME_PLAN_IDS.map((id) => PRICING_PLANS.find((p) => p.id === id)).filter(
++  (p): p is PricingPlan => p !== undefined,
++);
++
++export function HomePricing() {
++  const { currency } = useCurrency();
++  const variant = useExperiment('pricing_default_billing');
++  const [billing, setBilling] = useState<BillingCycle>(variant === 'monthly' ? 'monthly' : 'annual');
++
++  return (
++    <section id="pricing" aria-labelledby="pricing-heading" className={`${sectionY} border-t border-border`}>
++      <div className={container}>
++        <p className={eyebrow}>Pricing</p>
++        <h2 id="pricing-heading" className={h2}>Pick the plan that fits your call volume</h2>
++
++        <div role="group" aria-label="Billing period" className="mt-6 inline-flex rounded-xl border border-border bg-bg-tertiary p-1">
++          {(['monthly', 'annual'] as const).map((c) => (
++            <button
++              key={c}
++              type="button"
++              aria-pressed={billing === c}
++              onClick={() => setBilling(c)}
++              className={`focus-ring min-h-[44px] rounded-lg px-4 text-sm font-semibold ${
++                billing === c ? 'bg-bg-secondary text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'
++              }`}
++            >
++              {c === 'monthly' ? 'Monthly' : 'Annual'}
++            </button>
++          ))}
++        </div>
++
++        <ul className="mt-8 grid gap-6 md:grid-cols-3">
++          {PLANS.map((plan) => {
++            const total = billing === 'annual' ? plan.annual : plan.monthly;
++            const perMonth = total === null ? null : billing === 'annual' ? Math.round(total / 12) : total;
++            const href = getPlanHref(plan.id, billing);
++            const label = plan.ctaLabel;
++            return (
++              <li key={plan.id} className={`${panel} flex flex-col p-6 ${plan.recommended ? 'border-text-primary' : ''}`}>
++                <h3 className="flex items-center gap-2 text-lg font-semibold text-text-primary">
++                  {plan.name}
++                  {plan.recommended && (
++                    <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-wide text-text-secondary">Most popular</span>
++                  )}
++                </h3>
++                <p className="mt-1 min-h-[2.5rem] text-sm text-text-secondary">{plan.tagline}</p>
++                <p className="mt-4 font-display text-4xl font-semibold text-text-primary">
++                  {perMonth === null ? 'Custom' : formatPrice(perMonth, currency)}
++                  {perMonth !== null && <span className="text-sm font-normal text-text-secondary"> /mo</span>}
++                </p>
++                <p className="mt-1 text-xs text-text-secondary">
++                  {billing === 'annual' && total !== null ? `Billed ${formatPrice(total, currency)} a year` : 'Billed monthly'} · {plan.minutes} included
++                </p>
++                <ul className="mt-4 flex-1 space-y-2 text-sm text-text-primary">
++                  {plan.features.slice(0, 4).map((f) => (
++                    <li key={f} className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-text-secondary" aria-hidden="true" />{f}</li>
++                  ))}
++                </ul>
++                {isExternalLink(plan.id) ? (
++                  <ButtonAnchor href={href} variant={plan.recommended ? 'primary' : 'secondary'} className="mt-6 w-full" onClick={() => trackHomeCta('pricing_plan', { plan: plan.id, billing })}>
++                    {label}<span className="sr-only"> — {plan.name}</span>
++                  </ButtonAnchor>
++                ) : (
++                  <ButtonLink to={href} variant={plan.recommended ? 'primary' : 'secondary'} className="mt-6 w-full" onClick={() => trackHomeCta('pricing_plan', { plan: plan.id, billing })}>
++                    {label}<span className="sr-only"> — {plan.name}</span>
++                  </ButtonLink>
++                )}
++              </li>
++            );
++          })}
++        </ul>
++
++        <p className="mt-6 text-sm text-text-secondary">
++          14-day free trial, no credit card. No contracts, cancel anytime. There is also a Free plan with 50 minutes.
++        </p>
++        <Link to="/pricing" className={textLink}>Compare every plan</Link>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/HowItWorks.tsx vireek-main/src/components/home/HowItWorks.tsx
+--- a/src/components/home/HowItWorks.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/HowItWorks.tsx	2026-10-31 05:58:52.067160465 +0000
+@@ -0,0 +1,31 @@
++import { CallExample, ForwardingExample, JobExample } from './ExampleUi';
++import { container, eyebrow, h2, panel, sectionY } from './sectionStyles';
++
++const STEPS = [
++  { title: 'Forward your number', body: 'Keep your number. Point it at Sarah and tell her your services, hours and service area.', visual: <ForwardingExample /> },
++  { title: 'Sarah answers', body: 'She greets the caller, asks the right questions, and flags emergencies.', visual: <CallExample /> },
++  { title: 'The job lands on your calendar', body: 'She books a slot and texts the customer. You get a summary of the call.', visual: <JobExample /> },
++] as const;
++
++export function HowItWorks() {
++  return (
++    <section id="how-it-works" aria-labelledby="how-heading" className={`${sectionY} border-t border-border`}>
++      <div className={container}>
++        <p className={eyebrow}>How it works</p>
++        <h2 id="how-heading" className={h2}>Live in three steps</h2>
++        <ol className="mt-10 grid gap-6 md:grid-cols-3">
++          {STEPS.map((s, i) => (
++            <li key={s.title} className={`${panel} flex flex-col gap-4 p-5`}>
++              <div>
++                <p className="font-display text-sm font-semibold text-text-secondary">Step {i + 1}</p>
++                <h3 className="mt-1 text-lg font-semibold text-text-primary">{s.title}</h3>
++                <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">{s.body}</p>
++              </div>
++              <div className="mt-auto">{s.visual}</div>
++            </li>
++          ))}
++        </ol>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/IntegrationsStrip.tsx vireek-main/src/components/home/IntegrationsStrip.tsx
+--- a/src/components/home/IntegrationsStrip.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/IntegrationsStrip.tsx	2026-10-31 05:58:26.008252618 +0000
+@@ -0,0 +1,46 @@
++import { Link } from 'react-router-dom';
++import { INTEGRATION_GROUPS, TRADES } from '@/lib/homeContent';
++import { container, eyebrow, textLink } from './sectionStyles';
++
++/** Text marks only: no third-party logos are used, so no trademark or licensing question arises. */
++export function IntegrationsStrip() {
++  return (
++    <section aria-labelledby="integrations-heading" className="border-y border-border bg-bg-secondary/50 py-10">
++      <div className={container}>
++        <h2 id="integrations-heading" className={eyebrow}>
++          Works with the tools and trades you already have
++        </h2>
++        <div className="mt-6 grid gap-8 md:grid-cols-3">
++          {INTEGRATION_GROUPS.map((group) => (
++            <div key={group.heading}>
++              <h3 className="text-sm font-semibold text-text-primary">{group.heading}</h3>
++              <p className="mt-0.5 text-xs text-text-secondary">{group.note}</p>
++              <ul className="mt-3 flex flex-wrap gap-2">
++                {group.names.map((n) => (
++                  <li key={n} className="rounded-lg border border-border bg-bg-primary px-3 py-1.5 text-sm font-semibold text-text-primary">
++                    {n}
++                  </li>
++                ))}
++              </ul>
++            </div>
++          ))}
++          <div>
++            <h3 className="text-sm font-semibold text-text-primary">Trades</h3>
++            <p className="mt-0.5 text-xs text-text-secondary">Built for the vocabulary of each</p>
++            <ul className="mt-3 flex flex-wrap gap-2">
++              {TRADES.map((t) => (
++                <li key={t} className="rounded-lg border border-border bg-bg-primary px-3 py-1.5 text-sm font-semibold text-text-primary">
++                  {t}
++                </li>
++              ))}
++            </ul>
++          </div>
++        </div>
++        <div className="mt-4 flex flex-wrap gap-x-6">
++          <Link to="/integrations" className={textLink}>All integrations</Link>
++          <Link to="/industries" className={textLink}>All industries</Link>
++        </div>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/ProductProof.tsx vireek-main/src/components/home/ProductProof.tsx
+--- a/src/components/home/ProductProof.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/ProductProof.tsx	2026-10-31 05:58:52.068340012 +0000
+@@ -0,0 +1,77 @@
++import { Link } from 'react-router-dom';
++import { PRODUCT_SHOTS, type RealAsset } from '@/lib/homeContent';
++import { DispatchExample, RecoverExample, CallExample } from './ExampleUi';
++import { container, eyebrow, h2, lead, panel, sectionY, textLink } from './sectionStyles';
++
++function Shot({ asset, fallback }: { asset: RealAsset | null; fallback: React.ReactNode }) {
++  if (!asset) return <>{fallback}</>;
++  return (
++    <img
++      src={asset.src}
++      alt={asset.alt}
++      width={asset.width}
++      height={asset.height}
++      loading="lazy"
++      decoding="async"
++      className="h-auto w-full rounded-xl border border-border"
++    />
++  );
++}
++
++// Bullets are limited to features listed in src/lib/pricing.ts.
++const BLOCKS = [
++  {
++    key: 'answer',
++    title: 'Answer every call',
++    body: 'No voicemail, no hold music. Sarah picks up day or night and handles the common questions.',
++    bullets: ['24/7 AI call answering', 'Emergency detection', 'Warm transfer to on-call staff (Professional and up)'],
++    visual: <Shot asset={PRODUCT_SHOTS.answer} fallback={<CallExample />} />,
++  },
++  {
++    key: 'dispatch',
++    title: 'Book and dispatch',
++    body: 'Jobs go straight onto your calendar and the customer gets a text confirmation.',
++    bullets: ['Smart calendar booking', 'SMS appointment confirmations', 'Custom after-hours routing (Professional and up)'],
++    visual: <Shot asset={PRODUCT_SHOTS.dispatch} fallback={<DispatchExample />} />,
++  },
++  {
++    key: 'recover',
++    title: 'Follow up and recover revenue',
++    body: 'A missed call gets a text back, so the customer is not lost to the next company.',
++    bullets: ['Missed-call text-back', 'Call summaries by email', 'Automated review requests (Professional and up)'],
++    visual: <Shot asset={PRODUCT_SHOTS.recover} fallback={<RecoverExample />} />,
++  },
++] as const;
++
++export function ProductProof() {
++  return (
++    <section id="product" aria-labelledby="product-heading" className={`${sectionY} border-t border-border`}>
++      <div className={container}>
++        <p className={eyebrow}>What you get</p>
++        <h2 id="product-heading" className={h2}>More than a receptionist</h2>
++        <p className={lead}>
++          Vireek is a full operations platform for service businesses. Calls are where it starts.
++        </p>
++        <div className="mt-10 grid gap-6 lg:grid-cols-3">
++          {BLOCKS.map((b) => (
++            <article key={b.key} className={`${panel} flex flex-col gap-5 p-5`}>
++              <div>
++                <h3 className="text-lg font-semibold text-text-primary">{b.title}</h3>
++                <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">{b.body}</p>
++                <ul className="mt-3 space-y-1.5 text-sm text-text-primary">
++                  {b.bullets.map((x) => (
++                    <li key={x} className="flex gap-2"><span aria-hidden="true">·</span>{x}</li>
++                  ))}
++                </ul>
++              </div>
++              <div className="mt-auto">{b.visual}</div>
++            </article>
++          ))}
++        </div>
++        <div className="mt-6">
++          <Link to="/platform" className={textLink}>See the full platform</Link>
++        </div>
++      </div>
++    </section>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/StickyMobileCta.tsx vireek-main/src/components/home/StickyMobileCta.tsx
+--- a/src/components/home/StickyMobileCta.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/StickyMobileCta.tsx	2026-10-31 05:59:09.237879305 +0000
+@@ -0,0 +1,61 @@
++import { useEffect, useState } from 'react';
++import { Phone } from 'lucide-react';
++import { ButtonAnchor, ButtonLink } from '@/components/ui/ButtonLink';
++import { SARAH_PHONE } from '@/lib/site';
++import { trackHomeCta } from '@/lib/homeAnalytics';
++
++export const STICKY_CTA_HEIGHT_CLASS = 'h-[calc(4.5rem+env(safe-area-inset-bottom))]';
++
++/**
++ * Mobile-only bottom bar. It never covers content (a spacer of equal height is rendered while visible)
++ * and never covers the cookie banner (it hides while the banner is open, signalled by CookieConsent through
++ * <html data-cookie-banner> and the `vireek:cookie-banner` event). It also stays hidden while the hero CTA
++ * is on screen, so there is no duplicate CTA above the fold.
++ */
++export function StickyMobileCta() {
++  const [heroVisible, setHeroVisible] = useState(true);
++  const [cookieOpen, setCookieOpen] = useState(
++    () => typeof document !== 'undefined' && document.documentElement.hasAttribute('data-cookie-banner'),
++  );
++
++  useEffect(() => {
++    const target = document.querySelector('[data-hero-cta]');
++    if (!target || typeof IntersectionObserver === 'undefined') {
++      setHeroVisible(false);
++      return;
++    }
++    const io = new IntersectionObserver(([e]) => setHeroVisible(e.isIntersecting));
++    io.observe(target);
++    return () => io.disconnect();
++  }, []);
++
++  useEffect(() => {
++    const onChange = (e: Event) => setCookieOpen(Boolean((e as CustomEvent<{ open: boolean }>).detail?.open));
++    window.addEventListener('vireek:cookie-banner', onChange);
++    return () => window.removeEventListener('vireek:cookie-banner', onChange);
++  }, []);
++
++  const show = !heroVisible && !cookieOpen;
++  if (!show) return null;
++
++  return (
++    <>
++      <div aria-hidden="true" className={`md:hidden ${STICKY_CTA_HEIGHT_CLASS}`} />
++      <div
++        data-testid="sticky-cta"
++        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg-secondary/95 px-4 pt-3 backdrop-blur md:hidden"
++        style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
++      >
++        <div className="mx-auto flex max-w-md gap-2">
++          <ButtonLink to="/signup" className="flex-1" onClick={() => trackHomeCta('sticky_primary')}>
++            Start free trial
++          </ButtonLink>
++          <ButtonAnchor href={SARAH_PHONE} variant="secondary" aria-label="Call Sarah" className="px-4" onClick={() => trackHomeCta('sticky_call')}>
++            <Phone size={18} aria-hidden="true" />
++            <span className="sr-only sm:not-sr-only">Call</span>
++          </ButtonAnchor>
++        </div>
++      </div>
++    </>
++  );
++}
+diff -ruN -x node_modules -x android -x ios a/src/components/home/sectionStyles.ts vireek-main/src/components/home/sectionStyles.ts
+--- a/src/components/home/sectionStyles.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/home/sectionStyles.ts	2026-10-29 03:40:10.387853841 +0000
+@@ -0,0 +1,15 @@
++/**
++ * One grid, one spacing scale for every homepage section.
++ * The accent colour is intentionally NOT used here: on this page it marks CTAs only.
++ * All colours are design tokens (bg-*, text-*, border-*), so light and dark mode come for free.
++ */
++export const container = 'mx-auto w-full max-w-6xl px-5 sm:px-6';
++export const sectionY = 'py-16 sm:py-24';
++export const eyebrow = 'text-xs font-semibold uppercase tracking-[0.16em] text-text-secondary';
++export const h2 = 'mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-text-primary sm:text-4xl';
++export const lead = 'mt-4 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-lg';
++export const panel = 'rounded-2xl border border-border bg-bg-secondary';
++export const exampleChip =
++  'inline-flex items-center rounded-full border border-border bg-bg-tertiary px-2.5 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-wide text-text-secondary';
++export const textLink =
++  'focus-ring inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-text-primary underline decoration-border underline-offset-4 hover:decoration-text-primary';
+diff -ruN -x node_modules -x android -x ios a/src/components/sections/CustomerResults.tsx vireek-main/src/components/sections/CustomerResults.tsx
+--- a/src/components/sections/CustomerResults.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/sections/CustomerResults.tsx	1970-01-01 00:00:00.000000000 +0000
+@@ -1,154 +0,0 @@
+-import { motion } from 'framer-motion';
+-import { Info, TrendingUp, DollarSign, Clock, ArrowRight } from 'lucide-react';
+-import { Link } from 'react-router-dom';
+-import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+-import { CountUp } from '@/components/ui/CountUp';
+-
+-/* ------------------------------------------------------------------ */
+-/*  Data                                                                */
+-/* ------------------------------------------------------------------ */
+-//
+-// IMPORTANT — read before editing:
+-// If the business below is a real Vireek customer with verified numbers,
+-// remove the disclaimer banner in this section and replace `business`
+-// with their real name. Until then, this stays labeled as illustrative,
+-// matching the exact convention already established in CaseStudiesPage.tsx
+-// and TestimonialsPage.tsx — Vireek does not publish fabricated verified
+-// testimonials. See /about for that commitment.
+-
+-interface ResultMetric {
+-  business: string;
+-  industry: string;
+-  timeframe: string;
+-  conversionBefore: string;
+-  conversionAfter: string;
+-  conversionChange: string;
+-  revenueRecovered: string;
+-  summary: string;
+-}
+-
+-const RESULT: ResultMetric = {
+-  business: 'Coastal Plumbing Co.',
+-  industry: 'Plumbing',
+-  timeframe: '60 days',
+-  conversionBefore: '31%',
+-  conversionAfter: '73%',
+-  conversionChange: '+42%',
+-  revenueRecovered: '$18,000',
+-  summary:
+-    'Every estimate that used to sit unanswered now gets an automatic follow-up call and text within hours — not whenever someone remembers.',
+-};
+-
+-/* ------------------------------------------------------------------ */
+-/*  Main section                                                       */
+-/* ------------------------------------------------------------------ */
+-
+-export function CustomerResults() {
+-  return (
+-    <section className="py-16 sm:py-24 md:py-28">
+-      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+-        <motion.div
+-          initial={{ opacity: 0, y: 16 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.5, ease: EASE }}
+-          className="mx-auto max-w-2xl text-center"
+-        >
+-          <p className={eyebrowClass()}>Customer Results</p>
+-          <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>
+-            The Numbers, Not Just a Quote
+-          </h2>
+-          <p className={`${bodyClass()} mx-auto text-sm sm:text-base md:text-lg`}>
+-            No vague praise — just what changed, measured in dollars and conversion rate.
+-          </p>
+-        </motion.div>
+-
+-        {/* Disclaimer — required whenever the figures below aren't yet a verified,
+-            named customer. See CaseStudiesPage.tsx for the source of this convention. */}
+-        <motion.div
+-          initial={{ opacity: 0, y: 12 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.45, ease: EASE }}
+-          className="mx-auto mt-8 flex max-w-3xl items-start gap-3 rounded-2xl border border-border bg-bg-secondary/70 p-4 text-left sm:mt-10"
+-        >
+-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+-          <p className="text-xs leading-relaxed text-text-secondary sm:text-sm">
+-            This is an illustrative example of the kind of outcome Vireek is designed to produce
+-            — Vireek is early-stage and doesn&apos;t publish invented customer counts or
+-            fabricated verified testimonials; see our{' '}
+-            <Link to="/about" className="font-semibold text-accent hover:text-cta">
+-              About page
+-            </Link>{' '}
+-            for that commitment. Want your business featured next, with real numbers?{' '}
+-            <Link to="/demo" className="font-semibold text-accent hover:text-cta">
+-              Book a demo
+-            </Link>
+-            .
+-          </p>
+-        </motion.div>
+-
+-        <motion.div
+-          initial={{ opacity: 0, y: 20 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.55, ease: EASE, delay: 0.1 }}
+-          className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark sm:mt-10"
+-        >
+-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-bg-tertiary/60 px-6 py-4">
+-            <div>
+-              <p className="text-sm font-semibold text-text-primary">{RESULT.business}</p>
+-              <p className="text-xs text-text-secondary">{RESULT.industry}</p>
+-            </div>
+-            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+-              <Clock size={12} />
+-              First {RESULT.timeframe} on Vireek
+-            </span>
+-          </div>
+-
+-          <div className="grid gap-6 p-6 sm:grid-cols-2 sm:p-10">
+-            {/* Conversion metric */}
+-            <div>
+-              <div className="flex items-center gap-2 text-text-secondary">
+-                <TrendingUp size={16} className="text-success" />
+-                <p className="text-sm font-medium">Estimate conversion rate</p>
+-              </div>
+-              <div className="mt-3 flex items-end gap-3">
+-                <span className="text-lg font-medium text-text-secondary/60 line-through">
+-                  {RESULT.conversionBefore}
+-                </span>
+-                <ArrowRight size={16} className="mb-1.5 text-text-secondary/40" />
+-                <span className="text-4xl font-bold tracking-tight text-success sm:text-5xl">
+-                  <CountUp value={RESULT.conversionAfter} />
+-                </span>
+-              </div>
+-              <p className="mt-2 text-sm font-semibold text-success">
+-                {RESULT.conversionChange} in {RESULT.timeframe}
+-              </p>
+-            </div>
+-
+-            {/* Revenue metric */}
+-            <div className="border-t border-border pt-6 sm:border-l sm:border-t-0 sm:pl-8 sm:pt-0">
+-              <div className="flex items-center gap-2 text-text-secondary">
+-                <DollarSign size={16} className="text-accent" />
+-                <p className="text-sm font-medium">Revenue recovered</p>
+-              </div>
+-              <div className="mt-3">
+-                <span className="text-4xl font-bold tracking-tight text-accent sm:text-5xl">
+-                  <CountUp value={RESULT.revenueRecovered} />
+-                </span>
+-              </div>
+-              <p className="mt-2 text-sm text-text-secondary">
+-                From estimates that would otherwise have gone cold.
+-              </p>
+-            </div>
+-          </div>
+-
+-          <p className="border-t border-border bg-bg-tertiary/40 px-6 py-4 text-sm leading-relaxed text-text-secondary sm:px-10">
+-            {RESULT.summary}
+-          </p>
+-        </motion.div>
+-      </div>
+-    </section>
+-  );
+-}
+diff -ruN -x node_modules -x android -x ios a/src/components/sections/FinalCTA.tsx vireek-main/src/components/sections/FinalCTA.tsx
+--- a/src/components/sections/FinalCTA.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/sections/FinalCTA.tsx	1970-01-01 00:00:00.000000000 +0000
+@@ -1,108 +0,0 @@
+-import { useTranslation } from 'react-i18next';
+-import { motion } from 'framer-motion';
+-import { ArrowRight, ShieldCheck, Clock, Zap, PhoneCall } from 'lucide-react';
+-import { Link } from 'react-router-dom';
+-import { EASE, viewport } from '@/lib/motion';
+-import { SARAH_PHONE } from '@/lib/site';
+-
+-/**
+- * Rebuilt away from the "rounded gradient box with blurred orbs" pattern —
+- * that shape is the single most reused SaaS closer on the web. Instead this
+- * sits directly on the page background (so it doesn't compete with the
+- * hero's own gradient mesh), leads with a real action — an actual phone
+- * number to call, mirroring the hero's "call Sarah" moment — and separates
+- * the two calls to action by intent instead of stacking two identical
+- * buttons side by side.
+- */
+-export function FinalCTA() {
+-  const { t } = useTranslation();
+-  const GUARANTEES = [
+-  { icon: Clock, label: t('finalCta.guaranteeLive') },
+-  { icon: ShieldCheck, label: t('finalCta.guaranteeNoCard') },
+-  { icon: Zap, label: t('finalCta.guaranteeCancel') },
+-];
+-  return (
+-    <section id="contact" className="relative overflow-hidden border-t border-border/70 bg-noise py-16 sm:py-24 md:py-28">
+-      {/* Same signature ambient wash as the Hero, mirrored — bookends the
+-          page with the one other moment it's allowed to feel a bit more
+-          alive, without reviving the "boxed gradient card" cliché. */}
+-      <div
+-        className="pointer-events-none absolute inset-0 -z-10 opacity-60"
+-        style={{
+-          backgroundImage:
+-            'radial-gradient(ellipse 55% 60% at 90% 110%, rgb(var(--accent-primary) / 0.14), transparent 60%), radial-gradient(ellipse 50% 45% at 5% -10%, rgb(var(--accent-secondary) / 0.10), transparent 58%)',
+-        }}
+-        aria-hidden="true"
+-      />
+-      <div className="mx-auto max-w-5xl px-5 sm:px-6">
+-        <motion.div
+-          initial={{ opacity: 0, y: 20 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.6, ease: EASE }}
+-          className="text-center"
+-        >
+-          <h2 className="mx-auto max-w-2xl font-display text-3xl font-semibold leading-[1.1] tracking-tightest text-text-primary sm:text-5xl">
+-            {t('finalCta.headline')}
+-          </h2>
+-          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
+-            {t('finalCta.subhead')} reached a real voice instead of a beep.
+-          </p>
+-        </motion.div>
+-
+-        <motion.div
+-          initial={{ opacity: 0, y: 20 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+-          className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2"
+-        >
+-          <Link
+-            to="/signup"
+-            className="group flex flex-col justify-between rounded-2xl border border-accent bg-accent p-6 text-left shadow-glow-accent transition-transform duration-200 hover:-translate-y-0.5"
+-          >
+-            <div>
+-              <p className="text-sm font-medium text-white/75">{t('finalCta.getStarted')}</p>
+-              <p className="mt-1 text-xl font-semibold text-white">{t('finalCta.startTrial')}</p>
+-              <p className="mt-1.5 text-sm text-white/75">{t('finalCta.trialTerms')}</p>
+-            </div>
+-            <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white">
+-              {t('finalCta.createAccount')}
+-              <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+-            </span>
+-          </Link>
+-
+-          <a
+-            href={SARAH_PHONE}
+-            className="group flex flex-col justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-transform duration-200 hover:-translate-y-0.5 dark:shadow-card-dark"
+-          >
+-            <div>
+-              <p className="text-sm font-medium text-text-secondary">{t('finalCta.hearFirst')}</p>
+-              <p className="mt-1 text-xl font-semibold text-text-primary">{t('finalCta.callNow')}</p>
+-              <p className="mt-1.5 text-sm text-text-secondary">{t('finalCta.callSubtitle')}</p>
+-            </div>
+-            <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent">
+-              <PhoneCall size={16} />
+-              {SARAH_PHONE.replace('tel:', '')}
+-            </span>
+-          </a>
+-        </motion.div>
+-
+-        <motion.div
+-          initial={{ opacity: 0 }}
+-          whileInView={{ opacity: 1 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
+-          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
+-        >
+-          {GUARANTEES.map(({ icon: Icon, label }) => (
+-            <span key={label} className="flex items-center gap-1.5 text-sm font-medium text-text-secondary">
+-              <Icon size={14} className="shrink-0 text-accent" />
+-              {label}
+-            </span>
+-          ))}
+-        </motion.div>
+-      </div>
+-    </section>
+-  );
+-}
+diff -ruN -x node_modules -x android -x ios a/src/components/sections/Hero.tsx vireek-main/src/components/sections/Hero.tsx
+--- a/src/components/sections/Hero.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/sections/Hero.tsx	1970-01-01 00:00:00.000000000 +0000
+@@ -1,324 +0,0 @@
+-import { useEffect, useState } from 'react';
+-import { AnimatePresence, motion } from 'framer-motion';
+-import { Phone, Zap, Clock, ShieldCheck, ArrowRight, PhoneIncoming, Siren, CalendarCheck, BellRing, Mic } from 'lucide-react';
+-import { Link } from 'react-router-dom';
+-import { Button } from '@/components/ui/Button';
+-import { useExperiment } from '@/contexts/ExperimentContext';
+-import { SARAH_PHONE, LIVE_DEMO_SECTION_ID } from '@/lib/site';
+-
+-const TRUST_ITEMS = [
+-  { icon: Clock, label: '24/7 answering' },
+-  { icon: Zap, label: 'Emergency detection' },
+-  { icon: ShieldCheck, label: 'Live in 15 minutes' },
+-];
+-
+-const EASE = [0.16, 1, 0.0, 1] as const;
+-
+-// Rotating transcript lines — the one signature detail on the page that
+-// can't be copy-pasted from a template: it's specific to what Sarah
+-// actually says on a real call, not a generic "AI is working" shimmer.
+-const TRANSCRIPT_LINES = [
+-  '"Ramirez Plumbing, this is Sarah — how can I help?"',
+-  '"I hear water running — is this an active leak right now?"',
+-  '"I can get someone out today at 2:30. Does that work?"',
+-  '"You\'re all set — text confirmation is on its way."',
+-];
+-
+-function Waveform({ active }: { active: boolean }) {
+-  const bars = [0.4, 0.7, 1, 0.55, 0.32, 0.62, 0.42];
+-  return (
+-    <div className="flex items-end gap-[3px]" aria-hidden="true">
+-      {bars.map((h, i) => (
+-        <motion.span
+-          key={i}
+-          className="w-[3px] rounded-full bg-accent/60"
+-          style={{ height: `${h * 26}px` }}
+-          animate={active ? { scaleY: [0.5, 1, 0.65, 0.85, 0.5] } : { scaleY: 0.4 }}
+-          transition={{
+-            duration: 1.5 + i * 0.1,
+-            repeat: active ? Infinity : 0,
+-            ease: 'easeInOut',
+-            delay: i * 0.15,
+-          }}
+-        />
+-      ))}
+-    </div>
+-  );
+-}
+-
+-function TranscriptTicker() {
+-  const [index, setIndex] = useState(0);
+-
+-  useEffect(() => {
+-    const id = setInterval(() => setIndex((i) => (i + 1) % TRANSCRIPT_LINES.length), 3600);
+-    return () => clearInterval(id);
+-  }, []);
+-
+-  return (
+-    <div className="flex min-h-[2.75rem] flex-1 items-center overflow-hidden">
+-      <AnimatePresence mode="wait">
+-        <motion.p
+-          key={index}
+-          initial={{ opacity: 0, y: 6 }}
+-          animate={{ opacity: 1, y: 0 }}
+-          exit={{ opacity: 0, y: -6 }}
+-          transition={{ duration: 0.35, ease: EASE }}
+-          className="text-[0.8125rem] italic leading-snug text-text-secondary"
+-        >
+-          {TRANSCRIPT_LINES[index]}
+-        </motion.p>
+-      </AnimatePresence>
+-    </div>
+-  );
+-}
+-
+-const FLOW_STEPS = [
+-  { icon: PhoneIncoming, label: 'Call received', detail: 'Ramirez Plumbing', tone: 'accent' as const },
+-  { icon: Siren, label: 'Emergency detected', detail: 'Burst pipe — dispatch', tone: 'cta' as const },
+-  { icon: CalendarCheck, label: 'Appointment booked', detail: 'Today, 2:30 PM', tone: 'success' as const },
+-  { icon: BellRing, label: 'Customer notified', detail: 'SMS confirmation sent', tone: 'accent' as const },
+-];
+-
+-const TONE_CLASS = {
+-  accent: 'bg-accent/10 text-accent',
+-  cta: 'bg-cta/10 text-cta',
+-  success: 'bg-success/10 text-success',
+-};
+-
+-/**
+- * The one hero visual. Deliberately a live, working recreation of the
+- * product — not a stock photo, not a static screenshot — because a real
+- * demo makes its own case better than a headline can. Sits inside a
+- * confident bordered card so it reads as "this is the software" rather
+- * than "this is a marketing illustration of the software."
+- */
+-function ProductVisual() {
+-  return (
+-    <motion.div
+-      initial={{ opacity: 0, y: 20, rotate: -0.4 }}
+-      animate={{ opacity: 1, y: 0, rotate: 0 }}
+-      transition={{ duration: 0.7, delay: 0.25, ease: EASE }}
+-      className="relative w-full max-w-[440px]"
+-    >
+-      {/* Soft color glow beneath the card — the "floating premium UI" look
+-          without a hard drop shadow, built from our own accent tokens. */}
+-      <div
+-        className="pointer-events-none absolute -inset-6 -z-10 opacity-70 blur-2xl"
+-        style={{
+-          backgroundImage:
+-            'radial-gradient(closest-side, rgb(var(--accent-primary) / 0.22), transparent), radial-gradient(closest-side at 85% 90%, rgb(var(--accent-secondary) / 0.16), transparent)',
+-        }}
+-        aria-hidden="true"
+-      />
+-      <div className="relative overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
+-        <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
+-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10 text-accent">
+-            <Phone size={14} />
+-          </span>
+-          <span className="text-sm font-semibold text-text-primary">Sarah — live call</span>
+-          <span className="ml-auto flex items-center gap-1.5">
+-            <span className="relative flex h-1.5 w-1.5">
+-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
+-            </span>
+-            <span className="text-[0.6875rem] font-semibold uppercase tracking-wide text-success">Active</span>
+-          </span>
+-        </div>
+-
+-        <div className="flex items-center gap-4 border-b border-border bg-bg-tertiary/60 px-4 py-4">
+-          <Waveform active />
+-          <TranscriptTicker />
+-        </div>
+-
+-        <div className="divide-y divide-border/60">
+-          {FLOW_STEPS.map((step, i) => {
+-            const Icon = step.icon;
+-            return (
+-              <motion.div
+-                key={step.label}
+-                initial={{ opacity: 0, x: -10 }}
+-                animate={{ opacity: 1, x: 0 }}
+-                transition={{ duration: 0.4, delay: 0.55 + i * 0.15, ease: EASE }}
+-                className="flex items-center gap-3 px-4 py-3"
+-              >
+-                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${TONE_CLASS[step.tone]}`}>
+-                  <Icon size={15} />
+-                </span>
+-                <div className="flex-1">
+-                  <p className="text-[0.8125rem] font-semibold leading-tight text-text-primary">{step.label}</p>
+-                  <p className="text-xs text-text-secondary">{step.detail}</p>
+-                </div>
+-              </motion.div>
+-            );
+-          })}
+-        </div>
+-
+-        <div className="flex items-center justify-between border-t border-border bg-bg-tertiary px-4 py-3">
+-          <span className="text-[0.6875rem] font-medium text-text-secondary">CRM synced automatically</span>
+-          <span className="text-[0.6875rem] font-semibold text-success">Completed in 42s</span>
+-        </div>
+-      </div>
+-
+-      {/* Floating proof card — the one decorative element, and it's a number, not a blob */}
+-      <motion.div
+-        initial={{ opacity: 0, scale: 0.85, y: 10 }}
+-        animate={{ opacity: 1, scale: 1, y: 0 }}
+-        transition={{ duration: 0.5, delay: 1.15, ease: EASE }}
+-        className="absolute -left-6 -top-6 hidden w-[176px] rounded-xl border border-border bg-bg-secondary px-4 py-3 shadow-card dark:shadow-card-dark sm:block"
+-      >
+-        <p className="font-display text-2xl font-semibold text-text-primary">0</p>
+-        <p className="text-xs text-text-secondary">missed calls today — 14 before Vireek</p>
+-      </motion.div>
+-    </motion.div>
+-  );
+-}
+-
+-export function Hero() {
+-  const headlineVariant = useExperiment('hero_headline');
+-  return (
+-    <section id="top" className="relative overflow-hidden bg-noise bg-gradient-mesh">
+-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg-primary via-bg-primary to-bg-secondary" />
+-
+-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-16 px-5 pb-20 pt-28 sm:px-6 sm:pt-32 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28 lg:pt-40">
+-        {/* Left — message + action */}
+-        <div className="text-center lg:text-left">
+-          <motion.div
+-            initial={{ opacity: 0, y: 12 }}
+-            animate={{ opacity: 1, y: 0 }}
+-            transition={{ duration: 0.4, ease: EASE }}
+-            className="mx-auto mb-6 flex w-fit items-center gap-2 rounded-full border border-border bg-bg-secondary/70 py-1.5 pl-1.5 pr-3.5 lg:mx-0"
+-          >
+-            <div className="flex -space-x-1.5">
+-              {['J', 'M', 'S', 'R'].map((initial, i) => (
+-                <span
+-                  key={i}
+-                  className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-bg-secondary bg-accent-100 text-[0.55rem] font-bold text-accent-700 dark:bg-accent-900 dark:text-accent-200"
+-                >
+-                  {initial}
+-                </span>
+-              ))}
+-            </div>
+-            <span className="text-xs font-medium text-text-secondary">Now onboarding early contractors</span>
+-          </motion.div>
+-
+-          <motion.p
+-            initial={{ opacity: 0, y: 12 }}
+-            animate={{ opacity: 1, y: 0 }}
+-            transition={{ duration: 0.5, delay: 0.05, ease: EASE }}
+-            className="text-eyebrow font-semibold uppercase tracking-[0.16em] text-accent"
+-          >
+-            AI voice receptionist for home services
+-          </motion.p>
+-
+-                    <motion.h1
+-            initial={{ opacity: 0, y: 14 }}
+-            animate={{ opacity: 1, y: 0 }}
+-            transition={{ duration: 0.55, delay: 0.1, ease: EASE }}
+-            className="mx-auto mt-4 max-w-xl font-display text-[2.75rem] font-semibold leading-[1.04] tracking-tightest text-text-primary sm:text-6xl lg:mx-0 lg:text-[3.75rem]"
+-          >
+-            {headlineVariant === 'variant_b' ? (
+-              <>
+-                Never miss another job.
+-                <br />
+-                Sarah answers instead.
+-              </>
+-            ) : (
+-              <>
+-                Recover $10,000&ndash;30,000 in
+-                <br />
+-                lost revenue every month.
+-              </>
+-            )}
+-          </motion.h1>
+-
+-          <motion.p
+-            initial={{ opacity: 0, y: 14 }}
+-            animate={{ opacity: 1, y: 0 }}
+-            transition={{ duration: 0.55, delay: 0.15, ease: EASE }}
+-            className="mx-auto mt-5 max-w-md text-[1.0625rem] leading-relaxed text-text-secondary lg:mx-0"
+-          >
+-            Every missed call is a job that walks to a competitor. Sarah answers in under two
+-            rings, books it on the spot, and puts that revenue back on your calendar &mdash; 24/7.
+-          </motion.p>
+-
+-          <motion.div
+-            initial={{ opacity: 0, y: 14 }}
+-            animate={{ opacity: 1, y: 0 }}
+-            transition={{ duration: 0.55, delay: 0.2, ease: EASE }}
+-            className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start"
+-          >
+-            <Link to="/signup" className="w-full sm:w-auto">
+-              <Button variant="primary" size="lg" className="w-full gap-2 sm:w-auto">
+-                Start free trial
+-                <ArrowRight size={18} />
+-              </Button>
+-            </Link>
+-            <a href={SARAH_PHONE} className="w-full sm:w-auto">
+-              <Button variant="secondary" size="lg" className="w-full gap-2 sm:w-auto">
+-                <Phone size={16} />
+-                Call Sarah now
+-              </Button>
+-            </a>
+-            {/* Scrolls to the live in-browser voice widget in the
+-                "Talk to Sarah Right Now" section (LiveDemo.tsx) — no
+-                phone call needed, mic access only. Uses the "cta" accent
+-                so it visually stands out as the flagship demo action.
+-                The small pulsing "Live" badge in the corner is purely
+-                presentational (this is a marketing page, not a realtime
+-                data view) — it signals "this actually works right now,
+-                try it" rather than tracking a real connection state. */}
+-            <a href={`#${LIVE_DEMO_SECTION_ID}`} className="relative w-full sm:w-auto">
+-              <span
+-                className="absolute -right-2 -top-2 z-10 flex items-center gap-1 rounded-full border border-success/30 bg-bg-primary px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-success shadow-sm"
+-                aria-hidden="true"
+-              >
+-                <span className="relative flex h-1.5 w-1.5">
+-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
+-                </span>
+-                Live
+-              </span>
+-              <Button
+-                variant="secondary"
+-                size="lg"
+-                className="w-full gap-2 border-accent/40 text-accent hover:border-accent hover:bg-accent/10 sm:w-auto"
+-              >
+-                <Mic size={16} />
+-                Talk to Sarah live
+-                <span className="sr-only">— voice demo available right now</span>
+-              </Button>
+-            </a>
+-          </motion.div>
+-
+-          <motion.p
+-            initial={{ opacity: 0 }}
+-            animate={{ opacity: 1 }}
+-            transition={{ duration: 0.5, delay: 0.25, ease: EASE }}
+-            className="mt-4 text-sm text-text-secondary/80"
+-          >
+-            14-day free trial · No credit card required · Cancel anytime
+-          </motion.p>
+-
+-          <motion.div
+-            initial={{ opacity: 0 }}
+-            animate={{ opacity: 1 }}
+-            transition={{ duration: 0.5, delay: 0.3, ease: EASE }}
+-            className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-border/70 pt-6 text-sm text-text-secondary lg:justify-start"
+-          >
+-            {TRUST_ITEMS.map((item) => (
+-              <span key={item.label} className="flex items-center gap-2">
+-                <item.icon size={15} className="text-accent" />
+-                {item.label}
+-              </span>
+-            ))}
+-          </motion.div>
+-        </div>
+-
+-        {/* Right — the product, live */}
+-        <div className="flex justify-center lg:justify-end">
+-          <ProductVisual />
+-        </div>
+-      </div>
+-    </section>
+-  );
+-}
+diff -ruN -x node_modules -x android -x ios a/src/components/sections/HowItWorks.tsx vireek-main/src/components/sections/HowItWorks.tsx
+--- a/src/components/sections/HowItWorks.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/sections/HowItWorks.tsx	1970-01-01 00:00:00.000000000 +0000
+@@ -1,92 +0,0 @@
+-import { motion } from 'framer-motion';
+-import { CalendarCheck, ClipboardCheck, PhoneCall, ArrowRight } from 'lucide-react';
+-import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
+-
+-const STEPS = [
+-  {
+-    num: '01',
+-    icon: PhoneCall,
+-    title: 'Answer',
+-    body: 'Sarah picks up on the first ring and greets the caller in a natural, conversational voice — every time, day or night.',
+-    tag: '0.4s to pickup',
+-  },
+-  {
+-    num: '02',
+-    icon: ClipboardCheck,
+-    title: 'Qualify',
+-    body: 'She asks the right questions, spots emergencies, and separates urgent jobs from tire-kickers before you ever see the call.',
+-    tag: 'Burst pipe → priority',
+-  },
+-  {
+-    num: '03',
+-    icon: CalendarCheck,
+-    title: 'Book',
+-    body: 'Sarah checks your real calendar, confirms a slot out loud, and writes the job straight into your CRM.',
+-    tag: 'Synced in 42s',
+-  },
+-];
+-
+-/**
+- * Rebuilt away from the "three icon circles in a row" pattern — instead each
+- * step is a full row that reads left-to-right like a single continuous
+- * pipeline, with the number set large and typographic (the actual content,
+- * not a decoration) so the section carries weight without extra ornament.
+- */
+-export function HowItWorks() {
+-  return (
+-    <section id="how-it-works" className="py-16 sm:py-24 md:py-28">
+-      <div className="mx-auto max-w-7xl px-5 sm:px-6">
+-        <motion.div
+-          initial={{ opacity: 0, y: 16 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.5, ease: EASE }}
+-          className="max-w-3xl"
+-        >
+-          <p className={eyebrowClass()}>{'How it works'}</p>
+-          <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'From ring to booked in 60 seconds'}</h2>
+-        </motion.div>
+-
+-        <motion.div
+-          variants={staggerContainer}
+-          initial="initial"
+-          whileInView="whileInView"
+-          viewport={viewport}
+-          className="mt-10 divide-y divide-border/70 border-t border-border/70 sm:mt-16"
+-        >
+-          {STEPS.map(({ num, icon: Icon, title, body, tag }, i) => (
+-            <motion.div
+-              key={num}
+-              variants={fadeUpItem}
+-              transition={{ duration: 0.5, ease: EASE }}
+-              className="group grid grid-cols-1 items-center gap-4 py-7 sm:grid-cols-[auto_1fr_auto] sm:gap-8 sm:py-9 md:gap-12"
+-            >
+-              <div className="flex items-center gap-4 sm:gap-5">
+-                <span className="font-display text-4xl font-semibold tabular-nums text-border transition-colors duration-300 group-hover:text-accent/30 sm:text-5xl">
+-                  {num}
+-                </span>
+-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent sm:h-12 sm:w-12">
+-                  <Icon size={20} />
+-                </span>
+-              </div>
+-
+-              <div>
+-                <h3 className="text-xl font-semibold text-text-primary sm:text-2xl">{title}</h3>
+-                <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-text-secondary sm:text-base">{body}</p>
+-              </div>
+-
+-              <div className="flex items-center gap-2 sm:justify-self-end">
+-                <span className="inline-flex items-center rounded-full border border-border bg-bg-tertiary px-3 py-1 text-xs font-medium text-text-secondary">
+-                  {tag}
+-                </span>
+-                {i < STEPS.length - 1 && (
+-                  <ArrowRight size={16} className="hidden shrink-0 text-border sm:block" aria-hidden="true" />
+-                )}
+-              </div>
+-            </motion.div>
+-          ))}
+-        </motion.div>
+-      </div>
+-    </section>
+-  );
+-}
+diff -ruN -x node_modules -x android -x ios a/src/components/sections/LiveDemo.tsx vireek-main/src/components/sections/LiveDemo.tsx
+--- a/src/components/sections/LiveDemo.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/sections/LiveDemo.tsx	2026-10-31 05:59:32.408071863 +0000
+@@ -2,11 +2,13 @@
+ import { motion } from 'framer-motion';
+ import { useTranslation } from 'react-i18next';
+ import { Phone, Send, Sparkles } from 'lucide-react';
+-import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
++import { EASE, sectionHeadingClass, viewport } from '@/lib/motion';
+ import { SARAH_PHONE } from '@/lib/site';
+ import { streamAiChat } from '@/lib/aiStream';
+ import { VoiceDemoWidget } from '@/components/VoiceDemoWidget';
+ import { MessageBubble, OnlineDot, TypingIndicator } from '@/components/chat/ChatVisuals';
++import { DemoFallback, useMicStatus } from '@/components/home/DemoFallback';
++import { trackDemoStart } from '@/lib/homeAnalytics';
+ 
+ const PHONE_DISPLAY = '+1 (650) 910-6703';
+ 
+@@ -37,6 +39,9 @@
+   const [error, setError] = useState<string | null>(null);
+   const scrollRef = useRef<HTMLDivElement>(null);
+   const abortRef = useRef<AbortController | null>(null);
++  const chatStarted = useRef(false);
++  const [micBlocked, setMicBlocked] = useState(false);
++  const micStatus = useMicStatus(micBlocked);
+ 
+   useEffect(() => {
+     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+@@ -49,6 +54,10 @@
+     if (!trimmed || loading) return;
+ 
+     const history = messages.map((m) => ({ role: m.role, content: m.content }));
++    if (!chatStarted.current) {
++      chatStarted.current = true;
++      trackDemoStart('chat');
++    }
+ 
+     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', content: trimmed }]);
+     setInput('');
+@@ -91,7 +100,7 @@
+   }
+ 
+   return (
+-    <section id="demo" className="py-16 sm:py-24 md:py-28">
++    <section id="demo" aria-labelledby="demo-heading" className="scroll-mt-20 border-t border-border py-16 sm:py-24">
+       <div className="mx-auto max-w-7xl px-5 sm:px-6">
+         <motion.div
+           initial={{ opacity: 0, y: 16 }}
+@@ -100,13 +109,17 @@
+           transition={{ duration: 0.5, ease: EASE }}
+           className="max-w-3xl"
+         >
+-          <p className={eyebrowClass()}>Live demo — not a script</p>
+-          <h2 className={sectionHeadingClass()}>Talk to Sarah Right Now</h2>
++          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-secondary">Live demo, not a script</p>
++          <h2 id="demo-heading" className={sectionHeadingClass()}>Talk to Sarah right now</h2>
+         </motion.div>
+ 
+         <div className="mt-10 grid gap-4 sm:mt-14 sm:gap-6 lg:grid-cols-3">
+           {/* Live in-browser voice demo — the flagship option, click and talk */}
+-          <VoiceDemoWidget />
++          {micStatus === 'denied' || micStatus === 'unsupported' ? (
++            <DemoFallback reason={micStatus} />
++          ) : (
++            <VoiceDemoWidget onStart={() => trackDemoStart('voice')} onMicUnavailable={() => setMicBlocked(true)} />
++          )}
+ 
+           {/* Phone demo */}
+           <motion.a
+@@ -115,9 +128,9 @@
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={viewport}
+             transition={{ duration: 0.5, ease: EASE }}
+-            className="focus-ring group flex flex-col items-start justify-center rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-glow-accent dark:shadow-card-dark sm:p-8"
++            className="focus-ring group flex flex-col items-start justify-center rounded-2xl border border-border bg-bg-secondary p-6 transition-colors hover:border-text-secondary sm:p-8"
+           >
+-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-white sm:h-14 sm:w-14">
++            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bg-tertiary text-text-primary sm:h-14 sm:w-14">
+               <Phone size={20} className="sm:size-6" />
+             </span>
+             <span className="mt-5 text-xs font-medium uppercase tracking-[0.15em] text-text-secondary sm:mt-6 sm:text-sm sm:tracking-[0.18em]">
+@@ -137,12 +150,12 @@
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={viewport}
+             transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+-            className="group/card relative rounded-[27px] bg-gradient-to-br from-accent/50 via-border to-cta/50 p-px shadow-card dark:shadow-card-dark"
++            className="group/card relative rounded-[27px] border border-border"
+           >
+             <div className="flex h-[440px] flex-col overflow-hidden rounded-[26px] bg-bg-tertiary sm:h-[520px]">
+               <div className="relative flex items-center gap-2.5 overflow-hidden border-b border-border bg-bg-secondary px-4 py-3.5 sm:px-5 sm:py-4">
+-                <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
+-                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-sm sm:h-8 sm:w-8">
++                
++                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-bg-tertiary text-text-primary sm:h-8 sm:w-8">
+                   <Sparkles size={13} strokeWidth={2.25} className="sm:size-[15px]" />
+                 </span>
+                 <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-text-secondary sm:text-sm sm:tracking-[0.18em]">
+@@ -207,7 +220,7 @@
+                   aria-label="Send message"
+                   whileHover={!loading && input.trim() ? { scale: 1.06 } : undefined}
+                   whileTap={!loading && input.trim() ? { scale: 0.94 } : undefined}
+-                  className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white transition-opacity disabled:opacity-40"
++                  className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white transition-opacity disabled:opacity-40"
+                 >
+                   <Send size={16} />
+                 </motion.button>
+diff -ruN -x node_modules -x android -x ios a/src/components/sections/PricingTeaser.tsx vireek-main/src/components/sections/PricingTeaser.tsx
+--- a/src/components/sections/PricingTeaser.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/sections/PricingTeaser.tsx	1970-01-01 00:00:00.000000000 +0000
+@@ -1,193 +0,0 @@
+-import { motion } from 'framer-motion';
+-import { ArrowRight, Check, ShieldCheck } from 'lucide-react';
+-import { Link } from 'react-router-dom';
+-import { Button } from '@/components/ui/Button';
+-import { useCurrency } from '@/contexts/CurrencyContext';
+-import { formatPrice } from '@/lib/currency';
+-import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+-import { PRICING_PLANS } from '@/lib/pricing';
+-
+-const TEASER_PLAN_IDS = ['free', 'starter', 'professional', 'business'] as const;
+-const TEASER_PLANS = TEASER_PLAN_IDS
+-  .map((id) => PRICING_PLANS.find((p) => p.id === id))
+-  .filter((p): p is NonNullable<typeof p> => p !== undefined);
+-
+-export function PricingTeaser() {
+-  const { currency } = useCurrency();
+-  return (
+-    <section id="pricing" className="py-16 sm:py-24 md:py-28">
+-      <div className="mx-auto max-w-7xl px-5 sm:px-6">
+-        <motion.div
+-          initial={{ opacity: 0, y: 16 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.5, ease: EASE }}
+-          className="mx-auto max-w-3xl text-center"
+-        >
+-          <span className="inline-flex items-center gap-2 rounded-full border border-cta/40 bg-cta/10 px-3 py-1.5 text-xs font-semibold text-cta sm:px-4">
+-            <ShieldCheck size={14} className="sm:size-4" />
+-            {'14-Day Free Trial — No Credit Card Required'}
+-          </span>
+-          <p className={`${eyebrowClass()} mt-6 sm:mt-8`}>{'Pricing'}</p>
+-          <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'Every Plan Is a Full-Time Receptionist.'}</h2>
+-          <p className={`${bodyClass()} text-sm sm:text-base md:text-lg`}>{"Just one who never sleeps, never takes a sick day, and costs less than an hour of overtime."}</p>
+-        </motion.div>
+-
+-        <motion.div
+-          initial={{ opacity: 0, y: 12 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.4, delay: 0.05, ease: EASE }}
+-          className="mx-auto mt-8 flex max-w-xl flex-col items-center gap-2 rounded-2xl border border-accent/20 bg-accent/5 px-5 py-4 text-center sm:mt-10 sm:flex-row sm:gap-4 sm:text-left"
+-        >
+-          <p className="text-sm leading-relaxed text-text-primary">
+-            <span className="font-semibold">One missed emergency call averages $1,200+.</span> Every plan below
+-            costs less than that per month.
+-          </p>
+-          <Link
+-            to="/roi"
+-            className="focus-ring inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-accent hover:underline"
+-          >
+-            See real payback numbers
+-          </Link>
+-        </motion.div>
+-
+-        {/* Mobile: horizontal scroll cards */}
+-        <div className="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 sm:mt-12 sm:hidden">
+-          {TEASER_PLANS.map((plan, index) => (
+-            <motion.div
+-              key={plan.id}
+-              initial={{ opacity: 0, y: 20 }}
+-              whileInView={{ opacity: 1, y: 0 }}
+-              viewport={viewport}
+-              transition={{ duration: 0.4, delay: index * 0.05, ease: EASE }}
+-              className={`relative flex w-[75%] shrink-0 snap-center flex-col rounded-2xl p-5 ${
+-                plan.recommended
+-                  ? 'border-2 border-accent bg-bg-secondary shadow-glow-accent'
+-                  : 'border border-border bg-bg-secondary shadow-card dark:shadow-card-dark'
+-              }`}
+-            >
+-              {plan.recommended && (
+-                <span className="absolute -top-3 right-4 inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white">
+-                  Most popular
+-                </span>
+-              )}
+-              <h3 className="text-base font-semibold text-text-primary">{plan.name}</h3>
+-              <div className="mt-3 flex items-baseline gap-1">
+-                {plan.monthly === 0 ? (
+-                  <span className="text-3xl font-bold tracking-tight text-text-primary">Free</span>
+-                ) : plan.monthly === null ? (
+-                  <span className="text-3xl font-bold tracking-tight text-text-primary">Custom</span>
+-                ) : (
+-                  <>
+-                    <span className="text-3xl font-bold tracking-tight text-text-primary">{formatPrice(plan.monthly, currency)}</span>
+-                    <span className="text-sm text-text-secondary">/mo</span>
+-                  </>
+-                )}
+-              </div>
+-              <p className="mt-1 text-xs font-medium text-text-secondary/70">
+-                {plan.monthly === 0
+-                  ? 'No card required'
+-                  : plan.monthly === null
+-                    ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
+-                    : `or ${formatPrice(plan.annual!, currency)}/yr`}
+-              </p>
+-              <p className="mt-3 text-xs font-medium text-accent">{plan.minutes} included</p>
+-              <ul className="mt-4 flex flex-1 flex-col gap-2">
+-                {plan.features.slice(0, 3).map((f) => (
+-                  <li key={f} className="flex items-start gap-2 text-xs text-text-primary">
+-                    <Check size={14} className={`mt-0.5 shrink-0 ${plan.recommended ? 'text-cta' : 'text-accent'}`} />
+-                    {f}
+-                  </li>
+-                ))}
+-              </ul>
+-              <Link to="/pricing" className="mt-5">
+-                <Button variant={plan.recommended ? 'primary' : 'secondary'} size="sm" className="w-full">
+-                  {plan.ctaLabel}
+-                </Button>
+-              </Link>
+-            </motion.div>
+-          ))}
+-        </div>
+-
+-        {/* Desktop: grid */}
+-        <div className="mt-12 hidden max-w-5xl gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-4">
+-          {TEASER_PLANS.map((plan, index) => (
+-            <motion.div
+-              key={plan.id}
+-              initial={{ opacity: 0, y: 20 }}
+-              whileInView={{ opacity: 1, y: 0 }}
+-              viewport={viewport}
+-              transition={{ duration: 0.4, delay: index * 0.05, ease: EASE }}
+-              className={
+-                plan.recommended
+-                  ? 'relative flex h-full flex-col rounded-2xl border-2 border-accent bg-bg-secondary p-6 shadow-glow-accent'
+-                  : 'flex h-full flex-col rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark'
+-              }
+-            >
+-              {plan.recommended && (
+-                <span className="absolute -top-3 right-4 inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white">
+-                  Most popular
+-                </span>
+-              )}
+-              <h3 className="text-base font-semibold text-text-primary">{plan.name}</h3>
+-              <div className="mt-3 flex items-baseline gap-1">
+-                {plan.monthly === 0 ? (
+-                  <span className="text-3xl font-bold tracking-tight text-text-primary">Free</span>
+-                ) : plan.monthly === null ? (
+-                  <span className="text-3xl font-bold tracking-tight text-text-primary">Custom</span>
+-                ) : (
+-                  <>
+-                    <span className="text-3xl font-bold tracking-tight text-text-primary">{formatPrice(plan.monthly, currency)}</span>
+-                    <span className="text-sm text-text-secondary">/mo</span>
+-                  </>
+-                )}
+-              </div>
+-              <p className="mt-1 text-xs font-medium text-text-secondary/70">
+-                {plan.monthly === 0
+-                  ? 'No card required'
+-                  : plan.monthly === null
+-                    ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
+-                    : `or ${formatPrice(plan.annual!, currency)}/yr`}
+-              </p>
+-              <p className="mt-3 text-xs font-medium text-accent">{plan.minutes} included</p>
+-              <ul className="mt-4 flex flex-1 flex-col gap-2">
+-                {plan.features.slice(0, 3).map((f) => (
+-                  <li key={f} className="flex items-start gap-2 text-xs text-text-primary">
+-                    <Check size={14} className={`mt-0.5 shrink-0 ${plan.recommended ? 'text-cta' : 'text-accent'}`} />
+-                    {f}
+-                  </li>
+-                ))}
+-              </ul>
+-              <Link to="/pricing" className="mt-5">
+-                <Button variant={plan.recommended ? 'primary' : 'secondary'} size="sm" className="w-full">
+-                  {plan.ctaLabel}
+-                </Button>
+-              </Link>
+-            </motion.div>
+-          ))}
+-        </div>
+-
+-        <motion.div
+-          initial={{ opacity: 0 }}
+-          whileInView={{ opacity: 1 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.5, delay: 0.15, ease: EASE }}
+-          className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4"
+-        >
+-          <Link
+-            to="/pricing"
+-            className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-bg-secondary px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent sm:w-auto"
+-          >
+-            See Full Pricing &amp; Plans
+-            <ArrowRight size={16} />
+-          </Link>
+-          <p className="flex items-center gap-1.5 text-xs font-medium text-text-secondary/70">
+-            <ShieldCheck size={13} className="shrink-0 text-accent" />
+-            No contracts, no hidden fees, cancel anytime.
+-          </p>
+-        </motion.div>
+-      </div>
+-    </section>
+-  );
+-}
+diff -ruN -x node_modules -x android -x ios a/src/components/sections/TrustBar.tsx vireek-main/src/components/sections/TrustBar.tsx
+--- a/src/components/sections/TrustBar.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/sections/TrustBar.tsx	1970-01-01 00:00:00.000000000 +0000
+@@ -1,48 +0,0 @@
+-import { motion } from 'framer-motion';
+-import { ShieldCheck, Lock, Server, Clock, Globe, Headphones } from 'lucide-react';
+-
+-const TRUST_ITEMS = [
+-  { icon: ShieldCheck, label: 'Row-Level Security' },
+-  { icon: Lock, label: 'End-to-End Encrypted' },
+-  { icon: Server, label: '99.9% Uptime SLA' },
+-  { icon: Clock, label: '24/7 Availability' },
+-  { icon: Globe, label: 'Multi-Region' },
+-  { icon: Headphones, label: 'Human Support' },
+-];
+-
+-const EASE = [0.16, 1, 0.0, 1] as const;
+-
+-export function TrustBar() {
+-  return (
+-    <section className="border-y border-border/60 bg-bg-secondary/50 py-8 sm:py-10">
+-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+-        <motion.p
+-          initial={{ opacity: 0 }}
+-          whileInView={{ opacity: 1 }}
+-          viewport={{ once: true, margin: '-40px' }}
+-          transition={{ duration: 0.5, ease: EASE }}
+-          className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-text-secondary/60 sm:text-xs sm:tracking-[0.18em]"
+-        >
+-          Bank-grade infrastructure, priced for a contractor's truck
+-        </motion.p>
+-        <motion.div
+-          initial={{ opacity: 0, y: 12 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={{ once: true, margin: '-40px' }}
+-          transition={{ duration: 0.5, ease: EASE, delay: 0.1 }}
+-          className="mt-5 grid grid-cols-3 gap-x-4 gap-y-4 sm:mt-6 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-8 sm:gap-y-4 lg:gap-x-12"
+-        >
+-          {TRUST_ITEMS.map(({ icon: Icon, label }) => (
+-            <div
+-              key={label}
+-              className="flex items-center justify-center gap-2 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary sm:text-sm"
+-            >
+-              <Icon size={16} className="text-accent sm:size-[18px]" />
+-              <span className="text-center leading-tight">{label}</span>
+-            </div>
+-          ))}
+-        </motion.div>
+-      </div>
+-    </section>
+-  );
+-}
+diff -ruN -x node_modules -x android -x ios a/src/components/sections/WhyNow.tsx vireek-main/src/components/sections/WhyNow.tsx
+--- a/src/components/sections/WhyNow.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/sections/WhyNow.tsx	1970-01-01 00:00:00.000000000 +0000
+@@ -1,108 +0,0 @@
+-import { motion } from 'framer-motion';
+-import { ArrowRight, PhoneMissed, TrendingDown, Sparkles } from 'lucide-react';
+-import { Link } from 'react-router-dom';
+-import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
+-
+-/**
+- * "Why Now" makes the urgency case for an AI receptionist without
+- * re-running the SocialProof stats block (removed from the homepage —
+- * see HomePage.tsx). It reuses the same three sourced numbers used
+- * elsewhere on the site (SocialProof.tsx, MissedCallCalculator.tsx) so
+- * nothing here can drift out of sync with or contradict them, and it
+- * points to the two pages built specifically to go deeper honestly:
+- * /report (State of Home Service Calls — methodology-first, no invented
+- * stats) and /roi (real, named customer numbers). This is the one spot
+- * that carries Vireek's recurring visual motif — a missed call turning
+- * into lost revenue — echoed again in the Hero's live transcript and the
+- * Manifesto's first tenet ("A ringing phone is a decision, not a task.").
+- */
+-const REASONS = [
+-  {
+-    icon: PhoneMissed,
+-    stat: '60–80%',
+-    label: 'of calls to home service businesses go unanswered industry-wide',
+-  },
+-  {
+-    icon: TrendingDown,
+-    stat: '62%',
+-    label: "of callers who don't get through call a competitor instead",
+-  },
+-  {
+-    icon: Sparkles,
+-    stat: '15 min',
+-    label: 'to get an AI receptionist live — vs. weeks to hire and train a person',
+-  },
+-];
+-
+-export function WhyNow() {
+-  return (
+-    <section className="border-y border-border/60 bg-bg-secondary/40 px-6 py-20 sm:py-24">
+-      <div className="mx-auto max-w-6xl">
+-        <motion.div
+-          initial={{ opacity: 0, y: 18 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.5, ease: EASE }}
+-          className="mx-auto max-w-2xl text-center"
+-        >
+-          <p className={`${eyebrowClass()} text-center`}>Why Now</p>
+-          <h2 className={`${sectionHeadingClass()} text-center text-2xl sm:text-3xl md:text-5xl`}>
+-            The phone stopped being optional a while ago
+-          </h2>
+-          <p className={`${bodyClass()} mx-auto text-center`}>
+-            Customers already expect a business to answer instantly, at any hour. The gap
+-            between that expectation and what a small team can staff is exactly what an AI
+-            receptionist closes — not someday, but on the very next call.
+-          </p>
+-        </motion.div>
+-
+-        <motion.div
+-          variants={staggerContainer}
+-          initial="initial"
+-          whileInView="whileInView"
+-          viewport={viewport}
+-          className="mt-14 grid gap-6 sm:grid-cols-3"
+-        >
+-          {REASONS.map(({ icon: Icon, stat, label }) => (
+-            <motion.div
+-              key={label}
+-              variants={fadeUpItem}
+-              transition={{ duration: 0.4, ease: EASE }}
+-              className="rounded-2xl border border-border bg-bg-primary p-6 text-center shadow-card dark:shadow-card-dark"
+-            >
+-              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
+-                <Icon size={20} />
+-              </span>
+-              <p className="mt-4 font-display text-3xl font-bold tracking-tight text-text-primary">{stat}</p>
+-              <p className="mt-2 text-sm leading-relaxed text-text-secondary">{label}</p>
+-            </motion.div>
+-          ))}
+-        </motion.div>
+-
+-        <motion.div
+-          initial={{ opacity: 0, y: 16 }}
+-          whileInView={{ opacity: 1, y: 0 }}
+-          viewport={viewport}
+-          transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+-          className="mt-10 flex flex-col items-center justify-center gap-3 text-center sm:flex-row sm:gap-6"
+-        >
+-          <Link
+-            to="/report"
+-            className="focus-ring inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
+-          >
+-            See the full State of Home Service Calls report
+-            <ArrowRight size={14} />
+-          </Link>
+-          <span className="hidden h-1 w-1 rounded-full bg-border sm:block" aria-hidden="true" />
+-          <Link
+-            to="/roi"
+-            className="focus-ring inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
+-          >
+-            See real customer ROI numbers
+-            <ArrowRight size={14} />
+-          </Link>
+-        </motion.div>
+-      </div>
+-    </section>
+-  );
+-}
+diff -ruN -x node_modules -x android -x ios a/src/components/signatures/SignaturePad.tsx vireek-main/src/components/signatures/SignaturePad.tsx
+--- a/src/components/signatures/SignaturePad.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/signatures/SignaturePad.tsx	2026-10-31 06:00:09.333669326 +0000
+@@ -9,6 +9,7 @@
+ import { Eraser, PenLine, Type } from 'lucide-react';
+ import { Input } from '@/components/ui/Input';
+ import type { SignatureType } from '@/lib/signatures';
++import { ensureSignatureFonts } from '@/lib/signatureFonts';
+ 
+ export const TYPED_SIGNATURE_FONTS: { id: string; label: string; family: string }[] = [
+   { id: 'dancing-script', label: 'Dancing Script', family: "'Dancing Script', cursive" },
+@@ -29,6 +30,9 @@
+ 
+ export function SignaturePad({ defaultName = '', onChange }: SignaturePadProps) {
+   const [mode, setMode] = useState<'draw' | 'type'>('draw');
++  useEffect(() => {
++    ensureSignatureFonts();
++  }, []);
+   const [hasDrawing, setHasDrawing] = useState(false);
+   const [typedName, setTypedName] = useState(defaultName);
+   const [typedFont, setTypedFont] = useState(TYPED_SIGNATURE_FONTS[0].id);
+diff -ruN -x node_modules -x android -x ios a/src/components/ui/Button.tsx vireek-main/src/components/ui/Button.tsx
+--- a/src/components/ui/Button.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/components/ui/Button.tsx	2026-10-29 03:39:20.920552114 +0000
+@@ -26,6 +26,15 @@
+     'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary active:brightness-95',
+ };
+ 
++/** Class string for rendering Button styling on a non-<button> element (see ButtonLink). */
++export function buttonClassName({
++  variant = 'primary',
++  size = 'md',
++  className = '',
++}: { variant?: ButtonVariant; size?: ButtonSize; className?: string } = {}): string {
++  return `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`.trim();
++}
++
+ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+   ({ variant = 'primary', size = 'md', className = '', children, ...props }, ref) => {
+     return (
+diff -ruN -x node_modules -x android -x ios a/src/components/ui/ButtonLink.tsx vireek-main/src/components/ui/ButtonLink.tsx
+--- a/src/components/ui/ButtonLink.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/components/ui/ButtonLink.tsx	2026-10-29 03:39:20.927041292 +0000
+@@ -0,0 +1,34 @@
++import { AnchorHTMLAttributes, forwardRef } from 'react';
++import { Link, LinkProps } from 'react-router-dom';
++import { buttonClassName } from '@/components/ui/Button';
++
++type Variant = 'primary' | 'secondary' | 'ghost';
++type Size = 'sm' | 'md' | 'lg';
++
++interface CommonProps {
++  variant?: Variant;
++  size?: Size;
++}
++
++type RouterProps = CommonProps & Omit<LinkProps, 'className'> & { className?: string };
++type AnchorProps = CommonProps &
++  Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'className'> & { className?: string; href: string };
++
++/**
++ * Button styling on a real link. Using <Link><Button/></Link> nests a <button> inside an <a>,
++ * which axe flags (nested-interactive) and which breaks keyboard/screen-reader semantics.
++ */
++export const ButtonLink = forwardRef<HTMLAnchorElement, RouterProps>(
++  ({ variant, size, className, ...props }, ref) => (
++    <Link ref={ref} className={buttonClassName({ variant, size, className })} {...props} />
++  ),
++);
++ButtonLink.displayName = 'ButtonLink';
++
++/** Same styling for external / tel: / in-page (#hash) anchors. */
++export const ButtonAnchor = forwardRef<HTMLAnchorElement, AnchorProps>(
++  ({ variant, size, className, ...props }, ref) => (
++    <a ref={ref} className={buttonClassName({ variant, size, className })} {...props} />
++  ),
++);
++ButtonAnchor.displayName = 'ButtonAnchor';
+diff -ruN -x node_modules -x android -x ios a/src/index.css vireek-main/src/index.css
+--- a/src/index.css	2026-10-28 16:13:19.000000000 +0000
++++ b/src/index.css	2026-10-31 06:00:01.653572728 +0000
+@@ -1,4 +1,3 @@
+-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&family=Dancing+Script&family=Caveat&family=Great+Vibes&display=swap');
+ 
+ @tailwind base;
+ @tailwind components;
+diff -ruN -x node_modules -x android -x ios a/src/lib/dvir.ts vireek-main/src/lib/dvir.ts
+--- a/src/lib/dvir.ts	2026-10-28 16:13:19.000000000 +0000
++++ b/src/lib/dvir.ts	2026-10-31 06:00:22.959571361 +0000
+@@ -7,6 +7,7 @@
+  */
+ 
+ import { supabase } from '@/lib/supabase';
++import { ensureSignatureFonts } from '@/lib/signatureFonts';
+ 
+ export type InspectionType = 'pre_trip' | 'post_trip';
+ export type ItemSeverity = 'minor' | 'major' | 'out_of_service';
+@@ -353,6 +354,8 @@
+ 
+ export async function signatureToBlob(sig: SignatureInput, typedFamily = "'Dancing Script', cursive"): Promise<Blob> {
+   if (sig.type === 'drawn') return (await fetch(sig.data)).blob();
++  ensureSignatureFonts();
++  await document.fonts?.load(`32px ${typedFamily}`).catch(() => undefined);
+   const canvas = document.createElement('canvas');
+   canvas.width = 640;
+   canvas.height = 180;
+diff -ruN -x node_modules -x android -x ios a/src/lib/homeAnalytics.ts vireek-main/src/lib/homeAnalytics.ts
+--- a/src/lib/homeAnalytics.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/homeAnalytics.ts	2026-10-29 03:39:48.431418268 +0000
+@@ -0,0 +1,58 @@
++import { useEffect } from 'react';
++import { trackEvent } from '@/lib/analytics';
++
++/**
++ * Homepage analytics. Every call goes through trackEvent(), which is a no-op until the visitor has
++ * granted analytics consent in CookieConsent — nothing here can fire before consent.
++ */
++export type HomeCtaId =
++  | 'hero_primary'
++  | 'hero_demo'
++  | 'header_primary'
++  | 'sticky_primary'
++  | 'sticky_call'
++  | 'calculator_primary'
++  | 'pricing_plan'
++  | 'founding_primary'
++  | 'final_primary'
++  | 'final_call';
++
++export function trackHomeCta(id: HomeCtaId, extra: Record<string, unknown> = {}) {
++  trackEvent('home_cta_click', { cta_id: id, ...extra });
++}
++
++export function trackDemoStart(mode: 'voice' | 'chat' | 'phone' | 'fallback_transcript') {
++  trackEvent('demo_start', { mode });
++}
++
++const SCROLL_STEPS = [25, 50, 75, 100] as const;
++
++/** Fires `home_scroll_depth` once per threshold (25/50/75/100 %) per page view. */
++export function useScrollDepthTracking() {
++  useEffect(() => {
++    const fired = new Set<number>();
++    let ticking = false;
++
++    const check = () => {
++      ticking = false;
++      const doc = document.documentElement;
++      const scrollable = doc.scrollHeight - window.innerHeight;
++      if (scrollable <= 0) return;
++      const pct = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
++      for (const step of SCROLL_STEPS) {
++        if (pct >= step && !fired.has(step)) {
++          fired.add(step);
++          trackEvent('home_scroll_depth', { percent: step });
++        }
++      }
++    };
++    const onScroll = () => {
++      if (ticking) return;
++      ticking = true;
++      window.requestAnimationFrame(check);
++    };
++
++    window.addEventListener('scroll', onScroll, { passive: true });
++    return () => window.removeEventListener('scroll', onScroll);
++  }, []);
++}
+diff -ruN -x node_modules -x android -x ios a/src/lib/homeContent.ts vireek-main/src/lib/homeContent.ts
+--- a/src/lib/homeContent.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/homeContent.ts	2026-10-29 03:39:48.427153714 +0000
+@@ -0,0 +1,115 @@
++/**
++ * Single source of truth for homepage copy that carries a factual claim.
++ * Every claim here is either (a) verifiable in this repo — cited in the comment — or
++ * (b) flagged OWNER_CONFIRM, meaning the owner must confirm it is true before launch.
++ * Strings live here (not inline) so they can be moved to i18n resources in one pass.
++ */
++
++export const SITE_URL = 'https://vireek.com';
++
++/** Trial terms. VERIFIED: SignupPage says "no credit card required"; RefundPolicy §5 says no payment is collected during a free trial. */
++export const TRIAL = {
++  days: 14,
++  short: '14-day free trial · No credit card · Cancel anytime',
++} as const;
++
++/**
++ * OWNER_CONFIRM: "about 15 minutes" is used across the existing site (FAQ, hero, final CTA) but
++ * there is no measurement in the repo. Edit here if the real median differs.
++ */
++export const SETUP_MINUTES = 15;
++
++export const HERO_PROOF = [
++  { label: 'Answers', value: '24/7', detail: 'Nights, weekends and holidays' },
++  { label: 'Setup', value: `~${SETUP_MINUTES} min`, detail: 'Forward your number, add your services' },
++  { label: 'Trial', value: `${TRIAL.days} days`, detail: 'No credit card, no contract' },
++] as const;
++
++export const HERO_HEADLINES = {
++  control: { line1: 'Every missed call is a lost job.', line2: 'Sarah answers all of them.' },
++  variant_b: { line1: 'Never miss another job.', line2: 'Sarah answers instead.' },
++} as const;
++
++/**
++ * VERIFIED in repo:
++ *  - Google Calendar, HubSpot: OAuth connectors (supabase/functions/google-calendar-oauth-*, hubspot-oauth-*; IntegrationsPage.tsx)
++ *  - ServiceTitan, Housecall Pro, Jobber: price-book connectors (supabase/functions/price-book-connect-*, jobber-oauth-*) —
++ *    they import your price book. They are NOT verified as two-way job/CRM sync, so the page must not say "sync jobs".
++ */
++export const INTEGRATION_GROUPS = [
++  { heading: 'Calendar & CRM', note: 'Connect with one click', names: ['Google Calendar', 'HubSpot'] },
++  { heading: 'Price-book import', note: 'Bring your pricing into Vireek', names: ['ServiceTitan', 'Housecall Pro', 'Jobber'] },
++] as const;
++
++export const TRADES = ['Plumbing', 'HVAC', 'Electrical', 'Roofing'] as const;
++
++/** Pricing teaser: plan ids shown on the homepage (Free and Enterprise are linked from /pricing). */
++export const HOME_PLAN_IDS = ['starter', 'professional', 'business'] as const;
++
++/**
++ * Optional real assets. While a value is null the page renders a clearly-labelled "Example" UI
++ * illustration instead. Supply real, compressed WebP (and real width/height) to replace them.
++ * NOTE: the /public/*.png "product" images in this repo are AI-generated concept renders, not
++ * screenshots, so they are deliberately NOT used here.
++ */
++export interface RealAsset {
++  src: string;
++  width: number;
++  height: number;
++  alt: string;
++}
++export const PRODUCT_SHOTS: Record<'answer' | 'dispatch' | 'recover', RealAsset | null> = {
++  answer: null,
++  dispatch: null,
++  recover: null,
++};
++/** Real recorded demo call (mp3/m4a). While null, no audio player is rendered. */
++export const SARAH_SAMPLE_AUDIO: { src: string; durationLabel: string } | null = null;
++
++/** Real founding-customer offer. While null, the section states plainly that the program has no fixed offer yet. */
++export const FOUNDING_OFFER: { title: string; terms: string } | null = null;
++
++export interface FaqItem {
++  q: string;
++  a: string;
++}
++
++/**
++ * Answers use only behaviour that is verifiable in the repo (pricing.ts plan features, RefundPolicyContent,
++ * existing FAQ copy) and avoid unverified numbers. Rendered in the page AND emitted as FAQPage JSON-LD,
++ * so what Google sees always matches what visitors read.
++ */
++export const HOME_FAQS: FaqItem[] = [
++  {
++    q: 'What happens with emergency calls?',
++    a: 'Sarah listens for urgent language such as a burst pipe or no heat in winter and flags the call as an emergency. On the Professional plan and above she can also warm-transfer the caller to your on-call person, so it does not sit in a voicemail box.',
++  },
++  {
++    q: 'Does Sarah understand accents and other languages?',
++    a: 'She is built to follow natural speech and to reply in the caller’s language where she supports it. Accuracy still depends on the accent and the line quality, so test her with your own voice in the live demo above, then review real call transcripts during your trial.',
++  },
++  {
++    q: 'What if the AI gets something wrong?',
++    a: 'Every call gets a summary, and paid plans keep the call transcript so you can see exactly what was said and fix anything. If a caller asks for a person, Sarah tells them someone will follow up. Sarah is software, and she says so.',
++  },
++  {
++    q: 'Do I have to change or port my phone number?',
++    a: 'No. You keep your number and forward calls to Sarah, so your customers and your marketing do not change. You can stop forwarding at any time.',
++  },
++  {
++    q: 'Is there a contract?',
++    a: 'No long-term contracts and no early-termination fees. You can cancel anytime. Details are in the refund and cancellation policy.',
++  },
++  {
++    q: 'What happens to my customers’ data?',
++    a: 'Your data is stored in your own account and isolated from other businesses. You can read how we handle it on the security and privacy pages, and Sarah tells callers she is an AI at the start of the call.',
++  },
++  {
++    q: 'How long does setup take?',
++    a: `Most businesses are live in about ${SETUP_MINUTES} minutes: forward your line, tell Sarah about your services and hours, and she starts answering. Connecting a calendar or CRM is optional and takes a few more minutes.`,
++  },
++  {
++    q: 'How much does it cost?',
++    a: 'Plans start at $79 a month with a 14-day free trial that needs no credit card. There is also a Free plan with 50 minutes. Prices are shown above and on the pricing page.',
++  },
++];
+diff -ruN -x node_modules -x android -x ios a/src/lib/missedCallMath.test.ts vireek-main/src/lib/missedCallMath.test.ts
+--- a/src/lib/missedCallMath.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/missedCallMath.test.ts	2026-10-29 03:39:20.929415256 +0000
+@@ -0,0 +1,30 @@
++import { describe, expect, it } from 'vitest';
++import { CALCULATOR_DEFAULTS, calculateMissedCallCost } from './missedCallMath';
++
++describe('calculateMissedCallCost', () => {
++  it('matches the formula shown on the page for the default inputs', () => {
++    // 50 calls/wk × 20% missed × 52/12 = 43.33 missed/mo; × 30% = 13 jobs; × $350 = $4,550
++    const r = calculateMissedCallCost(CALCULATOR_DEFAULTS);
++    expect(r.missedPerMonth).toBeCloseTo(43.333, 2);
++    expect(r.bookedJobsPerMonth).toBeCloseTo(13, 5);
++    expect(r.monthlyRevenueAtStake).toBeCloseTo(4550, 2);
++    expect(r.annualRevenueAtStake).toBeCloseTo(54600, 2);
++  });
++
++  it('returns zero when nothing is missed', () => {
++    const r = calculateMissedCallCost({ ...CALCULATOR_DEFAULTS, missedPercent: 0 });
++    expect(r.monthlyRevenueAtStake).toBe(0);
++  });
++
++  it('clamps out-of-range and non-finite input instead of producing NaN or negatives', () => {
++    const r = calculateMissedCallCost({ callsPerWeek: -5, missedPercent: 500, bookRatePercent: NaN, jobValue: Infinity });
++    expect(Number.isFinite(r.monthlyRevenueAtStake)).toBe(true);
++    expect(r.monthlyRevenueAtStake).toBeGreaterThanOrEqual(0);
++  });
++
++  it('scales linearly with job value', () => {
++    const a = calculateMissedCallCost({ ...CALCULATOR_DEFAULTS, jobValue: 100 });
++    const b = calculateMissedCallCost({ ...CALCULATOR_DEFAULTS, jobValue: 200 });
++    expect(b.monthlyRevenueAtStake).toBeCloseTo(a.monthlyRevenueAtStake * 2, 5);
++  });
++});
+diff -ruN -x node_modules -x android -x ios a/src/lib/missedCallMath.ts vireek-main/src/lib/missedCallMath.ts
+--- a/src/lib/missedCallMath.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/missedCallMath.ts	2026-10-29 03:39:20.928193752 +0000
+@@ -0,0 +1,52 @@
++/**
++ * Pure math for the homepage "cost of missed calls" calculator.
++ * Kept separate from the component so the formula shown to visitors is the formula that is tested.
++ *
++ *   missed calls / month = calls per week × (missed %) × 52 / 12
++ *   revenue at stake     = missed calls / month × (% that would have booked) × average job value
++ *
++ * This is an ESTIMATE from the visitor's own inputs — not a forecast of what Vireek will recover.
++ */
++export interface MissedCallInputs {
++  callsPerWeek: number;
++  missedPercent: number; // 0–100
++  bookRatePercent: number; // 0–100
++  jobValue: number; // currency units
++}
++
++export interface MissedCallResult {
++  missedPerMonth: number;
++  bookedJobsPerMonth: number;
++  monthlyRevenueAtStake: number;
++  annualRevenueAtStake: number;
++}
++
++export const WEEKS_PER_MONTH = 52 / 12;
++
++export const CALCULATOR_DEFAULTS: MissedCallInputs = {
++  callsPerWeek: 50,
++  missedPercent: 20,
++  bookRatePercent: 30,
++  jobValue: 350,
++};
++
++const clamp = (n: number, min: number, max: number) =>
++  Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : min;
++
++export function calculateMissedCallCost(input: MissedCallInputs): MissedCallResult {
++  const calls = clamp(input.callsPerWeek, 0, 10_000);
++  const missedPct = clamp(input.missedPercent, 0, 100);
++  const bookPct = clamp(input.bookRatePercent, 0, 100);
++  const jobValue = clamp(input.jobValue, 0, 1_000_000);
++
++  const missedPerMonth = calls * (missedPct / 100) * WEEKS_PER_MONTH;
++  const bookedJobsPerMonth = missedPerMonth * (bookPct / 100);
++  const monthlyRevenueAtStake = bookedJobsPerMonth * jobValue;
++
++  return {
++    missedPerMonth,
++    bookedJobsPerMonth,
++    monthlyRevenueAtStake,
++    annualRevenueAtStake: monthlyRevenueAtStake * 12,
++  };
++}
+diff -ruN -x node_modules -x android -x ios a/src/lib/signatureFonts.ts vireek-main/src/lib/signatureFonts.ts
+--- a/src/lib/signatureFonts.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/signatureFonts.ts	2026-10-31 06:00:06.639419086 +0000
+@@ -0,0 +1,12 @@
++const HREF =
++  'https://fonts.googleapis.com/css2?family=Caveat&family=Dancing+Script&family=Great+Vibes&display=swap';
++
++/** Loads the typed-signature fonts on demand. They used to be a render-blocking @import on every page. */
++export function ensureSignatureFonts(): void {
++  if (typeof document === 'undefined' || document.querySelector('link[data-signature-fonts]')) return;
++  const link = document.createElement('link');
++  link.rel = 'stylesheet';
++  link.href = HREF;
++  link.setAttribute('data-signature-fonts', '1');
++  document.head.appendChild(link);
++}
+diff -ruN -x node_modules -x android -x ios a/src/pages/HomePage.tsx vireek-main/src/pages/HomePage.tsx
+--- a/src/pages/HomePage.tsx	2026-10-28 16:13:19.000000000 +0000
++++ b/src/pages/HomePage.tsx	2026-10-31 05:59:46.392344531 +0000
+@@ -1,58 +1,77 @@
++import { Suspense, lazy, useMemo } from 'react';
+ import { Header } from '@/components/Header';
+ import { Footer } from '@/components/Footer';
+-import { useSEO } from '@/lib/seo';
+ import { CookieConsent } from '@/components/CookieConsent';
+-import { Hero } from '@/components/sections/Hero';
+-import { TrustBar } from '@/components/sections/TrustBar';
+-import { HowItWorks } from '@/components/sections/HowItWorks';
+-import { WhyNow } from '@/components/sections/WhyNow';
+-import { LiveDemo } from '@/components/sections/LiveDemo';
+-import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator';
+-import { PricingTeaser } from '@/components/sections/PricingTeaser';
+-import { CustomerResults } from '@/components/sections/CustomerResults';
+-import { FinalCTA } from '@/components/sections/FinalCTA';
++import { Hero } from '@/components/home/Hero';
++import { IntegrationsStrip } from '@/components/home/IntegrationsStrip';
++import { StickyMobileCta } from '@/components/home/StickyMobileCta';
++import { useSEO } from '@/lib/seo';
++import { useScrollDepthTracking } from '@/lib/homeAnalytics';
++import { HOME_FAQS, SITE_URL } from '@/lib/homeContent';
++
++// Everything below the fold is code-split so the hero paints without waiting on it.
++const CostOfMissedCalls = lazy(() => import('@/components/home/CostOfMissedCalls').then((m) => ({ default: m.CostOfMissedCalls })));
++const HowItWorks = lazy(() => import('@/components/home/HowItWorks').then((m) => ({ default: m.HowItWorks })));
++const LiveDemo = lazy(() => import('@/components/sections/LiveDemo').then((m) => ({ default: m.LiveDemo })));
++const ProductProof = lazy(() => import('@/components/home/ProductProof').then((m) => ({ default: m.ProductProof })));
++const FoundingProgram = lazy(() => import('@/components/home/FoundingProgram').then((m) => ({ default: m.FoundingProgram })));
++const HomePricing = lazy(() => import('@/components/home/HomePricing').then((m) => ({ default: m.HomePricing })));
++const HomeFaq = lazy(() => import('@/components/home/HomeFaq').then((m) => ({ default: m.HomeFaq })));
++const FinalCta = lazy(() => import('@/components/home/FinalCta').then((m) => ({ default: m.FinalCta })));
++
++/** Reserves space while a lazy section loads, so nothing below shifts when it arrives (CLS). */
++function Slot({ minHeight, children }: { minHeight: number; children: React.ReactNode }) {
++  return (
++    <Suspense fallback={<div aria-hidden="true" style={{ minHeight }} />}>{children}</Suspense>
++  );
++}
++
+ /**
+- * Homepage — a single, seven-section path: prove it works (Hero), prove
+- * it's trusted (TrustBar), make the case for urgency (WhyNow), explain it
+- * (HowItWorks), let the visitor try it themselves (LiveDemo), make the
+- * cost of missed calls concrete (MissedCallCalculator), show the price
+- * (PricingTeaser), close (FinalCTA).
+- *
+- * SocialProof, HighlightBanner, ReviewBadges, DashboardPreview,
+- * Integrations and Comparison used to live here too. Each one was saying
+- * a version of "Sarah is smart and trusted" a second or third time,
+- * which pushed the live demo and pricing further down the page than a
+- * first-time visitor actually scrolls — and Comparison specifically
+- * duplicated the dedicated, more complete /compare page. None of that
+- * content is gone: it lives on /platform, /industries, /integrations,
+- * /compare and /case-studies, all one click away from the header and
+- * footer nav.
++ * Homepage order: Hero → integrations/trades → cost of missed calls → how it works → live demo →
++ * product proof → founding customers → pricing → FAQ → final CTA.
++ * Organization + SoftwareApplication JSON-LD are static in index.html (crawlers see them without JS);
++ * FAQPage JSON-LD is generated here from the same HOME_FAQS the page renders.
+  */
+ export function HomePage() {
++  const jsonLd = useMemo(
++    () => ({
++      '@context': 'https://schema.org',
++      '@type': 'FAQPage',
++      mainEntity: HOME_FAQS.map((f) => ({
++        '@type': 'Question',
++        name: f.q,
++        acceptedAnswer: { '@type': 'Answer', text: f.a },
++      })),
++    }),
++    [],
++  );
++
+   useSEO({
+-    title: 'Vireek — AI Voice Receptionist for Home Services | Never Miss a Call',
++    title: 'Vireek: AI Receptionist for Plumbing, HVAC, Electrical & Roofing Contractors',
+     description:
+-      'Vireek is an AI voice receptionist built for home service businesses. Answer calls, capture leads, book appointments, and keep customer communication moving 24/7.',
+-    canonical: 'https://vireek.com/',
++      'Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, no credit card.',
++    canonical: `${SITE_URL}/`,
++    jsonLd,
+   });
++  useScrollDepthTracking();
+ 
+   return (
+     <>
+       <Header />
+-
+-      <main>
++      <main id="main">
+         <Hero />
+-        <TrustBar />
+-        <WhyNow />
+-        <HowItWorks />
+-        <LiveDemo />
+-        <MissedCallCalculator />
+-        <PricingTeaser />
+-        <CustomerResults />
+-        <FinalCTA />
++        <IntegrationsStrip />
++        <Slot minHeight={640}><CostOfMissedCalls /></Slot>
++        <Slot minHeight={520}><HowItWorks /></Slot>
++        <Slot minHeight={760}><LiveDemo /></Slot>
++        <Slot minHeight={620}><ProductProof /></Slot>
++        <Slot minHeight={360}><FoundingProgram /></Slot>
++        <Slot minHeight={760}><HomePricing /></Slot>
++        <Slot minHeight={720}><HomeFaq /></Slot>
++        <Slot minHeight={380}><FinalCta /></Slot>
+       </main>
+-
+       <Footer />
++      <StickyMobileCta />
+       <CookieConsent />
+     </>
+   );
+--- a/index.html	2026-10-28 16:13:19.000000000 +0000
++++ b/index.html	2026-10-31 06:00:01.653092060 +0000
+@@ -3,9 +3,14 @@
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
++    <!-- Fonts: Inter + Sora only on first load. Non-blocking (media swap) with display=swap; no render-blocking @import. -->
++    <link rel="preconnect" href="https://fonts.googleapis.com" />
++    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
++    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Sora:wght@500;600;700&amp;display=swap" media="print" onload="this.media='all'" />
++    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Sora:wght@500;600;700&amp;display=swap" /></noscript>
+     <!-- Primary SEO -->
+-    <title>Vireek — AI Voice Receptionist for Home Services | Never Miss a Call</title>
+-    <meta name="description" content="Vireek is an AI voice receptionist built for home service businesses. Answer calls, capture leads, book appointments, and keep customer communication moving 24/7." />
++    <title>Vireek: AI Receptionist for Plumbing, HVAC, Electrical &amp; Roofing Contractors</title>
++    <meta name="description" content="Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, no credit card." />
+     <meta name="keywords" content="AI receptionist, missed call, home service business, appointment booking software, AI answering service, plumber software, HVAC software, electrician CRM" />
+     <link rel="canonical" href="https://vireek.com/" />
+         <link rel="alternate" type="application/rss+xml" title="Vireek Blog" href="https://vireek.com/blog-rss.xml" />
+@@ -26,8 +31,8 @@
+     <meta property="og:type" content="website" />
+     <meta property="og:site_name" content="Vireek" />
+     <meta property="og:url" content="https://vireek.com/" />
+-    <meta property="og:title" content="Vireek — AI Voice Receptionist for Home Services | Never Miss a Call" />
+-    <meta property="og:description" content="Vireek is an AI voice receptionist built for home service businesses. Answer calls, capture leads, book appointments, and keep customer communication moving 24/7." />
++    <meta property="og:title" content="Vireek: AI Receptionist for Plumbing, HVAC, Electrical &amp; Roofing Contractors" />
++    <meta property="og:description" content="Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, no credit card." />
+     <meta property="og:image" content="https://vireek.com/og-image.png" />
+     <meta property="og:image:width" content="1200" />
+     <meta property="og:image:height" content="630" />
+@@ -35,8 +40,8 @@
+ 
+     <!-- Twitter Card -->
+     <meta name="twitter:card" content="summary_large_image" />
+-    <meta name="twitter:title" content="Vireek — AI Voice Receptionist for Home Services | Never Miss a Call" />
+-    <meta name="twitter:description" content="Vireek is an AI voice receptionist built for home service businesses. Answer calls, capture leads, book appointments, and keep customer communication moving 24/7." />
++    <meta name="twitter:title" content="Vireek: AI Receptionist for Plumbing, HVAC, Electrical &amp; Roofing Contractors" />
++    <meta name="twitter:description" content="Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, no credit card." />
+     <meta name="twitter:image" content="https://vireek.com/og-image.png" />
+ 
+     <!-- Structured Data (Google rich results) -->
+@@ -48,45 +53,24 @@
+       "applicationCategory": "BusinessApplication",
+       "operatingSystem": "Web",
+       "url": "https://vireek.com/",
+-      "description": "AI receptionist for home service businesses. Instant call answering, appointment booking, lead capture, and CRM sync — 24/7.",
++      "description": "AI receptionist for home-service contractors. Answers calls 24/7, books appointments, flags emergencies and texts customers.",
+       "offers": {
+-        "@type": "Offer",
+-        "price": "0",
++        "@type": "AggregateOffer",
+         "priceCurrency": "USD",
+-        "description": "Free plan available"
++        "lowPrice": "0",
++        "highPrice": "399",
++        "offerCount": "4",
++        "description": "Free plan, plus paid plans from $79/month with a 14-day free trial"
+       }
+     }
+     </script>
+-    <script type="application/ld+json">
+-    {
+-      "@context": "https://schema.org",
+-      "@type": "Organization",
+-      "name": "Vireek",
+-      "url": "https://vireek.com/",
+-      "logo": "https://vireek.com/favicon-96x96.png",
+-      "sameAs": []
+-    }
+-    </script>
+ 
+-    <!-- Google Analytics (GA4) -->
+-    <!-- IMPORTANT: Replace G-0W8L34DFZ4 below with your real Measurement ID
+-         from https://analytics.google.com (Admin → Data Streams → your stream).
+-         Until you replace it, this script loads but sends no usable data. -->
+-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0W8L34DFZ4"></script>
+-    <script>
+-      window.dataLayer = window.dataLayer || [];
+-      function gtag(){dataLayer.push(arguments);}
+-      gtag('js', new Date());
+-      gtag('config', 'G-0W8L34DFZ4');
+-    </script>
+-
+-    <!-- Structured Data (Brand identity for Google Knowledge Panel) -->
+     <script type="application/ld+json">
+     {
+       "@context": "https://schema.org",
+       "@type": "Organization",
+       "name": "Vireek",
+-      "url": "https://vireek.com",
++      "url": "https://vireek.com/",
+       "logo": "https://vireek.com/web-app-manifest-512x512.png"
+     }
+     </script>
+--- a/tailwind.config.js	2026-10-28 16:13:19.000000000 +0000
++++ b/tailwind.config.js	2026-10-31 05:58:25.850596166 +0000
+@@ -92,9 +92,14 @@
+           '0%': { transform: 'translateX(0%)' },
+           '100%': { transform: 'translateX(-50%)' },
+         },
++        'fade-in': {
++          '0%': { opacity: '0' },
++          '100%': { opacity: '1' },
++        },
+       },
+       animation: {
+         marquee: 'marquee 138s linear infinite',
++        'fade-in': 'fade-in 0.35s ease-out both',
+       },
+     },
+   },
+--- a/e2e/homepage.spec.ts	2026-10-28 16:13:19.000000000 +0000
++++ b/e2e/homepage.spec.ts	2026-10-31 06:00:25.511818161 +0000
+@@ -1,12 +1,119 @@
+-import { test, expect } from '@playwright/test';
++import { test, expect, type Page } from '@playwright/test';
++import AxeBuilder from '@axe-core/playwright';
+ 
+-test('homepage loads and shows the core CTA path', async ({ page }) => {
+-  await page.goto('/');
+-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+-  await expect(page.getByRole('link', { name: /start free trial/i }).first()).toBeVisible();
++const WIDTHS = [375, 768, 1280, 1920] as const;
++
++async function dismissCookies(page: Page) {
++  await page.addInitScript(() => {
++    localStorage.setItem(
++      'vireek-consent-v2',
++      JSON.stringify({ essential: true, analytics: false, personalization: false, marketing: false, ai: false, version: 2, timestamp: new Date().toISOString() }),
++    );
++  });
++}
++
++test.describe('homepage', () => {
++  test('has one H1, a primary CTA, and no fabricated proof', async ({ page }) => {
++    await page.goto('/');
++    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
++    const body = (await page.locator('main').innerText()).toLowerCase();
++    for (const banned of ['soc 2', 'bank-grade', '99.9%', 'coastal plumbing', '$10,000', '$18,000']) {
++      expect(body, `unverified claim "${banned}" must not appear`).not.toContain(banned);
++    }
++  });
++
++  test('hero CTA goes to signup', async ({ page }) => {
++    await dismissCookies(page);
++    await page.goto('/');
++    await page.locator('[data-hero-cta]').getByRole('link', { name: /start free trial/i }).click();
++    await expect(page).toHaveURL(/\/signup/);
++  });
++
++  test('pricing toggle switches monthly and annual prices', async ({ page }) => {
++    await dismissCookies(page);
++    await page.goto('/');
++    const pricing = page.locator('#pricing');
++    await pricing.scrollIntoViewIfNeeded();
++    const monthly = pricing.getByRole('button', { name: 'Monthly' });
++    const annual = pricing.getByRole('button', { name: 'Annual' });
++    await monthly.click();
++    await expect(monthly).toHaveAttribute('aria-pressed', 'true');
++    await expect(pricing).toContainText('$79');
++    await annual.click();
++    await expect(annual).toHaveAttribute('aria-pressed', 'true');
++    await expect(pricing).toContainText('Billed $790 a year');
++  });
++
++  test('demo falls back to a transcript when the microphone is unsupported', async ({ page }) => {
++    await dismissCookies(page);
++    await page.addInitScript(() => {
++      Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true });
++    });
++    await page.goto('/');
++    await page.locator('#demo').scrollIntoViewIfNeeded();
++    await expect(page.getByTestId('demo-fallback')).toBeVisible();
++    await expect(page.getByRole('list', { name: /example call transcript/i })).toBeVisible();
++  });
++
++  test('FAQ JSON-LD matches the visible questions', async ({ page }) => {
++    await page.goto('/');
++    await page.locator('#faq').scrollIntoViewIfNeeded();
++    const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
++    const faq = blocks.map((b) => JSON.parse(b)).find((j) => j['@type'] === 'FAQPage');
++    expect(faq.mainEntity.length).toBeGreaterThanOrEqual(6);
++    for (const q of faq.mainEntity) {
++      await expect(page.locator('#faq')).toContainText(q.name);
++    }
++  });
++
++  test('no analytics request is made before consent', async ({ page }) => {
++    const hits: string[] = [];
++    page.on('request', (r) => {
++      if (/googletagmanager\.com|google-analytics\.com/.test(r.url())) hits.push(r.url());
++    });
++    await page.goto('/');
++    await page.waitForTimeout(2500);
++    expect(hits).toEqual([]);
++  });
++
++  test('has no horizontal overflow and no WCAG A/AA violations', async ({ page }) => {
++    await dismissCookies(page);
++    await page.goto('/');
++    await page.locator('footer').scrollIntoViewIfNeeded();
++    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
++    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
++  });
++});
++
++test.describe('mobile sticky bar', () => {
++  test.use({ viewport: { width: 375, height: 800 } });
++
++  test('appears after the hero, is hidden on desktop-only, and does not cover the cookie banner', async ({ page }) => {
++    await page.goto('/');
++    await expect(page.getByTestId('sticky-cta')).toHaveCount(0); // hero CTA visible
++    await page.waitForTimeout(1800); // cookie banner appears after 1.5s
++    await page.mouse.wheel(0, 1600);
++    await expect(page.getByTestId('sticky-cta')).toHaveCount(0); // banner open => bar hidden
++    await page.getByRole('button', { name: /reject/i }).first().click();
++    await expect(page.getByTestId('sticky-cta')).toBeVisible();
++    await expect(page.getByTestId('sticky-cta').getByRole('link', { name: /start free trial/i })).toBeVisible();
++  });
+ });
+ 
+-test('pricing page lists all plans and links to Stripe or /login', async ({ page }) => {
++for (const width of WIDTHS) {
++  test(`layout at ${width}px: no horizontal scroll, screenshot`, async ({ page }, info) => {
++    await dismissCookies(page);
++    await page.setViewportSize({ width, height: 900 });
++    await page.goto('/');
++    await page.locator('footer').scrollIntoViewIfNeeded();
++    await page.evaluate(() => window.scrollTo(0, 0));
++    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
++    expect(overflow).toBeLessThanOrEqual(0);
++    await page.screenshot({ path: info.outputPath(`home-${width}.png`), fullPage: true });
++  });
++}
++
++test('pricing page still lists all plans', async ({ page }) => {
+   await page.goto('/pricing');
+   await expect(page.getByText(/professional/i).first()).toBeVisible();
+ });
+--- a/package.json	2026-10-28 16:13:19.000000000 +0000
++++ b/package.json	2026-10-31 06:04:03.857251707 +0000
+@@ -35,7 +35,8 @@
+     "cap:ios": "npm run cap:sync && cap open ios",
+     "cap:android": "npm run cap:sync && cap open android",
+     "build:home": "vite build --mode home --outDir dist-home",
+-    "cap:home": "node scripts/cap-home.mjs"
++    "cap:home": "node scripts/cap-home.mjs",
++    "test:e2e:home": "playwright test e2e/homepage.spec.ts"
+   },
+   "dependencies": {
+     "@sentry/react": "^10.74.0",
+@@ -53,6 +54,7 @@
+     "read-excel-file": "^5.8.5"
+   },
+   "devDependencies": {
++    "@axe-core/playwright": "^4.10.1",
+     "@eslint/js": "^9.9.1",
+     "@playwright/test": "^1.49.1",
+     "@testing-library/jest-dom": "^6.6.3",
