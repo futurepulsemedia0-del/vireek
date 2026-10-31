@@ -1,4 +1,17 @@
-export type ClaimStatus = 'eligible' | 'packet_pending' | 'submitted' | 'approved' | 'denied' | 'credit_received' | 'closed';
+// Legacy values (eligible, packet_pending, credit_received) stay in the type because protection-plan
+// claims still use them; manufacturer claims are normalised by the database to the new names.
+export type ClaimStatus =
+  | 'eligible'
+  | 'packet_pending'
+  | 'submitted'
+  | 'approved'
+  | 'denied'
+  | 'credit_received'
+  | 'closed'
+  | 'needs_review'
+  | 'ready'
+  | 'expired'
+  | 'paid';
 
 export type CreditMethod = 'account_credit' | 'check' | 'ach' | 'other';
 
@@ -10,6 +23,10 @@ export const CLAIM_STATUS_LABELS: Record<ClaimStatus, string> = {
   denied: 'Denied',
   credit_received: 'Credit received',
   closed: 'Closed',
+  needs_review: 'Needs review',
+  ready: 'Ready to submit',
+  expired: 'Expired',
+  paid: 'Paid',
 };
 
 export const CLAIM_STATUS_COLORS: Record<ClaimStatus, string> = {
@@ -20,18 +37,23 @@ export const CLAIM_STATUS_COLORS: Record<ClaimStatus, string> = {
   denied: 'bg-danger/10 text-danger',
   credit_received: 'bg-success-500/10 text-success-500',
   closed: 'bg-bg-tertiary text-text-secondary',
+  needs_review: 'bg-bg-tertiary text-text-secondary',
+  ready: 'bg-accent/10 text-accent',
+  expired: 'bg-danger/10 text-danger',
+  paid: 'bg-success-500/10 text-success-500',
 };
 
 // Ordered pipeline — used for the status <select>, in the sequence a
-// claim actually moves through; "denied" set apart as the off-ramp.
+// claim actually moves through; "denied" and "expired" set apart as the off-ramps.
 export const CLAIM_STATUS_OPTIONS: ClaimStatus[] = [
-  'eligible',
-  'packet_pending',
+  'needs_review',
+  'ready',
   'submitted',
   'approved',
-  'credit_received',
+  'paid',
   'closed',
   'denied',
+  'expired',
 ];
 
 export const CREDIT_METHOD_LABELS: Record<CreditMethod, string> = {
@@ -67,7 +89,7 @@ export const EMPTY_CHECKLIST: PacketChecklist = {
 
 // A claim still actively moving — drives the "open claims" stat/filter.
 export function isOpenClaim(status: ClaimStatus): boolean {
-  return status !== 'denied' && status !== 'closed';
+  return status !== 'denied' && status !== 'closed' && status !== 'expired';
 }
 
 export function packetProgress(checklist: PacketChecklist | null | undefined): { done: number; total: number } {
@@ -89,7 +111,7 @@ export function daysUntil(dateStr: string | null | undefined): number | null {
 // submitted yet — this is the "we're about to lose this money" flag.
 export function isDeadlineAtRisk(status: ClaimStatus, claimDeadline: string | null | undefined): boolean {
   if (!claimDeadline) return false;
-  if (status !== 'eligible' && status !== 'packet_pending') return false;
+  if (status !== 'eligible' && status !== 'packet_pending' && status !== 'needs_review' && status !== 'ready') return false;
   const d = daysUntil(claimDeadline);
   return d !== null && d <= 7;
 }
