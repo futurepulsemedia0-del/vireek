@@ -210,6 +210,7 @@ const TalentWorkerPage = lazy(() => import('@/pages/TalentWorkerPage').then((m) 
 const TalentNetworkPage = lazy(() => import('@/pages/TalentNetworkPage').then((m) => ({ default: m.TalentNetworkPage })));
 const PrevailingWagePage = lazy(() => import('@/pages/PrevailingWagePage').then((m) => ({ default: m.PrevailingWagePage })));
 const ChartOfAccountsPage = lazy(() => import('@/pages/ChartOfAccountsPage').then((m) => ({ default: m.ChartOfAccountsPage })));
+const MultiEntityReportingPage = lazy(() => import('@/pages/MultiEntityReportingPage').then((m) => ({ default: m.MultiEntityReportingPage })));
 const FixedAssetsPage = lazy(() => import('@/pages/FixedAssetsPage').then((m) => ({ default: m.FixedAssetsPage })));
 const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
@@ -2962,6 +2963,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <ChartOfAccountsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/multi-entity-reporting"
+  element={
+    <ProtectedRoute>
+      <MultiEntityReportingPage />
     </ProtectedRoute>
   }
 />
