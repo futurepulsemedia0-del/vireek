@@ -49,7 +49,9 @@ export function useFocusTrap(active: boolean) {
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      triggerRef.current?.focus?.();
+      const trigger = triggerRef.current;
+      const target = trigger && trigger.isConnected ? trigger : document.querySelector<HTMLElement>('[data-focus-fallback]');
+      target?.focus?.({ preventScroll: true });
     };
   }, [active]);
 
