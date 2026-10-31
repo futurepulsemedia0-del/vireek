@@ -19,10 +19,10 @@ import type { LucideIcon } from 'lucide-react';
 // scripts/check-design-system.mjs, which fails CI if a new local
 // `inputClass` constant reappears anywhere outside this file.
 
-const fieldBase =
-  'focus-ring w-full rounded-xl border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent disabled:cursor-not-allowed disabled:opacity-50';
+export const fieldBase =
+  'focus-ring w-full rounded-xl border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors hover:border-accent/40 focus-visible:border-accent read-only:bg-bg-tertiary disabled:cursor-not-allowed disabled:opacity-50';
 
-const fieldBorder = (hasError: boolean) => (hasError ? 'border-danger focus-visible:border-danger' : 'border-border');
+export const fieldBorder = (hasError: boolean) => (hasError ? 'border-danger focus-visible:border-danger' : 'border-border');
 
 interface FieldChromeProps {
   label?: string;
@@ -32,7 +32,7 @@ interface FieldChromeProps {
   required?: boolean;
 }
 
-function FieldLabel({ label, id, required }: { label?: string; id: string; required?: boolean }) {
+export function FieldLabel({ label, id, required }: { label?: string; id: string; required?: boolean }) {
   if (!label) return null;
   return (
     <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-text-primary">
@@ -42,7 +42,7 @@ function FieldLabel({ label, id, required }: { label?: string; id: string; requi
   );
 }
 
-function FieldFooter({ error, helperText, id }: { error?: string; helperText?: string; id: string }) {
+export function FieldFooter({ error, helperText, id }: { error?: string; helperText?: string; id: string }) {
   if (!error && !helperText) return null;
   return (
     <p
