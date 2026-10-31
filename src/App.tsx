@@ -1,6 +1,7 @@
 import { CustomDomainGate } from '@/components/CustomDomainGate';
 import { PdfBrandSync } from '@/components/PdfBrandSync';
 import { Suspense, lazy } from 'react';
+import { RouteFallback } from '@/components/loading/RouteFallback';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -677,10 +678,10 @@ const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ defa
 const ApiReferencePage = lazy(() => import('@/pages/ApiReferencePage').then((m) => ({ default: m.ApiReferencePage })));
 const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
 const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) => ({ default: m.InviteAcceptPage })));
+const LoadingDemo = import.meta.env.DEV ? lazy(() => import('@/pages/dev/LoadingDemo')) : null; // dev-only
 
 function RouteLoadingFallback() {
   return (
-  <RouteProgressSignal />
     <div className="flex min-h-screen items-center justify-center bg-bg-primary">
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
     </div>
@@ -691,6 +692,7 @@ function AppRoutes() {
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
+        {LoadingDemo && <Route path="/dev/loading" element={<Suspense fallback={<RouteFallback />}><LoadingDemo /></Suspense>} />}
         <Route path="/" element={<HomeTargetGate><HomePage /></HomeTargetGate>} />
         <Route path="/login" element={<LoginPage />} />
         {/*
