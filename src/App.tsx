@@ -194,6 +194,7 @@ const GalleryPage = lazy(() => import('@/pages/GalleryPage').then((m) => ({ defa
 const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage').then((m) => ({ default: m.CallbackRootCausePage })));
 const ReportsPage = lazy(() => import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage })));
 const DataPlatformPage = lazy(() => import('@/pages/DataPlatformPage').then((m) => ({ default: m.DataPlatformPage })));
+   const BiConnectorsPage = lazy(() => import('@/pages/BiConnectorsPage').then((m) => ({ default: m.BiConnectorsPage })));
 const BiConnectorsPage = lazy(() => import('@/pages/BiConnectorsPage').then((m) => ({ default: m.BiConnectorsPage })));
 const BiExportPage = lazy(() => import('@/pages/BiExportPage').then((m) => ({ default: m.BiExportPage })));
 const ScheduledReportsPage = lazy(() => import('@/pages/ScheduledReportsPage').then((m) => ({ default: m.ScheduledReportsPage })));
@@ -2907,6 +2908,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+   <Route
+     path="/dashboard/bi-connectors"
+     element={
+       <ProtectedRoute>
+         <BiConnectorsPage />
+       </ProtectedRoute>
+     }
+   />
    <Route
      path="/dashboard/bi-connectors"
      element={
