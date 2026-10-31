@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRegional } from '@/contexts/RegionalContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -10,10 +11,17 @@ import {
 const field = 'w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary focus-ring';
 const label = 'mb-1.5 block text-xs font-medium text-text-secondary';
 
+const TIME_ZONES: string[] = (() => {
+  const supported = (Intl as unknown as { supportedValuesOf?: (key: 'timeZone') => string[] }).supportedValuesOf;
+  const list = supported ? supported('timeZone') : [];
+  return list.includes('UTC') ? list : ['UTC', ...list];
+})();
+
 export function RegionalSettingsCard() {
   const { regional, fx, save } = useRegional();
   const { isOwner } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const [draft, setDraft] = useState<RegionalSettings>(regional);
   const [busy, setBusy] = useState(false);
   useEffect(() => setDraft(regional), [regional]);
@@ -91,6 +99,21 @@ export function RegionalSettingsCard() {
           <select className={field} value={draft.unitSystem} onChange={(e) => set('unitSystem', e.target.value as UnitSystem)}>
             <option value="imperial">Imperial (mi, lb, °F)</option>
             <option value="metric">Metric (km, kg, °C)</option>
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className={label}>{t('format.timeZoneLabel')}</span>
+          <select className={field} value={draft.timeZone ?? ''} onChange={(e) => set('timeZone', e.target.value || null)}>
+            <option value="">{t('format.timeZoneViewer')}</option>
+            {TIME_ZONES.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className={label}>{t('format.hourCycleLabel')}</span>
+          <select className={field} value={draft.hourCycle} onChange={(e) => set('hourCycle', e.target.value as RegionalSettings['hourCycle'])}>
+            <option value="auto">{t('format.hourCycleAuto')}</option>
+            <option value="12h">{t('format.hourCycle12')}</option>
+            <option value="24h">{t('format.hourCycle24')}</option>
           </select>
         </label>
       </fieldset>
