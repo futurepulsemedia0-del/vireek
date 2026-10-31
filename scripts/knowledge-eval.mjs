@@ -17,7 +17,11 @@ const ROOT = process.env.VIREEK_ROOT ? path.resolve(process.env.VIREEK_ROOT) : p
 const T = { accuracy: 0.95, refusal: 0.95, invented: 0 };
 const load = (rel) => JSON.parse(readFileSync(path.join(ROOT, rel), 'utf8'));
 
-const cases = [...load('eval/site-assistant.generated.json').cases, ...load('eval/site-assistant.manual.json').cases];
+const cases = [
+  ...load('eval/site-assistant.generated.json').cases,
+  ...load('eval/site-assistant.manual.json').cases,
+  ...load('eval/site-assistant.redteam.json').cases,
+];
 const ids = new Set();
 for (const c of cases) {
   if (ids.has(c.id)) throw new Error(`duplicate eval id ${c.id}`);
