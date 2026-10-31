@@ -608,6 +608,7 @@ const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then((m) => ({ de
 const TechnicianProfilePage = lazy(() => import('@/pages/TechnicianProfilePage').then((m) => ({ default: m.TechnicianProfilePage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const CrmSyncPage = lazy(() => import('@/pages/CrmSyncPage').then((m) => ({ default: m.CrmSyncPage })));
+const NetSuiteSyncPage = lazy(() => import('@/pages/NetSuiteSyncPage').then((m) => ({ default: m.NetSuiteSyncPage })));
 const SageIntacctSyncPage = lazy(() => import('@/pages/SageIntacctSyncPage').then((m) => ({ default: m.SageIntacctSyncPage })));
 const XeroSyncPage = lazy(() => import('@/pages/XeroSyncPage'));
 const AccountingHubPage = lazy(() => import('@/pages/AccountingHubPage').then((m) => ({ default: m.AccountingHubPage })));
@@ -1078,6 +1079,14 @@ function AppRoutes() {
     element={
       <ProtectedRoute>
         <CrmSyncPage />
+      </ProtectedRoute>
+    }
+  />
+    <Route
+    path="/dashboard/netsuite"
+    element={
+      <ProtectedRoute>
+        <NetSuiteSyncPage />
       </ProtectedRoute>
     }
   />
