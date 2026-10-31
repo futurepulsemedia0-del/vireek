@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { pickAlertCandidates } from "../_shared/warranty/claimDeadlines.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,16 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-// A claim gets a "due_soon" alert this many days before claim_deadline.
-// It gets a separate, one-time "overdue" alert the day the deadline
-// actually passes. Each stage fires at most once per claim, same pattern
-// as check-warranty-alerts / reset_equipment_warranty_alert_stage.
-const WARNING_WINDOW_DAYS = 7;
-
-function daysUntil(dateIso: string): number {
-  const ms = new Date(dateIso).getTime() - Date.now();
-  return Math.ceil(ms / (1000 * 60 * 60 * 24));
-}
+// A claim gets a "due_soon" alert WARNING_WINDOW_DAYS before claim_deadline and a separate,
+// one-time "overdue" alert once the deadline has passed. Each stage fires at most once per
+// claim, same pattern as check-warranty-alerts / reset_equipment_warranty_alert_stage.
+// The stage rules live in ../_shared/warranty/claimDeadlines.ts (unit tested).
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -38,13 +33,7 @@ Deno.serve(async (req: Request) => {
 
     if (claimsError) throw claimsError;
 
-    const candidates = (claims ?? [])
-      .map((c) => {
-        const days = daysUntil(c.claim_deadline as string);
-        const stage = days < 0 ? "overdue" : days <= WARNING_WINDOW_DAYS ? "due_soon" : null;
-        return { c, stage, days };
-      })
-      .filter((x) => x.stage !== null && x.stage !== x.c.deadline_alert_stage);
+    const candidates = pickAlertCandidates(claims ?? []);
 
     if (candidates.length === 0) {
       return new Response(
