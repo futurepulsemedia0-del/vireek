@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { WarrantyClaimActions } from '@/components/WarrantyClaimActions';
+import { WarrantyReimbursementPanel } from '@/components/WarrantyReimbursementPanel';
 import { supabase, WarrantyClaim } from '@/lib/supabase';
 import { downloadWarrantyClaimPacketPdf } from '@/lib/pdf';
 import {
@@ -98,6 +100,7 @@ const EMPTY_FORM: ClaimFormState = {
   failure_date: '',
   claim_deadline: '',
   status: 'eligible',
+  claim_deadline: '',
   part_cost: '',
   labor_cost: '',
   rma_number: '',
@@ -321,17 +324,6 @@ export function WarrantyClaimRecoveryPage() {
     fetchAll();
   };
 
-  const handleQuickStatusChange = async (claim: WarrantyClaim, status: ClaimStatus) => {
-    const patch: Record<string, unknown> = { status };
-    if (status === 'submitted' && !claim.submitted_at) patch.submitted_at = new Date().toISOString();
-    const { error } = await supabase.from('warranty_claims').update(patch).eq('id', claim.id);
-    if (error) {
-      toast('Could not update status', 'error');
-      return;
-    }
-    setClaims((prev) => prev.map((c) => (c.id === claim.id ? { ...c, ...patch } as WarrantyClaim : c)));
-  };
-
   const handleDelete = async () => {
     if (!deletingId) return;
     const { error } = await supabase.from('warranty_claims').delete().eq('id', deletingId);
@@ -448,7 +440,8 @@ export function WarrantyClaimRecoveryPage() {
                 <ClaimForm initial={prefill ?? EMPTY_FORM} onCancel={() => { setAdding(false); setPrefill(null); }} onSave={(form) => handleSaveClaim(form)} />
               </div>
             )}
-
+   
+            <WarrantyReimbursementPanel refreshKey={claims.length} />
             {filtered.length === 0 && !adding && !prefill ? (
               <div className="rounded-2xl border border-dashed border-border py-10 text-center">
                 <p className="text-sm text-text-secondary">
@@ -521,11 +514,7 @@ export function WarrantyClaimRecoveryPage() {
                         </div>
 
                         <div className="flex shrink-0 flex-col items-end gap-2">
-                          <select value={claim.status} onChange={(e) => handleQuickStatusChange(claim, e.target.value as ClaimStatus)} className={`rounded-full border-0 px-3 py-1 text-xs font-medium ${CLAIM_STATUS_COLORS[claim.status]}`}>
-                            {CLAIM_STATUS_OPTIONS.map((s) => (
-                              <option key={s} value={s}>{CLAIM_STATUS_LABELS[s]}</option>
-                            ))}
-                          </select>
+                          <WarrantyClaimActions claim={claim} onChanged={fetchAll}
                           <div className="flex items-center gap-1">
                             <button type="button" onClick={() => downloadWarrantyClaimPacketPdf(claim)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Download claim packet PDF">
                               <Download size={14} />
