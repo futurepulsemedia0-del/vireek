@@ -4,8 +4,10 @@ on:
   push:
     branches: [main]
     paths: ['supabase/migrations/**', 'scripts/migrations-dedupe.mjs', '.github/workflows/migrations.yml']
+    'supabase/tests/**'
   pull_request:
     paths: ['supabase/migrations/**', 'scripts/migrations-dedupe.mjs', '.github/workflows/migrations.yml']
+    'supabase/tests/**'
 
 concurrency:
   group: migrations-${{ github.ref }}
@@ -40,6 +42,8 @@ jobs:
         run: supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector
       - name: Replay every migration from scratch
         run: supabase db reset --local --no-seed
+      - name: Run pgTAP tests
+        run: supabase test db
       - name: Stop
         if: always()
         run: supabase stop --no-backup
