@@ -1,0 +1,41 @@
+name: Database tests (pgTAP)
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/migrations/**', 'supabase/tests/**', 'supabase/config.toml', '.github/workflows/database-tests.yml']
+  pull_request:
+    branches: [main]
+    paths: ['supabase/migrations/**', 'supabase/tests/**', 'supabase/config.toml', '.github/workflows/database-tests.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: dbtests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pgtap:
+    name: supabase test db (RLS / tenant isolation)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # NON-BLOCKING for now, for the same reason as `db-reset` in migrations.yml: the migration baseline does not replay
+    # from scratch yet (e.g. no CREATE TABLE for `businesses`; 20261121 references the non-existent jobs.customer_phone, so
+    # `warranty_claims` is never created), so `supabase start` aborts before any test runs.
+    # Remove `continue-on-error` once `supabase db reset` is clean. Covers every supabase/tests/database/*.test.sql,
+    # including warranty_claims_rls, purchase_orders_rls and revenue_recovery_events_rls.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local stack
+        run: supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector
+      - name: Run pgTAP tests
+        run: supabase test db
+      - name: Stop
+        if: always()
+        run: supabase stop --no-backup
