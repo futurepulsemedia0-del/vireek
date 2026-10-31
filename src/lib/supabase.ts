@@ -644,6 +644,9 @@ export interface WarrantyClaim {
   part_description: string | null;
   failure_description: string | null;
   install_date: string | null;
+  ar_invoice_id?: string | null;
+  ar_payment_id?: string | null;
+  estimated_recovery_cents?: number | null;
   failure_date: string | null;
   warranty_expires_at: string | null;
   claim_deadline: string | null;
