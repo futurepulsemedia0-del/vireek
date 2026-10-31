@@ -17,16 +17,14 @@ const SECTIONS: Section[] = [
   { id: 'what-are-cookies', number: '2', title: 'What Are Cookies and Similar Technologies' },
   { id: 'how-we-use-cookies', number: '3', title: 'How We Use Cookies' },
   { id: 'essential-cookies', number: '4', title: 'Essential Cookies' },
-  { id: 'analytics-cookies', number: '5', title: 'Analytics Cookies' },
-  { id: 'personalization-cookies', number: '6', title: 'Personalization Cookies' },
-  { id: 'marketing-cookies', number: '7', title: 'Marketing Cookies' },
-  { id: 'ai-improvement-cookies', number: '8', title: 'AI Improvement Data' },
-  { id: 'third-party-cookies', number: '9', title: 'Third-Party Cookies' },
-  { id: 'how-long-cookies-last', number: '10', title: 'How Long Cookies Last' },
-  { id: 'managing-preferences', number: '11', title: 'Managing Your Cookie Preferences' },
-  { id: 'do-not-track', number: '12', title: 'Do Not Track Signals' },
-  { id: 'changes-to-policy', number: '13', title: 'Changes to This Policy' },
-  { id: 'contact-us', number: '14', title: 'Contact Us' },
+  { id: 'analytics-cookies', number: '5', title: 'Analytics' },
+  { id: 'marketing-measurement', number: '6', title: 'Marketing Measurement' },
+  { id: 'third-party-cookies', number: '7', title: 'Third-Party Cookies' },
+  { id: 'how-long-cookies-last', number: '8', title: 'How Long Cookies Last' },
+  { id: 'managing-preferences', number: '9', title: 'Managing Your Cookie Preferences' },
+  { id: 'privacy-signals', number: '10', title: 'Global Privacy Control and Do Not Track' },
+  { id: 'changes-to-policy', number: '11', title: 'Changes to This Policy' },
+  { id: 'contact-us', number: '12', title: 'Contact Us' },
 ];
 
 function CalloutCard({ icon: Icon, children }: { icon: typeof Cookie; children: ReactNode }) {
@@ -79,11 +77,9 @@ interface CategoryRow {
 }
 
 const CATEGORY_TABLE: CategoryRow[] = [
-  { name: 'Essential', status: 'Always active', purpose: 'Security, authentication, account access, and core site functionality.' },
-  { name: 'Analytics', status: 'Optional — off by default', purpose: 'Understanding usage patterns to improve Vireek performance.' },
-  { name: 'Personalization', status: 'Optional — off by default', purpose: 'Remembering preferences for a more tailored experience.' },
-  { name: 'Marketing', status: 'Optional — off by default', purpose: 'Measuring campaigns and providing relevant communication.' },
-  { name: 'AI Improvement', status: 'Optional — off by default', purpose: 'Improving AI experiences while respecting privacy preferences.' },
+  { name: 'Essential', status: 'Always active', purpose: 'Sign-in, security, and remembering your choices, theme and language.' },
+  { name: 'Analytics', status: 'Optional — off by default', purpose: 'Google Analytics 4 page-view statistics and A/B test stability. Not used for advertising.' },
+  { name: 'Marketing measurement', status: 'Optional — off by default', purpose: 'Remembering which campaign link brought you to a landing page. No ad networks.' },
 ];
 
 function openPrivacyCenter() {
@@ -203,7 +199,7 @@ export function CookiePolicyContent() {
               <h1 className="mt-3 text-4xl font-bold leading-[1.15] tracking-tight text-text-primary md:text-5xl">
                 Cookie Policy
               </h1>
-              <p className="mt-4 text-sm text-text-secondary">Last updated: September 6, 2026</p>
+              <p className="mt-4 text-sm text-text-secondary">Last updated: October 31, 2026</p>
             </motion.div>
 
             {/* Intro paragraph */}
@@ -248,7 +244,7 @@ export function CookiePolicyContent() {
                 </li>
                 <li className="flex gap-3">
                   <span className="font-semibold text-text-primary">Third-party</span>
-                  <span>Set by a service we use to provide part of the site (see Section 9).</span>
+                  <span>Set by a service we use to provide part of the site (see Section 7).</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="font-semibold text-text-primary">Session</span>
@@ -265,8 +261,8 @@ export function CookiePolicyContent() {
             <SectionHeading id="how-we-use-cookies" number="3" title="How We Use Cookies" />
             <SectionBody>
               <p>
-                We group cookies and similar technologies into five categories. Essential cookies are always active
-                because the site cannot function without them; every other category is off until you turn it on.
+                We group cookies and similar technologies into three categories. Essential cookies are always active
+                because the site cannot function without them; the other two are off until you turn them on.
               </p>
               <div className="overflow-hidden rounded-2xl border border-border">
                 <table className="w-full border-collapse text-left text-sm">
@@ -295,121 +291,155 @@ export function CookiePolicyContent() {
             <SectionBody>
               <p>
                 These cookies and equivalent browser storage are required for the site and dashboard to work, and
-                cannot be switched off. They include:
+                cannot be switched off:
               </p>
               <ul className="ml-1 space-y-2">
                 <li className="flex gap-3">
                   <span className="font-semibold text-text-primary">•</span>
-                  <span>Keeping you signed in to your Vireek dashboard between page loads.</span>
+                  <span>Your sign-in session (set by our authentication provider, Supabase).</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="font-semibold text-text-primary">•</span>
-                  <span>Protecting the site against fraud and abuse, and enforcing security policies.</span>
+                  <span>
+                    Your cookie choice, stored as <code>vireek-consent-v3</code> (see Section 9).
+                  </span>
                 </li>
                 <li className="flex gap-3">
                   <span className="font-semibold text-text-primary">•</span>
-                  <span>Remembering your cookie consent choices themselves, so we don&apos;t ask you repeatedly.</span>
+                  <span>
+                    Interface settings you choose yourself: theme (<code>vireek-theme</code>) and language (
+                    <code>vireek-a11y-lang</code>).
+                  </span>
                 </li>
                 <li className="flex gap-3">
                   <span className="font-semibold text-text-primary">•</span>
-                  <span>Core interface preferences, such as light or dark theme.</span>
+                  <span>Security and anti-abuse protections.</span>
                 </li>
               </ul>
-              <p>Because these are necessary for the service to operate, no consent toggle is offered for this category.</p>
             </SectionBody>
 
             {/* 5. Analytics */}
-            <SectionHeading id="analytics-cookies" number="5" title="Analytics Cookies" />
+            <SectionHeading id="analytics-cookies" number="5" title="Analytics" />
             <SectionBody>
               <p>
-                If enabled, analytics cookies help us understand which pages are used, how visitors move through
-                the site, and where the product experience could be improved. Data is used in aggregate and is not
-                used to identify you personally. This category stays off until you explicitly turn it on.
+                Off until you turn it on. When enabled, we load Google Analytics 4 (Google LLC, United States) to
+                count page views and understand how the site and product are used: pages visited, referrer, browser
+                and device type, approximate location, and a random visitor ID. It is not used for advertising: we
+                keep Google&apos;s advertising signals disabled and all Consent Mode v2 advertising storage
+                permissions denied.
+              </p>
+              <ul className="ml-1 space-y-2">
+                <li className="flex gap-3">
+                  <span className="font-semibold text-text-primary">•</span>
+                  <span>
+                    Cookies: <code>_ga</code> and <code>_ga_*</code> (up to 2 years). How long Google keeps reports is
+                    set in our Google Analytics account.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-semibold text-text-primary">•</span>
+                  <span>
+                    Browser storage: <code>vireek-visitor-id</code> and <code>vireek-experiment-assignments</code>,
+                    which keep your A/B test variant stable. Without analytics consent, test variants are chosen for
+                    the current visit only and nothing is stored.
+                  </span>
+                </li>
+              </ul>
+              <p>
+                No Google script is requested before you opt in. If you withdraw, events stop immediately, the{' '}
+                <code>_ga</code> cookies and the storage above are deleted, and no reload is needed.
               </p>
             </SectionBody>
 
-            {/* 6. Personalization */}
-            <SectionHeading id="personalization-cookies" number="6" title="Personalization Cookies" />
+            {/* 6. Marketing measurement */}
+            <SectionHeading id="marketing-measurement" number="6" title="Marketing Measurement" />
             <SectionBody>
               <p>
-                If enabled, personalization cookies let us remember choices you&apos;ve made — such as displayed
-                content or interface settings — so future visits feel tailored to you rather than starting from
-                scratch.
+                Off until you turn it on. When enabled, on campaign landing pages we remember the campaign details of
+                the link you arrived on (such as <code>utm_source</code>) and a random visitor ID, so we can measure
+                which campaigns lead to sign-ups. This data goes to Vireek&apos;s own database (hosted by Supabase).
+                We use no advertising networks, no advertising pixels and build no advertising profiles, and we do
+                not sell or share this data with advertisers.
+              </p>
+              <ul className="ml-1 space-y-2">
+                <li className="flex gap-3">
+                  <span className="font-semibold text-text-primary">•</span>
+                  <span>
+                    Browser storage: <code>vk_lp_vid</code> (until you withdraw or clear it) and{' '}
+                    <code>vk_lp_attr:*</code> (30 days).
+                  </span>
+                </li>
+              </ul>
+              <p>
+                Without this consent, campaign details and the visitor ID are held in memory for the current visit
+                only and are not stored on your device.
               </p>
             </SectionBody>
 
-            {/* 7. Marketing */}
-            <SectionHeading id="marketing-cookies" number="7" title="Marketing Cookies" />
+            {/* 7. Third-party */}
+            <SectionHeading id="third-party-cookies" number="7" title="Third-Party Cookies" />
             <SectionBody>
               <p>
-                If enabled, marketing cookies help us measure the performance of our campaigns and show you more
-                relevant communication about Vireek. We do not sell the information collected through these
-                cookies.
+                The only optional third-party technology that sets cookies is Google Analytics (Section 5), and only
+                after you opt in. Authentication and infrastructure providers may set strictly necessary cookies to
+                deliver the service. We do not control third-party cookies directly; please refer to the provider&apos;s
+                own policy.
               </p>
             </SectionBody>
 
-            {/* 8. AI improvement */}
-            <SectionHeading id="ai-improvement-cookies" number="8" title="AI Improvement Data" />
+            {/* 8. Duration */}
+            <SectionHeading id="how-long-cookies-last" number="8" title="How Long Cookies Last" />
             <SectionBody>
-              <p>
-                If enabled, this category allows us to use certain interaction data to improve the AI experiences
-                within Vireek&apos;s product, while continuing to respect the other privacy choices you&apos;ve
-                made. This is distinct from call-recording and AI-processing disclosures for Sarah, the AI
-                receptionist, which are covered in our{' '}
-                <Link to="/privacy" className="font-medium text-accent hover:underline">
-                  Privacy Policy
-                </Link>
-                .
-              </p>
+              <ul className="ml-1 space-y-2">
+                <li className="flex gap-3">
+                  <span className="font-semibold text-text-primary">•</span>
+                  <span>Sign-in session: until you sign out or it expires.</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-semibold text-text-primary">•</span>
+                  <span>Cookie choice: we ask again after 12 months, or sooner if this policy materially changes.</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-semibold text-text-primary">•</span>
+                  <span>Theme and language: until you clear your browser storage.</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-semibold text-text-primary">•</span>
+                  <span>Analytics and marketing items: as listed in Sections 5 and 6, or until you withdraw consent.</span>
+                </li>
+              </ul>
             </SectionBody>
 
-            {/* 9. Third-party */}
-            <SectionHeading id="third-party-cookies" number="9" title="Third-Party Cookies" />
+            {/* 9. Managing preferences */}
+            <SectionHeading id="managing-preferences" number="9" title="Managing Your Cookie Preferences" />
             <SectionBody>
-              <p>
-                Some functionality on our site is provided by trusted third parties (for example, authentication
-                and infrastructure providers), which may set their own cookies necessary to deliver that
-                functionality. Where a non-essential third-party technology is used, it is only activated after you
-                opt in through the categories above. We do not control third-party cookies directly — please refer
-                to the relevant provider&apos;s own policy for details on how they handle data.
-              </p>
-            </SectionBody>
-
-            {/* 10. Duration */}
-            <SectionHeading id="how-long-cookies-last" number="10" title="How Long Cookies Last" />
-            <SectionBody>
-              <p>
-                Session-based cookies and storage are cleared automatically when you close your browser. Persistent
-                cookies and stored preferences — such as your consent choices or theme setting — remain on your
-                device until they expire or you clear them, whichever comes first. You can clear stored data at any
-                time from your browser settings.
-              </p>
-            </SectionBody>
-
-            {/* 11. Managing preferences */}
-            <SectionHeading id="managing-preferences" number="11" title="Managing Your Cookie Preferences" />
-            <SectionBody>
-              <p>You have full control over non-essential cookies at any time:</p>
+              <p>You can change your choice at any time, and withdrawing is as easy as granting:</p>
               <ul className="ml-1 space-y-2">
                 <li className="flex gap-3">
                   <span className="font-semibold text-text-primary">•</span>
                   <span>
                     Use the &ldquo;Manage cookie preferences&rdquo; button on this page, or the &ldquo;Cookie
-                    Preferences&rdquo; link in the footer of any page, to open the Privacy Center and toggle each
-                    category individually.
+                    Preferences&rdquo; link in the site footer, to open the cookie settings.
                   </span>
                 </li>
                 <li className="flex gap-3">
                   <span className="font-semibold text-text-primary">•</span>
                   <span>
-                    Use your browser&apos;s own settings to block or delete cookies. Note that blocking essential
-                    cookies may prevent parts of the dashboard, such as staying signed in, from working correctly.
+                    Use your browser&apos;s own settings to block or delete cookies. Blocking essential cookies may
+                    stop parts of the dashboard, such as staying signed in, from working.
                   </span>
                 </li>
               </ul>
+              <p>
+                <strong className="text-text-primary">Record of your choice.</strong> To prove that consent was given
+                or withdrawn, we store a record containing the date and time, the policy version, your choices, whether
+                a Global Privacy Control or Do Not Track signal was present, and a random ID. It contains no name,
+                email address, IP address or browser details. If you are signed in, it is linked to your account ID.
+                These records are kept for as long as we need them to demonstrate compliance.
+              </p>
               <CalloutCard icon={Cookie}>
                 <p className="text-base leading-relaxed text-text-primary">
-                  Update your choices anytime — nothing beyond essential cookies runs until you say so.
+                  Update your choices anytime. Nothing optional runs until you say so.
                 </p>
                 <button
                   type="button"
@@ -417,23 +447,24 @@ export function CookiePolicyContent() {
                   className="focus-ring mt-5 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 ease-out hover:brightness-110 hover:shadow-glow-accent active:brightness-90"
                 >
                   <SlidersHorizontal size={16} />
-                  Open Privacy Center
+                  Open cookie settings
                 </button>
               </CalloutCard>
             </SectionBody>
 
-            {/* 12. DNT */}
-            <SectionHeading id="do-not-track" number="12" title="Do Not Track Signals" />
+            {/* 10. Privacy signals */}
+            <SectionHeading id="privacy-signals" number="10" title="Global Privacy Control and Do Not Track" />
             <SectionBody>
               <p>
-                Some browsers offer a &ldquo;Do Not Track&rdquo; setting. There is currently no common industry
-                standard for how sites should respond to that signal, so our site does not respond to it directly —
-                instead, use the cookie category toggles described above, which give you more precise control.
+                We treat a Global Privacy Control (GPC) or Do Not Track signal from your browser as an opt-out of
+                marketing measurement: that category stays off and cannot be switched on while the signal is present.
+                These signals never switch anything on. Analytics remains your choice. We do not sell personal
+                information or share it for cross-context behavioral advertising.
               </p>
             </SectionBody>
 
-            {/* 13. Changes */}
-            <SectionHeading id="changes-to-policy" number="13" title="Changes to This Policy" />
+            {/* 11. Changes */}
+            <SectionHeading id="changes-to-policy" number="11" title="Changes to This Policy" />
             <SectionBody>
               <p>
                 We may update this Cookie Policy from time to time to reflect changes in the technologies we use or
@@ -442,8 +473,8 @@ export function CookiePolicyContent() {
               </p>
             </SectionBody>
 
-            {/* 14. Contact */}
-            <SectionHeading id="contact-us" number="14" title="Contact Us" />
+            {/* 12. Contact */}
+            <SectionHeading id="contact-us" number="12" title="Contact Us" />
             <SectionBody>
               <p>If you have questions about this Cookie Policy or how we use cookies, contact us at:</p>
               <a
