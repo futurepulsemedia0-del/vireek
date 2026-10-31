@@ -20,6 +20,7 @@ import { SessionGuard } from '@/components/session/SessionGuard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ProductTourProvider } from '@/contexts/ProductTourContext';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
+import { ConsentManager } from '@/components/consent/ConsentManager';
 import { ConnectivityShell } from '@/components/system/ConnectivityShell';
 import { NativeBridge } from '@/components/native/NativeBridge';
 import { AppLockGate } from '@/components/native/AppLockGate';
@@ -79,6 +80,7 @@ createRoot(document.getElementById('root')!).render(
                       <LanguagePersistenceSync />
                       <SiteAssistant />
                       <LiveChatWidget />
+                      <ConsentManager />
                     </ErrorBoundary>
                     </RegionalProvider>
                   </AuthProvider>
