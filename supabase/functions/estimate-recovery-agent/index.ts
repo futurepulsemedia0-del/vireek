@@ -23,6 +23,10 @@
 // by workflow-engine-executor.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import {
+  BOOKING_MIN_HOURS, COLLECTION_MIN_DAYS, FINANCING_MIN_HOURS, FINANCING_MIN_VALUE_CENTS,
+  INVOICE_MIN_HOURS, PARTS_GAP_MIN_CENTS, riskScore,
+} from "../_shared/estimate-recovery/rules.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,19 +38,6 @@ function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
 
-// Thresholds — tune freely, nothing else in the system depends on these exact numbers.
-const FINANCING_MIN_HOURS = 72;        // quote sent 3+ days, still unanswered
-const FINANCING_MIN_VALUE_CENTS = 50000; // $500+ — worth mentioning financing for
-const BOOKING_MIN_HOURS = 24;          // accepted 1+ day, still no job on the calendar
-const INVOICE_MIN_HOURS = 24;          // completed 1+ day, still not invoiced
-const COLLECTION_MIN_DAYS = 14;        // matches OVERDUE_AFTER_DAYS in send-payment-reminders
-const PARTS_GAP_MIN_CENTS = 1500;      // $15+ gap between parts installed and what was invoiced
-
-function riskScore(hoursStalled: number, valueCents: number): number {
-  const timeComponent = Math.min(60, Math.round(hoursStalled / 4));
-  const valueComponent = Math.min(40, Math.round(valueCents / 5000));
-  return Math.min(100, timeComponent + valueComponent);
-}
 
 async function upsertLedgerEntry(admin: ReturnType<typeof createClient>, row: Record<string, unknown>) {
   // Idempotent by (source_table, source_id) — the unique constraint already
