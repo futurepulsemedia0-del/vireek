@@ -86,6 +86,7 @@ const JobDetailPage = lazy(() => import('@/pages/JobDetailPage').then((m) => ({ 
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
 const CalendarFeedsPage = lazy(() => import('@/pages/CalendarFeedsPage').then((m) => ({ default: m.CalendarFeedsPage })));
 const DirectMailPage = lazy(() => import('@/pages/DirectMailPage').then((m) => ({ default: m.DirectMailPage })));
+const WorkOrderGuardPage = lazy(() => import('@/pages/WorkOrderGuardPage').then((m) => ({ default: m.WorkOrderGuardPage })));
 const CanvassingPage = lazy(() => import('@/pages/CanvassingPage').then((m) => ({ default: m.CanvassingPage })));
 const MailerRedirectPage = lazy(() => import('@/pages/MailerRedirectPage').then((m) => ({ default: m.MailerRedirectPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
@@ -2490,6 +2491,14 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <DirectMailPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/work-order-guard"
+  element={
+    <ProtectedRoute>
+      <WorkOrderGuardPage />
     </ProtectedRoute>
   }
 />
