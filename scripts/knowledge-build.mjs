@@ -291,7 +291,7 @@ function manualDocs() {
     if (!existsSync(d)) return;
     for (const name of readdirSync(d)) {
       const p = path.join(d, name);
-      if (statSync(p).isDirectory()) walk(p);
+      if (statSync(p).isDirectory()) { if (!name.startsWith('_')) walk(p); }
       else if (name.endsWith('.md') && !name.endsWith('.generated.md') && !name.startsWith('_') && name.toLowerCase() !== 'readme.md') files.push(p);
     }
   };
@@ -567,6 +567,8 @@ async function main() {
   let manualEvalCount = 0;
   const manualEvalPath = path.join(ROOT, 'eval/site-assistant.manual.json');
   if (existsSync(manualEvalPath)) manualEvalCount = JSON.parse(readFileSync(manualEvalPath, 'utf8')).cases.length;
+  const redTeamPath = path.join(ROOT, 'eval/site-assistant.redteam.json');
+  if (existsSync(redTeamPath)) manualEvalCount += JSON.parse(readFileSync(redTeamPath, 'utf8')).cases.length;
   const totalEval = generatedEval.length + manualEvalCount;
 
   const artifacts = {
