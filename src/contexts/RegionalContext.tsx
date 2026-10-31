@@ -18,7 +18,7 @@ interface RegionalContextValue {
 
 const RegionalContext = createContext<RegionalContextValue | undefined>(undefined);
 
-const formatKey = (r: RegionalSettings) => `${r.currency}|${r.locale}|${r.unitSystem}|${r.taxLabel}`;
+const formatKey = (r: RegionalSettings) => `${r.currency}|${r.locale}|${r.unitSystem}|${r.taxLabel}|${r.timeZone ?? ''}|${r.hourCycle}`;
 
 export function RegionalProvider({ children }: { children: ReactNode }) {
   const { user, profile } = useAuth();
@@ -65,6 +65,7 @@ export function RegionalProvider({ children }: { children: ReactNode }) {
       locale: merged.locale, tax_regime: merged.taxRegime, tax_label: merged.taxLabel,
       tax_id_label: merged.taxIdLabel, tax_id: merged.taxId, prices_include_tax: merged.pricesIncludeTax,
       default_tax_rate: merged.defaultTaxRate, unit_system: merged.unitSystem, week_start: merged.weekStart,
+      time_zone: merged.timeZone, hour_cycle: merged.hourCycle,
     };
     if (patch.fxMode) row.fx_mode = patch.fxMode;
     if (patch.fxManualRates) row.fx_manual_rates = patch.fxManualRates;
