@@ -1,7 +1,9 @@
 /**
  * Lightweight GA4 wrapper.
- * Nothing is loaded until analytics consent is granted via CookieConsent.tsx.
+ * Nothing is loaded until analytics consent is granted (src/lib/consent/engine.ts).
  */
+
+import { CATEGORY_FOOTPRINT, deleteCookiesMatching, onCategoryChange } from '@/lib/consent/engine';
 
 declare global {
   interface Window {
@@ -19,21 +21,47 @@ const consentListeners = new Set<() => void>();
 function ensureDataLayer() {
   window.dataLayer = window.dataLayer || [];
   if (!window.gtag) {
-    window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer.push(args);
+    // gtag.js only understands the `arguments` object; pushing a plain array is silently ignored.
+    window.gtag = function gtag() {
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer.push(arguments);
     };
   }
 }
 
+/** Google's documented kill-switch: while true, gtag.js sends no hits at all. */
+function setGaDisabled(disabled: boolean) {
+  if (!GA_ID) return;
+  (window as unknown as Record<string, unknown>)[`ga-disable-${GA_ID}`] = disabled;
+}
+
 function loadGaScript() {
-  if (scriptLoaded || !GA_ID) return;
+  if (!GA_ID) return;
+  ensureDataLayer();
+  setGaDisabled(false);
+
+  if (scriptLoaded) {
+    // Consent was withdrawn earlier in this visit and is now granted again.
+    window.gtag('consent', 'update', { analytics_storage: 'granted' });
+    return;
+  }
   scriptLoaded = true;
 
-  ensureDataLayer();
+  // Consent Mode v2: everything denied first; only analytics storage is then granted.
+  // Ad signals stay denied permanently: Vireek runs no advertising products.
+  window.gtag('consent', 'default', {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+  });
+  window.gtag('consent', 'update', { analytics_storage: 'granted' });
   window.gtag('js', new Date());
   window.gtag('config', GA_ID, {
     send_page_view: false, // pageviews are sent manually on route change
     anonymize_ip: true,
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
   });
 
   const script = document.createElement('script');
@@ -42,15 +70,22 @@ function loadGaScript() {
   document.head.appendChild(script);
 }
 
-/** Called from CookieConsent.tsx whenever the "analytics" toggle changes. */
+/** Withdrawal: stop all hits, tell Google, delete the _ga cookies. No reload needed. */
+function disableGa() {
+  setGaDisabled(true);
+  if (scriptLoaded) window.gtag('consent', 'update', { analytics_storage: 'denied' });
+  deleteCookiesMatching(CATEGORY_FOOTPRINT.analytics.cookies);
+}
+
+/** Driven by the consent engine (below); not meant to be called from UI code. */
 export function setAnalyticsConsent(granted: boolean) {
   consentGranted = granted;
   if (granted) {
     loadGaScript();
     consentListeners.forEach((cb) => cb());
+  } else {
+    disableGa();
   }
-  // Revoking after grant: we simply stop sending further events —
-  // GA's own script can't be safely unloaded once injected.
 }
 
 export function trackPageview(path: string, title?: string) {
@@ -79,4 +114,9 @@ export function onAnalyticsConsent(cb: () => void): () => void {
 }
 export function hasAnalyticsConsent() {
   return consentGranted;
+}
+
+// Follows the consent engine: stored consent applies on every route at boot, withdrawal applies instantly.
+if (typeof window !== 'undefined') {
+  onCategoryChange('analytics', setAnalyticsConsent);
 }
