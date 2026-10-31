@@ -279,6 +279,8 @@ let memoryVisitorId: string | null = null;
 
 // Honor Global Privacy Control: no persistent identifiers when it is on.
 function privacySignalOn(): boolean {
+  return !hasConsent('marketing');
+}
   return (
     typeof navigator !== 'undefined' &&
     (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
