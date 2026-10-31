@@ -1,0 +1,303 @@
+--- /tmp/orig/index.ts	2026-10-28 08:25:40.801238915 +0000
++++ supabase/functions/vapi-webhook/index.ts	2026-10-29 11:14:14.782121409 +0000
+@@ -10,6 +10,10 @@
+ import { buildIdentityContext, lookupCallerIdentity, mergeCallerContext } from "../_shared/identity-resolution.ts";
+ import { getSealPolicy, sealCallArtifacts } from "../_shared/trust/vault.ts";
+ import { recordAttemptOutcome } from "../_shared/number-reputation/attempts.ts";
++import { processWebhook } from "../_shared/voice-hardening/router.ts";
++import { buildReplayPayload, claimEvent, completeEvent, failEvent, supabaseLedgerStore } from "../_shared/voice-hardening/ledger.ts";
++import { findEscalationTarget, isValidE164 } from "../_shared/voice-hardening/escalation.ts";
++import { findDuplicateBooking } from "../_shared/voice-hardening/bookingIdempotency.ts";
+    import { planDisclosure, recordDisclosureOutcome } from "../_shared/ai-disclosure/ledger.ts";
+ // supabase/functions/vapi-webhook/index.ts
+ //
+@@ -99,6 +103,7 @@
+   assistantId?: string;
+   phoneCallProviderId?: string;
+   phoneNumberId?: string;
++  phoneNumber?: { id?: string; number?: string };
+   customer?: { number?: string | null; name?: string | null } | null;
+   startedAt?: string;
+   endedAt?: string;
+@@ -261,13 +266,6 @@
+   return value.length > 4 ? `***${value.slice(-4)}` : "***";
+ }
+ 
+-// E.164-ish validation — reject anything that isn't a plausible phone
+-// number before it's ever used as a transfer destination or SMS target.
+-const E164_RE = /^\+[1-9]\d{6,14}$/;
+-
+-function isValidE164(value: string | null | undefined): value is string {
+-  return typeof value === "string" && E164_RE.test(value);
+-}
+ 
+ // ---------------------------------------------------------------------------
+ // Tenant resolution
+@@ -322,7 +320,7 @@
+   if (!resolvedBusiness && assistantId && phoneNumberId) {
+     const { data: fallbackRows, error: fallbackError } = await admin
+       .from("business_profile")
+-      .select("user_id, escalation_rules, assistant_name, vapi_assistant_id")
++      .select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
+       .eq("vapi_phone_number_id", phoneNumberId)
+       .limit(1);
+     if (fallbackError) {
+@@ -385,14 +383,6 @@
+   };
+ }
+ 
+-function findEscalationTarget(
+-  rules: EscalationRule[] | null,
+-  trigger: EscalationRule["trigger"],
+-): string | null {
+-  if (!rules) return null;
+-  const rule = rules.find((r) => r.trigger === trigger && r.action === "transfer" && isValidE164(r.target));
+-  return rule?.target ?? null;
+-}
+ 
+ // ---------------------------------------------------------------------------
+ // calls table helper — upsert-by-vapi_call_id so multiple events for the
+@@ -1268,13 +1258,38 @@
+     : areaVerdict.status === "unknown"
+       ? "Service area: unverified — confirm coverage with the customer"
+       : null;
++  const serviceType = typeof args.service_type === "string" ? args.service_type : null;
++
++  // Capacity guard: refuse a time the engine would not offer; an offered time pre-assigns the technician
++  // so jobs_no_double_booking protects that technician's own calendar. Fails OPEN to legacy inside the helper.
++  const capacityGuard = await voiceBookingGuard(admin, tenant.userId, {
++    serviceType,
++    address: addressArg || null,
++    scheduledDatetime,
++  });
++  if (capacityGuard.mode === "blocked") return capacityGuard.message;
++
++  // Make sure the call row exists (jobs.call_id) WITHOUT marking it booked yet: status flips only after the job is saved.
+   let callId: string | null = null;
+   if (vapiCallId) {
+-    const callRow = await upsertCallRow(admin, tenant, vapiCallId, { status: "booked" }, "tool-book-appointment");
++    const callRow = await upsertCallRow(admin, tenant, vapiCallId, {}, "tool-book-appointment");
+     callId = callRow?.id ?? null;
+   }
+ 
+-  const serviceType = typeof args.service_type === "string" ? args.service_type : null;
++  // Duplicate delivery / model retry of the same tool call: return the existing booking, never a second job.
++  if (callId) {
++    const { data: existingJobs } = await admin
++      .from("jobs")
++      .select("id, customer_name, scheduled_datetime")
++      .eq("user_id", tenant.userId)
++      .eq("call_id", callId);
++    const dup = findDuplicateBooking(existingJobs ?? [], { customerName, scheduledDatetime });
++    if (dup) {
++      return dup.scheduled_datetime
++        ? `Booked for ${customerName} on ${new Date(dup.scheduled_datetime).toLocaleString()}.`
++        : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
++    }
++  }
+   const suggestedNote = await suggestTechnicianNote(admin, tenant, serviceType, scheduledDatetime);
+   const dispatchNote = [suggestedNote, areaNote].filter(Boolean).join(" | ") || null;
+ 
+@@ -1302,9 +1317,12 @@
+   }
+ 
+   if (jobError || !job) {
++    console.error(JSON.stringify({ event: "book_appointment_insert_failed", code: jobError?.code ?? null, error: jobError?.message ?? "no row returned" }));
+     return "I wasn't able to save this appointment due to a system error — please have the office confirm it manually.";
+   }
+ 
++  if (vapiCallId) await upsertCallRow(admin, tenant, vapiCallId, { status: "booked" }, "tool-book-appointment");
++
+   await syncJobToExternalProviders(admin, tenant.userId, {
+     id: job.id,
+     customerName,
+@@ -1888,8 +1906,9 @@
+           case "save_customer_memory":
+             result = await toolSaveCustomerMemory(admin, tenant, args, callerNumber, vapiCallId);
+             break;
+-    case "collect_card_payment":
+-      return await toolCollectCardPayment(admin, tenant, args, vapiCallId, callerNumber);
++          case "collect_card_payment":
++            result = await toolCollectCardPayment(admin, tenant, args, vapiCallId, callerNumber);
++            break;
+           case "search_knowledge":
+             result = await toolSearchKnowledge(admin, tenant, args);
+             break;
+@@ -1990,12 +2009,6 @@
+   const customerName =
+     (typeof args.customer_name === "string" && args.customer_name.trim()) || callerName || null;
+ 
+-      const capacityGuard = await voiceBookingGuard(admin, tenant.userId, {
+-    serviceType: typeof args.service_type === "string" ? args.service_type : null,
+-    address: addressArg || null,
+-    scheduledDatetime,
+-  });
+-  if (capacityGuard.mode === "blocked") return capacityGuard.message;
+   let callId: string | null = null;
+   if (vapiCallId) {
+     const { data: existingCall } = await admin
+@@ -2075,6 +2088,17 @@
+   const callerName = message.call?.customer?.name ?? null;
+   const trackingSource = await resolveCallSource(admin, message.phoneNumber?.id);
+ 
++  // Idempotency + dead-letter for end-of-call-report (table voice_webhook_events; fails open if unavailable).
++  const ledger = supabaseLedgerStore(admin);
++  let ledgerClaim: Awaited<ReturnType<typeof claimEvent>> | null = null;
++  if (message.type === "end-of-call-report" && vapiCallId) {
++    ledgerClaim = await claimEvent(ledger, { userId: tenant.userId, vapiCallId, eventType: "end-of-call-report" });
++    if (ledgerClaim.decision !== "process") {
++      logEvent("end_of_call_report_skipped", requestId, { reason: ledgerClaim.decision });
++      return jsonResponse({ received: true, duplicate: true });
++    }
++  }
++
+   const patch: Record<string, unknown> = {
+     caller_phone: callerNumber,
+     caller_name: callerName,
+@@ -2121,9 +2145,9 @@
+     }
+ 
+     Object.assign(patch, {
++      duration_seconds: durationSeconds,
+       transcript,
+         recording_url: pci.spokenCardDetected ? null : recordingUrl,
+-      summary,
+         summary: summary ? redactCardData(summary, { strict: true }).text : summary,
+         pci_capture_occurred: !!pciSess.data,
+         pci_redactions: pci.redactions,
+@@ -2209,6 +2233,28 @@
+   const plainRecordingUrl = typeof patch.recording_url === "string" ? patch.recording_url : null;
+   if (sealingActive && sealPolicy!.transcripts) delete patch.transcript;
+   const callRow = await upsertCallRow(admin, tenant, vapiCallId, patch, requestId);
++  if (ledgerClaim?.decision === "process") {
++    if (!callRow) {
++      // The call record could not be saved: keep the minimal facts in the dead-letter ledger and answer 500 so the
++      // provider redelivers (200 only once retries are exhausted, to stop the loop). Nothing is silently dropped.
++      const { dead } = await failEvent(
++        ledger,
++        ledgerClaim.id,
++        ledgerClaim.attempts,
++        "calls upsert failed",
++        buildReplayPayload({
++          callerPhone: callerNumber,
++          callerName,
++          durationSeconds: (patch.duration_seconds as number | null | undefined) ?? null,
++          summary: typeof patch.summary === "string" ? patch.summary : null,
++          endedReason: message.endedReason ?? null,
++        }),
++      );
++      logError("end_of_call_report_persist_failed", requestId, "calls upsert failed", { attempts: ledgerClaim.attempts, dead });
++      return dead ? jsonResponse({ received: true, dead_lettered: true }) : jsonResponse({ error: "Failed to persist call" }, 500);
++    }
++    await completeEvent(ledger, ledgerClaim.id);
++  }
+   if (callRow && plainRecordingUrl && message.type === "end-of-call-report") {
+     // Provider-hosted recording (Vapi): provenance is kept as a sidecar record, not inside the file.
+     await recordProvenanceSidecar(admin, tenant.userId, {
+@@ -2300,89 +2346,20 @@
+ // Entry point
+ // ---------------------------------------------------------------------------
+ 
+-Deno.serve(async (req: Request) => {
+-  const requestId = crypto.randomUUID();
+-
+-  if (req.method === "OPTIONS") {
+-    return new Response(null, { status: 200, headers: corsHeaders });
+-  }
+-
+-  if (req.method !== "POST") {
+-    return jsonResponse({ error: "Method not allowed" }, 405);
+-  }
+-
+-  // ---- Auth: verify this request actually came from Vapi -----------------
+-  const expectedSecret = Deno.env.get("VAPI_SERVER_SECRET");
+-  if (!expectedSecret) {
+-    logError("config_error_missing_secret", requestId, "VAPI_SERVER_SECRET is not set");
+-    return jsonResponse({ error: "Server not configured" }, 500);
+-  }
+-
+-  const providedSecret = req.headers.get("x-vapi-secret");
+-  if (providedSecret !== expectedSecret) {
+-    logEvent("unauthorized_request", requestId, {});
+-    return jsonResponse({ error: "Unauthorized" }, 401);
+-  }
+-  // ---- Parse body ----------------------------------------------------------
+-  let body: VapiWebhookBody;
+-  try {
+-    body = (await req.json()) as VapiWebhookBody;
+-  } catch (error) {
+-    logError("invalid_json_body", requestId, error);
+-    return jsonResponse({ error: "Invalid JSON body" }, 400);
+-  }
+-
+-  const message = body?.message;
+-  if (!message || !message.type) {
+-    logEvent("malformed_payload", requestId, {});
+-    return jsonResponse({ error: "Missing message.type" }, 400);
+-  }
+-
+-  // ---- Supabase admin client -------------------------------------------
+-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+-  if (!supabaseUrl || !serviceRoleKey) {
+-    logError("config_error_missing_supabase_env", requestId, "SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing");
+-    return jsonResponse({ error: "Server not configured" }, 500);
+-  }
+-
+-  const admin = createClient(supabaseUrl, serviceRoleKey, {
+-    auth: { autoRefreshToken: false, persistSession: false },
+-  });
+-
+-  logEvent("webhook_received", requestId, { type: message.type });
+-  await logToDb(admin, { eventType: message.type, status: "success", requestId });
+-  await trackLiveCallEvent(admin, message, requestId, resolveTenant);
+-
+-  try {
+-    switch (message.type) {
+-      case "assistant-request":
+-        return await handleAssistantRequest(admin, message, requestId);
+-
+-      case "transfer-destination-request":
+-        return await handleTransferDestinationRequest(admin, message, requestId);
+-
+-      case "tool-calls":
+-        return await handleToolCalls(admin, message, requestId);
+-
+-      case "status-update":
+-      case "end-of-call-report":
+-      case "hang":
+-      case "speech-update":
+-        return await handleCallLifecycleEvent(admin, message, requestId);
+-
+-      default:
+-        logEvent("unhandled_event_type", requestId, { type: message.type });
+-        return jsonResponse({ received: true });
+-    }
+-  } catch (error) {
+-    logError("unhandled_exception", requestId, error, { type: message.type });
+-    await logToDb(admin, {
+-      eventType: message.type,
+-      status: "error",
+-      requestId,
+-      errorMessage: error instanceof Error ? error.message : String(error),
+-    });
+-    return jsonResponse({ error: "Internal server error" }, 500);
+-  }
+-});
++Deno.serve((req: Request) =>
++  processWebhook<SupabaseClient, VapiMessage>(req, {
++    getEnv: (name) => Deno.env.get(name),
++    createAdmin: (url, key) => createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } }),
++    newRequestId: () => crypto.randomUUID(),
++    logEvent,
++    logError,
++    logToDb,
++    trackLiveCall: (admin, message, requestId) => trackLiveCallEvent(admin, message, requestId, resolveTenant),
++    handlers: {
++      assistantRequest: handleAssistantRequest,
++      transfer: handleTransferDestinationRequest,
++      toolCalls: handleToolCalls,
++      lifecycle: handleCallLifecycleEvent,
++    },
++  }),
++);
