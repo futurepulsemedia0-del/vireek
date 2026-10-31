@@ -75,6 +75,7 @@ const RELATIONSHIP_DAMAGE_TYPES = new Set<RecoverySourceType>([
   'membership_churned',
   'job_completed_unbilled',
   'invoice_overdue',
+  'invoice_rejected',
 ]);
 const REPUTATION_RISK_TYPES = new Set<RecoverySourceType>(['cancelled_job', 'membership_churned']);
 const CAPACITY_RISK_TYPES = new Set<RecoverySourceType>(['cancelled_job']);
