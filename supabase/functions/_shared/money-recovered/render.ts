@@ -37,6 +37,7 @@ export interface StatementEmailInput {
   siteUrl: string;
   /** Shown in place of the weekly subject prefix, e.g. "[Test] ". */
   subjectPrefix?: string;
+  pilot?: { html: string; text: string } | null;
 }
 
 const rowAmount = (r: StatementRow, cur: string) =>
@@ -125,6 +126,7 @@ export function renderStatementEmail(input: StatementEmailInput): { subject: str
        ${hidden > 0 ? `<p style="${P}">+ ${hidden} more in the <a href="${escapeHtml(manageUrl)}" style="color:#203ad8">full statement</a> and the attached PDF.</p>` : ""}`
     : `<p style="${P}">No recoveries or active follow-ups this week.</p>`}
 </td></tr>
+${input.pilot ? <tr><td style="padding:8px 28px">${input.pilot.html}</td></tr> : ""}
 <tr><td style="padding:8px 28px 20px"><div style="background:#f5f5f8;border-radius:10px;padding:14px 16px">
   <h2 style="${H2};margin-top:0">How we count (conservative attribution)</h2>
   <ol style="margin:0;padding-left:18px;font-size:12px;line-height:1.55;color:#44444f">
@@ -167,6 +169,7 @@ export function renderStatementEmail(input: StatementEmailInput): { subject: str
     if (hidden > 0) lines.push(`+ ${hidden} more in the full statement (${manageUrl}) and attached PDF.`);
     lines.push("");
   }
+  if (input.pilot) lines.push(input.pilot.text);
   lines.push("How we count (conservative attribution):");
   METHODOLOGY.forEach((m, i) => lines.push(`${i + 1}. ${m.title}. ${m.body}`));
   lines.push("", `Manage: ${manageUrl}`);
