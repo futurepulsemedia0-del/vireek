@@ -265,7 +265,7 @@ export function JobHistorySection({ jobs, technicianId, error, onRetry }: { jobs
               {rows.slice(0, limit).map((j) => (
                 <li key={j.id} className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 py-2.5">
                   <div className="min-w-0">
-                    <p className="break-words text-sm font-medium text-text-primary">{j.customer_name}{j.is_rework && <span className="ml-1.5 rounded bg-warning-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning-500">REWORK</span>}</p>
+                    <p className="break-words text-sm font-medium text-text-primary">{j.customer_name}{j.is_rework && <span className="ml-1.5 rounded bg-warning-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning-500">Rework</span>}</p>
                     <p className="break-words text-xs text-text-secondary">{[j.service_type, j.address].filter(Boolean).join(' · ') || '—'}</p>
                     <p className="text-xs text-text-secondary">{j.scheduled_datetime ? new Date(j.scheduled_datetime).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Unscheduled'}</p>
                   </div>
