@@ -17,6 +17,11 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
+  const cronSecret = Deno.env.get("WARRANTY_CLAIM_CRON_SECRET") ?? "";
+  const provided = req.headers.get("X-Cron-Secret") ?? "";
+  if (!cronSecret || provided !== cronSecret) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -29,7 +34,7 @@ Deno.serve(async (req: Request) => {
       .from("warranty_claims")
       .select("id, user_id, customer_name, manufacturer, claim_deadline, deadline_alert_stage, status")
       .not("claim_deadline", "is", null)
-      .not("status", "in", "(denied,closed,credit_received)");
+      .in("status", ["needs_review", "ready", "eligible", "packet_pending"]);
 
     if (claimsError) throw claimsError;
 
