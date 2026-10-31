@@ -25,6 +25,7 @@ import { ConnectivityShell } from '@/components/system/ConnectivityShell';
 import { NativeBridge } from '@/components/native/NativeBridge';
 import { AppLockGate } from '@/components/native/AppLockGate';
 import { UpdateGate } from '@/components/native/UpdateGate';
+import { BootDismiss } from '@/components/loading/BootDismiss';
 import { initNativeRuntime } from '@/lib/native/lifecycle';
 import { RegionalProvider } from '@/contexts/RegionalContext';
 import { isNative } from '@/lib/native/platform';
@@ -53,19 +54,14 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <RouteEffects />
       <RouteProgressBar />
+      <BootDismiss />
       <AnalyticsListener />
       <ThemeProvider>
         <AccessibilityProvider>
           <ExperimentProvider>
             <CurrencyProvider>
               <ToastProvider>
-<ToastProvider>
-  <UndoProvider>
-    <ConnectivityProvider>
-      {/* ...همان چیزی که الان هست، بدون تغییر... */}
-    </ConnectivityProvider>
-  </UndoProvider>
-</ToastProvider>
+                <UndoProvider>
                 <ConnectivityProvider>
                   <AuthProvider>
                   <SessionGuard />
@@ -85,6 +81,7 @@ createRoot(document.getElementById('root')!).render(
                     </RegionalProvider>
                   </AuthProvider>
                 </ConnectivityProvider>
+                </UndoProvider>
               </ToastProvider>
             </CurrencyProvider>
           </ExperimentProvider>
@@ -93,3 +90,5 @@ createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </StrictMode>,
 );
+
+hideNativeSplash();
