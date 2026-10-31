@@ -6,7 +6,9 @@
 // export, and the user always confirms or corrects it in the mapping step —
 // so an export format change never breaks an import.
 
-export type ImportType = 'customers' | 'jobs';
+import { LEDGER_FIELD_DEFS, LEDGER_PRESET_ALIASES, LEDGER_REQUIRED_ANY, isLedgerImportType, isLedgerMappingComplete, type LedgerImportType } from './importLedgerProfiles';
+
+export type ImportType = 'customers' | 'jobs' | LedgerImportType;
 export type ImportPresetId = 'service_titan' | 'jobber' | 'housecall_pro' | 'csv';
 export type FieldMapping = Record<string, string>;
 
@@ -52,6 +54,7 @@ export const JOB_FIELDS: FieldDef[] = [
 ];
 
 export function fieldsFor(type: ImportType): FieldDef[] {
+  if (isLedgerImportType(type)) return LEDGER_FIELD_DEFS[type];
   return type === 'customers' ? CUSTOMER_FIELDS : JOB_FIELDS;
 }
 
@@ -59,9 +62,11 @@ export function fieldsFor(type: ImportType): FieldDef[] {
 export const REQUIRED_ANY: Record<ImportType, { keys: string[]; message: string }> = {
   customers: { keys: ['name', 'first_name', 'last_name', 'company'], message: 'Map a name column (full name, first/last name or company).' },
   jobs: { keys: ['customer_name', 'customer_first_name', 'customer_last_name', 'customer_external_id'], message: 'Map a customer name column (or the customer ID).' },
+  ...LEDGER_REQUIRED_ANY,
 };
 
 export function isMappingComplete(type: ImportType, mapping: FieldMapping): boolean {
+  if (isLedgerImportType(type)) return isLedgerMappingComplete(type, mapping);
   return REQUIRED_ANY[type].keys.some((k) => Boolean(mapping[k]));
 }
 
@@ -69,7 +74,7 @@ export interface ImportPreset {
   id: ImportPresetId;
   label: string;
   description: string;
-  howToExport: Record<ImportType, string[]>;
+  howToExport: Partial<Record<ImportType, string[]>>;
   /** Headers this platform commonly uses, tried before the generic aliases. */
   aliases: Partial<Record<ImportType, Record<string, string[]>>>;
   /** Normalized headers distinctive enough to suggest this preset from a file. */
@@ -162,7 +167,7 @@ export interface AutoMapResult {
  */
 export function autoMap(headers: string[], type: ImportType, presetId: ImportPresetId): AutoMapResult {
   const fields = fieldsFor(type);
-  const presetAliases = PRESET_BY_ID[presetId].aliases[type] ?? {};
+    const presetAliases = PRESET_BY_ID[presetId].aliases[type] ?? (isLedgerImportType(type) ? LEDGER_PRESET_ALIASES[presetId][type] : undefined) ?? {};
   const normalized = headers.map((h) => ({ header: h, norm: normalizeHeader(h) }));
   const used = new Set<string>();
   const mapping: FieldMapping = {};
