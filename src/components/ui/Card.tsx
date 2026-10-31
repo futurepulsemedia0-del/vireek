@@ -1,19 +1,39 @@
-import { HTMLAttributes, forwardRef } from 'react';
+import { HTMLAttributes, KeyboardEvent, forwardRef } from 'react';
+import { motionClass, surfaceClass } from '@/lib/ui/interaction';
 
-type CardProps = HTMLAttributes<HTMLDivElement>;
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  /** Hover lift + press feedback (default true = existing behavior). Use false for static cards. */
+  interactive?: boolean;
+  selected?: boolean;
+  error?: boolean;
+}
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className = '', children, ...props }, ref) => {
+  ({ className = '', children, interactive = true, selected, error = false, onClick, onKeyDown, role, tabIndex, ...props }, ref) => {
+    const clickable = !!onClick;
+    const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+      onKeyDown?.(e);
+      if (clickable && !e.defaultPrevented && e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        e.currentTarget.click();
+      }
+    };
     return (
       <div
         ref={ref}
-        className={`rounded-2xl border border-border/80 bg-bg-secondary p-8 shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:bg-bg-secondary/95 dark:shadow-card-dark dark:hover:shadow-card-hover-dark ${className}`}
+        role={role ?? (clickable ? 'button' : undefined)}
+        tabIndex={tabIndex ?? (clickable ? 0 : undefined)}
+        aria-pressed={clickable && selected !== undefined ? selected : undefined}
+        data-selected={selected || undefined}
+        onClick={onClick}
+        onKeyDown={clickable ? handleKeyDown : onKeyDown}
+        className={`${clickable ? 'focus-ring cursor-pointer' : ''} rounded-2xl p-8 shadow-card ${motionClass} dark:bg-bg-secondary/95 dark:shadow-card-dark ${surfaceClass('card', { interactive, error })} ${className}`}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 Card.displayName = 'Card';
