@@ -1,0 +1,56 @@
+PASS boot light: theme applied before paint {"cls":"","bg":"rgb(253, 252, 250)","boot":"rgb(253, 252, 250)","svgOp":"0"}
+PASS boot light: html + overlay bg match theme (no white/black flash) 
+PASS boot light: mark hidden for first 150ms (no flicker) opacity=0
+PASS boot light: mark visible after delay 
+PASS boot light: removed after React mounts 
+PASS boot dark: theme applied before paint {"cls":"dark","bg":"rgb(9, 10, 13)","boot":"rgb(9, 10, 13)","svgOp":"0"}
+PASS boot dark: html + overlay bg match theme (no white/black flash) 
+PASS boot dark: mark hidden for first 150ms (no flicker) opacity=0
+PASS boot dark: mark visible after delay 
+PASS boot dark: removed after React mounts 
+PASS boot native: black background = native splash colour 
+PASS boot reduced-motion: bars static 
+PASS route: nothing but background before 150ms 
+PASS route: top bar at ~150ms 
+PASS route: status text announced 
+PASS route: mark appears for slow chunk (700ms) 
+PASS route: microcopy NOT yet (<1.5s) 
+PASS route: microcopy after 1.5s 
+PASS route: bars really animate 
+PASS route RTL: top bar mirrored 
+PASS route: animations paused in background tab 
+PASS route reduced-motion: no transform animation, opacity-only {"bar":"none","svg":"vrk-soft","topbar":"vrk-soft","ring":"none"}
+PASS boundary: skeleton reserved but invisible <150ms 
+PASS boundary: skeleton fades in after 150ms 
+PASS boundary: min-visible holds skeleton (no flash) 
+PASS boundary: content after hold 
+PASS boundary: skeleton→content CLS = 0 CLS=0
+PASS boundary: "still working…" after slow threshold 
+PASS boundary: timeout → alert + retry 
+PASS boundary: retry callback fired 
+PASS boundary: error state 
+PASS boundary: empty state 
+PASS overlay: blocks pointer input from first frame 
+PASS overlay: dialog focused + aria 
+PASS overlay: scroll locked 
+PASS overlay: Tab goes to Cancel 
+PASS overlay: Tab wraps (focus trapped) 
+PASS overlay: Shift+Tab wraps 
+PASS overlay: programmatic focus escape is pulled back 
+PASS overlay: Escape does not dismiss (blocking) 
+PASS overlay: visuals + progressbar after 150ms 
+PASS overlay: closed once min-visible already elapsed 
+PASS overlay: held >=400ms after being shown (no flash) 
+PASS overlay: gone after minimum, focus restored 
+PASS button: aria-busy + aria-disabled immediately 
+PASS button: click/submit blocked while loading 
+PASS button: spinner visible after 150ms, label hidden not removed 
+PASS button: width unchanged while loading 146.734375 → 146.734375
+PASS button: status announced 
+PASS button: usable again after load 
+PASS ptr: indicator shown while pulling opacity=1
+PASS ptr: refresh announced 
+PASS ptr: onRefresh ran once, min-visible respected 
+PASS ptr: no refresh when not scrolled to top 
+
+54/54 checks passed
