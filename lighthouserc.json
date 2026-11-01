@@ -9,6 +9,8 @@
         "http://localhost:4173/pricing",
         "http://localhost:4173/login",
         "http://localhost:4173/signup",
+        "http://localhost:4173/blog"
+        "http://localhost:4173/blog/cost-of-a-missed-call"
         "http://localhost:4173/faq",
         "http://localhost:4173/security",
         "http://localhost:4173/privacy"
