@@ -1,6 +1,7 @@
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 import { buildRecordingConsentNotice } from "../_shared/compliance/recordingConsent.ts";
 import { buildVoicePersonaContext, resolveTrade } from "../_shared/voice-brand/persona.ts";
+import { extractTurnLatencies, summarizeLatency } from "../_shared/voice-brand/latency.ts";
 import { trackLiveCallEvent } from "../_shared/live-calls/runtime.ts";
 import { buildPorts } from "../_shared/pci/ports.ts";
 import { startPhonePayment } from "../_shared/pci/orchestrator.ts";
@@ -2141,6 +2142,18 @@ const pciSess = vapiCallId
   : { data: null };
 const pci = redactCallTranscript(message.transcript ?? message.artifact?.transcript ?? null, { hadCapture: !!pciSess.data });
 transcript = pci.text;
+      try {
+        const turns = extractTurnLatencies(message);
+        if (vapiCallId && turns.length) {
+          const sm = summarizeLatency(turns);
+          await admin.from("voice_call_latency").upsert(
+            { user_id: tenant.userId, vapi_call_id: vapiCallId, turn_count: sm.turnCount, p50_ms: sm.p50, p95_ms: sm.p95, max_ms: sm.max, within_budget: sm.withinBudget },
+            { onConflict: "user_id,vapi_call_id" },
+          );
+        }
+      } catch (err) {
+        console.error("[voice-latency] not recorded:", err);
+      }
     const recordingUrl =
       message.recordingUrl ?? message.artifact?.recordingUrl ?? message.artifact?.recording?.stereoUrl ?? null;
     const summary = message.summary ?? message.analysis?.summary ?? null;
