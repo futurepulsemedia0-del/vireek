@@ -10,7 +10,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { CASE_STUDIES } from '@/components/sections/CaseStudies';
-import { BLOG_POSTS, getCategoryBySlug } from '@/lib/blog';
+import { BLOG_POSTS, getCategoryBySlug } from '@/lib/blogContent';
 
 // Curated "related reading" for this page: real posts that already exist on
 // the blog (src/lib/blog.ts), chosen because they support the trust/proof
