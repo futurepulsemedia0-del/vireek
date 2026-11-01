@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutTemplate } from 'lucide-react';
@@ -216,7 +216,8 @@ import { NpsPrompt } from '@/components/success/NpsPrompt';
 import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
 import { ChatUnreadProvider } from '@/contexts/ChatUnreadContext';
 import { ChatNavBadge } from '@/components/teamchat/ChatNavBadge';
-import { useKeyboardShortcuts, DEFAULT_SHORTCUTS } from '@/lib/keyboardShortcuts';
+import { navigationHandlers } from '@/lib/shortcuts/definitions';
+import { useShortcutContext, useShortcutHandlers, useShortcutScope } from '@/lib/shortcuts/useShortcuts';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '@/hooks/useDirection';
@@ -675,7 +676,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   useEffect(() => {
     rememberDashboardPath(location.pathname);
   }, [location.pathname]);
-  const { isOwner, permissions, signOut } = useAuth();
+  const { user, isOwner, permissions, signOut } = useAuth();
   const { toast } = useToast();
   const { preference, setThemePreference } = useTheme();
   const { t } = useTranslation('dashboard');
@@ -688,11 +689,16 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   // this help panel) — wired once here so they work from anywhere in the
   // dashboard, since DashboardNav is mounted by every dashboard page via
   // DashboardLayout below.
-  const shortcuts = useMemo(
-    () => DEFAULT_SHORTCUTS(navigate, () => setShortcutsHelpOpen(true)),
-    [navigate],
-  );
-  useKeyboardShortcuts(shortcuts);
+  // Key bindings live in ONE registry (src/lib/shortcuts); this only supplies
+  // what each shortcut DOES. Navigation/create handlers are derived from the
+  // registry's own `href`s, so a binding can never point at a different route
+  // than its palette entry.
+  useShortcutScope(user?.id);
+  useShortcutContext('dashboard');
+  useShortcutHandlers({
+    ...navigationHandlers((href, opts) => navigate(href, opts)),
+    'help.shortcuts': () => setShortcutsHelpOpen(true),
+  });
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return location.pathname === '/dashboard';
@@ -938,11 +944,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       {/* Mobile bottom navigation — "More" opens the same drawer as the header menu button */}
       <MobileBottomNav onMore={() => setDrawerOpen(true)} moreOpen={drawerOpen} />
       {/* Keyboard shortcuts help panel — opened via "?" from anywhere */}
-      <KeyboardShortcutsModal
-        open={shortcutsHelpOpen}
-        onClose={() => setShortcutsHelpOpen(false)}
-        shortcuts={shortcuts}
-      />
+       <KeyboardShortcutsModal open={shortcutsHelpOpen} onClose={() => setShortcutsHelpOpen(false)} />
     </>
   );
 }
