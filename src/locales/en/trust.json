@@ -1,0 +1,167 @@
+{
+  "error": {
+    "network": {
+      "title": "We can't reach Vireek",
+      "body": "Check your connection and try again. Nothing you've done is lost."
+    },
+    "auth": {
+      "title": "You've been signed out",
+      "body": "For your security your session ended. Sign in again and pick up where you left off."
+    },
+    "permission": {
+      "title": "You don't have access to this",
+      "body": "Your role doesn't allow this action. Ask your account owner to grant access, or contact support."
+    },
+    "validation": {
+      "title": "Some details need fixing",
+      "body": "Please review the highlighted fields and try again."
+    },
+    "conflict": {
+      "title": "Someone else changed this",
+      "body": "This record was updated while you were working. Refresh to see the latest version before continuing."
+    },
+    "rate_limit": {
+      "title": "Slow down for a moment",
+      "body": "You're going a little faster than we can keep up with. Try again in a few seconds."
+    },
+    "server": {
+      "title": "Something broke on our side",
+      "body": "It's us, not you. We've been notified. Please try again in a moment."
+    },
+    "unknown": {
+      "title": "That didn't work",
+      "body": "We couldn't complete that and aren't sure why. Our support team can help."
+    }
+  },
+  "recovery": {
+    "retry": "Try again",
+    "fix_field": "Review fields",
+    "sign_in": "Sign in again",
+    "refresh": "Refresh",
+    "wait": "Try again in {{seconds}}s",
+    "contact_support": "Contact support"
+  },
+  "reference": {
+    "label": "Reference",
+    "copy": "Copy reference",
+    "copied": "Copied",
+    "mailSubject": "Support request"
+  },
+  "mutation": {
+    "failedTitle": "Couldn't save that change",
+    "reverted": "We put it back the way it was.",
+    "retry": "Retry"
+  },
+  "nouns": {
+    "job_one": "job",
+    "job_other": "jobs",
+    "lead_one": "lead",
+    "lead_other": "leads",
+    "customer_one": "customer",
+    "customer_other": "customers",
+    "quote_one": "quote",
+    "quote_other": "quotes",
+    "invoice_one": "invoice",
+    "invoice_other": "invoices",
+    "call_one": "call",
+    "call_other": "calls",
+    "payment_one": "payment",
+    "payment_other": "payments",
+    "item_one": "item",
+    "item_other": "items"
+  },
+  "confirm": {
+    "delete": "Delete",
+    "lineDelete": "Delete {{count}} {{noun}}",
+    "lineAlso": "and {{count}} {{noun}}",
+    "recoverable": "You can restore this from Recently Deleted for 30 days.",
+    "permanent": "This can't be undone.",
+    "typeToConfirm": "Type \"{{phrase}}\" to confirm",
+    "working": "Working…",
+    "cancel": "Cancel",
+    "undoHint": "You'll have 10 seconds to undo.",
+    "yesDelete": "Yes, delete this"
+  },
+  "bulk": {
+    "allDone": "{{succeeded}} of {{requested}} done",
+    "partial": "{{succeeded}} succeeded, {{failed}} failed",
+    "partialSkipped": "{{succeeded}} succeeded, {{failed}} failed, {{skipped}} skipped",
+    "none": "Nothing was changed",
+    "showReasons": "Show reasons",
+    "hideReasons": "Hide reasons",
+    "retryFailed": "Retry failed only",
+    "retrying": "Retrying…",
+    "download": "Download report",
+    "colId": "ID",
+    "colName": "Name",
+    "colStatus": "Status",
+    "colReason": "Reason",
+    "failed": "Failed",
+    "skipped": "Skipped",
+    "dismiss": "Dismiss"
+  },
+  "fresh": {
+    "updated": "Updated {{when}}",
+    "justNow": "just now",
+    "refresh": "Refresh data",
+    "refreshing": "Refreshing…",
+    "stale": "May be out of date",
+    "offline": "You're offline. Showing the last data we loaded.",
+    "disconnected": "Live updates are paused. Reconnecting…",
+    "old": "This data is getting old. Refresh to see the latest."
+  },
+  "conflict": {
+    "title": "This record changed while you were editing",
+    "body": "Choose what to keep for each field that was changed in both places. Everything else merges automatically.",
+    "field": "Field",
+    "mine": "Keep mine",
+    "theirs": "Take theirs",
+    "yours": "Your version",
+    "server": "Latest version",
+    "original": "Original",
+    "keepAllMine": "Keep all mine",
+    "takeAllTheirs": "Take all theirs",
+    "apply": "Apply and save",
+    "cancel": "Cancel",
+    "gone": "This record was deleted by someone else.",
+    "saving": "Saving…",
+    "empty": "(empty)"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No changes recorded for this record yet.",
+    "emptyHint": "Edits, status changes and deletions will appear here.",
+    "from": "from",
+    "to": "to",
+    "by": "by {{who}}",
+    "system": "System",
+    "noAccess": "Only the account owner can view history.",
+    "loadFailed": "Couldn't load history",
+    "verify": "Verify integrity",
+    "verifying": "Verifying…",
+    "verified": "Verified: {{count}} entries, no tampering detected",
+    "legacyNote": "Entries before integrity protection was enabled are not covered.",
+    "broken": "Integrity check failed at entry #{{seq}}. Contact support with reference {{ref}}.",
+    "device": "Device",
+    "ip": "IP address"
+  },
+  "empty": {
+    "noData": {
+      "learnMore": "Learn more"
+    },
+    "noResults": {
+      "title": "No results",
+      "description": "Nothing matches your current filters.",
+      "clear": "Clear filters"
+    },
+    "noPermission": {
+      "title": "You don't have access",
+      "description": "Ask your account owner to grant you access to this area."
+    },
+    "loadFailed": {
+      "title": "Couldn't load this",
+      "description": "Something went wrong while loading. Your data is safe.",
+      "retry": "Try again"
+    }
+  }
+}
