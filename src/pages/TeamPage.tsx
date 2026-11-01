@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Trash2, ShieldCheck, Mail, Check, Lock, Eye, CreditCard, Users, Settings, Wrench, Loader as Loader2, CircleUser as UserCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -582,6 +582,15 @@ export function TeamPage() {
   const [showInvite, setShowInvite] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
 
+  // Deep link from the command palette / "c t" shortcut: /dashboard/team?invite=1
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('invite') !== '1') return;
+    setShowInvite(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('invite');
+    setSearchParams(next, { replace: true }); // so a refresh does not re-open the modal
+  }, [searchParams, setSearchParams]);
   const loadMembers = useCallback(async () => {
     if (!user) return;
     setLoading(true);
