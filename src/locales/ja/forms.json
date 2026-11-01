@@ -1,0 +1,74 @@
+{
+  "forms": {
+    "errors": {
+      "required": "続行するには、この項目を入力してください。",
+      "checkAndRetry": "この項目を確認して、もう一度お試しください。",
+      "tooShort": "{{min}}文字以上で入力してください。",
+      "tooLong": "{{max}}文字以内で入力してください。",
+      "tooSmall": "{{min}}以上の値を入力してください。",
+      "tooBig": "{{max}}以下の値を入力してください。",
+      "email": "メールアドレスが不完全なようです（例：name@company.com）。",
+      "emailRequired": "ご連絡のため、メールアドレスを入力してください。",
+      "phoneRequired": "ご連絡のため、電話番号を入力してください。",
+      "phoneTooShort": "番号が短すぎます。市外局番も入力してください。",
+      "phoneInvalid": "有効な電話番号ではないようです。数字を確認するか、+と国番号から始めてください。",
+      "amountRequired": "金額を入力してください。",
+      "amountInvalid": "数字のみで入力してください（例：1,250.00）。",
+      "amountTooSmall": "金額は{{min}}以上にしてください。",
+      "amountTooBig": "金額は{{max}}以下にしてください。",
+      "percentRequired": "割合を入力してください。",
+      "percentRange": "{{min}}～{{max}}の割合を入力してください。",
+      "dateRequired": "日付を入力してください。",
+      "dateIncomplete": "年を含む日付をすべて入力してください。",
+      "dateInvalid": "その日付は存在しません。日と月を確認してください。",
+      "dateTooEarly": "{{date}}以降の日付を選んでください。",
+      "dateTooLate": "{{date}}以前の日付を選んでください。",
+      "postalRequired": "郵便番号を入力してください。",
+      "postalInvalid": "郵便番号の形式が正しくありません。",
+      "licenseRequired": "ライセンス番号を入力してください。",
+      "licenseInvalid": "ライセンス番号は{{min}}～{{max}}文字の英数字またはハイフンです。",
+      "consentRequired": "続行するには、このボックスにチェックを入れてください。"
+    },
+    "summary": {
+      "title": "強調表示された項目を修正してください（{{count}}）"
+    },
+    "submit": {
+      "saving": "保存中…",
+      "failed": "保存できませんでした。接続を確認してもう一度お試しください。二重に送信されることはありません。",
+      "offline": "オフラインです。再接続してからもう一度ボタンを押してください。送信は一度だけです。"
+    },
+    "draft": {
+      "prompt": "{{when}}に保存した下書きを復元しますか？",
+      "restore": "復元",
+      "discard": "破棄"
+    },
+    "unsaved": {
+      "title": "変更を保存しますか？",
+      "body": "保存されていない変更があります。",
+      "bodyCanSave": "保存されていない変更があります。移動する前に保存しますか？",
+      "save": "保存",
+      "discard": "破棄",
+      "stay": "編集を続ける",
+      "saving": "保存中…"
+    },
+    "autosave": {
+      "saving": "保存中…",
+      "saved": "{{when}}に保存しました",
+      "savedJustNow": "たった今保存しました",
+      "offline": "オフライン：接続されたら保存します",
+      "error": "保存できませんでした",
+      "retry": "再試行"
+    },
+    "combobox": {
+      "loading": "検索中…",
+      "empty": "一致する結果はありません",
+      "error": "候補を読み込めませんでした",
+      "retry": "再試行",
+      "recent": "最近",
+      "results": "利用可能な結果：{{count}}"
+    },
+    "help": {
+      "whyWeAsk": "この情報をお聞きする理由"
+    }
+  }
+}
