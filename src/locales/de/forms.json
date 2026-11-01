@@ -1,0 +1,74 @@
+{
+  "forms": {
+    "errors": {
+      "required": "Bitte füllen Sie dieses Feld aus, um fortzufahren.",
+      "checkAndRetry": "Bitte prüfen Sie dieses Feld und versuchen Sie es erneut.",
+      "tooShort": "Bitte mindestens {{min}} Zeichen verwenden.",
+      "tooLong": "Höchstens {{max}} Zeichen.",
+      "tooSmall": "Bitte {{min}} oder mehr eingeben.",
+      "tooBig": "Bitte {{max}} oder weniger eingeben.",
+      "email": "Diese E-Mail-Adresse wirkt unvollständig – zum Beispiel name@firma.de.",
+      "emailRequired": "Bitte geben Sie Ihre E-Mail-Adresse ein, damit wir Sie erreichen können.",
+      "phoneRequired": "Bitte geben Sie eine Telefonnummer ein, damit wir Sie erreichen können.",
+      "phoneTooShort": "Diese Nummer ist zu kurz – bitte mit Vorwahl.",
+      "phoneInvalid": "Das ist keine gültige Telefonnummer – prüfen Sie die Ziffern oder beginnen Sie mit + und der Landesvorwahl.",
+      "amountRequired": "Bitte einen Betrag eingeben.",
+      "amountInvalid": "Bitte nur Ziffern verwenden, zum Beispiel 1.250,00.",
+      "amountTooSmall": "Der Betrag muss mindestens {{min}} betragen.",
+      "amountTooBig": "Der Betrag darf {{max}} nicht überschreiten.",
+      "percentRequired": "Bitte einen Prozentwert eingeben.",
+      "percentRange": "Bitte einen Prozentwert zwischen {{min}} und {{max}} eingeben.",
+      "dateRequired": "Bitte ein Datum eingeben.",
+      "dateIncomplete": "Bitte das vollständige Datum mit Jahr eingeben.",
+      "dateInvalid": "Dieses Datum gibt es nicht – prüfen Sie Tag und Monat.",
+      "dateTooEarly": "Bitte ein Datum ab dem {{date}} wählen.",
+      "dateTooLate": "Bitte ein Datum bis zum {{date}} wählen.",
+      "postalRequired": "Bitte die Postleitzahl eingeben.",
+      "postalInvalid": "Die Postleitzahl hat nicht das erwartete Format.",
+      "licenseRequired": "Bitte die Lizenznummer eingeben.",
+      "licenseInvalid": "Lizenznummern bestehen aus {{min}}–{{max}} Buchstaben, Ziffern oder Bindestrichen.",
+      "consentRequired": "Bitte setzen Sie hier ein Häkchen, um fortzufahren."
+    },
+    "summary": {
+      "title": "Bitte korrigieren Sie die markierten Felder ({{count}})"
+    },
+    "submit": {
+      "saving": "Wird gespeichert …",
+      "failed": "Das konnte nicht gespeichert werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut – es wird nicht doppelt gesendet.",
+      "offline": "Sie sind offline. Verbinden Sie sich erneut und drücken Sie den Button noch einmal – es wird nur einmal gesendet."
+    },
+    "draft": {
+      "prompt": "Ihren Entwurf wiederherstellen (gespeichert {{when}})?",
+      "restore": "Wiederherstellen",
+      "discard": "Verwerfen"
+    },
+    "unsaved": {
+      "title": "Änderungen speichern?",
+      "body": "Sie haben noch nicht gespeicherte Änderungen.",
+      "bodyCanSave": "Sie haben noch nicht gespeicherte Änderungen. Vor dem Verlassen speichern?",
+      "save": "Speichern",
+      "discard": "Verwerfen",
+      "stay": "Weiter bearbeiten",
+      "saving": "Wird gespeichert …"
+    },
+    "autosave": {
+      "saving": "Wird gespeichert …",
+      "saved": "Gespeichert {{when}}",
+      "savedJustNow": "Gerade gespeichert",
+      "offline": "Offline – wird gespeichert, sobald Sie verbunden sind",
+      "error": "Speichern fehlgeschlagen",
+      "retry": "Erneut versuchen"
+    },
+    "combobox": {
+      "loading": "Suche läuft …",
+      "empty": "Keine Treffer",
+      "error": "Vorschläge konnten nicht geladen werden",
+      "retry": "Erneut versuchen",
+      "recent": "Zuletzt verwendet",
+      "results": "Verfügbare Ergebnisse: {{count}}"
+    },
+    "help": {
+      "whyWeAsk": "Warum wir das fragen"
+    }
+  }
+}
