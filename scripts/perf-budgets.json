@@ -1,0 +1,19 @@
+{
+  "maxKB": {
+    ".png": 200, ".jpg": 200, ".jpeg": 200, ".gif": 150, ".webp": 150, ".avif": 150,
+    ".svg": 30, ".woff2": 60, ".woff": 60, ".ttf": 100, ".mp4": 2048
+  },
+  "ceilingKB": {
+    "public/hero.png": 1910,
+    "public/ai-memory.png": 1805,
+    "public/command-center.png": 1655,
+    "public/emergency.png": 1610,
+    "public/founder.jpg": 1565,
+    "public/call-coach.png": 1545,
+    "public/revenue.png": 1455,
+    "public/favicon.svg": 1330,
+    "public/og-image.png": 1035,
+    "public/assets/logos/logo-dark.png": 522,
+    "public/assets/logos/logo-light.png": 476
+  }
+}
