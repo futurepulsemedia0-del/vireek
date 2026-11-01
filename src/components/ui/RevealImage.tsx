@@ -1,4 +1,6 @@
 import { useRef } from 'react';
+import { IMAGES } from '@/lib/images.generated';
+import { IMAGE_SIZES, imageSrcSet } from '@/lib/responsiveImage';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 
 type RevealImageProps = {
@@ -39,6 +41,7 @@ export function RevealImage({
 }: RevealImageProps) {
   const ref = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const meta = IMAGES[name];
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -69,6 +72,14 @@ export function RevealImage({
           style={{ y }}
           className="aspect-[4/5] w-full overflow-hidden will-change-transform sm:aspect-[16/10] lg:aspect-[16/9]"
         >
+<picture className="contents">
+  {meta ? (
+    <>
+      <source type="image/avif" srcSet={imageSrcSet(name, meta.widths, 'avif')} sizes={IMAGE_SIZES} />
+      <source type="image/webp" srcSet={imageSrcSet(name, meta.widths, 'webp')} sizes={IMAGE_SIZES} />
+    </>
+  ) : null}
+  width={meta?.width} height={meta?.height}
           <motion.img
             src={`/${name}.png`}
             alt={alt}
