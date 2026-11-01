@@ -132,40 +132,75 @@ export interface PaletteCommand {
   href: string;
   keywords?: string;
   permission?: PagePermission;
+  /** Id in SHORTCUT_DEFS (src/lib/shortcuts/definitions.ts); the palette shows its live key hint. */
+  shortcutId?: string;
+  /** i18n key in the `productivity` namespace for the label (actions). Pages reuse the dashboard nav keys. */
+  labelKey?: string;
   /** Passed to react-router navigate(); used to open a page's create modal. */
   state?: unknown;
   kind: 'page' | 'action';
 }
 
 export const QUICK_ACTIONS: PaletteCommand[] = [
-  { id: 'action:new-job', kind: 'action', label: 'New job', href: '/dashboard/jobs', keywords: 'create add schedule', state: { prefill: {} } },
-  { id: 'action:new-quote', kind: 'action', label: 'New quote', href: '/dashboard/quotes?new=1', keywords: 'create add estimate proposal' },
-  { id: 'action:new-article', kind: 'action', label: 'New knowledge article', href: '/dashboard/knowledge?new=1', keywords: 'create add faq answer' },
+  { id: 'action:new-job', kind: 'action', label: 'New job', labelKey: 'palette.actions.new-job', shortcutId: 'create.job', href: '/dashboard/jobs', keywords: 'create add schedule', state: { prefill: {} } },
+  { id: 'action:new-quote', kind: 'action', label: 'New quote', labelKey: 'palette.actions.new-quote', shortcutId: 'create.quote', href: '/dashboard/quotes?new=1', keywords: 'create add estimate proposal' },
+  { id: 'action:new-article', kind: 'action', label: 'New knowledge article', labelKey: 'palette.actions.new-article', href: '/dashboard/knowledge?new=1', keywords: 'create add faq answer' },
+  { id: 'action:invite-teammate', kind: 'action', label: 'Invite teammate', labelKey: 'palette.actions.invite-teammate', shortcutId: 'create.invite', href: '/dashboard/team?invite=1', keywords: 'create add member staff technician user', permission: 'can_manage_team' },
 ];
 
 export const PAGES: PaletteCommand[] = [
-  { id: 'page:overview', kind: 'page', label: 'Overview', href: '/dashboard', keywords: 'home dashboard' },
-  { id: 'page:calls', kind: 'page', label: 'Call History', href: '/dashboard/calls', keywords: 'phone voicemail' },
-  { id: 'page:leads', kind: 'page', label: 'Leads', href: '/dashboard/leads', keywords: 'pipeline prospects' },
+  { id: 'page:overview', kind: 'page', label: 'Overview', shortcutId: 'nav.overview', href: '/dashboard', keywords: 'home dashboard' },
+  { id: 'page:calls', kind: 'page', label: 'Call History', shortcutId: 'nav.calls', href: '/dashboard/calls', keywords: 'phone voicemail' },
+  { id: 'page:voicemails', kind: 'page', label: 'Voicemails', shortcutId: 'nav.voicemails', href: '/dashboard/voicemails', keywords: 'messages inbox missed' },
+  { id: 'page:leads', kind: 'page', label: 'Leads', shortcutId: 'nav.leads', href: '/dashboard/leads', keywords: 'pipeline prospects' },
   { id: 'page:customers', kind: 'page', label: 'Customers', href: '/dashboard/customers', keywords: 'contacts clients crm' },
-  { id: 'page:jobs', kind: 'page', label: 'My Jobs', href: '/dashboard/jobs', keywords: 'work orders dispatch' },
-  { id: 'page:calendar', kind: 'page', label: 'Calendar', href: '/dashboard/calendar', keywords: 'schedule appointments' },
+  { id: 'page:jobs', kind: 'page', label: 'My Jobs', shortcutId: 'nav.jobs', href: '/dashboard/jobs', keywords: 'work orders dispatch' },
+  { id: 'page:calendar', kind: 'page', label: 'Calendar', shortcutId: 'nav.calendar', href: '/dashboard/calendar', keywords: 'schedule appointments' },
   { id: 'page:quotes', kind: 'page', label: 'Quotes', href: '/dashboard/quotes', keywords: 'estimates proposals' },
   { id: 'page:invoicing', kind: 'page', label: 'Invoicing', href: '/dashboard/invoicing', keywords: 'invoices payments', permission: 'can_view_billing' },
   { id: 'page:knowledge', kind: 'page', label: 'Knowledge Base', href: '/dashboard/knowledge', keywords: 'articles faq answers' },
   { id: 'page:equipment', kind: 'page', label: 'Equipment Health', href: '/dashboard/equipment-health', keywords: 'hvac assets lifecycle' },
   { id: 'page:passports', kind: 'page', label: 'Equipment Passports', href: '/dashboard/equipment-passports', keywords: 'serial warranty' },
-  { id: 'page:analytics', kind: 'page', label: 'Analytics', href: '/dashboard/analytics', keywords: 'reports metrics' },
-  { id: 'page:insights', kind: 'page', label: 'Insights', href: '/dashboard/insights', keywords: 'ai recommendations' },
+  { id: 'page:analytics', kind: 'page', label: 'Analytics', shortcutId: 'nav.analytics', href: '/dashboard/analytics', keywords: 'reports metrics' },
+  { id: 'page:insights', kind: 'page', label: 'Insights', shortcutId: 'nav.insights', href: '/dashboard/insights', keywords: 'ai recommendations' },
+  { id: 'page:reviews', kind: 'page', label: 'Reviews', shortcutId: 'nav.reviews', href: '/dashboard/reviews', keywords: 'ratings feedback reputation' },
   { id: 'page:notifications', kind: 'page', label: 'Notifications', href: '/dashboard/notifications', keywords: 'alerts inbox' },
-  { id: 'page:team', kind: 'page', label: 'Team', href: '/dashboard/team', keywords: 'staff technicians roles invite', permission: 'can_manage_team' },
-  { id: 'page:billing', kind: 'page', label: 'Billing', href: '/dashboard/billing', keywords: 'plan subscription', permission: 'can_view_billing' },
+  { id: 'page:team', kind: 'page', label: 'Team', shortcutId: 'nav.team', href: '/dashboard/team', keywords: 'staff technicians roles invite', permission: 'can_manage_team' },
+  { id: 'page:billing', kind: 'page', label: 'Billing', shortcutId: 'nav.billing', href: '/dashboard/billing', keywords: 'plan subscription', permission: 'can_view_billing' },
   { id: 'page:integrations', kind: 'page', label: 'Integrations', href: '/dashboard/integrations', keywords: 'connect apps' },
-  { id: 'page:profile', kind: 'page', label: 'Business Profile', href: '/dashboard/business-profile', keywords: 'settings company hours', permission: 'can_edit_business_profile' },
+  { id: 'page:profile', kind: 'page', label: 'Business Profile', shortcutId: 'nav.profile', href: '/dashboard/business-profile', keywords: 'settings company hours', permission: 'can_edit_business_profile' },
+  { id: 'page:settings', kind: 'page', label: 'Settings', shortcutId: 'nav.settings', href: '/dashboard/settings', keywords: 'preferences account configuration' },
   { id: 'page:security', kind: 'page', label: 'Security settings', href: '/dashboard/settings/security', keywords: '2fa mfa audit password' },
 ];
 
-/** 0 = no match. Exact > prefix > word-prefix > substring > keyword. */
+/** True when `a` and `b` differ by at most one insertion, deletion, substitution or adjacent swap. */
+export function withinOneEdit(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i += 1;
+  if (a.length === b.length) {
+    if (a.slice(i + 1) === b.slice(i + 1)) return true; // substitution
+    return a[i] === b[i + 1] && a[i + 1] === b[i] && a.slice(i + 2) === b.slice(i + 2); // swap
+  }
+  const [long, short] = a.length > b.length ? [a, b] : [b, a];
+  return long.slice(i + 1) === short.slice(i); // insertion / deletion
+}
+
+function isSubsequence(q: string, text: string): boolean {
+  let at = 0;
+  for (const ch of text) {
+    if (ch === q[at]) at += 1;
+    if (at === q.length) return true;
+  }
+  return q.length === 0;
+}
+
+/**
+ * 0 = no match. Exact > prefix > word-prefix > substring > all-words > keyword
+ * > typo-tolerant > subsequence ("bprf" -> Business Profile). The fuzzy tiers
+ * only apply to queries of 3+ characters so short queries stay precise.
+ */
 export function scoreCommand(query: string, cmd: Pick<PaletteCommand, 'label' | 'keywords'>): number {
   const q = query.trim().toLowerCase();
   if (!q) return 1;
@@ -174,7 +209,14 @@ export function scoreCommand(query: string, cmd: Pick<PaletteCommand, 'label' | 
   if (label.startsWith(q)) return 1.0;
   if (label.split(/\s+/).some((w) => w.startsWith(q))) return 0.8;
   if (label.includes(q)) return 0.6;
-  if (cmd.keywords?.toLowerCase().split(/\s+/).some((w) => w.startsWith(q))) return 0.45;
+  const keywordWords = cmd.keywords?.toLowerCase().split(/\s+/).filter(Boolean) ?? [];
+  const labelWords = label.split(/\s+/);
+  const words = [...labelWords, ...keywordWords];
+  const tokens = q.split(/\s+/).filter(Boolean);
+  if (tokens.length > 1 && tokens.every((t) => words.some((w) => w.startsWith(t)))) return 0.5;
+  if (keywordWords.some((w) => w.startsWith(q))) return 0.45;
+  if (q.length >= 4 && words.some((w) => [q.length - 1, q.length, q.length + 1].some((n) => n > 0 && withinOneEdit(q, w.slice(0, n))))) return 0.3;
+  if (q.length >= 3 && !q.includes(' ') && isSubsequence(q, label.replace(/\s+/g, ''))) return 0.25;
   return 0;
 }
 
@@ -193,6 +235,75 @@ export function rankCommands(
     .sort((a, b) => b.s - a.s || a.index - b.index)
     .slice(0, limit)
     .map((x) => x.c);
+}
+
+// ---------------------------------------------------------------------------
+// Scoped queries: ">" actions, "@" people, "#" jobs
+// ---------------------------------------------------------------------------
+
+export type PaletteScope = 'all' | 'actions' | 'people' | 'jobs';
+
+export const SCOPE_PREFIX: Record<Exclude<PaletteScope, 'all'>, string> = {
+  actions: '>',
+  people: '@',
+  jobs: '#',
+};
+
+/** Entity types a scope may search. `null` = every type; `[]` = no record search. */
+export const SCOPE_TYPES: Record<PaletteScope, SearchEntityType[] | null> = {
+  all: null,
+  actions: [],
+  people: ['team', 'customer', 'lead'],
+  jobs: ['job'],
+};
+
+export function parseScopedQuery(raw: string): { scope: PaletteScope; term: string } {
+  const trimmed = raw.replace(/^\s+/, '');
+  const first = trimmed.charAt(0);
+  const scope: PaletteScope = first === '>' ? 'actions' : first === '@' ? 'people' : first === '#' ? 'jobs' : 'all';
+  return { scope, term: normalizeQuery(scope === 'all' ? trimmed : trimmed.slice(1)) };
+}
+
+// ---------------------------------------------------------------------------
+// Short-lived result cache: makes backspacing / re-typing instant (<150ms)
+// ---------------------------------------------------------------------------
+
+export interface SearchCache<T> {
+  get(key: string): T | undefined;
+  set(key: string, value: T): void;
+  clear(): void;
+}
+
+export function createSearchCache<T>(opts: { ttlMs?: number; max?: number; now?: () => number } = {}): SearchCache<T> {
+  const ttl = opts.ttlMs ?? 30_000;
+  const max = opts.max ?? 40;
+  const now = opts.now ?? (() => Date.now());
+  const map = new Map<string, { at: number; value: T }>();
+  return {
+    get(key) {
+      const hit = map.get(key);
+      if (!hit) return undefined;
+      if (now() - hit.at > ttl) {
+        map.delete(key);
+        return undefined;
+      }
+      map.delete(key); // refresh LRU position
+      map.set(key, hit);
+      return hit.value;
+    },
+    set(key, value) {
+      map.delete(key);
+      map.set(key, { at: now(), value });
+      while (map.size > max) {
+        const oldest = map.keys().next().value;
+        if (oldest === undefined) break;
+        map.delete(oldest);
+      }
+    },
+    clear() {
+      map.clear();
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------
