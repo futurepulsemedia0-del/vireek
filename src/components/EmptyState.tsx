@@ -1,19 +1,38 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
+import { useTrustT } from '@/hooks/useTrustT';
 
 interface EmptyStateAction {
   label: string;
   onClick: () => void;
 }
 
+export type EmptyStateVariant = 'no-data' | 'no-results' | 'no-permission' | 'load-failed';
+
 interface EmptyStateProps {
   icon: LucideIcon;
   title: string;
   description?: string;
+  /** Primary CTA, contextual to the page (e.g. "Schedule a job"). */
   action?: EmptyStateAction;
   secondaryAction?: EmptyStateAction;
   className?: string;
+  /** Default 'no-data'. 'no-results' = filters matched nothing; 'no-permission'; 'load-failed'. */
+  variant?: EmptyStateVariant;
+  /** variant 'no-results': becomes the primary "Clear filters" button when no `action` is given. */
+  onClearFilters?: () => void;
+  /** variant 'load-failed': becomes the primary "Try again" button when no `action` is given. */
+  onRetry?: () => void;
+  /** Secondary "Learn more" link (opens the help article in a new tab). */
+  learnMore?: { label?: string; href: string };
 }
+
+const TONE: Record<EmptyStateVariant, { box: string; chip: string }> = {
+  'no-data': { box: 'border-border bg-bg-secondary/50', chip: 'bg-accent/10 text-accent' },
+  'no-results': { box: 'border-border bg-bg-secondary/50', chip: 'bg-accent/10 text-accent' },
+  'no-permission': { box: 'border-warning-500/30 bg-warning-500/5', chip: 'bg-warning-500/10 text-warning-500' },
+  'load-failed': { box: 'border-danger/30 bg-danger/5', chip: 'bg-danger/10 text-danger' },
+};
 
 // ============================================================
 // General-purpose empty state — for "no data yet" panels
@@ -33,6 +52,9 @@ interface EmptyStateProps {
 //     description="Book your first job to see it here."
 //     action={{ label: 'Schedule a job', onClick: () => navigate('/jobs/new') }}
 //   />
+//
+// Filters matched nothing:
+//   <EmptyState icon={Briefcase} title="No jobs" variant="no-results" onClearFilters={clear} />
 // ============================================================
 
 export function EmptyState({
@@ -42,30 +64,59 @@ export function EmptyState({
   action,
   secondaryAction,
   className = '',
+  variant = 'no-data',
+  onClearFilters,
+  onRetry,
+  learnMore,
 }: EmptyStateProps) {
+  const { t } = useTrustT();
+  const reduce = useReducedMotion();
+  const tone = TONE[variant];
+
+  const primary =
+    action ??
+    (variant === 'no-results' && onClearFilters ? { label: t('empty.noResults.clear'), onClick: onClearFilters } : undefined) ??
+    (variant === 'load-failed' && onRetry ? { label: t('empty.loadFailed.retry'), onClick: onRetry } : undefined);
+
+  const text =
+    description ??
+    (variant === 'no-results'
+      ? t('empty.noResults.description')
+      : variant === 'no-permission'
+        ? t('empty.noPermission.description')
+        : variant === 'load-failed'
+          ? t('empty.loadFailed.description')
+          : undefined);
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      role={variant === 'load-failed' ? 'alert' : undefined}
+      initial={reduce ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-12 text-center ${className}`}
+      transition={{ duration: reduce ? 0 : 0.3, ease: [0.16, 1, 0.3, 1] }}
+      className={`flex flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-12 text-center ${tone.box} ${className}`}
     >
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-        <Icon size={26} />
+      <span className="relative flex h-20 w-20 items-center justify-center" aria-hidden="true">
+        <svg viewBox="0 0 80 80" className="absolute inset-0 h-full w-full text-border" fill="none">
+          <circle cx="40" cy="40" r="38" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 5" />
+          <circle cx="12" cy="20" r="3" fill="currentColor" />
+          <circle cx="70" cy="58" r="2.5" fill="currentColor" />
+        </svg>
+        <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${tone.chip}`}>
+          <Icon size={26} />
+        </span>
       </span>
       <h3 className="mt-4 text-base font-semibold text-text-primary">{title}</h3>
-      {description && (
-        <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-text-secondary">{description}</p>
-      )}
-      {(action || secondaryAction) && (
-        <div className="mt-5 flex items-center gap-3">
-          {action && (
+      {text && <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-text-secondary">{text}</p>}
+      {(primary || secondaryAction || learnMore) && (
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+          {primary && (
             <button
               type="button"
-              onClick={action.onClick}
+              onClick={primary.onClick}
               className="focus-ring rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
             >
-              {action.label}
+              {primary.label}
             </button>
           )}
           {secondaryAction && (
@@ -76,6 +127,16 @@ export function EmptyState({
             >
               {secondaryAction.label}
             </button>
+          )}
+          {learnMore && (
+            <a
+              href={learnMore.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="focus-ring rounded-xl px-3 py-2.5 text-sm font-medium text-accent hover:underline"
+            >
+              {learnMore.label ?? t('empty.noData.learnMore')}
+            </a>
           )}
         </div>
       )}
