@@ -1,0 +1,58 @@
+{
+  "stepUp": {
+    "title": "Confirm it's you",
+    "description": "This action protects your account, so we need to check it's really you. It only takes a moment.",
+    "methods": { "password": "Password", "totp": "Authenticator app", "emailCode": "Email code" },
+    "passwordLabel": "Your password",
+    "totpLabel": "6-digit code from your authenticator app",
+    "codeLabel": "Code from your email",
+    "sendCode": "Email me a code",
+    "codeSent": "We sent a code to {{email}}. It can take a minute to arrive.",
+    "verify": "Confirm",
+    "working": "Checking…",
+    "cancel": "Cancel",
+    "errors": {
+      "generic": "We couldn't confirm that. Please try again.",
+      "wrongPassword": "That password doesn't match. Check it and try again.",
+      "wrongCode": "That code isn't right or has expired. Try again or request a new one.",
+      "noMethod": "We couldn't find a way to verify you. Sign out, sign in again, and retry."
+    }
+  },
+  "activity": {
+    "title": "Account activity",
+    "subtitle": "Sign-ins and security changes on your account. If something here wasn't you, secure your account right away.",
+    "filters": {
+      "category": "Type",
+      "categories": { "all": "Everything", "signIn": "Sign-ins", "account": "Password, email and two-step", "apiKeys": "API keys" },
+      "range": "Period",
+      "ranges": { "7": "Last 7 days", "30": "Last 30 days", "90": "Last 90 days", "all": "All time" }
+    },
+    "export": "Export CSV",
+    "exporting": "Preparing…",
+    "exportFailed": "We couldn't prepare the export. Please try again.",
+    "loadFailed": "We couldn't load your activity. Please try again.",
+    "retry": "Try again",
+    "empty": { "title": "No activity matches", "description": "Nothing in this period yet. New sign-ins and security changes will appear here." },
+    "events": {
+      "sign_in": "Signed in",
+      "sign_in_new_device": "Signed in from a new device",
+      "password_changed": "Password changed",
+      "email_changed": "Account email changed",
+      "mfa_enrolled": "Two-step verification turned on",
+      "mfa_disabled": "Two-step verification turned off",
+      "recovery_codes_regenerated": "Recovery codes replaced",
+      "api_key_created": "API key created",
+      "api_key_revoked": "API key revoked"
+    },
+    "detail": { "device": "Device", "key": "Key", "factor": "Method" },
+    "reviewSessions": "Review sessions",
+    "csvHeaders": { "time": "Time (UTC)", "event": "Event", "details": "Details" }
+  },
+  "banner": {
+    "title": "Recent security change on your account",
+    "body": "We noticed: {{events}}. If this was you, you can dismiss this message. If not, secure your account now.",
+    "secure": "Secure my account",
+    "dismiss": "This was me",
+    "dismissFailed": "We couldn't dismiss this. Please try again."
+  }
+}
