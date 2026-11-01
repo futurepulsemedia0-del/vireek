@@ -1,3 +1,6 @@
+/* Colour tokens are GENERATED (npm run tokens:build) from scripts/color/palette.mjs — never edit them by hand. */
+@import './styles/tokens.generated.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,33 +14,7 @@
 /*  biggest tell; copper is now used sparingly, never as a primary   */
 /*  CTA color, so it reads as a deliberate signal, not decoration.   */
 /* ================================================================ */
-:root {
-  --bg-primary: 253 252 250;
-  --bg-secondary: 255 255 255;
-  --bg-tertiary: 246 244 240;
-  --text-primary: 23 23 26;
-  --text-secondary: 103 103 112;
-  --border-default: 231 229 224;
-  --accent-primary: 32 58 216;
-  --accent-secondary: 214 88 42;
-  --success: 22 132 88;
-  --danger: 200 48 48;
-  --warning: 160 94 18; /* AA fix: was 180 106 20 (4.10:1 on white) → now 5.01:1 */
-}
-
-.dark {
-  --bg-primary: 9 10 13;
-  --bg-secondary: 16 17 21;
-  --bg-tertiary: 23 24 29;
-  --text-primary: 242 241 238;
-  --text-secondary: 154 154 163;
-  --border-default: 36 37 44;
-  --accent-primary: 108 130 255;
-  --accent-secondary: 255 138 90;
-  --success: 74 199 140;
-  --danger: 240 100 100;
-  --warning: 235 170 70;
-}
+/* :root / .dark / high-contrast token blocks live in src/styles/tokens.generated.css */
 
 html {
   scroll-behavior: smooth;
@@ -151,8 +128,8 @@ body {
    */
   .bg-gradient-mesh {
     background-image:
-      radial-gradient(ellipse 65% 55% at 8% -10%, rgb(var(--accent-primary) / 0.22), transparent 60%),
-      radial-gradient(ellipse 55% 50% at 105% 10%, rgb(var(--accent-secondary) / 0.16), transparent 58%),
+      radial-gradient(ellipse 65% 55% at 8% -10%, rgb(var(--accent-primary) / var(--mesh-accent-alpha)), transparent 60%),
+      radial-gradient(ellipse 55% 50% at 105% 10%, rgb(var(--accent-secondary) / var(--mesh-cta-alpha)), transparent 58%),
       radial-gradient(ellipse 60% 45% at 50% 115%, rgb(var(--accent-primary) / 0.10), transparent 62%);
   }
 
@@ -170,14 +147,6 @@ body {
       outline-color: Highlight;
       box-shadow: none;
     }
-  }
-    outline: none;
-  }
-
-  .focus-ring:focus-visible {
-    box-shadow:
-      0 0 0 2px rgb(var(--bg-primary)),
-      0 0 0 4px rgb(var(--accent-primary));
   }
 
   .line-clamp-2 {
@@ -259,10 +228,10 @@ html {
 
 /* Large cursor */
 .a11y-large-cursor {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%234F46E5' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23203AD8' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23203AD8' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
 }
 .a11y-large-cursor * {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%234F46E5' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='%23203AD8' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23203AD8' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
 }
 
 /* Highlight links */
@@ -291,45 +260,7 @@ html {
   box-shadow: 0 0 0 5px rgb(var(--accent-primary) / 0.2) !important;
 }
 
-/* High contrast */
-.a11y-high-contrast {
-  --text-primary: 0 0 0;
-  --text-secondary: 30 30 30;
-  --border-default: 60 60 60;
-  --bg-primary: 255 255 255;
-  --bg-secondary: 255 255 255;
-  --bg-tertiary: 240 240 240;
-}
-.a11y-high-contrast.dark {
-  --text-primary: 255 255 255;
-  --text-secondary: 220 220 220;
-  --border-default: 100 100 100;
-  --bg-primary: 0 0 0;
-  --bg-secondary: 10 10 10;
-  --bg-tertiary: 20 20 20;
-}
-
-/* Dark contrast (force dark background even in light mode) */
-.a11y-dark-contrast {
-  --bg-primary: 8 8 10;
-  --bg-secondary: 17 17 20;
-  --bg-tertiary: 24 24 28;
-  --text-primary: 245 245 247;
-  --text-secondary: 165 165 172;
-  --border-default: 40 40 46;
-  color-scheme: dark;
-}
-
-/* Light contrast (force light background even in dark mode) */
-.a11y-light-contrast {
-  --bg-primary: 251 251 253;
-  --bg-secondary: 255 255 255;
-  --bg-tertiary: 245 245 247;
-  --text-primary: 29 29 31;
-  --text-secondary: 110 110 115;
-  --border-default: 224 224 229;
-  color-scheme: light;
-}
+/* High / dark / light contrast token sets: generated (tokens.generated.css) */
 
 /* Reading mode — simplify layout, widen content */
 .a11y-reading-mode main {
