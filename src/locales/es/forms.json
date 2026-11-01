@@ -1,0 +1,74 @@
+{
+  "forms": {
+    "errors": {
+      "required": "Completa este campo para continuar.",
+      "checkAndRetry": "Revisa este campo e inténtalo de nuevo.",
+      "tooShort": "Usa al menos {{min}} caracteres.",
+      "tooLong": "Máximo {{max}} caracteres.",
+      "tooSmall": "Introduce {{min}} o más.",
+      "tooBig": "Introduce {{max}} o menos.",
+      "email": "Ese correo parece incompleto: prueba con nombre@empresa.com.",
+      "emailRequired": "Introduce tu correo para que podamos contactarte.",
+      "phoneRequired": "Introduce un teléfono para que podamos contactarte.",
+      "phoneTooShort": "Ese número es demasiado corto: incluye el prefijo de zona.",
+      "phoneInvalid": "Ese teléfono no parece válido: revisa los dígitos o empieza con + y el prefijo del país.",
+      "amountRequired": "Introduce un importe.",
+      "amountInvalid": "Usa solo números, por ejemplo 1.250,00.",
+      "amountTooSmall": "El importe debe ser al menos {{min}}.",
+      "amountTooBig": "El importe no puede superar {{max}}.",
+      "percentRequired": "Introduce un porcentaje.",
+      "percentRange": "Introduce un porcentaje entre {{min}} y {{max}}.",
+      "dateRequired": "Introduce una fecha.",
+      "dateIncomplete": "Introduce la fecha completa, con el año.",
+      "dateInvalid": "Esa fecha no existe: revisa el día y el mes.",
+      "dateTooEarly": "Elige una fecha igual o posterior a {{date}}.",
+      "dateTooLate": "Elige una fecha igual o anterior a {{date}}.",
+      "postalRequired": "Introduce tu código postal.",
+      "postalInvalid": "Ese código postal no tiene el formato esperado.",
+      "licenseRequired": "Introduce el número de licencia.",
+      "licenseInvalid": "Los números de licencia tienen entre {{min}} y {{max}} letras, números o guiones.",
+      "consentRequired": "Marca esta casilla para continuar."
+    },
+    "summary": {
+      "title": "Corrige los campos resaltados para continuar ({{count}})"
+    },
+    "submit": {
+      "saving": "Guardando…",
+      "failed": "No pudimos guardar esto. Revisa tu conexión e inténtalo de nuevo: no se enviará dos veces.",
+      "offline": "Estás sin conexión. Reconéctate y vuelve a pulsar el botón: solo se enviará una vez."
+    },
+    "draft": {
+      "prompt": "¿Restaurar tu borrador guardado {{when}}?",
+      "restore": "Restaurar",
+      "discard": "Descartar"
+    },
+    "unsaved": {
+      "title": "¿Guardar los cambios?",
+      "body": "Tienes cambios sin guardar.",
+      "bodyCanSave": "Tienes cambios sin guardar. ¿Guardarlos antes de salir?",
+      "save": "Guardar",
+      "discard": "Descartar",
+      "stay": "Seguir editando",
+      "saving": "Guardando…"
+    },
+    "autosave": {
+      "saving": "Guardando…",
+      "saved": "Guardado {{when}}",
+      "savedJustNow": "Guardado ahora mismo",
+      "offline": "Sin conexión: se guardará al reconectarte",
+      "error": "No se pudo guardar",
+      "retry": "Reintentar"
+    },
+    "combobox": {
+      "loading": "Buscando…",
+      "empty": "Sin resultados",
+      "error": "No se pudieron cargar las sugerencias",
+      "retry": "Reintentar",
+      "recent": "Recientes",
+      "results": "Resultados disponibles: {{count}}"
+    },
+    "help": {
+      "whyWeAsk": "Por qué lo pedimos"
+    }
+  }
+}
