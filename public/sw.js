@@ -19,7 +19,7 @@ self.addEventListener('push', (event) => {
   const options = {
     body: data.body || '',
     icon: '/web-app-manifest-192x192.png',
-    badge: '/favicon-96x96.png',
+    badge: '/icons/monochrome-96.png',
     tag: data.tag || 'vireek-notification',
     renotify: true,
     data: { url: data.url || '/dashboard' },
