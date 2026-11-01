@@ -1,0 +1,74 @@
+{
+  "forms": {
+    "errors": {
+      "required": "Renseignez ce champ pour continuer.",
+      "checkAndRetry": "Vérifiez ce champ et réessayez.",
+      "tooShort": "Utilisez au moins {{min}} caractères.",
+      "tooLong": "{{max}} caractères maximum.",
+      "tooSmall": "Saisissez {{min}} ou plus.",
+      "tooBig": "Saisissez {{max}} ou moins.",
+      "email": "Cet e-mail semble incomplet : essayez nom@entreprise.com.",
+      "emailRequired": "Saisissez votre e-mail pour que nous puissions vous joindre.",
+      "phoneRequired": "Saisissez un numéro de téléphone pour que nous puissions vous joindre.",
+      "phoneTooShort": "Ce numéro est trop court : ajoutez l'indicatif régional.",
+      "phoneInvalid": "Ce numéro ne semble pas valide : vérifiez les chiffres ou commencez par + et l'indicatif du pays.",
+      "amountRequired": "Saisissez un montant.",
+      "amountInvalid": "Utilisez uniquement des chiffres, par exemple 1 250,00.",
+      "amountTooSmall": "Le montant doit être d'au moins {{min}}.",
+      "amountTooBig": "Le montant ne peut pas dépasser {{max}}.",
+      "percentRequired": "Saisissez un pourcentage.",
+      "percentRange": "Saisissez un pourcentage entre {{min}} et {{max}}.",
+      "dateRequired": "Saisissez une date.",
+      "dateIncomplete": "Saisissez la date complète, année comprise.",
+      "dateInvalid": "Cette date n'existe pas : vérifiez le jour et le mois.",
+      "dateTooEarly": "Choisissez une date à partir du {{date}}.",
+      "dateTooLate": "Choisissez une date au plus tard le {{date}}.",
+      "postalRequired": "Saisissez votre code postal.",
+      "postalInvalid": "Ce code postal n'a pas le format attendu.",
+      "licenseRequired": "Saisissez le numéro de licence.",
+      "licenseInvalid": "Les numéros de licence comptent de {{min}} à {{max}} lettres, chiffres ou tirets.",
+      "consentRequired": "Cochez cette case pour continuer."
+    },
+    "summary": {
+      "title": "Corrigez les champs signalés pour continuer ({{count}})"
+    },
+    "submit": {
+      "saving": "Enregistrement…",
+      "failed": "Nous n'avons pas pu enregistrer. Vérifiez votre connexion et réessayez : rien ne sera envoyé deux fois.",
+      "offline": "Vous êtes hors ligne. Reconnectez-vous et appuyez de nouveau sur le bouton : l'envoi n'aura lieu qu'une fois."
+    },
+    "draft": {
+      "prompt": "Restaurer votre brouillon enregistré {{when}} ?",
+      "restore": "Restaurer",
+      "discard": "Ignorer"
+    },
+    "unsaved": {
+      "title": "Enregistrer vos modifications ?",
+      "body": "Vous avez des modifications non enregistrées.",
+      "bodyCanSave": "Vous avez des modifications non enregistrées. Les enregistrer avant de partir ?",
+      "save": "Enregistrer",
+      "discard": "Ignorer",
+      "stay": "Continuer à modifier",
+      "saving": "Enregistrement…"
+    },
+    "autosave": {
+      "saving": "Enregistrement…",
+      "saved": "Enregistré {{when}}",
+      "savedJustNow": "Enregistré à l'instant",
+      "offline": "Hors ligne : enregistrement dès la reconnexion",
+      "error": "Échec de l'enregistrement",
+      "retry": "Réessayer"
+    },
+    "combobox": {
+      "loading": "Recherche…",
+      "empty": "Aucun résultat",
+      "error": "Impossible de charger les suggestions",
+      "retry": "Réessayer",
+      "recent": "Récents",
+      "results": "Résultats disponibles : {{count}}"
+    },
+    "help": {
+      "whyWeAsk": "Pourquoi nous demandons ceci"
+    }
+  }
+}
