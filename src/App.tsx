@@ -79,6 +79,7 @@ const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage')
 const ReferralsPage = lazy(() => import('@/pages/ReferralsPage').then((m) => ({ default: m.ReferralsPage })));
 const LoyaltyPage = lazy(() => import('@/pages/LoyaltyPage').then((m) => ({ default: m.LoyaltyPage })));
 const VoicemailDropsPage = lazy(() => import('@/pages/VoicemailDropsPage').then((m) => ({ default: m.VoicemailDropsPage })));
+  const VoiceBrandPage = lazy(() => import('@/pages/VoiceBrandPage').then((m) => ({ default: m.VoiceBrandPage })));
 const CallMaskingPage = lazy(() => import('@/pages/CallMaskingPage').then((m) => ({ default: m.CallMaskingPage })));
 const PowerDialerPage = lazy(() => import('@/pages/PowerDialerPage').then((m) => ({ default: m.PowerDialerPage })));
 const SpeedToLeadPage = lazy(() => import('@/pages/SpeedToLeadPage').then((m) => ({ default: m.SpeedToLeadPage })));
@@ -2395,6 +2396,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+          <Route
+            path="/dashboard/voice-brand"
+            element={
+              <ProtectedRoute>
+                <VoiceBrandPage />
+              </ProtectedRoute>
+            }
+          />
         <Route
           path="/dashboard/call-masking"
           element={
