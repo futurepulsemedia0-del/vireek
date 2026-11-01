@@ -1,5 +1,6 @@
 import { Component, ReactNode, ErrorInfo } from 'react';
 import { generateIncidentId } from '@/lib/incident';
+import { recoverFromChunkError } from '@/lib/chunkRecovery';
 import { captureIncident } from '@/lib/incidentReporting';
 import { ServerErrorView } from '@/components/system/ServerErrorView';
 
@@ -38,6 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    if (recoverFromChunkError(error)) return;
     const { eventId } = captureIncident(error, { incidentId: this.state.incidentId, componentStack: info.componentStack });
     this.setState({ componentStack: info.componentStack ?? null, eventId });
     if (import.meta.env.DEV) {
