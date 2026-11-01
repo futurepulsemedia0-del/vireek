@@ -14,12 +14,14 @@
 
 import { askVireekAi } from "./index.ts";
 import type { TaskType } from "./types.ts";
+  import { scoreTurn, type TurnContext } from "../voice-brand/styleCheck.ts";
 
 export type EvalAssertion =
   | { type: "contains_keyword"; value: string }
   | { type: "not_contains_keyword"; value: string }
   | { type: "json_field_equals"; field: string; value: string | number | boolean }
-  | { type: "max_latency_ms"; value: number };
+    | { type: "max_latency_ms"; value: number }
+    | { type: "voice_style"; ctx?: TurnContext };
 
 export interface EvalCaseInput {
   id: string;
@@ -73,6 +75,11 @@ function evaluateAssertions(text: string, latencyMs: number, assertions: EvalAss
         }
         break;
       }
+        case "voice_style": {
+          const verdict = scoreTurn(text, a.ctx ?? {});
+          for (const v of verdict.violations) failed.push(`voice_style ${v.rule}: ${v.detail}`);
+          break;
+        }
       case "max_latency_ms":
         if (latencyMs > a.value) {
           failed.push(`latency ${latencyMs}ms exceeded ${a.value}ms`);
