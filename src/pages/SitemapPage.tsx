@@ -26,7 +26,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { SARAH_PHONE } from '@/lib/site';
-import { BLOG_POSTS } from '@/lib/blog';
+import { BLOG_POSTS } from '@/lib/blogContent';
 import { publishedResources, resourcePath } from '@/lib/resources';
 import { INDUSTRIES } from '@/lib/industries';
 import { USE_CASES } from '@/lib/useCases';
