@@ -25,6 +25,15 @@ import deCommon from '@/locales/de/common.json';
 import arCommon from '@/locales/ar/common.json';
 import faCommon from '@/locales/fa/common.json';
 import jaCommon from '@/locales/ja/common.json';
+import enForms from '@/locales/en/forms.json';
+import esForms from '@/locales/es/forms.json';
+import zhForms from '@/locales/zh/forms.json';
+import hiForms from '@/locales/hi/forms.json';
+import frForms from '@/locales/fr/forms.json';
+import deForms from '@/locales/de/forms.json';
+import arForms from '@/locales/ar/forms.json';
+import faForms from '@/locales/fa/forms.json';
+import jaForms from '@/locales/ja/forms.json';
 import { resolveInitialLanguage } from '@/lib/languageSync';
 import enDashboard from '@/locales/en/dashboard.json';
 import enTrust from '@/locales/en/trust.json';
@@ -37,20 +46,19 @@ function getInitialLanguage(): string {
 
 void i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, dashboard: enDashboard, trust: enTrust },
-    es: { common: esCommon },
-    zh: { common: zhCommon },
-    hi: { common: hiCommon },
-    fr: { common: frCommon },
-    de: { common: deCommon },
-    ar: { common: arCommon },
-    fa: { common: faCommon, trust: faTrust },
-    ja: { common: jaCommon },
+    en: { common: enCommon, dashboard: enDashboard, trust: enTrust, forms: enForms },
+    es: { common: esCommon, forms: esForms },
+    zh: { common: zhCommon, forms: zhForms },
+    hi: { common: hiCommon, forms: hiForms },
+    fr: { common: frCommon, forms: frForms },
+    de: { common: deCommon, forms: deForms },
+    ar: { common: arCommon, forms: arForms },
+    fa: { common: faCommon, trust: faTrust, forms: faForms },
+    ja: { common: jaCommon, forms: jaForms },
   },
   lng: getInitialLanguage(),
   fallbackLng: 'en',
-  ns: ['common'],
-  ns: ['common', 'dashboard', 'trust'],
+  ns: ['common', 'dashboard', 'trust', 'forms'],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false, // React already escapes
