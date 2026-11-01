@@ -1,0 +1,51 @@
+[
+  {
+    "slug": "missed-calls",
+    "name": "Missed Calls & Revenue",
+    "icon": "PhoneMissed",
+    "title": "Missed calls and revenue recovery",
+    "intro": "Every unanswered call is a customer who is still looking for someone to fix their problem. These guides cover speed-to-lead, after-hours coverage, voicemail versus a live answer, text-back, and the call-handling numbers worth tracking."
+  },
+  {
+    "slug": "ai-receptionist",
+    "name": "AI Receptionist Guides",
+    "icon": "Bot",
+    "title": "AI receptionist buyer guides",
+    "intro": "Plain-language help for deciding whether an AI receptionist fits your business: what it costs, how it compares with an answering service or a hire, which questions to ask vendors, and how to measure whether it is working."
+  },
+  {
+    "slug": "trade-playbooks",
+    "name": "Trade Playbooks",
+    "icon": "Wrench",
+    "title": "Trade-specific playbooks",
+    "intro": "Call handling is different for an HVAC no-cool emergency, a burst pipe, a storm-damaged roof, or a lockout. These playbooks cover triage scripts, seasonal call spikes and the questions each trade hears most."
+  },
+  {
+    "slug": "operations",
+    "name": "Operations & Growth",
+    "icon": "BarChart3",
+    "title": "Operations and growth",
+    "intro": "Dispatch, booking rates, follow-up, reviews, scheduling, technician utilization, quoting and cash flow: the day-to-day systems that turn answered calls into completed, paid jobs."
+  },
+  {
+    "slug": "integrations",
+    "name": "Integrations & Workflows",
+    "icon": "Plug",
+    "title": "Integrations and workflows",
+    "intro": "How phone, scheduling and field-service software fit together, and which parts of the workflow are worth automating first."
+  },
+  {
+    "slug": "compliance",
+    "name": "Security & Compliance",
+    "icon": "ShieldCheck",
+    "title": "Security, privacy and compliance",
+    "intro": "Call-recording consent, texting rules, data security and AI transparency, explained for business owners. These articles are general information, not legal advice."
+  },
+  {
+    "slug": "templates",
+    "name": "Templates & Checklists",
+    "icon": "ClipboardList",
+    "title": "Playbooks and templates",
+    "intro": "Call scripts, after-hours routing templates, emergency keyword lists, rollout plans and KPI dashboards you can copy and adapt."
+  }
+]
