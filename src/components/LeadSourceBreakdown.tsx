@@ -5,7 +5,8 @@ import type { Call } from '@/lib/supabase';
 
 const UNATTRIBUTED_LABEL = 'Direct / Not tracked';
 
-const BAR_COLORS = ['bg-accent', 'bg-cta', 'bg-success-500', 'bg-warning-500', 'bg-blue-500', 'bg-text-secondary/50'];
+// Categorical data-viz palette (CVD-checked). Copper (bg-cta) is reserved for live/urgent, so it is NOT a series colour.
+const BAR_COLORS = ['bg-viz-1', 'bg-viz-2', 'bg-viz-3', 'bg-viz-4', 'bg-viz-5', 'bg-viz-6', 'bg-viz-7', 'bg-viz-8'];
 
 interface LeadSourceBreakdownProps {
   calls: Call[];
