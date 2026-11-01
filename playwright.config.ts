@@ -10,7 +10,13 @@ export default defineConfig({
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:4173',
     trace: 'on-first-retry',
   },
-  projects: [
+projects: [
+  { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testMatch: /cross-browser\.spec\.ts/ },
+  { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /cross-browser\.spec\.ts/ },
+  { name: 'mobile-chrome', use: { ...devices['Pixel 7'] }, testMatch: /cross-browser\.spec\.ts/ },
+  { name: 'mobile-safari', use: { ...devices['iPhone 14'] }, testMatch: /cross-browser\.spec\.ts/ },
+],: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: {
