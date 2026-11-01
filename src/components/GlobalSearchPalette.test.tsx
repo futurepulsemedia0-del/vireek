@@ -13,6 +13,7 @@ const { rpc, auth } = vi.hoisted(() => ({
 
 vi.mock('@/lib/supabase', () => ({ supabase: { rpc: (...args: unknown[]) => rpc(...args) } }));
 vi.mock('@/contexts/AuthContext', () => ({ useAuth: () => auth }));
+vi.mock('react-i18next', async () => (await import('@/test/i18nMock')).reactI18nextMock);
 
 import { GlobalSearchPalette } from './GlobalSearchPalette';
 
