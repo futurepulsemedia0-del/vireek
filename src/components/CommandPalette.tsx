@@ -61,6 +61,7 @@ const PAGES: StaticPage[] = [
   { label: 'Inspection reports', href: '/dashboard/inspection-reports', icon: ClipboardCheck, keywords: 'inspection report pdf checklist photos signature' },
   { label: 'Email settings', href: '/dashboard/settings/email', icon: Mail, keywords: 'reply-to signature domain spf dkim inbound' },
   { label: 'Sessions & devices', href: '/dashboard/settings/sessions', icon: ShieldCheck, keywords: 'sessions devices sign out login alerts' },
+  { label: 'Account activity', href: '/dashboard/settings/activity', icon: ShieldCheck, keywords: 'activity security history sign-ins export log' },
   { label: 'Audit log', href: '/dashboard/settings/audit-log', icon: ShieldCheck, keywords: 'audit history activity export' },
   { label: 'SIEM log streaming', href: '/dashboard/settings/siem-streaming', icon: ShieldCheck, keywords: 'siem splunk datadog log streaming security events forward' },
 ];
