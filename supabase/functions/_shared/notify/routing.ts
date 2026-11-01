@@ -3,6 +3,8 @@
 //
 // Keep the exported unions in sync with src/lib/notificationRouting.ts.
 
+import { renderEmail } from "../email-kit/layout.ts";
+
 export type Severity = "info" | "warning" | "high" | "critical";
 export type Channel = "push" | "sms" | "email" | "slack";
 export type TargetType = "owner" | "role" | "on_call" | "member";
@@ -312,18 +314,27 @@ export function buildSms(m: MessageInput): string {
   return `${head}${truncate(m.message, room)}${tail}`;
 }
 
+const originOf = (u: string): string => {
+  try {
+    return new URL(u).origin;
+  } catch {
+    return "https://app.vireek.com";
+  }
+};
+
 export function buildEmail(m: MessageInput): { subject: string; html: string; text: string } {
   const subject = `[${SEVERITY_LABEL[m.severity]}] ${truncate(m.title, 120)}`;
   const link = m.ackUrl ?? m.openUrl;
   const linkLabel = m.ackUrl ? "Acknowledge" : "Open in Vireek";
-  const html =
-    `<div style="font-family:system-ui,sans-serif;max-width:560px">` +
-    `<p style="margin:0 0 4px;font-size:12px;letter-spacing:.06em;color:#64748b">${SEVERITY_LABEL[m.severity]} ALERT</p>` +
-    `<h2 style="margin:0 0 12px">${escapeHtml(m.title)}</h2>` +
-    `<p style="margin:0 0 20px;line-height:1.5">${escapeHtml(m.message)}</p>` +
-    `<a href="${escapeHtml(link)}" style="display:inline-block;padding:10px 18px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none">${linkLabel}</a>` +
-    `</div>`;
-  const text = `${m.title}\n\n${m.message}\n\n${linkLabel}: ${link}`;
+  const { html, text } = renderEmail({
+    subject,
+    preheader: truncate(m.message, 90),
+    title: m.title,
+    body: m.message,
+    severity: m.severity,
+    action: { label: linkLabel, url: link },
+    siteUrl: originOf(m.openUrl),
+  });
   return { subject, html, text };
 }
 
