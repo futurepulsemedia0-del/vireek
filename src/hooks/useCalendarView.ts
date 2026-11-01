@@ -44,7 +44,7 @@ interface ShortcutHandlers {
   onToday: () => void;
 }
 
-/** Slightly longer than the global sequence timeout (800 ms) in lib/keyboardShortcuts.ts. */
+/** Slightly longer than the global sequence timeout (800 ms) in lib/shortcuts/registry.ts (SEQUENCE_TIMEOUT_MS).. */
 const GO_SEQUENCE_WINDOW_MS = 900;
 
 function isTypingTarget(el: EventTarget | null): boolean {
