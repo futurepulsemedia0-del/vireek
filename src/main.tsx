@@ -26,6 +26,7 @@ import { UpdateGate } from '@/components/native/UpdateGate';
 import { BootDismiss } from '@/components/loading/BootDismiss';
 import { initNativeRuntime } from '@/lib/native/lifecycle';
 import { RegionalProvider } from '@/contexts/RegionalContext';
+import { StepUpProvider } from '@/components/security/StepUpProvider';
 import { isNative } from '@/lib/native/platform';
 import { hideNativeSplash } from '@/lib/native/shell';
 import { initInstallPrompt } from '@/lib/pwa/installPrompt';
