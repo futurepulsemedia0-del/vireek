@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&family=Dancing+Script&family=Caveat&family=Great+Vibes&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -454,4 +452,11 @@ html:lang(hi) body { font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal'
     animation-iteration-count: 1 !important;
   }
   .vrk-mini { animation: none !important; transform: none; }
+}
+/* iOS Safari: 100vh includes the collapsing toolbar; keep vh as fallback, prefer dvh. */
+.min-h-screen { min-height: 100vh; min-height: 100dvh; }
+.h-screen { height: 100vh; height: 100dvh; }
+/* iOS Safari zooms the page when an input under 16px is focused. */
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']), select, textarea { font-size: max(16px, 1em); }
 }
