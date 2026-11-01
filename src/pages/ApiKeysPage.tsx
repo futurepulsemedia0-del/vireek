@@ -5,6 +5,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useStepUp } from '@/components/security/StepUpProvider';
+import { StepUpCancelledError } from '@/lib/stepUpCore';
 import {
   API_SCOPES, DEFAULT_API_SCOPES, SCOPE_LABELS, ApiScope, ApiKeyRow,
   listApiKeys, createApiKey, revokeApiKey, rotateApiKey,
@@ -133,6 +135,7 @@ function CreateKeyForm({ onCreate, creating }: { onCreate: (name: string, scopes
 export function ApiKeysPage() {
   const { isOwner, user } = useAuth();
   const { toast } = useToast();
+  const { withStepUp } = useStepUp();
 
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -160,7 +163,7 @@ export function ApiKeysPage() {
     if (!user) return;
     setCreating(true);
     try {
-      const { rawKey } = await createApiKey(name, scopes, user.id);
+      const { rawKey } = await withStepUp(() => createApiKey(name, scopes, user.id));
       setRevealKey(rawKey);
       await load();
       toast('API key created.', 'success');
@@ -174,7 +177,7 @@ export function ApiKeysPage() {
   const handleRevoke = async () => {
     if (!confirmRevoke) return;
     try {
-      await revokeApiKey(confirmRevoke.id);
+      await withStepUp(() => revokeApiKey(confirmRevoke.id));
       toast('Key revoked. It will stop working immediately.', 'success');
       await load();
     } catch {
@@ -188,7 +191,7 @@ export function ApiKeysPage() {
     if (!user) return;
     setRotatingId(key.id);
     try {
-      const { rawKey } = await rotateApiKey(key.id, key.name, key.scopes, user.id);
+      const { rawKey } = await withStepUp(() => rotateApiKey(key.id, key.name, key.scopes, user.id));
       setRevealKey(rawKey);
       await load();
       toast('Key rotated — the old one is now revoked.', 'success');
