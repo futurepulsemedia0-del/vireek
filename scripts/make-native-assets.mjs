@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 import sharp from 'sharp';
 
 const LOGO = 'public/favicon.svg';
-const BG = '#000000';
+const BG = '#090A0D'; // dark bg-primary token
 mkdirSync('assets', { recursive: true });
 
 const logo = (size) =>
