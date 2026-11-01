@@ -7,6 +7,7 @@ import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StaffRoute } from '@/components/StaffRoute';
 import { SupplierRoute } from '@/components/SupplierRoute';
+import { RouteTitle } from '@/components/brand/RouteTitle';
 import { TechnicianRoute } from '@/components/TechnicianRoute';
 import { PartnerRoute } from '@/components/PartnerRoute';
 import { SkipToContent } from '@/components/a11y/SkipToContent';
