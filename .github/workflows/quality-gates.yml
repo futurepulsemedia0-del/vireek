@@ -46,6 +46,16 @@ jobs:
 
       - name: Fail if api-v1, its contract and public/openapi.json disagree
         run: node scripts/openapi.mjs check
+  asset-budget:
+    name: Asset budget (images, fonts, SVG)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node scripts/check-asset-budget.mjs
   bundle-size:
     name: Bundle-size budget
     runs-on: ubuntu-latest
