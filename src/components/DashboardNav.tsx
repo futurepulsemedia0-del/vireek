@@ -201,6 +201,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
+import { SecurityAlertBanner } from '@/components/security/SecurityAlertBanner';
 import { SurgeModeBanner } from '@/components/SurgeModeBanner';
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
@@ -974,6 +975,7 @@ export function DashboardLayout({
               <PaymentFailedBanner />
               <UsageLimitBanner />             
               <PwaInstallBanner />
+              <SecurityAlertBanner />
             </div>
             <div key={i18n.language} className="contents">
   {children}
