@@ -1,0 +1,111 @@
+{
+  "palette": {
+    "title": "Search and quick navigation",
+    "placeholder": "Search records, jump to a page, or type > for actions",
+    "tip": "Tip: > actions · @ people · # jobs",
+    "minChars": "Type at least {{count}} characters to search records.",
+    "unavailable": "Search is unavailable right now.",
+    "retry": "Retry",
+    "noResults": "No results for “{{query}}”. Try a name, phone number, serial number or invoice number.",
+    "noActions": "No matching actions. Try “new job” or “invite”.",
+    "askOperator": "Ask Operator: “{{text}}”",
+    "quickAction": "Quick action",
+    "navHint": "↑↓ to navigate · ↵ to open",
+    "close": "Esc",
+    "live": {
+      "searching": "Searching",
+      "unavailable": "Search unavailable",
+      "results_one": "{{count}} result",
+      "results_other": "{{count}} results"
+    },
+    "scope": {
+      "actions": "Actions",
+      "people": "People",
+      "jobs": "Jobs"
+    },
+    "sections": {
+      "recent": "Recent",
+      "actions": "Quick actions",
+      "pages": "Pages"
+    },
+    "entities": {
+      "customer": "Customers",
+      "job": "Jobs",
+      "quote": "Quotes",
+      "invoice": "Invoices",
+      "equipment": "Equipment",
+      "team": "Team",
+      "knowledge": "Knowledge",
+      "lead": "Leads",
+      "call": "Calls"
+    },
+    "actions": {
+      "new-job": "New job",
+      "new-quote": "New quote",
+      "new-article": "New knowledge article",
+      "invite-teammate": "Invite teammate"
+    },
+    "results": "Results"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "subtitle": "Move around the dashboard without touching your mouse.",
+    "close": "Close",
+    "then": "then",
+    "reopen": "Press {{keys}} anytime to reopen this panel.",
+    "customHint": "Click Edit to change a shortcut. Shortcuts never fire while you are typing in a field.",
+    "srSummary": "{{count}} keyboard shortcuts. Each row lists the action, then its keys. Use Tab to reach the Edit and Reset buttons.",
+    "edit": "Edit",
+    "editAria": "Edit shortcut for {{action}}",
+    "reset": "Reset",
+    "resetAria": "Reset shortcut for {{action}}",
+    "resetAll": "Reset all to defaults",
+    "disable": "Turn off",
+    "disabled": "Off",
+    "customized": "Customized",
+    "recording": "Press the new keys… (Esc to cancel)",
+    "cancel": "Cancel",
+    "saved": "Shortcut updated.",
+    "error": {
+      "invalid": "That key combination is not supported.",
+      "reserved": "That combination is reserved by your browser or this page.",
+      "conflict": "Already used by “{{other}}”.",
+      "not_customizable": "This shortcut cannot be changed.",
+      "unknown": "Unknown shortcut."
+    },
+    "categories": {
+      "general": "General",
+      "navigation": "Navigation",
+      "create": "Create"
+    },
+    "items": {
+      "palette": {
+        "toggle": "Open search and commands",
+        "actions": "Open commands (actions only)"
+      },
+      "help": {
+        "shortcuts": "Show keyboard shortcuts"
+      },
+      "nav": {
+        "overview": "Go to Overview",
+        "calendar": "Go to Calendar",
+        "jobs": "Go to My Jobs",
+        "calls": "Go to Call History",
+        "voicemails": "Go to Voicemails",
+        "leads": "Go to Leads",
+        "analytics": "Go to Analytics",
+        "insights": "Go to Insights",
+        "reviews": "Go to Reviews",
+        "profile": "Go to Business Profile",
+        "team": "Go to Team",
+        "billing": "Go to Billing",
+        "settings": "Go to Settings"
+      },
+      "create": {
+        "job": "Create job",
+        "quote": "Create quote",
+        "invite": "Invite teammate"
+      }
+    }
+  }
+}
