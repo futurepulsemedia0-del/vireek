@@ -1,6 +1,7 @@
 // src/lib/native/shell.ts — splash screen + status bar for the installed app (no-ops on the web).
 
 import { isNative } from './platform';
+import { THEME_COLOR } from '@/styles/tokens.generated';
 
 let splashHidden = false;
 
@@ -23,7 +24,11 @@ export function syncStatusBarWithTheme(): () => void {
   const apply = () => {
     const dark = root.classList.contains('dark');
     void import('@capacitor/status-bar')
-      .then(({ StatusBar, Style }) => StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light }))
+      .then(async ({ StatusBar, Style }) => {
+        await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light });
+        // Android only (iOS ignores it): status bar = the page's top surface for the active theme.
+        await StatusBar.setBackgroundColor({ color: dark ? THEME_COLOR.dark : THEME_COLOR.light }).catch(() => undefined);
+      })
       .catch(() => undefined);
   };
   apply();
