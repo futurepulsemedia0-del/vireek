@@ -42,3 +42,28 @@ jobs:
             echo "::error::$((CASE_COUNT - PASS_COUNT)) of $CASE_COUNT eval cases failed."
             exit 1
           fi
+            run-voice-eval-suite:
+    name: Run voice brand eval suite
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' }}
+    steps:
+      - name: Trigger ai-eval-run (voice)
+        env:
+          VOICE_SUITE_ID: ${{ secrets.AI_REGRESSION_VOICE_SUITE_ID }}
+        run: |
+          if [ -z "$VOICE_SUITE_ID" ]; then echo "AI_REGRESSION_VOICE_SUITE_ID not set; skipping."; exit 0; fi
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/ai-eval-run" \
+            -H "Authorization: Bearer ${{ secrets.AI_REGRESSION_TEST_USER_JWT }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"suiteId\":\"$VOICE_SUITE_ID\"}")
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          STATUS=$(echo "$RESPONSE" | tail -n1)
+          echo "$BODY"
+          if [ "$STATUS" -ge 300 ]; then echo "ai-eval-run returned HTTP $STATUS"; exit 1; fi
+          PASS=$(echo "$BODY" | grep -o '"passCount":[0-9]*' | grep -o '[0-9]*')
+          CASES=$(echo "$BODY" | grep -o '"caseCount":[0-9]*' | grep -o '[0-9]*')
+          if [ "$CASES" -gt 0 ] && [ "$PASS" -lt "$CASES" ]; then
+            echo "::error::$((CASES - PASS)) of $CASES voice eval cases failed."
+            exit 1
+          fi
