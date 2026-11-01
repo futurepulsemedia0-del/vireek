@@ -123,10 +123,10 @@ export interface RenderResult {
 }
 
 /** Single-pass render: unknown placeholders are left out of MERGE_FIELDS and reported, values are never re-interpolated. */
-export function renderScript(templateId: string, values: MergeValues, variantIndex = 0): RenderResult {
+  export function renderScript(templateId: string, values: MergeValues, variantIndex = 0, overrideBody?: string): RenderResult {
   const tpl = SCRIPT_LIBRARY[templateId];
   if (!tpl) throw new Error(`Unknown script template: ${templateId}`);
-  const variant = tpl.variants[variantIndex] ?? tpl.variants[0];
+  const variant = overrideBody ?? tpl.variants[variantIndex] ?? tpl.variants[0];
   const clean: MergeValues = {};
   for (const f of MERGE_FIELDS) {
     const v = values[f];
