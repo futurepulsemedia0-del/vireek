@@ -14,6 +14,7 @@
 
 import type { TaskType } from "./types.ts";
 import { getFullKnowledgeBrief, findRelevantTopics, getKnowledgeSnippet } from "./knowledge.ts";
+  import { buildVoicePersonaContext } from "../voice-brand/persona.ts";
 
 /**
  * Non-negotiable brand + safety rules. Identical no matter which provider
@@ -72,6 +73,7 @@ export interface BuildSystemPromptOptions {
  */
 export function buildSystemPrompt(opts: BuildSystemPromptOptions): string {
   const parts: string[] = [BASE_IDENTITY, TASK_INSTRUCTIONS[opts.task]];
+      if (opts.task === "demo_chat") parts.push(buildVoicePersonaContext({ trade: "general" }));
 
   if (opts.useFullKnowledgeBrief) {
     const brief = getFullKnowledgeBrief();
