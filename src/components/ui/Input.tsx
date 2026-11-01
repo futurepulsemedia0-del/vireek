@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, TextareaHTMLAttributes, forwardRef, useId } from 'react';
+import { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes, forwardRef, useId } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 // ============================================================
@@ -30,15 +30,36 @@ interface FieldChromeProps {
   helperText?: string;
   id: string;
   required?: boolean;
+  /** Rendered beside the label (e.g. <WhyWeAsk>). */
+  labelAction?: ReactNode;
+  /** Extra element ids to append to aria-describedby. */
+  describedBy?: string;
 }
 
-export function FieldLabel({ label, id, required }: { label?: string; id: string; required?: boolean }) {
+export function FieldLabel({
+  label,
+  id,
+  required,
+  action,
+}: {
+  label?: string;
+  id: string;
+  required?: boolean;
+  action?: ReactNode;
+}) {
   if (!label) return null;
   return (
-    <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-text-primary">
-      {label}
-      {required && <span className="ml-0.5 text-danger">*</span>}
-    </label>
+    <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+      <label htmlFor={id} className="block text-sm font-medium text-text-primary">
+        {label}
+        {required && (
+          <span aria-hidden="true" className="ms-0.5 text-danger">
+            *
+          </span>
+        )}
+      </label>
+      {action}
+    </div>
   );
 }
 
@@ -55,32 +76,54 @@ export function FieldFooter({ error, helperText, id }: { error?: string; helperT
   );
 }
 
+const joinIds = (...ids: Array<string | undefined>) => ids.filter(Boolean).join(' ') || undefined;
+
 // ============================================================
 // <Input />
 // ============================================================
 
-interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id'>, FieldChromeProps {
+interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id'>, Omit<FieldChromeProps, 'id'> {
   /** Optional leading icon — matches the search-input pattern already used
    *  on CallsPage/LeadsPage, now available without hand-copying the
    *  absolute-positioned icon markup. */
   icon?: LucideIcon;
   id?: string;
+  /** Decorative unit/symbol at the end of the field ("%", "$"). */
+  endAdornment?: ReactNode;
+  /** Positioned under the input (e.g. a combobox listbox). */
+  popup?: ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, icon: Icon, id, required, className = '', ...props }, ref) => {
+  (
+    {
+      label,
+      error,
+      helperText,
+      icon: Icon,
+      id,
+      required,
+      labelAction,
+      describedBy: extraDescribedBy,
+      endAdornment,
+      popup,
+      className = '',
+      ...props
+    },
+    ref,
+  ) => {
     const generatedId = useId();
     const fieldId = id ?? generatedId;
-    const describedBy = error || helperText ? `${fieldId}-description` : undefined;
+    const describedBy = joinIds(error || helperText ? `${fieldId}-description` : undefined, extraDescribedBy);
 
     return (
       <div className="w-full">
-        <FieldLabel label={label} id={fieldId} required={required} />
+        <FieldLabel label={label} id={fieldId} required={required} action={labelAction} />
         <div className="relative">
           {Icon && (
             <Icon
               size={16}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary"
+              className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-text-secondary"
               aria-hidden="true"
             />
           )}
@@ -88,11 +131,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={fieldId}
             required={required}
+            aria-required={required || undefined}
             aria-invalid={!!error}
-            aria-describedby={describedBy}
-            className={`${fieldBase} ${fieldBorder(!!error)} ${Icon ? 'pl-10' : ''} ${className}`}
+            className={`${fieldBase} ${fieldBorder(!!error)} ${Icon ? 'ps-10' : ''} ${endAdornment ? 'pe-11' : ''} ${className}`}
             {...props}
+            aria-describedby={joinIds(describedBy, props['aria-describedby'])}
           />
+          {endAdornment && (
+            <span className="pointer-events-none absolute end-3.5 top-1/2 -translate-y-1/2 text-sm text-text-secondary">
+              {endAdornment}
+            </span>
+          )}
+          {popup}
         </div>
         <FieldFooter error={error} helperText={helperText} id={fieldId} />
       </div>
@@ -105,28 +155,29 @@ Input.displayName = 'Input';
 // <Textarea /> — same recipe, no icon slot (never needed one so far)
 // ============================================================
 
-interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'id'>, FieldChromeProps {
+interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'id'>, Omit<FieldChromeProps, 'id'> {
   id?: string;
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, helperText, id, required, className = '', rows = 4, ...props }, ref) => {
+  ({ label, error, helperText, id, required, labelAction, describedBy: extraDescribedBy, className = '', rows = 4, ...props }, ref) => {
     const generatedId = useId();
     const fieldId = id ?? generatedId;
-    const describedBy = error || helperText ? `${fieldId}-description` : undefined;
+    const describedBy = joinIds(error || helperText ? `${fieldId}-description` : undefined, extraDescribedBy);
 
     return (
       <div className="w-full">
-        <FieldLabel label={label} id={fieldId} required={required} />
+        <FieldLabel label={label} id={fieldId} required={required} action={labelAction} />
         <textarea
           ref={ref}
           id={fieldId}
           rows={rows}
           required={required}
+          aria-required={required || undefined}
           aria-invalid={!!error}
-          aria-describedby={describedBy}
           className={`${fieldBase} ${fieldBorder(!!error)} resize-y ${className}`}
           {...props}
+          aria-describedby={joinIds(describedBy, props['aria-describedby'])}
         />
         <FieldFooter error={error} helperText={helperText} id={fieldId} />
       </div>
