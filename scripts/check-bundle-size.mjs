@@ -10,8 +10,8 @@ import { gzipSync } from 'node:zlib'
 const DIST = 'dist'
 const num = (k, d) => (Number.isFinite(Number(process.env[k])) && process.env[k] ? Number(process.env[k]) : d)
 const BUDGET = {
-  initialJs: num('BUDGET_INITIAL_JS_KB', 450),
-  chunkJs: num('BUDGET_CHUNK_JS_KB', 350),
+  initialJs: num('BUDGET_INITIAL_JS_KB', 170),
+  chunkJs: num('BUDGET_CHUNK_JS_KB', 250),
   totalJs: num('BUDGET_TOTAL_JS_KB', 3000),
   totalCss: num('BUDGET_TOTAL_CSS_KB', 150),
 }
