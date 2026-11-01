@@ -23,7 +23,11 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Vireek" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#FDFCFA" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FDFCFA" />
+      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#090A0D" />
+      <meta name="application-name" content="Vireek" />
+      <meta name="msapplication-TileColor" content="#090A0D" />
+      <meta name="msapplication-config" content="/browserconfig.xml" />
     <!-- Applies the stored/system theme to theme-color before first paint (values = bg-primary tokens). -->
     <script>
       (function () {
@@ -46,6 +50,7 @@
     <meta property="og:image" content="https://vireek.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Vireek — AI voice receptionist for home services" />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter Card -->
