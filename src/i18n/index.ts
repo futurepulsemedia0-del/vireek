@@ -27,6 +27,8 @@ import faCommon from '@/locales/fa/common.json';
 import jaCommon from '@/locales/ja/common.json';
 import { resolveInitialLanguage } from '@/lib/languageSync';
 import enDashboard from '@/locales/en/dashboard.json';
+import enTrust from '@/locales/en/trust.json';
+import faTrust from '@/locales/fa/trust.json';
 import { registerLazyLocales } from '@/i18n/lazyLocales';
 
 function getInitialLanguage(): string {
@@ -35,20 +37,20 @@ function getInitialLanguage(): string {
 
 void i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, dashboard: enDashboard },
+    en: { common: enCommon, dashboard: enDashboard, trust: enTrust },
     es: { common: esCommon },
     zh: { common: zhCommon },
     hi: { common: hiCommon },
     fr: { common: frCommon },
     de: { common: deCommon },
     ar: { common: arCommon },
-    fa: { common: faCommon },
+    fa: { common: faCommon, trust: faTrust },
     ja: { common: jaCommon },
   },
   lng: getInitialLanguage(),
   fallbackLng: 'en',
   ns: ['common'],
-  ns: ['common', 'dashboard'],
+  ns: ['common', 'dashboard', 'trust'],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false, // React already escapes
