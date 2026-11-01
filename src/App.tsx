@@ -647,6 +647,8 @@ const ApiUsagePage = lazy(() => import('@/pages/ApiUsagePage').then((m) => ({ de
 const OAuthAppsPage = lazy(() => import('@/pages/OAuthAppsPage').then((m) => ({ default: m.OAuthAppsPage })));
 const SmsCompliancePage = lazy(() => import('@/pages/SmsCompliancePage').then((m) => ({ default: m.SmsCompliancePage })));
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
+const AccountActivityPage = lazy(() => import('@/pages/AccountActivityPage'));
+const EmailPreviewPage = lazy(() => import('@/pages/dev/EmailPreviewPage'));
 const SiemStreamingPage = lazy(() => import('@/pages/SiemStreamingPage').then((m) => ({ default: m.SiemStreamingPage })));
 const RegionalPacksSettingsPage = lazy(() => import('@/pages/RegionalPacksSettingsPage').then((m) => ({ default: m.RegionalPacksSettingsPage })));
 const AcquisitionsPage = lazy(() => import('@/pages/AcquisitionsPage').then((m) => ({ default: m.AcquisitionsPage })));
@@ -791,6 +793,14 @@ function AppRoutes() {
             </StaffRoute>
           }
         />
+        <Route
+  path="/dev/emails"
+  element={
+    <ProtectedRoute>
+      <EmailPreviewPage />
+    </ProtectedRoute>
+  }
+/>
                 <Route
           path="/staff/pilots"
           element={
