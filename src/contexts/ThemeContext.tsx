@@ -1,3 +1,4 @@
+import { applyThemeColor } from '@/lib/themeColor';
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 
 export type Theme = 'light' | 'dark';
@@ -33,6 +34,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const resolved = preference === 'system' ? getSystemTheme() : preference;
     setTheme(resolved);
     document.documentElement.classList.toggle('dark', resolved === 'dark');
+    applyThemeColor(resolved);
     localStorage.setItem(STORAGE_KEY, preference);
   }, [preference]);
 
@@ -43,6 +45,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const resolved = getSystemTheme();
       setTheme(resolved);
       document.documentElement.classList.toggle('dark', resolved === 'dark');
+      applyThemeColor(resolved);
     };
     media.addEventListener('change', handleChange);
     return () => media.removeEventListener('change', handleChange);
