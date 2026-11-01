@@ -3,6 +3,11 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { BulkResultPanel } from '@/components/trust/BulkResultPanel';
+import { useTrustT } from '@/hooks/useTrustT';
+import { classifyError } from '@/lib/trust/appError';
+import { decideTier, requiredPhrase } from '@/lib/trust/confirmTier';
+import { mergeRetry, summarizePartial } from '@/lib/trust/partialResults';
 import { BulkActionBar, type Assignee, type BulkStatusOption } from '@/components/bulk/BulkActionBar';
 import { BulkCheckbox } from '@/components/bulk/BulkCheckbox';
 import { useBulkSelection } from '@/hooks/useBulkSelection';
@@ -78,6 +83,8 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
   const selection = useBulkSelection(config.rows);
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<Pending>(null);
+  const { t: tt } = useTrustT();
+  const [report, setReport] = useState<{ result: BulkResult; retry?: (ids: string[]) => Promise<BulkResult> } | null>(null);
   const [loadedAssignees, setLoadedAssignees] = useState<Assignee[] | null>(null);
   const [assigneesLoading, setAssigneesLoading] = useState(false);
   const cfg = useRef(config);
@@ -94,6 +101,7 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
   /**
    * `undo` (optional) turns the summary toast into a 10-second Undo toast.
    * `audited` = the server already wrote the audit row (soft delete does), so don't double-log.
+   * `retry` (optional) re-runs ONLY the failed ids from the partial-failure report.
    */
   const finish = useCallback(
     async (
@@ -103,6 +111,7 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
       metadata: Record<string, unknown>,
       undo?: () => Promise<UndoOutcome>,
       audited = false,
+      retry?: (ids: string[]) => Promise<BulkResult>,
     ) => {
       const c = cfg.current;
       if (result.succeeded.length && !audited) {
@@ -114,6 +123,8 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
       const message = summarize(result, verb, c.noun);
       if (undo && ok) offerUndo({ message, undo, tone: clean ? 'success' : 'error' });
       else toast(message, clean ? 'success' : 'error');
+      // Partial failure: keep a persistent, expandable report with "Retry failed only".
+      setReport(result.failed.length || result.skipped.length ? { result, retry } : null);
     },
     [audit, offerUndo, selection, toast],
   );
@@ -141,11 +152,13 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
     try {
       await fn();
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Bulk action failed.', 'error');
+      // Never show raw error text: human message + support reference.
+      const err = classifyError(e);
+      toast(`${tt(`error.${err.kind}.title`)}. ${tt('reference.label')}: ${err.referenceId}`, 'error');
     } finally {
       setBusy(false);
     }
-  }, [toast]);
+  }, [toast, tt]);
 
   const runStatus = useCallback(
     (option: BulkStatusOption) =>
@@ -160,9 +173,15 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
         });
         c.onRowsChanged(result.succeeded.map((id) => ({ id, patch })));
         const undo = makeRevert(rows, result.succeeded, Object.keys(patch), { column: c.statusField, value: option.value }, 'undo_status_change');
-        await finish(result, 'Updated', 'bulk_status_change', { field: c.statusField, to: option.value }, undo);
+        const retry = async (ids: string[]) => {
+          const r = await bulkUpdate(client, c.table, ids, patch, { perRow: c.perRowStatus });
+          c.onRowsChanged(r.succeeded.map((id) => ({ id, patch })));
+          if (r.succeeded.length) await audit('bulk_status_change', r.succeeded, { field: c.statusField, to: option.value, retry: true });
+          return r;
+        };
+        await finish(result, 'Updated', 'bulk_status_change', { field: c.statusField, to: option.value }, undo, false, retry);
       }),
-    [finish, guarded, makeRevert, selection.selectedRows],
+    [audit, finish, guarded, makeRevert, selection.selectedRows],
   );
 
   const runAssign = useCallback(
@@ -175,9 +194,16 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
         const result = await bulkUpdate(client, c.table, rows.map((r) => r.id), patch);
         c.onRowsChanged(result.succeeded.map((id) => ({ id, patch })));
         const undo = makeRevert(rows, result.succeeded, [c.assignField], { column: c.assignField, value: assigneeId }, 'undo_assign');
-        await finish(result, assigneeId ? 'Assigned' : 'Unassigned', 'bulk_assign', { field: c.assignField, to: assigneeId }, undo);
+        const field = c.assignField;
+        const retry = async (ids: string[]) => {
+          const r = await bulkUpdate(client, c.table, ids, patch);
+          c.onRowsChanged(r.succeeded.map((id) => ({ id, patch })));
+          if (r.succeeded.length) await audit('bulk_assign', r.succeeded, { field, to: assigneeId, retry: true });
+          return r;
+        };
+        await finish(result, assigneeId ? 'Assigned' : 'Unassigned', 'bulk_assign', { field: c.assignField, to: assigneeId }, undo, false, retry);
       }),
-    [finish, guarded, makeRevert, selection.selectedRows],
+    [audit, finish, guarded, makeRevert, selection.selectedRows],
   );
 
   const runTags = useCallback(
@@ -187,9 +213,17 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
         const result = await bulkTags(client, c.table, selection.selectedRows, mode, tags);
         c.onRowsChanged(result.updates);
         const undo = makeRevert(selection.selectedRows, result.succeeded, ['tags'], undefined, 'undo_tags');
-        await finish(result, mode === 'add' ? 'Tagged' : 'Untagged', mode === 'add' ? 'bulk_tag_add' : 'bulk_tag_remove', { tags }, undo);
+        const rowsNow = selection.selectedRows;
+        const retry = async (ids: string[]) => {
+          const want = new Set(ids);
+          const r = await bulkTags(client, c.table, rowsNow.filter((x) => want.has(x.id)), mode, tags);
+          c.onRowsChanged(r.updates);
+          if (r.succeeded.length) await audit(mode === 'add' ? 'bulk_tag_add' : 'bulk_tag_remove', r.succeeded, { tags, retry: true });
+          return r;
+        };
+        await finish(result, mode === 'add' ? 'Tagged' : 'Untagged', mode === 'add' ? 'bulk_tag_add' : 'bulk_tag_remove', { tags }, undo, false, retry);
       }),
-    [finish, guarded, makeRevert, selection.selectedRows],
+    [audit, finish, guarded, makeRevert, selection.selectedRows],
   );
 
   const runDelete = useCallback(
@@ -217,8 +251,15 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
               return summarizeRestore(r, cfg.current.noun);
             }
           : undefined;
+        const labelById = new Map(deletable.map((r) => [r.id, c.getLabel(r)]));
+        const retry = async (ids: string[]) => {
+          // Retried rows land in Recently Deleted (30 days) like the first batch; they are not part of the Undo toast.
+          const r = await softDeleteRecords(rpcFn, c.table, ids.map((id) => ({ id, label: labelById.get(id) ?? '' })));
+          cfg.current.onRowsRemoved(r.succeeded);
+          return r;
+        };
         // The server already wrote the audit row (with labels + undo id) — don't log twice.
-        await finish(result, 'Deleted', 'bulk_delete', {}, undo, true);
+        await finish(result, 'Deleted', 'bulk_delete', {}, undo, true, retry);
       }),
     [finish, guarded, selection.selectedRows],
   );
@@ -266,7 +307,8 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
         description:
           `This removes the selected ${label} from your workspace and records it in your audit log. You'll have 10 seconds to undo.` +
           (protectedCount ? ` ${protectedCount} protected record${protectedCount === 1 ? '' : 's'} will be skipped.` : ''),
-        confirmPhrase: count >= 10 ? 'delete' : undefined,
+        // Soft delete + 10 s Undo + 30-day Trash = reversible → light confirm from 10, typed from 50 (see lib/trust/confirmTier).
+        confirmPhrase: decideTier({ reversible: true, count }) === 'typed' ? requiredPhrase({ count }) : undefined,
         confirmLabel: `Yes, delete ${count} ${label}`,
       };
     }
@@ -301,6 +343,32 @@ export function useBulkTable<T extends BulkRow>(config: BulkTableConfig<T>) {
         onExport={runExport}
         onDelete={() => setPending({ kind: 'delete' })}
       />
+      {report && (
+        <BulkResultPanel
+          result={report.result}
+          labelOf={(id) => {
+            const row = cfg.current.rows.find((r) => r.id === id);
+            return row ? cfg.current.getLabel(row) : id;
+          }}
+          onRetryFailed={
+            report.retry
+              ? async () => {
+                  const retry = report.retry as (ids: string[]) => Promise<BulkResult>;
+                  const merged = mergeRetry(report.result, await retry(report.result.failed.map((f) => f.id)));
+                  const s = summarizePartial(merged);
+                  setReport(merged.failed.length || merged.skipped.length ? { result: merged, retry } : null);
+                  toast(
+                    s.failed === 0
+                      ? tt('bulk.allDone', { succeeded: s.succeeded, requested: s.requested })
+                      : tt('bulk.partial', { succeeded: s.succeeded, failed: s.failed }),
+                    s.failed === 0 ? 'success' : 'error',
+                  );
+                }
+              : undefined
+          }
+          onDismiss={() => setReport(null)}
+        />
+      )}
       <ConfirmDialog
         open={pending !== null}
         title={confirmProps.title}
