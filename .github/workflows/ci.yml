@@ -28,6 +28,12 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Colour tokens (ratchet) + generated tokens up to date
+        run: |
+          npm run lint:colors
+          npm run tokens:build
+          git diff --exit-code -- src/styles docs/design/COLOR_TOKENS.md supabase/functions/_shared/brand-colors.ts
+
       - name: Typecheck
         run: npm run typecheck
 
