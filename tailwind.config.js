@@ -1,4 +1,5 @@
 import { tailwindTheme } from './scripts/color/tailwind-colors.mjs'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -20,7 +21,7 @@ export default {
         // the browser default size instead of the intended small-caps label.
         eyebrow: ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.02em' }],
       },
-      
+      // Colours are GENERATED from scripts/color/palette.mjs (OKLCH source of truth) — see docs/design/COLOR_TOKENS.md.
       ...tailwindTheme,
 
       borderRadius: {
