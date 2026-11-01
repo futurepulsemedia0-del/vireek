@@ -1,0 +1,18 @@
+{
+  "vireek-team": {
+    "name": "The Vireek Team",
+    "type": "organization",
+    "role": "Editorial team",
+    "bio": "Written by the people building Vireek, an AI receptionist and field-service platform for home service businesses.",
+    "credentials": [],
+    "url": "/about"
+  },
+  "author-1": {
+    "name": "TODO: Author name",
+    "type": "person",
+    "role": "TODO: Role / title",
+    "bio": "TODO: Two-sentence bio with real, verifiable experience in the trades or home-service operations.",
+    "credentials": ["TODO: Credential or licence, only if real"],
+    "url": ""
+  }
+}
