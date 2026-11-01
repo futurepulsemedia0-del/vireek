@@ -86,3 +86,5 @@ verify_jwt = false
 
 [functions.bi-sftp-upload]
 verify_jwt = false
+[functions.rum-ingest]
+verify_jwt = false
