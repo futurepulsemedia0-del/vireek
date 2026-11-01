@@ -25,7 +25,7 @@ function flatten(obj: Json, prefix = ''): Record<string, string> {
 
 const placeholders = (s: string) => (s.match(/\{\{\s*\w+\s*\}\}/g) ?? []).map((p) => p.replace(/\s/g, '')).sort();
 
-describe.each(['common', 'dashboard'])('%s namespace', (ns) => {
+describe.each(['common', 'dashboard', 'forms'])('%s namespace', (ns) => {
   const en = flatten(load('en', ns));
 
   it.each(codes.filter((c) => c !== 'en'))('%s has exactly the same keys as English', (code) => {
