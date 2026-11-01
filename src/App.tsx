@@ -506,8 +506,11 @@ const AboutPage = lazy(() => import('@/pages/AboutPage').then((m) => ({ default:
 const ManifestoPage = lazy(() => import('@/pages/ManifestoPage').then((m) => ({ default: m.ManifestoPage })));
 const LeadershipPage = lazy(() => import('@/pages/LeadershipPage').then((m) => ({ default: m.LeadershipPage })));
 const DeveloperDocsPage = lazy(() => import('@/pages/DeveloperDocsPage').then((m) => ({ default: m.DeveloperDocsPage })));
-const BlogPage = lazy(() => import('@/pages/BlogPage').then((m) => ({ default: m.BlogPage })));
-const BlogPostPage = lazy(() => import('@/pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
+const BlogIndexPage = lazy(() => import('@/pages/BlogIndexPage').then((m) => ({ default: m.BlogIndexPage })));
+const BlogArticlePage = lazy(() => import('@/pages/BlogArticlePage').then((m) => ({ default: m.BlogArticlePage })));
+const NewsletterConfirmPage = lazy(() =>
+  import('@/pages/NewsletterConfirmPage').then((m) => ({ default: m.NewsletterConfirmPage })),
+);
 const ReportPage = lazy(() => import('@/pages/ReportPage').then((m) => ({ default: m.ReportPage })));
 const PodcastPage = lazy(() => import('@/pages/PodcastPage').then((m) => ({ default: m.PodcastPage })));
 const GlossaryPage = lazy(() => import('@/pages/GlossaryPage').then((m) => ({ default: m.GlossaryPage })));
@@ -823,8 +826,11 @@ function AppRoutes() {
         <Route path="/manifesto" element={<ManifestoPage />} />
         <Route path="/leadership" element={<LeadershipPage />} />
         <Route path="/docs" element={<DeveloperDocsPage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/blog" element={<BlogIndexPage />} />
+        <Route path="/blog/category/:slug" element={<BlogIndexPage />} />
+        <Route path="/blog/:slug" element={<BlogArticlePage />} />
+        <Route path="/newsletter/confirm" element={<NewsletterConfirmPage mode="confirm" />} />
+        <Route path="/newsletter/unsubscribe" element={<NewsletterConfirmPage mode="unsubscribe" />} />
         <Route path="/dashboard/reputation" element={<ReputationPage />} />
         <Route path="/dashboard/listings" element={<ListingsPage />} />
         <Route path="/report" element={<ReportPage />} />
