@@ -12,8 +12,6 @@ import { AccessibilityProvider } from '@/contexts/AccessibilityContext';
 import { ConnectivityProvider } from '@/contexts/ConnectivityContext';
 import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { LanguagePersistenceSync } from '@/components/LanguagePersistenceSync';
-import { SiteAssistant } from '@/components/SiteAssistant';
-import { LiveChatWidget } from '@/components/LiveChatWidget';
 import { RouteEffects } from '@/components/nav/RouteEffects';
 import { RouteProgressBar } from '@/components/nav/RouteProgress';
 import { SessionGuard } from '@/components/session/SessionGuard';
@@ -32,23 +30,27 @@ import { isNative } from '@/lib/native/platform';
 import { hideNativeSplash } from '@/lib/native/shell';
 import { initInstallPrompt } from '@/lib/pwa/installPrompt';
 import { initSentry } from '@/lib/sentry';
+import { lazy } from 'react';
+import { installChunkRecovery } from '@/lib/chunkRecovery';
+import { registerServiceWorker } from '@/lib/pwa/swUpdate';
+import { initWebVitals } from '@/lib/perf/webVitals';
+import { IdleMount } from '@/components/system/LazyMount';
+
+const SiteAssistant = lazy(() => import('@/components/SiteAssistant').then((m) => ({ default: m.SiteAssistant })));
+const LiveChatWidget = lazy(() => import('@/components/LiveChatWidget').then((m) => ({ default: m.LiveChatWidget })));
 import { installChunkRecovery } from '@/lib/chunkRecovery';
 import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
 import './styles/print.css';
 
+initWebVitals();
 initSentry();
+installChunkRecovery();
 initNativeRuntime();
 initInstallPrompt(); // must run at boot: beforeinstallprompt fires only once, early
 
 // Register the push-notification service worker eagerly.
-if (!isNative() && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      // Non-fatal — push notifications just won't be available this session.
-    });
-  });
-}
+if (!isNative()) registerServiceWorker();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -75,7 +77,7 @@ createRoot(document.getElementById('root')!).render(
                       </AppLockGate>
                       <AccessibilityWidget />
                       <LanguagePersistenceSync />
-                      <SiteAssistant />
+                      <LiveChatWidget />
                       <LiveChatWidget />
                       <ConsentManager />
                     </ErrorBoundary>
