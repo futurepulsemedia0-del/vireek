@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import type { LanguageCode } from '@/lib/i18n';
 import { buildHreflangLinks, localizedUrl } from '@/lib/languageSync';
+import { BRAND, ogUrlFor } from '@/lib/brand/brandConfig';
 
 export interface SEOConfig {
   title: string;
@@ -14,8 +15,7 @@ export interface SEOConfig {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const SITE_NAME = 'Vireek';
-const DEFAULT_OG_IMAGE = 'https://vireek.com/og-image.png';
+const SITE_NAME = BRAND.name;
 
 /**
  * Open Graph locale codes for each of the 9 UI languages Vireek supports.
@@ -83,7 +83,7 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
     clearPrerenderedHead();
     const currentLocale = OG_LOCALE_MAP[language] ?? 'en_US';
     const pageUrl = localizedUrl(canonical, language);
-    
+    const ogImage = ogUrlFor(canonical);
     document.title = title;
 
     const cleanups = [
@@ -96,6 +96,9 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
       upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonical),
       upsertMeta('meta[property="og:site_name"]', 'property', 'og:site_name', SITE_NAME),
       upsertMeta('meta[property="og:image"]', 'property', 'og:image', DEFAULT_OG_IMAGE),
+      upsertMeta('meta[property="og:image:width"]', 'property', 'og:image:width', '1200'),
+      upsertMeta('meta[property="og:image:height"]', 'property', 'og:image:height', '630'),
+      upsertMeta('meta[property="og:image:alt"]', 'property', 'og:image:alt', title),
       upsertMeta('meta[property="og:locale"]', 'property', 'og:locale', currentLocale),
       upsertMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image'),
       upsertMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title),
