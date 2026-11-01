@@ -69,6 +69,16 @@ async function handleGenerate(admin: SupabaseClient, user: AuthedUser, token: st
   const { error: insError } = await admin.from("mfa_recovery_codes").insert(rows);
   if (insError) return json({ error: "DB_ERROR", detail: "Could not save your recovery codes." }, 500);
 
+  try {
+    await admin.rpc("record_security_event", {
+      p_user_id: user.id,
+      p_event: "recovery_codes_regenerated",
+      p_meta: {},
+      p_dedupe_key: `rc:${user.id}:${crypto.randomUUID()}`,
+    });
+  } catch (e) {
+    console.error(JSON.stringify({ event: "recovery_codes_alert_failed", error: e instanceof Error ? e.message.slice(0, 120) : "unknown" }));
+  }
   return json({ codes: plain.map(formatCode), remaining: plain.length });
 }
 
