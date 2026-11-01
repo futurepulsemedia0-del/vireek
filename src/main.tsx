@@ -32,6 +32,7 @@ import { isNative } from '@/lib/native/platform';
 import { hideNativeSplash } from '@/lib/native/shell';
 import { initInstallPrompt } from '@/lib/pwa/installPrompt';
 import { initSentry } from '@/lib/sentry';
+import { installChunkRecovery } from '@/lib/chunkRecovery';
 import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
 import './styles/print.css';
