@@ -18,6 +18,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { ACCENT_COLORS, CTA_COLORS, SEMANTIC_COLORS, NEUTRAL_COLORS, COLOR_DOS, COLOR_DONTS, type ColorToken } from './brandPalette';
 
 /**
  * Brand Guidelines / Style Guide — public reference for partners, media,
@@ -26,48 +27,9 @@ import { useSEO } from '@/lib/seo';
  * pulled from the same source of truth the app itself uses —
  * tailwind.config.js and the CSS custom properties in src/index.css —
  * so this page can never silently drift out of sync with the real
- * product. If those files change, update the constants below to match.
+ * product. The palette itself lives in ./brandPalette.ts and is read from
+ * src/styles/tokens.generated.ts (generated from scripts/color/palette.mjs).
  */
-
-interface ColorToken {
-  name: string;
-  lightHex: string;
-  darkHex?: string;
-  usage: string;
-}
-
-const ACCENT_COLORS: ColorToken[] = [
-  { name: 'Accent — Default (light mode)', lightHex: '#203AD8', usage: 'Primary buttons, links, active states' },
-  { name: 'Accent — Default (dark mode)', lightHex: '#6C82FF', usage: 'Same role, tuned for dark backgrounds' },
-  { name: 'Accent 50', lightHex: '#EEF1FF', usage: 'Tinted backgrounds, badges' },
-  { name: 'Accent 400', lightHex: '#5E72F5', usage: 'Hover accents, icons' },
-  { name: 'Accent 700', lightHex: '#1A2FAE', usage: 'Hover state for primary buttons' },
-  { name: 'Accent 950', lightHex: '#0D1440', usage: 'High-contrast text on light accent tints' },
-];
-
-const CTA_COLORS: ColorToken[] = [
-  { name: 'CTA — Default (light mode)', lightHex: '#D6582A', usage: 'Live/urgent moments only — never a generic CTA' },
-  { name: 'CTA — Default (dark mode)', lightHex: '#FF8A5A', usage: 'Same role, tuned for dark backgrounds' },
-  { name: 'CTA 50', lightHex: '#FDF3EE', usage: 'Tinted backgrounds for alerts' },
-  { name: 'CTA 500', lightHex: '#D6582A', usage: 'Active-call and emergency-detection indicators' },
-];
-
-const SEMANTIC_COLORS: ColorToken[] = [
-  { name: 'Success (light)', lightHex: '#168458', usage: 'Confirmations, positive states' },
-  { name: 'Success (dark)', lightHex: '#4AC78C', usage: 'Same role, dark mode' },
-  { name: 'Danger (light)', lightHex: '#C83030', usage: 'Errors, destructive actions' },
-  { name: 'Danger (dark)', lightHex: '#F06464', usage: 'Same role, dark mode' },
-  { name: 'Warning (light)', lightHex: '#B46A14', usage: 'Caution states' },
-  { name: 'Warning (dark)', lightHex: '#EBAA46', usage: 'Same role, dark mode' },
-];
-
-const NEUTRAL_COLORS: ColorToken[] = [
-  { name: 'Background Primary (light)', lightHex: '#FDFCFA', darkHex: '#090A0D', usage: 'Page background' },
-  { name: 'Background Secondary (light)', lightHex: '#FFFFFF', darkHex: '#101115', usage: 'Cards, panels' },
-  { name: 'Text Primary (light)', lightHex: '#17171A', darkHex: '#F2F1EE', usage: 'Headings, body copy' },
-  { name: 'Text Secondary (light)', lightHex: '#676770', darkHex: '#9A9AA3', usage: 'Supporting copy' },
-  { name: 'Border (light)', lightHex: '#E7E5E0', darkHex: '#25252C', usage: 'Dividers, card borders' },
-];
 
 const LOGO_DONT: { title: string; body: string }[] = [
   { title: 'Recolor the mark', body: 'Never change the logo colors, apply gradients, or place it on a clashing background.' },
@@ -129,7 +91,7 @@ function ColorSwatch({ token }: { token: ColorToken }) {
         className="flex h-20 w-full items-end justify-end p-2.5"
         style={{ backgroundColor: token.lightHex }}
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-black/20 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-overlay/20 text-static-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
           {copied ? <Check size={14} /> : <Copy size={14} />}
         </span>
       </span>
@@ -226,13 +188,13 @@ export function BrandGuidelinesPage() {
             </motion.div>
 
             <div className="mt-12 grid gap-6 sm:grid-cols-2">
-              <Card className="flex flex-col items-center justify-center gap-6 !bg-white py-16">
+              <Card className="flex flex-col items-center justify-center gap-6 !bg-static-white py-16">
                 <img src="/assets/logos/logo-dark.png" alt="Vireek logo, dark version" className="h-20 w-20 object-contain" />
-                <span className="text-sm font-medium text-neutral-500">On light backgrounds</span>
+                <span className="text-sm font-medium text-static-black/60">On light backgrounds</span>
               </Card>
-              <Card className="flex flex-col items-center justify-center gap-6 !bg-[#0A0A0C] py-16">
+              <Card className="flex flex-col items-center justify-center gap-6 !bg-surface-inverse py-16">
                 <img src="/assets/logos/logo-light.png" alt="Vireek logo, light version" className="h-20 w-20 object-contain" />
-                <span className="text-sm font-medium text-neutral-400">On dark backgrounds</span>
+                <span className="text-sm font-medium text-on-inverse-muted">On dark backgrounds</span>
               </Card>
             </div>
 
@@ -292,6 +254,31 @@ export function BrandGuidelinesPage() {
             <ColorSection eyebrow="Reserved" title="Signal Copper — Live &amp; urgent moments only" tokens={CTA_COLORS} />
             <ColorSection eyebrow="Semantic" title="Success, danger &amp; warning" tokens={SEMANTIC_COLORS} />
             <ColorSection eyebrow="Neutrals" title="Backgrounds, text &amp; borders" tokens={NEUTRAL_COLORS} />
+
+            <div className="mt-14 grid gap-6 md:grid-cols-2">
+              <Card className="p-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-success">Do</p>
+                <ul className="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary">
+                  {COLOR_DOS.map((t) => (
+                    <li key={t} className="flex gap-2">
+                      <Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+              <Card className="p-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-danger">Don&apos;t</p>
+                <ul className="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary">
+                  {COLOR_DONTS.map((t) => (
+                    <li key={t} className="flex gap-2">
+                      <X size={16} className="mt-0.5 shrink-0 text-danger" aria-hidden="true" />
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            </div>
 
             <p className="mt-8 text-center text-sm text-text-secondary">
               Signal Copper is reserved for active-call and emergency-detection states across the
@@ -433,7 +420,7 @@ export function BrandGuidelinesPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">
