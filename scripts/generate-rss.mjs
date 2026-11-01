@@ -95,17 +95,7 @@ function buildRss({ title, description, link, feedPath, items }) {
 }
 
 async function main() {
-  const { BLOG_POSTS } = await loadTsModule('src/lib/blog.ts');
   const { CHANGELOG_RELEASES } = await loadTsModule('src/lib/changelog.ts');
-
-  const blogItems = [...BLOG_POSTS]
-    .sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate))
-    .map((post) => ({
-      title: post.title,
-      link: `${SITE_URL}/blog/${post.slug}`,
-      date: post.publishedDate,
-      description: post.excerpt,
-    }));
 
   const changelogItems = CHANGELOG_RELEASES.map((release) => ({
     title: `Update — ${release.date}`,
@@ -137,7 +127,6 @@ async function main() {
     })
   );
 
-  console.log(`Generated public/blog-rss.xml (${blogItems.length} posts)`);
   console.log(`Generated public/changelog-rss.xml (${changelogItems.length} releases)`);
 }
 
