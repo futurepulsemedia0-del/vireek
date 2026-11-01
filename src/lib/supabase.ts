@@ -3,6 +3,7 @@ import type { PlanId } from '@/lib/pricing';
 import type { WorkflowStatus } from '@/lib/jobWorkflow';
 import { isNative } from '@/lib/native/platform';
 import { nativeAuthStorage } from '@/lib/native/secureStorage';
+import { resilientFetch } from '@/lib/net/resilientFetch';
 import { createReauthFetch } from '@/lib/session/reauthFetch';
 import { reauthGate } from '@/lib/session/reauthGate';
 import { installSignOutIntent } from '@/lib/session/signOutIntent';
@@ -37,6 +38,7 @@ export const supabase = createClient(
       detectSessionInUrl: true,
       experimental: { passkey: true },
     },
+    global: { fetch: resilientFetch },
   },
 );
 
