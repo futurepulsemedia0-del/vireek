@@ -94,7 +94,7 @@ export function robotsDisallowRules() {
 }
 
 /** Bundles a TS data module with esbuild so we read the exact data the site renders. UI deps are stubbed. */
-async function loadTsModule(relativePath) {
+export async function loadTsModule(relativePath) {
   const result = await esbuild.build({
     entryPoints: [path.join(ROOT, relativePath)],
     bundle: true,
