@@ -39,6 +39,7 @@ import enDashboard from '@/locales/en/dashboard.json';
 import enTrust from '@/locales/en/trust.json';
 import faTrust from '@/locales/fa/trust.json';
 import { registerLazyLocales } from '@/i18n/lazyLocales';
+import { registerProductivityLocales } from '@/i18n/productivityLocales';
 
 function getInitialLanguage(): string {
   return resolveInitialLanguage();
@@ -68,4 +69,5 @@ void i18n.use(initReactI18next).init({
 });
 
 registerLazyLocales(i18n);
+registerProductivityLocales(i18n);
 export default i18n;
