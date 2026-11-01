@@ -26,7 +26,7 @@ export default tseslint.config(
     // Formatting policy: use @/lib/format (or useFormat()). CI enforces a ratchet via
     // `npm run lint:locale`; this rule gives immediate editor feedback.
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/lib/format.ts', 'src/lib/regional.ts', 'src/lib/timezone.ts', '**/*.test.{ts,tsx}'],
+    ignores: ['src/lib/format.ts', 'src/lib/regional.ts', 'src/lib/timezone.ts', 'src/styles/tokens.generated.ts', '**/*.test.{ts,tsx}'],
     rules: {
       'no-restricted-syntax': [
         'warn',
@@ -37,6 +37,16 @@ export default tseslint.config(
         {
           selector: "NewExpression[callee.object.name='Intl'][callee.property.name=/^(NumberFormat|DateTimeFormat|RelativeTimeFormat|ListFormat)$/]",
           message: 'Do not construct Intl formatters directly. Use the helpers in @/lib/format.',
+        },
+        // Colour tokens only. WARN while legacy literals (canvas/PDF/email/tenant data) are retired; the hard gate is
+        // `npm run lint:colors` (ratchet baseline). Flip 'warn' to 'error' once scripts/color/color-baseline.json is {}.
+        {
+          selector: 'Literal[value=/#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\\b/]',
+          message: 'Use a colour token (rgb(var(--…)) or a semantic Tailwind class), not a hex literal. See docs/design/COLOR_TOKENS.md.',
+        },
+        {
+          selector: 'Literal[value=/\\b(?:rgba?|hsla?)\\(\\s*[0-9]/]',
+          message: 'Use rgb(var(--token)) instead of rgb()/hsl() literals.',
         },
       ],
     },
