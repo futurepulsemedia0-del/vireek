@@ -1,0 +1,74 @@
+{
+  "forms": {
+    "errors": {
+      "required": "Please fill this in to continue.",
+      "checkAndRetry": "Please check this field and try again.",
+      "tooShort": "Use at least {{min}} characters.",
+      "tooLong": "Keep it to {{max}} characters or fewer.",
+      "tooSmall": "Enter {{min}} or more.",
+      "tooBig": "Enter {{max}} or less.",
+      "email": "That email looks incomplete — try name@company.com.",
+      "emailRequired": "Enter your email so we can reach you.",
+      "phoneRequired": "Enter a phone number so we can reach you.",
+      "phoneTooShort": "That number looks too short — include the area code.",
+      "phoneInvalid": "That doesn't look like a valid phone number — check the digits, or start with + and the country code.",
+      "amountRequired": "Enter an amount.",
+      "amountInvalid": "Use numbers only, for example 1,250.00.",
+      "amountTooSmall": "The amount must be at least {{min}}.",
+      "amountTooBig": "The amount can't be more than {{max}}.",
+      "percentRequired": "Enter a percentage.",
+      "percentRange": "Enter a percentage between {{min}} and {{max}}.",
+      "dateRequired": "Enter a date.",
+      "dateIncomplete": "Enter the full date, including the year.",
+      "dateInvalid": "That date doesn't exist — check the day and month.",
+      "dateTooEarly": "Choose a date on or after {{date}}.",
+      "dateTooLate": "Choose a date on or before {{date}}.",
+      "postalRequired": "Enter your ZIP or postal code.",
+      "postalInvalid": "That postal code doesn't match the expected format.",
+      "licenseRequired": "Enter the license number.",
+      "licenseInvalid": "License numbers use {{min}}–{{max}} letters, numbers or dashes.",
+      "consentRequired": "Please tick this box to continue."
+    },
+    "summary": {
+      "title": "Fix the highlighted fields to continue ({{count}})"
+    },
+    "submit": {
+      "saving": "Saving…",
+      "failed": "We couldn't save this. Check your connection and try again — it won't be submitted twice.",
+      "offline": "You're offline. Reconnect and press the button again — it will only be sent once."
+    },
+    "draft": {
+      "prompt": "Restore your draft from {{when}}?",
+      "restore": "Restore",
+      "discard": "Discard"
+    },
+    "unsaved": {
+      "title": "Save your changes?",
+      "body": "You have changes that haven't been saved yet.",
+      "bodyCanSave": "You have changes that haven't been saved yet. Save them before leaving?",
+      "save": "Save",
+      "discard": "Discard",
+      "stay": "Keep editing",
+      "saving": "Saving…"
+    },
+    "autosave": {
+      "saving": "Saving…",
+      "saved": "Saved {{when}}",
+      "savedJustNow": "Saved just now",
+      "offline": "Offline — will save when you're connected",
+      "error": "Couldn't save",
+      "retry": "Retry"
+    },
+    "combobox": {
+      "loading": "Searching…",
+      "empty": "No matches found",
+      "error": "Couldn't load suggestions",
+      "retry": "Retry",
+      "recent": "Recent",
+      "results": "Results available: {{count}}"
+    },
+    "help": {
+      "whyWeAsk": "Why we ask"
+    }
+  }
+}
