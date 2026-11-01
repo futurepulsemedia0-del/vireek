@@ -1,3 +1,4 @@
+import { renderEmail } from "../_shared/email-kit/layout.ts";
 // supabase/functions/send-comment-email/index.ts
 //
 // Emails the person a comment notification (@mention or thread reply) is for.
@@ -89,17 +90,16 @@ Deno.serve(async (req: Request) => {
     const path = typeof n.action_url === "string" && n.action_url.startsWith("/") ? n.action_url : "/dashboard";
     const link = `${siteUrl}${path}`;
 
-    const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f5f6f8;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111827">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center">
-<table role="presentation" width="560" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:16px;padding:28px">
-<tr><td>
-<p style="margin:0 0 6px;font-size:13px;color:#6b7280">Vireek · Comments</p>
-<h1 style="margin:0 0 16px;font-size:18px;line-height:1.35">${esc(n.title)}</h1>
-<p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:#374151;white-space:pre-wrap">${esc(n.message)}</p>
-<a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:12px">Open the conversation</a>
-<p style="margin:24px 0 0;font-size:12px;color:#9ca3af">You get this because you were mentioned or are part of the thread. Turn it off in Vireek under Settings → Notifications.</p>
-</td></tr></table></td></tr></table></body></html>`;
-    const text = `${n.title}\n\n${n.message}\n\nOpen the conversation: ${link}\n\nTurn these emails off in Vireek under Settings → Notifications.`;
+    c  const mail = renderEmail({
+    subject: n.title,
+    preheader: n.message.replace(/\s+/g, " ").slice(0, 90),
+    title: n.title,
+    body: n.message,
+    severity: "info",
+    action: { label: "Open the conversation", url: link },
+    siteUrl,
+    extraFooterLines: ["You get this because you were mentioned or are part of the thread. Turn it off in Vireek under Settings → Notifications."],
+  });
 
     const result = await sendEmail(to, n.title, html, text);
     if (!result.ok) {
