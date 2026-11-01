@@ -22,6 +22,7 @@
     "sitemap:locations": "node scripts/generate-locations-sitemap.mjs",
     "lint:migrations": "node scripts/lint-migrations.mjs",
     "check:bundle": "node scripts/check-bundle-size.mjs",
+    "check:assets": "node scripts/check-asset-budget.mjs",
     "docs:inventory": "node scripts/gen-docs-inventory.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
