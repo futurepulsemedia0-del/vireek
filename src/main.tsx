@@ -1,7 +1,7 @@
-import { BrowserRouter } from 'react-router-dom';
-import { StrictMode } from 'react';
+import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
+import { DataRouterShell } from '@/components/system/DataRouterShell';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { UndoProvider } from '@/contexts/UndoContext';
@@ -30,18 +30,16 @@ import { isNative } from '@/lib/native/platform';
 import { hideNativeSplash } from '@/lib/native/shell';
 import { initInstallPrompt } from '@/lib/pwa/installPrompt';
 import { initSentry } from '@/lib/sentry';
-import { lazy } from 'react';
 import { installChunkRecovery } from '@/lib/chunkRecovery';
 import { registerServiceWorker } from '@/lib/pwa/swUpdate';
 import { initWebVitals } from '@/lib/perf/webVitals';
 import { IdleMount } from '@/components/system/LazyMount';
-
-const SiteAssistant = lazy(() => import('@/components/SiteAssistant').then((m) => ({ default: m.SiteAssistant })));
-const LiveChatWidget = lazy(() => import('@/components/LiveChatWidget').then((m) => ({ default: m.LiveChatWidget })));
-import { installChunkRecovery } from '@/lib/chunkRecovery';
 import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
 import './styles/print.css';
+
+const SiteAssistant = lazy(() => import('@/components/SiteAssistant').then((m) => ({ default: m.SiteAssistant })));
+const LiveChatWidget = lazy(() => import('@/components/LiveChatWidget').then((m) => ({ default: m.LiveChatWidget })));
 
 initWebVitals();
 initSentry();
@@ -54,7 +52,7 @@ if (!isNative()) registerServiceWorker();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <DataRouterShell>
       <RouteEffects />
       <RouteProgressBar />
       <BootDismiss />
@@ -65,32 +63,33 @@ createRoot(document.getElementById('root')!).render(
             <CurrencyProvider>
               <ToastProvider>
                 <UndoProvider>
-                <ConnectivityProvider>
-                  <AuthProvider>
-                  <SessionGuard />
-                    <RegionalProvider>
-                    <ErrorBoundary>
-                    <AppLockGate>
-                      <ConnectivityShell>
-                        <App />
-                      </ConnectivityShell>
-                      </AppLockGate>
-                      <AccessibilityWidget />
-                      <LanguagePersistenceSync />
-                      <LiveChatWidget />
-                      <LiveChatWidget />
-                      <ConsentManager />
-                    </ErrorBoundary>
-                    </RegionalProvider>
-                  </AuthProvider>
-                </ConnectivityProvider>
+                  <ConnectivityProvider>
+                    <AuthProvider>
+                      <SessionGuard />
+                      <RegionalProvider>
+                        <ErrorBoundary>
+                          <AppLockGate>
+                            <ConnectivityShell>
+                              <App />
+                            </ConnectivityShell>
+                          </AppLockGate>
+                          <AccessibilityWidget />
+                          <LanguagePersistenceSync />
+                          <Suspense fallback={null}>
+                            <LiveChatWidget />
+                          </Suspense>
+                          <ConsentManager />
+                        </ErrorBoundary>
+                      </RegionalProvider>
+                    </AuthProvider>
+                  </ConnectivityProvider>
                 </UndoProvider>
               </ToastProvider>
             </CurrencyProvider>
           </ExperimentProvider>
         </AccessibilityProvider>
       </ThemeProvider>
-    </BrowserRouter>
+    </DataRouterShell>
   </StrictMode>,
 );
 
