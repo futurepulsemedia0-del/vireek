@@ -23,7 +23,18 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Vireek" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#4F46E5" />
+  <meta name="theme-color" content="#FDFCFA" />
+    <script>
+      (function () {
+        try {
+          var p = localStorage.getItem('vireek-theme');
+          var d = p === 'dark' || ((p === null || p === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', d ? '#090A0D' : '#FDFCFA');
+          if (d) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
 
     <!-- Open Graph (Facebook, LinkedIn, WhatsApp, iMessage...) -->
     <meta property="og:type" content="website" />
