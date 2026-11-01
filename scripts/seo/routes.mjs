@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import { loadBlog } from '../blog/pipeline.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..', '..');
@@ -28,7 +29,7 @@ export const STATIC_PUBLIC_PATHS = [
 
 /** Routes whose pages come from data modules (one URL per slug). */
 export const DATA_ROUTE_PATTERNS = [
-  '/blog/:slug', '/industries/:slug', '/compare/:slug', '/integrations/:slug', '/switch/:slug',
+  '/blog/:slug', '/blog/category/:slug', '/industries/:slug', '/compare/:slug', '/integrations/:slug', '/switch/:slug',
   '/locations/:slug',
 ];
 
@@ -40,13 +41,13 @@ export const PRIVATE_PREFIXES = ['/dashboard', '/tech', '/staff', '/partner-port
 export const PRIVATE_EXACT = [
   '/login', '/signup', '/forgot-password', '/reset-password', '/sso-login', '/pay-result',
   '/status/unsubscribe', '/badge', '/sandbox', '/community', '/ambassador', '/onboarding-guide',
-  '/academy', '/academy/certificate', '*',
+  '/academy', '/academy/certificate','/newsletter/confirm', '/newsletter/unsubscribe', '*',
 ];
 
 /** Exact private pages that robots.txt should also disallow (the rest are just kept out of the sitemap). */
 export const ROBOTS_DISALLOW_EXACT = [
   '/login', '/signup', '/forgot-password', '/reset-password', '/sso-login', '/pay-result',
-  '/status/unsubscribe',
+  '/status/unsubscribe', '/newsletter/confirm', '/newsletter/unsubscribe',
 ];
 /** Token routes we deliberately do NOT disallow in robots.txt. */
 export const ROBOTS_ALLOWED_TOKEN_PREFIXES = ['/book/'];
@@ -157,7 +158,7 @@ export async function collectRoutes() {
     if (entries.has(p)) throw new Error(`[seo] duplicate route: ${p}`);
     entries.set(p, { path: p, kind, ...(lastmod ? { lastmod } : {}) });
   };
-  const newestPost = newest(blog.BLOG_POSTS.map((p) => toIsoDate(p.publishedDate)));
+  newest(blog.posts.map((p) => toIsoDate(p.updatedAt)))
 
   for (const p of STATIC_PUBLIC_PATHS) {
     add(p, 'static', p === '/blog' ? newestPost : p === '/changelog' ? changelogDate : undefined);
@@ -170,7 +171,11 @@ export async function collectRoutes() {
       add(`${base}/${item.slug}`, kind, lastmodOf?.(item));
     }
   };
-  dynamic(blog.BLOG_POSTS, '/blog', 'blog', (p) => toIsoDate(p.publishedDate));
+dynamic(blog.posts, '/blog', 'blog', (p) => toIsoDate(p.updatedAt));
+const usedCategories = blog.categories.filter((c) => blog.posts.some((p) => p.category === c.slug));
+dynamic(usedCategories, '/blog/category', 'blog-category', (c) =>
+  newest(blog.posts.filter((p) => p.category === c.slug).map((p) => toIsoDate(p.updatedAt))),
+);
   dynamic(industries.INDUSTRIES, '/industries', 'industry');
   dynamic(competitors.COMPETITORS, '/compare', 'compare');
   dynamic(integrations.INTEGRATIONS, '/integrations', 'integration');
