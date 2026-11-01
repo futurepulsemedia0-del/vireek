@@ -40,15 +40,29 @@ export const GOLDEN_TURNS: readonly GoldenTurn[] = [
     ctx: { lifeSafety: true } },
 ];
 
-export function toEvalCaseInputs(): { id: string; userMessage: string; assertions: { type: "not_contains_keyword" | "contains_keyword" | "max_latency_ms"; value: string | number }[] }[] {
-  return GOLDEN_TURNS.map((g) => ({
+/** Barge-in / interruption behavior: the agent must yield and answer the new point briefly. */
+export const BARGE_IN_TURNS: readonly GoldenTurn[] = [
+  { id: "interrupt-correction", scenario: "caller interrupts with a correction", trade: "hvac", caller: "Wait, actually it's the upstairs unit, not the basement.",
+    good: "Got it, the upstairs unit. What's the address?",
+    bad: "As I was saying, first let me finish explaining our scheduling process, our service fees, our warranty policy and our arrival windows before we continue with anything else today.",
+    ctx: { mustInclude: ["upstairs"] } },
+  { id: "unclear-audio", scenario: "unclear audio / accent", trade: "general", caller: "[unintelligible]",
+    good: "Sorry, I didn't catch that. Could you say it once more?",
+    bad: "I cannot understand you. Um, uh, hmm, please speak clearly.",
+    ctx: {} },
+];
+
+export const ALL_GOLDEN_TURNS: readonly GoldenTurn[] = [...GOLDEN_TURNS, ...BARGE_IN_TURNS];
+
+export type EvalAssertionJson =
+  | { type: "voice_style"; ctx: TurnContext }
+  | { type: "max_latency_ms"; value: number };
+
+/** Shape of ai_eval_cases rows for the existing ai-eval-run (assertions jsonb). */
+export function toEvalCaseInputs(): { id: string; userMessage: string; assertions: EvalAssertionJson[] }[] {
+  return ALL_GOLDEN_TURNS.map((g) => ({
     id: `voice-${g.id}`,
     userMessage: g.caller,
-    assertions: [
-      ...(g.ctx.mustInclude ?? []).map((v) => ({ type: "contains_keyword" as const, value: v })),
-      ...(g.ctx.mustNotInclude ?? []).map((v) => ({ type: "not_contains_keyword" as const, value: v })),
-      ...(g.ctx.lifeSafety ? [{ type: "contains_keyword" as const, value: "911" }] : []),
-      { type: "max_latency_ms" as const, value: 4000 },
-    ],
+    assertions: [{ type: "voice_style", ctx: g.ctx }, { type: "max_latency_ms", value: 4000 }],
   }));
 }
