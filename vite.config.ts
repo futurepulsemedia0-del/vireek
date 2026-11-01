@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import vireekBlog from './scripts/blog/vite-plugin.mjs'
 
 /// <reference types="vitest/config" />
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), vireekBlog()],
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
