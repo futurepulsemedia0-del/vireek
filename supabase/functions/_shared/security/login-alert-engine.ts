@@ -1,7 +1,8 @@
 // Pure, dependency-free logic for new-device / new-location login alerts.
 // No Deno / Node / network APIs beyond Web Crypto, so it runs unchanged in
 // the `login-alert` edge function and under Vitest (src/lib/loginAlert.test.ts).
-
+import { toEmail } from '../email-kit/notification.ts';
+import { buildSecurityNotification } from '../email-kit/securityTemplates.ts';
 export interface GeoInfo {
   country: string | null; // ISO-3166 alpha-2, upper-case
   region: string | null;
@@ -210,38 +211,23 @@ export function alertReason(i: Pick<AlertEmailInput, 'isNewDevice' | 'isNewLocat
 }
 
 export function buildAlertEmail(i: AlertEmailInput): { subject: string; html: string; text: string } {
-  const when = `${i.whenUtc.toISOString().slice(0, 16).replace('T', ' ')} UTC`;
-  const reason = alertReason(i);
   const subject = i.isNewDevice ? 'New device signed in to your Vireek account' : 'Sign-in from a new location on your Vireek account';
-  const rows: Array<[string, string]> = [
-    ['Device', i.deviceLabel],
-    ['Method', i.methodLabel],
-    ['Location', i.location],
-    ['Network', i.ipMasked ?? 'Unknown'],
-    ['Time', when],
-  ];
-  const text =
-    `We noticed a sign-in to your Vireek account from ${reason}.\n\n` +
-    rows.map(([k, v]) => `${k}: ${v}`).join('\n') +
-    `\n\nIf this was you, no action is needed.\n` +
-    `If it wasn't, secure your account now: ${i.securityUrl}\n` +
-    `(Sign out other sessions, remove unknown passkeys and trusted devices, and change your password.)\n`;
-  const rowHtml = rows
-    .map(
-      ([k, v]) =>
-        `<tr><td style="padding:6px 16px 6px 0;color:#64748b;font-size:14px">${escapeHtml(k)}</td>` +
-        `<td style="padding:6px 0;color:#0f172a;font-size:14px;font-weight:600">${escapeHtml(v)}</td></tr>`,
-    )
-    .join('');
-  const html =
-    `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px">` +
-    `<h2 style="margin:0 0 8px;font-size:20px;color:#0f172a">New sign-in to your account</h2>` +
-    `<p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.5">We noticed a sign-in from ${escapeHtml(reason)}.</p>` +
-    `<table role="presentation" style="border-collapse:collapse;margin-bottom:20px">${rowHtml}</table>` +
-    `<p style="margin:0 0 16px;color:#334155;font-size:15px">If this was you, no action is needed.</p>` +
-    `<a href="${escapeHtml(i.securityUrl)}" style="display:inline-block;background:#0f172a;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600">This wasn’t me — secure my account</a>` +
-    `<p style="margin:20px 0 0;color:#94a3b8;font-size:12px;line-height:1.5">You can sign out other sessions and remove unknown passkeys or trusted devices from Security settings.</p>` +
-    `</div>`;
+  const n = buildSecurityNotification('new_sign_in', {
+    whenUtc: i.whenUtc,
+    device: i.deviceLabel,
+    location: i.location,
+    ipMasked: i.ipMasked ?? 'Unknown',
+    reason: alertReason(i),
+  });
+  // Sign-in method is specific to this event; keep it in the facts table, right after the device.
+  const facts = n.facts ?? [];
+  const at = facts.findIndex(([k]) => k === 'Device') + 1;
+  facts.splice(at, 0, ['Method', i.methodLabel]);
+  const origin = new URL(i.securityUrl).origin;
+  const { html, text } = toEmail(
+    { ...n, facts, notYou: n.notYou ? { ...n.notYou, action: { ...n.notYou.action, url: i.securityUrl } } : undefined },
+    { siteUrl: origin, subject },
+  );
   return { subject, html, text };
 }
 
