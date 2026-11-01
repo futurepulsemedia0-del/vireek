@@ -1,5 +1,6 @@
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 import { buildRecordingConsentNotice } from "../_shared/compliance/recordingConsent.ts";
+import { buildVoicePersonaContext, resolveTrade } from "../_shared/voice-brand/persona.ts";
 import { trackLiveCallEvent } from "../_shared/live-calls/runtime.ts";
 import { buildPorts } from "../_shared/pci/ports.ts";
 import { startPhonePayment } from "../_shared/pci/orchestrator.ts";
@@ -696,6 +697,17 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
    const disclosurePlan = await planDisclosure(admin, { userId: tenant.userId, vapiCallId: message.call?.id ?? null, callerLanguage: voiceLanguage.language });
   // Voice Platform: "" for home-services accounts (and on any error), so existing prompts are unaffected.
   const verticalContext = await loadVerticalContext(admin, tenant.userId, tenant.voiceAssistantId ?? null);
+    // Voice brand: single-source persona block ("" on any error → prompt unchanged).
+  let voicePersonaContext = "";
+  try {
+    const { data: bp } = await admin.from("business_profile").select("primary_industry").eq("user_id", tenant.userId).maybeSingle();
+    voicePersonaContext = buildVoicePersonaContext({
+      trade: resolveTrade((bp as { primary_industry?: string | null } | null)?.primary_industry),
+      assistantName: tenant.assistantName ?? undefined,
+    });
+  } catch (err) {
+    console.error("[voice-persona] failed, continuing without it:", err);
+  }
 
   logEvent("assistant_request_resolved", requestId, {
     user_id: tenant.userId,
@@ -714,6 +726,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     language_context: voiceLanguage.context,
     service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regional)].filter(Boolean).join(" "),
     vertical_context: verticalContext,
+    voice_persona: voicePersonaContext,
      ai_disclosure: disclosurePlan?.text ?? "",
   };
 
