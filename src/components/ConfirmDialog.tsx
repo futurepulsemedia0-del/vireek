@@ -1,7 +1,9 @@
 import { useFocusTrap, useEscapeToClose } from '@/lib/a11y/focusTrap';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { TriangleAlert as AlertTriangle, X } from 'lucide-react';
+import { useTrustT } from '@/hooks/useTrustT';
+import { phraseMatches } from '@/lib/trust/confirmTier';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -10,6 +12,10 @@ interface ConfirmDialogProps {
   /** The exact phrase the user must type back, e.g. "delete this job". Omit for a simple two-button confirm. */
   confirmPhrase?: string;
   confirmLabel?: string;
+  /** Exact consequences, e.g. ["Delete 12 jobs", "and 4 invoices"] (build with formatConsequences). */
+  consequences?: string[];
+  /** true = restorable from Recently Deleted (30 days); false = permanent. Omit to show neither. */
+  recoverable?: boolean;
   onConfirm: () => void | Promise<void>;
   onCancel: () => void;
 }
@@ -26,16 +32,25 @@ export function ConfirmDialog({
   title,
   description,
   confirmPhrase,
-  confirmLabel = 'Yes, delete this',
+  confirmLabel,
+  consequences,
+  recoverable,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const { t } = useTrustT();
   const [typed, setTyped] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const dialogRef = useFocusTrap(open);
   useEscapeToClose(open, onCancel);
 
-  const canConfirm = confirmPhrase ? typed.trim().toLowerCase() === confirmPhrase.toLowerCase() : true;
+  // Never carry a half-typed phrase into the next time the dialog opens.
+  useEffect(() => {
+    if (!open) setTyped('');
+  }, [open]);
+
+  // Locale-safe: Persian/Arabic letter variants, digits, ZWNJ, case and spacing are normalised.
+  const canConfirm = confirmPhrase ? phraseMatches(typed, confirmPhrase) : true;
 
   const handleConfirm = async () => {
     if (!canConfirm || submitting) return;
@@ -93,15 +108,30 @@ export function ConfirmDialog({
               {description}
             </p>
 
+            {consequences && consequences.length > 0 && (
+              <ul className="mt-3 space-y-1 rounded-xl bg-danger/5 px-3.5 py-2.5 text-sm font-medium text-text-primary">
+                {consequences.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            )}
+            {recoverable !== undefined && (
+              <p className="mt-2 text-xs text-text-secondary">
+                {recoverable ? t('confirm.recoverable') : t('confirm.permanent')}
+              </p>
+            )}
+
             {confirmPhrase && (
               <div className="mt-4">
-                <label className="mb-1.5 block text-xs font-medium text-text-secondary">
-                  Type "{confirmPhrase}" to confirm
+                <label htmlFor="confirm-dialog-phrase" className="mb-1.5 block text-xs font-medium text-text-secondary">
+                  {t('confirm.typeToConfirm', { phrase: confirmPhrase })}
                 </label>
                 <input
+                  id="confirm-dialog-phrase"
                   autoFocus
                   value={typed}
                   onChange={(e) => setTyped(e.target.value)}
+                  autoComplete="off"
                   className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary"
                   placeholder={confirmPhrase}
                 />
@@ -114,7 +144,7 @@ export function ConfirmDialog({
                 onClick={onCancel}
                 className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
               >
-                Cancel
+                {t('confirm.cancel')}
               </button>
               <button
                 type="button"
@@ -122,7 +152,7 @@ export function ConfirmDialog({
                 onClick={handleConfirm}
                 className="focus-ring flex-1 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {submitting ? 'Working…' : confirmLabel}
+                {submitting ? t('confirm.working') : (confirmLabel ?? t('confirm.yesDelete'))}
               </button>
             </div>
           </motion.div>
