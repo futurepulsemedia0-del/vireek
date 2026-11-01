@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { AlertCircle, ChevronDown, Download, Loader2, RefreshCw, ScrollText, ShieldCheck, X } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { BackButton } from '@/components/ui/BackButton';
+import { AuditIntegrityBadge } from '@/components/trust/AuditIntegrityBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import {
@@ -209,7 +210,8 @@ export function AuditLogPage() {
           {exporting ? 'Exporting…' : 'Export CSV'}
         </button>
       </div>
-
+      
+      <AuditIntegrityBadge className="mb-5" />
       {/* Filters */}
       <div className="mb-5 rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
