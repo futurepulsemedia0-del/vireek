@@ -599,6 +599,7 @@ const PressPage = lazy(() => import('@/pages/PressPage').then((m) => ({ default:
 const DevColorsPage = lazy(() => import('@/pages/DevColorsPage').then((m) => ({ default:
 const BrandGuidelinesPage = lazy(() => import('@/pages/BrandGuidelinesPage').then((m) => ({ default: m.BrandGuidelinesPage })));
 const PartnersPage = lazy(() => import('@/pages/PartnersPage').then((m) => ({ default: m.PartnersPage })));
+const QuickstartsPage = lazy(() => import('@/pages/QuickstartsPage').then((m) => ({ default: m.QuickstartsPage })));
 const AffiliatePage = lazy(() => import('@/pages/AffiliatePage').then((m) => ({ default: m.AffiliatePage })));
 const PartnerApplyPage = lazy(() => import('@/pages/PartnerApplyPage').then((m) => ({ default: m.PartnerApplyPage })));
 const PartnerPortalDashboardPage = lazy(() => import('@/pages/PartnerPortalDashboardPage').then((m) => ({ default: m.PartnerPortalDashboardPage })));
@@ -884,6 +885,7 @@ function AppRoutes() {
         <Route path="/sdks" element={<SdksPage />} />
         <Route path="/sandbox" element={<SandboxPage />} />
         <Route path="/developers/api-reference" element={<ApiReferencePage />} />
+        <Route path="/developers/quickstarts" element={<QuickstartsPage />} />
         <Route path="/developers/changelog" element={<DeveloperChangelogPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
