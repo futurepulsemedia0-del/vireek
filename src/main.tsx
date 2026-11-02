@@ -37,6 +37,7 @@ import { initWebVitals } from '@/lib/perf/webVitals';
 import { IdleMount } from '@/components/system/LazyMount';
 import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
+import './styles/a11y.css';
 import './styles/print.css';
 
 const SiteAssistant = lazy(() => import('@/components/SiteAssistant').then((m) => ({ default: m.SiteAssistant })));
