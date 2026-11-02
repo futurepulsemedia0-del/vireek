@@ -145,6 +145,47 @@ export const ERROR_RESPONSES: Record<string, string> = {
 };
 
 export const NOT_FOUND_MESSAGE = `Not found. Available resources: ${RESOURCES.map((r) => r.name).join(', ')}`;
+/* ------------------------------------------------------------------ */
+/*  Error catalog — every error the API can return, one place           */
+/* ------------------------------------------------------------------ */
+
+export const ERROR_DOC_BASE = 'https://vireek.com/developers/api-reference#error-';
+
+export interface ErrorDef {
+  code: string;
+  status: number;
+  cause: string;
+  fix: string;
+}
+
+export const ERROR_CATALOG = [
+  { code: 'missing_api_key', status: 401, cause: 'The request has no Authorization header, or it is not a Bearer token.', fix: 'Send Authorization: Bearer vrk_live_… with every request.' },
+  { code: 'invalid_api_key', status: 401, cause: 'The key does not exist or has been revoked.', fix: 'Create a new key under Settings → API Keys and update your integration.' },
+  { code: 'insufficient_scope', status: 403, cause: 'The key does not have the scope this endpoint requires.', fix: 'Create a key that includes the scope named in the error message (see x-required-scope in the spec).' },
+  { code: 'invalid_id', status: 400, cause: 'The id in the path is not a UUID.', fix: 'Use the id value returned by the list endpoint.' },
+  { code: 'invalid_before', status: 400, cause: 'The before parameter is not an ISO 8601 timestamp.', fix: 'Pass the next_before value from the previous page, URL-encoded.' },
+  { code: 'route_not_found', status: 404, cause: 'The path is not a documented resource route.', fix: 'Check the path against the API reference.' },
+  { code: 'record_not_found', status: 404, cause: 'No record with this id exists on your account.', fix: 'Confirm the id and that the record belongs to the account that owns the key.' },
+  { code: 'method_not_allowed', status: 405, cause: 'The API is read-only; only GET is supported.', fix: 'Use GET.' },
+  { code: 'rate_limited', status: 429, cause: `More than ${RATE_LIMIT_PER_MINUTE} requests in one minute with the same key.`, fix: 'Wait the number of seconds in the Retry-After header, then retry with backoff.' },
+  { code: 'query_failed', status: 500, cause: 'The database query failed.', fix: 'Retry with backoff. If it persists, contact support with the X-Request-Id value.' },
+  { code: 'server_not_configured', status: 500, cause: 'The API deployment is missing required configuration.', fix: 'Self-hosted deployments: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY for the function.' },
+  { code: 'internal_error', status: 500, cause: 'An unexpected error occurred.', fix: 'Retry with backoff. If it persists, contact support with the X-Request-Id value.' },
+] as const satisfies readonly ErrorDef[];
+
+export type ErrorCode = (typeof ERROR_CATALOG)[number]['code'];
+
+export function errorStatus(code: ErrorCode): number {
+  return ERROR_CATALOG.find((e) => e.code === code)!.status;
+}
+
+/**
+ * Consistent error JSON. `error` stays a plain string (existing clients, the CLI and the
+ * request logs read it); `code`, `doc_url` and `request_id` are additive.
+ */
+export function errorBody(code: ErrorCode, message: string, requestId: string) {
+  return { error: message, code, doc_url: `${ERROR_DOC_BASE}${code}`, request_id: requestId };
+}
 
 /* ------------------------------------------------------------------ */
 /*  Error catalog — every error the API can return, one place           */
@@ -327,6 +368,7 @@ export interface OpenApiSpec {
   externalDocs: { description: string; url: string };
   security: Record<string, string[]>[];
   paths: Record<string, Record<string, OpenApiOperation>>;
+    webhooks: Record<string, unknown>;
   webhooks: Record<string, unknown>;
   components: {
     securitySchemes: Record<string, unknown>;
@@ -434,6 +476,10 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
         headers: {
           'X-Request-Id': { $ref: '#/components/headers/XRequestId' },
           'X-RateLimit-Limit': { $ref: '#/components/headers/XRateLimitLimit' },
+        },
+        headers: {
+          'X-Request-Id': { $ref: '#/components/headers/XRequestId' },
+          'X-RateLimit-Limit': { $ref: '#/components/headers/XRateLimitLimit' },
           'X-Vireek-Mode': { $ref: '#/components/headers/XVireekMode' },
           'X-Vireek-Api-Version': { $ref: '#/components/headers/XVireekApiVersion' },
           Deprecation: { $ref: '#/components/headers/Deprecation' },
@@ -536,6 +582,10 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
         `**Pagination** — list endpoints return newest first as \`{ data, has_more, next_before }\`. Pass \`next_before\` back as \`before\` for the next page (\`limit\`: 1–${MAX_LIMIT}, default ${DEFAULT_LIMIT}).`,
         '',
         'Only `GET` is supported; other methods return `405`.',
+        '',
+        '**Errors** — every error is `{ error, code, doc_url, request_id }`. Branch on `code`; every response carries an `X-Request-Id` header.',
+        '',
+        '**Stability** — the three resources above are stable. Webhook events marked `x-stability: beta` may change their payload.',
         '',
         '**Test mode** — keys starting `vrk_test_` return deterministic synthetic data (`livemode: false`) and never touch your account. Use them to build and test; switch to a `vrk_live_` key for real data. Keys can also be restricted to an IP allowlist.',
         '',
