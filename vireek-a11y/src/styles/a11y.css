@@ -1,0 +1,120 @@
+/* Accessibility Center — engine styles. Imported after index.css so it wins at equal specificity. */
+:root {
+  --a11y-font-scale: 1;
+  --a11y-content-scale: 1;
+  --a11y-line-height: 1.6;
+  --a11y-letter-spacing: 0em;
+  --a11y-word-spacing: 0em;
+  --a11y-filter: none;
+}
+
+html { filter: var(--a11y-filter); }
+body {
+  line-height: var(--a11y-line-height);
+  letter-spacing: var(--a11y-letter-spacing);
+  word-spacing: var(--a11y-word-spacing);
+}
+
+/* Text size: scale the root so every rem-based (Tailwind) size follows. Mobile base is 15px (index.css). */
+html.a11y-text-scaled { font-size: calc(16px * var(--a11y-font-scale)); }
+@media (max-width: 640px) { html.a11y-text-scaled { font-size: calc(15px * var(--a11y-font-scale)); } }
+
+/* Content zoom (real layout zoom; no-op unless the class is active) */
+.a11y-zoomed body > #root { zoom: var(--a11y-content-scale); }
+
+/* Text spacing: override utility classes (leading-*, tracking-*) only for properties the user changed (WCAG 1.4.12) */
+.a11y-lh body * { line-height: var(--a11y-line-height) !important; }
+.a11y-ls body * { letter-spacing: var(--a11y-letter-spacing) !important; }
+.a11y-ws body * { word-spacing: var(--a11y-word-spacing) !important; }
+
+/* Fonts: applied to every element (utility font-* classes would otherwise win); precedence readable < simple < dyslexia */
+.a11y-readable-font body,
+.a11y-readable-font body *:not(code):not(pre):not(kbd):not(samp) { font-family: Georgia, 'Times New Roman', ui-serif, serif !important; }
+.a11y-simple-font body,
+.a11y-simple-font body *:not(code):not(pre):not(kbd):not(samp) { font-family: system-ui, 'Segoe UI', Arial, Helvetica, sans-serif !important; }
+.a11y-dyslexia-font body,
+.a11y-dyslexia-font body *:not(code):not(pre):not(kbd):not(samp) {
+  font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Lexend', Verdana, 'Trebuchet MS', sans-serif !important;
+}
+.a11y-dyslexia-font body { letter-spacing: 0.06em; word-spacing: 0.12em; }
+
+.a11y-large-cursor,
+.a11y-large-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%234F46E5' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
+}
+
+.a11y-highlight-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 3px !important;
+}
+.a11y-highlight-headings :is(h1, h2, h3, h4, h5, h6) {
+  outline: 2px solid rgb(var(--accent-primary) / 0.4) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.a11y-strong-focus *:focus-visible {
+  outline: 3px solid rgb(var(--accent-primary)) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgb(var(--accent-primary) / 0.2) !important;
+}
+
+.a11y-high-contrast {
+  --text-primary: 0 0 0; --text-secondary: 30 30 30; --border-default: 60 60 60;
+  --bg-primary: 255 255 255; --bg-secondary: 255 255 255; --bg-tertiary: 240 240 240;
+}
+.a11y-high-contrast.dark {
+  --text-primary: 255 255 255; --text-secondary: 220 220 220; --border-default: 100 100 100;
+  --bg-primary: 0 0 0; --bg-secondary: 10 10 10; --bg-tertiary: 20 20 20;
+}
+.a11y-dark-contrast {
+  --bg-primary: 8 8 10; --bg-secondary: 17 17 20; --bg-tertiary: 24 24 28;
+  --text-primary: 245 245 247; --text-secondary: 165 165 172; --border-default: 40 40 46;
+  color-scheme: dark;
+}
+.a11y-light-contrast {
+  --bg-primary: 251 251 253; --bg-secondary: 255 255 255; --bg-tertiary: 245 245 247;
+  --text-primary: 29 29 31; --text-secondary: 110 110 115; --border-default: 224 224 229;
+  color-scheme: light;
+}
+
+.a11y-reading-mode main { max-width: 70ch !important; margin: 0 auto; }
+.a11y-reading-mode img:not([role="img"]) { opacity: 0.7; }
+
+/* Reduce motion: near-instant. Stop animations: no CSS animation at all. */
+.a11y-reduce-motion *, .a11y-reduce-motion *::before, .a11y-reduce-motion *::after,
+.a11y-stop-animations *, .a11y-stop-animations *::before, .a11y-stop-animations *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+.a11y-stop-animations *, .a11y-stop-animations *::before, .a11y-stop-animations *::after {
+  animation: none !important;
+}
+/* Respect the OS preference even before/without stored settings */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.a11y-hide-images img { opacity: 0 !important; background: rgb(var(--bg-tertiary)) !important; border-radius: 8px; }
+
+/* The color-blindness SVG defs are aria-hidden: never display:none them (filters would break) */
+.a11y-screen-reader [aria-hidden="true"]:not(#vk-a11y-filters) { display: none !important; }
+
+/* Large touch targets (WCAG 2.5.5 AAA: 44×44 CSS px). Inline text links are exempt by definition. */
+.a11y-large-targets :is(button, [role="button"], [role="tab"], [role="switch"], [role="menuitem"], select, summary,
+  input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"])) {
+  min-height: 44px;
+  min-width: 44px;
+}
+.a11y-large-targets :is(nav, [role="navigation"]) a { display: inline-flex; align-items: center; min-height: 44px; }
+.a11y-large-targets :is(input[type="checkbox"], input[type="radio"]) { width: 24px; height: 24px; }
+
+/* Focus mode: remove sidebars, footers and anything explicitly marked as a distraction */
+.a11y-focus-mode :is(aside, footer, [role="complementary"], [role="contentinfo"], [data-a11y-distraction]) { display: none !important; }
