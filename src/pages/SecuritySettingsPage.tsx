@@ -12,6 +12,7 @@ import { buildMyDataExport, downloadDataExport, deleteMyAccount } from '@/lib/ac
 import { RecoveryCodesPanel } from '@/components/security/RecoveryCodesPanel';
 import { EnterpriseDataExportPanel } from '@/components/settings/EnterpriseDataExportPanel';
 import { AppLockCard } from '@/components/native/AppLockCard';
+import { HapticsCard } from '@/components/native/HapticsCard';
 import { PasskeysCard } from '@/components/settings/PasskeysCard';
 
 interface AuditLogRow {
@@ -575,6 +576,7 @@ export function SecuritySettingsPage() {
         </div>
       </div>
       <AppLockCard />
+      <HapticsCard />
       {/* Workspace-level export (Business / Enterprise, owner only) */}
 <EnterpriseDataExportPanel />
 
