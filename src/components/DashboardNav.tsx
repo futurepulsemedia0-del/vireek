@@ -214,6 +214,10 @@ import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
 import { AiAssistant } from '@/components/AiAssistant';
 import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
 import { NpsPrompt } from '@/components/success/NpsPrompt';
+import { FeedbackButton } from '@/components/feedback/FeedbackButton';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+import { SurveyHost } from '@/components/feedback/SurveyHost';
+import { WhatsNewDrawer } from '@/components/whats-new/WhatsNewDrawer';
 import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
 import { ChatUnreadProvider } from '@/contexts/ChatUnreadContext';
 import { ChatNavBadge } from '@/components/teamchat/ChatNavBadge';
@@ -842,6 +846,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           </Link>
           <div className="flex items-center gap-1">
           <ReplayTourMenu align="start" />
+          <FeedbackButton />
             <WhatsNewButton />
             <NotificationBell />
           </div>
@@ -875,6 +880,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           </Link>
           <div className="flex items-center gap-2">
           <ReplayTourMenu align="end" />
+          <FeedbackButton />
             <WhatsNewButton />
             <NotificationBell />
             <button
@@ -991,6 +997,9 @@ export function DashboardLayout({
           <GlobalSearchPalette />
           <AiAssistant />
           <NpsPrompt />
+                    <SurveyHost />
+          <FeedbackDialog />
+          <WhatsNewDrawer />
         </div>
       </div>
     </ChatUnreadProvider>
