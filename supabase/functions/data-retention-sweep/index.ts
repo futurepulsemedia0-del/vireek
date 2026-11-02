@@ -17,7 +17,6 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
-import { SealedAudio, SealedText, SealedNotice, useSealedValue } from '@/components/trust-pack/SealedContent';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
