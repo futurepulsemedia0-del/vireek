@@ -18,6 +18,7 @@ import { GettingStartedCard } from '@/components/GettingStartedCard';
 import { SuccessNudgeCard } from '@/components/success/SuccessNudgeCard';
 import { DailyBriefingCard } from '@/components/DailyBriefingCard';
 import { TodayTasksCard } from '@/components/TodayTasksCard';
+import { TodayHome } from '@/components/today/TodayHome';
 import { AttributionReport, AttributionRow } from '@/components/AttributionReport';
 import { useDateRange } from '@/hooks/useDateRange';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
@@ -800,6 +801,9 @@ export function DashboardPage() {
     { to: '/dashboard/billing', icon: CreditCard, title: 'Billing', sub: 'Plan & customer invoices', show: isOwner || permissions.can_view_billing },
     { to: '/dashboard/integrations', icon: Plug, title: 'Integrations', sub: 'Connect your tools', show: true },
   ];
+<div className="mb-6">
+  <TodayHome />
+</div>
 {!profileLoading && (
   <div className="mb-6">
     <DailyBriefingCard />
