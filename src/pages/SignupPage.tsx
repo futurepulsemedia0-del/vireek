@@ -259,7 +259,7 @@ export function SignupPage() {
     // useEffect once the profile loaded, which meant an extra render/
     // navigation hop right after auth state changed. Going there directly
     // removes that hop entirely.
-    navigate(peekPostAuthPath() ? consumePostAuthRedirect() : '/onboarding', { replace: true });
+    navigate(peekPostAuthPath() ? consumePostAuthRedirect() : import.meta.env.VITE_FIRST_CALL_FASTPATH === 'true' ? '/onboarding/first-call' : '/onboarding', { replace: true });
   }, [navigate]);
 
   const handleAppleSignUp = async () => {
