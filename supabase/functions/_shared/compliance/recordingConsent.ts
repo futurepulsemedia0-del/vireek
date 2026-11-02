@@ -79,3 +79,14 @@ export function buildRecordingConsentNotice(callerNumber: string | null): string
     `tool if available, and don't reference recording again for the rest of the call.`
   );
 }
+
+/**
+ * Shadow Mode helper: the all-party-consent state code (e.g. "CA") for a
+ * caller number, or null when the number is non-NANP or not on the list.
+ * Same NOT-LEGAL-ADVICE caveat as above.
+ */
+export function allPartyStateForNumber(callerNumber: string | null): string | null {
+  const areaCode = extractUsAreaCode(callerNumber);
+  if (!areaCode) return null;
+  return ALL_PARTY_CONSENT_AREA_CODES[areaCode] ?? null;
+}
