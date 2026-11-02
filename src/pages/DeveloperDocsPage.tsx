@@ -20,6 +20,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { WebhookCatalog } from '@/components/developers/WebhookCatalog';
+import { DocsFeedback, DocsHeaderBar, DocsPager } from '@/components/developers/DocsChrome';
 
 const DOCS_EMAIL = 'ali@vireek.com';
 const API_BASE_URL = 'https://<your-project-ref>.supabase.co/functions/v1/api-v1';
@@ -40,11 +42,6 @@ const QUERY_PARAMS = [
   { name: 'before', type: 'ISO 8601 timestamp', description: 'Return rows created before this timestamp, for pagination.' },
 ];
 
-const WEBHOOK_EVENTS = [
-  { event: 'call.created', description: 'Fired the moment a new call record is saved.' },
-  { event: 'lead.created', description: 'Fired when a new lead is captured.' },
-  { event: 'job.created', description: 'Fired when a new job is booked.' },
-];
 
 const CODE_CURL = `curl "${'{base_url}'}/calls?limit=5" \\
   -H "Authorization: Bearer vrk_live_..."`;
@@ -62,20 +59,6 @@ res = requests.get(
     headers={"Authorization": "Bearer vrk_live_..."},
 )
 data = res.json()["data"]`;
-
-const WEBHOOK_PAYLOAD = `POST <your-webhook-url>
-Content-Type: application/json
-
-{
-  "event": "call.created",
-  "data": {
-    "id": "3f8a1c9e-...",
-    "caller_name": "Jordan Reyes",
-    "is_emergency": false,
-    "status": "booked",
-    "created_at": "2026-09-14T18:22:03Z"
-  }
-}`;
 
 const SAMPLE_REQUEST = `GET /calls?limit=5 HTTP/1.1
 Host: <your-project-ref>.supabase.co
@@ -173,6 +156,7 @@ export function DeveloperDocsPage() {
       <SEO />
       <Header />
       <main className="min-h-screen overflow-hidden bg-bg-primary pt-24">
+        <DocsHeaderBar sourceFile="src/pages/DeveloperDocsPage.tsx" />
         {/* Hero */}
         <section className="relative bg-gradient-mesh bg-noise px-6 py-20 sm:py-24 lg:py-28">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
@@ -248,7 +232,7 @@ export function DeveloperDocsPage() {
           </div>
         </section>
                  {/* Authentication + Endpoints */}
-        <section className="px-6 py-20 sm:py-24">
+        <section id="authentication" className="scroll-mt-24 px-6 py-20 sm:py-24">
           <div className="mx-auto max-w-5xl">
             <p className={`${eyebrowClass()} text-center`}>Reference</p>
             <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>Authentication &amp; Endpoints</h2>
@@ -310,43 +294,25 @@ export function DeveloperDocsPage() {
         </section>
 
         {/* Webhooks */}
-        <section className="px-6 py-20 sm:py-24">
+        <section id="webhooks" className="scroll-mt-24 px-6 py-20 sm:py-24">
           <div className="mx-auto max-w-5xl">
             <p className={`${eyebrowClass()} text-center`}>Real-time</p>
             <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>Webhooks</h2>
             <p className={`${bodyClass()} mx-auto text-center`}>
-              Set your webhook URL under Dashboard → Integrations. We'll POST these events the moment they happen —
-              delivery attempts are logged and visible from your dashboard's Webhook Logs.
+              Add one or more signed endpoints under Dashboard → Event Bus and choose the events each one receives.
+              Every delivery is logged in your dashboard.
             </p>
 
-            <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-bg-secondary">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-bg-tertiary/50 text-left text-xs text-text-secondary">
-                    <th className="px-5 py-3 font-medium">Event</th>
-                    <th className="px-5 py-3 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {WEBHOOK_EVENTS.map((w) => (
-                    <tr key={w.event} className="border-b border-border/60 last:border-0">
-                      <td className="px-5 py-3"><code className="text-xs text-text-primary">{w.event}</code></td>
-                      <td className="px-5 py-3 text-text-secondary">{w.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="mt-10">
+              <WebhookCatalog />
             </div>
 
-            <div className="mt-6">
-              <CodeBlock label="Example payload" code={WEBHOOK_PAYLOAD} />
-            </div>
-
-            <div className="mx-auto mt-6 flex max-w-2xl items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-5">
+            <div className="mx-auto mt-8 flex max-w-2xl items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-5">
               <Lock size={18} className="mt-0.5 shrink-0 text-warning-500" />
               <p className="text-sm leading-relaxed text-text-secondary">
-                Payloads are not currently HMAC-signed — verify by checking the event came from an IP/URL you
-                control and treat the payload as informational (re-fetch via the API for anything security-sensitive).
+                The single webhook URL under Dashboard → Integrations (call.created, lead.created and job.created only) is
+                not signed. Treat its payloads as informational and re-fetch via the API for anything security-sensitive,
+                or move to an Event Bus endpoint to get signed deliveries.
               </p>
             </div>
           </div>
@@ -512,6 +478,8 @@ export function DeveloperDocsPage() {
             </div>
           </motion.div>
         </section>
+        <DocsPager />
+        <DocsFeedback page="/docs" />
       </main>
       <Footer />
       <CookieConsent />
