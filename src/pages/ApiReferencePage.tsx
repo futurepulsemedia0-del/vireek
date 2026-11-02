@@ -10,9 +10,15 @@ import { Card } from '@/components/ui/Card';
 import { BackButton } from '@/components/ui/BackButton';
 import { ApiPlayground } from '@/components/sandbox/ApiPlayground';
 import { ApiRequestLogs } from '@/components/developers/ApiRequestLogs';
+import { CodeTabs } from '@/components/developers/CodeTabs';
+import { ErrorCatalog } from '@/components/developers/ErrorCatalog';
+import { ApiPolicies } from '@/components/developers/ApiPolicies';
+import { DocsFeedback, DocsHeaderBar, DocsLayout, DocsPager } from '@/components/developers/DocsChrome';
+import { buildInsomniaExport } from '@/lib/insomnia';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
-import { SANDBOX_ENDPOINTS, buildCurl } from '@/lib/sandbox';
+import { SCHEMA_EXAMPLES, buildCodeSamples } from '../../supabase/functions/api-v1/contract';
+import { SANDBOX_ENDPOINTS } from '@/lib/sandbox';
 import {
   ERROR_RESPONSES,
   LIST_PARAMETERS,
@@ -38,29 +44,6 @@ function SEO() {
     canonical: 'https://vireek.com/developers/api-reference',
   });
   return null;
-}
-
-function CopyButton({ value, label }: { value: string; label: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      /* clipboard unavailable (insecure context / denied) */
-    }
-  };
-  return (
-    <button
-      type="button"
-      onClick={() => void copy()}
-      aria-label={label}
-      className="focus-ring rounded-lg border border-border bg-bg-secondary/90 p-1.5 text-text-secondary transition hover:text-text-primary"
-    >
-      {copied ? <Check size={14} /> : <Copy size={14} />}
-    </button>
-  );
 }
 
 function FieldsTable({ resource }: { resource: ResourceDef }) {
@@ -110,6 +93,7 @@ export function ApiReferencePage() {
       <SEO />
       <Header />
       <main className="min-h-screen overflow-hidden bg-bg-primary pt-24">
+        <DocsHeaderBar sourceFile="src/pages/ApiReferencePage.tsx" />
         {/* Hero */}
         <section className="relative bg-gradient-mesh bg-noise px-6 py-16 sm:py-20">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
@@ -149,6 +133,13 @@ export function ApiReferencePage() {
                   Download Postman collection
                 </Button>
               </div>
+              <div id="downloads" className="mt-3 flex flex-wrap justify-center gap-3 scroll-mt-28">
+                <Button variant="secondary" size="lg" onClick={() => downloadJsonFile('vireek.insomnia.json', buildInsomniaExport(baseUrl))}>
+                  <Send className="h-4 w-4" />
+                  Download Insomnia collection
+                </Button>
+              </div>
+              <p className="mt-3 text-sm text-text-secondary">TypeScript SDK (Beta): packages/sdk — generated from the same contract.</p>
               <Link
                 to="/docs"
                 className="focus-ring mt-4 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text-primary transition-colors hover:text-accent"
@@ -169,8 +160,20 @@ export function ApiReferencePage() {
           </div>
         </section>
 
+        <DocsLayout
+          toc={[
+            { id: 'overview', label: 'Overview' },
+            { id: 'calls', label: 'Calls' },
+            { id: 'leads', label: 'Leads' },
+            { id: 'jobs', label: 'Jobs' },
+            { id: 'errors', label: 'Errors & rate limits' },
+            { id: 'versioning', label: 'Versioning & stability' },
+            { id: 'playground', label: 'Try it' },
+            { id: 'logs', label: 'Request logs' },
+          ]}
+        >
         {/* Basics */}
-        <section className="px-6 py-12">
+        <section id="overview" className="scroll-mt-28 px-6 py-12">
           <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
             <Card className="border-border bg-bg-secondary/60 p-6 hover:translate-y-0">
               <h2 className="text-base font-semibold text-text-primary">Base URL</h2>
@@ -243,11 +246,9 @@ export function ApiReferencePage() {
                   <p className="mt-1 text-sm text-text-secondary">{resource.description}</p>
                   <ul className="mt-4 space-y-3">
                     {endpoints.map((ep) => {
-                      const curl = buildCurl({
-                        method: ep.method,
-                        url: `${baseUrl}${ep.hasId ? ep.path.replace(':id', '<id>') : `${ep.path}?limit=25`}`,
-                        apiKey: '',
-                      });
+                      const exampleId = SCHEMA_EXAMPLES[resource.schema].id as string;
+                      const sampleUrl = `${baseUrl}${ep.hasId ? ep.path.replace(':id', exampleId) : `${ep.path}?limit=25`}`;
+                      const samples = buildCodeSamples(sampleUrl).map(({ id, label, source }) => ({ id, label, source }));
                       return (
                         <li key={ep.id} className="rounded-2xl border border-border bg-bg-secondary/60 p-4 sm:p-5">
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -268,13 +269,8 @@ export function ApiReferencePage() {
                               </li>
                             ))}
                           </ul>
-                          <div className="relative mt-3">
-                            <pre className="overflow-x-auto rounded-xl border border-border bg-bg-primary p-3 pr-12 font-mono text-xs leading-relaxed text-text-primary">
-                              {curl}
-                            </pre>
-                            <div className="absolute right-2 top-2">
-                              <CopyButton value={curl} label={`Copy cURL for ${ep.method} ${ep.path}`} />
-                            </div>
+                          <div className="mt-3">
+                            <CodeTabs label={`${ep.method} ${ep.path} code samples`} tabs={samples} />
                           </div>
                         </li>
                       );
@@ -293,6 +289,25 @@ export function ApiReferencePage() {
             })}
           </div>
         </section>
+        {/* Error catalog */}
+        <section id="errors" className="scroll-mt-28 px-6 py-10">
+          <div className="mx-auto max-w-6xl space-y-6">
+            <div>
+              <h2 className={sectionHeadingClass()}>Errors &amp; rate limits</h2>
+              <p className={`mt-2 max-w-2xl ${bodyClass()}`}>
+                One catalog for every error the API returns: code, cause and fix.
+              </p>
+            </div>
+            <ErrorCatalog />
+          </div>
+        </section>
+
+        <section id="versioning" className="scroll-mt-28 px-6 py-10">
+          <div className="mx-auto max-w-6xl space-y-6">
+            <h2 className={sectionHeadingClass()}>Versioning, stability &amp; pagination</h2>
+            <ApiPolicies />
+          </div>
+        </section>
 
         {/* Playground */}
         <section id="playground" className="scroll-mt-28 px-6 py-10">
@@ -300,7 +315,7 @@ export function ApiReferencePage() {
             <div>
               <h2 className={sectionHeadingClass()}>Try it</h2>
               <p className={`mt-2 max-w-2xl ${bodyClass()}`}>
-                Live requests against your account with a key you paste in. Anything you send here shows up in the request logs below.
+                 Use a Test key (vrk_test_…) to try requests against synthetic data. A Live key reads your real account and is remembered for this tab only. Everything you send shows up in the request logs below.
               </p>
             </div>
             <ApiPlayground />
@@ -316,9 +331,9 @@ export function ApiReferencePage() {
                 Method, path, status and latency for every authenticated request, per key. The key itself is never logged.
               </p>
             </div>
-            <ApiRequestLogs />
-          </div>
-        </section>
+        </DocsLayout>
+        <DocsPager />
+        <DocsFeedback page="/developers/api-reference" />
       </main>
       <Footer />
       <CookieConsent />
