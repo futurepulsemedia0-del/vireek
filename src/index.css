@@ -203,7 +203,7 @@ select {
 
 /* Apply font scaling, line height, spacing globally */
 body {
-  font-size: calc(1rem * var(--a11y-font-scale));
+font-size: calc(1rem * var(--a11y-font-scale) * var(--native-font-scale, 1));
   line-height: var(--a11y-line-height);
   letter-spacing: var(--a11y-letter-spacing);
   word-spacing: var(--a11y-word-spacing);
