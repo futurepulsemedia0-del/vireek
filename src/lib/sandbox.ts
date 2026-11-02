@@ -242,8 +242,10 @@ export function loadStoredKey(): string {
 
 export function saveStoredKey(key: string) {
   try {
-    if (key) localStorage.setItem(STORAGE_KEY, key);
-    else localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
+    if (!key) return;
+    (key.trim().startsWith('vrk_test_') ? localStorage : sessionStorage).setItem(STORAGE_KEY, key);
   } catch {
     /* ignore */
   }
