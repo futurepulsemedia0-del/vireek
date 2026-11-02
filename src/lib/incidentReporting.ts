@@ -2,6 +2,7 @@
 // incident.ts so the pure helpers stay testable without the Sentry SDK.
 import * as Sentry from '@sentry/react';
 import { generateIncidentId, truncate } from '@/lib/incident';
+import { noteIncident } from '@/lib/feedback/errorTracker';
 
 /** Reports only go anywhere when Sentry/GlitchTip is configured (same switch as lib/sentry.ts). */
 export const reportingEnabled = Boolean(import.meta.env.VITE_SENTRY_DSN);
@@ -17,6 +18,7 @@ export function captureIncident(
   ctx: { incidentId?: string | null; componentStack?: string | null } = {},
 ): CapturedIncident {
   const incidentId = ctx.incidentId || generateIncidentId();
+  noteIncident(incidentId);
   let eventId: string | null = null;
   try {
     Sentry.withScope((scope) => {
