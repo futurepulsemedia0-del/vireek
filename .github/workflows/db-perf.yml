@@ -1,0 +1,68 @@
+name: DB performance and hygiene
+
+on:
+  pull_request:
+    paths: ['supabase/migrations/**', 'scripts/db-audit.mjs', 'scripts/db-audit.baseline.json', 'src/**', 'supabase/functions/**']
+  workflow_dispatch:
+    inputs:
+      run_bench:
+        description: Run the SQL benchmark against staging
+        type: boolean
+        default: false
+  schedule:
+    - cron: '0 4 * * 1' # weekly drift check + benchmark
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Static DB audit (no new debt)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node scripts/db-audit.mjs --check
+
+  drift:
+    name: Schema drift vs linked project
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true # becomes required once duplicate migration versions are resolved
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase link --project-ref "${{ secrets.STAGING_PROJECT_REF }}"
+      - name: Fail when the live schema differs from migrations
+        run: |
+          supabase db diff --linked --schema public > drift.sql
+          if [ -s drift.sql ]; then cat drift.sql; exit 1; fi
+
+  bench:
+    name: SQL hot-path benchmark (staging)
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_bench)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Run pgbench scripts
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          BENCH_UID: ${{ secrets.STAGING_BENCH_UID }}
+          MAX_P95_MS: '100'
+        run: supabase/ops/bench/run_bench.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-results
+          path: bench-results/summary.tsv
