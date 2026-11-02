@@ -110,6 +110,27 @@ for (const f of all) {
     }
   }
 
+  // --- performance rules (new files only) ---
+  const ver = NAME_RE.exec(f)?.[1]
+  const legacyMax = all.filter((x) => !added.has(x) && NAME_RE.test(x)).map((x) => x.slice(0, 14)).sort().pop()
+  if (ver && legacyMax && ver <= legacyMax) {
+    err(f, `version ${ver} is not newer than the latest existing migration ${legacyMax}; supabase db push rejects out-of-order versions`)
+  }
+  const createdHere = new Set([...code.matchAll(/\bcreate\s+table\s+(?:if\s+not\s+exists\s+)?(?:public\.)?"?([a-z0-9_]+)"?/gi)].map((m) => m[1].toLowerCase()))
+  for (const stmt of outsideBodies.split(';')) {
+    if (/^\s*create\s+policy\b/i.test(stmt)) {
+      const bare = stmt.replace(/\(\s*select\s+(?:public\.)?(?:auth\.(?:uid|jwt|role)|get_account_owner_id)\(\)(?:\s+as\s+\w+)?\s*\)/gi, '')
+      if (/\b(?:auth\.(?:uid|jwt|role)|get_account_owner_id)\s*\(\)/i.test(bare)) {
+        err(f, 'RLS policy calls auth.uid()/auth.jwt()/get_account_owner_id() per row; wrap it as (select auth.uid())')
+      }
+    }
+  }
+  for (const m of outsideBodies.matchAll(/\bcreate\s+(?:unique\s+)?index\s+(?!concurrently\b)(?:if\s+not\s+exists\s+)?\S+\s+on\s+(?:only\s+)?(?:public\.)?"?([a-z0-9_]+)"?/gi)) {
+    if (!createdHere.has(m[1].toLowerCase())) warn(f, `CREATE INDEX on existing table "${m[1]}" blocks writes; for large tables run CREATE INDEX CONCURRENTLY from supabase/ops/`)
+  }
+  for (const m of code.matchAll(/\bcreate\s+(?:or\s+replace\s+)?function\s+(?:public\.)?get_account_owner_id\s*\(\s*\)[\s\S]*?\$([A-Za-z_]*)\$/gi)) {
+    if (!/\bstable\b/i.test(m[0])) err(f, 'get_account_owner_id() must be declared STABLE (CREATE OR REPLACE without it resets it to VOLATILE)')
+  }
   for (const m of code.matchAll(/\bcreate\s+(?:or\s+replace\s+)?function\b[\s\S]*?\$([A-Za-z_]*)\$/gi)) {
     const header = m[0]
     if (/\bsecurity\s+definer\b/i.test(header) && !/\bset\s+search_path\b/i.test(header)) {
