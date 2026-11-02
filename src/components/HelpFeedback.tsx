@@ -4,6 +4,10 @@ import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import {
   MAX_COMMENT_LENGTH, readStoredVote, storeVote, submitHelpFeedback, type HelpVote,
 } from '@/lib/helpFeedback';
+import {
+  MAX_COMMENT_LENGTH, getVisitorId, readStoredVote, storeVote, submitHelpFeedback, type HelpVote,
+} from '@/lib/helpFeedback';
+import { HELP_REASONS, setHelpFeedbackReason, type HelpReason } from '@/lib/feedback/api';
 
 type Phase = 'idle' | 'comment' | 'submitting' | 'done' | 'error';
 
@@ -13,6 +17,7 @@ export function HelpFeedback({ slug }: { slug: string }) {
   const [pending, setPending] = useState<HelpVote | null>(null);
   const [comment, setComment] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [reason, setReason] = useState<HelpReason | null>(null);
 
   const send = async (next: HelpVote, text?: string) => {
     setPhase('submitting');
@@ -20,6 +25,7 @@ export function HelpFeedback({ slug }: { slug: string }) {
     setError(null);
     try {
       await submitHelpFeedback({ slug, vote: next, comment: text });
+      if (next === 'not_helpful' && reason) await setHelpFeedbackReason(slug, getVisitorId(), reason).catch(() => undefined);
       storeVote(slug, next);
       setVote(next);
       setPhase('done');
@@ -74,6 +80,12 @@ export function HelpFeedback({ slug }: { slug: string }) {
           <label htmlFor="help-feedback-comment" className="block text-base font-semibold text-text-primary">
             What were you looking for? <span className="font-normal text-text-secondary">(optional)</span>
           </label>
+          <div role="group" aria-label="What went wrong?" className="mt-3 flex flex-wrap gap-2">
+            {HELP_REASONS.map((r) => (
+              <button key={r.id} type="button" aria-pressed={reason === r.id} onClick={() => setReason(reason === r.id ? null : r.id)}
+                className={`focus-ring min-h-9 rounded-full border px-3 text-sm font-medium ${reason === r.id ? 'border-accent bg-accent/10 text-accent' : 'border-border text-text-secondary'}`}>{r.label}</button>
+            ))}
+          </div>
           <textarea
             id="help-feedback-comment"
             value={comment}
