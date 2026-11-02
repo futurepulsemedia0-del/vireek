@@ -1,0 +1,12 @@
+{
+  "badMigrationNames": 3,
+  "duplicateVersions": 108,
+  "volatilityRegressions": [
+    "get_account_owner_id",
+    "pick_best_technician"
+  ],
+  "unwrappedPolicies": 2268,
+  "shadowedIndexNames": 8,
+  "fkWithoutIndexStatic": 1135,
+  "unboundedClientSelects": 959
+}
