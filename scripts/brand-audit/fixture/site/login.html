@@ -1,0 +1,4 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login fixture page for audit</title></head>
+<body><main><h1>Sign in</h1><label for="e">Email address</label><input id="e" type="email"><label for="p">Password</label><input id="p" type="password">
+<button id="go">Sign In</button></main>
+<script>document.getElementById('go').onclick=async()=>{const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:document.getElementById('e').value,password:document.getElementById('p').value})});if(r.ok){localStorage.setItem('auth','1');location.href='/dashboard'}}</script></body></html>
