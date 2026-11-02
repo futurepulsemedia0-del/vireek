@@ -27,6 +27,31 @@ export interface DeveloperChangelogRelease {
 
 export const DEVELOPER_CHANGELOG_RELEASES: DeveloperChangelogRelease[] = [
   {
+    date: 'November 1, 2026',
+    entries: [
+      {
+        type: 'api',
+        title: 'Test and live API keys, IP allowlist, and fixed “last used”',
+        body: 'Keys can now be created in Test mode (vrk_test_…): they return deterministic synthetic data with livemode: false and never touch your account. Keys can be restricted to an IP allowlist (Beta; blocked requests get 403 ip_not_allowed). Responses include X-Vireek-Mode and X-Vireek-Api-Version, and the API reserves Deprecation and Sunset headers for future deprecations. We also fixed a bug that stopped “Last used” from ever updating, and API keys can now be created with every scope the dashboard offers.',
+      },
+      {
+        type: 'sdk',
+        title: 'TypeScript SDK (Beta), Insomnia collection, quickstarts and docs search',
+        body: 'A generated, typed TypeScript client (packages/sdk) with retries and pagination helpers, an Insomnia collection next to the Postman one, three quickstarts whose code is executed in CI, and Cmd+K search across the docs.',
+      },
+      {
+        type: 'api',
+        title: 'Error codes, request ids and code samples',
+        body: 'Every api-v1 error now also carries code, doc_url and request_id (the existing error string is unchanged), every response has an X-Request-Id header, 405 responses include Allow, and authenticated responses include X-RateLimit-Limit. The API Reference has a full error catalog and cURL, JavaScript, Python and Go samples for every endpoint.',
+      },
+      {
+        type: 'webhook',
+        title: 'Webhook event catalog, signature verification guide and Beta labels',
+        body: 'The webhook docs now list all nine Event Bus events with sample payloads, a signature verification guide (JavaScript, Python, Go), and the delivery and retry policy. Events other than call.created, lead.created and job.created are labeled Beta. The OpenAPI spec now includes a webhooks section.',
+      },
+    ],
+  },
+  {
     date: 'October 28, 2026',
     entries: [
       {
@@ -37,7 +62,6 @@ export const DEVELOPER_CHANGELOG_RELEASES: DeveloperChangelogRelease[] = [
     ],
   },
   {
-  {
     date: 'October 9, 2026',
     entries: [
       {
@@ -47,6 +71,7 @@ export const DEVELOPER_CHANGELOG_RELEASES: DeveloperChangelogRelease[] = [
       },
     ],
   },
+  {
     date: 'September 13, 2026',
     entries: [
       {
