@@ -21,6 +21,8 @@ import {
   type Language,
   type TranslationKey,
 } from '@/lib/i18n';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import type { ColorBlindMode } from '@/lib/a11y/settings';
 
 const EASE = [0.16, 1, 0.0, 1] as const;
 
@@ -515,7 +517,21 @@ function PanelContent({ onClose }: { onClose: () => void }) {
         <SettingRow icon={Palette} label="Grayscale" description="Remove all color" checked={settings.grayscale} onChange={(v) => updateSetting('grayscale', v)} />
         <SettingRow icon={Palette} label="Monochrome" description="Black and white mode" checked={settings.monochrome} onChange={(v) => updateSetting('monochrome', v)} />
         <SettingRow icon={Palette} label="High Saturation" description="Boost color intensity" checked={settings.highSaturation} onChange={(v) => updateSetting('highSaturation', v)} />
-        <SettingRow icon={Palette} label="Low Saturation" description="Reduce color intensity" checked={settings.lowSaturation} onChange={(v) => updateSetting('lowSaturation', v)} />
+        <SettingRow icon={Palette} label="Low Saturation" description="Reduce color intensity" checked={settings.lowSaturation} onChange={(v) => updateSetting('lowSaturation', v)}         <div className="px-3 py-2.5">
+          <label htmlFor="a11y-color-blind" className="block text-sm font-medium text-text-primary">Color-blindness correction</label>
+          <select
+            id="a11y-color-blind"
+            value={settings.colorBlind}
+            onChange={(e) => updateSetting('colorBlind', e.target.value as ColorBlindMode)}
+            className="mt-1.5 min-h-[44px] w-full rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm text-text-primary focus-ring"
+          >
+            <option value="none">Off</option>
+            <option value="protanopia">Protanopia (red-weak)</option>
+            <option value="deuteranopia">Deuteranopia (green-weak)</option>
+            <option value="tritanopia">Tritanopia (blue-weak)</option>
+          </select>
+          <p className="mt-1 text-xs text-text-secondary/70">Makes hard-to-tell colors easier to distinguish. It does not restore normal color vision.</p>
+        </div>/>
       </Section>
     </>
   );
@@ -692,6 +708,7 @@ export function AccessibilityWidget() {
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const onWallboard = useLocation().pathname.startsWith('/wallboard');
+  const isDesktop = useMediaQuery('(min-width: 640px)', true);
 
   useEffect(() => {
     if (!hasOnboarded) {
@@ -706,18 +723,30 @@ export function AccessibilityWidget() {
     if (!isOpen) return;
     const panel = panelRef.current;
     if (!panel) return;
-    const focusable = panel.querySelectorAll<HTMLElement>('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    first?.focus();
+    const SELECTOR =
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const getFocusable = () =>
+      Array.from(panel.querySelectorAll<HTMLElement>(SELECTOR)).filter(
+        (el) => el.offsetParent !== null || el === document.activeElement,
+      );
+    getFocusable()[0]?.focus();
     const trap = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      const items = getFocusable();
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (!first || !last) { e.preventDefault(); return; }
+      const active = document.activeElement;
+      if (!panel.contains(active)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
     };
-    panel.addEventListener('keydown', trap);
-    return () => panel.removeEventListener('keydown', trap);
-  }, [isOpen]);
+    document.addEventListener('keydown', trap);
+    return () => {
+      document.removeEventListener('keydown', trap);
+      buttonRef.current?.focus(); // restore focus on every close path (X button, overlay, Esc)
+    };
+  }, [isOpen, isDesktop]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -767,20 +796,21 @@ export function AccessibilityWidget() {
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               onClick={() => setIsOpen(false)} className="fixed inset-0 z-[73] bg-slate-950/40 backdrop-blur-sm sm:hidden" />
-            <motion.div ref={panelRef}
+            {isDesktop && <motion.div ref={panelRef}
               initial={{ opacity: 0, y: 16, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
               className="fixed bottom-[calc(72px_+_var(--vk-bottom-nav-h,0px))] right-5 z-[74] hidden h-[min(640px,80vh)] w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-2xl sm:flex"
               role="dialog" aria-modal="true" aria-label="Accessibility Center">
               <PanelContent onClose={() => setIsOpen(false)} />
-            </motion.div>
-            <motion.div
+            </motion.div>}
+            {!isDesktop && <motion.div
+              ref={panelRef}
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', stiffness: 320, damping: 30 }}
               className="fixed inset-x-0 bottom-0 z-[74] flex h-[80vh] flex-col overflow-hidden rounded-t-3xl border border-border bg-bg-secondary shadow-2xl sm:hidden"
               role="dialog" aria-modal="true" aria-label="Accessibility Center">
               <div className="flex shrink-0 justify-center pt-2.5 pb-1"><span className="h-1 w-10 rounded-full bg-border" /></div>
               <PanelContent onClose={() => setIsOpen(false)} />
-            </motion.div>
+            </motion.div>}
           </>
         )}
       </AnimatePresence>
