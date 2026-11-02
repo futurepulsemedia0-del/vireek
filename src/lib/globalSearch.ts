@@ -144,6 +144,7 @@ export interface PaletteCommand {
 export const QUICK_ACTIONS: PaletteCommand[] = [
   { id: 'action:new-job', kind: 'action', label: 'New job', labelKey: 'palette.actions.new-job', shortcutId: 'create.job', href: '/dashboard/jobs', keywords: 'create add schedule', state: { prefill: {} } },
   { id: 'action:new-quote', kind: 'action', label: 'New quote', labelKey: 'palette.actions.new-quote', shortcutId: 'create.quote', href: '/dashboard/quotes?new=1', keywords: 'create add estimate proposal' },
+  { id: 'action:send-feedback', kind: 'action', label: 'Send feedback', href: '/dashboard/feedback/mine?new=1', keywords: 'feedback bug idea suggestion report problem' },
   { id: 'action:new-article', kind: 'action', label: 'New knowledge article', labelKey: 'palette.actions.new-article', href: '/dashboard/knowledge?new=1', keywords: 'create add faq answer' },
   { id: 'action:invite-teammate', kind: 'action', label: 'Invite teammate', labelKey: 'palette.actions.invite-teammate', shortcutId: 'create.invite', href: '/dashboard/team?invite=1', keywords: 'create add member staff technician user', permission: 'can_manage_team' },
 ];
