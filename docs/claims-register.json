@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "note": "Evidence register for risky claims. An entry counts as CURRENT evidence only with evidence.url, evidence.owner and either evidence.expiresAt in the future or evidence.issuedAt within 18 months. Do NOT add an entry unless the proof really exists. See BRAND_GOVERNANCE.md > Claims and evidence.",
+  "claims": []
+}
