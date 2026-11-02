@@ -17,6 +17,12 @@ export interface ChangelogEntry {
   type: EntryType;
   title: string;
   body: string;
+  /** فقط برای این نقش‌ها (owner/admin همه را می‌بینند). خالی = همه */
+  roles?: string[];
+  /** لینک عمیق داخل برنامه، مثل '/dashboard/calendar' */
+  href?: string;
+  /** نمایش دکمهٔ «Take the tour» */
+  tour?: boolean;
 }
 
 export interface ChangelogRelease {
