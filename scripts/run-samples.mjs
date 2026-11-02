@@ -234,6 +234,32 @@ for (const sample of c.WEBHOOK_VERIFY_SAMPLES) {
   }
 }
 
+/* ---------------- 2b. Quickstarts: run each guide's script end to end ---------------- */
+
+const qs = await import(
+  pathToFileURL(resolve(ROOT, 'supabase/functions/api-v1/quickstarts.ts')).href
+);
+for (const q of qs.QUICKSTARTS) {
+  const label = `quickstart "${q.id}" [${q.language}]`;
+  if (/vrk_(live|test)_[A-Za-z0-9]/.test(q.code)) {
+    bad(label, 'contains a hard-coded API key');
+    continue;
+  }
+  const dir = join(work, `q-${q.id}`);
+  mkdirSync(dir);
+  writeFileSync(join(dir, q.filename), q.code + '\n');
+  const [cmd, args] =
+    q.language === 'python'
+      ? ['python3', ['-I', join(dir, q.filename)]]
+      : [process.execPath, [join(dir, q.filename)]];
+  const r = await execute(label, cmd, args, { cwd: dir, env: { VIREEK_BASE_URL: BASE } });
+  if (!r) continue;
+  if (r.status !== 0) bad(label, r.stderr || r.stdout);
+  else if (!/^OK: /m.test(r.stdout))
+    bad(label, `no "OK:" line in output: ${r.stdout.slice(0, 200)}`);
+  else ok(label);
+}
+
 /* ---------------- 3. Static guards: docs ↔ webhook sender ---------------- */
 
 const sender = readFileSync(
