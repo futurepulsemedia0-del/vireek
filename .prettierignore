@@ -4,3 +4,4 @@ coverage
 supabase/functions/**/*.ts
 *.min.js
 public/openapi.json
+packages/sdk/src/index.ts
