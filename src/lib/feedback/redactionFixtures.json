@@ -1,0 +1,10 @@
+[
+  { "in": "mail me at jo.smith@acme.com now", "out": "mail me at [email] now" },
+  { "in": "call 555-123-4567 or (555) 987 6543", "out": "call [phone] or [phone]" },
+  { "in": "card 4111 1111 1111 1111 declined", "out": "card [number] declined" },
+  { "in": "ssn 123-45-6789", "out": "ssn [id]" },
+  { "in": "see https://app.vireek.com/dashboard/jobs?token=abc123&x=1#top", "out": "see https://app.vireek.com/dashboard/jobs" },
+  { "in": "key sk_live_abcdefghijklmnop1234 leaked", "out": "key [secret] leaked" },
+  { "in": "from 192.168.1.20", "out": "from [ip]" },
+  { "in": "The dispatch board loads slowly on Mondays.", "out": "The dispatch board loads slowly on Mondays." }
+]
