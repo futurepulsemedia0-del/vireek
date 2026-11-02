@@ -15,6 +15,7 @@ import { getBlob, listOutbox } from './outbox';
 import { refreshFormTemplates } from './forms';
 import { forgetFromVault, rehydrateFromVault } from '../native/vault';
 import { replaceBundle, type Bundle } from './store';
+import { isDataSaverActive } from '../native/dataSaver';
 
 // ------------------------------------------------------------
 // Observable sync state
@@ -344,7 +345,7 @@ export function requestSync(): void {
 
 /** Pre-loads the technician screens so the service worker caches them for offline use. */
 export function warmTechnicianRoutes(): void {
-  if (!navigator.onLine) return;
+  if (!navigator.onLine || isDataSaverActive()) return;
   void import('@/pages/TechnicianTodayPage').catch(() => undefined);
   void import('@/pages/TechnicianJobBriefPage').catch(() => undefined);
   void import('@/components/technician/FieldCapturePanel').catch(() => undefined);
