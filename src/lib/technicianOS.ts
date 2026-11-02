@@ -75,7 +75,11 @@ export async function advanceJobStatus(
     p_lng: coords?.lng ?? null,
   });
   if (error) throw error;
-  return data as { success: boolean; error?: string };
+  const result = data as { success: boolean; error?: string };
+  if (result.success && newStatus === 'completed') {
+    void import('@/lib/native/reviewService').then((m) => m.onJobCompleted()).catch(() => undefined);
+  }
+  return result;
 }
 
 export async function setSafetyFlag(jobId: string, flag: boolean, note?: string) {
