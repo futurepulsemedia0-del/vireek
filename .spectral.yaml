@@ -1,0 +1,36 @@
+# Lint for public/openapi.json (generated from supabase/functions/api-v1/contract.ts).
+# CI: npx @stoplight/spectral-cli lint public/openapi.json --fail-severity=warn
+extends: ['spectral:oas']
+rules:
+  # OpenAPI 3.1 allows role names (our scopes, e.g. calls:read) in `security` for http-bearer schemes;
+  # this rule only knows 3.0 semantics. Scope correctness is enforced by validateSpec() instead.
+  oas3-operation-security-defined: off
+  # Every operation must carry a description, tags and an operationId.
+  operation-description: error
+  operation-tags: error
+  operation-operationId: error
+  info-contact: error
+  # Public API conventions
+  vireek-operation-has-code-samples:
+    description: Every API operation needs code samples.
+    severity: error
+    given: '$.paths[*][get,post,put,patch,delete]'
+    then:
+      field: x-codeSamples
+      function: truthy
+  vireek-operation-declares-scope:
+    description: Every API operation must declare the scope it requires.
+    severity: error
+    given: '$.paths[*][get,post,put,patch,delete]'
+    then:
+      field: x-required-scope
+      function: truthy
+  vireek-webhook-declares-stability:
+    description: Every webhook must be labelled stable or beta.
+    severity: error
+    given: '$.webhooks[*].post'
+    then:
+      field: x-stability
+      function: enumeration
+      functionOptions:
+        values: [stable, beta]
