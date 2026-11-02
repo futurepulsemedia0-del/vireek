@@ -330,6 +330,9 @@ const CardFeedPage = lazy(() => import('@/pages/CardFeedPage').then((m) => ({ de
 const VendorRmaPage = lazy(() => import('@/pages/VendorRmaPage').then((m) => ({ default: m.VendorRmaPage })));
 const LiveMapPage = lazy(() => import('@/pages/LiveMapPage').then((m) => ({ default: m.LiveMapPage })));
 const WallboardPage = lazy(() => import('@/pages/WallboardPage').then((m) => ({ default: m.WallboardPage })));
+const TodayPage = lazy(() => import('@/pages/TodayPage').then((m) => ({ default: m.TodayPage })));
+const TodayWallboardPage = lazy(() => import('@/pages/TodayWallboardPage').then((m) => ({ default: m.TodayWallboardPage })));
+const FirstCallPage = lazy(() => import('@/pages/onboarding/FirstCallPage').then((m) => ({ default: m.FirstCallPage })));
 const WallboardSettingsPage = lazy(() => import('@/pages/WallboardSettingsPage').then((m) => ({ default: m.WallboardSettingsPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
 const CustomerTrustBankPage = lazy(() => import('@/pages/CustomerTrustBankPage').then((m) => ({ default: m.CustomerTrustBankPage })));
@@ -719,6 +722,7 @@ function AppRoutes() {
         <Route path="/onboarding" element={<OnboardingWizard />} />
         <Route path="/onboarding/concierge" element={<OnboardingConciergePage />} />
         <Route path="/onboarding/classic" element={<OnboardingPage />} />
+        <Route path="/onboarding/first-call" element={<ProtectedRoute><FirstCallPage /></ProtectedRoute>} />
         <Route path="/onboarding-guide" element={<OnboardingGuidePage />} />
         <Route path="/academy" element={<AcademyPage />} />
         <Route path="/academy/certificate" element={<AcademyCertificatePage />} />
@@ -3960,6 +3964,8 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+        <Route path="/dashboard/today" element={<ProtectedRoute><TodayPage /></ProtectedRoute>} />
+        <Route path="/dashboard/today/tv" element={<ProtectedRoute><TodayWallboardPage /></ProtectedRoute>} />
         <Route
           path="/dashboard/next-best-actions"
           element={
