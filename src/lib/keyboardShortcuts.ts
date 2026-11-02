@@ -22,6 +22,7 @@
 
 import { useEffect, useRef } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
+import { openFeedback } from '@/lib/feedback/events';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -166,6 +167,7 @@ export function DEFAULT_SHORTCUTS(navigate: NavigateFunction, openHelp: () => vo
     { type: 'sequence', keys: ['g', 't'], description: 'Go to Team', category: 'Navigation', action: () => navigate('/dashboard/team') },
     { type: 'sequence', keys: ['g', 'b'], description: 'Go to Billing', category: 'Navigation', action: () => navigate('/dashboard/billing') },
     { type: 'sequence', keys: ['g', 's'], description: 'Go to Settings', category: 'Navigation', action: () => navigate('/dashboard/settings') },
+    { type: 'sequence', keys: ['f', 'b'], description: 'Send feedback', category: 'General', action: () => openFeedback() },
     { type: 'combo', combo: '?', description: 'Show keyboard shortcuts', category: 'General', action: openHelp },
   ];
 }
