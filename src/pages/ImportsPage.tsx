@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FileUp, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { requestSurvey } from '@/lib/feedback/events';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { SkeletonCard } from '@/components/Skeleton';
 import { ImportWizard } from '@/components/imports/ImportWizard';
@@ -64,7 +65,7 @@ export function ImportsPage() {
         </div>
       </div>
       <div className="space-y-6">
-        <ImportWizard accountOwnerId={accountOwnerId} onFinished={() => void loadJobs()} />
+        <ImportWizard accountOwnerId={accountOwnerId} onFinished={() => { void loadJobs(); requestSurvey({ type: 'ces', trigger: 'import_wizard' }); }} />
         <ImportHistory accountOwnerId={accountOwnerId} jobs={jobs} loading={jobsLoading} error={jobsError} onRefresh={() => void loadJobs()} />
       </div>
     </DashboardLayout>
