@@ -620,6 +620,8 @@ const SystemRequirementsPage = lazy(() => import('@/pages/SystemRequirementsPage
 const MaintenancePage = lazy(() => import('@/pages/MaintenancePage').then((m) => ({ default: m.MaintenancePage })));
 const CustomerDetailPage = lazy(() => import('@/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })));
 const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then((m) => ({ default: m.FeedbackPage })));
+const MyFeedbackPage = lazy(() => import('@/pages/MyFeedbackPage').then((m) => ({ default: m.MyFeedbackPage })));
+const StaffFeedbackPage = lazy(() => import('@/pages/admin/StaffFeedbackPage').then((m) => ({ default: m.StaffFeedbackPage })));
 const TechnicianProfilePage = lazy(() => import('@/pages/TechnicianProfilePage').then((m) => ({ default: m.TechnicianProfilePage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const CrmSyncPage = lazy(() => import('@/pages/CrmSyncPage').then((m) => ({ default: m.CrmSyncPage })));
@@ -1091,6 +1093,8 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/dashboard/feedback/mine" element={<ProtectedRoute><MyFeedbackPage /></ProtectedRoute>} />
+        <Route path="/staff/feedback" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffFeedbackPage /></Suspense></StaffRoute>} />
         <Route
           path="/dashboard/feedback"
           element={
