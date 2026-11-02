@@ -3,6 +3,8 @@ import { type LanguageCode, type TranslationKey, TRANSLATIONS, isRTL } from '@/l
 import i18n from '@/i18n';
 import { applyDocumentLanguage, clearUrlLanguage, resolveInitialLanguage, storeLanguage } from '@/lib/languageSync';
 import { DEFAULT_SETTINGS, sanitizeSettings, type AccessibilitySettings } from '@/lib/a11y/settings';
+import { MotionConfig } from 'framer-motion';
+import { SkipLinks } from '@/components/a11y/SkipLinks';
 import { applyToDocument } from '@/lib/a11y/apply';
 import { detectSystemPreferences } from '@/lib/a11y/system';
 export type { AccessibilitySettings, ColorBlindMode } from '@/lib/a11y/settings';
@@ -162,6 +164,7 @@ interface AccessibilityContextValue {
   updateSetting: <K extends keyof AccessibilitySettings>(key: K, value: AccessibilitySettings[K]) => void;
   applyProfile: (profile: AccessibilityProfile) => void;
   resetAll: () => void;
+  replaceSettings: (s: AccessibilitySettings) => void;
   activeProfile: string | null;
   score: number;
   hasOnboarded: boolean;
@@ -256,6 +259,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     setSettings((prev) => ({ ...prev, ...profile.settings }));
   }, []);
 
+  const replaceSettings = useCallback((s: AccessibilitySettings) => setSettings(sanitizeSettings(s)), []);
   const resetAll = useCallback(() => {
     setSettings(DEFAULT_SETTINGS);
   }, []);
@@ -305,9 +309,12 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
   return (
     <AccessibilityContext.Provider
-      value={{ settings, updateSetting, applyProfile, resetAll, activeProfile, score, hasOnboarded, setHasOnboarded, language, setLanguage, recentLanguages, t, rtl }}
+      value={{ settings, updateSetting, applyProfile, resetAll, replaceSettings, activeProfile, score, hasOnboarded, setHasOnboarded, language, setLanguage, recentLanguages, t, rtl }}
     >
-      {children}
+      <MotionConfig reducedMotion={settings.reduceMotion || settings.stopAnimations ? 'always' : 'user'}>
+        <SkipLinks language={language} />
+        {children}
+      </MotionConfig>
     </AccessibilityContext.Provider>
   );
 }
