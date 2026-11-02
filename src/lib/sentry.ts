@@ -38,5 +38,6 @@ export function setSentryUser(user: { id: string } | null) {
 
 /** Manual capture — use in catch blocks for handled errors worth tracking. */
 export function captureError(error: unknown, context?: Record<string, unknown>) {
+    if (isNative()) void import('@/lib/native/reviewService').then((m) => m.recordError()).catch(() => undefined);
   Sentry.captureException(error, context ? { extra: context } : undefined);
 }
