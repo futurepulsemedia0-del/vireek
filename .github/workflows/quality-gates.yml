@@ -46,6 +46,36 @@ jobs:
 
       - name: Fail if api-v1, its contract and public/openapi.json disagree
         run: node scripts/openapi.mjs check
+
+      - name: Lint the published spec (Spectral, rules in .spectral.yaml)
+        run: npx --yes @stoplight/spectral-cli@6.15.0 lint public/openapi.json --fail-severity=warn
+
+  docs-samples:
+    name: Docs code samples (executed, not just rendered)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install requests==2.32.3
+
+      - name: Run every cURL/JavaScript/Python/Go sample, webhook-verification sample and quickstart
+        run: node scripts/run-samples.mjs
+
+      - name: Fail if the generated TypeScript SDK differs from the contract
+        run: node scripts/gen-sdk.mjs check
   asset-budget:
     name: Asset budget (images, fonts, SVG)
     runs-on: ubuntu-latest
