@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vk_shortcut_today_short">Today</string>
+    <string name="vk_shortcut_today_long">Today\'s jobs</string>
+    <string name="vk_shortcut_messages_short">Messages</string>
+    <string name="vk_shortcut_messages_long">Job messages</string>
+</resources>
