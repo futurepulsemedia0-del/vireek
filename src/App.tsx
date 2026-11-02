@@ -3421,6 +3421,7 @@ function AppRoutes() {
           }
         />
 <Route path="/tech/pay" element={<TechnicianRoute><Suspense fallback={<PageLoader />}><TechnicianPayPage /></Suspense></TechnicianRoute>} />
+<Route path="/tech/timesheet" element={<TechnicianRoute><Suspense fallback={<PageLoader />}><TechnicianTimesheetPage /></Suspense></TechnicianRoute>} />
         <Route
           path="/dashboard/expert-assist"
           element={
