@@ -1,3 +1,4 @@
+import { logHelpSearchMiss } from '@/lib/feedback/api';
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -195,6 +196,11 @@ export function HelpCenterPage() {
     () => filteredCategories.reduce((sum, category) => sum + category.articles.length, 0),
     [filteredCategories]
   );
+    useEffect(() => {
+    if (normalizedQuery.length < 3 || totalResults > 0) return;
+    const t = window.setTimeout(() => void logHelpSearchMiss(normalizedQuery).catch(() => undefined), 1500);
+    return () => window.clearTimeout(t);
+  }, [normalizedQuery, totalResults]);
 
   const scrollToCategory = (id: string) => {
     setActiveCategory(id);
