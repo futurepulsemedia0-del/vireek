@@ -2,47 +2,14 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import { type LanguageCode, type TranslationKey, TRANSLATIONS, isRTL } from '@/lib/i18n';
 import i18n from '@/i18n';
 import { applyDocumentLanguage, clearUrlLanguage, resolveInitialLanguage, storeLanguage } from '@/lib/languageSync';
+import { DEFAULT_SETTINGS, sanitizeSettings, type AccessibilitySettings } from '@/lib/a11y/settings';
+import { applyToDocument } from '@/lib/a11y/apply';
+import { detectSystemPreferences } from '@/lib/a11y/system';
+export type { AccessibilitySettings, ColorBlindMode } from '@/lib/a11y/settings';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
-
-export interface AccessibilitySettings {
-  // Vision
-  textSize: number;          // 0.875–1.5 (rem multiplier)
-  contentScale: number;       // 0.9–1.2
-  readableFont: boolean;
-  dyslexiaFont: boolean;
-  largeCursor: boolean;
-  highlightLinks: boolean;
-  highlightHeadings: boolean;
-  strongFocus: boolean;
-
-  // Color & Contrast
-  highContrast: boolean;
-  invertColors: boolean;
-  grayscale: boolean;
-  monochrome: boolean;
-  highSaturation: boolean;
-  lowSaturation: boolean;
-  darkContrast: boolean;
-  lightContrast: boolean;
-
-  // Reading
-  readingMode: boolean;
-  lineHeight: number;         // 1.4–2.2
-  letterSpacing: number;       // 0–0.2em
-  wordSpacing: number;         // 0–0.3em
-
-  // Motion & Media
-  reduceMotion: boolean;
-  stopAnimations: boolean;
-  hideImages: boolean;
-
-  // Navigation
-  highlightKeyboardFocus: boolean;
-  screenReaderMode: boolean;
-}
 
 const DEFAULT_SETTINGS: AccessibilitySettings = {
   textSize: 1,
@@ -215,11 +182,11 @@ const RECENT_LANG_KEY = 'vireek-a11y-recent-langs';
 function loadSettings(): AccessibilitySettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_SETTINGS;
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    if (raw) return sanitizeSettings(JSON.parse(raw));
   } catch {
-    return DEFAULT_SETTINGS;
+    /* storage blocked or corrupt JSON → fall through to defaults */
   }
+  return sanitizeSettings(detectSystemPreferences(window));
 }
 
 function loadOnboarded(): boolean {
@@ -244,48 +211,6 @@ function loadRecentLanguages(): LanguageCode[] {
 /*  CSS application                                                    */
 /* ------------------------------------------------------------------ */
 
-function buildCSSVars(s: AccessibilitySettings): string {
-  const filters: string[] = [];
-  if (s.invertColors) filters.push('invert(1) hue-rotate(180deg)');
-  if (s.grayscale) filters.push('grayscale(1)');
-  if (s.monochrome) filters.push('grayscale(1) contrast(1.1)');
-  if (s.highSaturation) filters.push('saturate(1.8)');
-  if (s.lowSaturation) filters.push('saturate(0.5)');
-
-  const parts: string[] = [];
-
-  parts.push(`--a11y-font-scale: ${s.textSize}`);
-  parts.push(`--a11y-content-scale: ${s.contentScale}`);
-  parts.push(`--a11y-line-height: ${s.lineHeight}`);
-  parts.push(`--a11y-letter-spacing: ${s.letterSpacing}em`);
-  parts.push(`--a11y-word-spacing: ${s.wordSpacing}em`);
-
-  if (filters.length > 0) {
-    parts.push(`--a11y-filter: ${filters.join(' ')}`);
-  } else {
-    parts.push(`--a11y-filter: none`);
-  }
-
-  return parts.join('; ');
-}
-
-function buildSettingsClass(s: AccessibilitySettings): string {
-  const classes: string[] = [];
-  if (s.readableFont) classes.push('a11y-readable-font');
-  if (s.dyslexiaFont) classes.push('a11y-dyslexia-font');
-  if (s.largeCursor) classes.push('a11y-large-cursor');
-  if (s.highlightLinks) classes.push('a11y-highlight-links');
-  if (s.highlightHeadings) classes.push('a11y-highlight-headings');
-  if (s.strongFocus || s.highlightKeyboardFocus) classes.push('a11y-strong-focus');
-  if (s.highContrast) classes.push('a11y-high-contrast');
-  if (s.darkContrast) classes.push('a11y-dark-contrast');
-  if (s.lightContrast) classes.push('a11y-light-contrast');
-  if (s.readingMode) classes.push('a11y-reading-mode');
-  if (s.reduceMotion || s.stopAnimations) classes.push('a11y-reduce-motion');
-  if (s.hideImages) classes.push('a11y-hide-images');
-  if (s.screenReaderMode) classes.push('a11y-screen-reader');
-  return classes.join(' ');
-}
 
 function calculateScore(s: AccessibilitySettings): number {
   let score = 60;
@@ -357,22 +282,14 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
   const rtl = isRTL(language);
 
-  // Persist + apply CSS
+   // Persist + apply (only --a11y-* vars and managed classes are touched)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    const root = document.documentElement;
-    root.setAttribute('style', buildCSSVars(settings));
-    const cls = buildSettingsClass(settings);
-    root.classList.remove(
-      'a11y-readable-font', 'a11y-dyslexia-font', 'a11y-large-cursor',
-      'a11y-highlight-links', 'a11y-highlight-headings', 'a11y-strong-focus',
-      'a11y-high-contrast', 'a11y-dark-contrast', 'a11y-light-contrast',
-      'a11y-reading-mode', 'a11y-reduce-motion', 'a11y-hide-images',
-      'a11y-screen-reader'
-    );
-    if (cls) {
-      cls.split(' ').forEach((c) => root.classList.add(c));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch {
+      /* private mode / quota: settings still apply for this session */
     }
+    applyToDocument(settings);
   }, [settings]);
 
     // Keep <html lang/dir> and react-i18next in sync with the single language state.
