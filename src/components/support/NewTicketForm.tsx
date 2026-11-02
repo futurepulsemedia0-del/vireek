@@ -1,3 +1,4 @@
+import { HelpSuggestions } from '@/components/feedback/HelpSuggestions';
 import { useState } from 'react';
 import { Loader2, Send } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
@@ -53,6 +54,7 @@ export function NewTicketForm({
         label="Subject" required maxLength={SUBJECT_MAX} value={subject} error={errors.subject}
         onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Invoices aren’t syncing to QuickBooks" disabled={submitting}
       />
+      <HelpSuggestions text={subject} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="ticket-category" className="mb-1.5 block text-sm font-medium text-text-primary">Category</label>
