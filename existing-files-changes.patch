@@ -1,0 +1,128 @@
+--- a/vercel.json
++++ b/vercel.json
+@@ -48,7 +48,7 @@
+         { "key": "X-Frame-Options", "value": "DENY" },
+         {
+           "key": "Permissions-Policy",
+-          "value": "microphone=(self "https://*.daily.co"), camera=(self "https://*.daily.co"), display-capture=(self "https://*.daily.co"), geolocation=(self), payment=(self \"https://js.stripe.com\" \"https://*.js.stripe.com\"), usb=(), midi=(), magnetometer=(), gyroscope=(), interest-cohort=()"
++          "value": "microphone=(self \"https://*.daily.co\"), camera=(self \"https://*.daily.co\"), display-capture=(self \"https://*.daily.co\"), geolocation=(self), payment=(self \"https://js.stripe.com\" \"https://*.js.stripe.com\"), usb=(), midi=(), magnetometer=(), gyroscope=(), interest-cohort=()"
+         },
+         {
+           "key": "Content-Security-Policy",
+@@ -69,7 +69,6 @@
+       "headers": [{ "key": "Content-Type", "value": "application/json" }]
+     },
+     {
+-    {
+       "source": "/embed/(.*)",
+       "headers": [
+         {
+@@ -78,6 +77,7 @@
+         }
+       ]
+     },
++    {
+       "source": "/badge",
+       "headers": [
+         {
+--- a/src/lib/vercelHeaders.test.ts
++++ b/src/lib/vercelHeaders.test.ts
+@@ -40,8 +40,8 @@
+ const MAP_HOST = 'https://tiles.openfreemap.org'
+ 
+ describe('vercel.json security headers', () => {
+-  const csp = parseCsp(headerValue('Content-Security-Policy', '(?!badge)'))
+-  const perms = parsePermissions(headerValue('Permissions-Policy', '(?!badge)'))
++  const csp = parseCsp(headerValue('Content-Security-Policy', '(?!badge'))
++  const perms = parsePermissions(headerValue('Permissions-Policy', '(?!badge'))
+ 
+   it('allows Stripe.js and Payment Request endpoints', () => {
+     expect(csp['script-src']).toContain('https://js.stripe.com')
+@@ -72,7 +72,7 @@
+   it('has only valid CSP directive names (no stray source tokens)', () => {
+     const known = new Set([
+       'default-src', 'script-src', 'style-src', 'font-src', 'img-src', 'manifest-src',
+-      'connect-src', 'frame-src', 'worker-src', 'object-src', 'base-uri', 'form-action',
++      'connect-src', 'frame-src', 'worker-src', 'media-src', 'object-src', 'base-uri', 'form-action',
+       'frame-ancestors', 'upgrade-insecure-requests',
+     ])
+     for (const name of Object.keys(csp)) expect(known.has(name), name).toBe(true)
+@@ -85,15 +85,17 @@
+     expect(csp['form-action']).toEqual(["'self'"])
+     expect(csp['frame-ancestors']).toEqual(["'none'"])
+     expect(csp['upgrade-insecure-requests']).toEqual([])
+-    expect(headerValue('X-Frame-Options', '(?!badge)')).toBe('DENY')
++    expect(headerValue('X-Frame-Options', '(?!badge')).toBe('DENY')
+   })
+ 
+   it('enables payment and geolocation only for self (plus Stripe for payment)', () => {
+     expect(perms.geolocation).toEqual(['self'])
+     expect(perms.payment).toEqual(expect.arrayContaining(['self', 'https://js.stripe.com']))
+     expect(perms.payment).not.toContain('*')
+-    expect(perms.microphone).toEqual(['self'])
+-    expect(perms.camera).toEqual(['self'])
++    // Daily.co video sessions (dashboard/video-sessions) need mic/camera inside their iframe — nothing broader.
++    expect(perms.microphone).toEqual(['self', 'https://*.daily.co'])
++    expect(perms.camera).toEqual(['self', 'https://*.daily.co'])
++    expect(perms['display-capture']).toEqual(['self', 'https://*.daily.co'])
+     for (const feature of ['usb', 'midi', 'magnetometer', 'gyroscope', 'interest-cohort']) {
+       expect(perms[feature]).toEqual([])
+     }
+--- a/src/i18n/index.ts
++++ b/src/i18n/index.ts
+@@ -47,7 +47,6 @@
+   },
+   lng: getInitialLanguage(),
+   fallbackLng: 'en',
+-  ns: ['common'],
+   ns: ['common', 'dashboard'],
+   defaultNS: 'common',
+   interpolation: {
+--- a/src/pages/BusinessConstitutionPage.tsx
++++ b/src/pages/BusinessConstitutionPage.tsx
+@@ -156,7 +156,7 @@
+                 <div>
+                   <span className="font-medium text-text-primary">{row.label}</span>
+                   <span className="ml-2 text-xs text-text-secondary">{row.agent_source} · {row.category}</span>
+-                  {row.is_red_line && <span className="ml-2 rounded-full bg-error-500/15 px-2 py-0.5 text-xs font-medium text-error-500">RED LINE</span>}
++                  {row.is_red_line && <span className="ml-2 rounded-full bg-error-500/15 px-2 py-0.5 text-xs font-medium text-error-500">Red line</span>}
+                 </div>
+                 <span className="text-xs text-text-secondary">
+                   {!row.enabled ? 'Disabled' : row.requires_approval ? 'Needs approval' : row.auto_approve_max_cents ? `Auto ≤ $${(row.auto_approve_max_cents / 100).toFixed(0)}` : 'Fully autonomous'}
+--- a/scripts/check-voice.mjs
++++ b/scripts/check-voice.mjs
+@@ -21,7 +21,7 @@
+   'HMAC', 'SHA', 'USPS', 'ASHRAE', 'AHRI', 'STOP', 'HELP', 'TCPA', 'CAN', 'SPAM', 'UTC', 'JSON', 'XML', 'DNS', 'SPF', 'DKIM',
+   'DMARC', 'TLS', 'SSL', 'RLS', 'UUID', 'ISO', 'ANSI', 'NEC', 'IRC', 'ACCA', 'AWG', 'BTU', 'SEER', 'HSPF', 'COP',
+   'WCAG', 'CCPA', 'DMCA', 'NOAA', 'NASA', 'FEMA', 'EIA', 'WAI', 'ARIA', 'CNAME', 'MM', 'DD', 'YYYY', 'STOPALL',
+-  'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT', 'PLANS', 'NVDA', 'CPRA', 'POST', 'XXXX', 'START', 'SIEM', 'DELETE',
++  'SFTP', 'NDJSON', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT', 'PLANS', 'NVDA', 'CPRA', 'POST', 'XXXX', 'START', 'SIEM', 'DELETE',
+ ]);
+ const FILLER = /\b(?:oops|whoops|uh[- ]oh|yikes)\b/i;
+ const RAW_CODE = /\b(?:ERR_[A-Z_]+|E\d{4,}|[45]\d{2} error|error [45]\d{2}|HTTP [45]\d{2}|error code:?\s*\w+)\b/i;
+--- a/package.json
++++ b/package.json
+@@ -14,6 +14,10 @@
+     "lint:design": "node scripts/check-design-system.mjs",
+     "lint:locale": "node scripts/check-raw-locale.mjs",
+     "lint:voice": "node scripts/check-voice.mjs",
++    "lint:tokens": "node scripts/brand-audit/lint-tokens.mjs",
++    "brand:audit": "node scripts/brand-audit/run.mjs",
++    "brand:audit:static": "node scripts/brand-audit/run.mjs --static-only --check",
++    "brand:audit:selftest": "node scripts/brand-audit/selftest.mjs",
+     "i18n:keys": "node scripts/i18n-missing-keys.mjs",
+     "openapi:generate": "node scripts/openapi.mjs generate",
+     "openapi:check": "node scripts/openapi.mjs check",
+--- a/.gitignore
++++ b/.gitignore
+@@ -37,3 +37,10 @@
+ *.jks
+ *.keystore
+ android/keystore.properties
++
++# Brand audit outputs (the baselines under scripts/brand-audit/baselines/ ARE committed)
++reports/brand-audit/
++reports/brand-audit.html
++reports/brand-audit.json
++.lighthouseci
++lighthouserc.brand-audit.json
