@@ -14,12 +14,30 @@
 //   supabase functions deploy api-v1 --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { NOT_FOUND_MESSAGE, RATE_LIMIT_PER_MINUTE, isUuid, parseBefore, parseLimit, resolveRoute } from "./contract.ts";
+import {
+  API_VERSION,
+  API_VERSION_HEADER,
+  MODE_HEADER,
+  NOT_FOUND_MESSAGE,
+  RATE_LIMIT_PER_MINUTE,
+  clientIp,
+  deprecationHeaders,
+  errorBody,
+  errorStatus,
+  ipAllowed,
+  isUuid,
+  parseBefore,
+  parseLimit,
+  resolveRoute,
+  sandboxResponse,
+  type ErrorCode,
+} from "./contract.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Authorization, Content-Type",
+  "Access-Control-Expose-Headers": "X-Request-Id, X-RateLimit-Limit, Retry-After, X-Vireek-Mode, X-Vireek-Api-Version, Deprecation, Sunset",
 };
 
 function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
@@ -36,6 +54,8 @@ async function sha256Hex(input: string): Promise<string> {
 }
 
 interface LogCtx {
+  requestId: string;
+  mode: "live" | "test";
   admin: ReturnType<typeof createClient> | null;
   keyId: string | null;
   userId: string | null;
@@ -44,11 +64,11 @@ interface LogCtx {
 
 async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
-  if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
+  if (req.method !== "GET") return fail(ctx, "method_not_allowed", "Method not allowed", { Allow: "GET, OPTIONS" });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!supabaseUrl || !serviceRoleKey) return json({ error: "Server not configured" }, 500);
+  if (!supabaseUrl || !serviceRoleKey) return fail(ctx, "server_not_configured", "Server not configured");
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
 
   ctx.admin = admin;
@@ -56,22 +76,33 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   const authHeader = req.headers.get("Authorization") || "";
   const rawKey = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
   if (!rawKey) {
-    return json({ error: "Missing Authorization header. Use: Authorization: Bearer vrk_live_..." }, 401);
+    return fail(ctx, "missing_api_key", "Missing Authorization header. Use: Authorization: Bearer vrk_live_...");
   }
 
   const keyHash = await sha256Hex(rawKey);
   const { data: keyRow } = await admin
     .from("api_keys")
-    .select("id, user_id, scopes, revoked_at")
+    .select("id, user_id, scopes, revoked_at, mode, ip_allowlist")
     .eq("key_hash", keyHash)
     .maybeSingle();
 
   if (!keyRow || keyRow.revoked_at) {
-    return json({ error: "Invalid or revoked API key" }, 401);
+    return fail(ctx, "invalid_api_key", "Invalid or revoked API key");
   }
 
   ctx.keyId = keyRow.id;
   ctx.userId = keyRow.user_id;
+  ctx.mode = keyRow.mode === "test" ? "test" : "live";
+
+  // ---- IP allowlist (empty = any address; unknown address with a list = denied) ----
+  const callerIp = clientIp(req.headers);
+  if (!ipAllowed(callerIp, (keyRow.ip_allowlist ?? []) as string[])) {
+    return fail(
+      ctx,
+      "ip_not_allowed",
+      `Requests from ${callerIp ?? "an unknown address"} are not allowed for this key. Update its IP allowlist in Settings → API Keys.`,
+    );
+  }
   // Per-key limiter (fixed 60 s window, counted from api_request_logs).
   // Fail-open: a limiter error must never take the API down.
   const { data: withinLimit } = await admin.rpc("api_v1_rate_limit_ok", {
@@ -79,42 +110,57 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
     p_limit: RATE_LIMIT_PER_MINUTE,
   });
   if (withinLimit === false) {
-    return json(
-      { error: `Rate limit exceeded (${RATE_LIMIT_PER_MINUTE} requests/minute per key). Retry shortly.` },
-      429,
+    return fail(
+      ctx,
+      "rate_limited",
+      `Rate limit exceeded (${RATE_LIMIT_PER_MINUTE} requests/minute per key). Retry shortly.`,
       { "Retry-After": "60" },
     );
   }
   // Fire-and-forget last_used_at update — doesn't block the response.
-  admin.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", keyRow.id).then(() => {});
+  admin
+    .from("api_keys")
+    .update({ last_used_at: new Date().toISOString(), ...(callerIp ? { last_used_ip: callerIp } : {}) })
+    .eq("id", keyRow.id)
+    .then(() => {});
 
   // ---- Route (single source of truth: ./contract.ts) ---------------------
   const url = new URL(req.url);
   const route = resolveRoute(url.pathname);
   ctx.resource = route.kind === "ok" ? route.resource : null;
-  if (route.kind !== "ok") return json({ error: NOT_FOUND_MESSAGE }, 404);
+  if (route.kind !== "ok") return fail(ctx, "route_not_found", NOT_FOUND_MESSAGE);
   if (!(keyRow.scopes as string[]).includes(route.scope)) {
-    return json({ error: `This key is missing the required scope: ${route.scope}` }, 403);
+    return fail(ctx, "insufficient_scope", `This key is missing the required scope: ${route.scope}`);
+  }
+
+  // ---- Test keys: synthetic data only, never the real tables ------------------
+  if (ctx.mode === "test") {
+    if (route.id !== null && !isUuid(route.id)) return fail(ctx, "invalid_id", "Invalid id: expected a UUID");
+    const testBefore = parseBefore(url.searchParams.get("before"));
+    if (!testBefore.ok) return fail(ctx, "invalid_before", "Invalid before: expected an ISO 8601 timestamp");
+    const body = sandboxResponse(route.resource, route.id, parseLimit(url.searchParams.get("limit")), testBefore.value);
+    if (body === null) return fail(ctx, "record_not_found", `${route.resource} not found`);
+    return json(body);
   }
 
   let query = admin.from(route.table).select("*").eq("user_id", keyRow.user_id);
 
   if (route.id !== null) {
-    if (!isUuid(route.id)) return json({ error: "Invalid id: expected a UUID" }, 400);
+    if (!isUuid(route.id)) return fail(ctx, "invalid_id", "Invalid id: expected a UUID");
     const { data, error } = await query.eq("id", route.id).maybeSingle();
-    if (error) return json({ error: "Query failed" }, 500);
-    if (!data) return json({ error: `${route.resource} not found` }, 404);
+    if (error) return fail(ctx, "query_failed", "Query failed");
+    if (!data) return fail(ctx, "record_not_found", `${route.resource} not found`);
     return json({ data });
   }
 
   const limit = parseLimit(url.searchParams.get("limit"));
   const before = parseBefore(url.searchParams.get("before"));
-  if (!before.ok) return json({ error: "Invalid before: expected an ISO 8601 timestamp" }, 400);
+  if (!before.ok) return fail(ctx, "invalid_before", "Invalid before: expected an ISO 8601 timestamp");
   query = query.order("created_at", { ascending: false }).limit(limit);
   if (before.value) query = query.lt("created_at", before.value);
 
   const { data, error } = await query;
-  if (error) return json({ error: "Query failed" }, 500);
+  if (error) return fail(ctx, "query_failed", "Query failed");
   return json({ data, has_more: data.length === limit, next_before: data.length ? data[data.length - 1].created_at : null });
 }
 
@@ -122,13 +168,20 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
 // The raw key is never logged; unauthenticated requests have no key to attribute.
 Deno.serve(async (req: Request) => {
   const startedAt = Date.now();
-  const ctx: LogCtx = { admin: null, keyId: null, userId: null, resource: null };
+  const ctx: LogCtx = { requestId: crypto.randomUUID(), mode: "live", admin: null, keyId: null, userId: null, resource: null };
 
   let res: Response;
   try {
     res = await handle(req, ctx);
   } catch (_err) {
-    res = json({ error: "Internal error" }, 500);
+    res = fail(ctx, "internal_error", "Internal error");
+  }
+  res.headers.set("X-Request-Id", ctx.requestId);
+  res.headers.set(API_VERSION_HEADER, API_VERSION);
+  if (ctx.keyId) {
+    res.headers.set("X-RateLimit-Limit", String(RATE_LIMIT_PER_MINUTE));
+    res.headers.set(MODE_HEADER, ctx.mode);
+    for (const [name, value] of Object.entries(deprecationHeaders(ctx.resource))) res.headers.set(name, value);
   }
 
   const latencyMs = Math.max(0, Date.now() - startedAt);
