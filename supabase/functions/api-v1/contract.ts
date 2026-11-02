@@ -138,7 +138,7 @@ export const LIST_PARAMETERS = [
 export const ERROR_RESPONSES: Record<string, string> = {
   '400': 'Malformed request: id is not a UUID, or before is not an ISO 8601 timestamp.',
   '401': 'Missing, invalid or revoked API key.',
-  '403': 'The key is missing the scope this endpoint requires.',
+  '403': "The key is missing the scope this endpoint requires, or the request IP is not on the key's allowlist.",
   '404': 'The requested record does not exist on your account.',
   '429': `Rate limit exceeded (${RATE_LIMIT_PER_MINUTE} requests/minute per key). Wait the number of seconds in the Retry-After header.`,
   '500': 'Unexpected server error.',
@@ -146,6 +146,48 @@ export const ERROR_RESPONSES: Record<string, string> = {
 
 export const NOT_FOUND_MESSAGE = `Not found. Available resources: ${RESOURCES.map((r) => r.name).join(', ')}`;
 
+/* ------------------------------------------------------------------ */
+/*  Error catalog — every error the API can return, one place           */
+/* ------------------------------------------------------------------ */
+
+export const ERROR_DOC_BASE = 'https://vireek.com/developers/api-reference#error-';
+
+export interface ErrorDef {
+  code: string;
+  status: number;
+  cause: string;
+  fix: string;
+}
+
+export const ERROR_CATALOG = [
+  { code: 'missing_api_key', status: 401, cause: 'The request has no Authorization header, or it is not a Bearer token.', fix: 'Send Authorization: Bearer vrk_live_… with every request.' },
+  { code: 'invalid_api_key', status: 401, cause: 'The key does not exist or has been revoked.', fix: 'Create a new key under Settings → API Keys and update your integration.' },
+  { code: 'insufficient_scope', status: 403, cause: 'The key does not have the scope this endpoint requires.', fix: 'Create a key that includes the scope named in the error message (see x-required-scope in the spec).' },
+  { code: 'ip_not_allowed', status: 403, cause: "The request came from an address that is not on the key's IP allowlist (or its address could not be determined).", fix: 'Add the address or CIDR range under Settings → API Keys, or clear the allowlist. The error message names the address we saw.' },
+  { code: 'invalid_id', status: 400, cause: 'The id in the path is not a UUID.', fix: 'Use the id value returned by the list endpoint.' },
+  { code: 'invalid_before', status: 400, cause: 'The before parameter is not an ISO 8601 timestamp.', fix: 'Pass the next_before value from the previous page, URL-encoded.' },
+  { code: 'route_not_found', status: 404, cause: 'The path is not a documented resource route.', fix: 'Check the path against the API reference.' },
+  { code: 'record_not_found', status: 404, cause: 'No record with this id exists on your account.', fix: 'Confirm the id and that the record belongs to the account that owns the key.' },
+  { code: 'method_not_allowed', status: 405, cause: 'The API is read-only; only GET is supported.', fix: 'Use GET.' },
+  { code: 'rate_limited', status: 429, cause: `More than ${RATE_LIMIT_PER_MINUTE} requests in one minute with the same key.`, fix: 'Wait the number of seconds in the Retry-After header, then retry with backoff.' },
+  { code: 'query_failed', status: 500, cause: 'The database query failed.', fix: 'Retry with backoff. If it persists, contact support with the X-Request-Id value.' },
+  { code: 'server_not_configured', status: 500, cause: 'The API deployment is missing required configuration.', fix: 'Self-hosted deployments: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY for the function.' },
+  { code: 'internal_error', status: 500, cause: 'An unexpected error occurred.', fix: 'Retry with backoff. If it persists, contact support with the X-Request-Id value.' },
+] as const satisfies readonly ErrorDef[];
+
+export type ErrorCode = (typeof ERROR_CATALOG)[number]['code'];
+
+export function errorStatus(code: ErrorCode): number {
+  return ERROR_CATALOG.find((e) => e.code === code)!.status;
+}
+
+/**
+ * Consistent error JSON. `error` stays a plain string (existing clients, the CLI and the
+ * request logs read it); `code`, `doc_url` and `request_id` are additive.
+ */
+export function errorBody(code: ErrorCode, message: string, requestId: string) {
+  return { error: message, code, doc_url: `${ERROR_DOC_BASE}${code}`, request_id: requestId };
+}
 export function resourceByName(name: string): ResourceDef | undefined {
   return RESOURCES.find((r) => r.name === name);
 }
@@ -285,6 +327,7 @@ export interface OpenApiSpec {
   externalDocs: { description: string; url: string };
   security: Record<string, string[]>[];
   paths: Record<string, Record<string, OpenApiOperation>>;
+  webhooks: Record<string, unknown>;
   components: {
     securitySchemes: Record<string, unknown>;
     parameters: Record<string, unknown>;
@@ -388,6 +431,14 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
     const responses: Record<string, unknown> = {
       '200': {
         description: op.hasId ? `The ${singular(resource.name)}.` : `A page of ${resource.name}, newest first.`,
+        headers: {
+          'X-Request-Id': { $ref: '#/components/headers/XRequestId' },
+          'X-RateLimit-Limit': { $ref: '#/components/headers/XRateLimitLimit' },
+          'X-Vireek-Mode': { $ref: '#/components/headers/XVireekMode' },
+          'X-Vireek-Api-Version': { $ref: '#/components/headers/XVireekApiVersion' },
+          Deprecation: { $ref: '#/components/headers/Deprecation' },
+          Sunset: { $ref: '#/components/headers/Sunset' },
+        },
         content: {
           'application/json': {
             schema: op.hasId
@@ -411,7 +462,7 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
           : [{ $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/before' }],
         security: [{ bearerAuth: [op.scope] }],
         'x-required-scope': op.scope,
-        'x-codeSamples': [{ lang: 'Shell', label: 'cURL', source: `curl -sS "${url}" \\\n  -H "Authorization: Bearer vrk_live_YOUR_KEY"` }],
+        'x-codeSamples': buildCodeSamples(url).map(({ lang, label, source }) => ({ lang, label, source })),
         responses,
       },
     };
@@ -420,9 +471,24 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
   const schemas: Record<string, unknown> = {
     Error: {
       type: 'object',
-      required: ['error'],
-      properties: { error: { type: 'string', description: 'Human-readable error message.' } },
-      examples: [{ error: 'Invalid or revoked API key' }],
+      required: ['error', 'code', 'doc_url', 'request_id'],
+      properties: {
+        error: { type: 'string', description: 'Human-readable error message.' },
+        code: { type: 'string', enum: ERROR_CATALOG.map((e) => e.code), description: 'Stable, machine-readable error code. Branch on this, not on the message.' },
+        doc_url: { type: 'string', format: 'uri', description: 'Link to the cause and fix for this code.' },
+        request_id: { type: 'string', format: 'uuid', description: 'Same value as the X-Request-Id response header. Quote it when contacting support.' },
+      },
+      examples: [errorBody('invalid_api_key', 'Invalid or revoked API key', EXAMPLE_ID)],
+    },
+  };
+  schemas.WebhookEnvelope = {
+    type: 'object',
+    required: ['id', 'event', 'created_at', 'data'],
+    properties: {
+      id: { type: 'string', format: 'uuid', description: 'Delivery id (same value as the X-Vireek-Delivery-Id header).' },
+      event: { type: 'string', enum: WEBHOOK_EVENTS.map((w) => w.event), description: 'Event type.' },
+      created_at: { type: 'string', format: 'date-time', description: 'When the delivery was created.' },
+      data: { type: 'object', description: 'The full database row the event is about.', additionalProperties: true },
     },
   };
   for (const resource of RESOURCES) {
@@ -446,7 +512,10 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
   for (const [code, description] of Object.entries(ERROR_RESPONSES)) {
     responses[code] = {
       description,
-      ...(code === '429' ? { headers: { 'Retry-After': { $ref: '#/components/headers/RetryAfter' } } } : {}),
+      headers: {
+        'X-Request-Id': { $ref: '#/components/headers/XRequestId' },
+        ...(code === '429' ? { 'Retry-After': { $ref: '#/components/headers/RetryAfter' } } : {}),
+      },
       content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
     };
   }
@@ -467,6 +536,12 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
         `**Pagination** — list endpoints return newest first as \`{ data, has_more, next_before }\`. Pass \`next_before\` back as \`before\` for the next page (\`limit\`: 1–${MAX_LIMIT}, default ${DEFAULT_LIMIT}).`,
         '',
         'Only `GET` is supported; other methods return `405`.',
+        '',
+        '**Test mode** — keys starting `vrk_test_` return deterministic synthetic data (`livemode: false`) and never touch your account. Use them to build and test; switch to a `vrk_live_` key for real data. Keys can also be restricted to an IP allowlist.',
+        '',
+        '**Errors** — every error is `{ error, code, doc_url, request_id }`. Branch on `code`; every response carries an `X-Request-Id` header.',
+        '',
+        '**Stability** — the three resources above are stable. Webhook events marked `x-stability: beta` may change their payload.',
       ].join('\n'),
       contact: { name: 'Vireek Developers', url: 'https://vireek.com/developers/api-reference' },
     },
@@ -479,10 +554,11 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
             variables: { projectRef: { default: 'your-project-ref', description: 'Supabase project reference of your Vireek deployment.' } },
           },
         ],
-    tags: RESOURCES.map((r) => ({ name: r.tag, description: r.description })),
+    tags: [...RESOURCES.map((r) => ({ name: r.tag, description: r.description })), { name: 'Webhooks', description: 'Events Vireek POSTs to your endpoints. Verify the signature before trusting a payload.' }],
     externalDocs: { description: 'Guides & webhooks', url: 'https://vireek.com/docs' },
     security: [{ bearerAuth: [] }],
     paths,
+    webhooks: webhooksSpec(),
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -511,6 +587,12 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
       },
       headers: {
         RetryAfter: { description: 'Seconds to wait before retrying.', schema: { type: 'integer', examples: [60] } },
+        XRequestId: { description: 'Unique id of this request. Quote it when contacting support.', schema: { type: 'string', format: 'uuid' } },
+        XVireekMode: { description: 'live or test — which data this key reads. Test keys return synthetic data only.', schema: { type: 'string', enum: ['live', 'test'] } },
+        XVireekApiVersion: { description: 'Version of this API contract.', schema: { type: 'string', examples: [API_VERSION] } },
+        Deprecation: { description: 'Present only when the resource is deprecated (RFC 9745): `@<unix time>` it was deprecated.', schema: { type: 'string' } },
+        Sunset: { description: 'Present only when a removal date is set (RFC 8594): HTTP-date after which the resource may be removed.', schema: { type: 'string' } },
+        XRateLimitLimit: { description: 'Requests allowed per minute for this key.', schema: { type: 'integer', examples: [RATE_LIMIT_PER_MINUTE] } },
       },
       responses,
       schemas,
@@ -600,6 +682,12 @@ export function checkEdgeFunctionSource(source: string): string[] {
   need(/\bparseBefore\(/, 'index.ts must read `before` with parseBefore() from contract.ts');
   need(/\bisUuid\(/, 'index.ts must validate ids with isUuid() from contract.ts');
   need(/\bRATE_LIMIT_PER_MINUTE\b/, 'index.ts must use RATE_LIMIT_PER_MINUTE from contract.ts');
+  need(/\bipAllowed\(/, 'index.ts must enforce the key IP allowlist with ipAllowed() from contract.ts');
+  need(/\bsandboxResponse\(/, 'index.ts must serve test keys from sandboxResponse() (contract.ts), never from the real tables');
+  need(/\bdeprecationHeaders\(/, 'index.ts must send deprecation headers from contract.ts');
+  forbid(/x-forwarded-for/i, 'index.ts must not trust X-Forwarded-For for the allowlist (clients can forge it) — use clientIp()');
+  need(/\berrorBody\(/, 'index.ts must build error bodies with errorBody() from contract.ts');
+  forbid(/\bjson\(\s*\{\s*error\s*:/, 'index.ts returns a raw { error } body — use fail(ctx, code, message) so the response carries a catalog code');
   forbid(/\bTABLE_BY_RESOURCE\b/, 'index.ts still defines its own route table (TABLE_BY_RESOURCE) — move it to contract.ts');
   forbid(/\bconst\s+RATE_LIMIT_PER_MINUTE\s*=/, 'index.ts redefines RATE_LIMIT_PER_MINUTE — import it from contract.ts');
   forbid(/\.split\(\s*["']\/["']\s*\)/, 'index.ts splits the path itself — routing belongs in resolveRoute() (contract.ts)');
@@ -608,4 +696,423 @@ export function checkEdgeFunctionSource(source: string): string[] {
     if (m[1] !== 'GET' && m[1] !== 'OPTIONS') problems.push(`index.ts handles method ${m[1]}, which the OpenAPI spec does not document`);
   }
   return problems;
+}
+/* ------------------------------------------------------------------ */
+/*  Code samples (cURL / JavaScript / Python / Go)                      */
+/*  Executed against a contract-derived mock server in CI:              */
+/*  node scripts/run-samples.mjs                                        */
+/* ------------------------------------------------------------------ */
+
+export type SampleLang = 'curl' | 'javascript' | 'python' | 'go';
+export interface CodeSample {
+  lang: 'Shell' | 'JavaScript' | 'Python' | 'Go';
+  id: SampleLang;
+  label: string;
+  source: string;
+}
+
+/** Every sample reads the key from VIREEK_API_KEY — never paste a key into source code. */
+export function buildCodeSamples(url: string): CodeSample[] {
+  const [base, query = ''] = url.split('?');
+  const params = query
+    ? query.split('&').map((p) => p.split('=') as [string, string])
+    : [];
+  const pyParams = params.length ? `\n    params={${params.map(([k, v]) => `"${k}": ${/^\d+$/.test(v) ? v : `"${v}"`}`).join(', ')}},` : '';
+  return [
+    {
+      id: 'curl',
+      lang: 'Shell',
+      label: 'cURL',
+      source: `curl -sS "${url}" \\\n  -H "Authorization: Bearer $VIREEK_API_KEY"`,
+    },
+    {
+      id: 'javascript',
+      lang: 'JavaScript',
+      label: 'JavaScript',
+      source: [
+        `const res = await fetch("${url}", {`,
+        '  headers: { Authorization: `Bearer ${process.env.VIREEK_API_KEY}` },',
+        '});',
+        'if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);',
+        'console.log(JSON.stringify(await res.json(), null, 2));',
+      ].join('\n'),
+    },
+    {
+      id: 'python',
+      lang: 'Python',
+      label: 'Python',
+      source: [
+        'import json',
+        'import os',
+        '',
+        'import requests',
+        '',
+        'res = requests.get(',
+        `    "${base}",${pyParams}`,
+        '    headers={"Authorization": f"Bearer {os.environ[\'VIREEK_API_KEY\']}"},',
+        '    timeout=30,',
+        ')',
+        'res.raise_for_status()',
+        'print(json.dumps(res.json(), indent=2))',
+      ].join('\n'),
+    },
+    {
+      id: 'go',
+      lang: 'Go',
+      label: 'Go',
+      source: [
+        'package main',
+        '',
+        'import (',
+        '\t"fmt"',
+        '\t"io"',
+        '\t"log"',
+        '\t"net/http"',
+        '\t"os"',
+        ')',
+        '',
+        'func main() {',
+        `\treq, err := http.NewRequest("GET", "${url}", nil)`,
+        '\tif err != nil {',
+        '\t\tlog.Fatal(err)',
+        '\t}',
+        '\treq.Header.Set("Authorization", "Bearer "+os.Getenv("VIREEK_API_KEY"))',
+        '\tres, err := http.DefaultClient.Do(req)',
+        '\tif err != nil {',
+        '\t\tlog.Fatal(err)',
+        '\t}',
+        '\tdefer res.Body.Close()',
+        '\tbody, err := io.ReadAll(res.Body)',
+        '\tif err != nil {',
+        '\t\tlog.Fatal(err)',
+        '\t}',
+        '\tif res.StatusCode != http.StatusOK {',
+        '\t\tlog.Fatalf("%d: %s", res.StatusCode, body)',
+        '\t}',
+        '\tfmt.Println(string(body))',
+        '}',
+      ].join('\n'),
+    },
+  ];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Webhooks (outgoing events) — catalog, samples, delivery behaviour    */
+/*  Source of truth for the docs page and the OpenAPI `webhooks` block.  */
+/*  Behaviour below mirrors supabase/functions/event-bus-dispatch.       */
+/* ------------------------------------------------------------------ */
+
+export const WEBHOOK_SIGNATURE_HEADER = 'X-Vireek-Signature';
+export const WEBHOOK_DELIVERY_HEADER = 'X-Vireek-Delivery-Id';
+
+export const WEBHOOK_DELIVERY_POLICY = {
+  timeoutSeconds: 10,
+  maxAttempts: 2,
+  retryOn: 'network errors, timeouts and HTTP 5xx responses',
+  noRetryOn: 'HTTP 4xx responses (treated as a permanent failure)',
+  backoff: 'none — the second attempt is sent immediately',
+  success: 'any 2xx response',
+} as const;
+
+export type Stability = 'stable' | 'beta';
+
+export interface WebhookEventDef {
+  event: string;
+  stability: Stability;
+  description: string;
+  /** API resource whose record is sent as `data`; null = row schema not published yet. */
+  schema: ResourceDef['schema'] | null;
+  /** Source table, shown so integrators know what `data` contains. */
+  table: string;
+}
+
+export const WEBHOOK_EVENTS: WebhookEventDef[] = [
+  { event: 'call.created', stability: 'stable', description: 'A call record was saved.', schema: 'Call', table: 'calls' },
+  { event: 'call.emergency', stability: 'beta', description: 'A call flagged as an emergency was saved.', schema: 'Call', table: 'calls' },
+  { event: 'lead.created', stability: 'stable', description: 'A lead was captured.', schema: 'Lead', table: 'leads' },
+  { event: 'job.created', stability: 'stable', description: 'A job was booked.', schema: 'Job', table: 'jobs' },
+  { event: 'job.completed', stability: 'beta', description: 'A job moved to the completed status.', schema: 'Job', table: 'jobs' },
+  { event: 'quote.sent', stability: 'beta', description: 'A quote was sent to the customer.', schema: null, table: 'quotes' },
+  { event: 'quote.accepted', stability: 'beta', description: 'A customer accepted a quote.', schema: null, table: 'quotes' },
+  { event: 'review.completed', stability: 'beta', description: 'A review request was completed.', schema: null, table: 'review_requests' },
+  { event: 'automation.installed', stability: 'beta', description: 'An automation was installed from the marketplace.', schema: null, table: 'automation_installs' },
+];
+
+/** The exact envelope event-bus-dispatch POSTs. `data` is the full database row. */
+export function webhookSample(def: WebhookEventDef): Record<string, unknown> {
+  return {
+    id: '6b1f0c52-8d3e-4a7b-9f21-0e5d4c3b2a19',
+    event: def.event,
+    created_at: EXAMPLE_TS,
+    data: def.schema ? SCHEMA_EXAMPLES[def.schema] : { id: EXAMPLE_ID, user_id: EXAMPLE_USER, created_at: EXAMPLE_TS },
+  };
+}
+
+/** Signature = lowercase hex HMAC-SHA256 of the raw request body, keyed with the endpoint's whsec_ secret. */
+export const WEBHOOK_VERIFY_SAMPLES: { id: Exclude<SampleLang, 'curl'>; label: string; source: string }[] = [
+  {
+    id: 'javascript',
+    label: 'JavaScript',
+    source: [
+      'import crypto from "node:crypto";',
+      '',
+      '// rawBody: the exact bytes you received. Never re-serialize parsed JSON.',
+      'export function verifyVireekSignature(rawBody, signatureHeader, signingSecret) {',
+      '  const expected = crypto.createHmac("sha256", signingSecret).update(rawBody).digest("hex");',
+      '  const a = Buffer.from(expected);',
+      '  const b = Buffer.from(signatureHeader ?? "");',
+      '  return a.length === b.length && crypto.timingSafeEqual(a, b);',
+      '}',
+    ].join('\n'),
+  },
+  {
+    id: 'python',
+    label: 'Python',
+    source: [
+      'import hashlib',
+      'import hmac',
+      '',
+      '',
+      'def verify_vireek_signature(raw_body: bytes, signature_header: str, signing_secret: str) -> bool:',
+      '    # raw_body: the exact bytes you received. Never re-serialize parsed JSON.',
+      '    expected = hmac.new(signing_secret.encode(), raw_body, hashlib.sha256).hexdigest()',
+      '    return hmac.compare_digest(expected, signature_header or "")',
+    ].join('\n'),
+  },
+  {
+    id: 'go',
+    label: 'Go',
+    source: [
+      'package main',
+      '',
+      'import (',
+      '\t"crypto/hmac"',
+      '\t"crypto/sha256"',
+      '\t"encoding/hex"',
+      ')',
+      '',
+      '// rawBody: the exact bytes you received. Never re-marshal parsed JSON.',
+      'func VerifyVireekSignature(rawBody []byte, signatureHeader, signingSecret string) bool {',
+      '\tmac := hmac.New(sha256.New, []byte(signingSecret))',
+      '\tmac.Write(rawBody)',
+      '\texpected := hex.EncodeToString(mac.Sum(nil))',
+      '\treturn hmac.Equal([]byte(expected), []byte(signatureHeader))',
+      '}',
+    ].join('\n'),
+  },
+];
+
+function webhooksSpec(): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const def of WEBHOOK_EVENTS) {
+    out[def.event] = {
+      post: {
+        operationId: `webhook_${def.event.replace('.', '_')}`,
+        summary: def.description,
+        description: `${def.description} \`data\` is the full \`${def.table}\` row.${def.schema ? '' : ' The row schema for this event is not published yet.'}${def.stability === 'beta' ? ' **Beta** — the payload may change.' : ''}`,
+        tags: ['Webhooks'],
+        'x-stability': def.stability,
+        parameters: [
+          { name: WEBHOOK_SIGNATURE_HEADER, in: 'header', required: true, description: 'Lowercase hex HMAC-SHA256 of the raw request body, keyed with the endpoint signing secret (whsec_…).', schema: { type: 'string' } },
+          { name: WEBHOOK_DELIVERY_HEADER, in: 'header', required: true, description: 'Unique delivery id. Identical across automatic retries — use it to de-duplicate.', schema: { type: 'string', format: 'uuid' } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                allOf: [
+                  { $ref: '#/components/schemas/WebhookEnvelope' },
+                  { type: 'object', properties: { event: { const: def.event }, ...(def.schema ? { data: { $ref: `#/components/schemas/${def.schema}` } } : {}) } },
+                ],
+              },
+              examples: { default: { value: webhookSample(def) } },
+            },
+          },
+        },
+        responses: { '2XX': { description: 'Acknowledge with any 2xx status. Non-2xx responses are treated as failures.' } },
+      },
+    };
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Key modes, IP allowlist, sandbox data, deprecation headers          */
+/* ------------------------------------------------------------------ */
+
+export const API_VERSION_HEADER = 'X-Vireek-Api-Version';
+export const MODE_HEADER = 'X-Vireek-Mode';
+export const KEY_MODES = ['live', 'test'] as const;
+export type KeyMode = (typeof KEY_MODES)[number];
+export const MAX_ALLOWLIST_ENTRIES = 20;
+
+/** `vrk_test_…` → test, anything else → live. Display/UX only; the database `mode` column is authoritative. */
+export function keyModeOfPrefix(key: string): KeyMode {
+  return key.startsWith('vrk_test_') ? 'test' : 'live';
+}
+
+/* ---- IP parsing / allowlist (IPv4, IPv6, CIDR; no dependencies) ---- */
+
+interface ParsedIp {
+  v: 4 | 6;
+  n: bigint;
+}
+
+function parseV4(s: string): bigint | null {
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(s);
+  if (!m) return null;
+  let n = 0n;
+  for (let i = 1; i <= 4; i++) {
+    const part = m[i];
+    if (part.length > 1 && part.startsWith('0')) return null;
+    const v = Number(part);
+    if (v > 255) return null;
+    n = (n << 8n) | BigInt(v);
+  }
+  return n;
+}
+
+function parseV6(input: string): bigint | null {
+  let s = input;
+  if (s.includes('%') || !s.includes(':')) return null;
+  if (s.includes('.')) {
+    const cut = s.lastIndexOf(':');
+    const v4 = parseV4(s.slice(cut + 1));
+    if (v4 === null) return null;
+    s = `${s.slice(0, cut + 1)}${(v4 >> 16n).toString(16)}:${(v4 & 0xffffn).toString(16)}`;
+  }
+  const halves = s.split('::');
+  if (halves.length > 2) return null;
+  const groups = (p: string) => (p === '' ? [] : p.split(':'));
+  const head = groups(halves[0]);
+  const tail = halves.length === 2 ? groups(halves[1]) : [];
+  if (halves.length === 1 ? head.length !== 8 : head.length + tail.length > 7) return null;
+  const all = [...head, ...Array<string>(halves.length === 2 ? 8 - head.length - tail.length : 0).fill('0'), ...tail];
+  let n = 0n;
+  for (const g of all) {
+    if (!/^[0-9a-f]{1,4}$/i.test(g)) return null;
+    n = (n << 16n) | BigInt(`0x${g}`);
+  }
+  return n;
+}
+
+/** IPv4-mapped IPv6 (::ffff:a.b.c.d) is normalised to IPv4 so one rule matches both spellings. */
+export function parseIp(raw: string): ParsedIp | null {
+  const s = raw.trim();
+  const v4 = parseV4(s);
+  if (v4 !== null) return { v: 4, n: v4 };
+  const v6 = parseV6(s);
+  if (v6 === null) return null;
+  return v6 >> 32n === 0xffffn ? { v: 4, n: v6 & 0xffffffffn } : { v: 6, n: v6 };
+}
+
+export function parseIpRule(raw: string): { v: 4 | 6; n: bigint; bits: number } | null {
+  const [addr, len, extra] = raw.trim().split('/');
+  if (extra !== undefined) return null;
+  const ip = parseIp(addr);
+  if (!ip) return null;
+  const mapped = ip.v === 4 && addr.includes(':'); // ::ffff:a.b.c.d/N — N counts the 96 leading bits too
+  const max = mapped ? 128 : ip.v === 4 ? 32 : 128;
+  if (len === undefined) return { ...ip, bits: ip.v === 4 ? 32 : 128 };
+  if (!/^\d{1,3}$/.test(len)) return null;
+  const bits = Number(len);
+  // /0 would allow every address — an empty allowlist already means "any IP".
+  if (bits < 1 || bits > max) return null;
+  if (mapped) return bits < 97 ? null : { ...ip, bits: bits - 96 };
+  return { ...ip, bits };
+}
+
+/** Empty list = any address. Non-empty + unknown caller address = denied (fail closed). */
+export function ipAllowed(ip: string | null, rules: readonly string[]): boolean {
+  if (rules.length === 0) return true;
+  const caller = ip ? parseIp(ip) : null;
+  if (!caller) return false;
+  return rules.some((raw) => {
+    const rule = parseIpRule(raw);
+    if (!rule || rule.v !== caller.v) return false;
+    const shift = BigInt((caller.v === 4 ? 32 : 128) - rule.bits);
+    return caller.n >> shift === rule.n >> shift;
+  });
+}
+
+/** Caller address as the platform reports it. X-Forwarded-For is deliberately NOT used: clients can forge it. */
+export function clientIp(headers: { get(name: string): string | null }): string | null {
+  for (const name of ['cf-connecting-ip', 'x-real-ip']) {
+    const raw = headers.get(name)?.trim();
+    const ip = raw ? parseIp(raw) : null;
+    if (ip && raw) return raw;
+  }
+  return null;
+}
+
+/** Parses the allowlist text box (comma / space / newline separated). */
+export function parseAllowlistInput(text: string): { ok: true; list: string[] } | { ok: false; error: string } {
+  const entries = text.split(/[\s,]+/).filter(Boolean);
+  if (entries.length > MAX_ALLOWLIST_ENTRIES) return { ok: false, error: `At most ${MAX_ALLOWLIST_ENTRIES} entries.` };
+  for (const e of entries) {
+    if (!parseIpRule(e)) return { ok: false, error: `"${e}" is not a valid IP address or CIDR range (e.g. 203.0.113.7 or 203.0.113.0/24).` };
+  }
+  return { ok: true, list: [...new Set(entries)] };
+}
+
+/* ---- Sandbox (test-mode) data: deterministic, synthetic, never touches real tables ---- */
+
+export const SANDBOX_RECORD_COUNT = 30;
+const SANDBOX_USER = '00000000-0000-4000-8000-000000000000';
+const SANDBOX_BASE_MS = Date.UTC(2026, 9, 1, 12, 0, 0);
+const SANDBOX_CODE: Record<ApiResourceName, number> = { calls: 1, leads: 2, jobs: 3 };
+
+export function sandboxId(resource: ApiResourceName, index: number): string {
+  return `00000000-0000-4${SANDBOX_CODE[resource]}00-8000-${index.toString(16).padStart(12, '0')}`;
+}
+
+export function sandboxRecords(resource: ApiResourceName): Record<string, unknown>[] {
+  const def = resourceByName(resource) as ResourceDef;
+  return Array.from({ length: SANDBOX_RECORD_COUNT }, (_, i) => {
+    const at = new Date(SANDBOX_BASE_MS - i * 3_600_000).toISOString();
+    const n = i + 1;
+    const rec: Record<string, unknown> = { ...SCHEMA_EXAMPLES[def.schema], id: sandboxId(resource, i), user_id: SANDBOX_USER, created_at: at, livemode: false };
+    if (resource === 'calls') Object.assign(rec, { external_id: `sbx_call_${n}`, caller_name: `Test Caller ${n}`, call_datetime: at, customer_id: null });
+    if (resource === 'leads') Object.assign(rec, { name: `Test Lead ${n}`, call_id: null, customer_id: null, email: `test.lead${n}@example.com` });
+    if (resource === 'jobs') Object.assign(rec, { customer_name: `Test Customer ${n}`, address: `${n} Sandbox Street, Testville`, lead_id: null, call_id: null, customer_id: null, assigned_technician_id: null });
+    return rec;
+  });
+}
+
+/** Response body for a test-mode request, or null when the id does not exist. `before` is the value parseBefore() returned. */
+export function sandboxResponse(resource: ApiResourceName, id: string | null, limit: number, before: string | null): unknown | null {
+  const all = sandboxRecords(resource);
+  if (id !== null) {
+    const found = all.find((r) => r.id === id.toLowerCase());
+    return found ? { data: found } : null;
+  }
+  const cutoff = before ? Date.parse(before) : Number.POSITIVE_INFINITY;
+  const data = all.filter((r) => Date.parse(r.created_at as string) < cutoff).slice(0, limit);
+  return { data, has_more: data.length === limit, next_before: data.length ? data[data.length - 1].created_at : null };
+}
+
+/* ---- Deprecation / sunset (RFC 9745 Deprecation, RFC 8594 Sunset) ---- */
+
+export interface Deprecation {
+  resource: ApiResourceName;
+  /** ISO date the resource was deprecated. */
+  deprecatedAt: string;
+  /** ISO date after which it may be removed. */
+  sunsetAt: string;
+  /** Migration guide URL. */
+  link: string;
+}
+
+/** Empty today: nothing in api-v1 is deprecated. Add an entry here and the headers, the spec note and the changelog check pick it up. */
+export const API_DEPRECATIONS: Deprecation[] = [];
+
+export function deprecationHeaders(resource: string | null, list: readonly Deprecation[] = API_DEPRECATIONS): Record<string, string> {
+  const d = list.find((x) => x.resource === resource);
+  if (!d) return {};
+  return {
+    Deprecation: `@${Math.floor(Date.parse(d.deprecatedAt) / 1000)}`,
+    Sunset: new Date(d.sunsetAt).toUTCString(),
+    Link: `<${d.link}>; rel="deprecation"`,
+  };
 }
