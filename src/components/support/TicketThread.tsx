@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle2, Loader2, RotateCcw, Send } from 'lucide-react'
 import { useToast } from '@/contexts/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/Skeleton';
+import { requestSurvey } from '@/lib/feedback/events';
 import { EmptyState } from '@/components/EmptyState';
 import { Textarea } from '@/components/ui/Input';
 import { useRealtimeSubscription } from '@/lib/realtime';
@@ -97,6 +98,7 @@ export function TicketThread({
     try {
       await setTicketClosed(ticket.id, !closed);
       toast(closed ? 'Ticket reopened.' : 'Ticket marked as resolved.', 'success');
+      if (!closed) requestSurvey({ type: 'csat', trigger: 'support_ticket', subject: ticket.id });
       onChanged();
     } catch {
       toast('Could not update the ticket. Please try again.', 'error');
