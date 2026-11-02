@@ -1,4 +1,7 @@
 import { supabase } from '@/lib/supabase';
+import type { KeyMode } from '../../supabase/functions/api-v1/contract';
+
+export type { KeyMode };
 
 /**
  * Real, self-serve API key management — key generation + hashing happens
@@ -44,9 +47,15 @@ export interface ApiKeyRow {
   key_prefix: string;
   scopes: ApiScope[];
   last_used_at: string | null;
+  last_used_ip: string | null;
+  mode: KeyMode;
+  /** Empty = any address. */
+  ip_allowlist: string[];
   created_at: string;
   revoked_at: string | null;
 }
+
+const KEY_COLUMNS = 'id, name, key_prefix, scopes, last_used_at, last_used_ip, mode, ip_allowlist, created_at, revoked_at';
 
 function bytesToHex(bytes: ArrayBuffer): string {
   return Array.from(new Uint8Array(bytes))
@@ -69,23 +78,29 @@ async function sha256Hex(input: string): Promise<string> {
 export async function listApiKeys(): Promise<ApiKeyRow[]> {
   const { data, error } = await supabase
     .from('api_keys')
-    .select('id, name, key_prefix, scopes, last_used_at, created_at, revoked_at')
+    .select(KEY_COLUMNS)
     .order('created_at', { ascending: false });
   if (error) throw error;
   return (data ?? []) as ApiKeyRow[];
 }
 
 /** Creates a key and returns the ONE-TIME raw value the user must copy now. */
-export async function createApiKey(name: string, scopes: ApiScope[], userId: string): Promise<{ row: ApiKeyRow; rawKey: string }> {
+export async function createApiKey(
+  name: string,
+  scopes: ApiScope[],
+  userId: string,
+  opts: { mode?: KeyMode; ipAllowlist?: string[] } = {},
+): Promise<{ row: ApiKeyRow; rawKey: string }> {
+  const mode: KeyMode = opts.mode ?? 'live';
   const secret = randomToken(24); // 48 hex chars of entropy
-  const rawKey = `vrk_live_${secret}`;
-  const key_prefix = rawKey.slice(0, 14); // "vrk_live_" + 5 chars, safe to display forever
+  const rawKey = `vrk_${mode}_${secret}`;
+  const key_prefix = rawKey.slice(0, 14); // "vrk_live_" / "vrk_test_" + 5 chars, safe to display forever
   const key_hash = await sha256Hex(rawKey);
 
   const { data, error } = await supabase
     .from('api_keys')
-    .insert({ user_id: userId, name, scopes, key_prefix, key_hash })
-    .select('id, name, key_prefix, scopes, last_used_at, created_at, revoked_at')
+    .insert({ user_id: userId, name, scopes, key_prefix, key_hash, mode, ip_allowlist: opts.ipAllowlist ?? [] })
+    .select(KEY_COLUMNS)
     .single();
   if (error) throw error;
   return { row: data as ApiKeyRow, rawKey };
@@ -96,8 +111,25 @@ export async function revokeApiKey(id: string): Promise<void> {
   if (error) throw error;
 }
 
-/** Rotation = revoke the old key + issue a brand new one under the same name. */
-export async function rotateApiKey(id: string, name: string, scopes: ApiScope[], userId: string): Promise<{ row: ApiKeyRow; rawKey: string }> {
-  await revokeApiKey(id);
-  return createApiKey(`${name} (rotated)`, scopes, userId);
+export async function updateIpAllowlist(id: string, list: string[]): Promise<void> {
+  const { error } = await supabase.from('api_keys').update({ ip_allowlist: list }).eq('id', id);
+  if (error) throw error;
+}
+
+/**
+ * Rotation = issue the replacement FIRST, then revoke the old key, so a failure can never leave the
+ * account without a working key. Mode and IP allowlist carry over. `oldRevoked: false` means the new key
+ * exists but revoking the old one failed — tell the user to revoke it manually.
+ */
+export async function rotateApiKey(
+  old: Pick<ApiKeyRow, 'id' | 'name' | 'scopes' | 'mode' | 'ip_allowlist'>,
+  userId: string,
+): Promise<{ row: ApiKeyRow; rawKey: string; oldRevoked: boolean }> {
+  const created = await createApiKey(`${old.name} (rotated)`, old.scopes, userId, { mode: old.mode, ipAllowlist: old.ip_allowlist });
+  try {
+    await revokeApiKey(old.id);
+    return { ...created, oldRevoked: true };
+  } catch {
+    return { ...created, oldRevoked: false };
+  }
 }
