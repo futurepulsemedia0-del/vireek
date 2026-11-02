@@ -582,6 +582,7 @@ const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ 
 const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
 const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const CallScriptsPage = lazy(() => import('@/pages/CallScriptsPage').then((m) => ({ default: m.CallScriptsPage })));
+const ShadowModePage = lazy(() => import('@/pages/ShadowModePage').then((m) => ({ default: m.ShadowModePage })));
 const AiQualityCenterPage = lazy(() => import('@/pages/AiQualityCenterPage').then((m) => ({ default: m.AiQualityCenterPage })));
 const BookingSettingsPage = lazy(() => import('@/pages/BookingSettingsPage').then((m) => ({ default: m.BookingSettingsPage })));
 const DashboardBuilderPage = lazy(() => import('@/pages/DashboardBuilderPage').then((m) => ({ default: m.DashboardBuilderPage })));
@@ -902,6 +903,7 @@ function AppRoutes() {
         <Route path="/track/:token" element={<TrackingPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/dashboard/call-scripts" element={<ProtectedRoute><CallScriptsPage /></ProtectedRoute>} />
+        <Route path="/dashboard/shadow-mode" element={<ProtectedRoute><ShadowModePage /></ProtectedRoute>} />
         <Route path="/dashboard/ai-quality" element={<ProtectedRoute><AiQualityCenterPage /></ProtectedRoute>} />
         <Route path="/dashboard/ai-disclosure-ledger" element={<ProtectedRoute><AiDisclosureLedgerPage /></ProtectedRoute>} />
         <Route path="/dashboard/technician-retention" element={<ProtectedRoute><TechnicianRetentionPage /></ProtectedRoute>} />
