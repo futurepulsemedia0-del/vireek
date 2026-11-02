@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { requestSurvey } from '@/lib/feedback/events';
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { CustomFieldsEditor, CustomFieldsPanel, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
 import { useCustomFieldDefs, useCustomDataSync } from '@/lib/customFieldsApi';import { JobRefrigerantPanel } from '@/components/jobs/JobRefrigerantPanel';
@@ -1275,6 +1276,7 @@ export function JobsPage() {
     try {
       const { error } = await supabase.from('jobs').update({ job_status: status }).eq('id', jobId);
       if (error) throw error;
+      if (status === 'completed') requestSurvey({ type: 'csat', trigger: 'job_complete', subject: jobId });
       setAllJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, job_status: status } : j)));
       if (selectedJob?.id === jobId) {
         setSelectedJob((prev) => (prev ? { ...prev, job_status: status } : null));
