@@ -67,27 +67,13 @@ Deno.serve(async (req: Request) => {
 
       const cutoff = new Date(Date.now() - policy.retention_days * 86_400_000).toISOString();
 
-      if (policy.anonymize_instead_of_delete && owned.pii?.length) {
-        const patch: Record<string, null> = {};
-        for (const col of owned.pii) patch[col] = null;
-        const { data: rows, error } = await admin
-          .from(owned.table)
-          .update(patch)
-          .eq("user_id", policy.user_id)
-          .lt(owned.dateColumn, cutoff)
-          .select("id");
-        if (error) throw error;
-        summary.rowsAffected += rows?.length ?? 0;
-      } else {
-        const { data: rows, error } = await admin
-          .from(owned.table)
-          .delete()
-          .eq("user_id", policy.user_id)
-          .lt(owned.dateColumn, cutoff)
-          .select("id");
-        if (error) throw error;
-        summary.rowsAffected += rows?.length ?? 0;
-      }
+            summary.rowsAffected += await sweepOwnedRows(admin as unknown as SweepRpcClient, {
+        table: owned.table,
+        userId: policy.user_id,
+        dateColumn: owned.dateColumn,
+        cutoff,
+        pii: policy.anonymize_instead_of_delete && owned.pii?.length ? owned.pii : undefined,
+      });
 
       await admin
         .from("data_retention_policies")
