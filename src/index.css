@@ -384,6 +384,21 @@ html:lang(hi) body { font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal'
   }
   .vrk-mini { animation: none !important; transform: none; }
 }
+/* Docs code-sample syntax colors — WCAG AA on --bg-primary (checked in src/lib/highlight.test.ts) */
+:root {
+  --tok-comment: 88 94 106;
+  --tok-string: 14 100 56;
+  --tok-number: 150 62 0;
+  --tok-keyword: 112 36 150;
+  --tok-property: 24 52 180;
+}
+.dark {
+  --tok-comment: 150 156 170;
+  --tok-string: 130 220 160;
+  --tok-number: 255 170 100;
+  --tok-keyword: 200 150 255;
+  --tok-property: 140 170 255;
+}
 /* iOS Safari: 100vh includes the collapsing toolbar; keep vh as fallback, prefer dvh. */
 .min-h-screen { min-height: 100vh; min-height: 100dvh; }
 .h-screen { height: 100vh; height: 100dvh; }
