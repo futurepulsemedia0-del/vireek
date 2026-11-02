@@ -28,6 +28,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src',
+      // Test-only: lets Vitest import Deno edge functions that use the npm: specifier.
+      'npm:@supabase/supabase-js@2.57.4': '/src/test/stubs/supabaseNpm.ts',
     },
   },
   build: {
