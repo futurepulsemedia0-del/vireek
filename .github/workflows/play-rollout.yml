@@ -1,0 +1,59 @@
+name: Play rollout
+
+# Manual, approval-gated upload of a signed .aab produced by the "Mobile" workflow.
+# Default = internal testing. Production always starts as a STAGED rollout (fraction below),
+# then you raise the percentage in Play Console only while crash-free sessions stay >= 99.8%
+# (see docs/store/release-health.md).
+on:
+  workflow_dispatch:
+    inputs:
+      mobile_run_id:
+        description: 'Run ID of the successful "Mobile" workflow run that built the .aab'
+        required: true
+      track:
+        description: 'Play track'
+        type: choice
+        options: [internal, production]
+        default: internal
+      user_fraction:
+        description: 'Production rollout fraction, e.g. 0.05 = 5% (ignored for internal)'
+        default: '0.05'
+      update_priority:
+        description: 'In-app update priority 0-5 (5 = immediate update prompt)'
+        default: '2'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: play-${{ inputs.track }}
+    steps:
+      - name: Validate inputs
+        env:
+          FRACTION: ${{ inputs.user_fraction }}
+          PRIORITY: ${{ inputs.update_priority }}
+        run: |
+          awk -v f="$FRACTION" 'BEGIN { exit !(f > 0 && f < 1) }' || { echo "::error::user_fraction must be between 0 and 1 (exclusive)"; exit 1; }
+          case "$PRIORITY" in 0|1|2|3|4|5) ;; *) echo "::error::update_priority must be 0-5"; exit 1;; esac
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: vireek-field-android-aab
+          run-id: ${{ inputs.mobile_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: aab
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.vireek.field
+          releaseFiles: aab/*.aab
+          track: ${{ inputs.track }}
+          status: ${{ inputs.track == 'production' && 'inProgress' || 'completed' }}
+          userFraction: ${{ inputs.track == 'production' && inputs.user_fraction || '' }}
+          inAppUpdatePriority: ${{ inputs.update_priority }}
