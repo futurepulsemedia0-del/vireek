@@ -1,0 +1,18 @@
+{
+ "version": 1,
+ "createdAt": "2026-11-02T02:08:09.314Z",
+ "note": "CI floor = score − tolerance. Commit after a reviewed run; categories that were NOT RUN are omitted.",
+ "categories": {
+  "visual": 61.8,
+  "tokens": 82.6,
+  "states": 88.3,
+  "seo": 86.8,
+  "l10n": 51.4,
+  "trust": 65,
+  "documents": 41.6,
+  "mobile": 80.6,
+  "devdocs": 64.4,
+  "security": 100,
+  "naming": 99.7
+ }
+}
