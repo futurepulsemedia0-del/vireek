@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press the launcher icon. Each shortcut opens a vireek:// link that NativeBridge already routes. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="vk_today"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/vk_shortcut_today_short"
+        android:shortcutLongLabel="@string/vk_shortcut_today_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="vireek://tech/today"
+            android:targetPackage="com.vireek.field"
+            android:targetClass="com.vireek.field.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="vk_messages"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/vk_shortcut_messages_short"
+        android:shortcutLongLabel="@string/vk_shortcut_messages_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="vireek://tech/messages"
+            android:targetPackage="com.vireek.field"
+            android:targetClass="com.vireek.field.MainActivity" />
+    </shortcut>
+</shortcuts>
