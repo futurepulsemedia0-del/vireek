@@ -4,6 +4,8 @@
 
 import { syncNow } from '../offline/sync';
 import { isNative, nativePlatform } from './platform';
+import { syncNativeFontScale } from './textScale';
+import { syncAppBadge } from './badge';
 
 /** Call once before React renders. */
 export function initNativeRuntime(): void {
@@ -12,6 +14,7 @@ export function initNativeRuntime(): void {
   root.classList.add('native-app', `native-${nativePlatform() ?? 'unknown'}`);
   // The installed app is the technician app: open straight on today's jobs.
   if (window.location.pathname === '/') window.history.replaceState(null, '', '/tech/today');
+  void syncNativeFontScale();
 }
 
 /** Registers resume + connectivity listeners while the technician screens are mounted. */
@@ -24,7 +27,11 @@ export function startNativeFieldHooks(): () => void {
   void Promise.all([import('@capacitor/app'), import('@capacitor/network')])
     .then(async ([{ App }, { Network }]) => {
       const onState = await App.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) void syncNow({ forcePull: true });
+       if (isActive) {
+  void syncNow({ forcePull: true });
+  void syncNativeFontScale();
+  void syncAppBadge();
+}
       });
       const onNet = await Network.addListener('networkStatusChange', (status) => {
         if (status.connected) void syncNow();
