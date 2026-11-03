@@ -1,0 +1,360 @@
+{
+  "title": "Agent Readiness",
+  "subtitle": "How complete, consistent and machine-readable your public business data is for Google, Gemini, ChatGPT and other agents.",
+  "runScan": "Run scan",
+  "rescan": "Scan again",
+  "scanning": "Scanning your business…",
+  "loadError": "Couldn’t load Agent Readiness",
+  "loadErrorHint": "Check your connection and try again.",
+  "retry": "Retry",
+  "noScanTitle": "No scan yet",
+  "noScanBody": "Run your first scan to see your score, the evidence behind it and the fixes we suggest.",
+  "scoreLabel": "Agent Readiness score",
+  "scoreUnknown": "Not enough measurable data",
+  "lastScan": "Last scan: {{date}}",
+  "coverage": "{{pct}}% of the score could be measured. Parts we can’t measure yet are left out, not counted as zero.",
+  "noPermission": "You don’t have permission to view this page.",
+  "viewOnly": "You can view results. Ask an owner or admin to scan or approve changes.",
+  "honesty": "This is a readiness score, not a ranking. It does not predict where any AI or search engine will show you. Platform rules change; each check links to its source.",
+  "why": "Why it matters",
+  "source": "Source",
+  "mayChange": "This rule may change",
+  "sampled": "Sampled and approximate",
+  "howToFix": "How to fix",
+  "status": {
+    "pass": "Done",
+    "partial": "Partly done",
+    "fail": "Needs work",
+    "not_measured": "Not measured"
+  },
+  "subscores": {
+    "profile": "Business profile",
+    "website": "Website data",
+    "phone": "Phone readiness",
+    "reviews": "Review health",
+    "booking": "Booking feed",
+    "nap": "Consistency (NAP)",
+    "ai_visibility": "AI visibility"
+  },
+  "fixesTitle": "Suggested fixes",
+  "fixesEmpty": "No fixes to suggest right now.",
+  "diffBefore": "Before",
+  "diffAfter": "After",
+  "emptyBefore": "(empty)",
+  "approve": "Approve selected",
+  "skip": "Skip",
+  "undo": "Undo",
+  "skipped": "Skipped",
+  "applied": "Applied {{count}} change(s).",
+  "appliedNone": "Nothing was changed: the data was edited since this scan. Scan again.",
+  "undone": "Restored {{count}} change(s).",
+  "undoneConflicts": "{{count}} item(s) were edited since and were left as they are.",
+  "copy": "Copy",
+  "copied": "Copied.",
+  "copyFailed": "Could not copy.",
+  "openPage": "Open",
+  "impact": "Up to {{points}} points",
+  "selectRow": "Include {{name}}",
+  "alertsTitle": "Alerts",
+  "dismiss": "Dismiss",
+  "monitoring": "Weekly re-scan and alerts",
+  "monitoringHint": "Re-scans about once a week and alerts you when something regresses.",
+  "profileSuspendedNote": "Suspended-profile detection needs Google Business Profile access and is not active yet.",
+  "historyTitle": "Score and call volume",
+  "historyNote": "These two lines are shown side by side. They are correlation only — they do not show that one caused the other.",
+  "historyScore": "Readiness score",
+  "historyCalls": "Inbound calls per week",
+  "historyEmpty": "History appears after your second scan.",
+  "historyTable": "Score and weekly calls data",
+  "rules": {
+    "nap_basics": {
+      "title": "Name, address and phone on file",
+      "why": "AI agents and Google match your business by name, address and phone. Missing or inconsistent details make you easy to skip.",
+      "fix": "Fill in the business name, phone and street address of your primary location."
+    },
+    "hours_defined": {
+      "title": "Business hours set",
+      "why": "Agents only suggest businesses they can confirm are open. No hours means no confirmation.",
+      "fix": "Set opening hours for every day you work in Business Profile."
+    },
+    "hours_special": {
+      "title": "Emergency and holiday hours",
+      "why": "Emergency and holiday availability is a common reason people (and agents) pick a service business.",
+      "fix": "Mark emergency handling and add your holiday closures."
+    },
+    "services_count": {
+      "title": "8–15 plain-language services",
+      "why": "Agents match a request to a listed service. Too few services means fewer matches.",
+      "fix": "Add the services you actually offer until you list at least 8, using everyday words."
+    },
+    "services_priced": {
+      "title": "Services with “starting at” prices",
+      "why": "Clear price signals help agents recommend you for price-aware requests.",
+      "fix": "Add a starting price or range to each price-book service."
+    },
+    "services_described": {
+      "title": "Service descriptions",
+      "why": "Short, plain descriptions give agents and customers something concrete to read.",
+      "fix": "Approve the drafted descriptions below, or write your own."
+    },
+    "service_areas": {
+      "title": "Service areas defined",
+      "why": "Agents need to know where you work before they suggest you.",
+      "fix": "Add at least one active service area."
+    },
+    "faq_qa": {
+      "title": "Questions and answers",
+      "why": "Direct answers to common questions are easy for AI to quote.",
+      "fix": "Add at least three question-and-answer pairs to your business profile."
+    },
+    "gbp_categories_photos": {
+      "title": "Google categories, photos and attributes",
+      "why": "Complete Google Business Profile details are the main data agents read about local businesses.",
+      "fix": "Check categories, photos and attributes in Google Business Profile. Vireek cannot read them yet."
+    },
+    "site_https": {
+      "title": "Website uses HTTPS",
+      "why": "Secure pages are the baseline for being trusted and crawled.",
+      "fix": "Serve your site over HTTPS."
+    },
+    "site_meta": {
+      "title": "Page title, description and mobile viewport",
+      "why": "These basics tell crawlers and agents what the page is about.",
+      "fix": "Add a page title, a meta description and a viewport tag."
+    },
+    "site_jsonld_business": {
+      "title": "LocalBusiness structured data",
+      "why": "Structured data states your name, phone, address, hours and area in a machine-readable form.",
+      "fix": "Paste the generated JSON-LD into your website’s home page."
+    },
+    "site_jsonld_service": {
+      "title": "Service structured data",
+      "why": "Lists what you offer, with prices, in a form agents can read.",
+      "fix": "Include the Service/OfferCatalog data from the generated JSON-LD."
+    },
+    "site_jsonld_faq": {
+      "title": "FAQ structured data",
+      "why": "Makes your questions and answers machine-readable. Google limits FAQ rich results, so this is not a promise of a rich result.",
+      "fix": "Include the FAQPage data from the generated JSON-LD."
+    },
+    "site_booking_link": {
+      "title": "Booking link on your site",
+      "why": "A visible way to book lets customers and agents act immediately.",
+      "fix": "Add a clear “Book online” link to your home page."
+    },
+    "site_click_to_call": {
+      "title": "Click-to-call phone link",
+      "why": "On mobile, a tap-to-call link is the fastest way to reach you.",
+      "fix": "Make your phone number a tel: link."
+    },
+    "site_speed": {
+      "title": "Server response time (single sample)",
+      "why": "Slow pages lose visitors. This is one measurement of server response, not a Core Web Vitals result.",
+      "fix": "Check hosting and caching, and measure Core Web Vitals with Google’s tools."
+    },
+    "phone_ai_number": {
+      "title": "Calls answered by Vireek",
+      "why": "An answered phone is what turns a recommendation into a booked job.",
+      "fix": "Connect your Vireek phone number."
+    },
+    "phone_after_hours": {
+      "title": "After-hours call handling",
+      "why": "Voicemail as the default loses emergency callers.",
+      "fix": "Set after-hours handling to AI answer for your primary location."
+    },
+    "phone_answer_time": {
+      "title": "Call-to-answer time",
+      "why": "Fast answers matter, but Vireek does not track this per call yet.",
+      "fix": "Not measured yet."
+    },
+    "reviews_volume": {
+      "title": "Review volume",
+      "why": "More reviews give agents more evidence you are a real, active business.",
+      "fix": "Ask recent customers for reviews."
+    },
+    "reviews_recency": {
+      "title": "Recent reviews",
+      "why": "Recent reviews show you are active now.",
+      "fix": "Aim for a few new reviews every quarter."
+    },
+    "reviews_response": {
+      "title": "Review replies",
+      "why": "Replying shows owners are engaged.",
+      "fix": "Reply to unanswered reviews in Reputation."
+    },
+    "booking_enabled": {
+      "title": "Online booking on",
+      "why": "Bookable businesses are easier for agents to act on.",
+      "fix": "Turn on online booking in Booking Settings."
+    },
+    "booking_feed": {
+      "title": "Verified availability feed",
+      "why": "Only verified, real availability is ever published.",
+      "fix": "Switch the availability feed on in Google Booking once its checks pass."
+    },
+    "booking_partner": {
+      "title": "Google partner status",
+      "why": "Real-time booking through Google opens only after Google approves the integration.",
+      "fix": "Track your application in Google Booking."
+    },
+    "nap_site_match": {
+      "title": "Website phone matches your profile",
+      "why": "Different phone numbers across sources make agents distrust the data.",
+      "fix": "Use the same phone number on your site and in Vireek."
+    },
+    "nap_directories": {
+      "title": "Consistency across directories",
+      "why": "Directories should show the same name, address and phone.",
+      "fix": "Check your top directories manually. Vireek does not scan them yet."
+    },
+    "ai_samples": {
+      "title": "AI visibility (sampled)",
+      "why": "Shows whether sample questions to AI assistants mention you. A sample, not a ranking.",
+      "fix": "Not measured yet."
+    }
+  },
+  "evidence": {
+    "site_not_audited": "Website not checked.",
+    "https_ok": "HTTPS is on.",
+    "https_missing": "The site is not served over HTTPS.",
+    "meta_parts": "{{found}} of {{total}} basics found.",
+    "jsonld_invalid": "Structured data was found but could not be parsed.",
+    "lb_missing": "No LocalBusiness structured data found.",
+    "lb_fields": "LocalBusiness found with {{found}} of {{total}} key fields.",
+    "service_ok": "Service data found.",
+    "service_missing": "No Service data found.",
+    "faq_ok": "FAQ data found.",
+    "faq_missing": "No FAQ data found.",
+    "booking_link_ok": "A booking link was found.",
+    "booking_link_missing": "No booking link found on the page.",
+    "tel_ok": "{{count}} tap-to-call link(s) found.",
+    "tel_missing": "No tap-to-call link found.",
+    "speed_sample": "Server responded in {{ms}} ms (one sample).",
+    "nap_phone_match": "The phone number on your site matches.",
+    "nap_phone_mismatch": "Your profile phone was not found on the page ({{found}} number(s) seen).",
+    "nap_missing": "Missing: {{fields}}.",
+    "nap_ok": "Name, phone and address are present.",
+    "hours_days": "{{days}} open day(s) set.",
+    "hours_special": "Emergency handling: {{emergency}}; holidays listed: {{holidays}}.",
+    "services_count": "{{count}} service(s) listed.",
+    "services_priced": "{{priced}} of {{total}} priced.",
+    "services_described": "{{described}} of {{total}} described.",
+    "areas": "{{count}} active area(s).",
+    "faq_count": "{{count}} Q&A pair(s).",
+    "needs_gbp_read": "Needs a Google Business Profile read, which is not connected yet.",
+    "ai_number_ok": "A Vireek phone number is connected.",
+    "ai_number_missing": "No Vireek phone number connected.",
+    "after_hours_unknown": "No primary location found.",
+    "after_hours_mode": "After-hours mode: {{mode}}.",
+    "answer_time_not_tracked": "Not tracked yet.",
+    "reviews_not_connected": "No review source connected.",
+    "reviews_total": "{{count}} review(s).",
+    "reviews_recent": "{{count}} in the last 90 days.",
+    "reviews_none_due": "No reviews old enough to need a reply.",
+    "reviews_replied": "{{replied}} of {{total}} replied.",
+    "booking_on": "Online booking is on.",
+    "booking_off": "Online booking is off.",
+    "feed_on": "The feed is on and ready.",
+    "feed_blocked": "The feed is on but its checks fail.",
+    "feed_ready_off": "Ready to publish; the feed is off.",
+    "feed_not_ready": "Booking, timezone or hours are not ready.",
+    "partner_status": "Status: {{status}}.",
+    "directories_not_checked": "Directories are not scanned yet.",
+    "ai_sample_rate": "Mentioned in {{hits}} of {{total}} sample queries.",
+    "ai_not_sampled": "No AI samples were run."
+  },
+  "fixes": {
+    "service_descriptions": {
+      "title": "Add service descriptions",
+      "desc": "Plain-language drafts built from your price book. Nothing is saved until you approve, and you can undo."
+    },
+    "jsonld_snippet": {
+      "title": "Add structured data to your website",
+      "desc": "Copy this JSON-LD into your home page. It only states what is on file."
+    },
+    "hours_review": {
+      "title": "Review hours and special hours",
+      "desc": "Fix conflicts between business and booking hours, and add emergency and holiday information."
+    },
+    "gbp_services": {
+      "title": "Update Google Business Profile services",
+      "desc": "Copy these services into Google Business Profile, or use the approval flow in Google Booking."
+    },
+    "review_backlog": {
+      "title": "Reply to waiting reviews",
+      "desc": "Open Reputation to review and send reply drafts."
+    },
+    "publish_feed": {
+      "title": "Publish your availability feed",
+      "desc": "Open Google Booking to switch on verified availability."
+    },
+    "gbp_manual_checks": {
+      "title": "Check Google and directories by hand",
+      "desc": "Confirm categories, photos, attributes and directory listings. These cannot be read automatically yet."
+    }
+  },
+  "notes": {
+    "templated_draft": "These are templated drafts, not AI-written. Review each one.",
+    "currency_assumed": "No currency on file; US dollars assumed.",
+    "address_incomplete": "Address is incomplete, so it is left out.",
+    "hours_missing": "Hours are missing, so they are left out.",
+    "hours_conflict": "Booking hours differ from business hours.",
+    "holidays_missing": "No holidays are listed.",
+    "emergency_flag_missing": "Emergency handling is not set up.",
+    "services_below_8": "Fewer than 8 services are listed."
+  },
+  "alerts": {
+    "score_drop": "Score dropped by {{from}} to {{to}}.",
+    "hours_changed": "Your hours or holidays changed since the last scan.",
+    "feed_stale": "The availability feed is on but no longer meets its checks.",
+    "site_regression": "Your website lost its LocalBusiness data.",
+    "site_unreachable": "Your website could not be reached ({{code}})."
+  },
+  "errors": {
+    "empty": "Enter a website address.",
+    "too_long": "That address is too long.",
+    "bad_url": "That does not look like a website address.",
+    "bad_scheme": "Only http and https addresses work.",
+    "credentials": "Remove the username and password from the address.",
+    "bad_port": "Only standard web ports are supported.",
+    "ip_literal": "Use a domain name, not an IP address.",
+    "blocked_host": "That address cannot be checked.",
+    "blocked_address": "That site could not be reached from a public address.",
+    "robots": "This site’s robots.txt does not allow automated checks, so we did not read it.",
+    "timeout": "The site took too long to answer.",
+    "network": "We could not connect to that site.",
+    "http_error": "The site returned an error.",
+    "redirect": "The site redirected too many times.",
+    "not_html": "That address is not a web page.",
+    "rate_limited": "Too many checks. Please try again in about an hour.",
+    "unavailable": "The checker is busy. Please try again shortly.",
+    "not_configured": "The checker is not available right now.",
+    "bad_request": "Something was wrong with that request.",
+    "forbidden": "You don’t have permission to do this.",
+    "unauthorized": "Please sign in again.",
+    "no_business_profile": "Finish your business profile first.",
+    "no_website": "No website address on file.",
+    "unknown": "Something went wrong. Please try again."
+  },
+  "public": {
+    "seoTitle": "Free Agent Readiness check | Vireek",
+    "seoDescription": "Check whether AI agents and Google can read your home-service business website. Free, no login.",
+    "heading": "Is your business ready for AI agents?",
+    "lead": "Paste your website address. We read one public page and show your score and the top 5 fixes. Free, no login.",
+    "urlLabel": "Website address",
+    "urlPlaceholder": "yourcompany.com",
+    "check": "Check my website",
+    "checking": "Reading your page…",
+    "privacy": "We read only the single public page you enter, follow its robots.txt, and do not store the address or the page. Counts are kept as anonymous hashes to limit abuse.",
+    "scope": "This free check scores your website only. Business profile, phone, reviews and booking checks need your Vireek account.",
+    "resultFor": "Result for {{host}}",
+    "topFixes": "Your top fixes",
+    "noFixes": "No fixes needed on the website checks we ran.",
+    "lostPoints": "+{{points}} possible points",
+    "allChecks": "All website checks",
+    "ctaTitle": "Want these fixed for you?",
+    "ctaBody": "Vireek answers your calls 24/7 and can generate the structured data, descriptions and reply drafts for you to approve.",
+    "cta": "See how Vireek works",
+    "checkAgain": "Check another site"
+  }
+}
