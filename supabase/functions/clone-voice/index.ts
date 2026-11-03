@@ -14,6 +14,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { getFeatureGate, recordProvenanceSidecar } from "../_shared/ai-transparency/gate.ts";
+import { canStartClone, phraseMatches } from "../_shared/voice-studio/consent.ts";
 import { deleteElevenLabsVoice } from "../_shared/voice/elevenLabs.ts";
 
 const corsHeaders = {
@@ -23,6 +24,9 @@ const corsHeaders = {
 };
 
 interface CloneRequestBody {
+  storagePath: string;
+  consentId: string;
+}
   storagePath: string;
   /** Must be literally `true`: the owner confirmed they may clone this voice. */
   consent?: boolean;
@@ -91,6 +95,19 @@ Deno.serve(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const consentId = (body.consentId ?? "").trim();
+    const { data: consent } = await admin
+      .from("voice_clone_consents")
+      .select("id,user_id,status,attested,liveness_phrase,created_at")
+      .eq("id", consentId)
+      .eq("user_id", caller.id)
+      .maybeSingle();
+    if (!consent || !canStartClone(consent, caller.id, new Date())) {
+      return new Response(JSON.stringify({ error: "A valid, unexpired consent is required before cloning." }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const gate = await getFeatureGate(admin, caller.id, "ai_voice_cloning");
     if (!gate.allowed) {
       return new Response(JSON.stringify({ error: "Voice cloning is turned off in AI Transparency settings." }), {
@@ -155,7 +172,28 @@ Deno.serve(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
+    const sttForm = new FormData();
+    sttForm.append("model_id", "scribe_v1");
+    sttForm.append("file", fileData, "sample.mp3");
+    const sttRes = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+      method: "POST",
+      headers: { "xi-api-key": elevenLabsKey },
+      body: sttForm,
+      signal: AbortSignal.timeout(30000),
+    }).catch(() => null);
+    const transcript = sttRes && sttRes.ok ? (((await sttRes.json()) as { text?: string }).text ?? "") : null;
+    if (transcript === null || !phraseMatches(transcript, consent.liveness_phrase)) {
+      const reason = transcript === null ? "liveness_unverifiable" : "liveness_phrase_mismatch";
+      await admin.from("voice_clone_consents").update({ status: "rejected", failure_reason: reason }).eq("id", consent.id);
+      await admin
+        .from("business_profile")
+        .update({ custom_voice_status: "failed", custom_voice_error: "Liveness check failed. Start again and read the phrase aloud." })
+        .eq("user_id", caller.id);
+      return new Response(JSON.stringify({ error: "Liveness check failed. Start again and read the phrase aloud." }), {
+        status: 422,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const form = new FormData();
     form.append("name", `vireek-${caller.id}`);
     form.append("files", fileData, "sample.mp3");
@@ -191,6 +229,31 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const { error: approveErr } = await admin
+      .from("voice_clone_consents")
+      .update({
+        status: "approved",
+        provider_voice_id: elevenData.voice_id,
+        sample_path: storagePath,
+        approved_at: new Date().toISOString(),
+        failure_reason: null,
+      })
+      .eq("id", consent.id);
+    if (approveErr) {
+      // Never keep a cloned voice that has no approved consent record.
+      await fetch(`https://api.elevenlabs.io/v1/voices/${encodeURIComponent(elevenData.voice_id)}`, {
+        method: "DELETE",
+        headers: { "xi-api-key": elevenLabsKey },
+      }).catch(() => null);
+      await admin
+        .from("business_profile")
+        .update({ custom_voice_status: "failed", custom_voice_error: "Could not record consent." })
+        .eq("user_id", caller.id);
+      return new Response(JSON.stringify({ error: "Could not record consent. Try again." }), {
+        status: 409,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     await admin
       .from("business_profile")
       .update({
