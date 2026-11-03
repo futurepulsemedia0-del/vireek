@@ -36,6 +36,9 @@ export const OWNED_TABLES: OwnedTable[] = [
   { table: "review_requests", dateColumn: "created_at" },
   { table: "integrations", dateColumn: "created_at" },
   { table: "business_profile" },
+  { table: "agent_caller_events", dateColumn: "created_at" },
+  { table: "agent_caller_sessions", dateColumn: "created_at" },
+  { table: "agent_holds", dateColumn: "created_at" },
 ];
 
 /** Just the plain table names, for call sites that don't need PII/date info. */
