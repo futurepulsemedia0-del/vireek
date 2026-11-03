@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // scripts/generate-rss.mjs
 //
-// Generates static RSS 2.0 feeds for the Blog and Changelog straight from
-// the same TypeScript data files the site itself renders from
-// (src/lib/blog.ts and src/lib/changelog.ts) — one source of truth, no
-// duplicated content to keep in sync.
+// Generates static feeds for the Blog and Changelog straight from the same
+// TypeScript data files the site itself renders from (src/lib/blog.ts and
+// src/lib/changelog.ts) — one source of truth, no duplicated content.
+//   public/blog-rss.xml         RSS 2.0
+//   public/changelog-rss.xml    RSS 2.0
+//   public/changelog-atom.xml   Atom 1.0 (permalinks: /changelog#YYYY-MM-DD)
 //
-// Run manually whenever you publish a new post or ship a release:
+// Runs automatically as the first step of `npm run build`. Manual run:
 //   node scripts/generate-rss.mjs
 //
 // Requires esbuild as a dev dependency:
@@ -16,6 +18,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import * as esbuild from 'esbuild';
+import { buildAtom } from './lib/atom.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -95,11 +98,21 @@ function buildRss({ title, description, link, feedPath, items }) {
 }
 
 async function main() {
-  const { CHANGELOG_RELEASES } = await loadTsModule('src/lib/changelog.ts');
+  const { BLOG_POSTS } = await loadTsModule('src/lib/blog.ts');
+  const { CHANGELOG_RELEASES, releaseSlug } = await loadTsModule('src/lib/changelog.ts');
+
+  const blogItems = [...BLOG_POSTS]
+    .sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate))
+    .map((post) => ({
+      title: post.title,
+      link: `${SITE_URL}/blog/${post.slug}`,
+      date: post.publishedDate,
+      description: post.excerpt,
+    }));
 
   const changelogItems = CHANGELOG_RELEASES.map((release) => ({
     title: `Update — ${release.date}`,
-    link: `${SITE_URL}/changelog`,
+    link: `${SITE_URL}/changelog#${releaseSlug(release.date)}`,
     date: release.date,
     description: release.entries.map((e) => `${e.title}: ${e.body}`).join(' | '),
   }));
@@ -127,7 +140,31 @@ async function main() {
     })
   );
 
+  writeFileSync(
+    path.join(ROOT, 'public/changelog-atom.xml'),
+    buildAtom({
+      title: 'Vireek Changelog',
+      subtitle: 'Every feature, improvement, and fix shipped to the Vireek platform.',
+      siteUrl: SITE_URL,
+      feedPath: '/changelog-atom.xml',
+      linkPath: '/changelog',
+      items: CHANGELOG_RELEASES.map((release) => {
+        const slug = releaseSlug(release.date);
+        return {
+          id: `${SITE_URL}/changelog#${slug}`,
+          title: `Update ${release.date}`,
+          link: `${SITE_URL}/changelog#${slug}`,
+          updated: `${slug}T00:00:00Z`,
+          summary: release.entries.map((e) => `[${e.type}] ${e.title}: ${e.body}`).join(' | '),
+          categories: [...new Set(release.entries.map((e) => e.type))],
+        };
+      }),
+    })
+  );
+
+  console.log(`Generated public/blog-rss.xml (${blogItems.length} posts)`);
   console.log(`Generated public/changelog-rss.xml (${changelogItems.length} releases)`);
+  console.log(`Generated public/changelog-atom.xml (${CHANGELOG_RELEASES.length} releases)`);
 }
 
 main().catch((err) => {
