@@ -22,6 +22,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import webpush from "npm:web-push@3.6.7";
 import { isFcmConfigured, sendFcm } from "../_shared/notify/fcm.ts";
+import { buildMobilePayload, DEFAULT_PREFS, type MobilePrefs } from "../_shared/notify/mobilePayload.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -216,14 +217,31 @@ Deno.serve(async (req: Request) => {
       }),
     );
 
+    const subIds = [...new Set(devices.map((d) => d.subscriber_user_id).filter((x): x is string => !!x))];
+    const prefsById = new Map<string, MobilePrefs>();
+    if (subIds.length) {
+      const { data: prefRows } = await admin
+        .from("user_mobile_surface_prefs")
+        .select("user_id, hide_customer_names, time_sensitive_enabled")
+        .in("user_id", subIds);
+      for (const r of prefRows ?? []) {
+        prefsById.set(r.user_id as string, {
+          hide_customer_names: r.hide_customer_names as boolean,
+          time_sensitive_enabled: r.time_sensitive_enabled as boolean,
+        });
+      }
+    }
     const deviceResults: Delivery[] = await Promise.all(
       devices.map(async (device): Promise<Delivery> => {
         try {
+                    const mp = buildMobilePayload(
+            { type: String(notification.type), title: notification.title, message: notification.message },
+            (device.subscriber_user_id && prefsById.get(device.subscriber_user_id)) || DEFAULT_PREFS,
+          );
           const result = await sendFcm(device.token, {
-            title: notification.title,
-            body: notification.message,
-            url,
-            tag,
+            title: mp.title, body: mp.body, url, tag,
+            androidChannel: mp.androidChannel, interruptionLevel: mp.interruptionLevel,
+            category: mp.category, severity: mp.severity, haptic: mp.haptic,
           });
           if (result.ok) return { id: device.id, ok: true };
           if (result.unregistered) {
