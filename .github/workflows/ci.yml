@@ -37,6 +37,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Product surface check
+        run: npm run surface:check
+
       - name: Public claims gate
         run: npm run claims:check
       - name: Localization gates (raw Intl ratchet, voice, translation keys)
