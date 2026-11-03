@@ -224,6 +224,7 @@ const FixedAssetsPage = lazy(() => import('@/pages/FixedAssetsPage').then((m) =>
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
 const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
 const SessionsPage = lazy(() => import('@/pages/SessionsPage').then((m) => ({ default: m.SessionsPage })));
+const VoiceSettingsPage = lazy(() => import('@/pages/VoiceSettingsPage').then((m) => ({ default: m.VoiceSettingsPage })));
 const CommissionsPage = lazy(() => import('@/pages/CommissionsPage').then((m) => ({ default: m.CommissionsPage })));
 const PayrollSyncPage = lazy(() => import('@/pages/PayrollSyncPage').then((m) => ({ default: m.PayrollSyncPage })));
 const PayrollConnectorsPage = lazy(() => import('@/pages/PayrollConnectorsPage').then((m) => ({ default: m.PayrollConnectorsPage })));
@@ -936,6 +937,7 @@ function AppRoutes() {
         <Route path="/resolve/:token" element={<RemoteResolutionRoomPage />} />
         <Route path="/live/:token" element={<VideoSessionRoomPage />} />
         <Route path="/dashboard/video-sessions" element={<ProtectedRoute><VideoSessionsPage /></ProtectedRoute>} />
+        <Route path="/dashboard/settings/voice" element={<ProtectedRoute><VoiceSettingsPage /></ProtectedRoute>} />
         <Route path="/diagnose/:token" element={<DiagnosePage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
         <Route path="/audit" element={<AuditLandingPage />} />
