@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "decorativeAiIcons": 0,
+    "gradients": 0,
+    "backdropBlur": 0,
+    "glow": 0,
+    "largeRadii": 2,
+    "blanketBold": 0,
+    "skeletonPulse": 0,
+    "hypeCopy": 0,
+    "exclamations": 0
+  },
+  "migrated": [
+    "src/components/DashboardNav.tsx",
+    "src/components/overview/AttentionQueue.tsx",
+    "src/components/overview/CallVolumeChart.tsx",
+    "src/components/overview/DataHealthCard.tsx",
+    "src/components/overview/LeakCasesCard.tsx",
+    "src/components/overview/OverviewCustomizeBar.tsx",
+    "src/components/overview/OverviewGrid.tsx",
+    "src/components/overview/RecentActivityList.tsx",
+    "src/components/overview/RenewalRateCard.tsx",
+    "src/components/overview/SystemHealthStrip.tsx",
+    "src/pages/AnalyticsPage.tsx",
+    "src/pages/CallsPage.tsx",
+    "src/pages/CustomersPage.tsx",
+    "src/pages/DashboardPage.tsx",
+    "src/pages/LiveCallsPage.tsx",
+    "src/pages/SettingsPage.tsx"
+  ]
+}
