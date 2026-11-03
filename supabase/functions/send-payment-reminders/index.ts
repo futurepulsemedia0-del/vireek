@@ -3,6 +3,7 @@ import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
 import { resolveCustomerLanguage } from "../_shared/i18n/customerLanguage.ts";
 import { MAX_REMINDERS, nextReminderUpdate, reminderCutoffs } from "../_shared/payment-reminders/window.ts";
 import { escapeHtml, formatMoney, htmlLangAttrs, renderTemplate } from "../_shared/i18n/templates.ts";
+import { checkSharedSecret } from "../_shared/http/core.ts";
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, X-Cron-Secret" };
 
@@ -14,7 +15,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
 
   const cronSecret = Deno.env.get("PAYMENT_REMINDER_CRON_SECRET");
-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) return jsonResponse({ error: "Unauthorized." }, 401);
+     if (!checkSharedSecret(Deno.env.get("PAYMENT_REMINDER_CRON_SECRET"), req.headers.get("X-Cron-Secret"))) return jsonResponse({ error: "Unauthorized." }, 401);
 
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
 
