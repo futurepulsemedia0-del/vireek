@@ -80,13 +80,15 @@ verify_jwt = false
 verify_jwt = false
 [functions.bi-gateway]
 verify_jwt = false
-
 [functions.bi-export-run]
 verify_jwt = false
-
 [functions.bi-sftp-upload]
 verify_jwt = false
 [functions.rum-ingest]
 verify_jwt = false
 [functions.first-call-start]
+verify_jwt = false
+[functions.voice-call]
+verify_jwt = false
+[functions.voice-brief]
 verify_jwt = false
