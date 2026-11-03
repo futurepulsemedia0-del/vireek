@@ -174,7 +174,7 @@ async function checkOneBusiness(
         console.error(JSON.stringify({ event: "activate_weather_surge_failed", user_id: business.user_id, error: activateError.message }));
       } else {
         triggered += 1;
-
+        await admin.rpc("capacity_guard_record_signal", { p_user_id: business.user_id, p_source: "weather", p_factor: 1.5, p_hours: 12 });
         if (EMERGENCY_TIER_EVENTS.has(alert.event)) {
           const { data: emergencyActivated } = await admin.rpc("activate_emergency_mode", {
             p_user_id: business.user_id,
