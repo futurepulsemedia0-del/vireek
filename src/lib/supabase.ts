@@ -99,6 +99,9 @@ export interface Call {
   duration_seconds: number | null;
   summary: string | null;
   transcript: string | null;
+  interpreter_language?: string | null;
+  interpretation_mode?: string | null;
+  transcript_en?: string | null;
   recording_url: string | null;
   is_emergency: boolean;
   sentiment: 'positive' | 'neutral' | 'negative' | null;
