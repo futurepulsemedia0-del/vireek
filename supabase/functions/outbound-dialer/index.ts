@@ -2,12 +2,13 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { selectOutboundNumber, recordDialAttempt } from "../_shared/number-reputation/attempts.ts";
+import { VapiEngine } from "../_shared/voice-engine/vapiEngine.ts";
+import { OpenAiRealtimeEngine } from "../_shared/voice-engine/openAiRealtimeEngine.ts";
+import { resolveVoiceEngine } from "../_shared/voice-engine/resolve.ts";
 import { voiceOverride } from "../_shared/voice/voiceMap.ts";
 import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
 
 const BATCH_SIZE = 20;
-const VAPI_CALL_URL = "https://api.vapi.ai/call";
-
 interface QueuedCall {
   id: string;
   user_id: string;
@@ -47,6 +48,7 @@ Deno.serve(async (req: Request) => {
   if (!queue || queue.length === 0) return new Response(JSON.stringify({ dialed: 0 }), { headers: { "Content-Type": "application/json" } });
 
   let dialed = 0, failed = 0;
+  const voiceEngines = { vapi: new VapiEngine({ apiKey: vapiKey }), openai_realtime: new OpenAiRealtimeEngine() };
 
   for (const call of queue as QueuedCall[]) {
     const { data: business } = await admin
@@ -90,34 +92,38 @@ Deno.serve(async (req: Request) => {
       continue;
     }
     try {
-      const res = await fetch(VAPI_CALL_URL, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${vapiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          assistantId: business.vapi_assistant_id,
-          phoneNumberId: pick.vapiPhoneNumberId,
-          customer: { number: call.customer_phone },
-          assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues: { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] } },
-        }),
+       const { engine } = await resolveVoiceEngine({
+        ownerId: call.user_id,
+        getEnv: (k) => Deno.env.get(k),
+        loadFlag: async (ownerId) => {
+          const { data } = await admin.from("voice_engine_flags").select("engine").eq("user_id", ownerId).maybeSingle();
+          return (data?.engine as string | undefined) ?? null;
+        },
+        engines: voiceEngines,
+      });
+      const started = await engine.startCall({
+        ownerId: call.user_id,
+        assistantId: business.vapi_assistant_id,
+        phoneNumberId: pick.vapiPhoneNumberId,
+        customerNumber: call.customer_phone,
+        variableValues: { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] },
       });
 
-      if (!res.ok) {
-        const bodyText = await res.text();
+      if (!started.ok) {
         await admin.from("outbound_calls").update({
           status: call.attempt_count + 1 >= 3 ? "failed" : "queued",
-          outcome_notes: `Vapi error ${res.status}: ${bodyText.slice(0, 300)}`,
+          outcome_notes: started.note,
           attempt_count: call.attempt_count + 1,
         }).eq("id", call.id);
         failed += 1;
         continue;
       }
 
-      const json = await res.json();
       await admin.from("outbound_calls").update({
-        status: "calling", vapi_call_id: json.id ?? null, called_at: new Date().toISOString(), attempt_count: call.attempt_count + 1,
+        status: "calling", vapi_call_id: started.callId, called_at: new Date().toISOString(), attempt_count: call.attempt_count + 1,
       }).eq("id", call.id);
       if (pick.kind === "pool") {
-        await recordDialAttempt(admin, { userId: call.user_id, phoneNumberId: pick.phoneNumberId, outboundCallId: call.id, campaignType: call.campaign_type, vapiCallId: json.id ?? null });
+        await recordDialAttempt(admin, { userId: call.user_id, phoneNumberId: pick.phoneNumberId, outboundCallId: call.id, campaignType: call.campaign_type, vapiCallId: started.callId });
       }
       dialed += 1;
     } catch (err) {
