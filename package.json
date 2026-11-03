@@ -18,6 +18,7 @@
     "codemod:colors": "node scripts/color/codemod-colors.mjs",
     "lint:locale": "node scripts/check-raw-locale.mjs",
     "lint:voice": "node scripts/check-voice.mjs",
+    "claims:check": "node scripts/check-claims.mjs",
     "i18n:keys": "node scripts/i18n-missing-keys.mjs",
     "openapi:generate": "node scripts/openapi.mjs generate",
     "openapi:check": "node scripts/openapi.mjs check",
