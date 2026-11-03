@@ -671,6 +671,7 @@ const RegionalPacksSettingsPage = lazy(() => import('@/pages/RegionalPacksSettin
 const AcquisitionsPage = lazy(() => import('@/pages/AcquisitionsPage').then((m) => ({ default: m.AcquisitionsPage })));
 const AcquisitionDetailPage = lazy(() => import('@/pages/AcquisitionDetailPage').then((m) => ({ default: m.AcquisitionDetailPage })));
 const AssistantPersonaPage = lazy(() => import('@/pages/AssistantPersonaPage').then((m) => ({ default: m.AssistantPersonaPage })));
+const VoiceStudioPage = lazy(() => import('@/pages/VoiceStudioPage').then((m) => ({ default: m.VoiceStudioPage })));
 const AiDisclosureLedgerPage = lazy(() => import('@/pages/AiDisclosureLedgerPage').then((m) => ({ default: m.AiDisclosureLedgerPage })));
 const BrandingSettingsPage = lazy(() => import('@/pages/BrandingSettingsPage').then((m) => ({ default: m.BrandingSettingsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
@@ -1569,6 +1570,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ReliabilityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/voice-studio"
+          element={
+            <ProtectedRoute>
+              <VoiceStudioPage />
             </ProtectedRoute>
           }
         />
