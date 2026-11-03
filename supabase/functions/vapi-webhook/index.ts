@@ -1,3 +1,4 @@
+import { handleAuditWebhookEvent } from "../_shared/audit/webhookHook.ts";
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 import { buildRecordingConsentNotice } from "../_shared/compliance/recordingConsent.ts";
 import { buildVoicePersonaContext, resolveTrade } from "../_shared/voice-brand/persona.ts";
@@ -2085,6 +2086,8 @@ async function updateOutboundCallStatus(admin: SupabaseClient, outboundCallId: s
 }
 
 async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMessage, requestId: string) {
+  // Missed-Call Audit test calls are handled by their own pipeline and are not tenant calls.
+  if (await handleAuditWebhookEvent(message)) return jsonResponse({ received: true });
   if (message.type === "end-of-call-report") await recordAttemptOutcome(admin, message);
   const tenant = await resolveTenant(admin, message, requestId);
   if (!tenant) {
