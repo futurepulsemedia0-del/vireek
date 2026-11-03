@@ -228,6 +228,7 @@ import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '@/hooks/useDirection';
 import { navLabelKey } from '@/lib/navLabel';
+import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
 import { PwaInstallBanner } from '@/components/mobile/PwaInstallBanner';پ
 
@@ -244,7 +245,7 @@ interface NavItem {
 // (now including Settings/Security, added in steps 13/15) is grouped under
 // a single collapsible "Account" section instead of growing the flat list
 // further.
-const PRIMARY_ITEMS: NavItem[] = [
+export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Support', href: '/dashboard/support', icon: LifeBuoy },
   { label: 'Getting Started', href: '/dashboard/getting-started', icon: Rocket },
@@ -614,7 +615,7 @@ const PRIMARY_ITEMS: NavItem[] = [
 ];
 
 
-const ACCOUNT_ITEMS: NavItem[] = [
+export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'My Account', href: '/dashboard/account', icon: User },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, requiresPermission: 'can_edit_business_profile' },
   { label: 'Branding', href: '/dashboard/settings/branding', icon: Paintbrush, requiresPermission: 'can_edit_business_profile' },
@@ -677,7 +678,7 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'system', label: 'System', icon: Monitor },
 ];
-function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions) {
+export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions) {
   return items.filter((item) => {
     if (item.ownerOnly && !isOwner) return false;
     if (!item.requiresPermission) return true;
@@ -685,7 +686,7 @@ function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/
     return permissions[item.requiresPermission];
   });
 }
-
+export const ALL_NAV_ITEMS = [...PRIMARY_ITEMS, ...ACCOUNT_ITEMS];
 export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -729,8 +730,28 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
 
   const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions);
   const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions);
-  const accountActive = visibleAccount.some((item) => isActive(item.href));
-  const [accountOpen, setAccountOpen] = useState(accountActive);
+  const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
+  const [showLabs, setShowLabs] = useState(() => {
+    try {
+      return localStorage.getItem('vireek.labs') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const toggleLabs = () =>
+    setShowLabs((v) => {
+      const next = !v;
+      try {
+        localStorage.setItem('vireek.labs', next ? '1' : '0');
+      } catch {
+        /* storage blocked */
+      }
+      return next;
+    });
+  const labsVisible = showLabs || isLab(location.pathname);
+  const [openPillars, setOpenPillars] = useState<Record<string, boolean>>({});
+  const pillarGroups = groupByPillar([...visiblePrimary, ...visibleAccount], { audience, showLabs: labsVisible });
+  const overview = visiblePrimary.find((i) => i.href === '/dashboard');
   const [themeOpen, setThemeOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -753,7 +774,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         }`}
       >
         <item.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
-        {label(item.label)}
+        {label(plainLabel(item.href, item.label))}
         {item.href === '/dashboard/team-chat' && <ChatNavBadge />}
       </Link>
     );
@@ -761,11 +782,43 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
 
   const navContent = (
     <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-1">
-      {visiblePrimary.map((item) => (
-        <NavLink key={item.href} item={item} />
-      ))}
-
-      {visibleAccount.length > 0 && (
+      {overview && <NavLink item={overview} />}
+      {pillarGroups.map(({ pillar, items }) => {
+        const meta = PILLARS.find((p) => p.id === pillar)!;
+        const open = openPillars[pillar] ?? items.some((i) => isActive(i.href));
+        return (
+          <div key={pillar} className="mt-2">
+            <button
+              type="button"
+              aria-expanded={open}
+              onClick={() => setOpenPillars((v) => ({ ...v, [pillar]: !open }))}
+              className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
+            >
+              <span>
+                {t(`nav.pillars.${pillar}`, { defaultValue: meta.label })}
+                {pillar === 'labs' && (
+                  <span className="ml-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">Beta</span>
+                )}
+              </span>
+              <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+            </button>
+            {open && (
+              <div className="flex flex-col gap-1 pt-1">
+                {items.map((item) => (
+                  <NavLink key={item.href} item={item} />
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      <button
+        type="button"
+        onClick={toggleLabs}
+        className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs text-text-secondary/70 hover:text-text-secondary"
+      >
+        {showLabs ? t('nav.labs.hide', { defaultValue: 'Hide Labs (Beta)' }) : t('nav.labs.show', { defaultValue: 'Show Labs (Beta)' })}
+      </button>
         <div className="mt-2">
           <button
             type="button"
