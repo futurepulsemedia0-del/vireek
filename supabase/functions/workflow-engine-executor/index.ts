@@ -190,6 +190,7 @@ async function runCallStep(admin: SupabaseClient, run: Run, config: Record<strin
         customer: { number: run.customer_phone },
         assistantOverrides: {
           variableValues: { customer_name: run.customer_name ?? "", followup_context: String(config.call_context ?? "") },
+        ...voiceOverride(business.assistant_voice),
         },
       }),
     });
