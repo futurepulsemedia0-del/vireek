@@ -13,7 +13,7 @@ import { EscalationSettings } from '@/components/settings/EscalationSettings';
 import { AutoReplySettingsCard } from '@/components/settings/AutoReplySettingsCard';
 import { AgentOrchestrationSettings } from '@/components/settings/AgentOrchestrationSettings';
 import { QuietHoursSettings } from '@/components/settings/QuietHoursSettings';
-import { VoiceCloningCard } from '@/components/settings/VoiceCloningCard';
+import { CloneConsentCard } from '@/components/voice-studio/CloneConsentCard';
 import { EmbedWidgetCard } from '@/components/EmbedWidgetCard';
 import { BookingLinkCard } from '@/components/settings/BookingLinkCard';
 import { SkeletonCardList } from '@/components/Skeleton';
@@ -593,7 +593,7 @@ export function BusinessProfilePage() {
             </SectionCard>
 
             <div className="mt-6">
-              <VoiceCloningCard />
+              <CloneConsentCard />
             </div>
 
             {/* Phone Number & Compliance */}
