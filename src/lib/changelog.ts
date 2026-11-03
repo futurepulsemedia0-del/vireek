@@ -132,3 +132,15 @@ export const CHANGELOG_RELEASES: ChangelogRelease[] = [
     ],
   },
 ];
+
+/* ---- permalinks -------------------------------------------------------------- */
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** Stable permalink id ("YYYY-MM-DD") derived from a release's display date, e.g. "September 6, 2026". */
+export function releaseSlug(date: string): string {
+  const m = /^([A-Za-z]+)\s+(\d{1,2}),\s+(\d{4})$/.exec(date.trim());
+  const idx = m ? MONTHS.indexOf(m[1]) : -1;
+  if (!m || idx < 0) throw new Error(`Unrecognised changelog date: "${date}"`);
+  return `${m[3]}-${String(idx + 1).padStart(2, '0')}-${m[2].padStart(2, '0')}`;
+}
