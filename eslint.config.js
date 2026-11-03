@@ -51,4 +51,33 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Dashboard guardrails — see docs/design/dashboard-principles.md
+    files: [
+      'src/pages/DashboardPage.tsx',
+      'src/components/overview/**/*.{ts,tsx}',
+      'src/pages/{Calls,LiveCalls,Jobs,Customers,Analytics,Billing,Settings}Page.tsx',
+    ],
+    ignores: ['**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        paths: [{
+          name: 'lucide-react',
+          importNames: ['Sparkles', 'Sparkle', 'Bot', 'Brain', 'BrainCircuit', 'Wand2', 'WandSparkles'],
+          message: 'No decorative AI icons in the dashboard. Show provenance as text ("Drafted by Sarah").',
+        }],
+      }],
+      'no-restricted-syntax': [
+        'warn',
+        { selector: "CallExpression[callee.property.name=/^toLocale(Date|Time)?String$/]", message: 'Use formatDate/formatTime/formatDateTime/formatNumber/formatCurrency from @/lib/format (or useFormat()).' },
+        { selector: "NewExpression[callee.object.name='Intl'][callee.property.name=/^(NumberFormat|DateTimeFormat|RelativeTimeFormat|ListFormat)$/]", message: 'Do not construct Intl formatters directly. Use the helpers in @/lib/format.' },
+        { selector: 'Literal[value=/#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\\b/]', message: 'Use a colour token, not a hex literal.' },
+        { selector: 'Literal[value=/\\b(?:rgba?|hsla?)\\(\\s*[0-9]/]', message: 'Use rgb(var(--token)) instead of rgb()/hsl() literals.' },
+        { selector: 'Literal[value=/bg-gradient-|linear-gradient|radial-gradient|backdrop-blur/]', message: 'No gradients or glass in the dashboard.' },
+        { selector: 'TemplateElement[value.raw=/bg-gradient-|linear-gradient|radial-gradient|backdrop-blur/]', message: 'No gradients or glass in the dashboard.' },
+        { selector: 'Literal[value=/\\brounded-(2xl|3xl)\\b/]', message: 'Large radii are for modals only. Use rounded-md/lg.' },
+        { selector: 'TemplateElement[value.raw=/\\brounded-(2xl|3xl)\\b/]', message: 'Large radii are for modals only. Use rounded-md/lg.' },
+      ],
+    },
+  },
 )
