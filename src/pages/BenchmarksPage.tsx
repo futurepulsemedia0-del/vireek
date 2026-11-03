@@ -27,6 +27,8 @@ import {
   summarizeStanding,
 } from '@/lib/benchmarking';
 import type { BenchmarkRow } from '@/lib/benchmarking';
+import { ReportContributionCard } from '@/components/reports/ReportContributionCard';
+import { ReportBenchmarkWidget } from '@/components/reports/ReportBenchmarkWidget';
 
 const PERIOD_OPTIONS = [
   { days: 30, label: 'Last 30 days' },
@@ -159,6 +161,7 @@ export function BenchmarksPage() {
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
           <div>
+        <div className="mb-6 space-y-4"><ReportBenchmarkWidget /><ReportContributionCard /></div>
             <h1 className="flex items-center gap-2 text-2xl font-bold text-text-primary">
               <BarChart3 size={22} className="text-accent" /> Benchmarks
             </h1>
