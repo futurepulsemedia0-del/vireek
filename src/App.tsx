@@ -669,6 +669,8 @@ const WhatsNewPage = lazy(() => import('@/pages/WhatsNewPage').then((m) => ({ de
 const ThankYouPage = lazy(() => import('@/pages/ThankYouPage').then((m) => ({ default: m.ThankYouPage })));
 const ServerErrorPage = lazy(() => import('@/pages/ServerErrorPage').then((m) => ({ default: m.ServerErrorPage })));
 const BadgePage = lazy(() => import('@/pages/BadgePage').then((m) => ({ default: m.BadgePage })));
+const TrustBadgeVerifyPage = lazy(() => import('@/pages/TrustBadgeVerifyPage').then((m) => ({ default: m.TrustBadgeVerifyPage })));
+const TrustBadgeSettingsPage = lazy(() => import('@/pages/TrustBadgeSettingsPage').then((m) => ({ default: m.TrustBadgeSettingsPage })));
 const IntegrationsHubPage = lazy(() => import('@/pages/IntegrationsHubPage').then((m) => ({ default: m.IntegrationsHubPage })));
 const IntegrationDetailPage = lazy(() => import('@/pages/IntegrationDetailPage').then((m) => ({ default: m.IntegrationDetailPage })));
 const TrustCenterPage = lazy(() => import('@/pages/TrustCenterPage').then((m) => ({ default: m.TrustCenterPage })));
@@ -1027,6 +1029,7 @@ function AppRoutes() {
         <Route path="/roi" element={<CustomerRoiPage />} />
         <Route path="/system-requirements" element={<SystemRequirementsPage />} />
         <Route path="/badge" element={<BadgePage />} />
+        <Route path="/verify/:orgSlug" element={<TrustBadgeVerifyPage />} />
         <Route path="/sitemap" element={<SitemapPage />} />
         <Route
           path="/dashboard"
@@ -3162,6 +3165,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <DynamicNumbersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/trust-badge"
+          element={
+            <ProtectedRoute>
+              <TrustBadgeSettingsPage />
             </ProtectedRoute>
           }
         />
