@@ -14,6 +14,7 @@ function json(body: unknown, status = 200) {
 }
 
 import { OWNED_TABLE_NAMES } from "../_shared/compliance/ownedTables.ts";
+import { eraseTrustPackData } from "../_shared/trust/vault.ts";
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
