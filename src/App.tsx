@@ -383,6 +383,7 @@ const FieldScientistPage = lazy(() => import('@/pages/FieldScientistPage').then(
 const CounterfactualRealityEnginePage = lazy(() => import('@/pages/CounterfactualRealityEnginePage').then((m) => ({ default: m.CounterfactualRealityEnginePage })));
 const CausalChainsPage = lazy(() => import('@/pages/CausalChainsPage').then((m) => ({ default: m.CausalChainsPage })));
 const ReceivablesIntelligencePage = lazy(() => import('@/pages/ReceivablesIntelligencePage').then((m) => ({ default: m.ReceivablesIntelligencePage })));
+const RevenueRadarPage = lazy(() => import('@/pages/RevenueRadarPage').then((m) => ({ default: m.RevenueRadarPage })));
 const PaymentPlansPage = lazy(() => import('@/pages/PaymentPlansPage').then((m) => ({ default: m.PaymentPlansPage })));
 const PayByBankPage = lazy(() => import('@/pages/PayByBankPage').then((m) => ({ default: m.PayByBankPage })));
 const DisputesPage = lazy(() => import('@/pages/DisputesPage').then((m) => ({ default: m.DisputesPage })));
@@ -2068,6 +2069,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ReceivablesIntelligencePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/revenue-radar"
+          element={
+            <ProtectedRoute>
+              <RevenueRadarPage />
             </ProtectedRoute>
           }
         />
