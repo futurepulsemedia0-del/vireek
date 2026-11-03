@@ -1,6 +1,7 @@
 import { handleAuditWebhookEvent } from "../_shared/audit/webhookHook.ts";
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 import { buildRecordingConsentNotice } from "../_shared/compliance/recordingConsent.ts";
+import { resolveRecordingProfile, renderConsentScript, type ProfileLanguage } from "../_shared/compliance/recordingProfiles.ts";
 import { buildVoicePersonaContext, resolveTrade } from "../_shared/voice-brand/persona.ts";
 import { extractTurnLatencies, summarizeLatency } from "../_shared/voice-brand/latency.ts";
 import { trackLiveCallEvent } from "../_shared/live-calls/runtime.ts";
@@ -714,6 +715,14 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   }
   const serviceAreaContext = await buildServiceAreaContextVariable(admin, tenant);
    const disclosurePlan = await planDisclosure(admin, { userId: tenant.userId, vapiCallId: message.call?.id ?? null, callerLanguage: voiceLanguage.language });
+  const consentProfile = resolveRecordingProfile({ country: tenant.regional.country });
+  const consentLang: ProfileLanguage = (["de", "fr", "es"] as const).find((l) => l === voiceLanguage.language) ?? "en";
+  const regionalConsentContext = consentProfile.gateBeforeRecording && !recordingConsentContext
+    ? (() => {
+        const s = renderConsentScript(consentLang, "quality and service");
+        return `This business operates in ${consentProfile.jurisdiction}, where explicit consent to call recording is required. Before anything else, ask: "${s.ask}" Wait for a clear yes before continuing. If the caller declines, say: "${s.declined}", transfer to a human if possible, and do not ask again.`;
+      })()
+    : "";
   // Voice Platform: "" for home-services accounts (and on any error), so existing prompts are unaffected.
   const verticalContext = await loadVerticalContext(admin, tenant.userId, tenant.voiceAssistantId ?? null);
     // Voice brand: single-source persona block ("" on any error → prompt unchanged).
@@ -743,7 +752,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     customer_type_context: customerTypeContext,
     surge_context: surgeContext,
     after_hours_context: afterHoursContext,
-    recording_consent_context: recordingConsentContext,
+    recording_consent_context: [recordingConsentContext, regionalConsentContext].filter(Boolean).join(" "),
     customer_memory_context: customerMemoryContext,
     language_context: voiceLanguage.context,
     service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regional)].filter(Boolean).join(" "),
