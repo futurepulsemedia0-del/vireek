@@ -21,6 +21,9 @@ import { RouteProgressSignal } from '@/components/nav/RouteProgress';
 // code-split behind React.lazy so the initial JS payload (and therefore LCP)
 // stays small regardless of how large the app grows. Named exports are kept
 // consistent across pages specifically so this mapping stays mechanical.
+// Suspense fallback used by routes below.
+const PageLoader = RouteFallback;
+
 const MarketingPage = lazy(() => import('@/pages/MarketingPage'));
 const InstallCloseoutPage = lazy(() => import('@/pages/InstallCloseoutPage'));
 const ContentCalendarPage = lazy(() => import('@/pages/ContentCalendarPage'));
@@ -64,7 +67,6 @@ const GoalOrchestratorPage = lazy(() => import('@/pages/GoalOrchestratorPage').t
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
 const LeadDetailPage = lazy(() => import('@/pages/LeadDetailPage').then((m) => ({ default: m.LeadDetailPage })));
-const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const CustomerIntelligencePage = lazy(() => import('@/pages/CustomerIntelligencePage').then((m) => ({ default: m.CustomerIntelligencePage })));
 const TradePlaybooksPage = lazy(() => import('@/pages/TradePlaybooksPage').then((m) => ({ default: m.TradePlaybooksPage })));
 const PlaybooksPage = lazy(() => import('@/pages/PlaybooksPage').then((m) => ({ default: m.PlaybooksPage })));
@@ -103,7 +105,6 @@ const RevenueRecoveryLedgerPage = lazy(() => import('@/pages/RevenueRecoveryLedg
 const LeakReportPage = lazy(() => import('@/pages/LeakReportPage').then((m) => ({ default: m.LeakReportPage })));
 const PilotResultsPage = lazy(() => import('@/pages/PilotResultsPage').then((m) => ({ default: m.PilotResultsPage })));
 const MoneyRecoveredStatementsPage = lazy(() => import('@/pages/MoneyRecoveredStatementsPage').then((m) => ({ default: m.MoneyRecoveredStatementsPage })));
-const PilotResultsPage = lazy(() => import('@/pages/PilotResultsPage').then((m) => ({ default: m.PilotResultsPage })));
 const ValueScoreboardPage = lazy(() => import('@/pages/ValueScoreboardPage').then((m) => ({ default: m.ValueScoreboardPage })));
 const StaffValueScoreboardPage = lazy(() => import('@/pages/StaffValueScoreboardPage').then((m) => ({ default: m.StaffValueScoreboardPage })));
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
@@ -129,7 +130,7 @@ const OutcomeVerifyPage = lazy(() => import('@/pages/OutcomeVerifyPage').then((m
 const EvidenceMarketplacePage = lazy(() => import('@/pages/EvidenceMarketplacePage').then((m) => ({ default: m.EvidenceMarketplacePage })));
 const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartnersAdminPage').then((m) => ({ default: m.EvidencePartnersAdminPage })));
 const StaffCustomersPage = lazy(() => import('@/pages/admin/StaffCustomersPage').then((m) => ({ default: m.StaffCustomersPage })));
-onst StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
+const StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
 const PilotManagementPage = lazy(() => import('@/pages/admin/PilotManagementPage').then((m) => ({ default: m.PilotManagementPage })));
 const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
@@ -199,7 +200,6 @@ const CallbackRootCausePage = lazy(() => import('@/pages/CallbackRootCausePage')
 const ReportsPage = lazy(() => import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage })));
 const DataPlatformPage = lazy(() => import('@/pages/DataPlatformPage').then((m) => ({ default: m.DataPlatformPage })));
    const BiConnectorsPage = lazy(() => import('@/pages/BiConnectorsPage').then((m) => ({ default: m.BiConnectorsPage })));
-const BiConnectorsPage = lazy(() => import('@/pages/BiConnectorsPage').then((m) => ({ default: m.BiConnectorsPage })));
 const BiExportPage = lazy(() => import('@/pages/BiExportPage').then((m) => ({ default: m.BiExportPage })));
 const ScheduledReportsPage = lazy(() => import('@/pages/ScheduledReportsPage').then((m) => ({ default: m.ScheduledReportsPage })));
 const JobAutopsyPage = lazy(() => import('@/pages/JobAutopsyPage').then((m) => ({ default: m.JobAutopsyPage })));
@@ -220,7 +220,6 @@ const PrevailingWagePage = lazy(() => import('@/pages/PrevailingWagePage').then(
 const ChartOfAccountsPage = lazy(() => import('@/pages/ChartOfAccountsPage').then((m) => ({ default: m.ChartOfAccountsPage })));
 const MultiEntityReportingPage = lazy(() => import('@/pages/MultiEntityReportingPage').then((m) => ({ default: m.MultiEntityReportingPage })));
 const FixedAssetsPage = lazy(() => import('@/pages/FixedAssetsPage').then((m) => ({ default: m.FixedAssetsPage })));
-const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
 const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
 const SessionsPage = lazy(() => import('@/pages/SessionsPage').then((m) => ({ default: m.SessionsPage })));
@@ -228,7 +227,7 @@ const CommissionsPage = lazy(() => import('@/pages/CommissionsPage').then((m) =>
 const PayrollSyncPage = lazy(() => import('@/pages/PayrollSyncPage').then((m) => ({ default: m.PayrollSyncPage })));
 const PayrollConnectorsPage = lazy(() => import('@/pages/PayrollConnectorsPage').then((m) => ({ default: m.PayrollConnectorsPage })));
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
-const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));|
+const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));
 const ChatWidgetSettingsPage = lazy(() => import('@/pages/ChatWidgetSettingsPage').then((m) => ({ default: m.ChatWidgetSettingsPage })));
 const VideoSessionRoomPage = lazy(() => import('@/pages/VideoSessionRoomPage').then((m) => ({ default: m.VideoSessionRoomPage })));
 const VideoSessionsPage = lazy(() => import('@/pages/VideoSessionsPage').then((m) => ({ default: m.VideoSessionsPage })));
@@ -261,7 +260,6 @@ const MembershipsPage = lazy(() => import('@/pages/MembershipsPage').then((m) =>
 const MembershipRenewalsPage = lazy(() => import('@/pages/MembershipRenewalsPage').then((m) => ({ default: m.MembershipRenewalsPage })));
 const RenewMembershipPage = lazy(() => import('@/pages/RenewMembershipPage').then((m) => ({ default: m.RenewMembershipPage })));
 const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
-const LoyaltyPage = lazy(() => import('@/pages/LoyaltyPage').then((m) => ({ default: m.LoyaltyPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TradePacksPage = lazy(() => import('@/pages/TradePacksPage').then((m) => ({ default: m.TradePacksPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
@@ -317,7 +315,6 @@ const TemplatesPage = lazy(() => import('@/pages/TemplatesPage').then((m) => ({ 
 const GeoGridPage = lazy(() => import('@/pages/GeoGridPage').then((m) => ({ default: m.GeoGridPage })));
 const UniversalIdentityPage = lazy(() => import('@/pages/UniversalIdentityPage').then((m) => ({ default: m.UniversalIdentityPage })));
 const FieldIntelligencePage = lazy(() => import('@/pages/FieldIntelligencePage').then((m) => ({ default: m.FieldIntelligencePage })));
-const PropertyIntelligencePage = lazy(() => import('@/pages/PropertyIntelligencePage').then((m) => ({ default: m.PropertyIntelligencePage })));
 const HomeHealthPage = lazy(() => import('@/pages/HomeHealthPage').then((m) => ({ default: m.HomeHealthPage })));
 const FleetEconomicsPage = lazy(() => import('@/pages/FleetEconomicsPage').then((m) => ({ default: m.FleetEconomicsPage })));
 const TelematicsOSPage = lazy(() => import('@/pages/TelematicsOSPage').then((m) => ({ default: m.TelematicsOSPage })));
@@ -387,7 +384,7 @@ const PayByBankPage = lazy(() => import('@/pages/PayByBankPage').then((m) => ({ 
 const DisputesPage = lazy(() => import('@/pages/DisputesPage').then((m) => ({ default: m.DisputesPage })));
 const CollectionsPage = lazy(() => import('@/pages/CollectionsPage').then((m) => ({ default: m.CollectionsPage })));
 const CustomerStatementsPage = lazy(() => import('@/pages/CustomerStatementsPage').then((m) => ({ default: m.CustomerStatementsPage })));
-onst RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
+const RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGraphPage').then((m) => ({ default: m.RevenueCausalityGraphPage })));
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
 const LiveCallsPage = lazy(() => import('@/pages/LiveCallsPage').then((m) => ({ default: m.LiveCallsPage })));
@@ -395,7 +392,6 @@ const VerificationNetworkPage = lazy(() => import('@/pages/VerificationNetworkPa
 const PhysicalEconomyNetworkPage = lazy(() => import('@/pages/PhysicalEconomyNetworkPage').then((m) => ({ default: m.PhysicalEconomyNetworkPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
 const InvoiceDetailPage = lazy(() => import('@/pages/InvoiceDetailPage').then((m) => ({ default: m.InvoiceDetailPage })));
-const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
 const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeStorePage').then((m) => ({ default: m.NegativeKnowledgeStorePage })));
 const KnowledgeCapturePage = lazy(() => import('@/pages/KnowledgeCapturePage').then((m) => ({ default: m.KnowledgeCapturePage })));
 const FailureAtlasPage = lazy(() => import('@/pages/FailureAtlasPage').then((m) => ({ default: m.FailureAtlasPage })));
@@ -441,7 +437,6 @@ const TechnicianTrustPassportPage = lazy(() => import('@/pages/TechnicianTrustPa
 const TechnicianIdentityGraphPage = lazy(() => import('@/pages/TechnicianIdentityGraphPage').then((m) => ({ default: m.TechnicianIdentityGraphPage })));
 const PublicTechnicianPassportPage = lazy(() => import('@/pages/PublicTechnicianPassportPage').then((m) => ({ default: m.PublicTechnicianPassportPage })));
 const HomeServicePassportPage = lazy(() => import('@/pages/HomeServicePassportPage').then((m) => ({ default: m.HomeServicePassportPage })));
-const PublicHomePassportPage = lazy(() => import('@/pages/PublicHomePassportPage').then((m) => ({ default: m.PublicHomePassportPage })));
 const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPage').then((m) => ({ default: m.TechnicianSimulatorPage })));
 const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
 const AdoptionOSPage = lazy(() => import('@/pages/AdoptionOSPage').then((m) => ({ default: m.AdoptionOSPage })));
@@ -547,7 +542,6 @@ const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m
 const ReschedulePage = lazy(() => import('@/pages/ReschedulePage').then((m) => ({ default: m.ReschedulePage })));
 const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
 const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
-const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const SurveysPage = lazy(() => import('@/pages/SurveysPage').then((m) => ({ default: m.SurveysPage })));
 const JobSummariesPage = lazy(() => import('@/pages/JobSummariesPage').then((m) => ({ default: m.JobSummariesPage })));
 const JobSummaryPublicPage = lazy(() => import('@/pages/JobSummaryPublicPage').then((m) => ({ default: m.JobSummaryPublicPage })));
@@ -565,11 +559,14 @@ const CustomerPortalInventoryPage = lazy(() => import('@/pages/CustomerPortalInv
 const EmergencyTriagePage = lazy(() => import('@/pages/EmergencyTriagePage').then((m) => ({ default: m.EmergencyTriagePage })));
 const JobRoomPage = lazy(() => import('@/pages/JobRoomPage').then((m) => ({ default: m.JobRoomPage })));
 const DiagnosePage = lazy(() => import('@/pages/DiagnosePage').then((m) => ({ default: m.DiagnosePage })));
-const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const NoSurpriseApprovePage = lazy(() => import('@/pages/NoSurpriseApprovePage').then((m) => ({ default: m.NoSurpriseApprovePage })));
 const RemoteResolutionRoomPage = lazy(() => import('@/pages/RemoteResolutionRoomPage').then((m) => ({ default: m.RemoteResolutionRoomPage })));
 const RemoteResolutionPage = lazy(() => import('@/pages/RemoteResolutionPage').then((m) => ({ default: m.RemoteResolutionPage })));
+const CustomerStoriesPage = lazy(() => import('@/pages/CustomerStoriesPage').then((m) => ({ default: m.CustomerStoriesPage })));
 const CalculatorPage = lazy(() => import('@/pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })));
+const AuditLandingPage = lazy(() => import('@/pages/AuditLandingPage').then((m) => ({ default: m.AuditLandingPage })));
+const AuditReportPage = lazy(() => import('@/pages/AuditReportPage').then((m) => ({ default: m.AuditReportPage })));
+const AuditUnsubscribePage = lazy(() => import('@/pages/AuditUnsubscribePage').then((m) => ({ default: m.AuditUnsubscribePage })));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })));
 const SecurityWhitepaperPage = lazy(() => import('@/pages/SecurityWhitepaperPage').then((m) => ({ default: m.SecurityWhitepaperPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
@@ -577,10 +574,7 @@ const StaffReliabilityPage = lazy(() => import('@/pages/admin/StaffReliabilityPa
 const OfflinePage = lazy(() => import('@/pages/OfflinePage').then((m) => ({ default: m.OfflinePage })));
 const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
-const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const ChangelogPage = lazy(() => import('@/pages/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
-const TrackingPage = lazy(() => import('@/pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
-const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) => ({ default: m.ReviewSubmitPage })));
 const CallScriptsPage = lazy(() => import('@/pages/CallScriptsPage').then((m) => ({ default: m.CallScriptsPage })));
 const ShadowModePage = lazy(() => import('@/pages/ShadowModePage').then((m) => ({ default: m.ShadowModePage })));
 const AiQualityCenterPage = lazy(() => import('@/pages/AiQualityCenterPage').then((m) => ({ default: m.AiQualityCenterPage })));
@@ -597,7 +591,7 @@ const CareerPostingPage = lazy(() => import('@/pages/CareerPostingPage').then((m
 const HiringPage = lazy(() => import('@/pages/admin/HiringPage').then((m) => ({ default: m.HiringPage })));
 const CulturePage = lazy(() => import('@/pages/CulturePage').then((m) => ({ default: m.CulturePage })));
 const PressPage = lazy(() => import('@/pages/PressPage').then((m) => ({ default: m.PressPage })));
-const DevColorsPage = lazy(() => import('@/pages/DevColorsPage').then((m) => ({ default:
+const DevColorsPage = lazy(() => import('@/pages/DevColorsPage').then((m) => ({ default: m.DevColorsPage })));
 const BrandGuidelinesPage = lazy(() => import('@/pages/BrandGuidelinesPage').then((m) => ({ default: m.BrandGuidelinesPage })));
 const PartnersPage = lazy(() => import('@/pages/PartnersPage').then((m) => ({ default: m.PartnersPage })));
 const QuickstartsPage = lazy(() => import('@/pages/QuickstartsPage').then((m) => ({ default: m.QuickstartsPage })));
@@ -689,7 +683,6 @@ const ConversationIntelligencePage = lazy(() => import('@/pages/ConversationInte
 const TasksPage = lazy(() => import('@/pages/TasksPage').then((m) => ({ default: m.TasksPage })));
 const OperatingCadencePage = lazy(() => import('@/pages/OperatingCadencePage').then((m) => ({ default: m.OperatingCadencePage })));
 const TeamChatPage = lazy(() => import('@/pages/TeamChatPage').then((m) => ({ default: m.TeamChatPage })));
-const ServiceRecoveryPage = lazy(() => import('@/pages/ServiceRecoveryPage').then((m) => ({ default: m.ServiceRecoveryPage })));
 const SandboxPage = lazy(() => import('@/pages/SandboxPage').then((m) => ({ default: m.SandboxPage })));
 const ApiReferencePage = lazy(() => import('@/pages/ApiReferencePage').then((m) => ({ default: m.ApiReferencePage })));
 const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
@@ -942,6 +935,10 @@ function AppRoutes() {
         <Route path="/dashboard/video-sessions" element={<ProtectedRoute><VideoSessionsPage /></ProtectedRoute>} />
         <Route path="/diagnose/:token" element={<DiagnosePage />} />
         <Route path="/calculator" element={<CalculatorPage />} />
+        <Route path="/audit" element={<AuditLandingPage />} />
+        <Route path="/audit/unsubscribe/:ut" element={<AuditUnsubscribePage />} />
+        <Route path="/audit/share/:token" element={<AuditReportPage shared />} />
+        <Route path="/audit/:token" element={<AuditReportPage />} />
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/security/whitepaper" element={<SecurityWhitepaperPage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
