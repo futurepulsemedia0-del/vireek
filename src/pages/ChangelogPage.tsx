@@ -26,27 +26,15 @@ const TYPE_META: Record<EntryType, { label: string; icon: typeof Sparkles; text:
 
 const EMAIL = 'ali@vireek.com';
 
-function SEO() {
-  useEffect(() => {
-    const title = "Changelog \u2014 What's New | Vireek";
-    const description =
-      "See what's new in Vireek: new features, performance improvements, and security updates to the AI voice receptionist platform, with dates for every release.";
-    const previousTitle = document.title;
-    let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    const previousContent = meta?.getAttribute('content') ?? null;
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute('name', 'description');
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute('content', description);
-    document.title = title;
-    return () => {
-      document.title = previousTitle;
-      if (previousContent === null) meta?.remove();
-      else meta?.setAttribute('content', previousContent);
-    };
-  }, []);
+ffunction SEO() {
+  useTrustSEO({
+    title: "Changelog \u2014 What's New | Vireek",
+    description:
+      "See what's new in Vireek: new features, performance improvements, and security updates to the AI voice receptionist platform, with dates for every release.",
+    path: '/changelog',
+    crumbs: [{ name: 'Changelog', path: '/changelog' }],
+    dateModified: '2026-09-06',
+  });
   return null;
 }
 
@@ -54,6 +42,7 @@ export function ChangelogPage() {
   return (
     <>
       <SEO />
+      <TrustSubNav current="changelog" />
       <Header />
       <main className="min-h-screen overflow-hidden bg-bg-primary pt-24">
         {/* Hero */}
@@ -88,6 +77,11 @@ export function ChangelogPage() {
                   <Rss className="h-3.5 w-3.5" /> RSS feed
                 </Button>
               </a>
+              <a href="/changelog-atom.xml" target="_blank" rel="noopener noreferrer">
+            <Button variant="secondary" size="sm">
+             <Rss className="h-3.5 w-3.5" /> Atom feed
+           </Button>
+             </a>
             </motion.div>
           </div>
         </section>
@@ -106,7 +100,9 @@ export function ChangelogPage() {
                   className="relative"
                 >
                   <span className="absolute -start-[2.55rem] top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-bg-primary bg-accent sm:-start-[3.05rem]" />
-                  <p className="text-sm font-semibold uppercase tracking-wide text-text-secondary/80">{release.date}</p>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-text-secondary/80">
+                  <a href={`#${releaseSlug(release.date)}`} className="hover:text-accent" aria-label={`Permalink to ${release.date}`}>{release.date}</a>
+                   </p>
                   <div className="mt-4 space-y-4">
                     {release.entries.map((entry, ei) => {
                       const meta = TYPE_META[entry.type];
