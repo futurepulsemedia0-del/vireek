@@ -70,6 +70,7 @@ const LeadDetailPage = lazy(() => import('@/pages/LeadDetailPage').then((m) => (
 const CustomerIntelligencePage = lazy(() => import('@/pages/CustomerIntelligencePage').then((m) => ({ default: m.CustomerIntelligencePage })));
 const TradePlaybooksPage = lazy(() => import('@/pages/TradePlaybooksPage').then((m) => ({ default: m.TradePlaybooksPage })));
 const PlaybooksPage = lazy(() => import('@/pages/PlaybooksPage').then((m) => ({ default: m.PlaybooksPage })));
+const PlaybookLibraryPage = lazy(() => import('@/pages/PlaybookLibraryPage').then((m) => ({ default: m.PlaybookLibraryPage })));
 const AgentGovernancePage = lazy(() => import('@/pages/AgentGovernancePage').then((m) => ({ default: m.AgentGovernancePage })));
 const AgentCompanyPage = lazy(() => import('@/pages/AgentCompanyPage').then((m) => ({ default: m.AgentCompanyPage })));
 const AgentNetworkPage = lazy(() => import('@/pages/AgentNetworkPage').then((m) => ({ default: m.AgentNetworkPage })));
@@ -2756,6 +2757,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/playbook-library"
+  element={
+    <ProtectedRoute>
+      <PlaybookLibraryPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/agent-governance"
           element={
