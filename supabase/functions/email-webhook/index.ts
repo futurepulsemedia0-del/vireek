@@ -14,6 +14,7 @@
 // reply gets matched back to the right business.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { checkSharedSecret } from "../_shared/http/core.ts";
 import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { handleMarketplaceEmail } from "../_shared/lead-marketplace/emailEntry.ts";
 import { createDeps } from "../_shared/lead-marketplace/runtime.ts";
@@ -26,8 +27,7 @@ function json(body: unknown, status = 200) {
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
-  const expectedSecret = Deno.env.get("EMAIL_WEBHOOK_SECRET");
-  if (expectedSecret && new URL(req.url).searchParams.get("secret") !== expectedSecret) {
+   if (!checkSharedSecret(Deno.env.get("EMAIL_WEBHOOK_SECRET"), new URL(req.url).searchParams.get("secret"))) {
     return json({ error: "Unauthorized" }, 401);
   }
 
