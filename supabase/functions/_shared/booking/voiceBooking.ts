@@ -26,7 +26,7 @@ const str = (v: unknown, max: number): string | null => (typeof v === "string" &
 
 /** Voice tool `check_availability` → text for the assistant. */
 export async function voiceCheckAvailability(admin: SupabaseClient, userId: string, args: Record<string, unknown>): Promise<string> {
-  const input = { serviceType: str(args.service_type, 120), address: str(args.address, 300), isEmergency: args.emergency === true };
+  const input = { serviceType: str(args.service_type, 120), address: str(args.address, 300), isEmergency: args.emergency === true , campaignAttributed: true };
   try {
     const requested = str(args.requested_datetime, 40);
     if (requested) {
@@ -63,7 +63,7 @@ export async function voiceBookingGuard(admin: SupabaseClient, userId: string, a
   const ms = Date.parse(args.scheduledDatetime);
   if (!Number.isFinite(ms)) return { mode: "legacy" };
   try {
-    const v = await checkRequestedSlot(admin, userId, { serviceType: args.serviceType, address: args.address }, ms);
+    const v = await checkRequestedSlot(admin, userId, { serviceType: args.serviceType, address: args.address, campaignAttributed: true }, ms);
     if (!v.enabled) return { mode: "legacy" };
     if (!v.offered || !v.decision?.technician_id) return { mode: "blocked", message: `${v.message} Offer the caller one of these instead.` };
     const startMin = new Date(v.decision.end).getTime() - new Date(v.decision.start).getTime();
