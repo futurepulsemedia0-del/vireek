@@ -15,6 +15,11 @@ export interface FcmMessage {
   body: string;
   url: string;
   tag: string;
+  androidChannel?: string;
+  interruptionLevel?: string;
+  category?: string;
+  severity?: string;
+  haptic?: string;
 }
 
 export type FcmResult = { ok: true } | { ok: false; unregistered: boolean };
@@ -91,9 +96,20 @@ export async function sendFcm(token: string, m: FcmMessage): Promise<FcmResult> 
       message: {
         token,
         notification: { title: m.title, body: m.body },
-        data: { url: m.url, tag: m.tag },
-        android: { priority: "HIGH", notification: { tag: m.tag } },
-        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default" } } },
+                data: {
+          url: m.url, tag: m.tag,
+          ...(m.severity ? { severity: m.severity } : {}),
+          ...(m.haptic ? { haptic: m.haptic } : {}),
+        },
+        android: { priority: "HIGH", notification: { tag: m.tag, ...(m.androidChannel ? { channel_id: m.androidChannel } : {}) } },
+        apns: {
+          headers: { "apns-priority": "10" },
+          payload: { aps: {
+            sound: "default", "thread-id": m.tag,
+            ...(m.interruptionLevel ? { "interruption-level": m.interruptionLevel } : {}),
+            ...(m.category ? { category: m.category } : {}),
+          } },
+        },
       },
     }),
   });
