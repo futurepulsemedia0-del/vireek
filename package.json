@@ -35,6 +35,8 @@
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "check:assets": "node scripts/check-asset-budget.mjs",
     "docs:inventory": "node scripts/gen-docs-inventory.mjs",
+    "surface:inventory": "node scripts/gen-surface-inventory.mjs",
+    "surface:check": "node scripts/gen-surface-inventory.mjs --check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "sitemap:help": "node scripts/generate-help-sitemap.mjs",
