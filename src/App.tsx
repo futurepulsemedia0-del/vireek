@@ -590,7 +590,9 @@ const BookingSettingsPage = lazy(() => import('@/pages/BookingSettingsPage').the
 const DashboardBuilderPage = lazy(() => import('@/pages/DashboardBuilderPage').then((m) => ({ default: m.DashboardBuilderPage })));
 const PaymentPricingSettingsPage = lazy(() => import('@/pages/PaymentPricingSettingsPage').then((m) => ({ default: m.PaymentPricingSettingsPage })));
 const GoogleBookingPage = lazy(() => import('@/pages/GoogleBookingPage').then((m) => ({ default: m.GoogleBookingPage })));
-   const ConsumerAgentPage = lazy(() => import('@/pages/ConsumerAgentPage').then((m) => ({ default: m.ConsumerAgentPage })));
+const AgentReadinessPage = lazy(() => import('@/pages/AgentReadinessPage').then((m) => ({ default: m.AgentReadinessPage })));
+const AgentReadinessPublicPage = lazy(() => import('@/pages/AgentReadinessPublicPage').then((m) => ({ default: m.AgentReadinessPublicPage })));
+const ConsumerAgentPage = lazy(() => import('@/pages/ConsumerAgentPage').then((m) => ({ default: m.ConsumerAgentPage })));
 const RoadmapPage = lazy(() => import('@/pages/RoadmapPage').then((m) => ({ default: m.RoadmapPage })));
 const DeveloperChangelogPage = lazy(() => import('@/pages/DeveloperChangelogPage').then((m) => ({ default: m.DeveloperChangelogPage })));
 const AccessibilityPage = lazy(() => import('@/pages/AccessibilityPage').then((m) => ({ default: m.AccessibilityPage })));
@@ -881,6 +883,7 @@ function AppRoutes() {
         <Route path="/compare/matrix" element={<FeatureMatrixPage />} />
         <Route path="/compare/:slug" element={<CompetitorPage />} />
         <Route path="/alternatives/:competitor" element={<AlternativePage />} />
+        <Route path="/agent-readiness" element={<AgentReadinessPublicPage />} />
         <Route path="/switch" element={<SwitchGuidesPage />} />
         <Route path="/switch/:slug" element={<SwitchGuidePage />} />
         <Route path="/ai-receptionist-vs-human-receptionist" element={<AIReceptionistVsHumanPage />} />
@@ -921,6 +924,7 @@ function AppRoutes() {
         <Route path="/dashboard/dashboard-builder" element={<ProtectedRoute><DashboardBuilderPage /></ProtectedRoute>} />
         <Route path="/dashboard/payment-pricing" element={<ProtectedRoute><PaymentPricingSettingsPage /></ProtectedRoute>} />
         <Route path="/dashboard/google-booking" element={<ProtectedRoute><GoogleBookingPage /></ProtectedRoute>} />
+        <Route path="/dashboard/agent-readiness" element={<ProtectedRoute><AgentReadinessPage /></ProtectedRoute>} />
         <Route path="/dashboard/consumer-agent" element={<ProtectedRoute><ConsumerAgentPage /></ProtectedRoute>} />
         <Route path="/lp/:slug" element={<PublicLandingPage />} />
         <Route path="/m/:code" element={<MailerRedirectPage />} />
