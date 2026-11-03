@@ -87,6 +87,7 @@ import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtract
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 import { captureVerticalIntake, loadVerticalContext, resolveVoiceAssistantTenant } from "../_shared/verticals/context.ts";
 import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
+import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
 import { resolveVapiVoice } from "../_shared/voice/voiceMap.ts";
 import { recordLanguageFromCall, resolveVoiceLanguage } from "../_shared/i18n/customerLanguage.ts";
 import { buildInterpreterContext, customGreeting, loadInterpreterSettings, recordAssistantCall } from "../_shared/interpreter/runtime.ts";
@@ -726,7 +727,8 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   } catch (err) {
     console.error("[voice-persona] failed, continuing without it:", err);
   }
-
+  // Cloned voice (owner-selected, consented, ready) or {} => the assistant's own voice. Never throws.
+  const voiceOverride = await loadVoiceOverride(admin, tenant.userId);
   logEvent("assistant_request_resolved", requestId, {
     user_id: tenant.userId,
     caller_known: callerContext.startsWith("Returning caller"),
@@ -754,7 +756,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   if (tenant.agentOrchestrationEnabled) {
     logEvent("assistant_request_squad_mode", requestId, { user_id: tenant.userId });
     return jsonResponse({
-      squad: buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues, tenantVoice)
+      squad: buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues, voiceOverride.voice), tenantVoice)
     });
   }
 
@@ -762,6 +764,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     assistantId: tenant.assistantId,
     assistantOverrides: {
     ...(tenantVoice ? { voice: tenantVoice } : {}),
+          ...voiceOverride,
       variableValues: sharedVariableValues,
       ...(firstMessageText
         ? { firstMessage: disclosurePlan ? `${disclosurePlan.text} ${firstMessageText}` : firstMessageText }
