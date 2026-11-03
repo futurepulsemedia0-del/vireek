@@ -1,0 +1,126 @@
+{
+  "title": "Capacity Guard",
+  "subtitle": "Protect high-value capacity and refill gaps fast.",
+  "mode": {
+    "shadow": "Shadow (log only)",
+    "live": "Live"
+  },
+  "status": {
+    "off": "Off",
+    "shadow": "Shadow mode: nothing is blocked or sent",
+    "live": "Live"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "gaps": "Gaps to fill",
+    "history": "Backfill history",
+    "settings": "Settings"
+  },
+  "heatmap": {
+    "title": "Holds heatmap",
+    "desc": "Active holds by day and start hour.",
+    "value": "Value hold",
+    "campaign": "Campaign hold",
+    "released": "Released",
+    "none": "No holds in this range.",
+    "legend": "Cell shows value / campaign / released counts"
+  },
+  "outcomes": {
+    "title": "Held vs released",
+    "held": "Held",
+    "consumed": "Used by high-value work",
+    "released": "Released",
+    "active": "Active",
+    "shadow": "Shadow (not blocking)"
+  },
+  "gaps": {
+    "title": "Gaps to fill",
+    "empty": "No open gaps right now.",
+    "emptyDesc": "When a job is cancelled or a no-show, the freed slot appears here and offers go out within a minute.",
+    "value": "Est. value",
+    "offers": "Offers",
+    "slot": "Slot",
+    "reason": {
+      "cancelled": "Cancelled",
+      "no_show": "No-show"
+    },
+    "status": {
+      "open": "Open",
+      "offered": "Offered",
+      "filled": "Filled",
+      "expired": "Expired",
+      "abandoned": "Abandoned"
+    },
+    "blocked": "blocked"
+  },
+  "history": {
+    "title": "Backfill history",
+    "empty": "No backfills yet.",
+    "emptyDesc": "Filled and expired gaps from the last 30 days will show here.",
+    "winRate": "Win rate",
+    "filled": "Filled",
+    "recoveredEst": "Recovered (estimate)",
+    "recoveredReal": "Recovered (invoiced)",
+    "note": "Estimate = candidate's expected value at claim time. Invoiced = actual invoice on the booked job."
+  },
+  "settings": {
+    "title": "Settings",
+    "enabled": "Enable Capacity Guard",
+    "enabledHint": "Off by default. Start in shadow mode to see what it would do.",
+    "mode": "Mode",
+    "holdShare": "Default hold share (%)",
+    "horizon": "Hold horizon (days)",
+    "minProb": "Release holds below this demand probability",
+    "tradeRules": "Trade rules",
+    "tradeName": "Trade / service keyword",
+    "tradeShare": "Hold share (%)",
+    "addRule": "Add rule",
+    "removeRule": "Remove rule",
+    "campaignHolds": "Campaign capacity reservation",
+    "campaignMax": "Max share held for campaigns (%)",
+    "campaignRate": "Default response rate (until history exists)",
+    "backfill": "Instant backfill",
+    "ttl": "Offer claim window (minutes)",
+    "batch": "Offers per round",
+    "lead": "Minimum lead time (minutes)",
+    "cap24": "Max offers per customer / 24 h",
+    "cap7": "Max offers per customer / 7 days",
+    "save": "Save settings",
+    "saved": "Settings saved",
+    "ownerOnly": "Only the account owner can change these settings.",
+    "saveFailed": "Could not save settings"
+  },
+  "preview": {
+    "title": "What would have happened last week",
+    "simulated": "SIMULATED",
+    "desc": "Replays last week's real high-value requests and cancellations through your current settings.",
+    "holds": "Holds would have been placed",
+    "used": "Would have been used",
+    "unused": "Would have been released unused",
+    "protected": "Revenue protected (est.)",
+    "backfill": "Cancellations / no-shows",
+    "waitlistOnly": "Estimated fills from the waitlist only (conservative: other sources need per-customer consent checks that run live).",
+    "assumptions": "Claim rates are priors, not measured. Treat as an estimate, not a promise.",
+    "run": "Run preview",
+    "loading": "Calculating…"
+  },
+  "errors": {
+    "load": "Could not load Capacity Guard",
+    "retry": "Retry"
+  },
+  "claim": {
+    "title": "Claim this appointment",
+    "loading": "Checking availability…",
+    "available": "This time is available:",
+    "button": "Yes, book me in",
+    "hold": "First to confirm gets it.",
+    "claimed": "You're booked",
+    "claimedDesc": "We've booked {{slot}} for you and sent a confirmation text.",
+    "filled": "Sorry, someone else just took this time.",
+    "filledDesc": "We'll keep you in mind for the next opening.",
+    "expired": "This offer has expired.",
+    "invalid": "This link isn't valid.",
+    "error": "Something went wrong. Please try again or call us.",
+    "unavailable": "This time is no longer available."
+  }
+}
