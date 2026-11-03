@@ -76,6 +76,8 @@ export function AssistantPersonaPage() {
 
   const [assistantName, setAssistantName] = useState('Sarah');
   const [assistantVoice, setAssistantVoice] = useState<string>(VOICE_OPTIONS[0].id);
+  const [useCustomVoice, setUseCustomVoice] = useState(false);
+  const [customVoiceReady, setCustomVoiceReady] = useState(false);
   const [assistantTone, setAssistantTone] = useState<ToneId>('friendly');
   const [disclosureScript, setDisclosureScript] = useState(DEFAULT_DISCLOSURE_SCRIPT);
 
@@ -97,6 +99,10 @@ export function AssistantPersonaPage() {
         setGreetingScript(bp.greeting_script ?? '');
         setAssistantName(bp.assistant_name || 'Sarah');
         setAssistantVoice(bp.assistant_voice || VOICE_OPTIONS[0].id);
+        const cloneReady =
+          bp.custom_voice_status === 'ready' && Boolean(bp.custom_voice_id) && Boolean(bp.custom_voice_consent_at);
+        setCustomVoiceReady(cloneReady);
+        setUseCustomVoice(cloneReady && bp.use_custom_voice === true);
         setAssistantTone(bp.assistant_tone || 'friendly');
         setDisclosureScript(bp.ai_disclosure_script || DEFAULT_DISCLOSURE_SCRIPT);
       }
@@ -139,6 +145,7 @@ export function AssistantPersonaPage() {
         user_id: user.id,
         assistant_name: trimmedName.slice(0, NAME_MAX_LENGTH),
         assistant_voice: assistantVoice,
+        ...(customVoiceReady ? { use_custom_voice: useCustomVoice } : {}),
         assistant_tone: assistantTone,
         ai_disclosure_script: trimmedDisclosure,
         ai_disclosure_enabled: true as const,
@@ -238,13 +245,37 @@ export function AssistantPersonaPage() {
             description="Pick the voice your assistant uses on phone calls."
           >
             <div className="grid gap-2 sm:grid-cols-2">
+              {customVoiceReady && (
+                <button
+                  type="button"
+                  onClick={() => setUseCustomVoice(true)}
+                  className={`focus-ring flex items-start justify-between gap-3 rounded-xl border p-3.5 text-left transition-colors ${
+                    useCustomVoice ? 'border-accent bg-accent/5' : 'border-border bg-bg-primary hover:border-accent/30'
+                  }`}
+                >
+                  <div>
+                    <p className="text-sm font-medium text-text-primary">Your cloned voice</p>
+                    <p className="mt-0.5 text-xs text-text-secondary">
+                      Speaks in the voice you cloned. If it is ever unavailable, calls use the standard voice.
+                    </p>
+                  </div>
+                  {useCustomVoice && (
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                      <Check size={12} />
+                    </span>
+                  )}
+                </button>
+              )}
               {VOICE_OPTIONS.map((voice) => (
                 <button
                   key={voice.id}
                   type="button"
-                  onClick={() => setAssistantVoice(voice.id)}
+                  onClick={() => {
+                    setAssistantVoice(voice.id);
+                    setUseCustomVoice(false);
+                  }}
                   className={`focus-ring flex items-start justify-between gap-3 rounded-xl border p-3.5 text-left transition-colors ${
-                    assistantVoice === voice.id
+                    !useCustomVoice && assistantVoice === voice.id
                       ? 'border-accent bg-accent/5'
                       : 'border-border bg-bg-primary hover:border-accent/30'
                   }`}
@@ -253,7 +284,7 @@ export function AssistantPersonaPage() {
                     <p className="text-sm font-medium text-text-primary">{voice.name}</p>
                     <p className="mt-0.5 text-xs text-text-secondary">{voice.detail}</p>
                   </div>
-                  {assistantVoice === voice.id && (
+                 !useCustomVoice && assistantVoice === voice.id
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
                       <Check size={12} />
                     </span>
