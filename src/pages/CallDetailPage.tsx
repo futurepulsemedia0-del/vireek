@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { BilingualTranscript } from '@/components/interpreter/BilingualTranscript';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -574,6 +575,7 @@ export function CallDetailPage() {
             action={turns.length > 0 ? <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-xs font-medium text-text-secondary">{turns.length} turns</span> : undefined}
           >
             {turns.length === 0 ? (
+            {call.interpreter_language && call.interpreter_language !== 'en' && <div className="mb-4"><BilingualTranscript callId={call.id} /></div>}
               <p className="text-sm text-text-secondary">{call.is_voicemail ? 'This voicemail has not been transcribed.' : 'This call has no transcript.'}</p>
             ) : (
               <div className="space-y-3">
