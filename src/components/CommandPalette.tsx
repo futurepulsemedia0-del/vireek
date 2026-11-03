@@ -24,6 +24,9 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { ALL_NAV_ITEMS, filterItems } from '@/components/DashboardNav';
+import { audienceFor, pillarFor, plainLabel, searchTerms, visibleToAudience } from '@/lib/surface/surface';
 
 interface StaticPage {
   label: string;
@@ -88,6 +91,7 @@ export function CommandPalette() {
   const [operatorQuery, setOperatorQuery] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { isOwner, permissions } = useAuth();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -113,8 +117,28 @@ export function CommandPalette() {
   const filteredPages = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return PAGES;
-    return PAGES.filter((p) => p.label.toLowerCase().includes(q) || p.keywords?.includes(q));
-  }, [query]);
+    const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
+    const byHref = new Map<string, StaticPage>();
+    for (const p of PAGES) {
+      byHref.set(p.href, {
+        ...p,
+        label: plainLabel(p.href, p.label),
+        keywords: `${p.keywords ?? ''} ${p.label} ${searchTerms(p.href)}`.toLowerCase(),
+      });
+    }
+    for (const n of filterItems(ALL_NAV_ITEMS, isOwner, permissions)) {
+      if (byHref.has(n.href) || !visibleToAudience(n.href, audience)) continue;
+      byHref.set(n.href, {
+        label: plainLabel(n.href, n.label),
+        href: n.href,
+        icon: n.icon,
+        keywords: `${n.label} ${searchTerms(n.href)} ${pillarFor(n.href) ?? ''}`.toLowerCase(),
+      });
+    }
+    return [...byHref.values()]
+      .filter((p) => p.label.toLowerCase().includes(q) || p.keywords?.includes(q))
+      .slice(0, 15);
+  }, [query, isOwner, permissions]);
 
   useEffect(() => {
     const q = query.trim();
