@@ -63,7 +63,7 @@ export async function saveProfile(scenario: Scenario, voiceKey: string, tuning: 
   }
 }
 
-async function errorMessage(error: unknown): Promise<string> {
+export async function errorMessage(error: unknown): Promise<string> {
   try {
     const ctx = (error as { context?: Response }).context;
     const j = ctx ? await ctx.json() : null;
