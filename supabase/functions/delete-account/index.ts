@@ -14,6 +14,7 @@ function json(body: unknown, status = 200) {
 }
 
 import { OWNED_TABLE_NAMES } from "../_shared/compliance/ownedTables.ts";
+import { eraseProviderData } from "../_shared/compliance/providerErasure.ts";
 import { eraseTrustPackData } from "../_shared/trust/vault.ts";
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -75,12 +76,23 @@ Deno.serve(async (req: Request) => {
     // (see 20260821101104_create_profiles_and_team_members.sql).
     const trust = await eraseTrustPackData(admin, userId);
 if (!trust.ok) return json({ error: "Some encrypted data could not be removed yet. Please try again shortly." }, 503);
+    const prov = await eraseProviderData(admin, userId, {
+      elevenLabsKey: Deno.env.get("ELEVENLABS_API_KEY") ?? undefined,
+      vapiKey: Deno.env.get("VAPI_PRIVATE_KEY") ?? undefined,
+    });
+    if (!prov.ok && Deno.env.get("PROVIDER_ERASURE_STRICT") === "true") {
+      return json({ error: "Some provider-held data could not be removed yet. Please try again shortly." }, 503);
+    }
     for (const table of OWNED_TABLE_NAMES) {
       const { error } = await admin.from(table).delete().eq("user_id", userId);
       if (error) {
         return json({ error: `Failed to delete ${table}: ${error.message}` }, 500);
       }
     }
+    const { data: rest, error: restErr } = await admin.rpc("erase_user_rows", { p_user: userId });
+    if (restErr) return json({ error: `Failed to erase remaining data: ${restErr.message}` }, 500);
+    const blockedTables = Object.keys((rest as { blocked?: Record<string, string> } | null)?.blocked ?? {});
+    if (blockedTables.length) return json({ error: `Some data could not be removed yet (${blockedTables.length} tables). Please try again shortly.` }, 503);
     // NOTE: if calls/recording_url points at a Supabase Storage bucket,
     // deleting these rows does NOT delete the underlying audio files.
     // Add a `storage.from('<your-bucket>').remove([...])` step here once
