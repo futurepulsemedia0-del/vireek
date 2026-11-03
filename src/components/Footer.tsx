@@ -192,6 +192,7 @@ const FOOTER_COLUMNS = [
       { label: 'Cookie Policy', href: '/cookies' },
       { label: 'DPA', href: '/dpa' },
       { label: 'GDPR Addendum', href: '/gdpr-dpa' },
+      { label: 'Impressum', href: '/impressum' },
       { label: 'Sub-processors', href: '/subprocessors' },
       { label: 'Refund Policy', href: '/refund-policy' },
       { label: 'SLA', href: '/sla' },
