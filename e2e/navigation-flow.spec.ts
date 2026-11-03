@@ -54,3 +54,31 @@ test('breadcrumbs on a public page: accessible and emit BreadcrumbList JSON-LD',
   const results = await new AxeBuilder({ page }).include('nav[aria-label]').analyze();
   expect(results.violations).toEqual([]);
 });
+
+test.describe('404 page', () => {
+  test('is noindex, suggests a close match, filters links and reports the broken link', async ({ page }) => {
+    let reported: string | null = null;
+    await page.route('**/rest/v1/rpc/report_broken_link', async (route) => {
+      reported = route.request().postData();
+      await route.fulfill({ status: 204, body: '' });
+    });
+    await page.goto('/pricng');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+    await expect(page.getByRole('link', { name: '/pricing' })).toBeVisible(); // "Did you mean"
+
+    await page.getByRole('searchbox', { name: /search popular pages/i }).fill('integr');
+    await expect(page.getByRole('link', { name: 'Integrations' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Pricing', exact: true })).toHaveCount(0);
+
+    await page.getByRole('button', { name: /report this broken link/i }).click();
+    await expect(page.getByText(/we will take a look/i)).toBeVisible();
+    expect(reported).toContain('/pricng');
+  });
+
+  test('has no axe violations', async ({ page }) => {
+    await page.goto('/definitely-not-a-page');
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
+    expect(results.violations).toEqual([]);
+  });
+});
