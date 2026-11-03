@@ -13,7 +13,7 @@ const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /** Indexable marketing / legal / info pages with a fixed path. Single source for sitemap + prerender. */
 export const STATIC_PUBLIC_PATHS = [
-  '/', '/privacy', '/cookies', '/terms', '/dpa', '/subprocessors', '/refund-policy', '/sla',
+  '/', '/audit', '/privacy', '/cookies', '/terms', '/dpa', '/subprocessors', '/refund-policy', '/sla',
   '/acceptable-use-policy', '/responsible-ai', '/trademark-policy', '/vulnerability-disclosure',
   '/ccpa', '/accessibility-statement', '/gdpr-dpa', '/faq', '/help', '/about', '/manifesto',
   '/leadership', '/docs', '/blog', '/report', '/podcast', '/glossary', '/testimonials', '/contact',
@@ -183,3 +183,6 @@ dynamic(usedCategories, '/blog/category', 'blog-category', (c) =>
   dynamic(locations, '/locations', 'location');
   return [...entries.values()];
 }
+
+
+
