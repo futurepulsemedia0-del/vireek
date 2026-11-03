@@ -88,6 +88,8 @@ import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 import { captureVerticalIntake, loadVerticalContext, resolveVoiceAssistantTenant } from "../_shared/verticals/context.ts";
 import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
 import { recordLanguageFromCall, resolveVoiceLanguage } from "../_shared/i18n/customerLanguage.ts";
+import { buildInterpreterContext, customGreeting, loadInterpreterSettings, recordAssistantCall } from "../_shared/interpreter/runtime.ts";
+import { normalizeInterpLang } from "../_shared/interpreter/languages.ts";
 import {
   areaTechnicians,
   computeAreaQuote,
@@ -695,6 +697,16 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   const recordingConsentContext = buildRecordingConsentNotice(callerNumber);
   const customerMemoryContext = await buildCustomerMemoryContextVariable(admin, tenant, callerNumber);
   const voiceLanguage = await resolveVoiceLanguage(admin, tenant.userId, callerNumber, tenant.assistantName);
+  const interpSettings = await loadInterpreterSettings(admin, tenant.userId); // null when the feature is off; never throws
+  let firstMessageText: string | null = voiceLanguage.firstMessage;
+  if (interpSettings) {
+    const interpLang = normalizeInterpLang(voiceLanguage.language);
+    if (interpLang && interpSettings.languages.includes(interpLang)) {
+      const { data: prof } = await admin.from("profiles").select("company_name").eq("id", tenant.userId).maybeSingle();
+      const custom = customGreeting(interpSettings, interpLang, (prof?.company_name as string | null) ?? null, tenant.assistantName);
+      if (custom) firstMessageText = custom;
+    }
+  }
   const serviceAreaContext = await buildServiceAreaContextVariable(admin, tenant);
    const disclosurePlan = await planDisclosure(admin, { userId: tenant.userId, vapiCallId: message.call?.id ?? null, callerLanguage: voiceLanguage.language });
   // Voice Platform: "" for home-services accounts (and on any error), so existing prompts are unaffected.
@@ -730,6 +742,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     vertical_context: verticalContext,
     voice_persona: voicePersonaContext,
      ai_disclosure: disclosurePlan?.text ?? "",
+    interpreter_context: buildInterpreterContext(interpSettings),
   };
 
   if (tenant.agentOrchestrationEnabled) {
@@ -743,9 +756,9 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     assistantId: tenant.assistantId,
     assistantOverrides: {
       variableValues: sharedVariableValues,
-   ...(voiceLanguage.firstMessage
-     ? { firstMessage: disclosurePlan ? `${disclosurePlan.text} ${voiceLanguage.firstMessage}` : voiceLanguage.firstMessage }
-     : {}),
+      ...(firstMessageText
+        ? { firstMessage: disclosurePlan ? `${disclosurePlan.text} ${firstMessageText}` : firstMessageText }
+        : {}),
     },
   });
 }
@@ -2322,6 +2335,12 @@ transcript = pci.text;
   if (message.type === "end-of-call-report" && transcript) {
     const detected = await recordLanguageFromCall(admin, { userId: tenant.userId, vapiCallId, callerNumber, transcript });
     if (detected.language) logEvent("caller_language_detected", requestId, { language: detected.language, confidence: detected.confidence });
+  }
+  // Interpreted-call record (original + English lines). Skipped when transcripts are sealed. Never throws.
+  if (message.type === "end-of-call-report" && transcript && callRow && vapiCallId && !sealingActive) {
+    const settingsForRecord = await loadInterpreterSettings(admin, tenant.userId);
+    const rec = await recordAssistantCall(admin, { userId: tenant.userId, vapiCallId, callId: callRow.id, callerNumber, transcript, settings: settingsForRecord });
+    if (rec.recorded) logEvent("interpreter_call_recorded", requestId, { language: rec.language });
   }
    if (message.type === "end-of-call-report" && callRow && vapiCallId) {
      try {
