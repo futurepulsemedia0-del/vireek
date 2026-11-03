@@ -87,6 +87,7 @@ import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtract
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 import { captureVerticalIntake, loadVerticalContext, resolveVoiceAssistantTenant } from "../_shared/verticals/context.ts";
 import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
+import { resolveVapiVoice } from "../_shared/voice/voiceMap.ts";
 import { recordLanguageFromCall, resolveVoiceLanguage } from "../_shared/i18n/customerLanguage.ts";
 import { buildInterpreterContext, customGreeting, loadInterpreterSettings, recordAssistantCall } from "../_shared/interpreter/runtime.ts";
 import { normalizeInterpLang } from "../_shared/interpreter/languages.ts";
@@ -159,6 +160,8 @@ interface TenantContext {
   forwardingNumber: string | null;
   escalationRules: EscalationRule[] | null;
   assistantName: string | null;
+  /** business_profile.assistant_voice (dashboard picker id); mapped by _shared/voice/voiceMap.ts. */
+  assistantVoice: string | null;
   assistantId: string | null;
   onCallSchedule: OnCallEntry[] | null;
   surgeModeEnabled: boolean;
@@ -302,7 +305,7 @@ async function resolveTenant(
 
   let query = admin
     .from("business_profile")
-    .select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
+    .select("user_id, escalation_rules, assistant_name, assistant_voice, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
     .limit(1);
 
   if (assistantId) {
@@ -327,7 +330,7 @@ async function resolveTenant(
   if (!resolvedBusiness && assistantId && phoneNumberId) {
     const { data: fallbackRows, error: fallbackError } = await admin
       .from("business_profile")
-      .select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
+      .select("user_id, escalation_rules, assistant_name, assistant_voice, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
       .eq("vapi_phone_number_id", phoneNumberId)
       .limit(1);
     if (fallbackError) {
@@ -343,7 +346,7 @@ async function resolveTenant(
     if (vp) {
       const { data: vpBusiness } = await admin
         .from("business_profile")
-        .select("user_id, escalation_rules, assistant_name, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
+        .select("user_id, escalation_rules, assistant_name, assistant_voice, vapi_assistant_id, on_call_schedule, surge_mode_enabled, surge_mode_message, surge_mode_priority, surge_max_bookings_per_day, business_hours, holidays, after_hours_fee, after_hours_fee_note, commercial_sla_policy")
         .eq("user_id", vp.userId)
         .maybeSingle();
       resolvedBusiness = { ...(vpBusiness ?? { user_id: vp.userId }), vapi_assistant_id: vp.vapiAssistantId };
@@ -369,6 +372,7 @@ async function resolveTenant(
     forwardingNumber: profile?.forwarding_number ?? null,
     escalationRules: (resolvedBusiness.escalation_rules as EscalationRule[] | null) ?? null,
     assistantName: resolvedBusiness.assistant_name ?? null,
+    assistantVoice: resolvedBusiness.assistant_voice ?? null,
     assistantId: resolvedBusiness.vapi_assistant_id ?? null,
     onCallSchedule: (resolvedBusiness.on_call_schedule as OnCallEntry[] | null) ?? null,
     surgeModeEnabled: Boolean(resolvedBusiness.surge_mode_enabled),
@@ -730,6 +734,8 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     after_hours: afterHoursContext.length > 0,
   });
 
+  // Voice picker: Voice Platform (API-created) assistants keep the voice configured on the assistant itself.
+  const tenantVoice = tenant.voiceAssistantId ? undefined : resolveVapiVoice(tenant.assistantVoice);
   const sharedVariableValues = {
     caller_context: callerContext,
     customer_type_context: customerTypeContext,
@@ -748,13 +754,14 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   if (tenant.agentOrchestrationEnabled) {
     logEvent("assistant_request_squad_mode", requestId, { user_id: tenant.userId });
     return jsonResponse({
-      squad: buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues),
+      squad: buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues, tenantVoice)
     });
   }
 
   return jsonResponse({
     assistantId: tenant.assistantId,
     assistantOverrides: {
+    ...(tenantVoice ? { voice: tenantVoice } : {}),
       variableValues: sharedVariableValues,
       ...(firstMessageText
         ? { firstMessage: disclosurePlan ? `${disclosurePlan.text} ${firstMessageText}` : firstMessageText }
