@@ -361,6 +361,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Service Areas', href: '/dashboard/service-areas', icon: MapPinned, requiresPermission: 'can_view_all_jobs' },
   { label: 'On-Call Rotation', href: '/dashboard/on-call', icon: AlarmClock },
   { label: 'Notification Routing', href: '/dashboard/notification-routing', icon: BellRing, ownerOnly: true },
+  { label: 'Mobile Alerts', href: '/dashboard/mobile-alerts', icon: Smartphone },
   { label: 'Mutual Aid', href: '/dashboard/mutual-aid', icon: LifeBuoy },
   { label: 'Contractor Network', href: '/dashboard/network', icon: Network },
   { label: 'Emergency Network', href: '/dashboard/emergency-network', icon: Siren },
