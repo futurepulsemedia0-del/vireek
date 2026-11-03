@@ -1,0 +1,41 @@
+# Vireek — full summary for language models
+
+Vireek is an AI voice receptionist built for home-service businesses: HVAC, plumbing, electrical, roofing, restoration and locksmith. Its receptionist persona is named "Sarah". Sarah answers calls 24/7, captures caller details and books jobs. Vireek is an early-stage, founder-led company.
+
+## Plans and pricing (USD)
+Source of truth: https://vireek.com/pricing. Prices below were copied from the site's pricing data.
+
+| Plan | Monthly | Annual | Included minutes | Overage | Seats | Locations |
+| --- | --- | --- | --- | --- | --- | --- |
+| Free | $0 | $0 | 50 min | none | 1 seat | 1 location |
+| Starter | $79 | $790 | 400 min | $0.20/min after | 2 seats | 1 location |
+| Professional | $199 | $1990 | 1,500 min | $0.15/min after | 5 seats | 1 location |
+| Business | $399 | $3990 | 4,000 min | $0.12/min after | 15 seats | Up to 3 locations |
+| Enterprise | custom | custom | Unlimited | SLA-backed, no metering | Unlimited seats | Unlimited locations |
+
+## What Vireek does not claim
+- No SOC 2 report: Vireek has not completed a SOC 2 audit.
+- No HIPAA compliance claim and no Business Associate Agreement.
+- No PCI DSS attestation of its own; card payments are handled by Stripe.
+- No ISO 27001 certification.
+- No public customer counts. Customer stories on https://vireek.com/customers are labelled "verified" only when written permission exists; otherwise "illustrative".
+- No published review ratings from G2, Capterra or similar sites.
+- A third-party penetration test is planned; no completed report has been published yet.
+Authoritative status: https://vireek.com/trust/compliance
+
+## Service commitments
+- Service Level Agreement: 99.9% monthly uptime commitment with service credits (https://vireek.com/sla). This is a contractual commitment, not a measurement of past uptime.
+- Live status and incident history: https://vireek.com/status (Atom feed of incidents is available from the status page).
+
+## Documentation and security materials
+- API documentation: https://vireek.com/docs
+- OpenAPI specification: https://vireek.com/openapi.json
+- Security overview: https://vireek.com/security
+- Security whitepaper: https://vireek.com/security/whitepaper
+- Sub-processor list: https://vireek.com/subprocessors
+- Data Processing Agreement: https://vireek.com/dpa
+- Vulnerability disclosure policy: https://vireek.com/vulnerability-disclosure
+- security.txt: https://vireek.com/.well-known/security.txt
+
+## Contact
+https://vireek.com/contact
