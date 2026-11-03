@@ -96,3 +96,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.trust-badge]
 verify_jwt = false
+
+[functions.agent-caller-sweep]
+verify_jwt = false
