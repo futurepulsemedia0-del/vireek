@@ -23,6 +23,10 @@ export interface StoryProvenance {
   provenance: Provenance;
   /** Required when verified: ISO date written permission to publish name, quote and numbers was obtained. */
   consentOn?: string;
+  /** Required when verified: reference to the stored written approval (file path, document ID or ticket). */
+  evidenceRef?: string;
+  /** Required when verified: name and role of the customer representative who approved, e.g. "Maria Ramirez, Owner". */
+  approvedBy?: string;
 }
 
 /** Keyed by CaseStudy.slug. Anything missing here is treated as illustrative. */
@@ -66,10 +70,17 @@ export function tradeForIndustry(industry: string): Trade | undefined {
   return TRADES.find((t) => t.industries.some((i) => i.toLowerCase() === industry.toLowerCase()));
 }
 
+/** Verified needs ALL of: ISO consent date not in the future, evidence reference, and approver name + role. */
+export function isConsentComplete(p: StoryProvenance | undefined): boolean {
+  if (!p || p.provenance !== 'verified') return false;
+  const date = p.consentOn ?? '';
+  const t = Date.parse(`${date}T00:00:00Z`);
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(t) && t <= Date.now() && !!p.evidenceRef?.trim() && !!p.approvedBy?.trim();
+}
 function toStory(c: CaseStudy): CustomerStory {
   const p = PROVENANCE[c.slug];
   // A "verified" flag without a consent date is not trusted.
-  const verified = p?.provenance === 'verified' && !!p.consentOn;
+  const verified = isConsentComplete(p);
   return {
     ...c,
     provenance: verified ? 'verified' : 'illustrative',
