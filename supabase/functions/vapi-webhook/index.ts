@@ -21,6 +21,9 @@ import { buildReplayPayload, claimEvent, completeEvent, failEvent, supabaseLedge
 import { findEscalationTarget, isValidE164 } from "../_shared/voice-hardening/escalation.ts";
 import { findDuplicateBooking } from "../_shared/voice-hardening/bookingIdempotency.ts";
 import { planDisclosure, recordDisclosureOutcome } from "../_shared/ai-disclosure/ledger.ts";
+import { formatPriceLine, matchPriceItems } from "../_shared/price-book/match.ts";
+import { agentHold, agentQuote, agentSummaryChannel, finalizeAgentCall, identifyCaller, type CallContext } from "../_shared/agent-callers/engine.ts";
+import { buildPorts, loadAgentSettings } from "../_shared/agent-callers/runtime.ts";
 // supabase/functions/vapi-webhook/index.ts
 //
 // Server URL for the Vapi "Vireek Receptionist" production assistant(s).
@@ -1479,6 +1482,14 @@ async function toolLookupPrice(
     return "I need to know which service they're asking about before I can quote a price.";
   }
 
+    // A caller already classified as an AI agent must go through agent_quote (rate limits, never-discuss, per-service
+  // quotable flags). Without this, lookup_price would be a side door around every agent control.
+  if (vapiCallId) {
+    const { data: sess } = await admin.from("agent_caller_sessions").select("kind").eq("user_id", tenant.userId).eq("vapi_call_id", vapiCallId).maybeSingle();
+    if (sess?.kind === "ai_agent" && (await loadAgentSettings(admin, tenant.userId)).enabled) {
+      return "This caller is an AI agent. Use agent_quote for pricing instead of lookup_price.";
+    }
+  }
   const { data: items, error } = await admin
     .from("price_book_items")
     .select("service_name, category, pricing_model, price_cents, price_max_cents, unit_label, keywords")
@@ -1492,16 +1503,7 @@ async function toolLookupPrice(
     return "No price list has been set up for this business yet — let the caller know a team member will follow up with pricing.";
   }
 
-  const needle = query.toLowerCase();
-  const scored = items
-    .map((item) => {
-      const haystacks = [item.service_name, item.category ?? "", ...(item.keywords ?? [])].map((s: string) => s.toLowerCase());
-      const exact = haystacks.some((h) => h === needle);
-      const partial = haystacks.some((h) => h.includes(needle) || needle.includes(h));
-      return { item, score: exact ? 2 : partial ? 1 : 0 };
-    })
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score);
+  const scored = matchPriceItems(items, query);
 
   if (scored.length === 0) {
     return `Nothing on the price list matches "${query}" — let the caller know a team member will confirm that price.`;
@@ -1522,28 +1524,6 @@ async function toolLookupPrice(
   });
 
   return matches.length === 1 ? matches[0] : `A few things matched "${query}": ${matches.join(" ")}`;
-}
-
-function formatPriceLine(item: {
-  service_name: string;
-  pricing_model: string;
-  price_cents: number;
-  price_max_cents: number | null;
-  unit_label: string | null;
-}): string {
-  const money = (cents: number) => `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
-  const unit = item.unit_label ? ` ${item.unit_label}` : "";
-
-  switch (item.pricing_model) {
-    case "starting_at":
-      return `${item.service_name}: starting at ${money(item.price_cents)}${unit}.`;
-    case "range":
-      return `${item.service_name}: ${money(item.price_cents)}–${money(item.price_max_cents ?? item.price_cents)}${unit}.`;
-    case "hourly":
-      return `${item.service_name}: ${money(item.price_cents)}${unit || "/hour"}.`;
-    default:
-      return `${item.service_name}: ${money(item.price_cents)}${unit}.`;
-  }
 }
 
 async function toolFlagEmergencyCall(
@@ -1872,6 +1852,55 @@ async function toolCheckServiceArea(admin: SupabaseClient, tenant: TenantContext
   return parts.join(" ");
 }
 
+async function toolAgentCaller(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  tool: string,
+  args: Record<string, unknown>,
+  vapiCallId: string | undefined,
+  callerNumber: string | null,
+  callerName: string | null,
+): Promise<string> {
+  if (!vapiCallId) return "Continue as for a human caller.";
+  try {
+    const settings = await loadAgentSettings(admin, tenant.userId);
+    const { data: prof } = await admin.from("profiles").select("company_name").eq("id", tenant.userId).maybeSingle();
+    const currency = tenant.regional.currency;
+    const ctx: CallContext = {
+      settings,
+      businessName: (prof?.company_name as string | null) ?? tenant.assistantName ?? "the business",
+      currency,
+      format: currency === "USD" ? undefined : (cents) => spokenMoney(cents, currency, tenant.regional.locale),
+    };
+    const callRow = await upsertCallRow(admin, tenant, vapiCallId, {}, "tool-agent-caller");
+    const ports = await buildPorts({ admin, userId: tenant.userId, vapiCallId, callerNumber, ctx, callId: callRow?.id ?? null });
+    switch (tool) {
+      case "identify_caller_type": {
+        const text = await identifyCaller(ports, ctx, args);
+        const st = await ports.loadState();
+        if (st.detection && callRow) {
+          await admin.from("calls").update({ caller_kind: st.detection.kind, caller_kind_confidence: st.detection.confidence, agent_platform_claimed: st.detection.platformClaimed }).eq("id", callRow.id).eq("user_id", tenant.userId);
+        }
+        return text;
+      }
+      case "agent_quote": {
+        const r = await agentQuote(ports, ctx, args);
+        if (r.emergency) {
+          const flagged = await toolFlagEmergencyCall(admin, tenant, { reason: "Emergency wording from an AI agent caller" }, vapiCallId, callerNumber, callerName);
+          return `${r.text} ${flagged}`;
+        }
+        return r.text;
+      }
+      case "agent_hold_slot":
+        return await agentHold(ports, ctx, args);
+      default:
+        return await agentSummaryChannel(ports, ctx, args);
+    }
+  } catch (error) {
+    console.error(JSON.stringify({ event: "agent_caller_tool_failed", tool, error: error instanceof Error ? error.message : String(error) }));
+    return "Continue as for a human caller; a team member will follow up.";
+  }
+}
 async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   const tenant = await resolveTenant(admin, message, requestId);
   const toolCalls = message.toolCalls ?? message.toolCallList ?? [];
@@ -1955,6 +1984,12 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "search_knowledge":
             result = await toolSearchKnowledge(admin, tenant, args);
+            break;
+          case "identify_caller_type":
+          case "agent_quote":
+          case "agent_hold_slot":
+          case "agent_send_summary":
+            result = await toolAgentCaller(admin, tenant, name, args, vapiCallId, callerNumber, callerName);
             break;
           case "capture_vertical_intake":
             result = await captureVerticalIntake(admin, { userId: tenant.userId, voiceAssistantId: tenant.voiceAssistantId ?? null, vapiCallId }, args);
@@ -2350,6 +2385,23 @@ transcript = pci.text;
     if (tagged.tagged) logEvent("call_disposition_auto_tagged", requestId, { outcome: tagged.outcome, task_created: tagged.taskCreated });
   }
 
+  // AI agent callers: classify from the transcript if the tools never ran, send the one-shot summary, tag the call.
+  if (message.type === "end-of-call-report" && callRow && vapiCallId) {
+    try {
+      const settings = await loadAgentSettings(admin, tenant.userId);
+      const { data: prof } = await admin.from("profiles").select("company_name").eq("id", tenant.userId).maybeSingle();
+      const ctx: CallContext = { settings, businessName: (prof?.company_name as string | null) ?? tenant.assistantName ?? "the business", currency: tenant.regional.currency };
+      const ports = await buildPorts({ admin, userId: tenant.userId, vapiCallId, callerNumber, ctx, callId: callRow.id });
+      const callerTurns = (transcript ?? "").split("\n").map((l) => l.match(/^\s*(?:user|customer|caller)\s*:\s*(.+)$/i)?.[1] ?? "").filter(Boolean);
+      const fin = await finalizeAgentCall(ports, ctx, callerTurns);
+      if (fin.kind) {
+        await admin.from("calls").update({ caller_kind: fin.kind, caller_kind_confidence: fin.confidence, agent_platform_claimed: fin.platformClaimed }).eq("id", callRow.id).eq("user_id", tenant.userId);
+        if (fin.kind === "ai_agent") logEvent("ai_agent_call_finalized", requestId, { summary_sent: fin.summarySent });
+      }
+    } catch (error) {
+      logError("agent_caller_finalize_failed", requestId, error, {});
+    }
+  }
   // Customer language — detected from the caller's own words; only fills an empty preference (never throws).
   if (message.type === "end-of-call-report" && transcript) {
     const detected = await recordLanguageFromCall(admin, { userId: tenant.userId, vapiCallId, callerNumber, transcript });
