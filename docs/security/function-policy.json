@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "note": "Required metadata for every function that is NOT in function-baseline.json (i.e. every NEW function). Legacy functions are classified by the analyzer; add an entry here when you want to override their risk tier. 'auth' must be backed by the code (see docs/security/function-matrix.md). Public functions need a justification.",
+  "declared": {}
+}
