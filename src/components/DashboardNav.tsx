@@ -620,6 +620,7 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Dashboard Builder', href: '/dashboard/dashboard-builder', icon: LayoutDashboard, requiresPermission: 'can_manage_team' },
   { label: 'Payment Pricing', href: '/dashboard/payment-pricing', icon: BadgePercent, requiresPermission: 'can_edit_business_profile' },
   { label: 'Google Booking', href: '/dashboard/google-booking', icon: Globe, requiresPermission: 'can_edit_business_profile' },
+   { label: 'AI Agent Requests', href: '/dashboard/consumer-agent', icon: Bot, requiresPermission: 'can_manage_team' },
   { label: 'Locations', href: '/dashboard/settings/locations', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Acquisitions', href: '/dashboard/acquisitions', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Regional Packs', href: '/dashboard/settings/regional-packs', icon: Globe, requiresPermission: 'can_edit_business_profile' }, 
