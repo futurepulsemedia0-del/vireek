@@ -94,6 +94,10 @@ Chain order and task routing: `_shared/ai-core/registry.ts`. A provider without 
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | `_shared/messaging/sendSms.ts`, `_shared/notify/deliver.ts`, `register-a2p-brand` | Twilio Console |
 | `TWILIO_MESSAGING_SERVICE_SID` | `sendSms.ts` (compliant SMS path) | Twilio → Messaging → Services |
 | `TWILIO_FROM_NUMBER` | `notify/deliver.ts` (plain SMS path) | A Twilio number in E.164 |
+| `ELEVENLABS_API_KEY`, `SARAH_VOICE_ID` | `voice-brief`, `clone-voice` | ElevenLabs; the Voice ID of Sarah |
+| `VOICE_WEBHOOK_BASE` | `voice-call` | Exact public URL of the voice-call function, no query string (used to verify X-Twilio-Signature) |
+| `TTS_COST_CENTS_PER_1K_CHARS`, `VOICE_CALL_CENTS_PER_MIN`, `VOICE_LLM_CENTS_PER_ANSWER` | `voice-brief`, `voice-call` | Optional cost-model rates (defaults are placeholders) |
+| `WHATSAPP_BRIEF_TEMPLATE` | `voice-brief` | Optional approved WhatsApp template name for the brief outside the 24 h window |
 | `SINCH_PROJECT_ID`, `SINCH_KEY_ID`, `SINCH_KEY_SECRET` | `_shared/richMessaging/sinch.ts` (RCS + Apple Messages) | Sinch Build → Conversation API → Access keys |
 | `SINCH_WEBHOOK_SECRET` | `rich-webhook` signature check | a random string; also enter it on the Sinch webhook |
 | `RESEND_API_KEY` | `notify/deliver.ts`, `email-send`, `send-team-invite`, `notify-status-subscribers`, `stripe-webhook` | resend.com → API keys |
