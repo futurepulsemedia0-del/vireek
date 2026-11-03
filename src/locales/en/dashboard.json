@@ -10,6 +10,8 @@
     }
   },
   "nav": {
+    "pillars": { "answer": "Answer", "dispatch": "Book & Dispatch", "grow": "Grow & Get Paid", "settings": "Settings", "labs": "Labs" },
+    "labs": { "show": "Show Labs (Beta)", "hide": "Hide Labs (Beta)" },
     "items": {
       "overview": "Overview",
       "calendar": "Calendar",
