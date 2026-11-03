@@ -63,6 +63,7 @@ const PAGES: StaticPage[] = [
   { label: 'Sessions & devices', href: '/dashboard/settings/sessions', icon: ShieldCheck, keywords: 'sessions devices sign out login alerts' },
   { label: 'Account activity', href: '/dashboard/settings/activity', icon: ShieldCheck, keywords: 'activity security history sign-ins export log' },
   { label: 'Audit log', href: '/dashboard/settings/audit-log', icon: ShieldCheck, keywords: 'audit history activity export' },
+  { label: 'Voice brief and phone line', href: '/dashboard/settings/voice', icon: ShieldCheck, keywords: 'voice audio brief morning call phone pin' },
   { label: 'SIEM log streaming', href: '/dashboard/settings/siem-streaming', icon: ShieldCheck, keywords: 'siem splunk datadog log streaming security events forward' },
 ];
 
