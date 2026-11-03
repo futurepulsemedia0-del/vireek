@@ -283,6 +283,7 @@ const ExpertAssistInboxPage = lazy(() => import('@/pages/ExpertAssistInboxPage')
 const ExpertAssistThreadPage = lazy(() => import('@/pages/ExpertAssistThreadPage').then((m) => ({ default: m.ExpertAssistThreadPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
 const NotificationRoutingPage = lazy(() => import('@/pages/NotificationRoutingPage').then((m) => ({ default: m.NotificationRoutingPage })));
+const MobileSurfacesSettingsPage = lazy(() => import('@/pages/MobileSurfacesSettingsPage').then((m) => ({ default: m.MobileSurfacesSettingsPage })));
 const MutualAidPage = lazy(() => import('@/pages/MutualAidPage').then((m) => ({ default: m.MutualAidPage })));
 const NetworkHubPage = lazy(() => import('@/pages/NetworkHubPage').then((m) => ({ default: m.NetworkHubPage })));
 const NetworkHandoffsPage = lazy(() => import('@/pages/NetworkHandoffsPage').then((m) => ({ default: m.NetworkHandoffsPage })));
@@ -3467,6 +3468,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <NotificationRoutingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/mobile-alerts"
+          element={
+            <ProtectedRoute>
+              <MobileSurfacesSettingsPage />
             </ProtectedRoute>
           }
         />
