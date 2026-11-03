@@ -427,6 +427,8 @@ const ComplianceRulesPage = lazy(() => import('@/pages/ComplianceRulesPage').the
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const ServiceAreasPage = lazy(() => import('@/pages/ServiceAreasPage').then((m) => ({ default: m.ServiceAreasPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
+const CapacityGuardPage = lazy(() => import('@/pages/CapacityGuardPage').then((m) => ({ default: m.CapacityGuardPage })));
+const BackfillClaimPage = lazy(() => import('@/pages/BackfillClaimPage').then((m) => ({ default: m.BackfillClaimPage })));
 const StaffingForecastPage = lazy(() => import('@/pages/StaffingForecastPage').then((m) => ({ default: m.StaffingForecastPage })));
 const SeasonalRevenueStabilizerPage = lazy(() => import('@/pages/SeasonalRevenueStabilizerPage').then((m) => ({ default: m.SeasonalRevenueStabilizerPage })));
 const WorkforceEquilibriumPage = lazy(() => import('@/pages/WorkforceEquilibriumPage').then((m) => ({ default: m.WorkforceEquilibriumPage })));
@@ -895,6 +897,7 @@ function AppRoutes() {
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/reschedule/:token" element={<ReschedulePage />} />
+        <Route path="/claim/:token" element={<BackfillClaimPage />} />
         <Route path="/track/:token" element={<TrackingPage />} />
         <Route path="/project/:token" element={<ProjectProgressPage />} />
         <Route path="/lien-waiver/:token" element={<PublicLienWaiverPage />} />ش
@@ -4331,6 +4334,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CapacityDemandPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/capacity-guard"
+          element={
+            <ProtectedRoute>
+              <CapacityGuardPage />
             </ProtectedRoute>
           }
         />
