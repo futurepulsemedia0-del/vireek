@@ -31,3 +31,18 @@ describe('urlState', () => {
     expect(r.params.get('utm')).toBe('1');
   });
 });
+
+describe('sort codec', () => {
+  const sortSchema = { sort: codec.sort(['name', 'created_at'], null) };
+  it('parses key:dir, defaults to asc, rejects unknown keys', () => {
+    expect(readUrlState(sortSchema, new URLSearchParams('sort=name:desc')).sort).toEqual({ key: 'name', dir: 'desc' });
+    expect(readUrlState(sortSchema, new URLSearchParams('sort=name')).sort).toEqual({ key: 'name', dir: 'asc' });
+    expect(readUrlState(sortSchema, new URLSearchParams('sort=evil:desc')).sort).toBeNull();
+    expect(readUrlState(sortSchema, new URLSearchParams('sort=name:sideways')).sort).toBeNull();
+  });
+  it('round-trips and clears on null', () => {
+    const r = writeUrlState(sortSchema, new URLSearchParams(), { sort: { key: 'created_at', dir: 'desc' } });
+    expect(r.params.get('sort')).toBe('created_at:desc');
+    expect(writeUrlState(sortSchema, r.params, { sort: null }).params.toString()).toBe('');
+  });
+});
