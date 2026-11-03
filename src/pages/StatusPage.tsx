@@ -25,6 +25,9 @@ import { Card } from '@/components/ui/Card';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { useLiveStatus } from '@/hooks/useLiveStatus';
 import { LiveReliabilityPanel } from '@/components/status/LiveReliabilityPanel';
+import { MaintenanceWindows } from '@/components/status/MaintenanceWindows';
+import { TrustSubNav } from '@/components/trust/TrustChrome';
+import { useTrustSEO } from '@/lib/trust/useTrustSEO';
 import { supabase } from '@/lib/supabase';
 
 // ============================================================
@@ -182,26 +185,12 @@ const FAQ_ITEMS = [
 const EMAIL = 'ali@vireek.com';
 
 function SEO() {
-  useEffect(() => {
-    const title = 'System Status | Vireek';
-    const description =
-      'Live status for Vireek\u2019s AI voice receptionist platform: call answering, dashboard, CRM sync, notifications, and API \u2014 plus uptime history, incident reports, and a maintenance archive.';
-    const previousTitle = document.title;
-    let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    const previousContent = meta?.getAttribute('content') ?? null;
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute('name', 'description');
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute('content', description);
-    document.title = title;
-    return () => {
-      document.title = previousTitle;
-      if (previousContent === null) meta?.remove();
-      else meta?.setAttribute('content', previousContent);
-    };
-  }, []);
+  useTrustSEO({
+    title: 'System Status | Vireek',
+    description: /* همان description قدیمی را اینجا بچسبانید */ '',
+    path: '/status',
+    crumbs: [{ name: 'Trust Center', path: '/trust' }, { name: 'System status', path: '/status' }],
+  });
   return null;
 }
 
@@ -409,6 +398,7 @@ export function StatusPage() {
         </section>
 
         {/* System components */}
+        <MaintenanceWindows />
         <LiveReliabilityPanel />
         <section className="px-6 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl">
