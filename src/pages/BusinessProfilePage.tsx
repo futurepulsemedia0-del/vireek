@@ -133,16 +133,17 @@ const TONE_PRESETS = [
 ] as const;
 
 const VOICE_PRESETS = [
-  { key: 'sarah_warm_us_f', name: 'Sarah', label: 'Warm — US, Female' },
-  { key: 'olivia_bright_us_f', name: 'Olivia', label: 'Bright — US, Female' },
-  { key: 'grace_calm_uk_f', name: 'Grace', label: 'Calm — UK, Female' },
-  { key: 'ethan_confident_us_m', name: 'Ethan', label: 'Confident — US, Male' },
-  { key: 'marcus_friendly_us_m', name: 'Marcus', label: 'Friendly — US, Male' },
+  { key: 'sarah-warm-f-us', name: 'Sarah', label: 'Warm — US, Female' },
+  { key: 'aria-friendly-f-us', name: 'Aria', label: 'Upbeat — US, Female' },
+  { key: 'maya-calm-f-uk', name: 'Maya', label: 'Calm — UK, Female' },
+  { key: 'miles-confident-m-us', name: 'Miles', label: 'Confident — US, Male' },
+  { key: 'jay-easygoing-m-us', name: 'Jay', label: 'Easygoing — US, Male' },
+  { key: 'oliver-polished-m-uk', name: 'Oliver', label: 'Polished — UK, Male' },
 ] as const;
 
 const DEFAULT_ASSISTANT_NAME = 'Sarah';
 const DEFAULT_ASSISTANT_TONE = 'friendly_professional';
-const DEFAULT_ASSISTANT_VOICE = 'sarah_warm_us_f';
+const DEFAULT_ASSISTANT_VOICE = 'sarah-warm-f-us';
 
 // ============================================================
 // MAIN PAGE
