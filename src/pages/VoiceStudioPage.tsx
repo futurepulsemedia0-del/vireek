@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, Play, Loader2, Plus, Trash2, Save } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { Card } from '@/components/ui/Card';
+import { VoiceStudioExtras } from '@/components/voice-studio/VoiceStudioExtras';
+import { CloneConsentCard } from '@/components/voice-studio/CloneConsentCard';
 import { supabase } from '@/lib/supabase';
 import {
   DEFAULT_TUNING, SCENARIOS, LIMITS, sanitizeTuning, tuningForScenario,
@@ -125,7 +128,7 @@ export function VoiceStudioPage() {
             ))}
           </div>
 
-          <section className={card} aria-labelledby="vs-lib">
+          <Card interactive={false} aria-labelledby="vs-lib">
             <h2 id="vs-lib" className="mb-3 text-sm font-semibold text-text-primary">Voice library</h2>
             <div role="radiogroup" aria-labelledby="vs-lib" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {VOICE_CATALOG.map((v) => (
@@ -208,6 +211,12 @@ export function VoiceStudioPage() {
               </div>
             )}
           </section>
+        </div>
+      )}
+      {cur && (
+        <div className="mt-6 space-y-6">
+          <VoiceStudioExtras voiceKey={cur.voiceKey} tuning={cur.tuning} greeting={greeting} />
+          <CloneConsentCard />
         </div>
       )}
     </DashboardLayout>
