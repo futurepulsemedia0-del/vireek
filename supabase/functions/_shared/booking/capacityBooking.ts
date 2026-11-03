@@ -6,6 +6,7 @@
 
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2.57.4';
 import { loadRulesContext } from '../dispatch/rulesContext.ts';
+import { applyGuardHolds } from '../capacity-guard/booking.ts';
 import {
   computeAvailability,
   evaluateSlot,
@@ -149,6 +150,8 @@ export interface AvailabilityInput {
   customerId?: string | null;
   isEmergency?: boolean;
   isVip?: boolean;
+  campaignAttributed?: boolean;
+  hasAgreement?: boolean;
   /** Overrides the prediction (e.g. an agent that already knows). */
   durationMinutes?: number;
 }
@@ -187,7 +190,8 @@ export async function getAvailability(admin: SupabaseClient, ownerId: string, in
   const loaded = await loadCapacityContext(admin, ownerId, Date.now(), { force: opts.force });
   if (!loaded) return { enabled: false };
   const request = await buildRequest(admin, ownerId, loaded, input);
-  return { enabled: true, loaded, request, result: computeAvailability(loaded.ctx, request, opts) };
+  const gctx = await applyGuardHolds(admin, ownerId, loaded.ctx, request, input);
+  return { enabled: true, loaded, request, result: computeAvailability(gctx, request, opts) };
 }
 
 export interface RequestedSlotVerdict {
@@ -204,12 +208,13 @@ export async function checkRequestedSlot(admin: SupabaseClient, ownerId: string,
   const loaded = await loadCapacityContext(admin, ownerId);
   if (!loaded) return { enabled: false, offered: false, decision: null, alternatives: [], message: '' };
   const request = await buildRequest(admin, ownerId, loaded, input);
-  const decision = evaluateSlot(loaded.ctx, request, startMs);
+  const gctx = await applyGuardHolds(admin, ownerId, loaded.ctx, request, input);
+  const decision = evaluateSlot(gctx, request, startMs);
   const tz = loaded.ctx.timezone;
   if (decision.offered) {
     return { enabled: true, offered: true, decision, alternatives: [], message: `${formatSlotLocal(startMs, tz)} is available (about ${request.durationMinutes} minutes).` };
   }
-  const alts = nearestOffered(computeAvailability(loaded.ctx, request).slots, startMs, 3);
+  const alts = nearestOffered(computeAvailability(gctx, request).slots, startMs, 3);
   const altText = alts.length ? ` Closest open times: ${alts.map((a) => formatSlotLocal(Date.parse(a.start), tz)).join('; ')}.` : ' There are no open times in the booking window — offer to take a message or add the customer to the waitlist.';
   return { enabled: true, offered: false, decision, alternatives: alts, message: `${formatSlotLocal(startMs, tz)} is not available: ${decision.explanation}${altText}` };
 }
@@ -241,7 +246,8 @@ export async function commitCapacityBooking(admin: SupabaseClient, ownerId: stri
     const loaded = await loadCapacityContext(admin, ownerId);
     if (!loaded) return { status: 'legacy' };
     const request = await buildRequest(admin, ownerId, loaded, input);
-    const decision = evaluateSlot(loaded.ctx, request, input.startMs);
+    const gctx = await applyGuardHolds(admin, ownerId, loaded.ctx, request, input);
+    const decision = evaluateSlot(gctx, request, input.startMs);
     if (!decision.offered || !decision.technician_id) {
       const alts = nearestOffered(computeAvailability(loaded.ctx, request).slots, input.startMs, 3);
       return { status: 'unavailable', decision, alternatives: alts, message: decision.explanation };
