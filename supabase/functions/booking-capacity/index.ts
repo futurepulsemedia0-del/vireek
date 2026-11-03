@@ -65,6 +65,7 @@ Deno.serve(async (req: Request) => {
 
       const out = await getAvailability(admin, ownerId as string, {
         serviceType: str(body.service_type, 120), address: str(body.address, 300), lat: num(body.lat, -90, 90), lon: num(body.lon, -180, 180),
+       campaignAttributed: str(body.ref_code, 60) !== null,
         isEmergency: body.emergency === true,
       }, { includeHidden: true, maxOffered: 200, force: true });
       if (!out.enabled) return json({ error: "Unavailable" }, 500);
