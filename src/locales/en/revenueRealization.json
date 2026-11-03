@@ -1,0 +1,177 @@
+{
+  "page": {
+    "title": "Revenue Radar",
+    "subtitle": "How much of your achievable revenue you actually capture — and exactly where money leaks.",
+    "export": "Export CSV",
+    "refresh": "Scan now",
+    "refreshing": "Scanning…",
+    "refreshed": "Scan complete.",
+    "refreshFailed": "The scan failed. Try again.",
+    "loadFailed": "Could not load Revenue Radar.",
+    "retry": "Retry"
+  },
+  "forbidden": { "title": "Billing access required", "body": "Revenue Radar shows financial data. Ask the account owner for billing access." },
+  "errors": {
+    "failed": "Something went wrong. Nothing was changed.",
+    "owner_required": "Only the account owner can approve and run fixes.",
+    "action_already_live": "A fix for this leak is already in progress.",
+    "already_sent_cannot_undo": "That draft was already sent, so it cannot be undone here.",
+    "claim_moved_cannot_undo": "The warranty claim has moved on, so it cannot be undone here.",
+    "claim_not_eligible": "This warranty claim is no longer eligible to file.",
+    "no_fix_available": "This leak has no recovery action. Fix the pricing policy instead.",
+    "leak_closed": "This leak is already closed.",
+    "not_found": "This leak no longer exists.",
+    "undo_first": "Undo the executed fix first.",
+    "source_missing": "The source record no longer exists.",
+    "no_option_lines": "The finding has no priced option to quote."
+  },
+  "kpi": {
+    "heading": "Key figures",
+    "realization": "Revenue realization (this month)",
+    "range": "Range {{low}} – {{high}}",
+    "noSnapshot": "Run a scan to compute this",
+    "captured": "Captured",
+    "capturedHint": "Cash actually received this month",
+    "estimatedOpen": "Estimated open leaks",
+    "estimatedHint": "Amount × confidence. An estimate, not money.",
+    "realized": "Realized recoveries",
+    "realizedHint": "Counted only after a payment or booking is confirmed."
+  },
+  "formula": {
+    "title": "How this is calculated",
+    "expression": "Realization % = captured ÷ (captured + Σ leak amount × leak confidence)",
+    "low": "Low bound: every leak counts in full.",
+    "high": "High bound: only leaks with confidence of 70% or more count.",
+    "confidence": "Confidence comes from your own recovery outcomes and your feedback, blended with a conservative starting value until you have about 10 outcomes (marked “small sample”).",
+    "pools": "Leaks describing the same dollars are counted once.",
+    "realized": "A recovery is realized only when a payment or booking is confirmed — never when a draft is created."
+  },
+  "radar": {
+    "title": "Leaks, ranked by dollars",
+    "filter": "Leak type",
+    "all": "All types",
+    "count_one": "{{count}} open leak shown",
+    "count_other": "{{count}} open leaks shown",
+    "emptyTitle": "No open leaks found",
+    "emptyBody": "Run a scan to check your latest calls, quotes, jobs and invoices.",
+    "rank": "Rank {{n}}",
+    "owner": "Owner",
+    "weighted": "{{amount}} expected",
+    "why": "Why is this flagged?",
+    "evidence": "Source records"
+  },
+  "owner": { "unassigned": "Unassigned" },
+  "conf": { "high": "High", "medium": "Medium", "low": "Low", "lowSample": "small sample" },
+  "detector": {
+    "missed_call": "Missed or after-hours call",
+    "stale_quote": "Quote not converted",
+    "declined_risk_rec": "Declined safety/age recommendation",
+    "unquoted_finding": "Finding never quoted",
+    "uninvoiced_work": "Work or parts not invoiced",
+    "unbilled_trip_fee": "Trip/dispatch fee not billed",
+    "discount_over_policy": "Discount below margin floor",
+    "warranty_unfiled": "Warranty claim not filed",
+    "agreement_expiring": "Service agreement expiring",
+    "overdue_invoice": "Overdue or failed payment",
+    "no_show_gap": "Cancellation / no-show gap",
+    "membership_lapse": "Membership lapse",
+    "underpriced_job": "Underpriced vs price book"
+  },
+  "evidence": {
+    "jobs": "Job", "quotes": "Quote", "calls": "Call", "invoices": "Invoice", "payment_requests": "Payment request",
+    "warranty_claims": "Warranty claim", "recurring_agreements": "Agreement", "margin_guardrail_checks": "Margin check",
+    "findings_package_items": "Finding", "revenue_recovery_events": "Recovery ledger"
+  },
+  "why": {
+    "missed_call": "A caller was not reached or booked. Your own history: {{recovered}} of {{trials}} similar cases were recovered.",
+    "stale_quote": "A quote went unanswered, expired or was declined. Your own history: {{recovered}} of {{trials}} similar cases were recovered.",
+    "accepted_unbooked": "A quote was accepted but no job was scheduled.",
+    "cancelled_job": "A scheduled job was cancelled and not rebooked.",
+    "unbilled_job": "The job was completed but no invoice was sent.",
+    "parts_unbilled": "Parts recorded as installed are worth more than what was invoiced.",
+    "overdue_invoice": "An invoice is unpaid past the collection window.",
+    "payment_failed": "A payment attempt was declined.",
+    "membership_lapse": "A membership was cancelled or lapsed.",
+    "declined_safety_age": "The customer declined an urgent recommendation on equipment at or past its expected life ({{age}} years), and no follow-up quote exists.",
+    "declined_safety": "The customer declined an urgent safety recommendation and no follow-up quote exists.",
+    "declined_age": "The customer declined a recommendation on equipment at or past its expected life, and no follow-up quote exists.",
+    "unquoted_finding": "A {{source}} finding was recorded but never quoted.",
+    "unbilled_trip_fee": "The trip fee ({{policy}}) was not billed ({{billed}} billed).",
+    "discount_over_policy": "An accepted quote was priced below your {{floor}}% margin floor after a manual override.",
+    "warranty_unfiled": "A warranty claim is eligible but has not been filed.",
+    "warranty_unfiled_deadline": "A warranty claim is eligible but not filed. {{days}} day(s) left before the claim window closes.",
+    "agreement_expiring": "A service agreement ends in {{days}} day(s) with no renewal in place.",
+    "underpriced_job": "Invoiced {{invoiced}} against a price-book price of {{book}} for the same service.",
+    "no_show_gap": "A scheduled visit did not happen and was not rebooked."
+  },
+  "fix": {
+    "draft_followup": "Draft follow-up",
+    "create_quote": "Create draft quote",
+    "invoice_correction": "Draft invoice correction",
+    "file_warranty_claim": "Start warranty claim"
+  },
+  "actions": {
+    "preventive": "The money is already gone. Prevent it next time by fixing the policy.",
+    "executed": {
+      "draft_followup": "Follow-up draft ready.",
+      "create_quote": "Draft quote created (not sent).",
+      "invoice_correction": "Draft invoice created (not sent).",
+      "file_warranty_claim": "Warranty claim moved to “packet pending”."
+    },
+    "open": "Open",
+    "undo": "Undo",
+    "undone": "Undone.",
+    "awaiting": "Waiting for owner approval.",
+    "approveRun": "Approve and run",
+    "reject": "Reject",
+    "rejected": "Rejected.",
+    "requestApproval": "Request approval",
+    "done": "Done. Nothing was sent to the customer.",
+    "sentForApproval": "Sent to the owner for approval.",
+    "draftLabel": "Draft message (not sent)",
+    "copy": "Copy",
+    "copied": "Copied.",
+    "falsePositive": "Not a leak",
+    "markedFalse": "Thanks — marked as not a leak.",
+    "dismiss": "Dismiss",
+    "dismissed": "Dismissed."
+  },
+  "draft": {
+    "generic": "Hi {{name}}, just following up on our recent conversation. Can we help with anything else?",
+    "missed_call": "Hi {{name}}, sorry we missed you. Would you like to book a visit? Reply here and we will find a time.",
+    "stale_quote": "Hi {{name}}, checking in on the quote we sent. Happy to answer questions or adjust it.",
+    "overdue_invoice": "Hi {{name}}, a friendly reminder that your invoice is still open. Let us know if you need the payment link again.",
+    "agreement_expiring": "Hi {{name}}, your service agreement is coming up for renewal. Would you like us to send renewal options?",
+    "membership_lapse": "Hi {{name}}, we noticed your membership ended. Would you like to rejoin?",
+    "declined_risk_rec": "Hi {{name}}, following up on the safety recommendation from your visit. We can answer questions or go over options.",
+    "no_show_gap": "Hi {{name}}, we missed your appointment. Want to pick a new time?"
+  },
+  "breakdown": {
+    "detector": "By leak type", "technicianId": "By technician / owner", "source": "By source",
+    "empty": "Nothing to show yet.", "group": "Group", "count": "Leaks", "weighted": "Expected"
+  },
+  "trend": { "title": "Monthly trend", "empty": "No monthly snapshots yet.", "month": "Month", "pct": "Realization", "captured": "Captured", "leaked": "Expected leaks" },
+  "digest": {
+    "title": "Weekly digest",
+    "summary_one": "{{count}} new leak this week. {{amount}} expected leakage open.",
+    "summary_other": "{{count}} new leaks this week. {{amount}} expected leakage open.",
+    "delta": "Change vs last month: {{points}} points.",
+    "notEmailed": "Shown here only. Email delivery of the digest is not enabled yet."
+  },
+  "coverage": {
+    "title": "Detector coverage",
+    "body": "Each detector reads real records. Types marked not connected have no data source wired in yet and report nothing.",
+    "connected": "Connected",
+    "notConnected": "Not connected"
+  },
+  "confirm": {
+    "title": "Approve this fix?",
+    "draft_followup": "This prepares a follow-up message draft for you to review and send yourself.",
+    "create_quote": "This creates a draft quote from the declined recommendation. It is not sent to the customer.",
+    "invoice_correction": "This creates a draft invoice for the missing amount. It is not sent or charged until you send it.",
+    "file_warranty_claim": "This moves the warranty claim to “packet pending” internally. Nothing is submitted to the manufacturer.",
+    "needsOwner": "The account owner must approve before it runs.",
+    "approve": "Approve and run",
+    "request": "Request approval"
+  }
+}
