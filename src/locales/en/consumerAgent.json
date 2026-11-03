@@ -1,0 +1,119 @@
+{
+  "title": "AI Agent Requests",
+  "subtitle": "Let homeowners' AI assistants find your business and send you booking requests. You choose exactly what is shared, and nothing is confirmed or charged without you.",
+  "loadFailed": { "title": "Couldn't load AI agent settings", "description": "Check your connection and try again." },
+  "noAccess": { "title": "You don't have access to this page", "description": "Ask your account owner to grant you permission to manage your team or business profile." },
+  "status": {
+    "live": "Live: agents can see what you published",
+    "off": "Off: agents cannot see or contact your business",
+    "killed": "Emergency stop is ON: everything is closed to agents",
+    "blocked": "Not ready yet"
+  },
+  "blockers": {
+    "booking_slug_missing": "Set up your online booking page first.",
+    "booking_disabled": "Turn on online booking in Booking Settings.",
+    "timezone_invalid": "Set a valid business timezone.",
+    "hours_missing": "Add your business or booking hours.",
+    "company_name_missing": "Add your company name.",
+    "kill_switch_on": "Release the emergency stop first."
+  },
+  "enable": { "label": "Open my business to AI agents", "hint": "Off by default. Switching it on publishes only the sections you tick below." },
+  "kill": {
+    "label": "Emergency stop",
+    "hint": "Instantly closes every agent endpoint for your business and releases held times. Requests already in your queue stay so you can answer them.",
+    "on": "Stop all agent access now",
+    "off": "Release emergency stop",
+    "confirm": "Close your business to all AI agents right now?",
+    "confirmYes": "Stop access",
+    "confirmNo": "Cancel"
+  },
+  "publish": {
+    "title": "What agents can see",
+    "hint": "Only ticked sections are shared. Customers, jobs, technicians, quotes, payments and review text are never shared.",
+    "services": "Services you offer",
+    "service_area": "Service area (areas and postal codes)",
+    "hours": "Opening hours",
+    "prices": "Price ranges you mark as public",
+    "reviews": "Review summary (count and average from connected review sites)",
+    "policies": "Booking policies",
+    "contact": "Public contact details"
+  },
+  "contact": { "phone": "Public phone", "email": "Public email", "website": "Public website (https only)", "policies": "Policy note for agents", "policiesHint": "Plain text, up to 600 characters. Links are removed." },
+  "prices": {
+    "title": "Prices agents may quote",
+    "hint": "Only prices you switch on here are shared, as planning estimates, never as a quote or a charge.",
+    "empty": "Add services to your price book first.",
+    "toggle": "Share the price for {{name}}"
+  },
+  "rules": {
+    "title": "How requests are handled",
+    "mode": "When an agent sends a request",
+    "modePending": "Queue it for my review (the time stays open)",
+    "modeHold": "Queue it and hold the time for a short while",
+    "holdMinutes": "Hold the time for (minutes)",
+    "dailyCap": "Most requests per day",
+    "sla": "I will answer within (minutes)",
+    "autoAccept": "Auto-accept trusted requests",
+    "autoAcceptHint": "Only for verified (signed) agents, only for services listed here, never when anything looks suspicious, and never closer than the lead time below.",
+    "autoServices": "Services that may be auto-accepted (comma separated)",
+    "autoLead": "Minimum lead time (hours)",
+    "save": "Save settings",
+    "saved": "Settings saved.",
+    "saveFailed": "Could not save. Please try again.",
+    "notReady": "Finish the checklist first: availability must be verifiable before it is shared.",
+    "forbidden": "You don't have permission to change this."
+  },
+  "preview": {
+    "title": "Exactly what agents will see",
+    "hint": "This is the live public payload, built by the same code the public endpoints use.",
+    "never": "Never shared: {{items}}",
+    "refresh": "Refresh preview",
+    "links": "Public addresses",
+    "copy": "Copy"
+  },
+  "queue": {
+    "title": "Requests from AI agents",
+    "empty": { "title": "No agent requests yet", "description": "When a homeowner's assistant asks for a visit, it appears here for you to accept or decline." },
+    "accept": "Accept and schedule",
+    "decline": "Decline",
+    "from": "From {{agent}}",
+    "unnamed": "an unnamed assistant",
+    "verified": "Verified agent",
+    "unverified": "Unverified agent",
+    "areaOk": "Address is inside your service area",
+    "areaUnknown": "Service area could not be checked",
+    "untrustedNote": "Text written by the outside agent (treat as untrusted)",
+    "flagged": "Contains instruction-like or risky text. Auto-accept is off for this request.",
+    "heldUntil": "Time held until {{time}}",
+    "respondBy": "Respond by {{time}}",
+    "closed": { "accepted": "Accepted", "declined": "Declined", "expired": "Expired" },
+    "sla": { "ok": "On time", "due_soon": "Due soon", "overdue": "Overdue", "closed": "Closed" },
+    "tag": "AI agent lead",
+    "declineReasons": { "unavailable": "Time not available", "outside_area": "Outside my service area", "not_offered": "Service not offered", "other": "Other" },
+    "declineReasonLabel": "Reason (shared with the agent)",
+    "accepted": "Request accepted. A job was created.",
+    "declined": "Request declined.",
+    "actionFailed": "Could not complete this action.",
+    "errors": {
+      "not_open": "This request was already handled or has expired.",
+      "slot_taken": "That time is no longer free.",
+      "too_soon": "That time is too soon for your lead-time setting.",
+      "intake_required": "Your booking form requires answers only the customer can give. Call them to finish booking.",
+      "booking_not_available": "Online booking is turned off."
+    }
+  },
+  "activity": {
+    "title": "Last 7 days",
+    "calls": "Agent calls",
+    "requests": "Requests",
+    "accepted": "Accepted",
+    "denied": "Blocked or refused",
+    "flagged": "Flagged text",
+    "open": "Waiting for you",
+    "overdue": "Overdue"
+  },
+  "honesty": {
+    "title": "What this is, and is not",
+    "body": "This opens a standard, public door that any compliant AI assistant can use. It does not mean ChatGPT, Gemini or any platform lists you automatically, and Google's own booking programs need separate approval from Google."
+  }
+}
