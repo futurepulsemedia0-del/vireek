@@ -484,6 +484,7 @@ const PrivacyPage = lazy(() => import('@/pages/PrivacyPage').then((m) => ({ defa
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage').then((m) => ({ default: m.CookiePolicyPage })));
 const TermsPage = lazy(() => import('@/pages/TermsPage').then((m) => ({ default: m.TermsPage })));
 const DpaPage = lazy(() => import('@/pages/DpaPage').then((m) => ({ default: m.DpaPage })));
+const ImpressumPage = lazy(() => import('@/pages/ImpressumPage').then((m) => ({ default: m.ImpressumPage })));
 const SubprocessorsPage = lazy(() => import('@/pages/SubprocessorsPage').then((m) => ({ default: m.SubprocessorsPage })));
 const TrustPackPage = lazy(() => import('@/pages/TrustPackPage').then((m) => ({ default: m.TrustPackPage })));
 const SecurityPortalPage = lazy(() => import('@/pages/SecurityPortalPage').then((m) => ({ default: m.SecurityPortalPage })));
@@ -844,6 +845,7 @@ function AppRoutes() {
         <Route path="/data-request" element={<DataRequestPage />} />
         <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
         <Route path="/gdpr-dpa" element={<GdprDpaPage />} />
+        <Route path="/impressum" element={<ImpressumPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
         <Route path="/help/:slug" element={<HelpArticlePage />} />
