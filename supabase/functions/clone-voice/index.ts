@@ -14,6 +14,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { getFeatureGate, recordProvenanceSidecar } from "../_shared/ai-transparency/gate.ts";
+import { deleteElevenLabsVoice } from "../_shared/voice/elevenLabs.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,6 +24,8 @@ const corsHeaders = {
 
 interface CloneRequestBody {
   storagePath: string;
+  /** Must be literally `true`: the owner confirmed they may clone this voice. */
+  consent?: boolean;
 }
 
 Deno.serve(async (req: Request) => {
@@ -81,6 +84,13 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+        // Explicit, per-request consent. Never inferred, never defaulted.
+    if (body.consent !== true) {
+      return new Response(JSON.stringify({ error: "Consent confirmation is required before cloning a voice." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const gate = await getFeatureGate(admin, caller.id, "ai_voice_cloning");
     if (!gate.allowed) {
       return new Response(JSON.stringify({ error: "Voice cloning is turned off in AI Transparency settings." }), {
@@ -88,11 +98,38 @@ Deno.serve(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    await admin
+    // Only commit if the row is still 'processing'. If the owner deleted the clone
+    // while ElevenLabs was working, remove the new voice instead of resurrecting it.
+    const { data: committed } = await admin
       .from("business_profile")
-      .update({ custom_voice_status: "processing", custom_voice_error: null })
-      .eq("user_id", caller.id);
+      .update({
+        custom_voice_id: elevenData.voice_id,
+        custom_voice_status: "ready",
+        custom_voice_error: null,
+      })
+      .eq("user_id", caller.id)
+      .eq("custom_voice_status", "processing")
+      .select("user_id");
 
+    if (!committed || committed.length === 0) {
+      await deleteElevenLabsVoice(elevenLabsKey, elevenData.voice_id);
+      return new Response(JSON.stringify({ error: "The voice was removed before cloning finished." }), {
+        status: 409,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Replacing a sample must not leave the old voice behind at ElevenLabs (best effort).
+    if (previousVoiceId && previousVoiceId !== elevenData.voice_id) {
+      await deleteElevenLabsVoice(elevenLabsKey, previousVoiceId);
+    }
+          // Remember the voice being replaced so it can be removed at ElevenLabs once the new one is saved.
+    const { data: previous } = await admin
+      .from("business_profile")
+      .select("custom_voice_id")
+      .eq("user_id", caller.id)
+      .maybeSingle();
+    const previousVoiceId = (previous?.custom_voice_id as string | null) ?? null;
     if (!elevenLabsKey) {
       await admin
         .from("business_profile")
