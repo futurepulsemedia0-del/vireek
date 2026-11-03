@@ -15,6 +15,7 @@ import { isDncSuppressed, normalizePhone } from "../compliance/dncCheck.ts";
 import { getPreferences } from "../compliance/preferenceCheck.ts";
 import { buildRecordingConsentNotice } from "../compliance/recordingConsent.ts";
 import { gateOutbound } from "../messaging/quietHours.ts";
+import { voiceOverride } from "../voice/voiceMap.ts";
 import {
   CONSENT_SCOPE,
   buildAssistantBrief,
@@ -481,7 +482,7 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
   };
 
   const [{ data: biz }, { data: profile }] = await Promise.all([
-    admin.from("business_profile").select("vapi_assistant_id, vapi_phone_number_id").eq("user_id", owner).maybeSingle(),
+    admin.from("business_profile").select("vapi_assistant_id, vapi_phone_number_id, assistant_voice").eq("user_id", owner).maybeSingle(),
     admin.from("profiles").select("company_name").eq("id", owner).maybeSingle(),
   ]);
   if (!deps.vapiKey || !biz?.vapi_assistant_id || !biz?.vapi_phone_number_id) {
@@ -507,6 +508,7 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
         phoneNumberId: biz.vapi_phone_number_id,
         customer: { number: req.phone_e164, name: req.full_name ?? undefined },
         assistantOverrides: {
+...voiceOverride(biz.assistant_voice),
           firstMessage: buildFirstMessage({ businessName, firstName: req.first_name, service: req.service }),
           variableValues: {
             call_purpose: "speed_to_lead",
