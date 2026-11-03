@@ -175,6 +175,7 @@ const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').t
 const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
+const StateOfCallsReportPage = lazy(() => import('@/pages/StateOfCallsReportPage').then((m) => ({ default: m.StateOfCallsReportPage })));
 const ServiceDataExchangePage = lazy(() => import('@/pages/ServiceDataExchangePage').then((m) => ({ default: m.ServiceDataExchangePage })));
 const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
 const SignDocumentPage = lazy(() => import('@/pages/SignDocumentPage').then((m) => ({ default: m.SignDocumentPage })));
@@ -846,6 +847,7 @@ function AppRoutes() {
         <Route path="/leadership" element={<LeadershipPage />} />
         <Route path="/docs" element={<DeveloperDocsPage />} />
         <Route path="/blog" element={<BlogIndexPage />} />
+        <Route path="/state-of-home-service-calls" element={<StateOfCallsReportPage />} />
         <Route path="/blog/category/:slug" element={<BlogIndexPage />} />
         <Route path="/blog/:slug" element={<BlogArticlePage />} />
         <Route path="/newsletter/confirm" element={<NewsletterConfirmPage mode="confirm" />} />
