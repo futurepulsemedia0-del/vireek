@@ -124,7 +124,7 @@ export function UpdatePaymentMethodPage() {
 
           <div className="mt-8 flex items-center justify-center gap-1.5 border-t border-border pt-5 text-xs text-text-secondary">
             <ShieldCheck size={13} className="text-accent" />
-            Secured and PCI-compliant, powered by Stripe
+            Payments are processed by Stripe 
           </div>
         </motion.div>
       </div>
