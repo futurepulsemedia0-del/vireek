@@ -32,6 +32,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { supabase, type Call } from '@/lib/supabase';
 import { CallDispositionPanel } from '@/components/call-dispositions/CallDispositionPanel';
+import { AgentLeadPanel } from '@/components/agent-callers/AgentLeadPanel';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import {
   activeTurnIndex,
@@ -569,6 +570,13 @@ export function CallDetailPage() {
             )}
           </Panel>
 
+          {call.caller_kind === 'ai_agent' && (
+            <AgentLeadPanel
+              confidence={typeof call.caller_kind_confidence === 'number' ? call.caller_kind_confidence : null}
+              platformClaimed={typeof call.agent_platform_claimed === 'string' ? call.agent_platform_claimed : null}
+              turns={turns}
+            />
+          )}
           <Panel
             title="Transcript"
             icon={MessageSquare}
