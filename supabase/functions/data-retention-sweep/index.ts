@@ -17,6 +17,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
+import { eraseProviderData } from "../_shared/compliance/providerErasure.ts";
 import { eraseTrustPackData } from "../_shared/trust/vault.ts";
 
 const corsHeaders = {
@@ -118,6 +119,14 @@ Deno.serve(async (req: Request) => {
 
       let result: Record<string, number> = {};
       if (request.request_type === "full_account") {
+        const prov = await eraseProviderData(admin, request.user_id, {
+          elevenLabsKey: Deno.env.get("ELEVENLABS_API_KEY") ?? undefined,
+          vapiKey: Deno.env.get("VAPI_PRIVATE_KEY") ?? undefined,
+        });
+        result["provider_failed"] = prov.failed.length;
+        if (!prov.ok && Deno.env.get("PROVIDER_ERASURE_STRICT") === "true") {
+          throw new Error(`provider_erasure_incomplete:${prov.failed.slice(0, 3).join(",")}`);
+        }
         const trust = await eraseTrustPackData(admin, request.user_id);
         if (!trust.ok) throw new Error("trust_pack_erasure_incomplete");
         for (const owned of OWNED_TABLES) {
@@ -129,6 +138,11 @@ Deno.serve(async (req: Request) => {
           if (error) throw error;
           result[owned.table] = rows?.length ?? 0;
         }
+        const { data: rest, error: restErr } = await admin.rpc("erase_user_rows", { p_user: request.user_id });
+        if (restErr) throw restErr;
+        const blockedTables = Object.keys((rest as { blocked?: Record<string, string> } | null)?.blocked ?? {});
+        result["blocked_tables"] = blockedTables.length;
+        if (blockedTables.length) throw new Error(`erasure_blocked_tables:${blockedTables.slice(0, 5).join(",")}`);
       } else if (request.request_type === "customer_record" && request.target_customer_id) {
         // Anonymize, don't delete — jobs/quotes/payment history tied to a
         // customer are financial/legal records, not just contact data.
