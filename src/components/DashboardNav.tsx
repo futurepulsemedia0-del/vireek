@@ -504,6 +504,7 @@ const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
   { label: 'Capacity Demand Control', href: '/dashboard/capacity-demand', icon: Gauge },
+  { label: 'Capacity Guard', href: '/dashboard/capacity-guard', icon: ShieldCheck },
   { label: 'Staffing Forecast', href: '/dashboard/staffing-forecast', icon: CalendarClock },
   { label: 'Seasonal Revenue Stabilizer', href: '/dashboard/seasonal-stabilizer', icon: CalendarClock },
   { label: 'Workforce Equilibrium', href: '/dashboard/workforce-equilibrium', icon: Scale },
