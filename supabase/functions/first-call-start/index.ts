@@ -97,7 +97,7 @@ async function start(admin: SupabaseClient, userId: string, body: Row): Promise<
   const vapiKey = Deno.env.get("VAPI_PRIVATE_KEY");
   if (!vapiKey) return fail("not_configured");
 
-  const { data: bp } = await admin.from("business_profile").select("vapi_assistant_id,vapi_phone_number_id,assistant_name,primary_industry").eq("user_id", ownerId).maybeSingle();
+  const { data: bp } = await admin.from("business_profile").select("vapi_assistant_id,vapi_phone_number_id,assistant_name,assistant_voice,primary_industry").eq("user_id", ownerId).maybeSingle();
   const { data: prof } = await admin.from("profiles").select("company_name").eq("id", ownerId).maybeSingle();
   if (!bp?.vapi_assistant_id || !bp?.vapi_phone_number_id) {
     // Number/assistant not provisioned yet (A2P review, number activation, or manual setup pending): park the session.
@@ -119,7 +119,7 @@ async function start(admin: SupabaseClient, userId: string, body: Row): Promise<
         assistantId: bp.vapi_assistant_id,
         phoneNumberId: bp.vapi_phone_number_id,
         customer: { number: dest.e164 },
-        assistantOverrides: { variableValues: {
+        assistantOverrides: { ...voiceOverride(bp.assistant_voice), variableValues: {
           customer_name: "you", call_purpose: "first_call_demo",
           company_name: prof?.company_name || "your business", assistant_name: bp.assistant_name || "Sarah", industry: bp.primary_industry || "home services",
         } },
