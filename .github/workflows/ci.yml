@@ -37,6 +37,8 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Public claims gate
+        run: npm run claims:check
       - name: Localization gates (raw Intl ratchet, voice, translation keys)
         run: |
           npm run lint:locale
