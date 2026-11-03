@@ -143,3 +143,13 @@ jobs:
           name: lighthouse-report
           path: .lighthouseci/
           retention-days: 14
+            interpreter-eval:
+    name: Interpreter eval gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/interpreter-eval.mjs
