@@ -213,7 +213,7 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
         assistantId: business.vapi_assistant_id,
         phoneNumberId: business.vapi_phone_number_id,
         customer: { number: enrollment.customer_phone },
-        assistantOverrides: { variableValues },
+        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues },
       }),
     });
 
