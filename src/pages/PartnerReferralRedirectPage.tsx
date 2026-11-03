@@ -32,7 +32,10 @@ export function PartnerReferralRedirectPage() {
       try {
         await supabase.rpc('record_partner_click', { p_code: code, p_landing_path: window.location.pathname });
       } finally {
-        window.location.replace(`/?pref=${encodeURIComponent(code)}`);
+        const keep = new URLSearchParams();
+        new URLSearchParams(window.location.search).forEach((v, k) => { if (k.startsWith('utm_')) keep.set(k, v.slice(0, 200)); });
+        keep.set('pref', code);
+        window.location.replace(`/?${keep.toString()}`);
       }
     })();
   }, [code]);
