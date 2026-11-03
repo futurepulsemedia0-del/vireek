@@ -65,14 +65,14 @@ describe('send-payment-reminders — auth', () => {
     expect((await run()).status).toBe(200);
   });
 
-  it('KNOWN GAP: fails OPEN when PAYMENT_REMINDER_CRON_SECRET is unset — anyone can trigger customer SMS/email sends', async () => {
-    await boot({ PAYMENT_REMINDER_CRON_SECRET: undefined });
-    table().push(pr());
-    const res = await run({});
-    expect(res.status).toBe(200);
-    expect(deliver.sendSms).toHaveBeenCalledTimes(1);
-  });
-});
+   it('fails CLOSED when PAYMENT_REMINDER_CRON_SECRET is unset — nobody can trigger customer SMS/email sends', async () => {
+     await boot({ PAYMENT_REMINDER_CRON_SECRET: undefined });
+     table().push(pr());
+     expect((await run({})).status).toBe(401);
+     expect((await run({ 'X-Cron-Secret': '' })).status).toBe(401);
+     expect(deliver.sendSms).not.toHaveBeenCalled();
+     expect(deliver.sendEmail).not.toHaveBeenCalled();
+   });
 
 describe('send-payment-reminders — selection', () => {
   it('reminds sent/overdue requests that are >3 days since the last reminder and under 3 reminders', async () => {
