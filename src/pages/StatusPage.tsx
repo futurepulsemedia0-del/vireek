@@ -142,6 +142,8 @@ const MAINTENANCE_STATUS_META: Record<MaintenanceEvent['status'], string> = {
 // Last 90 days, oldest first. Defaults to fully operational. Flip an entry
 // to 'incident' for any day a real outage or degradation occurred.
 const UPTIME_HISTORY: ('operational' | 'incident')[] = Array.from({ length: 90 }, () => 'operational');
+// Set to true ONLY when UPTIME_HISTORY is filled from real monitoring data.
+const HAS_MEASURED_HISTORY = false;
 
 // Update this whenever you hand-edit the systems above.
 const LAST_UPDATED = 'September 6, 2026';
@@ -325,11 +327,10 @@ export function StatusPage() {
   const overall = useMemo(() => overallStatus(effectiveSystems), [effectiveSystems]);
   const overallMeta = STATUS_META[overall];
 
-  const uptimePercent = useMemo(() => {
-    if (live.isLive && live.uptimePercent !== null) return live.uptimePercent.toFixed(2);
-    const operationalDays = UPTIME_HISTORY.filter((d) => d === 'operational').length;
-    return ((operationalDays / UPTIME_HISTORY.length) * 100).toFixed(2);
-  }, [live.isLive, live.uptimePercent]);
+  const uptimePercent = useMemo(
+    () => (live.isLive && live.uptimePercent !== null ? live.uptimePercent.toFixed(2) : null),
+    [live.isLive, live.uptimePercent]
+  );
 
   const effectiveIncidents = live.isLive && live.incidents.length > 0 ? live.incidents : INCIDENTS;
   const effectiveLastUpdated = live.isLive && live.lastUpdated ? live.lastUpdated : LAST_UPDATED;
@@ -352,7 +353,7 @@ export function StatusPage() {
                 Vireek System Status
               </h1>
               <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-text-secondary">
-                Real-time status and uptime history for Sarah, your AI voice receptionist, and every
+                Current status, incident history and maintenance notices for Sarah, your AI voice receptionist, and every
                 system your business relies on.
               </p>
             </motion.div>
@@ -462,7 +463,11 @@ export function StatusPage() {
                 <span className="text-sm font-semibold text-text-primary">Overall platform uptime</span>
                 <span className="text-2xl font-extrabold tracking-tight text-success-500">{uptimePercent}%</span>
               </div>
-              <div className="mt-5 flex h-10 items-end gap-[3px]" role="img" aria-label={`Uptime history for the last ${UPTIME_HISTORY.length} days`}>
+             {uptimePercent !== null ? (
+  <span className="text-2xl font-extrabold tracking-tight text-success-500">{uptimePercent}%</span>
+) : (
+  <span className="text-sm font-semibold text-text-secondary">Not yet measured</span>
+)}
                 {UPTIME_HISTORY.map((day, i) => (
                   <span
                     key={i}
@@ -474,6 +479,13 @@ export function StatusPage() {
               <div className="mt-3 flex justify-between text-xs text-text-secondary/70">
                 <span>90 days ago</span>
                 <span>Today</span>
+                </>) : (
+                <p className="mt-4 text-sm leading-relaxed text-text-secondary">
+                 A per-day uptime history will appear here once measured monitoring is connected. Until then we show no
+                  uptime percentage. Our uptime commitment is stated in the{' '}
+                 <a href="/sla" className="font-semibold text-accent hover:underline">Service Level Agreement</a>.
+                </p>
+                )}
               </div>
             </motion.div>
           </div>
