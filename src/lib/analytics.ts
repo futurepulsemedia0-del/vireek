@@ -90,6 +90,7 @@ export function setAnalyticsConsent(granted: boolean) {
 
 export function trackPageview(path: string, title?: string) {
   if (/^\/wallboard\//.test(path)) return; // never send secret TV tokens to GA
+  if (/^\/audit\/./.test(path)) return; // report/unsubscribe URLs carry private tokens
   if (!consentGranted || !GA_ID) return;
   ensureDataLayer();
   window.gtag('event', 'page_view', {
