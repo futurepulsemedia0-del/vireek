@@ -92,3 +92,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.voice-brief]
 verify_jwt = false
+[functions.trust-badge]
+verify_jwt = false
