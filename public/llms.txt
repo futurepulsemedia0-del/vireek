@@ -1,0 +1,33 @@
+# Vireek
+
+> Vireek is an AI voice receptionist for home-service businesses (HVAC, plumbing, electrical, roofing, restoration, locksmith). Its receptionist, "Sarah", answers calls, captures lead details and books jobs. Vireek is an early-stage, founder-led company and publishes no customer counts.
+
+## Product and pricing
+- [Pricing](https://vireek.com/pricing): plans from Free to Enterprise, monthly or annual billing
+- [Integrations](https://vireek.com/integrations): supported third-party integrations
+- [Help center](https://vireek.com/help): how-to guides and answers
+
+## Developers
+- [API documentation](https://vireek.com/docs)
+- [OpenAPI specification](https://vireek.com/openapi.json)
+- [Developer changelog](https://vireek.com/developers/changelog)
+
+## Trust and security
+- [Trust Center](https://vireek.com/trust)
+- [Compliance status](https://vireek.com/trust/compliance): states plainly which certifications Vireek does and does not hold
+- [Security overview](https://vireek.com/security)
+- [Security whitepaper](https://vireek.com/security/whitepaper)
+- [Sub-processors](https://vireek.com/subprocessors)
+- [Service Level Agreement](https://vireek.com/sla)
+- [Data Processing Agreement](https://vireek.com/dpa)
+- [System status](https://vireek.com/status)
+- [Vulnerability disclosure](https://vireek.com/vulnerability-disclosure)
+
+## Company
+- [About](https://vireek.com/about)
+- [Changelog](https://vireek.com/changelog)
+- [Customer stories](https://vireek.com/customers): each story is labelled verified or illustrative
+- [Contact](https://vireek.com/contact)
+
+## Optional
+- [Full details for LLMs](https://vireek.com/llms-full.txt)
