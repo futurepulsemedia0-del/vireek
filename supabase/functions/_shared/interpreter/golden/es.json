@@ -1,0 +1,184 @@
+[
+ {
+  "id": "es-1",
+  "lang": "es",
+  "text": "Hola, mi dirección es 4521 Oak Street, apartamento 3B.",
+  "en": "Hello, my address is 4521 Oak Street, apartment 3B.",
+  "critical": [
+   {
+    "kind": "address",
+    "value": "4521"
+   },
+   {
+    "kind": "unit",
+    "value": "3B"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "es-2",
+  "lang": "es",
+  "text": "Mi teléfono es cinco cinco cinco uno dos tres cuatro cinco seis siete.",
+  "en": "My phone number is 555 123 4567.",
+  "critical": [
+   {
+    "kind": "phone",
+    "value": "5551234567"
+   }
+  ],
+  "tags": [
+   "spoken_digits"
+  ],
+  "emergency": false
+ },
+ {
+  "id": "es-3",
+  "lang": "es",
+  "text": "¿Pueden venir mañana a las 3 de la tarde?",
+  "en": "Can you come tomorrow at 3 in the afternoon?",
+  "critical": [
+   {
+    "kind": "day",
+    "value": "tomorrow"
+   },
+   {
+    "kind": "time",
+    "value": "3:00"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "es-4",
+  "lang": "es",
+  "text": "Huele a gas en la cocina, ayuda por favor.",
+  "en": "There is a gas smell in the kitchen, please help.",
+  "critical": [],
+  "tags": [
+   "emergency"
+  ],
+  "emergency": true,
+  "noisy": [
+   "huele a gas en la cosina ayuda"
+  ]
+ },
+ {
+  "id": "es-5",
+  "lang": "es",
+  "text": "El calentador de agua está goteando y el disyuntor se botó.",
+  "en": "The water heater is dripping and the breaker tripped.",
+  "critical": [],
+  "tags": [
+   "glossary"
+  ],
+  "emergency": false
+ },
+ {
+  "id": "es-6",
+  "lang": "es",
+  "text": "Necesito que revisen mi HVAC, el modelo es WH5000X, no enfría.",
+  "en": "I need you to check my HVAC, the model is WH5000X, it does not cool.",
+  "critical": [
+   {
+    "kind": "code",
+    "value": "WH5000X"
+   }
+  ],
+  "tags": [
+   "code_switch"
+  ],
+  "emergency": false
+ },
+ {
+  "id": "es-7",
+  "lang": "es",
+  "text": "ola mi telefono es 555 123 4567 y quiero cita el jueves",
+  "en": "Hello my phone is 555 123 4567 and I want an appointment on Thursday.",
+  "critical": [
+   {
+    "kind": "phone",
+    "value": "5551234567"
+   },
+   {
+    "kind": "day",
+    "value": "thu"
+   }
+  ],
+  "tags": [
+   "noisy",
+   "accent"
+  ],
+  "emergency": false
+ },
+ {
+  "id": "es-8",
+  "lang": "es",
+  "text": "¿Cuánto cuesta? Me dijeron $250 por la visita.",
+  "en": "How much is it? I was told $250 for the visit.",
+  "critical": [
+   {
+    "kind": "money",
+    "value": "25000"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "es-9",
+  "lang": "es",
+  "text": "Se rompió una tubería y hay agua por todas partes.",
+  "en": "A pipe broke and there is water everywhere.",
+  "critical": [],
+  "tags": [
+   "emergency"
+  ],
+  "emergency": true,
+  "noisy": [
+   "se rompio una tuberia y hay agua por todas partes"
+  ]
+ },
+ {
+  "id": "es-10",
+  "lang": "es",
+  "text": "Necesito un plumber para el water heater, está leaking desde ayer.",
+  "en": "I need a plumber for the water heater, it has been leaking since yesterday.",
+  "critical": [],
+  "tags": [
+   "code_switch"
+  ],
+  "emergency": false
+ },
+ {
+  "id": "es-11",
+  "lang": "es",
+  "text": "Mi código postal es 90210 y estoy en la calle Main 123.",
+  "en": "My ZIP code is 90210 and I am on Main Street 123.",
+  "critical": [
+   {
+    "kind": "zip",
+    "value": "90210"
+   },
+   {
+    "kind": "address",
+    "value": "123"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "es-12",
+  "lang": "es",
+  "text": "Gracias, hasta luego.",
+  "en": "Thank you, goodbye.",
+  "critical": [],
+  "tags": [
+   "short"
+  ],
+  "emergency": false
+ }
+]
