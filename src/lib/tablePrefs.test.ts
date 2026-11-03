@@ -1,5 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_TABLE_PREFS, isValidTableKey, normalizeTablePrefs, pickNewer, readLocal, writeLocal } from '@/lib/tablePrefs';
+import {
+  DEFAULT_TABLE_PREFS,
+  clampPage,
+  hiddenFromVisible,
+  isValidTableKey,
+  moveColumn,
+  normalizeTablePrefs,
+  pageCount,
+  pickNewer,
+  readLocal,
+  resolveColumns,
+  sliceForPage,
+  writeLocal,
+  type ColumnDef,
+} from '@/lib/tablePrefs';
 
 describe('normalizeTablePrefs', () => {
   it('returns defaults for junk', () => {
@@ -49,5 +63,44 @@ describe('sync helpers', () => {
     writeLocal('u1', 'jobs', { prefs: { ...DEFAULT_TABLE_PREFS, pageSize: 50 }, updatedAt: 1 }, kv);
     expect(readLocal('u1', 'jobs', kv)?.prefs.pageSize).toBe(50);
     expect(readLocal('u2', 'jobs', kv)).toBeNull();
+  });
+});
+
+describe('columns', () => {
+  const cols: ColumnDef[] = [
+    { key: 'name', label: 'Name', required: true },
+    { key: 'contact', label: 'Contact' },
+    { key: 'type', label: 'Type' },
+  ];
+  it('applies saved order, drops unknown keys, appends new columns', () => {
+    const r = resolveColumns(cols, { columnOrder: ['type', 'ghost', 'name'], hiddenColumns: [] });
+    expect(r.ordered.map((c) => c.key)).toEqual(['type', 'name', 'contact']);
+  });
+  it('hides columns but never required ones', () => {
+    const r = resolveColumns(cols, { columnOrder: [], hiddenColumns: ['name', 'contact'] });
+    expect(r.visible.map((c) => c.key)).toEqual(['name', 'type']);
+  });
+  it('moves columns within bounds', () => {
+    expect(moveColumn(['a', 'b', 'c'], 'b', -1)).toEqual(['b', 'a', 'c']);
+    expect(moveColumn(['a', 'b', 'c'], 'a', -1)).toEqual(['a', 'b', 'c']);
+    expect(moveColumn(['a', 'b', 'c'], 'c', 1)).toEqual(['a', 'b', 'c']);
+  });
+  it('derives hidden from a saved-view visible list', () => {
+    expect(hiddenFromVisible(cols, ['name', 'type'])).toEqual(['contact']);
+    expect(hiddenFromVisible(cols, [])).toEqual(['contact', 'type']);
+  });
+});
+
+describe('paging', () => {
+  const rows = Array.from({ length: 53 }, (_, i) => i);
+  it('counts and clamps pages', () => {
+    expect(pageCount(53, 25)).toBe(3);
+    expect(pageCount(0, 25)).toBe(1);
+    expect(clampPage(99, 53, 25)).toBe(3);
+    expect(clampPage(-2, 53, 25)).toBe(1);
+  });
+  it('slices the right window', () => {
+    expect(sliceForPage(rows, 3, 25)).toEqual([50, 51, 52]);
+    expect(sliceForPage(rows, 99, 25)).toEqual([50, 51, 52]);
   });
 });
