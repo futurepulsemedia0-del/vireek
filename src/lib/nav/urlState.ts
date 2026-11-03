@@ -1,129 +1,162 @@
-// Typed URL-state codecs. Pure: no React, no router.
-// Rules: invalid values degrade to the default; defaults are omitted from the
-// URL; unchanged writes are no-ops (no history spam); `history: 'push'` only
-// for params that represent a place to go back to (tab, selected record,
-// open drawer, page), everything else replaces.
+// Pure model for per-table UI state + local fallback. No supabase import.
 
-export interface Codec<T> {
-  readonly default: T;
-  readonly history: 'push' | 'replace';
-  /** Other params reset to their default when this one changes (e.g. page). */
-  readonly resets: readonly string[];
-  parse(raw: string | null): T | null; // null = absent/invalid -> default
-  serialize(value: T): string | null; // null = remove param
+export const DENSITIES = ['compact', 'comfortable', 'spacious'] as const;
+export type Density = (typeof DENSITIES)[number];
+export const PAGE_SIZES = [10, 25, 50, 100] as const;
+export const TABLE_PREFS_VERSION = 1;
+
+export interface TablePrefs {
+  filters: Record<string, string | number | boolean | string[]>;
+  sort: { key: string; dir: 'asc' | 'desc' } | null;
+  hiddenColumns: string[];
+  columnOrder: string[];
+  columnWidths: Record<string, number>;
+  density: Density;
+  pageSize: number;
 }
 
-export type UrlSchema = Record<string, Codec<unknown>>;
-export type UrlStateOf<S extends UrlSchema> = { [K in keyof S]: S[K] extends Codec<infer T> ? T : never };
-
-interface CodecOpts {
-  history?: 'push' | 'replace';
-  resets?: readonly string[];
-}
-
-const mk = <T>(
-  def: T,
-  parse: (raw: string | null) => T | null,
-  serialize: (v: T) => string | null,
-  o: CodecOpts = {},
-): Codec<T> => ({ default: def, history: o.history ?? 'replace', resets: o.resets ?? [], parse, serialize });
-
-export const codec = {
-  string(def = '', o?: CodecOpts & { maxLength?: number }): Codec<string> {
-    const max = o?.maxLength ?? 200;
-    return mk(
-      def,
-      (raw) => (raw === null ? null : raw.slice(0, max)),
-      (v) => (v === '' ? null : v.slice(0, max)),
-      o,
-    );
-  },
-  int(def: number, o: CodecOpts & { min?: number; max?: number } = {}): Codec<number> {
-    const { min = 0, max = Number.MAX_SAFE_INTEGER } = o;
-    return mk(
-      def,
-      (raw) => {
-        if (raw === null || !/^-?\d+$/.test(raw)) return null;
-        const n = Number(raw);
-        return n >= min && n <= max ? n : null;
-      },
-      (v) => String(v),
-      o,
-    );
-  },
-  bool(def = false, o?: CodecOpts): Codec<boolean> {
-    return mk(def, (raw) => (raw === '1' ? true : raw === '0' ? false : null), (v) => (v ? '1' : '0'), o);
-  },
-  oneOf<const V extends readonly string[]>(values: V, def: V[number], o?: CodecOpts): Codec<V[number]> {
-    return mk<V[number]>(def, (raw) => (raw !== null && (values as readonly string[]).includes(raw) ? raw : null), (v) => v, o);
-  },
-  list(def: readonly string[] = [], o?: CodecOpts & { maxItems?: number }): Codec<readonly string[]> {
-    const maxItems = o?.maxItems ?? 25;
-    return mk<readonly string[]>(
-      def,
-      (raw) => (raw === null || raw === '' ? null : raw.split(',').map((s) => s.trim()).filter(Boolean).slice(0, maxItems)),
-      (v) => (v.length === 0 ? null : v.join(',')),
-      o,
-    );
-  },
-  /** ISO date (YYYY-MM-DD), validated as a real calendar date. */
-  date(def = '', o?: CodecOpts): Codec<string> {
-    return mk(
-      def,
-      (raw) => {
-        if (raw === null || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
-        const d = new Date(`${raw}T00:00:00Z`);
-        return Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== raw ? null : raw;
-      },
-      (v) => (v === '' ? null : v),
-      o,
-    );
-  },
+export const DEFAULT_TABLE_PREFS: TablePrefs = {
+  filters: {},
+  sort: null,
+  hiddenColumns: [],
+  columnOrder: [],
+  columnWidths: {},
+  density: 'comfortable',
+  pageSize: 25,
 };
 
-const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
+export const isValidTableKey = (k: string): boolean => /^[a-z0-9][a-z0-9_.:-]{0,63}$/.test(k);
 
-export function readUrlState<S extends UrlSchema>(schema: S, params: URLSearchParams): UrlStateOf<S> {
-  const out: Record<string, unknown> = {};
-  for (const key of Object.keys(schema)) {
-    const c = schema[key]!;
-    const parsed = c.parse(params.get(key));
-    out[key] = parsed === null ? c.default : parsed;
-  }
-  return out as UrlStateOf<S>;
-}
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+const strList = (v: unknown, max: number): string[] =>
+  Array.isArray(v) ? Array.from(new Set(v.filter((x): x is string => typeof x === 'string' && x.length > 0 && x.length <= 64))).slice(0, max) : [];
 
-export interface WriteResult {
-  params: URLSearchParams;
-  changed: boolean;
-  history: 'push' | 'replace';
-}
-
-export function writeUrlState<S extends UrlSchema>(
-  schema: S,
-  current: URLSearchParams,
-  patch: Partial<UrlStateOf<S>>,
-): WriteResult {
-  const next = new URLSearchParams(current);
-  const before = readUrlState(schema, current) as Record<string, unknown>;
-  let history: 'push' | 'replace' = 'replace';
-  const apply = (key: string, value: unknown) => {
-    const c = schema[key]!;
-    const serialized = same(value, c.default) ? null : c.serialize(value);
-    if (serialized === null) next.delete(key);
-    else next.set(key, serialized);
-  };
-
-  for (const [key, value] of Object.entries(patch)) {
-    const c = schema[key];
-    if (!c || value === undefined) continue; // unknown keys never touch the URL
-    if (same(value, before[key])) continue;
-    apply(key, value);
-    if (c.history === 'push') history = 'push';
-    for (const dep of c.resets) {
-      const d = schema[dep];
-      if (d && !(dep in patch)) apply(dep, d.default);
+/** Defensive: server rows / localStorage / older versions are never trusted. */
+export function normalizeTablePrefs(raw: unknown): TablePrefs {
+  if (!isObj(raw)) return { ...DEFAULT_TABLE_PREFS };
+  const filters: TablePrefs['filters'] = {};
+  if (isObj(raw.filters)) {
+    for (const [k, v] of Object.entries(raw.filters).slice(0, 50)) {
+      if (k.length > 64) continue;
+      if (typeof v === 'string' && v.length <= 200) filters[k] = v;
+      else if (typeof v === 'number' && Number.isFinite(v)) filters[k] = v;
+      else if (typeof v === 'boolean') filters[k] = v;
+      else if (Array.isArray(v)) filters[k] = strList(v, 25);
     }
   }
-  return { params: next, changed: next.toString() !== current.toString(), history };
+  const sortRaw = raw.sort;
+  let sort: TablePrefs['sort'] = null;
+  if (isObj(sortRaw) && typeof sortRaw.key === 'string' && sortRaw.key) {
+    const dir = sortRaw.dir === 'asc' ? 'asc' : sortRaw.dir === 'desc' ? 'desc' : null;
+    if (dir) sort = { key: sortRaw.key.slice(0, 64), dir };
+  }
+  const widths: Record<string, number> = {};
+  if (isObj(raw.columnWidths)) {
+    for (const [k, v] of Object.entries(raw.columnWidths).slice(0, 100)) {
+      if (typeof v === 'number' && Number.isFinite(v)) widths[k] = Math.min(800, Math.max(48, Math.round(v)));
+    }
+  }
+  return {
+    filters,
+    sort,
+    hiddenColumns: strList(raw.hiddenColumns, 100),
+    columnOrder: strList(raw.columnOrder, 100),
+    columnWidths: widths,
+    density: DENSITIES.find((d) => d === raw.density) ?? DEFAULT_TABLE_PREFS.density,
+    pageSize: PAGE_SIZES.find((n) => n === raw.pageSize) ?? DEFAULT_TABLE_PREFS.pageSize,
+  };
 }
+
+export interface Stamped {
+  prefs: TablePrefs;
+  updatedAt: number; // epoch ms
+}
+
+/** Newest write wins; ties prefer remote. */
+export function pickNewer(local: Stamped | null, remote: Stamped | null): Stamped | null {
+  if (!local) return remote;
+  if (!remote) return local;
+  return local.updatedAt > remote.updatedAt ? local : remote;
+}
+
+const localKey = (userId: string, tableKey: string) => `vrk:tp:${userId}:${tableKey}`;
+
+export function readLocal(userId: string, tableKey: string, kv: Pick<Storage, 'getItem'> | null): Stamped | null {
+  try {
+    const raw = kv?.getItem(localKey(userId, tableKey));
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!isObj(parsed) || typeof parsed.updatedAt !== 'number') return null;
+    return { prefs: normalizeTablePrefs(parsed.prefs), updatedAt: parsed.updatedAt };
+  } catch {
+    return null;
+  }
+}
+
+export function writeLocal(userId: string, tableKey: string, value: Stamped, kv: Pick<Storage, 'setItem'> | null): void {
+  try {
+    kv?.setItem(localKey(userId, tableKey), JSON.stringify(value));
+  } catch {
+    /* quota/private mode — server copy still applies */
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Column resolution + density + paging helpers (pure)
+// ---------------------------------------------------------------------------
+
+export interface ColumnDef {
+  key: string;
+  label: string;
+  /** Required columns can never be hidden (e.g. the row's name). */
+  required?: boolean;
+  defaultWidth?: number;
+}
+
+export interface ResolvedColumns {
+  /** Every column, in the user's order (unknown saved keys dropped, new columns appended). */
+  ordered: ColumnDef[];
+  /** Only the visible ones, same order. */
+  visible: ColumnDef[];
+}
+
+export function resolveColumns(columns: readonly ColumnDef[], prefs: Pick<TablePrefs, 'columnOrder' | 'hiddenColumns'>): ResolvedColumns {
+  const byKey = new Map(columns.map((c) => [c.key, c]));
+  const ordered: ColumnDef[] = [];
+  for (const key of prefs.columnOrder) {
+    const c = byKey.get(key);
+    if (c && !ordered.includes(c)) ordered.push(c);
+  }
+  for (const c of columns) if (!ordered.includes(c)) ordered.push(c);
+  const hidden = new Set(prefs.hiddenColumns);
+  return { ordered, visible: ordered.filter((c) => c.required || !hidden.has(c.key)) };
+}
+
+/** Move `key` one step; the result is the full new order. */
+export function moveColumn(order: readonly string[], key: string, dir: -1 | 1): string[] {
+  const i = order.indexOf(key);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= order.length) return [...order];
+  const next = [...order];
+  [next[i], next[j]] = [next[j]!, next[i]!];
+  return next;
+}
+
+/** Hidden list that makes exactly `visibleKeys` visible (required columns stay visible). */
+export function hiddenFromVisible(columns: readonly ColumnDef[], visibleKeys: readonly string[]): string[] {
+  const keep = new Set(visibleKeys);
+  return columns.filter((c) => !c.required && !keep.has(c.key)).map((c) => c.key);
+}
+
+export const DENSITY_CELL: Record<Density, string> = {
+  compact: 'px-3 py-1.5',
+  comfortable: 'px-4 py-3',
+  spacious: 'px-5 py-4',
+};
+
+export const pageCount = (total: number, pageSize: number): number => Math.max(1, Math.ceil(total / Math.max(1, pageSize)));
+export const clampPage = (page: number, total: number, pageSize: number): number => Math.min(Math.max(1, page), pageCount(total, pageSize));
+export const sliceForPage = <T,>(rows: readonly T[], page: number, pageSize: number): T[] => {
+  const p = clampPage(page, rows.length, pageSize);
+  return rows.slice((p - 1) * pageSize, p * pageSize);
+};
