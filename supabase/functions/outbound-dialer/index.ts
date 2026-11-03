@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { selectOutboundNumber, recordDialAttempt } from "../_shared/number-reputation/attempts.ts";
+import { voiceOverride } from "../_shared/voice/voiceMap.ts";
 
 const BATCH_SIZE = 20;
 const VAPI_CALL_URL = "https://api.vapi.ai/call";
@@ -49,7 +50,7 @@ Deno.serve(async (req: Request) => {
   for (const call of queue as QueuedCall[]) {
     const { data: business } = await admin
       .from("business_profile")
-      .select("vapi_assistant_id, vapi_phone_number_id")
+      .select("vapi_assistant_id, vapi_phone_number_id, assistant_voice")
       .eq("user_id", call.user_id)
       .maybeSingle();
 
@@ -95,7 +96,7 @@ Deno.serve(async (req: Request) => {
           assistantId: business.vapi_assistant_id,
           phoneNumberId: pick.vapiPhoneNumberId,
           customer: { number: call.customer_phone },
-          assistantOverrides: { variableValues: { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] } },
+          assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues: { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] } },
         }),
       });
 
