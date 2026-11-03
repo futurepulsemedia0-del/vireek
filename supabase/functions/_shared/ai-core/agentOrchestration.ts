@@ -132,6 +132,7 @@ export function buildAgentSquad(
   assistantId: string,
   assistantName: string | null,
   sharedVariableValues: Record<string, string>,
+  voice?: { provider: string; voiceId: string },
   /** Optional per-member voice override (see _shared/voice/voiceMap.ts). Omitted → assistant keeps its own voice. */
   voice?: VapiVoiceConfig,
 ) {
@@ -140,6 +141,7 @@ export function buildAgentSquad(
   const members = ALL_ROLES.map((role) => {
     const overrides: Record<string, unknown> = {
       name: nameByKey.get(role.key),
+      ...(voice ? { voice } : {}),
   ...(voice ? { voice: { ...voice } } : {}),
       variableValues: {
         ...sharedVariableValues,
