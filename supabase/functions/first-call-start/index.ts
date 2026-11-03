@@ -21,6 +21,7 @@
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendSms } from "../_shared/notify/deliver.ts";
+import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
 import { DEFAULT_ALLOWED_CODES, parseDestination, rateDecision, type FailureCode } from "../_shared/first-call/logic.ts";
 
 const cors = {
