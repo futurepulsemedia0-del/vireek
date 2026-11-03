@@ -801,6 +801,9 @@ export interface BusinessProfile {
   booking_window_days?: number;
   custom_voice_status?: 'none' | 'processing' | 'ready' | 'failed';
   custom_voice_error?: string | null;
+  use_custom_voice?: boolean;
+  custom_voice_consent_at?: string | null;
+  custom_voice_consent_by?: string | null;
   allow_customer_self_reschedule: boolean;
   commercial_sla_policy: string | null;
   onboarding_wizard_state?: {
