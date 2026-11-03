@@ -3,6 +3,7 @@ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { selectOutboundNumber, recordDialAttempt } from "../_shared/number-reputation/attempts.ts";
 import { voiceOverride } from "../_shared/voice/voiceMap.ts";
+import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
 
 const BATCH_SIZE = 20;
 const VAPI_CALL_URL = "https://api.vapi.ai/call";
