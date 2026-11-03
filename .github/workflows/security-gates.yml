@@ -1,0 +1,56 @@
+name: Security Gates
+
+# Systematic, ratcheted security proof: function security matrix, RLS audit, shared-middleware tests,
+# and the pgTAP RLS catalog proof. Legacy findings are frozen in docs/security/*-baseline.json and may only shrink.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - 'supabase/config.toml'
+      - 'scripts/security/**'
+      - 'docs/security/**'
+      - '.github/workflows/security-gates.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - 'supabase/config.toml'
+      - 'scripts/security/**'
+      - 'docs/security/**'
+      - '.github/workflows/security-gates.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: security-gates-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  static-gates:
+    name: Function matrix + RLS audit + middleware tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Function security matrix (fails on stale matrix, new functions without metadata, new violations)
+        run: node scripts/security/function-matrix.mjs --check
+
+      - name: RLS audit (fails on stale artifacts and new RLS findings)
+        run: node scripts/security/rls-audit.mjs --check
+
+      - name: Unit tests (security tooling + shared HTTP middleware)
+        run: npx vitest run scripts/security supabase/functions/_shared/http supabase/functions/send-payment-reminders
