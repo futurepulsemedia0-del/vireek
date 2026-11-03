@@ -111,6 +111,7 @@ const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage')
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const AskVireekPage = lazy(() => import('@/pages/AskVireekPage').then((m) => ({ default: m.AskVireekPage })));
 const CsrDeskPage = lazy(() => import('@/pages/CsrDeskPage').then((m) => ({ default: m.CsrDeskPage })));
+const InterpreterSettingsPage = lazy(() => import('@/pages/InterpreterSettingsPage').then((m) => ({ default: m.InterpreterSettingsPage })));
 const LeadAssignmentPage = lazy(() => import('@/pages/LeadAssignmentPage').then((m) => ({ default: m.LeadAssignmentPage })));
 const TechnicianLeaderboardPage = lazy(() => import('@/pages/TechnicianLeaderboardPage').then((m) => ({ default: m.TechnicianLeaderboardPage })));
 const CausalWorldSimulatorPage = lazy(() => import('@/pages/CausalWorldSimulatorPage').then((m) => ({ default: m.CausalWorldSimulatorPage })));
@@ -688,6 +689,7 @@ const ApiReferencePage = lazy(() => import('@/pages/ApiReferencePage').then((m) 
 const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
 const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) => ({ default: m.InviteAcceptPage })));
 const LoadingDemo = import.meta.env.DEV ? lazy(() => import('@/pages/dev/LoadingDemo')) : null; // dev-only
+const InterpreterPlayground = import.meta.env.DEV ? lazy(() => import('@/pages/dev/InterpreterPlayground')) : null; // dev-only
 
 function RouteLoadingFallback() {
   return (
@@ -702,6 +704,7 @@ function AppRoutes() {
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
         {LoadingDemo && <Route path="/dev/loading" element={<Suspense fallback={<RouteFallback />}><LoadingDemo /></Suspense>} />}
+        {InterpreterPlayground && <Route path="/dev/interpreter" element={<Suspense fallback={<RouteFallback />}><InterpreterPlayground /></Suspense>} />}
         <Route path="/" element={<HomeTargetGate><HomePage /></HomeTargetGate>} />
         <Route path="/login" element={<LoginPage />} />
         {/*
