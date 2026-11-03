@@ -45,7 +45,7 @@
 //      still the current way to add a handoff tool on top of a saved
 //      assistant's existing tools via assistantOverrides.
 // ---------------------------------------------------------------------------
-
+  import type { VapiVoiceConfig } from "../voice/voiceMap.ts";
 export interface AgentRoleDef {
   key: string;
   displayName: string;
@@ -132,12 +132,15 @@ export function buildAgentSquad(
   assistantId: string,
   assistantName: string | null,
   sharedVariableValues: Record<string, string>,
+  /** Optional per-member voice override (see _shared/voice/voiceMap.ts). Omitted → assistant keeps its own voice. */
+  voice?: VapiVoiceConfig,
 ) {
   const nameByKey = new Map(ALL_ROLES.map((r) => [r.key, squadMemberName(assistantName, r)]));
 
   const members = ALL_ROLES.map((role) => {
     const overrides: Record<string, unknown> = {
       name: nameByKey.get(role.key),
+  ...(voice ? { voice: { ...voice } } : {}),
       variableValues: {
         ...sharedVariableValues,
         agent_role_name: role.displayName,
