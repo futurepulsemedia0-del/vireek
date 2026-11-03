@@ -1,0 +1,125 @@
+[
+ {
+  "id": "pt-1",
+  "lang": "pt",
+  "text": "Olá, meu endereço é 789 Palm Avenue, apartamento 12.",
+  "en": "Hello, my address is 789 Palm Avenue, apartment 12.",
+  "critical": [
+   {
+    "kind": "address",
+    "value": "789"
+   },
+   {
+    "kind": "unit",
+    "value": "12"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "pt-2",
+  "lang": "pt",
+  "text": "Estou sentindo cheiro de gás, não consigo ficar em casa!",
+  "en": "I smell gas, I cannot stay in the house!",
+  "critical": [],
+  "tags": [
+   "emergency"
+  ],
+  "emergency": true,
+  "noisy": [
+   "estou sentindo cheiro de gas nao consigo ficar em casa"
+  ]
+ },
+ {
+  "id": "pt-3",
+  "lang": "pt",
+  "text": "Preciso de um encanador amanhã às 15h.",
+  "en": "I need a plumber tomorrow at 3 PM.",
+  "critical": [
+   {
+    "kind": "day",
+    "value": "tomorrow"
+   },
+   {
+    "kind": "time",
+    "value": "3:00",
+    "mer": "pm"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "pt-4",
+  "lang": "pt",
+  "text": "O ar-condicionado não está esfriando e o compressor faz barulho.",
+  "en": "The air conditioner is not cooling and the compressor is noisy.",
+  "critical": [],
+  "tags": [
+   "glossary"
+  ],
+  "emergency": false
+ },
+ {
+  "id": "pt-5",
+  "lang": "pt",
+  "text": "Meu telefone é 555 987 6543.",
+  "en": "My phone is 555 987 6543.",
+  "critical": [
+   {
+    "kind": "phone",
+    "value": "5559876543"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "pt-6",
+  "lang": "pt",
+  "text": "O orçamento de $320 está correto, você pode confirmar?",
+  "en": "Is the $320 estimate correct, can you confirm?",
+  "critical": [
+   {
+    "kind": "money",
+    "value": "32000"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "pt-7",
+  "lang": "pt",
+  "text": "Quero marcar para sexta-feira de manhã, às 9.",
+  "en": "I want to book for Friday morning, at 9.",
+  "critical": [
+   {
+    "kind": "day",
+    "value": "fri"
+   },
+   {
+    "kind": "time",
+    "value": "9:00",
+    "mer": "am"
+   }
+  ],
+  "tags": [],
+  "emergency": false
+ },
+ {
+  "id": "pt-8",
+  "lang": "pt",
+  "text": "Houve um alagamento no porão e o cano estourou, não sei o que fazer.",
+  "en": "There was flooding in the basement and the pipe burst, I do not know what to do.",
+  "critical": [],
+  "tags": [
+   "emergency"
+  ],
+  "emergency": true,
+  "noisy": [
+   "houve um alagamento no porao e o cano estourou"
+  ]
+ }
+]
