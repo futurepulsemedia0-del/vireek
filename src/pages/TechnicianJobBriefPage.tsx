@@ -13,6 +13,8 @@ import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { JobPaymentPanel } from '@/components/technician/JobPaymentPanel';
 import { TechnicianTagPanel } from '@/components/technician/../tags/TechnicianTagPanel';
 import { NameplateScanCard } from '@/components/technician/NameplateScanCard';
+import { PreJobBriefCard } from '@/components/technician/PreJobBriefCard';
+import { InvoiceAssistPanel } from '@/components/technician/InvoiceAssistPanel';
 import { VoiceLogPanel } from '@/components/technician/VoiceLogPanel';
 import { TechSalesLeadButton } from '@/components/sales/TechSalesLeadButton';
 
@@ -80,6 +82,7 @@ export function TechnicianJobBriefPage() {
       </header>
 
       <main className="mx-auto max-w-lg space-y-4 px-4 py-4">
+      <PreJobBriefCard brief={brief} />
         {job.safety_flag && (
           <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger/10 p-3 text-sm text-danger">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
@@ -180,6 +183,7 @@ export function TechnicianJobBriefPage() {
             ))}
           </section>
         )}
+        <InvoiceAssistPanel jobId={job.id} />
         <CollectPaymentPanel jobId={brief.job.id} invoiceAmount={brief.job.invoice_amount} customerPhone={brief.customer?.phone ?? null} />
         <section className="rounded-lg border border-border bg-bg-secondary p-3">
           <h2 className="mb-2 text-sm font-semibold text-text-primary">Add note from the field</h2>
