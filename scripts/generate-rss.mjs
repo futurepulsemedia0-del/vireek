@@ -47,7 +47,7 @@ async function loadTsModule(relativePath) {
             () => ({ path: 'stub', namespace: 'stub-ns' })
           );
           build.onLoad({ filter: /.*/, namespace: 'stub-ns' }, () => ({
-            contents: 'export default new Proxy({}, { get: () => (() => null) });',
+            contents: 'module.exports = new Proxy({}, { get: (_t, key) => (key === "__esModule" ? false : () => null) });',
             loader: 'js',
           }));
         },
