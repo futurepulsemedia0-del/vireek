@@ -1,0 +1,10 @@
+# REQUIRED ACTION: replace @OWNER with real GitHub users or teams, then enable
+# "Require review from Code Owners" in branch protection (cannot be done from the repo).
+# Invalid owners are ignored by GitHub, so this file does nothing until edited.
+*                                  @OWNER
+/supabase/migrations/              @OWNER
+/supabase/functions/               @OWNER
+/.github/                          @OWNER
+/docs/compliance/                  @OWNER
+/public/.well-known/               @OWNER
+/ios/ /android/ /capacitor.config.ts @OWNER
