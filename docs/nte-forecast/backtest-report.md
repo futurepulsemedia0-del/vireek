@@ -8,7 +8,14 @@ Query run by the owner against the project database (read-only):
 | user_id | nte_jobs | breached |
 | ------- | -------- | -------- |
 | null    | 0        | 0        |
+Second query (all statuses):
 
+| status | nte_orders |
+| ------ | ---------- |
+| null   | 0          |
+
+No work order has an NTE in any status. Environment (dev/staging/production)
+of both queries was not verified.
 Definition: completed `work_orders` with `not_to_exceed_cents IS NOT NULL`;
 breach = sum of `billable_amount_cents` on live visits (status <> 'cancelled',
 billing_status <> 'void') > `not_to_exceed_cents`.
