@@ -42,7 +42,43 @@ jobs:
             echo "::error::$((CASE_COUNT - PASS_COUNT)) of $CASE_COUNT eval cases failed."
             exit 1
           fi
-            run-voice-eval-suite:
+  # Deterministic voice-agent red team (no network, no LLM). Nightly + on demand; the PR gate is voice-redteam.yml.
+  # Tracks attack-success-rate over time: history.jsonl is restored from / saved to the Actions cache.
+  voice-redteam:
+    name: Voice red-team scorecard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Restore ASR history
+        uses: actions/cache@v4
+        with:
+          path: eval/voice-redteam/history.jsonl
+          key: voice-redteam-history-${{ github.run_id }}
+          restore-keys: voice-redteam-history-
+      - name: Run red team (fails on any critical-class success or FRR > 2%)
+        env:
+          RT_RECORD: '1'
+        run: npm run test:redteam
+      - name: Publish scorecard
+        if: always()
+        run: |
+          [ -f eval/voice-redteam/out/scorecard.md ] && cat eval/voice-redteam/out/scorecard.md >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: voice-redteam-scorecard
+          path: |
+            eval/voice-redteam/out/
+            eval/voice-redteam/history.jsonl
+
+  # NOTE: this job header used to be indented by 12 spaces, which made YAML treat it as part of the previous
+  # step's shell script (the job never existed). Re-indented to a real job.
+  run-voice-eval-suite:
     name: Run voice brand eval suite
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'schedule' }}
