@@ -3,7 +3,7 @@ set -e
 
 npm install --legacy-peer-deps
 
-npm install --no-save --legacy-peer-deps \
+npm install --no-save --legacy-peer-deps --ignore-scripts \
   zod@3 @hookform/resolvers@3 react-hook-form yaml maplibre-gl web-vitals \
   libphonenumber-js @dnd-kit/core @google/model-viewer \
   @stripe/stripe-js @stripe/react-stripe-js @sentry/capacitor \
