@@ -13,7 +13,7 @@ export type ProviderId =
   | "anthropic";
 
 export type TaskType =
-  | "remote_resolution";
+  | "remote_resolution"
   | "ask_vireek"
   | "operator_plan"
   | "demo_chat"
@@ -50,7 +50,7 @@ export type TaskType =
   | "job_autopsy"
   | "inbound_auto_reply"
   | "switching_shield_plan"
-  | "bank_categorization";
+  | "bank_categorization"
   | "review_reply"
 
 export interface NormalizedChatRequest {
