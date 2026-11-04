@@ -181,11 +181,11 @@ interface InjectionRule {
 
 const INJECTION_RULES: InjectionRule[] = [
   { id: "override_instructions", weight: 45, re: /\b(ignore|disregard|forget|override|bypass)\b.{0,40}\b(previous|prior|above|earlier|all|system|safety)\b.{0,30}\b(instructions?|rules?|prompts?|guardrails?|polic(y|ies))\b/is },
-  { id: "override_multilingual", weight: 45, re: /(ignora(r)?\s+(todas\s+)?las\s+instrucciones|ignore[zr]?\s+(toutes\s+)?les\s+instructions|ignoriere\s+(alle\s+)?(vorherigen\s+)?anweisungen|نادیده\s*بگیر|دستورال?عمل(‌|\s)?های?\s*(قبلی|بالا)|تجاهل\s+(جميع\s+)?التعليمات)/i },
+  { id: "override_multilingual", weight: 45, re: /(ignora(r)?\s+((todas|tus|sus|las)\s+)*instrucciones|ignore[zr]?\s+(toutes\s+)?les\s+instructions|ignoriere\s+(alle\s+)?(vorherigen\s+)?anweisungen|نادیده\s*بگیر|دستورال?عمل(‌|\s)?های?\s*(قبلی|بالا)|تجاهل\s+(جميع\s+)?التعليمات)/i },
   { id: "role_hijack", weight: 30, re: /\b(you\s+are\s+now|from\s+now\s+on\s+you|new\s+persona|pretend\s+(to\s+be|you\s+are)|roleplay\s+as|act\s+as\s+(if|though|an?\s+unrestricted))\b/i },
   { id: "prompt_exfiltration", weight: 50, re: /\b(reveal|show|print|output|repeat|leak|dump)\b.{0,40}\b(system\s+prompt|hidden\s+(instructions|prompt)|initial\s+(prompt|instructions)|your\s+instructions)\b/is },
   { id: "jailbreak_keywords", weight: 40, re: /\b(jailbreak|dan\s+mode|developer\s+mode|do\s+anything\s+now|no\s+restrictions|unfiltered\s+mode)\b/i },
-  { id: "fake_role_delimiters", weight: 40, re: /(^|\n)\s*(system|assistant)\s*:|<\|?(im_start|im_end|system|endoftext)\|?>|\[\/?(INST|SYS)\]|#{2,3}\s*(system|new\s+instructions?)/i },
+  { id: "fake_role_delimiters", weight: 40, re: /(^|\n)\s*(system|assistant)\s*:|<\|?(im_start|im_end|system|endoftext)\|?>|\[\/?(INST|SYS|SYSTEM|ASSISTANT)\]|#{2,3}\s*(system|new\s+instructions?)/i },
   { id: "tool_abuse", weight: 45, re: /\b(call|invoke|execute|run)\b.{0,30}\b(tool|function|api|webhook|sql|query)\b.{0,60}\b(delete|drop|truncate|export|transfer|refund)\b/is },
   { id: "bulk_data_exfiltration", weight: 50, re: /\b(send|post|forward|email|upload|exfiltrate|transmit)\b.{0,60}\b(all|every|entire|full|complete)\b.{0,40}\b(customers?|contacts?|records?|database|credentials|keys?)\b/is },
   { id: "markdown_image_exfil", weight: 35, re: /!\[[^\]]{0,80}\]\(https?:\/\/[^)\s]{0,200}\?[^)\s]{0,300}\)/i },
