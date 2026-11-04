@@ -1,0 +1,44 @@
+name: Voice Red Team
+
+# PR gate for the voice-agent security controls. Deterministic: no network, no LLM, no secrets.
+# Fails the PR on: any successful attack in a critical class, any unexpected failed scenario, false-refusal rate > 2%.
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/_shared/voice-security/**'
+      - 'supabase/functions/_shared/ai-core/aiSecurity.ts'
+      - 'supabase/functions/vapi-webhook/**'
+      - 'supabase/migrations/**voice_security**'
+      - 'eval/voice-redteam/**'
+      - 'vitest.redteam.config.ts'
+      - '.github/workflows/voice-redteam.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: voice-redteam-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  redteam:
+    name: Red-team scenarios + unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Voice-security unit tests
+        run: npx vitest run supabase/functions/_shared/voice-security
+      - name: Red-team harness
+        run: npm run test:redteam
+      - name: Publish scorecard
+        if: always()
+        run: |
+          [ -f eval/voice-redteam/out/scorecard.md ] && cat eval/voice-redteam/out/scorecard.md >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: voice-redteam-scorecard
+          path: eval/voice-redteam/out/
