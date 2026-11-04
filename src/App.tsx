@@ -555,6 +555,8 @@ const ReviewSubmitPage = lazy(() => import('@/pages/ReviewSubmitPage').then((m) 
 const SurveysPage = lazy(() => import('@/pages/SurveysPage').then((m) => ({ default: m.SurveysPage })));
 const JobSummariesPage = lazy(() => import('@/pages/JobSummariesPage').then((m) => ({ default: m.JobSummariesPage })));
 const JobSummaryPublicPage = lazy(() => import('@/pages/JobSummaryPublicPage').then((m) => ({ default: m.JobSummaryPublicPage })));
+const WinCardPublicPage = lazy(() => import('@/pages/WinCardPublicPage').then((m) => ({ default: m.WinCardPublicPage })));
+const WinCardsPage = lazy(() => import('@/pages/WinCardsPage').then((m) => ({ default: m.WinCardsPage })));
 const SurveyResponsePage = lazy(() => import('@/pages/SurveyResponsePage').then((m) => ({ default: m.SurveyResponsePage })));
 const PreferencesPage = lazy(() => import('@/pages/PreferencesPage').then((m) => ({ default: m.PreferencesPage })));
 const BookingPage = lazy(() => import('@/pages/BookingPage').then((m) => ({ default: m.BookingPage })));
@@ -1506,6 +1508,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <FindingsPackagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/win-cards"
+          element={
+            <ProtectedRoute>
+              <WinCardsPage />
             </ProtectedRoute>
           }
         />
@@ -2647,6 +2657,7 @@ function AppRoutes() {
         <Route path="/sign/:token" element={<SignDocumentPage />} />
         <Route path="/inspection/:token" element={<InspectionReportPublicPage />} />
         <Route path="/summary/:token" element={<JobSummaryPublicPage />} />
+        <Route path="/win/:token" element={<WinCardPublicPage />} />
         <Route path="/data-room" element={<ExitDataRoomPublicPage />} />
         <Route path="/findings/:token" element={<FindingsPackagePublicPage />} />
         <Route path="/invoice/:token" element={<InvoicePage />} />
