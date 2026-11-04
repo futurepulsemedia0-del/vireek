@@ -89,6 +89,13 @@ import { getFeatureGate, recordProvenanceSidecar } from "../_shared/ai-transpare
 import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
 import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
+import { createSupabasePorts, promptCanaries } from "../_shared/voice-security/ports.ts";
+import { finalizeToolResult, guardToolCall, type GateResult } from "../_shared/voice-security/gate.ts";
+import { completeVerification, requestVerification } from "../_shared/voice-security/verifyTools.ts";
+import { deriveCallKind } from "../_shared/voice-security/toolPolicy.ts";
+import { neutralizeUntrusted } from "../_shared/voice-security/outputFilter.ts";
+import { scanPromptInjection } from "../_shared/ai-core/aiSecurity.ts";
+import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
 import { captureVerticalIntake, loadVerticalContext, resolveVoiceAssistantTenant } from "../_shared/verticals/context.ts";
 import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
 import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
@@ -527,7 +534,19 @@ async function buildCustomerMemoryContextVariable(
 
   if (!memories || memories.length === 0) return "";
 
-  const lines = memories.map((m) => `- ${m.fact}`).join("\n");
+  // Memory is keyed by the (spoofable) caller ID and is stored text, so: only low-risk categories go into the prompt
+  // (access_info / property_detail / note stay out until a verified tool call), and every fact is neutralized.
+  const scan = (t: string) => {
+    const s = scanPromptInjection(t);
+    return { score: s.score, rules: s.rules };
+  };
+  const lines = memories
+    .filter((m) => m.category === "preference" || m.category === "recurring_issue")
+    .map((m) => neutralizeUntrusted(String(m.fact ?? ""), { source: "customer_memory", maxChars: 300, scan }).text)
+    .filter((t): t is string => !!t)
+    .map((t) => `- ${t}`)
+    .join("\n");
+  if (!lines) return "";
   return `Known facts about this returning customer from prior calls (use naturally, don't recite as a list):\n${lines}`;
 }
 
@@ -750,7 +769,17 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
 
   // Voice picker: Voice Platform (API-created) assistants keep the voice configured on the assistant itself.
   const tenantVoice = tenant.voiceAssistantId ? undefined : resolveVapiVoice(tenant.assistantVoice);
+  // Per-tenant prompt canary: placed in the assistant prompt as {{security_ref}}; seeing it in a transcript = prompt leak.
+  let securityRef = "";
+  try {
+    const sec = Deno.env.get("VOICE_OTP_HMAC_SECRET") ?? "";
+    if (sec.length >= 32) securityRef = (await promptCanaries(sec, tenant.userId, Date.now()))[0] ?? "";
+  } catch {
+    securityRef = "";
+  }
+
   const sharedVariableValues = {
+    security_ref: securityRef,
     caller_context: callerContext,
     customer_type_context: customerTypeContext,
     surge_context: surgeContext,
@@ -1004,6 +1033,30 @@ async function handleTransferDestinationRequest(
 // ---------------------------------------------------------------------------
 // tool-calls
 // ---------------------------------------------------------------------------
+
+/**
+ * Voice-security ports (gate, step-up verification, audit, kill switch). Returns null when VOICE_OTP_HMAC_SECRET is
+ * missing/short: the caller then fails CLOSED (only the safety tools stay available).
+ */
+function getVoiceSecurity(admin: SupabaseClient) {
+  const secret = Deno.env.get("VOICE_OTP_HMAC_SECRET") ?? "";
+  if (secret.length < 32) {
+    console.error(JSON.stringify({ event: "voice_security_secret_missing" }));
+    return null;
+  }
+  return createSupabasePorts(admin, {
+    secret,
+    scanInjection: (t) => {
+      const s = scanPromptInjection(t);
+      return { score: s.score, rules: s.rules };
+    },
+    // OTPs are only useful immediately: a quiet-hours deferral counts as "not sent".
+    sendSms: async (tenantId, to, body, customerId) => {
+      const r = await sendCompliantSms(admin, tenantId, to, body, { purpose: "service", customerId, source: "voice_step_up", onQuiet: "caller" });
+      return r.ok && !r.deferred;
+    },
+  });
+}
 
 function parseToolArguments(raw: unknown): Record<string, unknown> {
   if (raw == null) return {};
@@ -1925,20 +1978,46 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
   const vapiCallId = message.call?.id;
   const callerNumber = message.call?.customer?.number ?? null;
   const callerName = message.call?.customer?.name ?? null;
+  const vs = getVoiceSecurity(admin);
+  const callRef = {
+    callId: vapiCallId ?? null,
+    kind: deriveCallKind((message.call as { type?: unknown } | undefined)?.type),
+    callerNumber,
+    dialedNumberId: message.call?.phoneNumberId ?? null,
+  };
 
   const results = await Promise.all(
     toolCalls.map(async (tc) => {
       const toolCallId = tc.id ?? tc.toolCallId ?? "";
       const name = tc.function?.name ?? "";
-      const args = parseToolArguments(tc.function?.arguments);
+       const rawArgs = parseToolArguments(tc.function?.arguments);
+      let args = rawArgs;
 
       logEvent("tool_call_received", requestId, { user_id: tenant.userId, tool: name });
 
       let result: string;
+      let gate: Extract<GateResult, { allow: true }> | null = null;
       try {
+        // Voice-security gate: tool arguments are attacker-influenced (see docs/security/voice-threat-model.md).
+        if (!vs) {
+          if (name !== "flag_emergency_call" && name !== "request_human_transfer") {
+            logEvent("voice_security_unavailable", requestId, { tool: name });
+            return { toolCallId, result: "This action isn't available right now. Tell the caller the office will follow up, and offer a transfer to a team member." };
+          }
+        } else {
+          const g = await guardToolCall(vs, { tenantId: tenant.userId, tool: name, rawArgs, call: callRef });
+          if (!g.allow) {
+            logEvent("tool_call_denied", requestId, { tool: name, code: g.code });
+            return { toolCallId, result: g.spoken };
+          }
+          gate = g;
+          args = g.args;
+        }
         switch (name) {
           case "lookup_customer":
-            result = await toolLookupCustomer(admin, tenant, args, callerNumber);
+            result = gate?.minimal
+              ? "The caller is recognized by caller ID only. Do not read back any account details. Ask how you can help; for account-specific requests call request_verification first."
+              : await toolLookupCustomer(admin, tenant, args, callerNumber);
             break;
           case "check_availability":
             result = await voiceCheckAvailability(admin, tenant.userId, args);
@@ -1994,6 +2073,19 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
           case "capture_vertical_intake":
             result = await captureVerticalIntake(admin, { userId: tenant.userId, voiceAssistantId: tenant.voiceAssistantId ?? null, vapiCallId }, args);
             break;
+           case "request_verification":
+            result = vs ? await requestVerification(vs, tenant.userId, callRef) : "Verification isn't available on this call.";
+            break;
+          case "verify_caller":
+            result = vs
+              ? await completeVerification(vs, tenant.userId, callRef, {
+                  code: typeof args.code === "string" ? args.code : undefined,
+                  zip: typeof args.zip === "string" ? args.zip : undefined,
+                  street_number: typeof args.street_number === "string" ? args.street_number : undefined,
+                  last_name: typeof args.last_name === "string" ? args.last_name : undefined,
+                })
+              : "Verification isn't available on this call.";
+            break;
           default:
             logEvent("tool_call_unknown", requestId, { tool: name });
             result = `Tool "${name}" is not implemented by this webhook.`;
@@ -2003,6 +2095,10 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
         result = "Something went wrong handling this action — please continue the call and have the office follow up.";
       }
 
+      // Output filter: canaries, secrets, other people's PII, and (below step-up) sensitive account data never reach the model.
+      if (vs && gate) {
+        result = await finalizeToolResult(vs, { tenantId: tenant.userId, tool: name, rawArgs, call: callRef }, gate, result);
+      }
       return { toolCallId, result };
     }),
   );
@@ -2055,6 +2151,15 @@ async function toolCollectCardPayment(
   try {
     const ports = await buildPorts(admin);
     let jobId = typeof args.job_id === "string" && UUID_RE.test(args.job_id) ? args.job_id : null;
+    if (jobId) {
+      // A model-supplied job id must belong to this tenant AND to the caller's number (no paying/probing someone else's invoice).
+      const callerLast10 = (callerNumber ?? "").replace(/\D/g, "").slice(-10);
+      const { data: own } = await admin.from("jobs").select("customer_phone").eq("id", jobId).eq("user_id", tenant.userId).maybeSingle();
+      const ownLast10 = ((own as { customer_phone: string | null } | null)?.customer_phone ?? "").replace(/\D/g, "").slice(-10);
+      if (!own || callerLast10.length !== 10 || ownLast10 !== callerLast10) {
+        return "I couldn't match that invoice to this caller. Offer a secure payment link sent to the number on file.";
+      }
+    }
     if (!jobId) {
       const last10 = (callerNumber ?? "").replace(/\D/g, "").slice(-10);
       if (last10.length !== 10) return "I couldn't tell which invoice to pay. Ask the caller for the job, or offer a secure payment link.";
@@ -2212,6 +2317,18 @@ const pciSess = vapiCallId
   : { data: null };
 const pci = redactCallTranscript(message.transcript ?? message.artifact?.transcript ?? null, { hadCapture: !!pciSess.data });
 transcript = pci.text;
+      try {
+        // Prompt-leak detection: the tenant's prompt canary must never appear in what was said on the call.
+        const sec = Deno.env.get("VOICE_OTP_HMAC_SECRET") ?? "";
+        if (sec.length >= 32 && transcript) {
+          const canaries = await promptCanaries(sec, tenant.userId, Date.now());
+          if (canaries.some((c) => transcript?.includes(c))) {
+            await getVoiceSecurity(admin)?.audit(tenant.userId, { kind: "prompt_leak_in_transcript", severity: "critical", callId: vapiCallId ?? null, tool: "end_of_call", decision: "info", code: "prompt_canary_in_transcript" });
+          }
+        }
+      } catch (err) {
+        console.error("[voice-security] transcript canary scan failed:", err);
+      }
       try {
         const turns = extractTurnLatencies(message);
         if (vapiCallId && turns.length) {
