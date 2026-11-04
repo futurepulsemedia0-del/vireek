@@ -5,6 +5,8 @@ npm-debug.log*
 
 # Dependencies
 node_modules
+# Voice red-team scorecard output (history.jsonl is tracked/cached)
+eval/voice-redteam/out/
 
 # Build output
 dist
