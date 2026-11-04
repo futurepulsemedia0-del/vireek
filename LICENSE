@@ -1,0 +1,11 @@
+Copyright (c) Vireek. All rights reserved.
+
+This repository and its contents are proprietary and confidential. No licence is
+granted to copy, modify, distribute, sublicense, or use the source code except
+under a written agreement with Vireek.
+
+Third-party components are used under their own licences (see package.json,
+package-lock.json and supabase function imports).
+
+NOTE FOR OWNER: confirm the legal entity name and replace "Vireek" with it if
+different. This notice is not legal advice; have counsel review it.
