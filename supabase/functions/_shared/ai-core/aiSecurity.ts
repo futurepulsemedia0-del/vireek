@@ -184,7 +184,8 @@ const INJECTION_RULES: InjectionRule[] = [
   { id: "override_multilingual", weight: 45, re: /(ignora(r)?\s+((todas|tus|sus|las)\s+)*instrucciones|ignore[zr]?\s+(toutes\s+)?les\s+instructions|ignoriere\s+(alle\s+)?(vorherigen\s+)?anweisungen|نادیده\s*بگیر|دستورال?عمل(‌|\s)?های?\s*(قبلی|بالا)|تجاهل\s+(جميع\s+)?التعليمات)/i },
   { id: "role_hijack", weight: 30, re: /\b(you\s+are\s+now|from\s+now\s+on\s+you|new\s+persona|pretend\s+(to\s+be|you\s+are)|roleplay\s+as|act\s+as\s+(if|though|an?\s+unrestricted))\b/i },
   { id: "prompt_exfiltration", weight: 50, re: /\b(reveal|show|print|output|repeat|leak|dump)\b.{0,40}\b(system\s+prompt|hidden\s+(instructions|prompt)|initial\s+(prompt|instructions)|your\s+instructions)\b/is },
-  { id: "jailbreak_keywords", weight: 40, re: /\b(jailbreak|dan\s+mode|developer\s+mode|do\s+anything\s+now|no\s+restrictions|unfiltered\s+mode)\b/i },
+  { id: "prompt_exfiltration_questions", weight: 40, re: /\b(what\s+(are|is)|tell\s+me|translate|summari[sz]e|complete\s+the\s+sentence.{0,40})\b.{0,30}\b(your\s+(system\s+prompt|instructions)|system\s+prompt\s+says)\b/is },
+  { id: "jailbreak_keywords", weight: 40, re: /\b(jailbreak|dan\s+mode|developer\s+mode|do\s+anything\s+now|no\s+restrictions|unfiltered\s+mode|safety\s+mode\s+(off|disabled)|disable\s+(your\s+)?(safety|guardrails))\b/i },
   { id: "fake_role_delimiters", weight: 40, re: /(^|\n)\s*(system|assistant)\s*:|<\|?(im_start|im_end|system|endoftext)\|?>|\[\/?(INST|SYS|SYSTEM|ASSISTANT)\]|#{2,3}\s*(system|new\s+instructions?)/i },
   { id: "tool_abuse", weight: 45, re: /\b(call|invoke|execute|run)\b.{0,30}\b(tool|function|api|webhook|sql|query)\b.{0,60}\b(delete|drop|truncate|export|transfer|refund)\b/is },
   { id: "bulk_data_exfiltration", weight: 50, re: /\b(send|post|forward|email|upload|exfiltrate|transmit)\b.{0,60}\b(all|every|entire|full|complete)\b.{0,40}\b(customers?|contacts?|records?|database|credentials|keys?)\b/is },
@@ -205,7 +206,8 @@ export interface InjectionScan {
 export function scanPromptInjection(input: string): InjectionScan {
   const raw = input.slice(0, MAX_SCAN_CHARS);
   const invisibleCount = (raw.match(INVISIBLE_RE) ?? []).length;
-  const normalized = raw.normalize("NFKC").replace(INVISIBLE_RE, "");
+// Collapse "i g n o r e"-style single-letter spacing (common in speech-to-text and filter evasion) for scanning only.
+  const normalized = raw.normalize("NFKC").replace(INVISIBLE_RE, "").replace(/(?<=\b[A-Za-z]) (?=[A-Za-z]\b)/g, "");
 
   const hits: InjectionRule[] = [];
   for (const rule of INJECTION_RULES) {
