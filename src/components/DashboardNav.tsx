@@ -334,6 +334,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Call Flows', href: '/dashboard/calls/flows', icon: GitBranch, requiresPermission: 'can_manage_numbers' },
   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
+  { label: 'Chief of Staff', href: '/dashboard/chief-of-staff', icon: Compass },
   { label: 'Decision Engine', href: '/dashboard/decision-engine', icon: Cpu, requiresPermission: 'can_view_billing' },
   { label: 'Ask Vireek', href: '/dashboard/ask-vireek', icon: BrainCircuit, requiresPermission: 'can_view_billing' },
   { label: 'Causal World Simulator', href: '/dashboard/causal-simulator', icon: GitBranch, requiresPermission: 'can_view_billing' },
