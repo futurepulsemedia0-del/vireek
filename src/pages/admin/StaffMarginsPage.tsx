@@ -21,7 +21,8 @@ import {
   buildPlanStats, buildTenantMargins, cohortStats, defaultAssumptions, freeTierSummary, measuredCostPerMinute, negativeMarginOrgs,
   priceUsageEvents, summarizeMargins, topCostDrivers, type MarginExtras, type UeReport, type UsageEventTotal,
 } from '@/lib/marginDashboard';
-import { UnitEconomicsError, fetchMarginExtras, fetchUnitEconomics, fetchUsageEvents, listRates, type RateRow } from '@/lib/unitEconomicsApi';
+import { UnitEconomicsError, fetchAiUsage, fetchMarginExtras, fetchUnitEconomics, fetchUsageEvents, listRates, type RateRow } from '@/lib/unitEconomicsApi';
+import { aiCostByAccount, aiCoverageByModel, aiPricingSummary, applyAiRepricing, priceAiRows, type AiUsageBreakdown } from '@/lib/aiRepricing';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -55,6 +56,7 @@ export function StaffMarginsPage() {
   const [events, setEvents] = useState<UsageEventTotal[]>([]);
   const [rates, setRates] = useState<RateRow[]>([]);
   const [usage, setUsage] = useState<UsageReport | null>(null);
+  const [aiUsage, setAiUsage] = useState<AiUsageBreakdown>({ rows: [], truncated: false });
 
   useEffect(() => {
     const meta = document.createElement('meta');
@@ -70,9 +72,9 @@ export function StaffMarginsPage() {
     const w = periodWindow(period);
     if (silent) setRefreshing(true); else setState('loading');
     try {
-      const [u, x, e, r, d] = await Promise.all([fetchUnitEconomics(w.start, w.end), fetchMarginExtras(w.start, w.end), fetchUsageEvents(w.start, w.end), listRates(), fetchUsageReport(w.start, w.end)]);
+         const [u, x, e, r, d, ai] = await Promise.all([fetchUnitEconomics(w.start, w.end), fetchMarginExtras(w.start, w.end), fetchUsageEvents(w.start, w.end), listRates(), fetchUsageReport(w.start, w.end), fetchAiUsage(w.start, w.end)]);
       if (id !== loadId.current) return;
-      setUe(u); setExtras(x); setEvents(e); setRates(r); setUsage(d); setWin(w); setState('ready');
+      setUe(u); setExtras(x); setEvents(e); setRates(r); setUsage(d); setAiUsage(ai); setWin(w); setState('ready');
     } catch (err) {
       if (id !== loadId.current) return;
       if (err instanceof UnitEconomicsError && err.forbidden) setState('forbidden');
@@ -92,7 +94,15 @@ export function StaffMarginsPage() {
   }, [fallbackInput]);
   const commitFallback = () => { try { localStorage.setItem(CPM_KEY, fallbackInput); } catch { /* session-only */ } };
 
-  const margins = useMemo(() => (ue ? buildTenantMargins(ue.tenants, { fallbackVoiceCpm: fallbackCpm, days: win.days }) : []), [ue, fallbackCpm, win.days]);
+  // AI cost: re-priced from your provider rate table where rates exist; otherwise the logged list price (see AI pricing coverage).
+  const pricedAi = useMemo(() => priceAiRows(aiUsage.rows, rates, new Date().toISOString().slice(0, 10)), [aiUsage, rates]);
+  const aiSummary = useMemo(() => aiPricingSummary(pricedAi), [pricedAi]);
+  const aiCoverage = useMemo(() => aiCoverageByModel(pricedAi), [pricedAi]);
+  const margins = useMemo(
+    () => (ue ? buildTenantMargins(applyAiRepricing(ue.tenants, aiCostByAccount(pricedAi), aiUsage.truncated), { fallbackVoiceCpm: fallbackCpm, days: win.days }) : []),
+    [ue, pricedAi, aiUsage.truncated, fallbackCpm, win.days],
+  );
+  
   const summary = useMemo(() => summarizeMargins(margins), [margins]);
   const plans = useMemo(() => buildPlanStats(margins), [margins]);
   const measuredCpm = useMemo(() => measuredCostPerMinute(margins), [margins]);
