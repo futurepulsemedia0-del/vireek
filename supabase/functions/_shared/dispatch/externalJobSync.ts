@@ -14,6 +14,7 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { refreshJobberTokenIfNeeded } from "../price-book/jobber.ts";
 import { createServiceTitanJob, type ServiceTitanJobConfig } from "../price-book/servicetitanJobs.ts";
 import { createHousecallProJob } from "../price-book/housecallpro.ts";
+import { hydrateRow, saveSecrets } from "../secrets/providerCredentials.ts";
 
 export interface BookedJobForSync {
   id: string;
@@ -315,7 +316,13 @@ export async function syncJobToExternalProviders(
 
   if (!connections || connections.length === 0) return;
 
-  for (const connection of connections as PriceBookConnectionRow[]) {
+  for (const stored of connections as PriceBookConnectionRow[]) {
+  let connection = stored;
+  try {
+    connection = await hydrateRow(admin, userId, stored);
+  } catch (error) {
+    console.error(JSON.stringify({ event: "credential_hydrate_failed", provider: stored.provider, error: error instanceof Error ? error.message : String(error) }));
+  }
     if (connection.provider === "jobber") {
       await pushJobToJobber(admin, userId, connection, job);
     }
