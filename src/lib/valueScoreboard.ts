@@ -176,7 +176,7 @@ export function subscriptionFor(ctx: Pick<BoardContext, 'plan' | 'currency' | 's
   return list === null ? null : { cents: list, currency: 'USD' };
 }
 
-const EVENT_COLUMNS = 'id,source_feature,type,amount,unit,currency,confidence,method_note,evidence_ref,supersedes_ref,occurred_at';
+const EVENT_COLUMNS = 'id,source_feature,type,amount,unit,currency,confidence,method_note,evidence_ref,supersedes_ref,occurred_at,ci_low:ci_low_cents,ci_high:ci_high_cents';
 
 export async function loadScoreboard(ctx: BoardContext): Promise<Scoreboard> {
   const window = monthWindowFor(ctx.month, ctx.timezone);
