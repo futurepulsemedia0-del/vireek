@@ -3,6 +3,7 @@ import { fetchServiceTitanPricebook } from "../_shared/price-book/servicetitan.t
 import { fetchJobberProducts, refreshJobberTokenIfNeeded } from "../_shared/price-book/jobber.ts";
 import { upsertPriceBookItems } from "../_shared/price-book/upsert.ts";
 import type { PriceBookConnectionRow } from "../_shared/price-book/types.ts";
+import { hydrateRow, saveSecrets } from "../_shared/secrets/providerCredentials.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,13 +41,15 @@ async function syncOneConnection(admin: SupabaseClient, conn: PriceBookConnectio
       });
       const accessToken = refreshed?.access_token ?? conn.jobber_access_token;
 
-      if (refreshed) {
-        await admin.from("price_book_connections").update({
-          jobber_access_token: refreshed.access_token,
-          jobber_refresh_token: refreshed.refresh_token,
-          jobber_token_expires_at: refreshed.expires_at,
-        }).eq("id", conn.id);
-      }
+ await saveSecrets(admin, conn.user_id, "jobber", {
+  jobber_access_token: refreshed.access_token,
+  jobber_refresh_token: refreshed.refresh_token,
+});
+await admin.from("price_book_connections").update({
+  jobber_access_token: null,
+  jobber_refresh_token: null,
+  jobber_token_expires_at: refreshed.expires_at,
+}).eq("id", conn.id);
 
       const items = await fetchJobberProducts(accessToken);
       return await upsertPriceBookItems(admin, conn.user_id, "jobber", items);
@@ -85,6 +88,16 @@ Deno.serve(async (req: Request) => {
       connections = (data as PriceBookConnectionRow[]) || [];
     }
 
+connections = await Promise.all(
+  connections.map(async (c) => {
+    try {
+      return await hydrateRow(admin, c.user_id, c);
+    } catch (err) {
+      console.error(JSON.stringify({ event: "credential_hydrate_failed", provider: c.provider, error: err instanceof Error ? err.message : String(err) }));
+      return c;
+    }
+  }),
+);
     if (connections.length === 0) return jsonResponse({ error: "No connected CRM to sync." }, 400);
 
     const results = await Promise.all(
