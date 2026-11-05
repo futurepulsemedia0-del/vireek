@@ -1,0 +1,127 @@
+{
+  "page": {
+    "title": "Phone resilience",
+    "subtitle": "See how your phones are being answered right now, set who gets called if the AI assistant is down, and prove your carrier forwards missed calls to Vireek.",
+    "noAccess": { "title": "Phone resilience is limited to account managers", "description": "Ask the account owner for business-profile access to change how calls are handled when the AI assistant is unavailable." },
+    "loadError": "Couldn't load phone resilience",
+    "tabsLabel": "Phone resilience sections",
+    "tabs": { "status": "Status", "settings": "Backup handling", "wizard": "Carrier safety net" },
+    "refresh": "Refresh"
+  },
+  "status": {
+    "levelLabel": "Level {{level}}",
+    "platformTitle": "Right now",
+    "since": "Since {{when}}",
+    "tone": { "ok": "Normal", "warn": "Degraded", "critical": "Backup only" },
+    "forcedNote": "Your account is set to level {{level}} until {{until}}. Automatic changes are paused for your calls.",
+    "ladderTitle": "How a call is handled at each level",
+    "current": "Current",
+    "levels": {
+      "0": { "name": "Full AI assistant", "desc": "The assistant answers, books and looks things up." },
+      "1": { "name": "Reduced assistant", "desc": "Still answers every call and takes name, number, address and emergencies, but cannot book or look things up." },
+      "2": { "name": "Voicemail and instant alert", "desc": "Callers hear an emergency option and can leave a message. You get the transcript by text." },
+      "3": { "name": "Forward to your team", "desc": "Calls ring your on-call phones in order, then fall back to voicemail." },
+      "4": { "name": "Recorded message", "desc": "A recorded message with emergency instructions plays." }
+    },
+    "recentTitle": "Calls handled by backup",
+    "recentEmpty": { "title": "No backup-handled calls", "description": "Calls that skip the AI assistant will appear here with what happened to each one." },
+    "columns": { "when": "When", "level": "Level", "outcome": "Outcome" },
+    "emergency": "Emergency",
+    "outcome": {
+      "entered": "Sent to the assistant",
+      "voicemail": "Voicemail taken",
+      "forwarded": "Forwarded to your team",
+      "static": "Recorded message played",
+      "emergencyForwarded": "Emergency connected to your team",
+      "abandoned": "Caller hung up, call back needed"
+    }
+  },
+  "settings": {
+    "title": "Backup handling",
+    "intro": "These apply whenever the AI assistant cannot take a call. Calls are never dropped: they are forwarded, recorded or answered with a message.",
+    "forwardLabel": "Numbers to ring (in order)",
+    "forwardHelp": "One per line, up to {{max}}. Include the country code, for example +15551234567.",
+    "staticLabel": "Recorded message (last resort)",
+    "staticHelp": "Played only when nothing else can handle the call. Leave empty to use our default. Emergency instructions are always added.",
+    "counter": "{{count}} of {{max}} characters",
+    "languageLabel": "Language of backup prompts",
+    "lang": { "en": "English", "es": "Spanish" },
+    "assistantLabel": "Reduced assistant ID",
+    "assistantHelp": "The ID of a short, no-tools assistant created in your voice provider. Leave empty if you don't have one yet.",
+    "alertSms": "Text me when call handling changes",
+    "alertSmsHelp": "One message when the assistant degrades or recovers. In-app notices are always sent.",
+    "frontDoor": "Route this account's numbers through the backup front door",
+    "frontDoorHelp": "Turn on only after your support contact has pointed your numbers at it and the test below has passed.",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Backup handling saved.",
+    "noChanges": "No changes to save.",
+    "errors": {
+      "forwardInvalid": "These aren't valid phone numbers: {{list}}",
+      "forwardTooMany": "Use at most {{max}} numbers.",
+      "staticTooLong": "Keep the message under {{max}} characters.",
+      "assistantInvalid": "Use 8 to 64 letters, numbers, dashes or underscores."
+    },
+    "override": {
+      "title": "Pin call handling for a while",
+      "help": "Use this when you know the assistant should not answer, for example during an incident, or to test your backup. It expires automatically.",
+      "levelLabel": "Handle calls at",
+      "minutesLabel": "For how long (minutes)",
+      "apply": "Apply",
+      "applying": "Applying…",
+      "clear": "Return to automatic",
+      "applied": "Call handling pinned.",
+      "cleared": "Back to automatic.",
+      "invalid": "Choose a level and 1 to 1440 minutes."
+    }
+  },
+  "wizard": {
+    "title": "Carrier safety net",
+    "intro": "Set your own phone line to forward to Vireek when you don't answer or can't be reached. Then prove it works with a real test call.",
+    "familyLabel": "Who provides your business phone line?",
+    "family": {
+      "gsm_standard": "AT&T, T-Mobile or another mobile carrier",
+      "verizon": "Verizon",
+      "landline_voip_pbx": "Landline, VoIP or office phone system"
+    },
+    "numberLabel": "Vireek number to forward to",
+    "noNumbers": { "title": "No Vireek number yet", "description": "Add a phone number to your account first, then come back to set up forwarding." },
+    "businessLabel": "Your business line",
+    "businessHelp": "We call this number for the test. It must be the phone number saved on your account.",
+    "loadPlan": "Show dial codes",
+    "loadingPlan": "Loading…",
+    "planTitle": "Dial these on your business phone",
+    "kind": { "no_answer": "Forward when you don't answer", "unreachable": "Forward when your phone is off or out of coverage", "busy": "Forward when the line is busy" },
+    "code": { "activate": "Turn on", "cancel": "Turn off", "status": "Check status" },
+    "confidence": { "standard": "Standard code", "commonly_documented": "Confirm with your carrier", "ask_carrier": "No universal code" },
+    "noCode": "No universal code exists for this. Set “forward when no answer” in your provider's account or phone-system settings, then run the test.",
+    "testTitle": "Prove it works",
+    "testOnHelp": "We'll call your business line. Let it ring and do not answer. If forwarding works, the call arrives at Vireek.",
+    "testOffHelp": "After turning forwarding off, we'll call again. It should ring out on your phone and must not reach Vireek.",
+    "testOn": "Test forwarding is on",
+    "testOff": "Test forwarding is off",
+    "starting": "Placing the test call…",
+    "watching": "Waiting for the result… {{seconds}} s",
+    "copy": "Copy",
+    "copied": "Copied",
+    "tip": "Turn off your carrier's own voicemail for this line, or it may answer before the forward happens.",
+    "retry": "Try again",
+    "result": {
+      "pendingOn": { "title": "Test call in progress", "body": "Let your phone ring. Do not answer." },
+      "pendingOff": { "title": "Test call in progress", "body": "Let your phone ring out. It should not reach Vireek." },
+      "passedOn": { "title": "Forwarding works", "body": "The test call reached Vireek from your business line. Missed calls will be caught." },
+      "passedOff": { "title": "Forwarding is off", "body": "The test call rang out on your phone and did not reach Vireek." },
+      "failedOn": { "title": "The call did not reach Vireek", "body": "Check the dial code, that forwarding applies to your plan, and that carrier voicemail is off. Then try again." },
+      "failedOff": { "title": "The call still reached Vireek", "body": "Forwarding appears to still be on. Dial the turn-off code and try again." },
+      "answered": { "title": "Your phone was answered", "body": "A forward can only happen if nobody picks up. Run the test again and let it ring." },
+      "expired": { "title": "We couldn't confirm the result", "body": "The test call didn't finish as expected. Try again." },
+      "error": { "title": "The test call failed", "body": "We couldn't place the call. Try again in a minute." }
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "tooMany": "Too many test calls this hour. Try again later.",
+    "forbidden": "That number isn't on your account.",
+    "notConfigured": "Test calls aren't switched on for your account yet. Contact support."
+  }
+}
