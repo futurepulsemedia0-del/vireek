@@ -282,6 +282,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Goals', href: '/dashboard/goals', icon: Target },
   { label: 'Coaching Reports', href: '/dashboard/coaching-reports', icon: GraduationCap, requiresPermission: 'can_view_billing' },
   { label: 'Price Accuracy', href: '/dashboard/price-accuracy', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+  { label: 'Price Playbook', href: '/dashboard/price-playbook', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Voicemails', href: '/dashboard/voicemails', icon: Voicemail },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Lead Assignment', href: '/dashboard/lead-assignment', icon: Shuffle, requiresPermission: 'can_manage_team' },
