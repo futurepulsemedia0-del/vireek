@@ -229,7 +229,7 @@ function createDeps(admin: SupabaseClient): AutoReplyDeps {
   return {
     store: createStore(admin),
 
-    async searchKnowledge(userId, question, channel) {
+    async searchKnowledge(userId, question, channel, meta) {
       // audience "ai": articles marked 'team' (internal notes) can never be quoted to a customer.
       const result = await searchKnowledge(admin, userId, question, { audience: "ai", limit: 3 });
       const classification = classifyEpistemicBoundary(result, result.semantic);
