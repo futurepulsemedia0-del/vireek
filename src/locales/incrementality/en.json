@@ -1,0 +1,14 @@
+{
+  "title": "Incremental value (experimentally measured)",
+  "intro": "This is a separate result. It estimates the extra revenue that came from answering calls, compared with what would have happened without an answer. It is never added to the measured or estimated totals above.",
+  "empty": "No experiment results yet. This section only shows results from an experiment you opted into. Nothing is estimated for you here.",
+  "rangeLabel": "Likely range",
+  "pointLabel": "Best estimate",
+  "rangeValue": "{{low}} to {{high}}",
+  "spansZero": "The range includes zero, so these results are also consistent with no extra revenue.",
+  "excludesZero": "The whole range is above zero. This is evidence of extra revenue, not proof.",
+  "negative": "The whole range is below zero.",
+  "tierBadge": "Experimentally measured",
+  "notBilling": "This figure is for your information. It is not used to calculate any charge.",
+  "period": "Result recorded {{date}}"
+}
