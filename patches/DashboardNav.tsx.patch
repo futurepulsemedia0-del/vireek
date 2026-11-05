@@ -1,0 +1,10 @@
+--- a/src/components/DashboardNav.tsx	2026-11-01 17:20:25.000000000 +0000
++++ b/src/components/DashboardNav.tsx	2026-11-04 03:21:59.153746092 +0000
+@@ -321,6 +321,7 @@
+   { label: 'Call Flows', href: '/dashboard/calls/flows', icon: GitBranch, requiresPermission: 'can_manage_numbers' },
+   { label: 'Usage Dashboard', href: '/dashboard/usage', icon: Gauge, requiresPermission: 'can_view_billing' },
+   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
++  { label: 'Chief of Staff', href: '/dashboard/chief-of-staff', icon: Compass },
+   { label: 'Decision Engine', href: '/dashboard/decision-engine', icon: Cpu, requiresPermission: 'can_view_billing' },
+   { label: 'Ask Vireek', href: '/dashboard/ask-vireek', icon: BrainCircuit, requiresPermission: 'can_view_billing' },
+   { label: 'Causal World Simulator', href: '/dashboard/causal-simulator', icon: GitBranch, requiresPermission: 'can_view_billing' },
