@@ -1,0 +1,94 @@
+// supabase/functions/exit-dataroom-public/index.ts
+// 1) Ctrl+F:  const MAX_BODY_BYTES = 2048;   -> replace that ONE line with these four lines:
+const MAX_BODY_BYTES = 8192;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DOCUMENTS_BUCKET = "documents";
+const SIGNED_URL_SECONDS = 60;
+
+// 2) Ctrl+F:  const raw = await req.text();   -> DELETE from that line down to the very end of the file
+//    (everything after it inside Deno.serve) and paste the block below in its place. Keep the lines above it unchanged.
+
+  const raw = await req.text();
+  if (raw.length > MAX_BODY_BYTES) return json({ error: "NOT_FOUND" }, 404);
+  let body: Record<string, unknown>;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return json({ error: "NOT_FOUND" }, 404);
+    body = parsed as Record<string, unknown>;
+  } catch {
+    return json({ error: "NOT_FOUND" }, 404);
+  }
+  const token = body.token;
+  if (typeof token !== "string" || !TOKEN_RE.test(token)) return json({ error: "NOT_FOUND" }, 404);
+  const action = body.action === undefined ? "open" : body.action;
+  if (typeof action !== "string") return json({ error: "NOT_FOUND" }, 404);
+
+  const url = Deno.env.get("SUPABASE_URL") ?? "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  if (!url || !serviceKey) return json({ error: "SERVER_ERROR" }, 500);
+  const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
+
+  try {
+    const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
+    const tokenHash = await sha256Hex(token);
+    const ipHash = await hmacHex(serviceKey, ip);
+
+    // ---- open / refresh: legacy rooms return the frozen package; staged rooms return the stage-gated payload.
+    if (action === "open" || action === "refresh") {
+      const call = action === "open"
+        ? await admin.rpc("exit_dataroom_open", { p_token_hash: tokenHash, p_ip_hash: ipHash, p_user_agent: req.headers.get("user-agent") ?? "" })
+        : await admin.rpc("exit_dataroom_refresh", { p_token_hash: tokenHash });
+      if (call.error) return json({ error: "SERVER_ERROR" }, 500);
+      const result = call.data as { outcome?: string } & Record<string, unknown>;
+      if (result.outcome === "rate_limited") return json({ error: "RATE_LIMITED" }, 429);
+      // Do not tell the caller *why* a link is unusable.
+      if (result.outcome !== "granted") return json({ error: "UNAVAILABLE" }, 404);
+      const { outcome: _outcome, ...rest } = result;
+      return json(rest);
+    }
+
+    // ---- NDA acceptance (records name, email domain-level audit, time; the NDA text hash is stored server-side)
+    if (action === "accept_nda") {
+      const name = typeof body.name === "string" ? body.name : "";
+      const email = typeof body.email === "string" ? body.email : "";
+      const { data, error } = await admin.rpc("exit_dataroom_accept_nda", {
+        p_token_hash: tokenHash, p_ip_hash: ipHash, p_signer_name: name, p_signer_email: email, p_agree: body.agree === true,
+      });
+      if (error) return json({ error: "SERVER_ERROR" }, 500);
+      const outcome = (data as { outcome?: string }).outcome;
+      if (outcome === "accepted" || outcome === "already_accepted") return json({ outcome });
+      if (outcome === "invalid") return json({ error: "INVALID" }, 400);
+      return json({ error: "UNAVAILABLE" }, 404);
+    }
+
+    // ---- buyer question
+    if (action === "ask") {
+      const question = typeof body.question === "string" ? body.question : "";
+      const { data, error } = await admin.rpc("exit_dataroom_ask", { p_token_hash: tokenHash, p_ip_hash: ipHash, p_question: question });
+      if (error) return json({ error: "SERVER_ERROR" }, 500);
+      const outcome = (data as { outcome?: string }).outcome;
+      if (outcome === "asked") return json({ outcome });
+      if (outcome === "invalid") return json({ error: "INVALID" }, 400);
+      if (outcome === "nda_required") return json({ error: "NDA_REQUIRED" }, 403);
+      if (outcome === "rate_limited") return json({ error: "RATE_LIMITED" }, 429);
+      return json({ error: "UNAVAILABLE" }, 404);
+    }
+
+    // ---- one shared document: authorised + logged in SQL; the file is served by a 60-second signed URL
+    if (action === "document") {
+      const documentId = body.documentId;
+      if (typeof documentId !== "string" || !UUID_RE.test(documentId)) return json({ error: "NOT_FOUND" }, 404);
+      const { data, error } = await admin.rpc("exit_dataroom_authorize_document", { p_token_hash: tokenHash, p_ip_hash: ipHash, p_document_id: documentId });
+      if (error) return json({ error: "SERVER_ERROR" }, 500);
+      const auth = data as { granted?: boolean; storagePath?: string; fileName?: string };
+      if (auth.granted !== true || typeof auth.storagePath !== "string") return json({ error: "UNAVAILABLE" }, 404);
+      const signed = await admin.storage.from(DOCUMENTS_BUCKET).createSignedUrl(auth.storagePath, SIGNED_URL_SECONDS);
+      if (signed.error || !signed.data?.signedUrl) return json({ error: "SERVER_ERROR" }, 500);
+      return json({ url: signed.data.signedUrl, fileName: auth.fileName ?? "document" });
+    }
+
+    return json({ error: "NOT_FOUND" }, 404);
+  } catch {
+    return json({ error: "SERVER_ERROR" }, 500);
+  }
+});
