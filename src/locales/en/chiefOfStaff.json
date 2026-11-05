@@ -1,0 +1,301 @@
+{
+  "title": "Chief of Staff",
+  "subtitle": "One calm place for your goals, the five things worth doing next, and everything your agents are up to.",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing…",
+  "asOf": "Updated {{time}}",
+  "neverRefreshed": "Not refreshed yet",
+  "sourcesFailed": "Some sources could not be read and were left unchanged: {{sources}}.",
+  "states": {
+    "loading": "Loading Chief of Staff",
+    "error": {
+      "title": "Chief of Staff could not load",
+      "body": "Nothing was changed. Check your connection and try again."
+    },
+    "noPermission": {
+      "title": "This page is not available for your role",
+      "body": "Ask the account owner if you need access."
+    }
+  },
+  "killSwitch": {
+    "bannerOn": "Kill switch is ON — every agent action is paused. Nothing will be sent, spent or changed automatically.",
+    "bannerReason": "Reason: {{reason}}"
+  },
+  "goals": {
+    "title": "Goals",
+    "add": "Add goals",
+    "empty": {
+      "title": "No goals yet",
+      "body": "Type your targets or upload a spreadsheet. Vireek reads the numbers, asks at most two questions, and tracks real progress."
+    },
+    "metric": {
+      "revenue": "Revenue",
+      "booked_jobs": "Booked jobs",
+      "answer_rate": "Answer rate",
+      "gross_margin": "Gross margin"
+    },
+    "status": {
+      "ahead": "Ahead",
+      "on_track": "On track",
+      "behind": "Behind",
+      "unavailable": "Not measurable yet"
+    },
+    "unavailable": {
+      "not_enough_data": "Not enough data in this period to measure it honestly.",
+      "query_failed": "The data could not be read. Try refreshing.",
+      "too_large": "Too much data in this period to measure here.",
+      "no_permission": "Requires billing permission."
+    },
+    "period": "{{start}} to {{end}}",
+    "actualOfTarget": "{{actual}} of {{target}}",
+    "measuredFrom": "Measured from: {{basis}}",
+    "expected": "Expected by now: {{value}}",
+    "projected": "At this pace: {{value}}",
+    "remove": "Remove {{metric}} goal",
+    "removed": "Goal removed.",
+    "progressLabel": "{{metric}} progress"
+  },
+  "intake": {
+    "title": "Add your goals",
+    "intro": "Type them in plain words, or upload a CSV/TSV. Every number you see below is copied from what you wrote — nothing is guessed.",
+    "textLabel": "Your goals",
+    "textPlaceholder": "Revenue $50k per month, 120 booked jobs, 90% answer rate, 38% margin",
+    "fileLabel": "Upload a spreadsheet (.xlsx, CSV, TSV or TXT)",
+    "fileHint": "Only the first sheet is read. Formulas are not run — the value Excel last saved is used.",
+    "fileXlsx": "Old Excel formats (.xls, .ods, .numbers) can’t be read. Save the sheet as .xlsx or CSV and upload that.",
+    "sheetRead": "Read the first sheet: {{name}}",
+    "xlsx": {
+      "too_large": "That Excel file is too large (limit 2 MB). Keep only the sheet with your targets.",
+      "not_xlsx": "That file is not a valid .xlsx workbook.",
+      "encrypted": "Password-protected workbooks can’t be read. Remove the password or export to CSV.",
+      "unsupported": "This workbook uses a format that can’t be read. Export it as CSV.",
+      "inflate_unavailable": "This browser can’t open .xlsx files. Export to CSV or use a current browser.",
+      "no_sheet": "The workbook has no sheets.",
+      "too_big_inflated": "The workbook is too large once opened. Keep only the sheet with your targets."
+    },
+    "fileTooLarge": "That file is too large (limit 20 KB). Keep only the rows with your targets.",
+    "fileUnsupported": "Unsupported file type. Use CSV, TSV or TXT.",
+    "fileReadFailed": "The file could not be read.",
+    "fileLoaded": "Loaded {{name}}",
+    "check": "Read my goals",
+    "checking": "Reading…",
+    "parseFailed": "Could not read your goals. Nothing was saved.",
+    "nothingFound": "No targets found. Mention a metric and a number, for example “revenue $50k per month”.",
+    "questionsTitle": "One quick question",
+    "q": {
+      "period": "Which period do these targets cover?",
+      "duplicate_metric": "You listed {{metric}} more than once. Which target is right?",
+      "missing_value": "I could not read a valid number for {{metric}}. Fix it in the box above and read again."
+    },
+    "period": {
+      "week": "This week",
+      "month": "This month",
+      "quarter": "This quarter",
+      "year": "This year"
+    },
+    "previewTitle": "Ready to save",
+    "pendingTitle": "Waiting for your answer",
+    "source": "Read from {{ref}}",
+    "unresolved": "{{count}} item(s) could not be understood and will not be saved.",
+    "warn": {
+      "fraction_converted": "{{ref}}: a value between 0 and 1 was read as a percentage.",
+      "truncated": "The file was long; only the first rows and columns were read.",
+      "input_too_long": "That text is too long. Shorten it and try again."
+    },
+    "confirm": "Save {{count}} goal(s)",
+    "confirming": "Saving…",
+    "saved": "Goals saved.",
+    "saveFailed": "Goals were not saved. Please try again.",
+    "cancel": "Cancel"
+  },
+  "actions": {
+    "title": "Top actions",
+    "subtitle": "Ranked by priority. Nothing here runs by itself — you decide.",
+    "empty": {
+      "title": "Nothing needs you right now",
+      "body": "No capacity gaps, leaks, risks or opportunities were found in your current data. Refresh to check again."
+    },
+    "more": "{{count}} more not shown"
+  },
+  "rec": {
+    "kind": {
+      "capacity_gap": "Capacity",
+      "leak": "Leak",
+      "risk": "Risk",
+      "opportunity": "Opportunity"
+    },
+    "engine": {
+      "next-best-actions": "Next Best Actions",
+      "business-decision-engine": "Decision Engine",
+      "opportunity-cost-scan": "Opportunity Cost",
+      "capacity-demand-control": "Capacity Control",
+      "goal-pace": "Goal pace",
+      "agent-governance": "Approval queue"
+    },
+    "why": "Why it matters",
+    "evidence": "Evidence",
+    "evidenceItem": "{{metric}}: {{value}} — {{table}} {{ref}}",
+    "impact": "Expected impact",
+    "impactNone": "Not estimated",
+    "impactPoint": "About {{value}}",
+    "impactRange": "{{low}} to {{high}}",
+    "impactPointNote": "A single estimate; the source gives no range.",
+    "confidence": "Confidence",
+    "confidenceValue": "{{value}}%",
+    "confidenceNone": "Not scored by the source engine",
+    "owner": "Who should act",
+    "role": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "dispatcher": "Dispatcher",
+      "csr": "Customer service",
+      "any": "Anyone on the team"
+    },
+    "trust": {
+      "title": "Trust checks",
+      "reasoning": "Shows its reasoning",
+      "asks": "Asks before it acts",
+      "tools": "Works inside your existing screens"
+    },
+    "takeOn": "Take this on",
+    "takeOnOpen": "Take this on and open it",
+    "runCommand": "Take this on and review the plan",
+    "inProgress": "You are handling this",
+    "inProgressHint": "Held for you for a few minutes so nobody else does it twice.",
+    "claimedByOther": "A teammate is already handling this.",
+    "open": "Open",
+    "markDone": "Mark as done",
+    "release": "Release",
+    "dismiss": "Dismiss",
+    "dismissAria": "Dismiss: {{title}}",
+    "doneToast": "Marked as done.",
+    "dismissedToast": "Dismissed.",
+    "releasedToast": "Released.",
+    "noAct": "Your role can view this but not act on it.",
+    "claimFailed": "Someone else got there first. The list has been refreshed.",
+    "actionFailed": "That did not go through. Please try again."
+  },
+  "conflicts": {
+    "title": "Coordination",
+    "subtitle": "Where two agents or goals pulled in different directions, and what was held back.",
+    "rule": {
+      "demand_vs_capacity": "Demand vs. capacity",
+      "margin_vs_discount": "Margin vs. discounts",
+      "same_subject_contact": "Same customer, two contacts"
+    },
+    "heldBack": "Held back",
+    "none": "No conflicts between agents right now."
+  },
+  "feed": {
+    "title": "Agent activity",
+    "empty": {
+      "title": "No agent activity yet",
+      "body": "When an agent proposes, runs or gets blocked on an action, it shows up here."
+    },
+    "by": "by {{source}}",
+    "event": {
+      "agent_action_pending_approval": "Waiting for approval: {{slug}}",
+      "agent_action_auto_approved": "Auto-approved within limits: {{slug}}",
+      "agent_action_approved": "Approved: {{slug}}",
+      "agent_action_rejected": "Blocked or rejected: {{slug}}",
+      "agent_action_executed": "Done: {{slug}}",
+      "agent_action_failed": "Failed: {{slug}}",
+      "agent_action_rolled_back": "Undone: {{slug}}",
+      "kill_switch_on": "Kill switch turned on",
+      "kill_switch_off": "Kill switch turned off",
+      "autonomy_changed": "Autonomy settings changed",
+      "agent_dial_changed": "An agent’s autonomy dial changed",
+      "goals_confirmed": "Goals saved",
+      "recommendation_executed": "A recommendation was completed",
+      "recommendation_dismissed": "A recommendation was dismissed",
+      "recommendation_failed": "A recommendation failed",
+      "cos_refreshed": "Recommendations refreshed",
+      "unknown": "Activity: {{type}}"
+    }
+  },
+  "controls": {
+    "title": "Control",
+    "killSwitch": {
+      "label": "Kill switch",
+      "hint": "Pauses every agent action for this account immediately. Turn it off to resume.",
+      "reasonLabel": "Reason (optional)",
+      "turnOn": "Pause all agents",
+      "turnOff": "Resume agents",
+      "failed": "The kill switch did not change. Please try again."
+    },
+    "autonomy": {
+      "title": "Autonomy by risk level",
+      "hint": "Suggest: agents only propose. Ask first: you approve each action. Auto: runs by itself within spend and message limits. Critical risk can never be auto.",
+      "risk": {
+        "low": "Low risk",
+        "medium": "Medium risk",
+        "high": "High risk",
+        "critical": "Critical risk"
+      },
+      "mode": {
+        "unset": "Each agent’s own setting",
+        "suggest": "Suggest only",
+        "approve": "Ask first",
+        "auto": "Auto within limits"
+      },
+      "messageCap": "Messages and calls per day (all agents)",
+      "messageCapHint": "Counts approved or automatic messaging actions. Over the cap, actions wait for your approval. Leave empty for no cap.",
+      "save": "Save autonomy settings",
+      "saved": "Autonomy settings saved.",
+      "failed": "Settings were not saved. Please try again."
+    },
+    "dials": {
+      "title": "Autonomy dial per agent",
+      "hint": "Overrides the risk-level setting for one agent.",
+      "agentLabel": "Autonomy for {{agent}}",
+      "capLabel": "Daily message cap for {{agent}}",
+      "save": "Save agent setting",
+      "saved": "Agent setting saved."
+    },
+    "noManage": "Only the owner and security managers can change these settings.",
+    "queue": "{{count}} waiting in the approval queue",
+    "openQueue": "Open approval queue"
+  },
+  "command": {
+    "title": "Ask or tell Vireek",
+    "placeholder": "For example: move tomorrow’s 2pm job to Friday",
+    "label": "Command",
+    "run": "Review plan",
+    "hint": "You always see exactly what will change and confirm before anything happens. Changes can be undone for 24 hours.",
+    "voice": {
+      "start": "Speak a command",
+      "stop": "Stop listening",
+      "listening": "Listening…",
+      "unsupported": "Voice input is not available in this browser.",
+      "notAllowed": "Microphone access was blocked. Allow it in your browser settings.",
+      "noSpeech": "I did not hear anything. Try again.",
+      "failed": "Voice input failed. You can type instead."
+    }
+  },
+  "operator": {
+    "error": "Something went wrong. Please try again.",
+    "back": "Back",
+    "planning": "Planning and checking your schedule…",
+    "editRequest": "Edit request",
+    "undoHint": "Undo is available from the toast and in Recent runs for 24 hours.",
+    "recentRuns": "Recent runs",
+    "undo": "Undo",
+    "needsApproval": "Needs your approval — nothing has changed yet.",
+    "cancel": "Cancel",
+    "approveRun": "Approve & run",
+    "running": "Running…",
+    "done": "Done",
+    "timesIn": "times in {{tz}}",
+    "affected": "Affected: {{count}}",
+    "skipped": "Skipped — {{reason}}",
+    "undoRestored": "Restored: {{count}}",
+    "undoLeft": "Left unchanged because they changed since: {{count}}",
+    "undoCantRecall": "Texts already sent (cannot be recalled): {{count}}"
+  },
+  "usefulness": {
+    "title": "How useful have recommendations been? (30 days)",
+    "row": "{{accepted}} done · {{dismissed}} dismissed · {{expired}} expired",
+    "rate": "{{rate}}% accepted",
+    "notEnough": "Not enough decisions yet to show a rate"
+  }
+}
