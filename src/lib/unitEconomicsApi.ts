@@ -37,6 +37,12 @@ export async function fetchUsageEvents(start: Date, end: Date): Promise<UsageEve
   return parseUsageEvents(data);
 }
 
+export async function fetchStorageSummary(): Promise<UsageEventTotal | null> {
+  const { data, error } = await supabase.rpc('staff_storage_summary');
+  if (error) fail(error);
+  return storageToUsage(data);
+}
+
 export async function fetchAiUsage(start: Date, end: Date): Promise<AiUsageBreakdown> {
   const { data, error } = await supabase.rpc('staff_ai_usage_breakdown', win(start, end));
   if (error) fail(error);
