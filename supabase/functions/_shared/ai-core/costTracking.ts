@@ -134,6 +134,8 @@ export interface LogUsageInput {
   response: NormalizedChatResponse;
   usage: ResolvedUsage;
   attempts: RouteChatResult["attempts"];
+  /** Optional W3C trace id (32 hex) so an LLM call can be joined to a voice call trace. */
+  traceId?: string;
 }
 
 // هیچ‌وقت throw نمی‌کنه — یک لاگ هزینه‌ی خراب نباید جوابی که داره ثبتش
@@ -157,6 +159,8 @@ export async function logUsage(input: LogUsageInput): Promise<number> {
       tokens_estimated: input.usage.estimated,
       cost_usd: cost,
       latency_ms: input.response.latencyMs,
+      ttft_ms: [...input.attempts].reverse().find((a) => a.ok)?.firstTokenMs ?? null,
+      trace_id: input.traceId ?? null,
       was_fallback: input.response.wasFallback,
       attempt_count: input.attempts.length,
       provider_chain: input.attempts,
