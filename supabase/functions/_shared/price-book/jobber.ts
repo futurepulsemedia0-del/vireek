@@ -4,11 +4,16 @@
 // production use.
 
 import type { NormalizedPriceItem } from "./types.ts";
+import { graphqlWithRetry, type GraphQlBody } from "../http/retry.ts";
 
 const JOBBER_API_VERSION = "2025-04-16";
 const JOBBER_TOKEN_URL = "https://api.getjobber.com/api/oauth/token";
 const JOBBER_GRAPHQL_URL = "https://api.getjobber.com/api/graphql";
 
+interface JobberProductConnection {
+  nodes?: Array<{ id: string | number; name?: unknown; category?: unknown; defaultUnitCost?: unknown }>;
+  pageInfo?: { hasNextPage?: boolean; endCursor?: string | null };
+}
 export interface JobberTokenState {
   access_token: string;
   refresh_token: string;
@@ -92,20 +97,18 @@ export async function fetchJobberProducts(accessToken: string): Promise<Normaliz
   let cursor: string | null = null;
 
   while (true) {
-    const res = await fetch(JOBBER_GRAPHQL_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "X-JOBBER-GRAPHQL-VERSION": JOBBER_API_VERSION,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query, variables: { cursor } }),
-    });
-    if (!res.ok) throw new Error(`jobber_graphql_http_${res.status}`);
-    const json = await res.json();
+const json: GraphQlBody<{ products?: JobberProductConnection }> = await graphqlWithRetry<{ products?: JobberProductConnection }>(
+  {
+    url: JOBBER_GRAPHQL_URL,
+    headers: { Authorization: `Bearer ${accessToken}`, "X-JOBBER-GRAPHQL-VERSION": JOBBER_API_VERSION },
+    query,
+    variables: { cursor },
+  },
+  { idempotent: true },
+);
     if (json.errors?.length) throw new Error(`jobber_graphql_error_${json.errors[0]?.message ?? "unknown"}`);
 
-    const conn = json.data?.products;
+    const conn: JobberProductConnection | undefined = json.data?.products; 
     for (const node of conn?.nodes ?? []) {
       if (typeof node.defaultUnitCost !== "number" || typeof node.name !== "string") continue;
       items.push({
@@ -118,7 +121,7 @@ export async function fetchJobberProducts(accessToken: string): Promise<Normaliz
     }
 
     if (!conn?.pageInfo?.hasNextPage) break;
-    cursor = conn.pageInfo.endCursor;
+    cursor = conn.pageInfo.endCursor ?? null;
   }
 
   return items;
