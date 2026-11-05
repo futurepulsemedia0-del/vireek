@@ -213,23 +213,46 @@ export function defaultAssumptions(a: { fallbackVoiceCpm: number | null; days: n
 // ---------------------------------------------------------------------------
 // Metered usage (SMS segments, storage, embeddings, vision): quantity x provider_cost_rates = ESTIMATE
 // ---------------------------------------------------------------------------
-export interface UsageEventTotal { component: string; unit: string; quantity: number; events: number }
-export interface PricedUsage extends UsageEventTotal { costUsd: number | null; status: 'priced' | 'unpriced' | 'ambiguous' }
+export interface UsageEventTotal { component: string; unit: string; quantity: number; events: number; estimated_events: number }
+export interface PricedUsage extends UsageEventTotal { costUsd: number | null; status: 'priced' | 'unpriced' | 'ambiguous'; estimatedShare: number }
 
 export function parseUsageEvents(raw: unknown): UsageEventTotal[] {
   if (!Array.isArray(raw)) return [];
-  return raw.filter(isObj).map((r) => ({ component: str(r.component) ?? 'unknown', unit: str(r.unit) ?? '', quantity: num(r.quantity), events: num(r.events) }));
+  return raw.filter(isObj).map((r) => {
+    const events = num(r.events);
+    // An older RPC without estimated_events is treated as fully estimated (the conservative reading).
+    const estimated_events = r.estimated_events === undefined ? events : Math.min(events, num(r.estimated_events));
+    return { component: str(r.component) ?? 'unknown', unit: str(r.unit) ?? '', quantity: num(r.quantity), events, estimated_events };
+  });
 }
+
+/** Raw token counts are priced against "per 1M tokens" rates; every other event unit matches the rate unit 1:1. */
+const RATE_UNIT: Record<string, { unit: string; divisor: number }> = {
+  input_tokens: { unit: 'per_1m_input_tokens', divisor: 1_000_000 },
+  output_tokens: { unit: 'per_1m_output_tokens', divisor: 1_000_000 },
+};
 
 /** A component+unit is priced only when exactly ONE provider has a rate in effect; several providers = ambiguous, none = unpriced. */
 export function priceUsageEvents(events: UsageEventTotal[], rates: CostRate[], onDate: string): PricedUsage[] {
   return events.map((e) => {
-    const providers = [...new Set(rates.filter((r) => r.component === e.component && r.unit === e.unit).map((r) => r.provider))];
-    const inEffect = providers.map((p) => resolveRate(rates, e.component as CostComponent, p, e.unit, onDate)).filter((r): r is CostRate => r !== null);
-    if (inEffect.length === 0) return { ...e, costUsd: null, status: 'unpriced' as const };
-    if (inEffect.length > 1) return { ...e, costUsd: null, status: 'ambiguous' as const };
-    return { ...e, costUsd: e.quantity * inEffect[0].rateUsd, status: 'priced' as const };
+    const map = RATE_UNIT[e.unit] ?? { unit: e.unit, divisor: 1 };
+    const estimatedShare = e.events > 0 ? e.estimated_events / e.events : 0;
+    const providers = [...new Set(rates.filter((r) => r.component === e.component && r.unit === map.unit).map((r) => r.provider))];
+    const inEffect = providers.map((p) => resolveRate(rates, e.component as CostComponent, p, map.unit, onDate)).filter((r): r is CostRate => r !== null);
+    if (inEffect.length === 0) return { ...e, costUsd: null, status: 'unpriced' as const, estimatedShare };
+    if (inEffect.length > 1) return { ...e, costUsd: null, status: 'ambiguous' as const, estimatedShare };
+    return { ...e, costUsd: (e.quantity / map.divisor) * inEffect[0].rateUsd, status: 'priced' as const, estimatedShare };
   });
+}
+
+/** Recording/audio bucket sizes (a CURRENT SNAPSHOT, not a monthly flow) as one GB-month-equivalent usage row. Always estimated. */
+export function storageToUsage(raw: unknown): UsageEventTotal | null {
+  if (!Array.isArray(raw)) return null;
+  let bytes = 0;
+  let objects = 0;
+  for (const r of raw) { if (isObj(r)) { bytes += num(r.bytes); objects += num(r.objects); } }
+  if (bytes <= 0) return null;
+  return { component: 'recording_storage', unit: 'per_gb_month', quantity: bytes / 1e9, events: Math.max(1, objects), estimated_events: Math.max(1, objects) };
 }
 
 /** Plain-language recommendations only; this module never changes prices. */
