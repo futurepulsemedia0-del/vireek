@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { exchangeJobberCode, fetchJobberProducts } from "../_shared/price-book/jobber.ts";
 import { verifyState } from "../_shared/price-book/oauthState.ts";
 import { upsertPriceBookItems } from "../_shared/price-book/upsert.ts";
+import { saveSecrets } from "../_shared/secrets/providerCredentials.ts";
 
 Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
@@ -26,6 +27,7 @@ Deno.serve(async (req: Request) => {
   try {
     const redirectUri = `${Deno.env.get("SUPABASE_URL")}/functions/v1/jobber-oauth-callback`;
     const tokens = await exchangeJobberCode(code, redirectUri);
+    await saveSecrets(admin, userId, "jobber", { jobber_access_token: tokens.access_token, jobber_refresh_token: tokens.refresh_token });
 
     let items;
     let syncError: string | undefined;
