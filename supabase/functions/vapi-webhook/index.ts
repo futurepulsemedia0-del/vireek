@@ -102,6 +102,7 @@ import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
 import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
 import { resolveVapiVoice } from "../_shared/voice/voiceMap.ts";
 import { recordLanguageFromCall, resolveVoiceLanguage } from "../_shared/i18n/customerLanguage.ts";
+import { buildIncidentVoiceContext, getAreaGuidance, ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
 import { buildInterpreterContext, customGreeting, loadInterpreterSettings, recordAssistantCall } from "../_shared/interpreter/runtime.ts";
 import { normalizeInterpLang } from "../_shared/interpreter/languages.ts";
 import {
@@ -737,6 +738,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     }
   }
   const serviceAreaContext = await buildServiceAreaContextVariable(admin, tenant);
+  const incidentContext = await buildIncidentVoiceContext(admin, tenant.userId);
    const disclosurePlan = await planDisclosure(admin, { userId: tenant.userId, vapiCallId: message.call?.id ?? null, callerLanguage: voiceLanguage.language });
   const consentProfile = resolveRecordingProfile({ country: tenant.regional.country });
   const consentLang: ProfileLanguage = (["de", "fr", "es"] as const).find((l) => l === voiceLanguage.language) ?? "en";
@@ -788,7 +790,7 @@ const callScriptsContext = await buildCallScriptsContextVariable(admin, tenant.u
     recording_consent_context: [recordingConsentContext, regionalConsentContext].filter(Boolean).join(" "),
     customer_memory_context: customerMemoryContext,
     language_context: voiceLanguage.context,
-    service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regional)].filter(Boolean).join(" "),
+service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regional), incidentContext].filter(Boolean).join(" "),
     vertical_context: verticalContext,
     voice_persona: voicePersonaContext,
      ai_disclosure: disclosurePlan?.text ?? "",
@@ -2033,6 +2035,16 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
           case "check_service_area":
             result = await toolCheckServiceArea(admin, tenant, args);
             break;
+          case "check_area_incident":
+            result = await getAreaGuidance(admin, {
+              userId: tenant.userId,
+              address: typeof args.address === "string" ? args.address.slice(0, 300) : null,
+              postalCode: typeof args.zip === "string" ? args.zip.slice(0, 12) : null,
+              symptomText: typeof args.problem === "string" ? args.problem : "",
+              vapiCallId: vapiCallId ?? null,
+              callerPhone: callerNumber,
+            });
+            break;
           case "lookup_price":
             result = await toolLookupPrice(admin, tenant, args, vapiCallId);
             break;
@@ -2498,6 +2510,13 @@ transcript = pci.text;
     if (sealed.problems.length) logError("trust_sealing_problem", requestId, sealed.problems.join("; "));
   }
 
+  // Mass Incident Mode safety net (idempotent on the call id). Uses the SUMMARY only, never Sarah's own safety script.
+  if (message.type === "end-of-call-report" && callRow && vapiCallId && typeof patch.summary === "string" && patch.summary.trim()) {
+    await ingestIncidentContact(admin, {
+      userId: tenant.userId, source: "call", sourceRef: vapiCallId, callId: callRow.id, phone: callerNumber, symptomText: patch.summary,
+      isEmergency: patch.is_emergency === true,
+    });
+  }
   // Call disposition: high-confidence AI tagging (spam / booked / no answer). Never throws.
   if (message.type === "end-of-call-report" && callRow) {
     const tagged = await autoTagCallDisposition(admin, { callId: callRow.id, userId: callRow.user_id });
