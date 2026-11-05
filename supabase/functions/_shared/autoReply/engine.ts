@@ -122,6 +122,7 @@ export interface AutoReplyStore {
 export interface AutoReplyDeps {
   store: AutoReplyStore;
   searchKnowledge(userId: string, question: string, channel: Channel): Promise<KnowledgeContext>;
+  meta?: { conversationId: string }
   generate(req: { system: string; user: string }): Promise<GenerateResult>;
   deliver(req: {
     userId: string;
@@ -249,6 +250,7 @@ export async function processInboundAutoReply(deps: AutoReplyDeps, input: Inboun
 
     // --- Ground the answer in the business's own knowledge base + booking rules
     const knowledge = await deps.searchKnowledge(input.userId, text, input.channel);
+    { conversationId: input.conversationId }
     const history = await store.getRecentMessages(input.channel, input.conversationId, 6, input.inboundMessageId);
     const businessContext: BusinessContext = {
       name: business.name,
