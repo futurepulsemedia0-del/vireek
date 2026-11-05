@@ -24,7 +24,7 @@ export const DEFAULT_TREND_MONTHS = 6;
 export const MAX_SNAPSHOT_EVENTS = 200;
 
 export type ValueType = "recovered_revenue" | "saved_hours" | "avoided_cost";
-export type Confidence = "measured" | "estimated";
+export type Confidence = "measured" | "estimated" | "experimental";
 export type ValueUnit = "cents" | "minutes";
 export type ReviewDecision = "not_due_to_vireek" | "restored";
 
@@ -59,6 +59,9 @@ export interface ValueEvent {
   evidence_ref: string;
   supersedes_ref: string | null;
   occurred_at: string;
+  /** Interval bounds in cents. REQUIRED for confidence = "experimental"; ignored for other tiers. */
+  ci_low?: number | null;
+  ci_high?: number | null;
 }
 
 /** One row of value_event_reviews (append-only; the newest decision for an event wins). */
@@ -162,8 +165,15 @@ const CURRENCY_RE = /^[A-Z]{3}$/;
 
 function isValidEvent(e: ValueEvent): boolean {
   if (!VALUE_TYPES.includes(e.type)) return false;
+  if (e.confidence === "experimental") {
+    if (!Number.isSafeInteger(e.amount)) return false;
+    if (!Number.isSafeInteger(e.ci_low) || !Number.isSafeInteger(e.ci_high)) return false;
+    if ((e.ci_low as number) > e.amount || e.amount > (e.ci_high as number)) return false;
+    if (!e.evidence_ref.startsWith("experiment:")) return false;
+    return e.type === "recovered_revenue" && e.unit === "cents" && !!e.currency && CURRENCY_RE.test(e.currency);
+  }
   if (!Number.isSafeInteger(e.amount) || e.amount <= 0) return false;
-  if (e.confidence !== "measured" && e.confidence !== "estimated") return false;
+  if (e.confidence !== "measured" && e.confidence !== "estimated" && e.confidence !== "experimental") return false;
   if (!e.evidence_ref || Number.isNaN(Date.parse(e.occurred_at))) return false;
   if (e.type === "saved_hours") return e.unit === "minutes";
   return e.unit === "cents" && !!e.currency && CURRENCY_RE.test(e.currency);
@@ -171,6 +181,8 @@ function isValidEvent(e: ValueEvent): boolean {
 
 export interface IntegrityResult {
   effective: ValueEvent[];
+  /** Experimentally measured (incremental) events, kept apart so no total can absorb them. */
+  experimental: ValueEvent[];
   excluded: ValueEvent[]; // owner marked "not due to Vireek"
   counts: { input: number; invalid: number; duplicates: number; superseded: number; excluded: number };
 }
@@ -199,9 +211,10 @@ export function applyIntegrity(events: ValueEvent[], reviews: ValueReview[] = []
   for (const e of unique) {
     if (e.confidence === "measured" && e.supersedes_ref) superseded.add(`${e.type}\u0000${e.supersedes_ref}`);
   }
-  const live = unique.filter((e) => !(e.confidence === "estimated" && superseded.has(`${e.type}\u0000${e.evidence_ref}`)));
-  const supersededCount = unique.length - live.length;
-
+  const experimental = unique.filter((e) => e.confidence === "experimental");
+  const nonExperimental = unique.filter((e) => e.confidence !== "experimental");
+  const live = nonExperimental.filter((e) => !(e.confidence === "estimated" && superseded.has(`${e.type}\u0000${e.evidence_ref}`)));
+  const supersededCount = nonExperimental.length - live.length;
   // 3. Owner reviews: the newest decision per event wins; later array position breaks timestamp ties.
   const latest = new Map<string, ReviewDecision>();
   [...reviews]
@@ -271,12 +284,24 @@ export interface Scoreboard {
   cost: CostComparison;
   otherCurrencies: { currency: string; measuredCents: number; estimatedCents: number }[];
   counts: IntegrityResult["counts"] & { measured: number; estimated: number };
+  incremental: IncrementalRow[];
   /** This month's effective events, newest first (capped at MAX_SNAPSHOT_EVENTS by amount when snapshotted). */
   events: ValueEvent[];
   excludedEvents: ValueEvent[];
   eventsTruncated: boolean;
 }
 
+export interface IncrementalRow {
+  id: string;
+  evidenceRef: string;
+  currency: string;
+  pointCents: number;
+  ciLowCents: number;
+  ciHighCents: number;
+  spansZero: boolean;
+  methodNote: string;
+  occurredAt: string;
+}
 export interface ScoreboardInput {
   events: ValueEvent[];
   reviews?: ValueReview[];
@@ -395,6 +420,20 @@ export function computeScoreboard(input: ScoreboardInput): Scoreboard {
     cost: costComparison(money.measuredCents, money.totalCents, currency, input.subscription),
     otherCurrencies: [...other.values()].sort((a, b) => a.currency.localeCompare(b.currency)),
     counts: { ...integrity.counts, measured: measuredN, estimated: estimatedN },
+    incremental: integrity.experimental
+      .filter((e) => inWindow(e, input.window))
+      .sort((a, b) => byTimeThenId(b, a))
+      .map((e) => ({
+        id: e.id,
+        evidenceRef: e.evidence_ref,
+        currency: e.currency ?? currency,
+        pointCents: e.amount,
+        ciLowCents: e.ci_low as number,
+        ciHighCents: e.ci_high as number,
+        spansZero: (e.ci_low as number) <= 0 && (e.ci_high as number) >= 0,
+        methodNote: e.method_note,
+        occurredAt: e.occurred_at,
+      })),
     events,
     excludedEvents: integrity.excluded.filter((e) => inWindow(e, input.window)).sort((a, b) => byTimeThenId(b, a)),
     eventsTruncated: newestFirst.length > events.length,
