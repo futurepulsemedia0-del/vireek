@@ -3,6 +3,7 @@ import { Download, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/contexts/ToastContext';
 import { fetchUnitEconomics } from '@/lib/unitEconomicsApi';
+import { buildUnitEconomicsPdf } from '@/lib/unitEconomicsPdf';
 import { buildReconciliation, buildReportHtml, type ReportModel, type ReportReconciliation } from '@/lib/unitEconomicsReportHtml';
 import { Field, INPUT, Section } from './shared';
 
@@ -52,6 +53,27 @@ export function ReportPanel({ model }: { model: ReportModel }) {
     } finally { setBusy(false); }
   };
 
+  const downloadPdf = async () => {
+    setBusy(true);
+    try {
+      let reconciliation: ReportReconciliation | null = null;
+      if (month.trim()) {
+        const w = monthWindow(month.trim());
+        if (!w) { toast('Reconciliation month must look like 2026-10.', 'error'); return; }
+        try {
+          const ue = await fetchUnitEconomics(w.start, w.end);
+          const inv = ue.invoices.find((i) => i.period_month === `${month.trim()}-01` && i.provider.toLowerCase() === provider.trim().toLowerCase()) ?? null;
+          reconciliation = buildReconciliation({ month: month.trim(), provider: provider.trim(), reportedUsd: ue.reported_voice_total_usd, invoicedUsd: inv ? inv.invoiced_usd : null, thresholdPct: 5 });
+        } catch {
+          toast('Could not load reconciliation data; the PDF was not created.', 'error');
+          return;
+        }
+      }
+      buildUnitEconomicsPdf({ ...model, reconciliation }).save(`vireek-unit-economics-${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch {
+      toast('Could not create the PDF.', 'error');
+    } finally { setBusy(false); }
+  };
   const print = async () => {
     setBusy(true);
     try {
