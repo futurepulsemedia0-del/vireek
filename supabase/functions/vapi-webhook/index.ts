@@ -103,6 +103,7 @@ import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
 import { resolveVapiVoice } from "../_shared/voice/voiceMap.ts";
 import { recordLanguageFromCall, resolveVoiceLanguage } from "../_shared/i18n/customerLanguage.ts";
 import { buildIncidentVoiceContext, getAreaGuidance, ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
+import { buildIncidentVoiceContext, getAreaGuidance, getBookingIncidentNote, ingestIncidentContact, linkJobToIncidentContact } from "../_shared/mass-incident/runtime.ts";
 import { buildInterpreterContext, customGreeting, loadInterpreterSettings, recordAssistantCall } from "../_shared/interpreter/runtime.ts";
 import { normalizeInterpLang } from "../_shared/interpreter/languages.ts";
 import {
@@ -1397,7 +1398,8 @@ async function toolBookAppointment(
     }
   }
   const suggestedNote = await suggestTechnicianNote(admin, tenant, serviceType, scheduledDatetime);
-  const dispatchNote = [suggestedNote, areaNote].filter(Boolean).join(" | ") || null;
+  const incidentNote = await getBookingIncidentNote(admin, tenant.userId, vapiCallId ?? null);
+  const dispatchNote = [suggestedNote, areaNote, incidentNote].filter(Boolean).join(" | ") || null;
 
   const jobPayload = {
     user_id: tenant.userId,
@@ -1428,7 +1430,8 @@ async function toolBookAppointment(
   }
 
   if (vapiCallId) await upsertCallRow(admin, tenant, vapiCallId, { status: "booked" }, "tool-book-appointment");
-
+  await linkJobToIncidentContact(admin, tenant.userId, vapiCallId ?? null, job.id);
+  
   await syncJobToExternalProviders(admin, tenant.userId, {
     id: job.id,
     customerName,
