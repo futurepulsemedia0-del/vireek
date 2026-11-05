@@ -84,6 +84,7 @@ import { buildPorts, loadAgentSettings } from "../_shared/agent-callers/runtime.
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
+import { extractVapiCostLines, recordCallCostLines } from "../_shared/billing/callCostCapture.ts";
 import { syncJobToExternalProviders } from "../_shared/dispatch/externalJobSync.ts";
 import { voiceBookingGuard, voiceCheckAvailability } from "../_shared/booking/voiceBooking.ts";
 import { isAutomationEnabled } from "../_shared/automation/gate.ts";
@@ -158,6 +159,8 @@ interface VapiMessage {
   recordingUrl?: string;
   endedReason?: string;
   durationSeconds?: number;
+  cost?: number;
+  costBreakdown?: Record<string, unknown>;
   artifact?: {
     transcript?: string;
     recordingUrl?: string;
@@ -2402,6 +2405,13 @@ transcript = pci.text;
       logError("reduced_emergency_detect_failed", requestId, err, {});
     }
 
+    // Unit economics: store the provider-reported call cost per component (idempotent, never throws).
+    await recordCallCostLines(admin, {
+      userId: tenant.userId,
+      vapiCallId: vapiCallId ?? null,
+      lines: extractVapiCostLines(message),
+    });
+    
     // Price Book Enforcement — deterministic, no LLM call. Runs whether
     // or not Call Intelligence succeeds.
     if (transcript) {
