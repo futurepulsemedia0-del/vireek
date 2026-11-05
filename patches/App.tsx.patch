@@ -1,0 +1,25 @@
+--- a/src/App.tsx	2026-11-01 17:20:25.000000000 +0000
++++ b/src/App.tsx	2026-11-04 03:21:59.152758606 +0000
+@@ -107,6 +107,7 @@
+ const ValueScoreboardPage = lazy(() => import('@/pages/ValueScoreboardPage').then((m) => ({ default: m.ValueScoreboardPage })));
+ const StaffValueScoreboardPage = lazy(() => import('@/pages/StaffValueScoreboardPage').then((m) => ({ default: m.StaffValueScoreboardPage })));
+ const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
++const ChiefOfStaffPage = lazy(() => import('@/pages/ChiefOfStaffPage').then((m) => ({ default: m.ChiefOfStaffPage })));
+ const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
+ const AskVireekPage = lazy(() => import('@/pages/AskVireekPage').then((m) => ({ default: m.AskVireekPage })));
+ const CsrDeskPage = lazy(() => import('@/pages/CsrDeskPage').then((m) => ({ default: m.CsrDeskPage })));
+@@ -1610,6 +1611,14 @@
+             </ProtectedRoute>
+           }
+         />
++        <Route
++          path="/dashboard/chief-of-staff"
++          element={
++            <ProtectedRoute>
++              <ChiefOfStaffPage />
++            </ProtectedRoute>
++          }
++        />
+         <Route
+           path="/dashboard/decision-engine"
+           element={
