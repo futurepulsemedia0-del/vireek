@@ -1,0 +1,121 @@
+{
+  "page": {
+    "title": "Price Playbook",
+    "subtitle": "Choose exactly what Sarah may say when a caller asks \"how much?\". Every figure shows where it came from, and nothing is spoken that you have not approved.",
+    "loadFailed": "We couldn't load your price policies.",
+    "retry": "Try again",
+    "noPermission": "You don't have access to price policies.",
+    "newPolicy": "New policy",
+    "emptyTitle": "No price policies yet",
+    "emptyBody": "Until you add one, Sarah only quotes from your Live Price Book and otherwise offers a visit. Add a policy to control the exact wording per service.",
+    "preview": "Live preview",
+    "previewHelp": "What a caller would hear, for the state you pick below.",
+    "previewState": "Caller's state",
+    "previewStateUnknown": "Unknown (not asked yet)",
+    "sources": "Sources",
+    "audit": "Safety check",
+    "auditPass": "No invented prices, fee disclosed, no pressure or put-downs.",
+    "auditFail": "This wording would be flagged: {{list}}",
+    "metricsTitle": "Last {{days}} days",
+    "metricsTruncated": "Showing the most recent events only; figures may be incomplete.",
+    "metricsNone": "No data yet",
+    "metric": {
+      "priceAskRate": "Calls that asked for a price",
+      "conversion": "Booked after a price answer",
+      "abandon": "Hung up after the price",
+      "ticket": "Average ticket"
+    },
+    "legalBanner": "Dollar figures are only spoken in states you have marked as legally reviewed. This is not legal advice, so please have your own counsel review pricing rules for your region before approving a state.",
+    "saved": "Policy saved.",
+    "deleted": "Policy deleted.",
+    "saveFailed": "We couldn't save the policy. Please try again.",
+    "duplicate": "You already have a policy for this service name.",
+    "deleteConfirm": "Delete this policy?",
+    "disabledBecause": "Not live",
+    "live": "Live"
+  },
+  "form": {
+    "name": "Service name",
+    "trade": "Trade",
+    "mode": "What may Sarah say?",
+    "source": "Where do the numbers come from?",
+    "sourceOwner": "I'll enter them here",
+    "sourceBook": "Read live from my Price Book",
+    "bookItem": "Price Book item",
+    "bookItemNone": "Choose an item",
+    "keywords": "Words callers use (comma separated)",
+    "low": "Amount ($)",
+    "lowRange": "From ($)",
+    "high": "To ($)",
+    "fee": "Diagnostic / trip fee ($)",
+    "feeCredited": "The fee is credited toward the repair",
+    "writtenBefore": "The customer gets the repair price before any work starts",
+    "includes": "What's included (one per line)",
+    "changes": "What can change the price (one per line)",
+    "states": "States approved after legal review (e.g. TX, CA)",
+    "reviewApproved": "A lawyer has reviewed pricing wording for these states",
+    "active": "Policy is live",
+    "save": "Save policy",
+    "saving": "Saving",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "modes": {
+    "exact_flat": "An exact flat rate",
+    "range": "A price range",
+    "starting_at": "\"Starting at\" price",
+    "diagnostic_fee_only": "Only the diagnostic / trip fee",
+    "needs_visit": "Needs a visit (no number)"
+  },
+  "trades": {
+    "hvac": "HVAC",
+    "plumbing": "Plumbing",
+    "electrical": "Electrical",
+    "appliance": "Appliance",
+    "roofing": "Roofing",
+    "general": "General"
+  },
+  "errors": {
+    "name_required": "Enter a service name.",
+    "amount_invalid": "Enter a valid amount greater than zero.",
+    "range_order": "The high end must be at or above the low end.",
+    "fee_invalid": "Enter a valid fee greater than zero.",
+    "book_item_required": "Choose a Price Book item.",
+    "states_invalid": "Use two-letter US state codes, separated by commas.",
+    "approval_needs_states": "Add at least one state before marking pricing as reviewed."
+  },
+  "warnings": {
+    "pending_review": "Waiting for legal review: Sarah will say \"needs a visit\" instead of a number.",
+    "no_states": "No approved states: Sarah will say \"needs a visit\" instead of a number.",
+    "stale": "These figures were last confirmed more than 180 days ago, so Sarah will not quote them. Save the policy to re-confirm."
+  },
+  "downgrade": {
+    "inactive": "This policy is turned off.",
+    "invalid_policy": "The amounts are incomplete, so no number is spoken.",
+    "stale_source": "The figures are out of date, so no number is spoken.",
+    "legal_gate": "This state is not approved, so no number is spoken.",
+    "region_unknown": "The caller's state is unknown, so no number is spoken."
+  },
+  "violations": {
+    "invented_price": "a price that is not in your policy",
+    "missing_fee_disclosure": "a missing fee",
+    "disparagement": "disparaging language",
+    "false_superlative_or_price_match": "a \"cheapest\" or price-match claim",
+    "unbacked_guarantee": "a guarantee you have not enabled",
+    "pressure_tactic": "a pressure tactic",
+    "banned_persona_phrase": "a phrase Sarah never uses"
+  },
+  "settings": {
+    "title": "What Sarah may say about your business",
+    "help": "Sarah only mentions what you switch on here. Nothing is claimed by default.",
+    "licensed": "We use licensed technicians",
+    "onTime": "We have an on-time arrival policy",
+    "sameDay": "We offer same-day diagnostic visits",
+    "callback": "An estimator can call the customer back",
+    "warranty": "Warranty on our work (months)",
+    "financing": "Mention financing at or above ($)",
+    "financingHelp": "Leave blank to never mention financing.",
+    "save": "Save"
+  }
+}
