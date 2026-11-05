@@ -21,6 +21,7 @@ import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
 import { STOP_WORDS } from "../_shared/messaging/optOut.ts";
 import { classifySymptom } from "../_shared/mass-incident/core.ts";
 import { ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
+import { handleIncidentSms } from "../_shared/mass-incident/runtime.ts";
 
 
 function emptyTwiml() {
@@ -90,10 +91,11 @@ Deno.serve(async (req: Request) => {
     }).select("id").single();
 
     await recordLanguageFromMessage(admin, userId, { phone: from }, body);
-      if (inboundMsg && !STOP_WORDS.has(body.toUpperCase()) && classifySymptom(body).symptomClass !== "other") {
-      await ingestIncidentContact(admin, { userId, source: "sms", sourceRef: String(inboundMsg.id), phone: from, symptomText: body });
+    let incidentReplied = false;
+    if (inboundMsg && !STOP_WORDS.has(body.toUpperCase()) && classifySymptom(body).symptomClass !== "other") {
+      incidentReplied = await handleIncidentSms(admin, { userId, sourceRef: String(inboundMsg.id), phone: from, body });
     }
-    if (inboundMsg) {
+    if (inboundMsg && !incidentReplied) {
       await runAutoReplyInBackground(admin, {
         userId, channel: "sms", conversationId: conversation.id,
         inboundMessageId: inboundMsg.id, text: body, customerLabel: from,
