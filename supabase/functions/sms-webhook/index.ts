@@ -19,6 +19,8 @@ import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { normalizePhone } from "../_shared/compliance/dncCheck.ts";
 import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
 import { STOP_WORDS } from "../_shared/messaging/optOut.ts";
+import { classifySymptom } from "../_shared/mass-incident/core.ts";
+import { ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
 
 
 function emptyTwiml() {
@@ -88,6 +90,9 @@ Deno.serve(async (req: Request) => {
     }).select("id").single();
 
     await recordLanguageFromMessage(admin, userId, { phone: from }, body);
+      if (inboundMsg && !STOP_WORDS.has(body.toUpperCase()) && classifySymptom(body).symptomClass !== "other") {
+      await ingestIncidentContact(admin, { userId, source: "sms", sourceRef: String(inboundMsg.id), phone: from, symptomText: body });
+    }
     if (inboundMsg) {
       await runAutoReplyInBackground(admin, {
         userId, channel: "sms", conversationId: conversation.id,
