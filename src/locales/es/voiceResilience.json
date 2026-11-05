@@ -1,0 +1,127 @@
+{
+  "page": {
+    "title": "Resiliencia telefónica",
+    "subtitle": "Vea cómo se están atendiendo sus llamadas ahora mismo, defina a quién llamar si el asistente de IA no está disponible y compruebe que su operador desvía las llamadas perdidas a Vireek.",
+    "noAccess": { "title": "La resiliencia telefónica es solo para administradores de la cuenta", "description": "Pida al propietario de la cuenta acceso al perfil del negocio para cambiar cómo se atienden las llamadas cuando el asistente de IA no está disponible." },
+    "loadError": "No se pudo cargar la resiliencia telefónica",
+    "tabsLabel": "Secciones de resiliencia telefónica",
+    "tabs": { "status": "Estado", "settings": "Atención de respaldo", "wizard": "Red de seguridad del operador" },
+    "refresh": "Actualizar"
+  },
+  "status": {
+    "levelLabel": "Nivel {{level}}",
+    "platformTitle": "Ahora mismo",
+    "since": "Desde {{when}}",
+    "tone": { "ok": "Normal", "warn": "Degradado", "critical": "Solo respaldo" },
+    "forcedNote": "Su cuenta está en el nivel {{level}} hasta {{until}}. Los cambios automáticos están en pausa para sus llamadas.",
+    "ladderTitle": "Cómo se atiende una llamada en cada nivel",
+    "current": "Actual",
+    "levels": {
+      "0": { "name": "Asistente de IA completo", "desc": "El asistente contesta, agenda y consulta datos." },
+      "1": { "name": "Asistente reducido", "desc": "Sigue contestando todas las llamadas y toma nombre, número, dirección y emergencias, pero no puede agendar ni consultar datos." },
+      "2": { "name": "Buzón de voz y aviso inmediato", "desc": "Quien llama oye una opción de emergencia y puede dejar un mensaje. Usted recibe la transcripción por texto." },
+      "3": { "name": "Desvío a su equipo", "desc": "Las llamadas suenan en sus teléfonos de guardia en orden y luego pasan al buzón de voz." },
+      "4": { "name": "Mensaje grabado", "desc": "Se reproduce un mensaje grabado con instrucciones de emergencia." }
+    },
+    "recentTitle": "Llamadas atendidas por el respaldo",
+    "recentEmpty": { "title": "Sin llamadas atendidas por el respaldo", "description": "Las llamadas que no pasen por el asistente de IA aparecerán aquí con lo que ocurrió con cada una." },
+    "columns": { "when": "Cuándo", "level": "Nivel", "outcome": "Resultado" },
+    "emergency": "Emergencia",
+    "outcome": {
+      "entered": "Enviada al asistente",
+      "voicemail": "Mensaje de voz recibido",
+      "forwarded": "Desviada a su equipo",
+      "static": "Mensaje grabado reproducido",
+      "emergencyForwarded": "Emergencia conectada con su equipo",
+      "abandoned": "Colgó quien llamó, hay que devolver la llamada"
+    }
+  },
+  "settings": {
+    "title": "Atención de respaldo",
+    "intro": "Se aplica siempre que el asistente de IA no pueda atender una llamada. Ninguna llamada se pierde: se desvía, se graba o se atiende con un mensaje.",
+    "forwardLabel": "Números a los que llamar (en orden)",
+    "forwardHelp": "Uno por línea, hasta {{max}}. Incluya el código de país, por ejemplo +15551234567.",
+    "staticLabel": "Mensaje grabado (último recurso)",
+    "staticHelp": "Solo se reproduce cuando nada más puede atender la llamada. Déjelo vacío para usar el predeterminado. Siempre se añaden instrucciones de emergencia.",
+    "counter": "{{count}} de {{max}} caracteres",
+    "languageLabel": "Idioma de los mensajes de respaldo",
+    "lang": { "en": "Inglés", "es": "Español" },
+    "assistantLabel": "ID del asistente reducido",
+    "assistantHelp": "El ID de un asistente corto y sin herramientas creado en su proveedor de voz. Déjelo vacío si aún no tiene uno.",
+    "alertSms": "Enviarme un texto cuando cambie la atención de llamadas",
+    "alertSmsHelp": "Un mensaje cuando el asistente se degrade o se recupere. Los avisos dentro de la app siempre se envían.",
+    "frontDoor": "Dirigir los números de esta cuenta por la entrada de respaldo",
+    "frontDoorHelp": "Actívelo solo después de que soporte haya apuntado sus números allí y la prueba de abajo haya pasado.",
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Atención de respaldo guardada.",
+    "noChanges": "No hay cambios que guardar.",
+    "errors": {
+      "forwardInvalid": "Estos no son números de teléfono válidos: {{list}}",
+      "forwardTooMany": "Use como máximo {{max}} números.",
+      "staticTooLong": "Mantenga el mensaje por debajo de {{max}} caracteres.",
+      "assistantInvalid": "Use de 8 a 64 letras, números, guiones o guiones bajos."
+    },
+    "override": {
+      "title": "Fijar la atención de llamadas por un tiempo",
+      "help": "Úselo cuando sepa que el asistente no debe contestar, por ejemplo durante un incidente, o para probar su respaldo. Caduca automáticamente.",
+      "levelLabel": "Atender llamadas en el nivel",
+      "minutesLabel": "Durante cuánto tiempo (minutos)",
+      "apply": "Aplicar",
+      "applying": "Aplicando…",
+      "clear": "Volver a automático",
+      "applied": "Atención de llamadas fijada.",
+      "cleared": "De vuelta a automático.",
+      "invalid": "Elija un nivel y de 1 a 1440 minutos."
+    }
+  },
+  "wizard": {
+    "title": "Red de seguridad del operador",
+    "intro": "Configure su línea para que desvíe a Vireek cuando no conteste o no esté localizable. Luego compruebe que funciona con una llamada de prueba real.",
+    "familyLabel": "¿Quién proporciona su línea de negocio?",
+    "family": {
+      "gsm_standard": "AT&T, T-Mobile u otro operador móvil",
+      "verizon": "Verizon",
+      "landline_voip_pbx": "Línea fija, VoIP o central telefónica de oficina"
+    },
+    "numberLabel": "Número de Vireek al que desviar",
+    "noNumbers": { "title": "Aún no tiene un número de Vireek", "description": "Añada primero un número de teléfono a su cuenta y vuelva para configurar el desvío." },
+    "businessLabel": "Su línea de negocio",
+    "businessHelp": "Llamamos a este número para la prueba. Debe ser el número guardado en su cuenta.",
+    "loadPlan": "Mostrar códigos de marcado",
+    "loadingPlan": "Cargando…",
+    "planTitle": "Marque esto en su teléfono de negocio",
+    "kind": { "no_answer": "Desviar cuando no conteste", "unreachable": "Desviar cuando el teléfono esté apagado o sin cobertura", "busy": "Desviar cuando la línea esté ocupada" },
+    "code": { "activate": "Activar", "cancel": "Desactivar", "status": "Ver estado" },
+    "confidence": { "standard": "Código estándar", "commonly_documented": "Confirme con su operador", "ask_carrier": "No hay código universal" },
+    "noCode": "No existe un código universal. Configure «desviar si no contesta» en la cuenta de su proveedor o en la central telefónica y luego haga la prueba.",
+    "testTitle": "Compruebe que funciona",
+    "testOnHelp": "Llamaremos a su línea de negocio. Déjela sonar y no conteste. Si el desvío funciona, la llamada llega a Vireek.",
+    "testOffHelp": "Tras desactivar el desvío, llamaremos de nuevo. Debe sonar hasta agotarse en su teléfono y no llegar a Vireek.",
+    "testOn": "Probar que el desvío está activo",
+    "testOff": "Probar que el desvío está desactivado",
+    "starting": "Haciendo la llamada de prueba…",
+    "watching": "Esperando el resultado… {{seconds}} s",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "tip": "Desactive el buzón de voz de su operador en esta línea, o puede contestar antes de que ocurra el desvío.",
+    "retry": "Intentar de nuevo",
+    "result": {
+      "pendingOn": { "title": "Llamada de prueba en curso", "body": "Deje sonar su teléfono. No conteste." },
+      "pendingOff": { "title": "Llamada de prueba en curso", "body": "Deje sonar su teléfono hasta que se agote. No debe llegar a Vireek." },
+      "passedOn": { "title": "El desvío funciona", "body": "La llamada de prueba llegó a Vireek desde su línea de negocio. Las llamadas perdidas se atenderán." },
+      "passedOff": { "title": "El desvío está desactivado", "body": "La llamada de prueba sonó hasta agotarse en su teléfono y no llegó a Vireek." },
+      "failedOn": { "title": "La llamada no llegó a Vireek", "body": "Revise el código, que el desvío esté incluido en su plan y que el buzón del operador esté desactivado. Luego intente de nuevo." },
+      "failedOff": { "title": "La llamada aún llegó a Vireek", "body": "El desvío parece seguir activo. Marque el código para desactivarlo e intente de nuevo." },
+      "answered": { "title": "Contestaron su teléfono", "body": "Un desvío solo ocurre si nadie contesta. Repita la prueba y deje sonar." },
+      "expired": { "title": "No pudimos confirmar el resultado", "body": "La llamada de prueba no terminó como se esperaba. Intente de nuevo." },
+      "error": { "title": "Falló la llamada de prueba", "body": "No pudimos hacer la llamada. Intente de nuevo en un minuto." }
+    }
+  },
+  "errors": {
+    "generic": "Algo salió mal. Inténtelo de nuevo.",
+    "tooMany": "Demasiadas llamadas de prueba esta hora. Inténtelo más tarde.",
+    "forbidden": "Ese número no está en su cuenta.",
+    "notConfigured": "Las llamadas de prueba aún no están activadas para su cuenta. Contacte con soporte."
+  }
+}
