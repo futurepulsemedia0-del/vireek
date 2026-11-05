@@ -214,7 +214,7 @@ export async function loadTenantServiceAreas(admin: SupabaseClient, userId: stri
 
 const GEOCODE_UA = "Vireek Dashboard (vapi-webhook service-areas, support@vireek.com)";
 
-async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+export async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`;
     const res = await fetch(url, { headers: { "User-Agent": GEOCODE_UA }, signal: AbortSignal.timeout(3500) });
