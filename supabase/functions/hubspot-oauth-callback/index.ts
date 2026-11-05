@@ -34,6 +34,7 @@ Deno.serve(async (req: Request) => {
     if (!tokenRes.ok) throw new Error(tokens.message || "Token exchange failed.");
 
     const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+    await saveSecrets(admin, userId, "hubspot", { access_token: tokens.access_token, refresh_token: tokens.refresh_token });
     await admin.from("integrations").upsert(
       {
         user_id: userId,
