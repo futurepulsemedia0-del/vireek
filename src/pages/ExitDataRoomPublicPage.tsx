@@ -8,7 +8,9 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Lock } from 'lucide-react';
-import { openDataRoom, type PublicDataRoom } from '@/lib/exitReadinessApi';
+import type { PublicDataRoom } from '@/lib/exitReadinessApi';
+import { openAnyRoom, refreshStagedRoom, type PublicStagedRoom as StagedRoomData } from '@/lib/exitReadyApi';
+import { PublicStagedRoom } from '@/components/exit-readiness/PublicStagedRoom';
 import { fmtMoney } from '@/lib/exitReadiness';
 import { EmptyState } from '@/components/EmptyState';
 import { Card } from '@/components/ui/Card';
@@ -114,6 +116,8 @@ function Content({ room }: { room: PublicDataRoom }) {
 export function ExitDataRoomPublicPage() {
   const [state, setState] = useState<'loading' | 'ready' | 'unavailable' | 'rate_limited' | 'error'>('loading');
   const [room, setRoom] = useState<PublicDataRoom | null>(null);
+  const [staged, setStaged] = useState<StagedRoomData | null>(null);
+  const tokenRef = useRef('');
   const started = useRef(false);
 
   useEffect(() => {
@@ -133,11 +137,13 @@ export function ExitDataRoomPublicPage() {
     started.current = true;
     const token = window.location.hash.replace(/^#/, '').trim();
     if (!token) { setState('unavailable'); return; }
-    void openDataRoom(token).then((r) => {
+    tokenRef.current = token;
+    void openAnyRoom(token).then((r) => {
       if (r.ok) {
         // Remove the token from the address bar once it has been used successfully.
         window.history.replaceState(null, '', window.location.pathname);
-        setRoom(r.room);
+        if (r.kind === 'staged') setStaged(r.room);
+        else setRoom(r.room);
         setState('ready');
       } else setState(r.reason === 'unavailable' ? 'unavailable' : r.reason);
     });
@@ -148,7 +154,7 @@ export function ExitDataRoomPublicPage() {
       <div className="mb-6 flex items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Lock size={20} aria-hidden="true" /></span>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">{room?.label ?? 'Confidential data room'}</h1>
+          <h1 className="text-2xl font-bold text-text-primary">{room?.label ?? staged?.label ?? 'Confidential data room'}.</h1>
           {room && <p className="text-xs text-text-secondary">Prepared {new Date(room.content.generatedAt).toLocaleDateString()} · link expires {new Date(room.expiresAt).toLocaleString()} · {room.viewsRemaining} views left</p>}
         </div>
       </div>
@@ -157,6 +163,11 @@ export function ExitDataRoomPublicPage() {
       {state === 'unavailable' && <EmptyState icon={Lock} title="This link is no longer available" description="It may have expired, been revoked or reached its view limit. Ask the sender for a new link." />}
       {state === 'rate_limited' && <EmptyState icon={Lock} title="Too many attempts" description="Please wait a few minutes and try again." />}
       {state === 'error' && <EmptyState icon={Lock} title="Couldn’t open the data room" description="Check your connection and reload this page." action={{ label: 'Reload', onClick: () => window.location.reload() }} />}
+      {state === 'ready' && staged && (
+        <PublicStagedRoom room={staged} token={tokenRef.current}
+          onRefresh={async () => { const next = await refreshStagedRoom(tokenRef.current); if (next) setStaged(next); }}
+          renderDetailed={(content) => <Content room={{ label: staged.label, expiresAt: staged.expiresAt, viewsRemaining: staged.viewsRemaining, content } as unknown as PublicDataRoom} />} />
+      )}
       {state === 'ready' && room && (
         <>
           <div role="note" className="mb-5 rounded-xl border border-warning-500/30 bg-warning-500/10 px-3 py-2.5 text-xs text-text-secondary">
