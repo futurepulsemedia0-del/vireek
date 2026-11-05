@@ -62,14 +62,21 @@ import { DriversPanel } from '@/components/exit-readiness/DriversPanel';
 import { ActionPlanPanel } from '@/components/exit-readiness/ActionPlanPanel';
 import { WhatIfPanel } from '@/components/exit-readiness/WhatIfPanel';
 import { DataRoomPanel } from '@/components/exit-readiness/DataRoomPanel';
+import { ExitReadyTabs } from '@/components/exit-readiness/ExitReadyTabs';
+import { MultipleProvenanceNote } from '@/components/exit-readiness/MultiplesPanel';
+import { annualRevenueCents, resolveEffectiveMultiples, type MultipleRow } from '@/lib/exitLineage';
+import { fetchMultipleRows } from '@/lib/exitReadyApi';
 
-type Tab = 'overview' | 'drivers' | 'plan' | 'whatif' | 'dataroom';
+type Tab = 'overview' | 'drivers' | 'plan' | 'whatif' | 'dataroom' | 'evidence' | 'multiples' | 'sharing';
 const TABS: { key: Tab; label: string }[] = [
   { key: 'overview', label: 'Estimate' },
   { key: 'drivers', label: 'Value drivers' },
   { key: 'plan', label: 'Action plan' },
   { key: 'whatif', label: 'What-if' },
   { key: 'dataroom', label: 'Data room' },
+  { key: 'evidence', label: 'Evidence' },
+  { key: 'multiples', label: 'Multiples' },
+  { key: 'sharing', label: 'Secure sharing' },
 ];
 
 interface Loaded {
@@ -99,6 +106,7 @@ export function ExitReadinessPage() {
   const [createdUrl, setCreatedUrl] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [revokeTarget, setRevokeTarget] = useState<DataRoomLink | null>(null);
+  const [multiples, setMultiples] = useState<{ rows: MultipleRow[]; unavailable: boolean }>({ rows: [], unavailable: false });
   const autoSnapshotted = useRef(false);
 
   const load = useCallback(async () => {
@@ -111,6 +119,7 @@ export function ExitReadinessPage() {
         fetchActionStates(ownerId), fetchDataQualityScore(), fetchLinks(ownerId), fetchAccessLogs(ownerId),
       ]);
       setData({ metrics, settings, addBacks, snapshots, actionStates, dataQuality, links, logs });
+      setMultiples(await fetchMultipleRows(ownerId).then((rows) => ({ rows, unavailable: false })).catch(() => ({ rows: [] as MultipleRow[], unavailable: true })));
     } catch (e) {
       captureError(e, { page: 'exit-readiness' });
       setLoadError(true);
@@ -123,9 +132,13 @@ export function ExitReadinessPage() {
     if (ownerId) void load();
   }, [ownerId, load]);
 
+  const effective = useMemo(
+    () => (data ? resolveEffectiveMultiples(data.settings, multiples.rows, annualRevenueCents(data.metrics)) : null),
+    [data, multiples.rows],
+  );
   const model: ModelInput | null = useMemo(
-    () => (data ? { metrics: data.metrics, settings: data.settings, addBacks: data.addBacks, dataQuality: data.dataQuality } : null),
-    [data],
+    () => (data && effective ? { metrics: data.metrics, settings: effective.settings, addBacks: data.addBacks, dataQuality: data.dataQuality } : null),
+    [data, effective],
   );
   const base = useMemo(() => (model ? evaluate(model) : null), [model]);
   const result = useMemo(() => (model ? evaluate(model, scenario) : null), [model, scenario]);
@@ -312,6 +325,12 @@ export function ExitReadinessPage() {
             </div>
 
             <div role="tabpanel" id={`exit-panel-${tab}`} aria-labelledby={`exit-tab-${tab}`}>
+              {tab === 'overview' && effective && (
+                <div className="mb-4 space-y-1 rounded-xl border border-border bg-bg-secondary px-3 py-2.5">
+                  <MultipleProvenanceNote effective={effective} basis="sde" />
+                  <MultipleProvenanceNote effective={effective} basis="ebitda" />
+                </div>
+              )}
               {tab === 'overview' && (
                 <ValuationPanel evaluation={base} settings={data.settings} addBacks={data.addBacks} saving={savingSettings}
                   onSaveSettings={onSaveSettings} onCreateAddBack={onCreateAddBack} onToggleAddBack={onToggleAddBack} onDeleteAddBack={setDeleteTarget} />
@@ -320,6 +339,10 @@ export function ExitReadinessPage() {
               {tab === 'plan' && <ActionPlanPanel actions={plan} states={data.actionStates} busyKey={busyAction} onState={(k, s) => void onActionState(k, s)} onSimulate={onSimulate} />}
               {tab === 'whatif' && (
                 <WhatIfPanel base={base} result={result} metrics={data.metrics} baseDataQuality={data.dataQuality} baseOwnerHours={data.settings.ownerWeeklyHours} scenario={scenario} onChange={setScenario} />
+              )}
+              {(tab === 'evidence' || tab === 'multiples' || tab === 'sharing') && ownerId && model && effective && (
+                <ExitReadyTabs tab={tab} ownerId={ownerId} model={model} evaluation={base} effective={effective} addBacks={data.addBacks}
+                  snapshots={data.snapshots} multiples={multiples} onMultiplesChange={(rows) => setMultiples({ rows, unavailable: false })} companyName={null} />
               )}
               {tab === 'dataroom' && (
                 <DataRoomPanel links={data.links} logs={data.logs} creating={creatingRoom} createdUrl={createdUrl} onCreate={onCreateRoom} onRevoke={setRevokeTarget} onDismissUrl={() => setCreatedUrl(null)} />
