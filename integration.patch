@@ -1,0 +1,173 @@
+--- a/supabase/functions/vapi-webhook/index.ts
++++ b/supabase/functions/vapi-webhook/index.ts
+@@ -82,6 +82,7 @@
+ import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
+ import { getFeatureGate, recordProvenanceSidecar } from "../_shared/ai-transparency/gate.ts";
+ import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
++import { finalizePriceConversation, logPolicyLookup, lookupPolicyReply, recordPlaybookEvents, resolveJurisdictionState } from "../_shared/price-playbook/runtime.ts";
+ import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
+ import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
+ import { captureVerticalIntake, loadVerticalContext, resolveVoiceAssistantTenant } from "../_shared/verticals/context.ts";
+@@ -1446,6 +1447,30 @@
+     return "I need to know which service they're asking about before I can quote a price.";
+   }
+ 
++  // Price-First Playbook: if the owner defined a price policy for this service, ONLY the policy may be spoken.
++  const policyState = await resolveJurisdictionState(admin, tenant.userId, {
++    explicitState: typeof args.state === "string" ? args.state : null,
++    address: typeof args.address === "string" ? args.address : null,
++  });
++  const found = await lookupPolicyReply(admin, tenant.userId, query, "voice", policyState, new Set(), true);
++  if (found.kind === "error") {
++    // A policy can be stricter than the price book, so never fall through to the price book on error.
++    return "I couldn't reach the price list right now — let the caller know a team member will confirm pricing.";
++  }
++  if (found.kind === "matched") {
++    await logPolicyLookup(admin, tenant.userId, vapiCallId ?? null, query, found);
++    if (vapiCallId) {
++      await recordPlaybookEvents(admin, tenant.userId, "voice", vapiCallId, [
++        { stage: "price_asked", service_key: found.policy.service_key },
++        { stage: "answer_given", service_key: found.policy.service_key, mode_used: found.reply.answer.mode_used, downgraded_reason: found.reply.answer.downgraded_reason },
++      ]);
++    }
++    if (found.reply.answer.downgraded_reason === "region_unknown") {
++      return "Ask the caller for the ZIP code or state of the service address, then call lookup_price again with that state. Do not mention any dollar amount until then.";
++    }
++    return `Say this to the caller in your own natural voice. You may rephrase, but never change, add or round any dollar amount, and keep the fee and inclusions: "${found.reply.text}"\n${found.guidance}`;
++  }
++
+   const { data: items, error } = await admin
+     .from("price_book_items")
+     .select("service_name, category, pricing_model, price_cents, price_max_cents, unit_label, keywords")
+@@ -2315,6 +2340,16 @@
+     if (tagged.tagged) logEvent("call_disposition_auto_tagged", requestId, { outcome: tagged.outcome, task_created: tagged.taskCreated });
+   }
+ 
++  // Price-First Playbook: close out a price conversation as booked / abandoned (idempotent; never throws).
++  if (message.type === "end-of-call-report" && vapiCallId) {
++    try {
++      const outcome = await finalizePriceConversation(admin, tenant.userId, vapiCallId);
++      if (outcome !== "skipped") logEvent("price_playbook_outcome", requestId, { outcome });
++    } catch (err) {
++      console.error(JSON.stringify({ event: "price_playbook_finalize_failed", error: String(err) }));
++    }
++  }
++
+   // Customer language — detected from the caller's own words; only fills an empty preference (never throws).
+   if (message.type === "end-of-call-report" && transcript) {
+     const detected = await recordLanguageFromCall(admin, { userId: tenant.userId, vapiCallId, callerNumber, transcript });
+--- a/supabase/functions/_shared/autoReply/engine.ts
++++ b/supabase/functions/_shared/autoReply/engine.ts
+@@ -121,7 +121,7 @@
+ 
+ export interface AutoReplyDeps {
+   store: AutoReplyStore;
+-  searchKnowledge(userId: string, question: string, channel: Channel): Promise<KnowledgeContext>;
++  searchKnowledge(userId: string, question: string, channel: Channel, meta?: { conversationId: string }): Promise<KnowledgeContext>;
+   generate(req: { system: string; user: string }): Promise<GenerateResult>;
+   deliver(req: {
+     userId: string;
+@@ -248,7 +248,7 @@
+     if (recent >= settings.maxAutoRepliesPerDay) return finish("skipped", "rate_limited");
+ 
+     // --- Ground the answer in the business's own knowledge base + booking rules
+-    const knowledge = await deps.searchKnowledge(input.userId, text, input.channel);
++    const knowledge = await deps.searchKnowledge(input.userId, text, input.channel, { conversationId: input.conversationId });
+     const history = await store.getRecentMessages(input.channel, input.conversationId, 6, input.inboundMessageId);
+     const businessContext: BusinessContext = {
+       name: business.name,
+--- a/supabase/functions/_shared/autoReply/runtime.ts
++++ b/supabase/functions/_shared/autoReply/runtime.ts
+@@ -13,6 +13,8 @@
+ import { routeChat } from "../ai-core/router.ts";
+ import { runInputGuardrails, runOutputGuardrails } from "../ai-core/guardrails.ts";
+ import { sendCompliantSms } from "../messaging/sendSms.ts";
++import { buildTextChannelContext, isPriceAsk, stripMoney } from "../price-playbook/policy.ts";
++import { lookupPolicyReply, recordPlaybookEvents, resolveJurisdictionState } from "../price-playbook/runtime.ts";
+ import { parseModelOutput, sanitizeKeywords, type Channel } from "./decision.ts";
+ import {
+   processInboundAutoReply,
+@@ -229,17 +231,44 @@
+   return {
+     store: createStore(admin),
+ 
+-    async searchKnowledge(userId, question, channel) {
++    async searchKnowledge(userId, question, channel, meta) {
+       // audience "ai": articles marked 'team' (internal notes) can never be quoted to a customer.
+       const result = await searchKnowledge(admin, userId, question, { audience: "ai", limit: 3 });
+       const classification = classifyEpistemicBoundary(result, result.semantic);
+       // knowledge_gaps.source has no 'email' value → email gaps are filed under 'chat'.
+       await recordEpistemicBoundary(admin, userId, question, classification, channel === "sms" ? "sms" : "chat", null);
++      let tier = classification.tier;
++      let contextText = result.hits.map((h) => `• ${h.title}: ${(h.summary || h.body).trim().slice(0, 700)}`).join("\n");
++      let groundingText = result.hits.map((h) => `${h.title} ${h.summary} ${h.body}`).join(" ");
++
++      // Price-First Playbook: the owner's price policy is the ONLY allowed source for a price answer.
++      // Knowledge-base dollar amounts are stripped from both the prompt context and the grounding text,
++      // so the existing "price not in knowledge base" guard blocks any draft that quotes them.
++      if (isPriceAsk(question)) {
++        const state = await resolveJurisdictionState(admin, userId, {});
++        const found = await lookupPolicyReply(admin, userId, question, channel === "sms" ? "sms" : "web", state);
++        if (found.kind === "matched") {
++          const { answer, questions } = found.reply;
++          contextText = `${buildTextChannelContext(answer, questions)}\n${found.guidance}\n${stripMoney(contextText)}`;
++          groundingText = `${answer.spoken} ${stripMoney(groundingText)}`;
++          tier = "confident"; // the approved answer is authoritative for price questions
++          if (meta?.conversationId) {
++            await recordPlaybookEvents(admin, userId, channel === "sms" ? "sms" : "web", `${channel}:${meta.conversationId}`, [
++              { stage: "price_asked", service_key: found.policy.service_key },
++              { stage: "answer_given", service_key: found.policy.service_key, mode_used: answer.mode_used, downgraded_reason: answer.downgraded_reason },
++            ]);
++          }
++        } else if (found.kind === "error") {
++          contextText = `PRICE UNAVAILABLE: do not state any price. Tell the customer a team member will confirm pricing, and set needs_human=true.\n${stripMoney(contextText)}`;
++          groundingText = stripMoney(groundingText);
++        }
++      }
++
+       return {
+-        tier: classification.tier,
++        tier,
+         articleIds: result.hits.map((h) => h.id),
+-        contextText: result.hits.map((h) => `• ${h.title}: ${(h.summary || h.body).trim().slice(0, 700)}`).join("\n"),
+-        groundingText: result.hits.map((h) => `${h.title} ${h.summary} ${h.body}`).join(" "),
++        contextText,
++        groundingText,
+       };
+     },
+ 
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -172,6 +172,7 @@
+ const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
+ const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
+ const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
++const PricePolicyPage = lazy(() => import('@/pages/PricePolicyPage').then((m) => ({ default: m.PricePolicyPage })));
+ const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
+ const ServiceDataExchangePage = lazy(() => import('@/pages/ServiceDataExchangePage').then((m) => ({ default: m.ServiceDataExchangePage })));
+ const QuoteAcceptPage = lazy(() => import('@/pages/QuoteAcceptPage').then((m) => ({ default: m.QuoteAcceptPage })));
+@@ -1988,6 +1989,14 @@
+             </ProtectedRoute>
+           }
+         />
++        <Route
++          path="/dashboard/price-playbook"
++          element={
++            <ProtectedRoute>
++              <PricePolicyPage />
++            </ProtectedRoute>
++          }
++        />
+         <Route
+           path="/dashboard/contradictions"
+           element={
+--- a/src/components/DashboardNav.tsx
++++ b/src/components/DashboardNav.tsx
+@@ -271,6 +271,7 @@
+   { label: 'Goals', href: '/dashboard/goals', icon: Target },
+   { label: 'Coaching Reports', href: '/dashboard/coaching-reports', icon: GraduationCap, requiresPermission: 'can_view_billing' },
+   { label: 'Price Accuracy', href: '/dashboard/price-accuracy', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
++  { label: 'Price Playbook', href: '/dashboard/price-playbook', icon: Scale, requiresPermission: 'can_view_billing' },
+   { label: 'Voicemails', href: '/dashboard/voicemails', icon: Voicemail },
+   { label: 'Leads', href: '/dashboard/leads', icon: Users },
+   { label: 'Lead Assignment', href: '/dashboard/lead-assignment', icon: Shuffle, requiresPermission: 'can_manage_team' },
