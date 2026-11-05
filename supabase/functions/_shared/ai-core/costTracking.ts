@@ -13,6 +13,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import type { NormalizedChatRequest, NormalizedChatResponse, ProviderId, TaskType } from "./types.ts";
 import { AiCoreError } from "./types.ts";
 import type { RouteChatResult } from "./router.ts";
+import { isOptionalAiTask } from "../billing/costPolicy.ts";
 
 // ---------------------------------------------------------------------
 // Pricing — $ per 1,000,000 tokens. Approximate list prices at the time
@@ -202,8 +203,50 @@ export async function logFailure(
 
 // Fail OPEN: هر خطایی توی خوندن جدول بودجه فقط باعث می‌شه این یک تماس
 // enforce نشه، نه این‌که کل قابلیت‌های AI به‌خاطر مشکل مانیتورینگ قطع بشن.
-export async function checkBudget(accountId?: string): Promise<void> {
+// ---------------------------------------------------------------------
+// Plan cost limit (staff-set in plan_cost_limits.hard_cost_usd, voice + AI cost this month).
+// ONLY explicitly optional tasks (costPolicy.ts) are ever paused. Live-call, emergency, dispatch and
+// customer-facing tasks — and any task nobody classified — are never stopped for cost reasons.
+// Fail OPEN on any infrastructure error; cached 5 minutes per isolate to avoid a query per AI call.
+// ---------------------------------------------------------------------
+const PLAN_LIMIT_TTL_MS = 5 * 60_000;
+const planLimitCache = new Map<string, { at: number; exceeded: boolean }>();
+
+async function planCostLimitExceeded(accountId: string): Promise<boolean> {
+  const cached = planLimitCache.get(accountId);
+  if (cached && Date.now() - cached.at < PLAN_LIMIT_TTL_MS) return cached.exceeded;
+  let exceeded = false;
+  try {
+    const { data: profile } = await db().from("profiles").select("plan").eq("id", accountId).maybeSingle();
+    const plan = (profile as { plan?: string | null } | null)?.plan;
+    if (plan) {
+      const { data: limit } = await db().from("plan_cost_limits").select("hard_cost_usd").eq("plan", plan).maybeSingle();
+      const hard = (limit as { hard_cost_usd?: number | string | null } | null)?.hard_cost_usd;
+      if (hard !== null && hard !== undefined) {
+        const now = new Date();
+        const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+        const { data: cost } = await db().rpc("tenant_month_cost_total", { p_user: accountId, p_month_start: monthStart.toISOString() });
+        exceeded = Number(cost ?? 0) >= Number(hard);
+      }
+    }
+  } catch (err) {
+    console.error("[ai-core] plan cost limit check failed, allowing call through:", err);
+  }
+  planLimitCache.set(accountId, { at: Date.now(), exceeded });
+  return exceeded;
+}
+
+async function checkPlanCostLimit(accountId: string, task?: TaskType): Promise<void> {
+  if (!isOptionalAiTask(task)) return; // protected tasks never pay for cost limits (and skip the lookups)
+  if (await planCostLimitExceeded(accountId)) {
+    // Deliberately generic: internal cost figures are never shown to customers.
+    throw new AiCoreError("BUDGET_EXCEEDED", "Optional AI features are paused for this account for the rest of this billing month.");
+  }
+}
+
+export async function checkBudget(accountId?: string, task?: TaskType): Promise<void> {
   if (!accountId) return; // بدون accountId چیزی برای enforce کردن نیست
+  await checkPlanCostLimit(accountId, task);
 
   try {
     const { data: limit } = await db()
@@ -227,7 +270,8 @@ export async function checkBudget(accountId?: string): Promise<void> {
     const spend = (rows ?? []).reduce((sum: number, r: { cost_usd: number }) => sum + Number(r.cost_usd || 0), 0);
     const pct = (spend / Number(limit.monthly_limit_usd)) * 100;
 
-    if (pct >= 100 && limit.hard_stop) {
+    // The owner-set hard stop only pauses OPTIONAL tasks when the task is known; emergency/live-call tasks keep working.
+    if (pct >= 100 && limit.hard_stop && (task === undefined || isOptionalAiTask(task))) {
       throw new AiCoreError(
         "BUDGET_EXCEEDED",
         `Account has spent $${spend.toFixed(2)} this month, over its $${limit.monthly_limit_usd} AI budget.`,
