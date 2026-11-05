@@ -136,6 +136,7 @@ const EvidenceMarketplacePage = lazy(() => import('@/pages/EvidenceMarketplacePa
 const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartnersAdminPage').then((m) => ({ default: m.EvidencePartnersAdminPage })));
 const StaffCustomersPage = lazy(() => import('@/pages/admin/StaffCustomersPage').then((m) => ({ default: m.StaffCustomersPage })));
 const StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
+const StaffMarginsPage = lazy(() => import('@/pages/admin/StaffMarginsPage').then((m) => ({ default: m.StaffMarginsPage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
 const PilotManagementPage = lazy(() => import('@/pages/admin/PilotManagementPage').then((m) => ({ default: m.PilotManagementPage })));
 const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
@@ -757,6 +758,16 @@ function AppRoutes() {
             </StaffRoute>
           }
         />
+<Route
+  path="/staff/margins"
+  element={
+    <StaffRoute>
+      <Suspense fallback={<PageLoader />}>
+        <StaffMarginsPage />
+      </Suspense>
+    </StaffRoute>
+  }
+/>
        <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
         <Route path="/staff/open-voice-benchmark" element={<StaffRoute><StaffOpenVoiceBenchmarkPage /></StaffRoute>} />
        <Route path="/staff/value-scoreboard" element={<StaffRoute><StaffValueScoreboardPage /></StaffRoute>} />
