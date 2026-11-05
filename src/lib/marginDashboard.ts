@@ -8,6 +8,7 @@
 import { THIN_MARGIN_PCT, planEconomics, type Health } from './staffUsage';
 import { percentile, grossMargin, resolveRate, type CostComponent, type CostRate } from './unitEconomics';
 import { freeTierCostPerSignup, type Projection } from './marginModel';
+import type { AiPricingSummary } from './aiRepricing';
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
@@ -192,7 +193,7 @@ export function monthlyMinutesSamples(ms: TenantMargin[], plan: string, days: nu
   return ms.filter((m) => m.plan === plan).map((m) => (m.voiceMinutes * 30) / Math.max(1, days));
 }
 
-export function defaultAssumptions(a: { fallbackVoiceCpm: number | null; days: number; callsTotal: number; callsWithCost: number }): string[] {
+export function defaultAssumptions(a: { fallbackVoiceCpm: number | null; days: number; callsTotal: number; callsWithCost: number; ai?: AiPricingSummary }): string[] {
   const cov = a.callsTotal > 0 ? Math.round((a.callsWithCost / a.callsTotal) * 100) : 0;
   return [
     `Window: ${a.days} days. Monthly prices are prorated to the window (days / 30).`,
@@ -201,7 +202,9 @@ export function defaultAssumptions(a: { fallbackVoiceCpm: number | null; days: n
     a.fallbackVoiceCpm === null
       ? 'Voice minutes without a reported cost are left UNPRICED (no fallback rate set); margins are overstated by that amount.'
       : `Voice minutes without a reported cost use a fallback of $${a.fallbackVoiceCpm.toFixed(4)}/min (ESTIMATE, staff-entered assumption).`,
-    'AI cost (ESTIMATE): token counts x list prices in costTracking.ts; Cloudflare is priced at $0 there, so true AI cost is likely higher.',
+    a.ai
+      ? `AI cost (ESTIMATE): ${a.ai.rateTableUsd.toFixed(2)} USD priced from your provider rate table, ${a.ai.codeListUsd.toFixed(2)} USD from the list prices hard-coded in costTracking.ts; ${a.ai.unpricedCalls} of ${a.ai.totalCalls} calls (e.g. Cloudflare) have NO price and count as $0; ${a.ai.estimatedTokenCalls} calls use token counts estimated by us (under-counts non-Latin text).`
+      : 'AI cost (ESTIMATE): token counts x list prices in costTracking.ts; Cloudflare is priced at $0 there, so true AI cost is likely higher.',
     'SMS segments, storage, embeddings and vision are not included in tenant margins unless metered in cost_usage_events and priced in provider_cost_rates.',
     'Percentiles are across organisations in this window, including dormant ones.',
   ];
