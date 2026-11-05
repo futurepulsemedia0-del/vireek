@@ -21,12 +21,17 @@ export const QUALITY_VERSION = 1;
 /** Below this many reviews a trend number is shown but flagged as unreliable. */
 export const MIN_TREND_SAMPLE = 5;
 
-export type FindingKind = 'hallucination' | 'price_error' | 'missed_booking' | 'missed_upsell' | 'compliance_miss' | 'knowledge_gap';
+export type FindingKind =
+  | 'hallucination' | 'price_error' | 'missed_booking' | 'missed_upsell' | 'compliance_miss' | 'knowledge_gap'
+  | 'long_silence' | 'repeated_ask' | 'abrupt_hangup' | 'low_asr_confidence' | 'slow_response' | 'tool_failure';
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
 export type DimensionKey = 'accuracy' | 'booking' | 'upsell' | 'compliance' | 'experience';
 export type FixType = 'kb_article' | 'script_patch';
 
-export const FINDING_KINDS: FindingKind[] = ['hallucination', 'price_error', 'missed_booking', 'missed_upsell', 'compliance_miss', 'knowledge_gap'];
+export const FINDING_KINDS: FindingKind[] = [
+  'hallucination', 'price_error', 'missed_booking', 'missed_upsell', 'compliance_miss', 'knowledge_gap',
+  'long_silence', 'repeated_ask', 'abrupt_hangup', 'low_asr_confidence', 'slow_response', 'tool_failure',
+];
 export const SEVERITIES: Severity[] = ['low', 'medium', 'high', 'critical'];
 export const DIMENSIONS: DimensionKey[] = ['accuracy', 'compliance', 'booking', 'experience', 'upsell'];
 
@@ -37,6 +42,12 @@ export const KIND_LABELS: Record<FindingKind, string> = {
   missed_upsell: 'Missed upsell',
   compliance_miss: 'Compliance miss',
   knowledge_gap: 'Knowledge gap',
+  long_silence: 'Long silence',
+  repeated_ask: 'Repeated question',
+  abrupt_hangup: 'Abrupt hang-up',
+  low_asr_confidence: 'Low speech-recognition confidence',
+  slow_response: 'Slow response',
+  tool_failure: 'Tool failure',
 };
 
 export const DIMENSION_LABELS: Record<DimensionKey, string> = {
