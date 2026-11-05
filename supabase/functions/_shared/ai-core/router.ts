@@ -14,6 +14,7 @@ import type {
 } from "./types.ts";
 import { AiCoreError } from "./types.ts";
 import { ALL_ADAPTERS, getRouteForTask } from "./registry.ts";
+import { createTtftTracker } from "./ttft.ts";
 
 interface RouteAttemptLog {
   provider: string;
@@ -124,9 +125,9 @@ export async function routeChatStream(
     if (!adapter || !adapter.isConfigured()) continue;
 
     const start = Date.now();
-    let sentAnything = false;
+    const ttft = createTtftTracker(start);
     const guardedOnDelta: ChatStreamHandler = (delta) => {
-      if (delta) sentAnything = true;
+      ttft.markDelta(delta);
       onDelta(delta);
     };
 
@@ -139,7 +140,7 @@ export async function routeChatStream(
           });
 
       const latencyMs = Date.now() - start;
-      attempts.push({ provider: entry.provider, model: entry.model, ok: true, latencyMs });
+      attempts.push({ provider: entry.provider, model: entry.model, ok: true, latencyMs, ...(ttft.firstTokenMs !== undefined ? { firstTokenMs: ttft.firstTokenMs } : {}) });
       return {
         response: { ...response, model: response.model || entry.model, wasFallback: !isFirstAttempt },
         attempts,
@@ -147,7 +148,7 @@ export async function routeChatStream(
     } catch (err) {
       const latencyMs = Date.now() - start;
       const code = err instanceof AiCoreError ? err.code : "PROVIDER_ERROR";
-      attempts.push({ provider: entry.provider, model: entry.model, ok: false, errorCode: code, latencyMs });
+      attempts.push({ provider: entry.provider, model: entry.model, ok: false, errorCode: code, latencyMs, ...(ttft.firstTokenMs !== undefined ? { firstTokenMs: ttft.firstTokenMs } : {}) });
 
       if (sentAnything) {
         // Content already reached the caller — end the stream here rather
