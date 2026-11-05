@@ -20,6 +20,11 @@
 
 import { supabase } from '@/lib/supabase';
 import {
+  concludeExperiment,
+  startRegisteredExperiment,
+  type RegistrationInput,
+} from '@/lib/voiceAutopilot';
+import {
   LIMITS,
   sanitizeScriptText,
   summarizeScript,
@@ -45,6 +50,8 @@ export interface CallScript {
   challenger_traffic_pct: number;
   experiment_started_at: string | null;
   created_at: string;
+  dimension: string | null;
+ voice_pace: string | null;
   updated_at: string;
 }
 
@@ -130,6 +137,8 @@ export async function saveVersion(input: {
       opening_line: sanitizeScriptText(input.opening_line, LIMITS.openingMax),
       body: sanitizeScriptText(input.body, LIMITS.bodyMax),
       change_note: note || null,
+      dimension: input.dimension ?? null,
+      voice_pace: input.voice_pace ?? null,
     })
     .select('*')
     .single();
