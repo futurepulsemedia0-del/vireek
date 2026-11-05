@@ -39,6 +39,7 @@ Deno.serve(async (req: Request) => {
     const calendar = calRes.ok ? await calRes.json() : null;
 
     const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+   await saveSecrets(admin, userId, "google_calendar", { access_token: tokens.access_token, refresh_token: tokens.refresh_token });
     await admin.from("integrations").upsert(
       {
         user_id: userId,
