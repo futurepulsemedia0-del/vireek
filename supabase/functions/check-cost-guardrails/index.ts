@@ -84,8 +84,20 @@ Deno.serve(async (req: Request) => {
       if (page.length < PAGE) break;
     }
 
+    // Monthly reconciliation drift (staff flag only): last month's provider-reported voice cost vs the entered Vapi invoice.
+    const prevStart = new Date(Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth() - 1, 1));
+    const { data: prevCosts } = await admin.rpc("tenant_month_provider_cost", { p_month_start: prevStart.toISOString() });
+    const prevReported = ((prevCosts ?? []) as { cost_usd: number }[]).reduce((s, r) => s + (Number(r.cost_usd) || 0), 0);
+    const { data: prevInvoices } = await admin.from("provider_invoices").select("invoiced_usd")
+      .eq("period_month", prevStart.toISOString().slice(0, 10)).ilike("provider", "vapi");
+    const invoicedTotal = (prevInvoices ?? []).reduce((s: number, r: { invoiced_usd: number }) => s + Number(r.invoiced_usd), 0);
+    const driftPct = invoicedTotal > 0 ? ((prevReported - invoicedTotal) / invoicedTotal) * 100 : null;
+    const reconciliationDrift = driftPct !== null && Math.abs(driftPct) > 5
+      ? { month: prevStart.toISOString().slice(0, 7), reported_usd: prevReported, invoiced_usd: invoicedTotal, drift_pct: driftPct }
+      : null;
+    if (reconciliationDrift) console.warn("[cost-guardrails] invoice drift over 5%:", JSON.stringify(reconciliationDrift));
     if (staffFlags.length) console.warn(`[cost-guardrails] ${staffFlags.length} accounts over a cost limit`);
-    return json({ checked, alerts_created: alertsCreated, alert_failures: alertFailures, staff_flags: staffFlags });
+    return json({ checked, alerts_created: alertsCreated, alert_failures: alertFailures, staff_flags: staffFlags, reconciliation_drift: reconciliationDrift });
   } catch (err) {
     console.error("check-cost-guardrails failed:", err);
     return json({ error: err instanceof Error ? err.message : String(err) }, 500);
