@@ -13,6 +13,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { Card } from '@/components/ui/Card';
+import { IncrementalValuePanel } from '@/components/IncrementalValuePanel';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
 import { EmptyState } from '@/components/EmptyState';
