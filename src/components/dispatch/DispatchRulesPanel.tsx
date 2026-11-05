@@ -3,6 +3,7 @@ import { ChevronDown, ShieldAlert, SlidersHorizontal } from 'lucide-react';
 import { supabase, type Job } from '@/lib/supabase';
 import { useToast } from '@/contexts/ToastContext';
 import { rankJob, recordManualDecision, type RankResult, type RankedTechnician, type RulesBundle } from '@/lib/dispatchRulesApi';
+import { ProvenanceBadge } from '@/components/dispatch/CausalProvenanceBadge';
 
 const OUTCOME_STYLE: Record<string, string> = {
   pass: 'text-success-500',
@@ -42,7 +43,7 @@ export function RankedRow({ row, action }: { row: RankedTechnician; action?: Rea
                 <li key={f.rule_id} className="flex gap-2 text-xs">
                   <span className={`w-3 shrink-0 text-center font-bold ${OUTCOME_STYLE[f.outcome]}`}>{OUTCOME_MARK[f.outcome]}</span>
                   <span className="min-w-0 flex-1 text-text-secondary">
-                    <span className="font-medium text-text-primary">{f.label}:</span> {f.detail}
+                    <span className="font-medium text-text-primary">{f.label}:</span> {f.detail}<ProvenanceBadge ruleType={f.rule_type} />
                   </span>
                   {f.points !== 0 && <span className={`shrink-0 tabular-nums ${OUTCOME_STYLE[f.outcome]}`}>{f.points > 0 ? '+' : ''}{f.points}</span>}
                 </li>
