@@ -396,6 +396,7 @@ const RevenueCausalityGraphPage = lazy(() => import('@/pages/RevenueCausalityGra
 const AdaptiveDiagnosticsPage = lazy(() => import('@/pages/AdaptiveDiagnosticsPage').then((m) => ({ default: m.AdaptiveDiagnosticsPage })));
 const PredictiveFailurePage = lazy(() => import('@/pages/PredictiveFailurePage').then((m) => ({ default: m.PredictiveFailurePage })));
 const LiveCallsPage = lazy(() => import('@/pages/LiveCallsPage').then((m) => ({ default: m.LiveCallsPage })));
+const MassIncidentsPage = lazy(() => import('@/pages/MassIncidentsPage').then((m) => ({ default: m.MassIncidentsPage })));
 const VerificationNetworkPage = lazy(() => import('@/pages/VerificationNetworkPage').then((m) => ({ default: m.VerificationNetworkPage })));
 const PhysicalEconomyNetworkPage = lazy(() => import('@/pages/PhysicalEconomyNetworkPage').then((m) => ({ default: m.PhysicalEconomyNetworkPage })));
 const InvoicesPage = lazy(() => import('@/pages/InvoicesPage').then((m) => ({ default: m.InvoicesPage })));
@@ -1323,6 +1324,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <LiveCallsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/mass-incidents"
+          element={
+            <ProtectedRoute>
+              <MassIncidentsPage />
             </ProtectedRoute>
           }
         />
