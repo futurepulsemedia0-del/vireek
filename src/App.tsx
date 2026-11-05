@@ -587,6 +587,7 @@ const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ de
 const SecurityWhitepaperPage = lazy(() => import('@/pages/SecurityWhitepaperPage').then((m) => ({ default: m.SecurityWhitepaperPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
 const StaffReliabilityPage = lazy(() => import('@/pages/admin/StaffReliabilityPage').then((m) => ({ default: m.StaffReliabilityPage })));
+const StaffVoiceObservabilityPage = lazy(() => import('@/pages/admin/StaffVoiceObservabilityPage').then((m) => ({ default: m.StaffVoiceObservabilityPage })));
 const OfflinePage = lazy(() => import('@/pages/OfflinePage').then((m) => ({ default: m.OfflinePage })));
 const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
 const CaseStudiesPage = lazy(() => import('@/pages/CaseStudiesPage').then((m) => ({ default: m.CaseStudiesPage })));
@@ -801,6 +802,16 @@ function AppRoutes() {
             <StaffRoute>
               <Suspense fallback={<PageLoader />}>
                 <StaffReliabilityPage />
+              </Suspense>
+            </StaffRoute>
+          }
+        />
+        <Route
+          path="/staff/voice-observability"
+          element={
+            <StaffRoute>
+              <Suspense fallback={<PageLoader />}>
+                <StaffVoiceObservabilityPage />
               </Suspense>
             </StaffRoute>
           }
