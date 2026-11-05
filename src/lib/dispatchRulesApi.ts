@@ -230,9 +230,22 @@ export async function recordManualDecision(
   const best = p.ranking.best;
   const chosen = p.ranking.ranked.find((r) => r.technician_id === p.technicianId);
   const isOverride = !best || best.technician_id !== p.technicianId;
+  // Causal Dispatch Loop: if the dispatcher replaces a randomized (exploration) pick, say so in the log so the
+  // estimator knows that job was not treated as drawn. Best effort — never blocks the decision log.
+  let overrodeExploration = false;
+  if (isOverride) {
+    try {
+      const { data: last } = await supabase.from('dispatch_decisions').select('arm, technician_id').eq('user_id', ownerId).eq('job_id', p.jobId).eq('mode', 'auto').order('created_at', { ascending: false }).limit(1);
+      const prev = (last as { arm: string | null; technician_id: string | null }[] | null)?.[0];
+      overrodeExploration = prev?.arm === 'explore' && prev.technician_id !== p.technicianId;
+    } catch {
+      /* column or table not available yet */
+    }
+  }
   const parts = [
     p.reason?.trim() ? `Reason: ${p.reason.trim()}` : '',
     chosen && !chosen.eligible ? `Violated rules: ${chosen.blocked_by.join('; ')}` : '',
+    overrodeExploration ? 'Overrode an exploration pick' : '',
   ].filter(Boolean);
   const { error } = await supabase.from('dispatch_decisions').insert({
     user_id: ownerId,
@@ -241,7 +254,7 @@ export async function recordManualDecision(
     recommended_technician_id: best?.technician_id ?? null,
     mode: isOverride ? 'override' : 'manual',
     score: chosen?.score ?? null,
-    explanation: { rules_applied: p.ranking.rules_applied, margin: p.ranking.margin, candidates: snapshotForAudit(p.ranking) },
+    explanation: { rules_applied: p.ranking.rules_applied, margin: p.ranking.margin, candidates: snapshotForAudit(p.ranking), ...(overrodeExploration ? { overrode_exploration: true } : {}) },
     note: parts.join(' | ').slice(0, 900) || null,
   });
   if (error) console.error('dispatch decision log failed', error.message);
