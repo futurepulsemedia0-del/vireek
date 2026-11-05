@@ -106,6 +106,9 @@ import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
 import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
 import { resolveVapiVoice } from "../_shared/voice/voiceMap.ts";
 import { recordLanguageFromCall, resolveVoiceLanguage } from "../_shared/i18n/customerLanguage.ts";
+import { bindTrace, releaseTrace, traceFor } from "../_shared/observability/requestTrace.ts";
+import { deriveTraceId } from "../_shared/observability/traceContext.ts";
+import { classifyToolResult, isBookingSuccess, recordEndOfCall, recordTraceEvent, runInBackground } from "../_shared/observability/recorder.ts";
 import { buildIncidentVoiceContext, getAreaGuidance, ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
 import { buildIncidentVoiceContext, getAreaGuidance, getBookingIncidentNote, ingestIncidentContact, linkJobToIncidentContact } from "../_shared/mass-incident/runtime.ts";
 import { buildInterpreterContext, customGreeting, loadInterpreterSettings, recordAssistantCall } from "../_shared/interpreter/runtime.ts";
@@ -228,7 +231,7 @@ function jsonResponse(data: unknown, status = 200) {
 
 // Never put a phone number, transcript, or secret in a log line.
 function logEvent(event: string, requestId: string, extra: Record<string, unknown> = {}) {
-  console.log(JSON.stringify({ event, requestId, ...redact(extra) }));
+  console.log(JSON.stringify({ event, requestId, traceId: traceFor(requestId), ...redact(extra) }));
 }
 
 function logError(event: string, requestId: string, error: unknown, extra: Record<string, unknown> = {}) {
@@ -236,6 +239,7 @@ function logError(event: string, requestId: string, error: unknown, extra: Recor
     JSON.stringify({
       event,
       requestId,
+      traceId: traceFor(requestId),
       error: error instanceof Error ? error.message : String(error),
       ...redact(extra),
     }),
@@ -2009,8 +2013,12 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
     dialedNumberId: message.call?.phoneNumberId ?? null,
   };
 
+  const traceCtx = vapiCallId ? { userId: tenant.userId, vapiCallId, traceId: await deriveTraceId(vapiCallId) } : null;
+
   const results = await Promise.all(
     toolCalls.map(async (tc) => {
+      const toolStartedAt = Date.now();
+      let toolThrew = false;
       const toolCallId = tc.id ?? tc.toolCallId ?? "";
       const name = tc.function?.name ?? "";
        const rawArgs = parseToolArguments(tc.function?.arguments);
@@ -2125,6 +2133,7 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
         }
       } catch (error) {
         void recordOutcome(admin, { providerId: "tools", capability: "tools", ok: false, errorCode: "tool_exception", userId: tenant.userId });
+        toolThrew = true;
         logError("tool_call_failed", requestId, error, { tool: name });
         result = "Something went wrong handling this action — please continue the call and have the office follow up.";
       }
@@ -2132,6 +2141,13 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
       // Output filter: canaries, secrets, other people's PII, and (below step-up) sensitive account data never reach the model.
       if (vs && gate) {
         result = await finalizeToolResult(vs, { tenantId: tenant.userId, tool: name, rawArgs, call: callRef }, gate, result);
+      }
+      if (traceCtx) {
+        const outcome = classifyToolResult(result, toolThrew);
+        runInBackground(recordTraceEvent(admin, traceCtx, {
+          kind: "tool", name, toolCallId, ok: outcome === "ok", durationMs: Date.now() - toolStartedAt,
+          attrs: { outcome, booked: name === "book_appointment" && isBookingSuccess(result) },
+        }));
       }
       return { toolCallId, result };
     }),
@@ -2597,6 +2613,16 @@ transcript = pci.text;
        logError("ai_disclosure_record_failed", requestId, error, {});
      }
    }
+  if (message.type === "end-of-call-report" && callRow && vapiCallId) {
+    runInBackground((async () => {
+      await recordEndOfCall({
+        admin, ctx: { userId: tenant.userId, vapiCallId, traceId: await deriveTraceId(vapiCallId) }, message,
+        region: Deno.env.get("SB_REGION") ?? Deno.env.get("DENO_REGION") ?? null, callRowId: callRow.id,
+        resolvedOutcome: false, getEnv: (k) => Deno.env.get(k),
+      });
+      releaseTrace(requestId);
+    })());
+  }
   logEvent("lifecycle_event_processed", requestId, {
     type: message.type,
     user_id: tenant.userId,
@@ -2643,6 +2669,10 @@ Deno.serve((req: Request) =>
     logError,
     logToDb,
     trackLiveCall: (admin, message, requestId) => trackLiveCallEvent(admin, message, requestId, resolveTenant),
+    bindTrace: async (requestId, message) => {
+      const callId = message.call?.id;
+      if (callId) bindTrace(requestId, await deriveTraceId(callId));
+    },
     handlers: {
       assistantRequest: handleAssistantRequest,
       transfer: handleTransferDestinationRequest,
