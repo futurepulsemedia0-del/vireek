@@ -328,6 +328,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Break Compliance', href: '/dashboard/break-compliance', icon: Coffee, requiresPermission: 'can_view_billing' },
   { label: 'Truck Operations', href: '/dashboard/inventory/trucks', icon: Truck },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
+  { label: 'Phone Resilience', href: '/dashboard/voice-resilience', icon: ShieldCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'Number Reputation', href: '/dashboard/phone-numbers/reputation', icon: ShieldCheck, requiresPermission: 'can_manage_numbers' },
   { label: 'Voice Platform', href: '/dashboard/voice-platform', icon: Mic, requiresPermission: 'can_manage_numbers' },
   { label: 'Blocklist & DNC', href: '/dashboard/blocklist', icon: Ban, requiresPermission: 'can_manage_numbers' },
