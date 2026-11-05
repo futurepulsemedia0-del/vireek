@@ -100,3 +100,9 @@ verify_jwt = false
 verify_jwt = false
 [functions.mass-incident]
 verify_jwt = false
+[functions.voice-front-door]
+verify_jwt = false
+[functions.voice-health-tick]
+verify_jwt = false
+[functions.voice-reconcile]
+verify_jwt = false
