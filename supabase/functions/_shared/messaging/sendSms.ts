@@ -17,6 +17,7 @@ import { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { checkA2pApproved } from "../compliance/a2pGate.ts";
 import { isDncSuppressed, normalizePhone } from "../compliance/dncCheck.ts";
 import { gateOutbound, deferMessage, type Purpose } from "./quietHours.ts";
+import { estimateSmsSegments, recordUsageEvent } from "../billing/usageEvents.ts";
 
 export type SendSmsResult =
   | { ok: true; sid: string; deferred?: false }
@@ -82,5 +83,13 @@ export async function sendCompliantSms(
   if (!res.ok) {
     return { ok: false, reason: "TWILIO_ERROR", detail: json?.message ?? `HTTP ${res.status}` };
   }
+  await recordUsageEvent(admin, {
+    userId,
+    component: "sms_segment",
+    quantity: estimateSmsSegments(body),
+    unit: "per_segment",
+    source: "sendCompliantSms",
+    ref: json.sid,
+  });
   return { ok: true, sid: json.sid };
 }
