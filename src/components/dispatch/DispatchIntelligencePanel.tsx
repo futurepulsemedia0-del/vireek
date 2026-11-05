@@ -5,6 +5,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { RiskChip } from '@/components/dispatch/RiskChip';
 import { LiveEtaPanel } from '@/components/dispatch/LiveEtaPanel';
+import { CausalDispatchCard } from '@/components/dispatch/CausalDispatchCard';
 import type { Job, TeamMember } from '@/lib/supabase';
 import type { RiskReport } from '@/lib/riskIntelligence';
 import { optimizeRoute, type OptimizedRoute } from '@/lib/routing';
@@ -247,6 +248,7 @@ export function DispatchIntelligencePanel({ jobs, technicians, riskMap, onChange
       </div>
 
       {plan && (
+      {ownerId && <CausalDispatchCard ownerId={ownerId} canManage={!!isOwner} />}
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {[
             { label: 'Unassigned', value: plan.summary.unassigned },
