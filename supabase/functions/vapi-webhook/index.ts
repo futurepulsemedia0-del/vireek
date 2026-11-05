@@ -1535,7 +1535,8 @@ async function toolLookupPrice(
   if (!query) {
     return "I need to know which service they're asking about before I can quote a price.";
   }
-
+  const policyReply = await tryPricePolicyReply(admin, tenant, query, args, vapiCallId);
+  if (policyReply !== null) return policyReply;
     // A caller already classified as an AI agent must go through agent_quote (rate limits, never-discuss, per-service
   // quotable flags). Without this, lookup_price would be a side door around every agent control.
   if (vapiCallId) {
