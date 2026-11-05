@@ -68,6 +68,8 @@ export interface NormalizedChatResponse {
   model: string;
   latencyMs: number;
   wasFallback: boolean;
+  /** Provider-REPORTED token counts when the response included them (non-streaming). Absent = cost is estimated from text length. */
+  usage?: { inputTokens: number; outputTokens: number };
 }
 
 /**
@@ -86,7 +88,8 @@ export type AiCoreErrorCode =
   | "INVALID_RESPONSE"
   | "PROVIDER_ERROR"
   | "ALL_PROVIDERS_FAILED"
-  | "GUARDRAIL_BLOCKED";
+  | "GUARDRAIL_BLOCKED"
+  | "BUDGET_EXCEEDED";
 
 export class AiCoreError extends Error {
   readonly code: AiCoreErrorCode;
