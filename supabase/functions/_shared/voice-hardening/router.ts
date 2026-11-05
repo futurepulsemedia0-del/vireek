@@ -36,6 +36,8 @@ export interface WebhookPorts<A, M extends { type?: string }> {
   logError(event: string, requestId: string, error: unknown, extra?: Record<string, unknown>): void;
   logToDb(admin: A, opts: { eventType: string; status: "success" | "error"; requestId: string; errorMessage?: string }): Promise<void>;
   trackLiveCall(admin: A, message: M, requestId: string): Promise<void>;
+  /** Optional: lets observability bind this request to the call's trace id before anything is logged. */
+  bindTrace?(requestId: string, message: M): void | Promise<void>;
   handlers: Record<HandlerKey, Handler<A, M>>;
 }
 
@@ -77,6 +79,7 @@ export async function processWebhook<A, M extends { type?: string }>(req: Reques
   }
   const admin = ports.createAdmin(supabaseUrl, serviceRoleKey);
 
+  try { await ports.bindTrace?.(requestId, message); } catch { /* telemetry must never block the webhook */ }
   ports.logEvent("webhook_received", requestId, { type: message.type });
   await ports.logToDb(admin, { eventType: message.type, status: "success", requestId });
   try {
