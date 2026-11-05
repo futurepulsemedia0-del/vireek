@@ -269,6 +269,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Operating Cadence', href: '/dashboard/cadence', icon: CalendarCheck },
   { label: 'Team Chat', href: '/dashboard/team-chat', icon: MessagesSquare },
   { label: 'Live Calls', href: '/dashboard/live-calls', icon: Radio, requiresPermission: 'can_manage_numbers' },
+  { label: 'Mass Incidents', href: '/dashboard/mass-incidents', icon: Siren, requiresPermission: 'can_manage_numbers' },
   { label: 'Live Interpreter', href: '/dashboard/interpreter', icon: Languages, requiresPermission: 'can_manage_numbers' },
   { label: 'Wallboard (TV)', href: '/dashboard/wallboard', icon: Monitor, ownerOnly: true },
   { label: 'Call History', href: '/dashboard/calls', icon: PhoneCall },
