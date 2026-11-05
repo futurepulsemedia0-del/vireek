@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { parseExtras, parseUeReport, parseUsageEvents, type MarginExtras, type UeReport, type UsageEventTotal } from '@/lib/marginDashboard';
 import type { CostComponent, CostRate } from '@/lib/unitEconomics';
+import { parseAiUsage, type AiUsageBreakdown } from '@/lib/aiRepricing';
 import type { InvoiceInput, LimitInput, RateInput } from '@/lib/unitEconomicsInputs';
 
 export class UnitEconomicsError extends Error {
@@ -36,6 +37,11 @@ export async function fetchUsageEvents(start: Date, end: Date): Promise<UsageEve
   return parseUsageEvents(data);
 }
 
+export async function fetchAiUsage(start: Date, end: Date): Promise<AiUsageBreakdown> {
+  const { data, error } = await supabase.rpc('staff_ai_usage_breakdown', win(start, end));
+  if (error) fail(error);
+  return parseAiUsage(data);
+}
 export interface RateRow extends CostRate { id: string; sourceUrl: string | null }
 
 export async function listRates(): Promise<RateRow[]> {
