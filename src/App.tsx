@@ -111,6 +111,7 @@ const ValueScoreboardPage = lazy(() => import('@/pages/ValueScoreboardPage').the
 const StaffValueScoreboardPage = lazy(() => import('@/pages/StaffValueScoreboardPage').then((m) => ({ default: m.StaffValueScoreboardPage })));
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
+const ChiefOfStaffPage = lazy(() => import('@/pages/ChiefOfStaffPage').then((m) => ({ default: m.ChiefOfStaffPage })));
 const AskVireekPage = lazy(() => import('@/pages/AskVireekPage').then((m) => ({ default: m.AskVireekPage })));
 const CsrDeskPage = lazy(() => import('@/pages/CsrDeskPage').then((m) => ({ default: m.CsrDeskPage })));
 const InterpreterSettingsPage = lazy(() => import('@/pages/InterpreterSettingsPage').then((m) => ({ default: m.InterpreterSettingsPage })));
@@ -1671,6 +1672,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />|
+        <Route
+          path="/dashboard/chief-of-staff"
+          element={
+            <ProtectedRoute>
+              <ChiefOfStaffPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/ask-vireek"
           element={
