@@ -93,6 +93,7 @@ const JobDetailPage = lazy(() => import('@/pages/JobDetailPage').then((m) => ({ 
 const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
 const CalendarFeedsPage = lazy(() => import('@/pages/CalendarFeedsPage').then((m) => ({ default: m.CalendarFeedsPage })));
 const DirectMailPage = lazy(() => import('@/pages/DirectMailPage').then((m) => ({ default: m.DirectMailPage })));
+const VoiceResiliencePage = lazy(() => import('@/pages/VoiceResiliencePage').then((m) => ({ default: m.VoiceResiliencePage })));
 const WorkOrderGuardPage = lazy(() => import('@/pages/WorkOrderGuardPage').then((m) => ({ default: m.WorkOrderGuardPage })));
 const CanvassingPage = lazy(() => import('@/pages/CanvassingPage').then((m) => ({ default: m.CanvassingPage })));
 const MailerRedirectPage = lazy(() => import('@/pages/MailerRedirectPage').then((m) => ({ default: m.MailerRedirectPage })));
@@ -2606,6 +2607,7 @@ function AppRoutes() {
         />
 <Route path="/dashboard/marketing/canvassing" element={<ProtectedRoute><CanvassingPage /></ProtectedRoute>} />
 <Route path="/marketing/canvassing" element={<Navigate to="/dashboard/marketing/canvassing" replace />} />
+<Route path="/dashboard/voice-resilience" element={<ProtectedRoute><VoiceResiliencePage /></ProtectedRoute>} />
 <Route
   path="/dashboard/direct-mail"
   element={
