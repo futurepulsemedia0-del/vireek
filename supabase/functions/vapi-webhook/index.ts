@@ -21,6 +21,7 @@ import { buildReplayPayload, claimEvent, completeEvent, failEvent, supabaseLedge
 import { findEscalationTarget, isValidE164 } from "../_shared/voice-hardening/escalation.ts";
 import { findDuplicateBooking } from "../_shared/voice-hardening/bookingIdempotency.ts";
 import { planDisclosure, recordDisclosureOutcome } from "../_shared/ai-disclosure/ledger.ts";
+import { buildCallScriptsContextVariable } from "../_shared/call-scripts/runtime.ts";
 import { formatPriceLine, matchPriceItems } from "../_shared/price-book/match.ts";
 import { agentHold, agentQuote, agentSummaryChannel, finalizeAgentCall, identifyCaller, type CallContext } from "../_shared/agent-callers/engine.ts";
 import { buildPorts, loadAgentSettings } from "../_shared/agent-callers/runtime.ts";
@@ -777,7 +778,7 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   } catch {
     securityRef = "";
   }
-
+const callScriptsContext = await buildCallScriptsContextVariable(admin, tenant.userId, message.call?.id ?? null, afterHoursContext.length > 0);
   const sharedVariableValues = {
     security_ref: securityRef,
     caller_context: callerContext,
