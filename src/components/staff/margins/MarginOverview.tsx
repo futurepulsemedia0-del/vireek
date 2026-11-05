@@ -3,14 +3,16 @@ import { EmptyState } from '@/components/EmptyState';
 import { BarChart3 } from 'lucide-react';
 import { formatMinutes, formatPct, formatUsd, type DailyCostPoint } from '@/lib/staffUsage';
 import type { CohortStat, CostDriver, MarginExtras, MarginSummary, PlanStat, PricedUsage, TenantMargin } from '@/lib/marginDashboard';
+import type { AiModelCost, AiPricingSummary } from '@/lib/aiRepricing';
 import { BasisTag, Kpi, Section, TableWrap, TD, TDR, TH, THR } from './shared';
 
 export interface OverviewProps {
   summary: MarginSummary; plans: PlanStat[]; negative: TenantMargin[]; drivers: CostDriver[]; cohorts: CohortStat[];
   features: MarginExtras['features']; freeTier: { orgs: number; avgCostUsd: number | null }; daily: DailyCostPoint[];
   coverage: { callsTotal: number; callsWithCost: number }; measuredCpm: number | null; usage: PricedUsage[]; truncated: boolean;
+  aiSummary: AiPricingSummary; aiCoverage: AiModelCost[];
 }
-
+const AI_BASIS_LABEL = { rate_table: 'Your rate table', code_list_price: 'Code list price', unpriced: 'No price (counts as $0)' } as const;
 const COMPONENT_LABEL: Record<string, string> = {
   carrier_inbound: 'Carrier (inbound)', carrier_outbound: 'Carrier (outbound)', carrier_unclassified: 'Carrier (direction unknown)', asr: 'Speech-to-text',
   llm: 'LLM (voice)', tts: 'Text-to-speech', voice_platform: 'Voice platform fee', provider_other: 'Other provider cost', provider_total_unbroken: 'Provider total (no breakdown)',
@@ -84,6 +86,14 @@ export function MarginOverview(p: OverviewProps) {
         </Section>
       </div>
 
+      <Section title="AI pricing coverage (estimate)" aside={<span className="text-xs text-text-secondary">{formatUsd(p.aiSummary.rateTableUsd)} from your rates · {formatUsd(p.aiSummary.codeListUsd)} from code list prices · {p.aiSummary.unpricedCalls} unpriced calls</span>}>
+        {p.aiCoverage.length === 0 ? <p className="text-sm text-text-secondary">No AI usage in this window.</p> : (
+          <TableWrap caption="AI pricing coverage by provider and model">
+            <thead><tr><th scope="col" className={TH}>Provider / model</th><th scope="col" className={THR}>Calls</th><th scope="col" className={THR}>Input tokens</th><th scope="col" className={THR}>Output tokens</th><th scope="col" className={THR}>Cost</th><th scope="col" className={TH}>Priced from</th><th scope="col" className={THR}>Tokens estimated</th></tr></thead>
+            <tbody>{p.aiCoverage.slice(0, 15).map((m) => <tr key={`${m.provider}-${m.model}`} className="border-t border-border"><th scope="row" className={`${TD} font-medium`}>{m.provider} / {m.model}</th><td className={TDR}>{m.calls}</td><td className={TDR}>{String(Math.round(m.inputTokens))}</td><td className={TDR}>{String(Math.round(m.outputTokens))}</td><td className={TDR}>{formatUsd(m.costUsd)}</td><td className={TD}>{AI_BASIS_LABEL[m.basis]}</td><td className={TDR}>{formatPct(m.estimatedTokenShare * 100)}</td></tr>)}</tbody>
+          </TableWrap>)}
+        <p className="mt-2 text-xs text-text-secondary">Add per-provider token rates (component “llm”, units per_1m_input_tokens and per_1m_output_tokens) under Inputs to price a provider from your own numbers. Estimated token counts under-count non-Latin text.</p>
+      </Section>
       <Section title="Metered usage (quantity × your rates = estimate)">
         {p.usage.length === 0 ? <p className="text-sm text-text-secondary">No metered usage events in this window.</p> : (
           <TableWrap caption="Metered usage">
