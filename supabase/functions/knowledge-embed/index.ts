@@ -19,6 +19,8 @@
 // quality, never availability.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { allocateTokens, recordUsageEvent } from "../_shared/billing/usageEvents.ts";
+import { recordGeminiUsage } from "../_shared/billing/usageEvents.ts";
 import {
   embedTexts,
   embeddingModelName,
@@ -112,13 +114,24 @@ Deno.serve(async (req: Request) => {
     }
     if (!articles || articles.length === 0) break;
 
-    const vectors = await embedTexts(articles.map(buildEmbeddingInput), "search_document", 20_000);
+    const inputs = articles.map(buildEmbeddingInput);
+    const usageBox: { u: { inputTokens: number; measured: boolean } | null } = { u: null };
+    const vectors = await embedTexts(inputs, "search_document", 20_000, (u) => { usageBox.u = u; });
 
     if (!vectors) {
       // Provider is down or rate-limiting. Leave the rows stale so the next
       // run retries them; do not write half a batch.
       failed += articles.length;
       break;
+    }
+
+    // Unit economics: attribute the batch's embedding tokens to each article's tenant (proportional to text length).
+    if (usageBox.u) {
+      const shares = allocateTokens(usageBox.u.inputTokens, inputs.map((t: string) => Math.min(t.length, 8000)));
+      const runId = crypto.randomUUID();
+      const estimated = !usageBox.u.measured;
+      await Promise.all(articles.map((a: { id: string; user_id?: string | null }, i: number) =>
+        recordUsageEvent(admin, { userId: a.user_id ?? null, component: "embeddings", quantity: shares[i], unit: "input_tokens", source: "knowledge-embed", ref: `${runId}:${a.id}`, estimated })));
     }
 
     const results = await Promise.all(
