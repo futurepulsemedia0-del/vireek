@@ -7,6 +7,7 @@
 // against a hard timeout.
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { checkVariantText, paceGuidance } from "../voice-autopilot/locks.ts";
 import {
   buildCallScriptsContext,
   isScenarioKey,
@@ -27,6 +28,7 @@ interface ScriptRow {
 interface VersionRow {
   id: string;
   opening_line: string;
+  body: string;
   body: string;
 }
 
@@ -50,7 +52,7 @@ async function resolve(
   );
   const { data: versions, error: vErr } = await admin
     .from("call_script_versions")
-    .select("id, opening_line, body")
+    .select("id, opening_line, body, voice_pace")
     .in("id", versionIds);
   if (vErr || !versions?.length) return "";
   const byId = new Map((versions as VersionRow[]).map((v) => [v.id, v]));
@@ -73,11 +75,13 @@ async function resolve(
       !!callId &&
       !!s.challenger_version_id &&
       pickArm(callId, s.id, s.challenger_traffic_pct) === "challenger";
-    const challenger = wantsChallenger ? byId.get(s.challenger_version_id as string) : undefined;
+    const candidate = wantsChallenger ? byId.get(s.challenger_version_id as string) : undefined;
+const challenger = candidate && checkVariantText(candidate.opening_line, candidate.body).length === 0 ? candidate : undefined;
     const version = challenger ?? byId.get(s.active_version_id);
     if (!version) continue;
     const arm: Arm = challenger ? "challenger" : "control";
-    entries.push({ scenario: s.scenario, opening_line: version.opening_line, body: version.body });
+    const pace = paceGuidance(version.voice_pace);
+entries.push({ scenario: s.scenario, opening_line: version.opening_line, body: pace ? \${pace}\n${version.body}` : version.body });`, opening_line: version.opening_line, body: version.body });
     if (callId) {
       assignments.push({
         user_id: userId,
