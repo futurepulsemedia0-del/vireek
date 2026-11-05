@@ -1,0 +1,797 @@
+--- a/src/lib/callScripts.ts
++++ b/src/lib/callScripts.ts
+@@ -19,6 +19,7 @@
+  */
+ 
+ import { supabase } from '@/lib/supabase';
++import { concludeExperiment, startRegisteredExperiment, type RegistrationInput } from '@/lib/voiceAutopilot';
+ import {
+   LIMITS,
+   sanitizeScriptText,
+@@ -57,6 +58,9 @@
+   change_note: string | null;
+   created_by: string | null;
+   created_at: string;
++  /** Which single lever this version changes (set when saved for an experiment). */
++  dimension: string | null;
++  voice_pace: string | null;
+ }
+ 
+ export interface SimulatorTurn {
+@@ -121,6 +125,8 @@
+   opening_line: string;
+   body: string;
+   change_note: string;
++  dimension?: string | null;
++  voice_pace?: string | null;
+ }): Promise<CallScriptVersion> {
+   const note = sanitizeScriptText(input.change_note, LIMITS.noteMax);
+   const { data, error } = await supabase
+@@ -130,6 +136,8 @@
+       opening_line: sanitizeScriptText(input.opening_line, LIMITS.openingMax),
+       body: sanitizeScriptText(input.body, LIMITS.bodyMax),
+       change_note: note || null,
++      dimension: input.dimension ?? null,
++      voice_pace: input.voice_pace ?? null,
+     })
+     .select('*')
+     .single();
+@@ -157,11 +165,24 @@
+   return updateScript(scriptId, { active_version_id: null, challenger_version_id: null, challenger_traffic_pct: 0 });
+ }
+ 
+-export function startExperiment(scriptId: string, challengerVersionId: string, pct: number): Promise<CallScript> {
+-  return updateScript(scriptId, {
+-    challenger_version_id: challengerVersionId,
+-    challenger_traffic_pct: Math.max(1, Math.min(LIMITS.challengerPctMax, Math.round(pct))),
+-  });
++/**
++ * Starts a PRE-REGISTERED experiment through the database (voice_experiment_start): the plan is frozen, the traffic
++ * split is capped by the account's Autopilot limit, and the compliance lock is re-checked server-side.
++ * A challenger can no longer be set by a bare table update (a trigger rejects it).
++ */
++export async function startExperiment(scriptId: string, challengerVersionId: string, pct: number, reg: RegistrationInput): Promise<CallScript> {
++  await startRegisteredExperiment(scriptId, challengerVersionId, Math.max(1, Math.min(LIMITS.challengerPctMax, Math.round(pct))), reg);
++  const { data, error } = await supabase.from('call_scripts').select('*').eq('id', scriptId).single();
++  if (error) throw error;
++  return data as CallScript;
++}
++
++/** Approve a promotion the engine requested (suggest mode). Re-checks the compliance lock in the database. */
++export async function approvePromotion(experimentId: string, scriptId: string): Promise<CallScript> {
++  await concludeExperiment(experimentId, 'promote');
++  const { data, error } = await supabase.from('call_scripts').select('*').eq('id', scriptId).single();
++  if (error) throw error;
++  return data as CallScript;
+ }
+ 
+ export function setTrafficSplit(scriptId: string, pct: number): Promise<CallScript> {
+--- a/src/pages/CallScriptsPage.tsx
++++ b/src/pages/CallScriptsPage.tsx
+@@ -1,6 +1,6 @@
+ import { useCallback, useEffect, useMemo, useState } from 'react';
+ import { useNavigate } from 'react-router-dom';
+-import { ArrowLeft, ScrollText, Lock, FlaskConical, History, MessageSquare, PenLine } from 'lucide-react';
++import { ArrowLeft, ClipboardCheck, ScrollText, Lock, FlaskConical, History, MessageSquare, PenLine } from 'lucide-react';
+ import { useAuth } from '@/contexts/AuthContext';
+ import { useToast } from '@/contexts/ToastContext';
+ import { DashboardLayout } from '@/components/DashboardNav';
+@@ -12,6 +12,7 @@
+ import { TestCallSimulator } from '@/components/call-scripts/TestCallSimulator';
+ import { ExperimentPanel } from '@/components/call-scripts/ExperimentPanel';
+ import { VersionHistory } from '@/components/call-scripts/VersionHistory';
++import { CsrQaPanel } from '@/components/csr-qa/CsrQaPanel';
+ import {
+   LIMITS,
+   SCENARIOS,
+@@ -19,12 +20,11 @@
+   ensureScript,
+   fetchScripts,
+   fetchVersions,
+-  promoteChallenger,
++  approvePromotion,
+   publishVersion,
+   saveVersion,
+   sanitizeScriptText,
+   scenarioLabel,
+-  setTrafficSplit,
+   startExperiment,
+   stopExperiment,
+   unpublishScript,
+@@ -38,19 +38,20 @@
+ // HELPERS
+ // ============================================================
+ 
+-type TabKey = 'editor' | 'test' | 'experiment' | 'history';
++type TabKey = 'editor' | 'test' | 'experiment' | 'history' | 'qa';
+ 
+ const TABS: { key: TabKey; label: string; icon: typeof PenLine }[] = [
+   { key: 'editor', label: 'Editor', icon: PenLine },
+   { key: 'test', label: 'Test call', icon: MessageSquare },
+   { key: 'experiment', label: 'A/B test', icon: FlaskConical },
+   { key: 'history', label: 'History', icon: History },
++  { key: 'qa', label: 'Staff QA', icon: ClipboardCheck },
+ ];
+ 
+ function draftFrom(version: CallScriptVersion | null, scenario: ScenarioKey): ScriptDraftState {
+-  if (version) return { opening_line: version.opening_line, body: version.body, note: '' };
++  if (version) return { opening_line: version.opening_line, body: version.body, note: '', dimension: '', voice_pace: '' };
+   const starter = STARTER_TEMPLATES[scenario];
+-  return { opening_line: starter.opening_line, body: starter.body, note: '' };
++  return { opening_line: starter.opening_line, body: starter.body, note: '', dimension: '', voice_pace: '' };
+ }
+ 
+ function upsertScript(list: CallScript[], next: CallScript): CallScript[] {
+@@ -218,9 +219,11 @@
+         opening_line: draft.opening_line,
+         body: draft.body,
+         change_note: draft.note,
++        dimension: draft.dimension || null,
++        voice_pace: draft.dimension === 'voice_pace' ? draft.voice_pace || 'slower' : null,
+       });
+       setVersions((prev) => [saved, ...prev.filter((v) => v.id !== saved.id)]);
+-      setDraft((d) => ({ ...d, note: '' }));
++      setDraft((d) => ({ ...d, note: '', dimension: '', voice_pace: '' }));
+ 
+       let next = current;
+       if (publish) {
+@@ -286,7 +289,7 @@
+   };
+ 
+   const handleEditFrom = (version: CallScriptVersion) => {
+-    setDraft({ opening_line: version.opening_line, body: version.body, note: `Based on version ${version.version_number}` });
++    setDraft({ opening_line: version.opening_line, body: version.body, note: `Based on version ${version.version_number}`, dimension: '', voice_pace: '' });
+     setTab('editor');
+     toast(`Loaded version ${version.version_number} into the editor. Save to create a new version.`, 'info');
+   };
+@@ -430,24 +433,25 @@
+                     body={draft.body}
+                     sourceLabel={simulatorSource}
+                   />
++                ) : tab === 'qa' ? (
++                  <CsrQaPanel />
+                 ) : tab === 'experiment' ? (
+                   <ExperimentPanel
+                     script={script}
+                     versions={versions}
+                     busy={actionBusy}
+-                    onStart={(challengerId, pct) =>
++                    onStart={(challengerId, pct, reg) =>
+                       script
+-                        ? runScriptAction(() => startExperiment(script.id, challengerId, pct), 'A/B test started.')
++                        ? runScriptAction(() => startExperiment(script.id, challengerId, pct, reg), 'A/B test started.')
+                         : Promise.resolve()
+                     }
+-                    onSetSplit={(pct) =>
+-                      script ? runScriptAction(() => setTrafficSplit(script.id, pct), 'Traffic split updated.') : Promise.resolve()
+-                    }
+                     onStop={() =>
+                       script ? runScriptAction(() => stopExperiment(script.id), 'A/B test stopped.') : Promise.resolve()
+                     }
+-                    onPromote={() =>
+-                      script ? runScriptAction(() => promoteChallenger(script), 'Challenger is now live.') : Promise.resolve()
++                    onApprove={(experimentId) =>
++                      script
++                        ? runScriptAction(() => approvePromotion(experimentId, script.id), 'Challenger is now live.')
++                        : Promise.resolve()
+                     }
+                   />
+                 ) : versions.length === 0 ? (
+--- a/src/components/call-scripts/ScriptEditor.tsx
++++ b/src/components/call-scripts/ScriptEditor.tsx
+@@ -2,6 +2,8 @@
+ import { Save, Rocket, EyeOff, Loader2, Info } from 'lucide-react';
+ import { Button } from '@/components/ui/Button';
+ import { Input, Textarea } from '@/components/ui/Input';
++import { useAutopilotT } from '@/i18n/autopilotNamespace';
++import { EXPERIMENT_DIMENSIONS, PACES } from '@/lib/voiceAutopilot';
+ import {
+   LIMITS,
+   scenarioLabel,
+@@ -15,6 +17,9 @@
+   opening_line: string;
+   body: string;
+   note: string;
++  /** Which single lever this version changes ('' = not for an experiment). */
++  dimension: string;
++  voice_pace: string;
+ }
+ 
+ export type EditorBusy = null | 'save' | 'publish' | 'unpublish';
+@@ -42,6 +47,7 @@
+   onSave,
+   onUnpublish,
+ }: ScriptEditorProps) {
++  const { t: ta } = useAutopilotT();
+   const [touched, setTouched] = useState({ opening_line: false, body: false });
+   const check = validateScriptDraft({ scenario, opening_line: draft.opening_line, body: draft.body });
+   const liveVersion = versions.find((v) => v.id === script?.active_version_id) ?? null;
+@@ -106,6 +112,32 @@
+         placeholder="Ask for the unit age before quoting"
+       />
+ 
++      <div className="grid gap-4 sm:grid-cols-2">
++        <div>
++          <label htmlFor="script-dimension" className="mb-1.5 block text-sm font-medium text-text-primary">{ta('editor.dimension')}</label>
++          <select
++            id="script-dimension"
++            value={draft.dimension}
++            onChange={(e) => onDraftChange({ ...draft, dimension: e.target.value, voice_pace: e.target.value === 'voice_pace' ? draft.voice_pace || 'slower' : '' })}
++            className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary"
++            aria-describedby="script-dimension-help"
++          >
++            <option value="">{ta('editor.dimensionNone')}</option>
++            {EXPERIMENT_DIMENSIONS.map((d) => (<option key={d} value={d}>{ta(`dimension.${d}`)}</option>))}
++          </select>
++          <p id="script-dimension-help" className="mt-1 text-xs text-text-secondary">{ta('editor.dimensionHelp')}</p>
++        </div>
++        {draft.dimension === 'voice_pace' && (
++          <div>
++            <label htmlFor="script-pace" className="mb-1.5 block text-sm font-medium text-text-primary">{ta('editor.pace')}</label>
++            <select id="script-pace" value={draft.voice_pace} onChange={(e) => onDraftChange({ ...draft, voice_pace: e.target.value })} className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary">
++              {PACES.map((p) => (<option key={p} value={p}>{ta(`pace.${p}`)}</option>))}
++            </select>
++            <p className="mt-1 text-xs text-text-secondary">{ta('pace.note')}</p>
++          </div>
++        )}
++      </div>
++
+       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+         <p className="text-xs text-text-secondary" aria-live="polite">
+           {dirty && hasVersions ? 'You have unsaved changes.' : hasVersions ? 'Everything is saved.' : 'Nothing saved yet.'}
+--- a/src/components/call-scripts/ExperimentPanel.tsx
++++ b/src/components/call-scripts/ExperimentPanel.tsx
+@@ -1,365 +1,159 @@
+ import { useCallback, useEffect, useMemo, useState } from 'react';
+-import { FlaskConical, RefreshCw, Trophy, Square, Loader2, Info, TriangleAlert as AlertTriangle } from 'lucide-react';
+-import { Button } from '@/components/ui/Button';
++import { FlaskConical } from 'lucide-react';
+ import { EmptyState } from '@/components/EmptyState';
+-import { ConfirmDialog } from '@/components/ConfirmDialog';
+ import { Skeleton } from '@/components/Skeleton';
++import { Button } from '@/components/ui/Button';
++import { useToast } from '@/contexts/ToastContext';
++import { useAutopilotT } from '@/i18n/autopilotNamespace';
++import { fetchPerformance, rate, type CallScript, type CallScriptVersion, type ScriptPerformance } from '@/lib/callScripts';
+ import {
+-  LIMITS,
+-  compareArms,
+-  fetchPerformance,
+-  rate,
+-  wilsonInterval,
+-  type ArmTally,
+-  type CallScript,
+-  type CallScriptVersion,
+-  type Comparison,
+-  type ScriptPerformance,
+-} from '@/lib/callScripts';
+-
+-const SPLIT_OPTIONS = [10, 20, 30, 50];
++  DEFAULT_SETTINGS, evaluateNow, fetchAudit, fetchExperiments, fetchLooks, fetchSettings, lookThresholds,
++  type AuditEntry, type AutopilotSettings, type RegistrationInput, type VoiceExperiment, type VoiceExperimentLook,
++} from '@/lib/voiceAutopilot';
++import { AutopilotSettingsCard } from './autopilot/AutopilotSettingsCard';
++import { StartExperimentForm } from './autopilot/StartExperimentForm';
++import { LiveExperimentCard } from './autopilot/LiveExperimentCard';
++import { WeeklyReportCard } from './autopilot/WeeklyReportCard';
++import { AuditLog, ExperimentHistory } from './autopilot/AuditAndHistory';
+ 
+-function pct(n: number | null, digits = 1): string {
+-  return n === null ? '—' : `${(n * 100).toFixed(digits)}%`;
+-}
+-
+-function ArmCard({ title, subtitle, tally, tone }: { title: string; subtitle: string; tally: ArmTally; tone: 'control' | 'challenger' }) {
+-  const ci = wilsonInterval(tally.booked, tally.calls);
+-  return (
+-    <div className={`rounded-2xl border p-5 ${tone === 'challenger' ? 'border-accent/40 bg-accent/5' : 'border-border bg-bg-secondary'}`}>
+-      <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">{title}</p>
+-      <p className="mt-0.5 text-sm text-text-primary">{subtitle}</p>
+-      <p className="mt-3 text-3xl font-bold text-text-primary">{pct(rate(tally))}</p>
+-      <p className="text-xs text-text-secondary">booking rate</p>
+-      <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+-        <div>
+-          <dt className="text-xs text-text-secondary">Calls</dt>
+-          <dd className="font-semibold text-text-primary">{tally.calls}</dd>
+-        </div>
+-        <div>
+-          <dt className="text-xs text-text-secondary">Booked</dt>
+-          <dd className="font-semibold text-text-primary">{tally.booked}</dd>
+-        </div>
+-      </dl>
+-      {ci && <p className="mt-2 text-xs text-text-secondary">95% range: {pct(ci.low, 0)} – {pct(ci.high, 0)}</p>}
+-    </div>
+-  );
+-}
+-
+-function verdictCopy(c: Comparison, controlCalls: number, challengerCalls: number): { tone: 'info' | 'success' | 'warning'; text: string } {
+-  const p = c.pValue === null ? '' : ` (p = ${c.pValue < 0.001 ? '<0.001' : c.pValue.toFixed(3)})`;
+-  switch (c.verdict) {
+-    case 'insufficient_data':
+-      return {
+-        tone: 'info',
+-        text: `Collecting data — ${Math.min(controlCalls, challengerCalls)} of ${LIMITS.minSamplePerArm} finished calls on the smaller side. A result is shown once both sides reach ${LIMITS.minSamplePerArm}.`,
+-      };
+-    case 'challenger_winning':
+-      return { tone: 'success', text: `The challenger books ${c.liftPoints?.toFixed(1)} points more calls${p}. This is unlikely to be chance. You can promote it.` };
+-    case 'control_winning':
+-      return { tone: 'warning', text: `The live version books ${Math.abs(c.liftPoints ?? 0).toFixed(1)} points more calls than the challenger${p}. Consider stopping the test.` };
+-    default:
+-      return { tone: 'info', text: `No statistically significant difference yet${p}. Keep it running for more calls, or stop the test.` };
+-  }
+-}
++const MAX_PROJECTED_DAYS = 90;
+ 
+ interface ExperimentPanelProps {
+   script: CallScript | null;
+   versions: CallScriptVersion[];
+   busy: boolean;
+-  onStart: (challengerVersionId: string, pct: number) => Promise<void>;
+-  onSetSplit: (pct: number) => Promise<void>;
++  /** Pre-registers and starts a test (see lib/callScripts.startExperiment). */
++  onStart: (challengerVersionId: string, pct: number, reg: RegistrationInput) => Promise<void>;
+   onStop: () => Promise<void>;
+-  onPromote: () => Promise<void>;
++  /** Approves a promotion Autopilot requested (suggest mode). */
++  onApprove: (experimentId: string) => Promise<void>;
+ }
+ 
+-export function ExperimentPanel({ script, versions, busy, onStart, onSetSplit, onStop, onPromote }: ExperimentPanelProps) {
++export function ExperimentPanel({ script, versions, busy, onStart, onStop, onApprove }: ExperimentPanelProps) {
++  const { t } = useAutopilotT();
++  const { toast } = useToast();
++  const [settings, setSettings] = useState<AutopilotSettings>(DEFAULT_SETTINGS);
++  const [experiments, setExperiments] = useState<VoiceExperiment[]>([]);
++  const [looks, setLooks] = useState<VoiceExperimentLook[]>([]);
++  const [audit, setAudit] = useState<AuditEntry[]>([]);
+   const [performance, setPerformance] = useState<ScriptPerformance | null>(null);
+   const [loading, setLoading] = useState(false);
+-  const [error, setError] = useState<string | null>(null);
++  const [error, setError] = useState(false);
++  const [evaluating, setEvaluating] = useState(false);
+   const [reloadKey, setReloadKey] = useState(0);
+-  const [challengerId, setChallengerId] = useState('');
+-  const [startPct, setStartPct] = useState(20);
+-  const [confirm, setConfirm] = useState<null | 'stop' | 'promote'>(null);
+ 
+-  const hasLive = !!script?.active_version_id;
+   const scriptId = script?.id ?? null;
+-  const experimentKey = `${script?.active_version_id ?? ''}|${script?.challenger_version_id ?? ''}|${script?.experiment_started_at ?? ''}`;
++  const hasLive = !!script?.active_version_id;
++  const pointerKey = `${script?.active_version_id ?? ''}|${script?.challenger_version_id ?? ''}|${script?.experiment_started_at ?? ''}`;
++  const refresh = useCallback(() => setReloadKey((k) => k + 1), []);
+ 
+   useEffect(() => {
+-    if (!script || !script.active_version_id) {
+-      setPerformance(null);
+-      return;
+-    }
++    if (!script || !script.active_version_id) return;
+     let cancelled = false;
+     setLoading(true);
+-    setError(null);
+-    fetchPerformance(script)
+-      .then((p) => {
+-        if (!cancelled) setPerformance(p);
+-      })
+-      .catch(() => {
+-        if (!cancelled) setError('Could not load call results. Please try again.');
++    setError(false);
++    Promise.all([fetchSettings(), fetchExperiments(script.id), fetchAudit(script.id), fetchPerformance(script)])
++      .then(async ([s, ex, au, perf]) => {
++        const live = ex.find((e) => e.status === 'running' || e.status === 'awaiting_approval');
++        const lk = live ? await fetchLooks(live.id) : [];
++        if (cancelled) return;
++        setSettings(s); setExperiments(ex); setAudit(au); setPerformance(perf); setLooks(lk);
+       })
+-      .finally(() => {
+-        if (!cancelled) setLoading(false);
+-      });
+-    return () => {
+-      cancelled = true;
+-    };
+-    // `script` is intentionally keyed by id + experiment state, not identity.
++      .catch(() => { if (!cancelled) setError(true); })
++      .finally(() => { if (!cancelled) setLoading(false); });
++    return () => { cancelled = true; };
++    // keyed by id + pointer state, not object identity
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+-  }, [scriptId, experimentKey, reloadKey]);
++  }, [scriptId, pointerKey, reloadKey]);
+ 
+   const label = useMemo(() => {
+     const map = new Map(versions.map((v) => [v.id, v.version_number] as const));
+-    return (id: string | null) => {
+-      const n = id ? map.get(id) : undefined;
+-      return n === undefined ? '?' : String(n);
+-    };
++    return (id: string) => String(map.get(id) ?? '?');
+   }, [versions]);
+ 
+-  const candidates = versions.filter((v) => v.id !== script?.active_version_id);
+-  const running = !!script?.challenger_version_id;
+-
+-  const comparison = useMemo(
+-    () => (performance ? compareArms(performance.experiment.byArm.control, performance.experiment.byArm.challenger) : null),
+-    [performance],
+-  );
+-
+-  const refresh = useCallback(() => setReloadKey((k) => k + 1), []);
++  const live = experiments.find((e) => e.status === 'running' || e.status === 'awaiting_approval') ?? null;
++  const control = performance?.experiment.byArm.control ?? { calls: 0, booked: 0 };
++  const challenger = performance?.experiment.byArm.challenger ?? { calls: 0, booked: 0 };
++
++  // Plain-language data sufficiency (small businesses): project the time to the pre-registered sample.
++  const sufficiency = useMemo(() => {
++    if (!live) return null;
++    const nMin = Math.min(control.calls, challenger.calls);
++    const days = Math.max(1, (Date.now() - Date.parse(live.started_at)) / 86_400_000);
++    const perDay = nMin / days;
++    const remaining = Math.max(0, live.prereg.nMaxPerArm - nMin);
++    const needed = perDay > 0 ? Math.ceil(remaining / perDay) : null;
++    const first = lookThresholds(live.prereg.nMaxPerArm)[0];
++    if (remaining === 0 || (nMin >= first && (needed ?? 0) <= MAX_PROJECTED_DAYS)) return null;
++    return { perDay: perDay.toFixed(1), days: needed, hopeless: needed === null || needed > MAX_PROJECTED_DAYS, max: MAX_PROJECTED_DAYS };
++  }, [live, control.calls, challenger.calls]);
++
++  const baseline = useMemo(() => {
++    if (!performance || !script?.active_version_id) return null;
++    const tally = performance.allTime.byVersion[script.active_version_id];
++    return tally && tally.calls >= 30 ? rate(tally) : null;
++  }, [performance, script?.active_version_id]);
++
++  const evaluate = async () => {
++    setEvaluating(true);
++    try { await evaluateNow(); toast(t('live.evaluated'), 'success'); refresh(); } catch { toast(t('common.loadError'), 'error'); } finally { setEvaluating(false); }
++  };
+ 
+   if (!script || !hasLive) {
+     return (
+       <EmptyState
+         icon={FlaskConical}
+-        title="Publish a version to start A/B testing"
+-        description="An A/B test compares a challenger version against the version that is live now. Publish a version from the Editor first."
++        title={t('empty.publishTitle', { defaultValue: 'Publish a version to start testing' })}
++        description={t('empty.publishBody', { defaultValue: 'A test compares a challenger against the version that is live now. Publish a version from the Editor first.' })}
+       />
+     );
+   }
+ 
++  const candidates = versions.filter((v) => v.id !== script.active_version_id);
++
+   return (
+     <div className="space-y-6">
+-      {!running ? (
+-        candidates.length === 0 ? (
+-          <EmptyState
+-            icon={FlaskConical}
+-            title="Save a second version to test"
+-            description="Edit your script in the Editor and save it as a new version, then come back to split traffic between the two."
++      <AutopilotSettingsCard settings={settings} onSaved={setSettings} onToast={toast} />
++
++      {error ? (
++        <div role="alert" className="flex flex-col gap-2 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
++          <span className="text-text-primary">{t('common.loadError')}</span>
++          <Button type="button" variant="secondary" size="sm" onClick={refresh}>{t('common.tryAgain')}</Button>
++        </div>
++      ) : loading && !performance ? (
++        <div className="grid gap-3 sm:grid-cols-2"><Skeleton className="h-44 rounded-2xl" /><Skeleton className="h-44 rounded-2xl" /></div>
++      ) : live ? (
++        <>
++          <LiveExperimentCard
++            experiment={live} looks={looks} control={control} challenger={challenger}
++            pending={performance?.experiment.pending ?? 0} excluded={performance?.experiment.excluded ?? 0}
++            versionLabel={label} busy={busy} evaluating={evaluating} onEvaluate={evaluate}
++            onStop={async () => { await onStop(); refresh(); }}
++            onApprove={async () => { await onApprove(live.id); refresh(); }}
+           />
+-        ) : (
+-          <div className="rounded-2xl border border-border bg-bg-secondary p-5">
+-            <h3 className="text-base font-semibold text-text-primary">Start an A/B test</h3>
+-            <p className="mt-1 text-sm text-text-secondary">
+-              Live version {label(script.active_version_id)} keeps most calls. The challenger gets the share you choose, picked
+-              fairly at random per call.
+-            </p>
+-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+-              <div>
+-                <label htmlFor="challenger-select" className="mb-1.5 block text-sm font-medium text-text-primary">
+-                  Challenger version
+-                </label>
+-                <select
+-                  id="challenger-select"
+-                  value={challengerId}
+-                  onChange={(e) => setChallengerId(e.target.value)}
+-                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary"
+-                >
+-                  <option value="">Choose a version…</option>
+-                  {candidates.map((v) => (
+-                    <option key={v.id} value={v.id}>
+-                      Version {v.version_number}
+-                      {v.change_note ? ` — ${v.change_note}` : ''}
+-                    </option>
+-                  ))}
+-                </select>
+-              </div>
+-              <div>
+-                <p className="mb-1.5 text-sm font-medium text-text-primary">Traffic to challenger</p>
+-                <div className="flex flex-wrap gap-2" role="group" aria-label="Traffic to challenger">
+-                  {SPLIT_OPTIONS.map((p) => (
+-                    <button
+-                      key={p}
+-                      type="button"
+-                      aria-pressed={startPct === p}
+-                      onClick={() => setStartPct(p)}
+-                      className={`focus-ring min-h-[44px] rounded-xl border px-4 text-sm font-medium transition-colors ${
+-                        startPct === p ? 'border-accent bg-accent/10 text-accent' : 'border-border bg-bg-primary text-text-secondary hover:text-text-primary'
+-                      }`}
+-                    >
+-                      {p}%
+-                    </button>
+-                  ))}
+-                </div>
+-              </div>
+-            </div>
+-            <div className="mt-5 flex justify-end">
+-              <Button type="button" onClick={() => onStart(challengerId, startPct)} disabled={!challengerId || busy}>
+-                {busy ? <Loader2 size={16} className="animate-spin" /> : <FlaskConical size={16} />}
+-                Start test
+-              </Button>
++          {sufficiency && (
++            <div role="status" className="rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
++              <p className="font-medium">{sufficiency.hopeless ? t('feasibility.cannot') : t('feasibility.notEnough')}</p>
++              <p className="mt-1 text-xs text-text-secondary">
++                {sufficiency.hopeless
++                  ? t('feasibility.cannotBody', { pts: Math.round(live.prereg.minEffect * 100), n: live.prereg.nMaxPerArm, max: sufficiency.max })
++                  : t('feasibility.notEnoughBody', { perDay: sufficiency.perDay, days: sufficiency.days })}
++              </p>
+             </div>
+-          </div>
+-        )
++          )}
++        </>
++      ) : candidates.length === 0 ? (
++        <EmptyState icon={FlaskConical} title={t('empty.secondTitle', { defaultValue: 'Save a second version to test' })} description={t('empty.secondBody', { defaultValue: 'Edit your script in the Editor and save it as a new version, then come back.' })} />
+       ) : (
+-        <div className="space-y-4">
+-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+-            <div>
+-              <h3 className="text-base font-semibold text-text-primary">
+-                A/B test: version {label(script.active_version_id)} vs version {label(script.challenger_version_id)}
+-              </h3>
+-              {script.experiment_started_at && (
+-                <p className="text-xs text-text-secondary">
+-                  Running since {new Date(script.experiment_started_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+-                </p>
+-              )}
+-            </div>
+-            <div className="flex flex-wrap gap-2">
+-              <Button type="button" variant="ghost" size="sm" onClick={refresh} disabled={loading}>
+-                <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
+-                Refresh
+-              </Button>
+-              <Button type="button" variant="secondary" size="sm" onClick={() => setConfirm('stop')} disabled={busy}>
+-                <Square size={15} />
+-                Stop test
+-              </Button>
+-              <Button type="button" size="sm" onClick={() => setConfirm('promote')} disabled={busy}>
+-                <Trophy size={15} />
+-                Promote challenger
+-              </Button>
+-            </div>
+-          </div>
+-
+-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Traffic to challenger">
+-            <span className="text-sm text-text-secondary">Challenger traffic:</span>
+-            {[0, ...SPLIT_OPTIONS].map((p) => (
+-              <button
+-                key={p}
+-                type="button"
+-                aria-pressed={script.challenger_traffic_pct === p}
+-                disabled={busy}
+-                onClick={() => onSetSplit(p)}
+-                className={`focus-ring min-h-[40px] rounded-lg border px-3 text-xs font-medium transition-colors disabled:opacity-50 ${
+-                  script.challenger_traffic_pct === p ? 'border-accent bg-accent/10 text-accent' : 'border-border bg-bg-primary text-text-secondary hover:text-text-primary'
+-                }`}
+-              >
+-                {p === 0 ? 'Pause (0%)' : `${p}%`}
+-              </button>
+-            ))}
+-          </div>
+-
+-          {loading && !performance ? (
+-            <div className="grid gap-3 sm:grid-cols-2">
+-              <Skeleton className="h-44 rounded-2xl" />
+-              <Skeleton className="h-44 rounded-2xl" />
+-            </div>
+-          ) : error ? (
+-            <div role="alert" className="flex flex-col gap-2 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+-              <span className="text-text-primary">{error}</span>
+-              <Button type="button" variant="secondary" size="sm" onClick={refresh}>
+-                Try again
+-              </Button>
+-            </div>
+-          ) : performance && comparison ? (
+-            <>
+-              <div className="grid gap-3 sm:grid-cols-2">
+-                <ArmCard title="Control (live)" subtitle={`Version ${label(script.active_version_id)}`} tally={performance.experiment.byArm.control} tone="control" />
+-                <ArmCard title="Challenger" subtitle={`Version ${label(script.challenger_version_id)}`} tally={performance.experiment.byArm.challenger} tone="challenger" />
+-              </div>
+-
+-              {(() => {
+-                const v = verdictCopy(comparison, performance.experiment.byArm.control.calls, performance.experiment.byArm.challenger.calls);
+-                const style =
+-                  v.tone === 'success'
+-                    ? 'border-success-500/30 bg-success-500/10'
+-                    : v.tone === 'warning'
+-                      ? 'border-warning-500/30 bg-warning-500/10'
+-                      : 'border-border bg-bg-tertiary';
+-                return (
+-                  <div className={`rounded-xl border px-4 py-3 text-sm text-text-primary ${style}`} role="status">
+-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-primary" aria-hidden="true">
+-                      <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${Math.round(comparison.sampleProgress * 100)}%` }} />
+-                    </div>
+-                    <p className="mt-2">{v.text}</p>
+-                  </div>
+-                );
+-              })()}
+-
+-              <p className="flex items-start gap-2 text-xs text-text-secondary">
+-                <Info size={14} className="mt-0.5 shrink-0" />
+-                <span>
+-                  Counts only finished calls matched to this scenario by their detected intent. {performance.experiment.pending} still waiting to be saved ·{' '}
+-                  {performance.experiment.excluded} excluded (voicemail, spam, missed, or a different scenario). “Booked” means the call ended with a booking.
+-                </span>
+-              </p>
+-            </>
+-          ) : null}
+-        </div>
+-      )}
+-
+-      {performance?.truncated && (
+-        <p role="status" className="flex items-start gap-2 text-xs text-warning-500">
+-          <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+-          Only the most recent calls are included in these numbers.
+-        </p>
++        <StartExperimentForm
++          versions={versions} activeVersionId={script.active_version_id} settings={settings} baselineRate={baseline} callsPerDay={null} busy={busy}
++          onStart={async (id, pct, reg) => { await onStart(id, pct, reg); refresh(); }}
++        />
+       )}
+ 
+-      {performance && Object.keys(performance.allTime.byVersion).length > 0 && (
+-        <div className="rounded-2xl border border-border bg-bg-secondary p-5">
+-          <h3 className="text-base font-semibold text-text-primary">Results by version (all time)</h3>
+-          <div className="mt-3 overflow-x-auto">
+-            <table className="w-full min-w-[420px] text-left text-sm">
+-              <thead>
+-                <tr className="text-xs text-text-secondary">
+-                  <th scope="col" className="py-2 pr-4 font-medium">Version</th>
+-                  <th scope="col" className="py-2 pr-4 font-medium">Calls</th>
+-                  <th scope="col" className="py-2 pr-4 font-medium">Booked</th>
+-                  <th scope="col" className="py-2 font-medium">Booking rate</th>
+-                </tr>
+-              </thead>
+-              <tbody>
+-                {versions
+-                  .filter((v) => performance.allTime.byVersion[v.id])
+-                  .map((v) => {
+-                    const t = performance.allTime.byVersion[v.id];
+-                    return (
+-                      <tr key={v.id} className="border-t border-border">
+-                        <td className="py-2 pr-4 text-text-primary">v{v.version_number}</td>
+-                        <td className="py-2 pr-4 text-text-primary">{t.calls}</td>
+-                        <td className="py-2 pr-4 text-text-primary">{t.booked}</td>
+-                        <td className="py-2 text-text-primary">{pct(rate(t))}</td>
+-                      </tr>
+-                    );
+-                  })}
+-              </tbody>
+-            </table>
+-          </div>
+-        </div>
+-      )}
+-
+-      <ConfirmDialog
+-        open={confirm === 'stop'}
+-        title="Stop this A/B test?"
+-        description="All calls go back to the live version. The results collected so far stay in the version table."
+-        confirmLabel="Stop test"
+-        onCancel={() => setConfirm(null)}
+-        onConfirm={async () => {
+-          setConfirm(null);
+-          await onStop();
+-        }}
+-      />
+-      <ConfirmDialog
+-        open={confirm === 'promote'}
+-        title="Promote the challenger?"
+-        description="The challenger becomes the live version for every call and the A/B test ends."
+-        confirmLabel="Promote challenger"
+-        onCancel={() => setConfirm(null)}
+-        onConfirm={async () => {
+-          setConfirm(null);
+-          await onPromote();
+-        }}
+-      />
++      <WeeklyReportCard />
++      <ExperimentHistory experiments={experiments} versions={versions} />
++      <AuditLog entries={audit} />
+     </div>
+   );
+ }
+--- a/supabase/functions/_shared/call-scripts/runtime.ts
++++ b/supabase/functions/_shared/call-scripts/runtime.ts
+@@ -7,6 +7,7 @@
+ // against a hard timeout.
+ 
+ import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
++import { checkVariantText, paceGuidance } from "../voice-autopilot/locks.ts";
+ import {
+   buildCallScriptsContext,
+   isScenarioKey,
+@@ -28,6 +29,7 @@
+   id: string;
+   opening_line: string;
+   body: string;
++  voice_pace: string | null;
+ }
+ 
+ async function resolve(
+@@ -50,7 +52,7 @@
+   );
+   const { data: versions, error: vErr } = await admin
+     .from("call_script_versions")
+-    .select("id, opening_line, body")
++    .select("id, opening_line, body, voice_pace")
+     .in("id", versionIds);
+   if (vErr || !versions?.length) return "";
+   const byId = new Map((versions as VersionRow[]).map((v) => [v.id, v]));
+@@ -73,11 +75,15 @@
+       !!callId &&
+       !!s.challenger_version_id &&
+       pickArm(callId, s.id, s.challenger_traffic_pct) === "challenger";
+-    const challenger = wantsChallenger ? byId.get(s.challenger_version_id as string) : undefined;
++    const candidate = wantsChallenger ? byId.get(s.challenger_version_id as string) : undefined;
++    // Defence in depth (the database trigger already rejects such text): a challenger that touches locked
++    // compliance language is NEVER served; the call falls back to the live version.
++    const challenger = candidate && checkVariantText(candidate.opening_line, candidate.body).length === 0 ? candidate : undefined;
+     const version = challenger ?? byId.get(s.active_version_id);
+     if (!version) continue;
+     const arm: Arm = challenger ? "challenger" : "control";
+-    entries.push({ scenario: s.scenario, opening_line: version.opening_line, body: version.body });
++    const pace = paceGuidance(version.voice_pace);
++    entries.push({ scenario: s.scenario, opening_line: version.opening_line, body: pace ? `${pace}\n${version.body}` : version.body });
+     if (callId) {
+       assignments.push({
+         user_id: userId,
+--- a/supabase/functions/vapi-webhook/index.ts
++++ b/supabase/functions/vapi-webhook/index.ts
+@@ -19,6 +19,7 @@
+ import { findEscalationTarget, isValidE164 } from "../_shared/voice-hardening/escalation.ts";
+ import { findDuplicateBooking } from "../_shared/voice-hardening/bookingIdempotency.ts";
+ import { planDisclosure, recordDisclosureOutcome } from "../_shared/ai-disclosure/ledger.ts";
++import { buildCallScriptsContextVariable } from "../_shared/call-scripts/runtime.ts";
+ // supabase/functions/vapi-webhook/index.ts
+ //
+ // Server URL for the Vapi "Vireek Receptionist" production assistant(s).
+@@ -717,7 +718,12 @@
+     after_hours: afterHoursContext.length > 0,
+   });
+ 
++  // Call scripts + A/B assignment (sticky per call id; also records the exposure Voice Autopilot analyses).
++  // "" on any error/timeout => the base prompt is unchanged. Compliance language is NOT part of scripts.
++  const callScriptsContext = await buildCallScriptsContextVariable(admin, tenant.userId, message.call?.id ?? null, afterHoursContext.length > 0);
++
+   const sharedVariableValues = {
++    call_scripts_context: callScriptsContext,
+     caller_context: callerContext,
+     customer_type_context: customerTypeContext,
+     surge_context: surgeContext,
+--- a/supabase/config.toml
++++ b/supabase/config.toml
+@@ -88,3 +88,6 @@
+ verify_jwt = false
+ [functions.rum-ingest]
+ verify_jwt = false
++
++[functions.voice-autopilot-run]
++verify_jwt = false
