@@ -20,6 +20,7 @@
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { classifyEpistemicBoundary, recordEpistemicBoundary, type EpistemicTier } from "../ai-core/epistemicBoundary.ts";
+import { estimateTokensFromChars, recordUsageEvent } from "../billing/usageEvents.ts";
 
 export const EMBEDDING_DIMENSIONS = 1024;
 
@@ -94,6 +95,14 @@ export async function embedTexts(
     const data = await res.json();
     const vectors: number[][] | undefined = data?.embeddings?.float ?? data?.embeddings;
     if (!Array.isArray(vectors) || vectors.length !== texts.length) return null;
+
+    if (onUsage) {
+      try {
+        const billed = data?.meta?.billed_units?.input_tokens;
+        const measured = typeof billed === "number" && Number.isFinite(billed) && billed >= 0;
+        onUsage({ inputTokens: measured ? billed : estimateTokensFromChars(texts.reduce((n, t) => n + Math.min(t.length, 8000), 0)), measured });
+      } catch { /* metering must never affect search */ }
+    }
     return vectors;
   } catch (error) {
     console.error(
@@ -108,8 +117,8 @@ export async function embedTexts(
   }
 }
 
-async function embedQuery(question: string): Promise<number[] | null> {
-  const vectors = await embedTexts([question], "search_query");
+aasync function embedQuery(question: string, onUsage?: (usage: { inputTokens: number; measured: boolean }) => void): Promise<number[] | null> {
+  const vectors = await embedTexts([question], "search_query", 8000, onUsage);
   return vectors?.[0] ?? null;
 }
 
@@ -126,7 +135,10 @@ export async function searchKnowledge(
   const query = question.trim();
   if (!query) return { hits: [], semantic: false };
 
-  const embedding = await embedQuery(query);
+  const embedding = await embedQuery(query, (u) => {
+    // Fire-and-forget: metering never delays a live call.
+    void recordUsageEvent(admin, { userId, component: "embeddings", quantity: u.inputTokens, unit: "input_tokens", source: "knowledge-search", ref: null, estimated: !u.measured });
+  });
 
   const { data, error } = await admin.rpc("search_knowledge_articles", {
     p_user_id: userId,
