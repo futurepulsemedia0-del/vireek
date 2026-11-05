@@ -17,6 +17,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { assessIntake } from "../_shared/speed-to-lead/core.ts";
+import { ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
 import { dialNow, findSourceByToken, loadSettings, recordIntake, sweep, type Deps } from "../_shared/speed-to-lead/runtime.ts";
 
 const MAX_BODY_BYTES = 64 * 1024;
@@ -123,6 +124,12 @@ Deno.serve(async (req: Request) => {
       settings,
     );
 
+    if (result.leadId && !result.duplicate) {
+      await ingestIncidentContact(admin, {
+        userId: source.account_owner_id, source: "lead", sourceRef: String(result.leadId), phone: assessment.lead.phone,
+        address: assessment.lead.address, symptomText: [assessment.lead.service, assessment.lead.message].filter(Boolean).join(". "),
+      });
+    }
     // Immediate dial AFTER the response so the sender never waits on telephony.
     if (result.willCall && result.requestId && !result.duplicate) {
       const task = dialNow(deps, result.requestId).catch((e) =>
