@@ -12,6 +12,7 @@ import { AiCoreError } from "./types.ts";
 import { runInputGuardrails, runOutputGuardrails, createStreamGuard } from "./guardrails.ts";
 import { secureInput, secureOutput, createRehydrator, rehydrate, type AiSecurityContext } from "./aiSecurity.ts";
 import { routeChat, routeChatStream, type RouteChatResult } from "./router.ts";
+import { checkBudget, logUsage, resolveUsage } from "./costTracking.ts";
 import { REMOTE_RESOLUTION_INSTRUCTIONS } from "./remoteResolutionPrompt.ts";
 
 import {
@@ -414,6 +415,10 @@ export interface AskVireekAiOptions {
   extraInstructions?: string;
   /** Opt-in AI Security layer: tenant owner id + what data this call puts in the prompt. */
   security?: AiSecurityContext;
+  /** Tenant owner id for cost attribution + budget checks. Defaults to security.userId. Without either, the call is logged as platform usage. */
+  accountId?: string;
+  /** Edge function name for the cost log. Defaults to security.agentSource. */
+  source?: string;
 }
 
 export interface AskVireekAiResult {
@@ -453,6 +458,16 @@ export async function askVireekAi(
     sec?.secured.policy.allowedProviders ?? undefined,
   );
 
+  // Fire-and-forget (logUsage never throws): cost logging must not add latency to the answer.
+  void logUsage({
+    accountId,
+    task: opts.task,
+    source: opts.source ?? opts.security?.agentSource,
+    response: result.response,
+    usage: resolveUsage({ system, messages: guardedMessages, maxTokens: opts.maxTokens }, result.response),
+    attempts: result.attempts,
+  });
+
   const safeText = sec ? await secureOutput(sec.secured, result.response.text) : result.response.text;
   const guardedOutput = runOutputGuardrails(safeText, guardCtx);
 
@@ -489,7 +504,8 @@ export async function askVireekAiStream(
   const rehydrator = sec && sec.secured.vault.reverse.size ? createRehydrator(sec.secured.vault) : null;
 
   const system = await buildSystemPrompt(opts.task, guardedMessages, opts.extraInstructions);
-
+  const accountId = opts.accountId ?? opts.security?.userId;
+  await checkBudget(accountId, opts.task);
   const result = await routeChatStream(
     opts.task,
     {
@@ -512,6 +528,15 @@ export async function askVireekAiStream(
   const tail = rehydrator?.flush();
   if (tail) onDelta(tail);
 
+  void logUsage({
+    accountId,
+    task: opts.task,
+    source: opts.source ?? opts.security?.agentSource,
+    response: result.response,
+    usage: resolveUsage({ system, messages: guardedMessages, maxTokens: opts.maxTokens }, result.response),
+    attempts: result.attempts,
+  });
+
   return {
     text: sec ? rehydrate(result.response.text, sec.secured.vault) : result.response.text,
     meta: {
@@ -526,6 +551,9 @@ export async function askVireekAiStream(
 
 export function safeFallbackMessage(err: unknown): string {
   if (
+  if (err instanceof AiCoreError && err.code === "BUDGET_EXCEEDED") {
+    return "This optional feature is paused for this account until the next billing month.";
+  }
     err instanceof AiCoreError &&
     err.code === "ALL_PROVIDERS_FAILED"
   ) {
