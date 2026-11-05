@@ -28,7 +28,7 @@ async function gql(accessToken: string, query: string, variables: Record<string,
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
-      "X-JOBBER-GRAPHQL-VERSION": "2023-11-15", // TODO: pin to whatever version you certify against
+      "X-JOBBER-GRAPHQL-VERSION": "2025-04-16", // TODO: pin to whatever version you certify against
     },
     body: JSON.stringify({ query, variables }),
   });
