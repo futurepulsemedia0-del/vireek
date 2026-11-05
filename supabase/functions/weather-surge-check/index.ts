@@ -22,6 +22,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isAutomationEnabled } from "../_shared/automation/gate.ts";
 import { sendSms } from "../_shared/notify/deliver.ts";
+import { recordWeatherSignal } from "../_shared/mass-incident/runtime.ts";
 
 const EMERGENCY_TIER_EVENTS = new Set([
   "Tornado Warning",
@@ -162,6 +163,11 @@ async function checkOneBusiness(
     }
     if (!recorded) continue; // already seen this alert id before
 
+    await recordWeatherSignal(admin, {
+      userId: business.user_id, alertId: alert.id, event: alert.event, headline: alert.headline ?? null, areaDesc: alert.areaDesc ?? null,
+      zip: business.weather_zip_code, lat: geo.lat, lng: geo.lon, effectiveAt: alert.onset ?? null, expiresAt: alert.expires ?? null,
+    });
+    
     if (triggersSurge) {
       const { error: activateError } = await admin.rpc("activate_weather_surge", {
         p_user_id: business.user_id,
