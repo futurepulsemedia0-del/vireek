@@ -18,6 +18,9 @@ import { getSealPolicy, sealCallArtifacts } from "../_shared/trust/vault.ts";
 import { recordAttemptOutcome } from "../_shared/number-reputation/attempts.ts";
 import { processWebhook } from "../_shared/voice-hardening/router.ts";
 import { buildReplayPayload, claimEvent, completeEvent, failEvent, supabaseLedgerStore } from "../_shared/voice-hardening/ledger.ts";
+import { detectEmergencyText } from "../_shared/voice-resilience/emergencyFastPath.ts";
+import { ladderResponse } from "../_shared/voice-resilience/vapiRouting.ts";
+import { effectiveLevel, loadLadderRouting, loadReducedAssistantId, recordOutcome } from "../_shared/voice-resilience/runtime.ts";
 import { findEscalationTarget, isValidE164 } from "../_shared/voice-hardening/escalation.ts";
 import { findDuplicateBooking } from "../_shared/voice-hardening/bookingIdempotency.ts";
 import { planDisclosure, recordDisclosureOutcome } from "../_shared/ai-disclosure/ledger.ts";
@@ -717,6 +720,16 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   }
 
   const callerNumber = message.call?.customer?.number ?? null;
+  try {
+    const { level } = await effectiveLevel(admin, tenant.userId);
+    const ladderRoute = level > 0 ? ladderResponse(level, await loadLadderRouting(admin, tenant.userId)) : null;
+    if (ladderRoute) {
+      logEvent("assistant_request_degraded", requestId, { user_id: tenant.userId, level });
+      return jsonResponse(ladderRoute);
+    }
+  } catch (err) {
+    logError("ladder_lookup_failed_open", requestId, err, {});
+  }
   const identity = await lookupCallerIdentity(admin, tenant.userId, { phone: callerNumber });
   const callerContext = mergeCallerContext(
     await buildCallerContextVariable(admin, tenant, callerNumber),
@@ -2108,6 +2121,7 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             result = `Tool "${name}" is not implemented by this webhook.`;
         }
       } catch (error) {
+        void recordOutcome(admin, { providerId: "tools", capability: "tools", ok: false, errorCode: "tool_exception", userId: tenant.userId });
         logError("tool_call_failed", requestId, error, { tool: name });
         result = "Something went wrong handling this action — please continue the call and have the office follow up.";
       }
@@ -2380,6 +2394,13 @@ transcript = pci.text;
         pci_redactions: pci.redactions,
         pci_spoken_card_detected: pci.spokenCardDetected,
     });
+
+    try {
+      const reducedId = message.call?.assistantId ? await loadReducedAssistantId(admin, tenant.userId) : null;
+      if (reducedId && message.call?.assistantId === reducedId && transcript && detectEmergencyText(transcript).emergency) patch.is_emergency = true;
+    } catch (err) {
+      logError("reduced_emergency_detect_failed", requestId, err, {});
+    }
 
     // Price Book Enforcement — deterministic, no LLM call. Runs whether
     // or not Call Intelligence succeeds.
