@@ -62,11 +62,8 @@ export function extractVapiCostLines(message: CostMessageLike): CostLineInput[] 
 }
 
 interface UpsertClient {
-  from: (table: string) => {
-    upsert: (
-      rows: unknown,
-      opts: { onConflict: string },
-    ) => PromiseLike<{ error: { message: string } | null }>;
+  from(table: string): {
+    upsert(rows: unknown, opts: { onConflict: string }): PromiseLike<{ error: { message: string } | null }>;
   };
 }
 
