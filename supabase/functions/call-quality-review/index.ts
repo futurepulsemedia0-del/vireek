@@ -328,7 +328,7 @@ Deno.serve(async (req: Request) => {
       if (error) throw error;
       let rows = (data ?? []) as CallRow[];
       if (!force) {
-        const { data: done } = await admin.from("ai_quality_reviews").select("call_id").in("call_id", rows.map((r) => r.id));
+        const { data: done } = await admin.from("ai_quality_reviews").select("call_id").gt("quality_version", 0).in("call_id", rows.map((r) => r.id));
         const doneSet = new Set(((done ?? []) as { call_id: string }[]).map((d) => d.call_id));
         rows = rows.filter((r) => !doneSet.has(r.id));
       }
@@ -340,7 +340,7 @@ Deno.serve(async (req: Request) => {
         .gte("call_datetime", since).not("transcript", "is", null).order("call_datetime", { ascending: false }).limit(120);
       if (error) throw error;
       const rows = ((data ?? []) as CallRow[]).filter((r) => isReviewable(r.transcript));
-      const { data: done } = await admin.from("ai_quality_reviews").select("call_id").in("call_id", rows.map((r) => r.id));
+      const { data: done } = await admin.from("ai_quality_reviews").select("call_id").gt("quality_version", 0).in("call_id", rows.map((r) => r.id)));
       const doneSet = new Set(((done ?? []) as { call_id: string }[]).map((d) => d.call_id));
       const todo = rows.filter((r) => !doneSet.has(r.id));
       calls = todo.slice(0, limit);
