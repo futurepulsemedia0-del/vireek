@@ -138,6 +138,7 @@ const StaffCustomersPage = lazy(() => import('@/pages/admin/StaffCustomersPage')
 const StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
 const StaffMarginsPage = lazy(() => import('@/pages/admin/StaffMarginsPage').then((m) => ({ default: m.StaffMarginsPage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
+const ReleaseSafetyAdminPage = lazy(() => import('@/pages/admin/ReleaseSafetyAdminPage').then((m) => ({ default: m.ReleaseSafetyAdminPage })));
 const PilotManagementPage = lazy(() => import('@/pages/admin/PilotManagementPage').then((m) => ({ default: m.PilotManagementPage })));
 const TruckRollEliminationPage = lazy(() => import('@/pages/TruckRollEliminationPage').then((m) => ({ default: m.TruckRollEliminationPage })));
 const EmergencyNetworkPage = lazy(() => import('@/pages/EmergencyNetworkPage').then((m) => ({ default: m.EmergencyNetworkPage })));
@@ -843,6 +844,7 @@ function AppRoutes() {
             </StaffRoute>
           }
         />
+        <Route path="/staff/release-safety" element={<StaffRoute><ReleaseSafetyAdminPage /></StaffRoute>} />
         <Route
   path="/dev/emails"
   element={
