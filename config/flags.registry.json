@@ -1,0 +1,12 @@
+{
+  "flags": [
+    {
+      "key": "data_residency_ui",
+      "kind": "release",
+      "owner": "platform-oncall",
+      "created": "2026-11-03",
+      "expires": "2027-02-01",
+      "cleanup": "Remove useFeatureFlag('data_residency_ui') gate in TrustPackPage and delete the flag row"
+    }
+  ]
+}
