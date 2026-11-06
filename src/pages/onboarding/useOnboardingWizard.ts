@@ -44,6 +44,7 @@ export function useOnboardingWizard() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [launched, setLaunched] = useState(false);
+  const [launchError, setLaunchError] = useState<string | null>(null);
   const hasSeeded = useRef(false);
 
   const stepIndex = STEP_INDEX[stepId];
@@ -271,6 +272,7 @@ export function useOnboardingWizard() {
       goTo('business', false);
       return;
     }
+    setLaunchError(null);
     setSaving(true);
     try {
       if (getPack(data.verticalId)?.regulated && !data.verticalComplianceAck) {
@@ -292,6 +294,7 @@ export function useOnboardingWizard() {
         .maybeSingle();
       if (profError) throw profError;
       if (!updatedProfile?.onboarding_completed) {
+        setLaunchError('We could not save your setup. Please sign out and back in, then try again.');
         toast('Could not save your setup — please sign out and back in, then try again.', 'error');
         return;
       }
@@ -316,9 +319,10 @@ export function useOnboardingWizard() {
       }
 
       await refreshProfile();
-      toast(`Welcome to Vireek! ${data.assistantName.trim() || 'Sarah'} is ready to take calls.`, 'success');
+      toast('Your setup is saved. Connect your phone line to start answering calls.', 'success');
       setLaunched(true);
     } catch {
+      setLaunchError('We could not save your setup. Check your connection and try again — nothing was lost.');
       toast('Could not save your setup. Please try again.', 'error');
     } finally {
       setSaving(false);
