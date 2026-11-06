@@ -238,7 +238,7 @@ export const EMPTY_WIZARD_DATA: WizardData = {
 
   hours: {},
 
-  phoneChoice: 'skip',
+  phoneChoice: 'existing_number',
   newPhoneNumber: null,
   newPhoneFriendlyName: 'Main Line',
 
