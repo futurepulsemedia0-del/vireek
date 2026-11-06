@@ -1333,6 +1333,7 @@ async function toolBookAppointment(
   args: Record<string, unknown>,
   vapiCallId: string | undefined,
   callerNumber: string | null,
+  toolCallId?: string,
 ): Promise<string> {
   const customerName = typeof args.customer_name === "string" ? args.customer_name.trim() : "";
   if (!customerName) {
@@ -1431,6 +1432,7 @@ async function toolBookAppointment(
     scheduled_datetime: scheduledDatetime,
     job_status: "scheduled",
     dispatch_note: dispatchNote,
+    ...(vapiCallId && toolCallId ? { voice_idempotency_key: `${vapiCallId}:${toolCallId}` } : {}),
       ...(capacityGuard.mode === "ok" ? { assigned_technician_id: capacityGuard.technicianId, duration_minutes: capacityGuard.durationMinutes } : {}),
   };
 
@@ -1440,6 +1442,17 @@ async function toolBookAppointment(
     .select("id, scheduled_datetime, service_type, address")
     .maybeSingle();
 
+  if (jobError?.code === "23505" && typeof jobPayload.voice_idempotency_key === "string") {
+    const { data: replayed } = await admin
+      .from("jobs")
+      .select("scheduled_datetime")
+      .eq("user_id", tenant.userId)
+      .eq("voice_idempotency_key", jobPayload.voice_idempotency_key)
+      .maybeSingle();
+    return replayed?.scheduled_datetime
+      ? `Booked for ${customerName} on ${new Date(replayed.scheduled_datetime).toLocaleString()}.`
+      : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
+  }
   if (jobError?.code === "23P01") {
     return "That time is already booked on the schedule — offer the customer a different time slot.";
   }
@@ -2054,7 +2067,7 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             result = await voiceCheckAvailability(admin, tenant.userId, args);
             break;
           case "book_appointment":
-            result = await toolBookAppointment(admin, tenant, args, vapiCallId, callerNumber);
+            result = await toolBookAppointment(admin, tenant, args, vapiCallId, callerNumber, toolCallId);
             break;
           case "check_weather":
             result = await toolCheckWeather(args);
