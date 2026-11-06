@@ -51,8 +51,13 @@ async function attemptOnce(
   }
 }
 
-export async function routeChat(task: TaskType, req: NormalizedChatRequest , allowedProviders?: readonly string[]): Promise<RouteChatResult> {
-  const route = getRouteForTask(task);
+export async function routeChat(
+  task: TaskType,
+  req: NormalizedChatRequest,
+  allowedProviders?: readonly string[],
+  routeOverride?: readonly RouteEntry[], // versioned route; omitted = code defaults
+): Promise<RouteChatResult> {
+  const route = routeOverride ?? getRouteForTask(task);
   const attempts: RouteAttemptLog[] = [];
   let isFirstAttempt = true;
 
