@@ -27,6 +27,7 @@
     "migrations:plan": "node scripts/migrations-dedupe.mjs plan",
     "sitemap:locations": "node scripts/generate-locations-sitemap.mjs",
     "lint:migrations": "node scripts/lint-migrations.mjs",
+    "lint:flags": "node scripts/check-flag-lifecycle.mjs",
        "security:matrix": "node scripts/security/function-matrix.mjs --write",
        "security:matrix:check": "node scripts/security/function-matrix.mjs --check",
        "security:rls": "node scripts/security/rls-audit.mjs --write",
