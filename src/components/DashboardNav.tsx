@@ -511,6 +511,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Event Prediction Mesh', href: '/dashboard/event-prediction-mesh', icon: Radar },
   { label: 'Reliability & Observability', href: '/dashboard/reliability', icon: Activity },
   { label: 'Activity Ledger', href: '/dashboard/activity-ledger', icon: History },
+  { label: 'Workflow Health', href: '/dashboard/workflow-health', icon: ShieldAlert },
   { label: 'Technician Capacity', href: '/dashboard/technician-capacity', icon: Lock },
   { label: 'Capacity Demand Control', href: '/dashboard/capacity-demand', icon: Gauge },
   { label: 'Capacity Guard', href: '/dashboard/capacity-guard', icon: ShieldCheck },
