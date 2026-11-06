@@ -3,6 +3,13 @@ import { Loader as Loader2, Phone } from 'lucide-react';
 import { StepShell } from '../StepShell';
 import { chipClass, inputClass, type StepProps } from '../types';
 
+/**
+ * The "dedicated Vireek number" flow is hidden until a real carrier/Vapi purchase is wired in: today the
+ * candidates below are generated locally and purchasePhoneNumber only inserts a database row, so it can
+ * never produce a number that actually rings. Flip to true only together with that provisioning call.
+ */
+const NEW_NUMBER_PROVISIONING_ENABLED = false;
+
 const SUGGESTED_AREA_CODES = ['205', '212', '305', '404', '512', '602', '702', '713', '818', '917'];
 
 /** Same simulated search used on the Phone Numbers dashboard page — wire
@@ -39,7 +46,7 @@ export function PhoneStep({ data, update, onBack, onNext, onSkip, saving }: Step
       stepKey="phone"
       icon={Phone}
       title="How should calls reach Sarah?"
-      description="Forward your existing number, or reserve a dedicated Vireek line."
+      description="Keep your current business number and forward calls to Vireek."
       onBack={onBack}
       onNext={onNext}
       onSkip={onSkip}
@@ -54,10 +61,12 @@ export function PhoneStep({ data, update, onBack, onNext, onSkip, saving }: Step
         >
           <p className="text-sm font-semibold text-text-primary">Forward my existing number</p>
           <p className="mt-1 text-xs text-text-secondary">
-            Keep {data.forwardingNumber || data.phone || 'the number from step 1'} and route it to Sarah. No new number needed.
+            Keep {data.forwardingNumber || data.phone || 'the number from step 1'} as your public line and forward calls to Vireek.
           </p>
         </button>
-
+        {NEW_NUMBER_PROVISIONING_ENABLED && (
+        <button ...>…</button>
+        )}
         <button
           type="button"
           onClick={() => update({ phoneChoice: 'new_number' })}
@@ -67,7 +76,7 @@ export function PhoneStep({ data, update, onBack, onNext, onSkip, saving }: Step
           <p className="mt-1 text-xs text-text-secondary">Pick a new local number for Sarah to answer directly.</p>
         </button>
 
-        {data.phoneChoice === 'new_number' && (
+        {NEW_NUMBER_PROVISIONING_ENABLED && data.phoneChoice === 'new_number' && (
           <div className="rounded-xl border border-border bg-bg-primary p-4">
             <label className="mb-1.5 block text-sm font-medium text-text-primary">Line label</label>
             <input
