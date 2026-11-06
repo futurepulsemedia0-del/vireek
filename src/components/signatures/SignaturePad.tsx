@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Eraser, PenLine, Type } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import type { SignatureType } from '@/lib/signatures';
+import { loadSignatureFonts } from '@/lib/loadSignatureFonts';
 
 export const TYPED_SIGNATURE_FONTS: { id: string; label: string; family: string }[] = [
   { id: 'dancing-script', label: 'Dancing Script', family: "'Dancing Script', cursive" },
@@ -57,6 +58,10 @@ export function SignaturePad({ defaultName = '', onChange }: SignaturePadProps) 
     window.addEventListener('resize', setupCanvas);
     return () => window.removeEventListener('resize', setupCanvas);
   }, [setupCanvas]);
+
+  useEffect(() => {
+    if (mode === 'type') void loadSignatureFonts();
+  }, [mode]);
 
   const pointerPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
