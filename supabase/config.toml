@@ -106,3 +106,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.voice-reconcile]
 verify_jwt = false
+
+[functions.release-guard-tick]
+verify_jwt = false
