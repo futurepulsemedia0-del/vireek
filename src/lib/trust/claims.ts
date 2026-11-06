@@ -166,6 +166,30 @@ export const CLAIMS: Claim[] = [
     assertive: ['\\b(?:G2|Capterra|Trustpilot)\\b[^.\\n]{0,40}\\b(?:rated|stars?|leader|award)\\b', '\\b[1-5]\\.\\d\\s?(?:\\/\\s?5|stars?)\\b'],
     needs: 'Live profile URLs and an API/embed that returns the real rating.',
   },
+  {
+    id: 'security.e2e-encryption',
+    category: 'security',
+    statement: 'Vireek does not offer end-to-end encryption. Data is protected in transit and at rest on the hosting platform.',
+    status: 'not_held',
+    kind: 'fact',
+    evidence: { label: 'Trust Center', href: '/trust' },
+    reviewedOn: '2026-11-04',
+    owner: 'ali',
+    assertive: ['end[- ]to[- ]end\\s+encrypt'],
+    needs: 'An architecture in which only the customer holds the keys, plus a technical write-up, before this can become verified.',
+  },
+  {
+    id: 'infra.multi-region',
+    category: 'security',
+    statement: 'Customer data is hosted in a single US region. EU and Canada regional data planes are not yet available.',
+    status: 'not_held',
+    kind: 'fact',
+    evidence: { label: 'Trust Center', href: '/trust' },
+    reviewedOn: '2026-11-04',
+    owner: 'ali',
+    assertive: ['multi[- ]?region'],
+    needs: 'Enforced regional data planes (see docs/compliance/adr-0001-data-residency.md) verified in production before this can become verified.',
+  },
 ];
 
 export const CLAIM_BY_ID: Record<string, Claim> = Object.fromEntries(CLAIMS.map((c) => [c.id, c]));
