@@ -1,0 +1,28 @@
+name: Kill-switch drill reminder
+
+# Monthly: fails (and therefore notifies) while any kill switch has not been drilled in the last 35 days.
+# A drill = stop for one test account in staging/prod, confirm the capability halts, resume, then press
+# "Record drill" in /staff/release-safety. See docs/RELEASE_SAFETY.md.
+on:
+  schedule:
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Overdue drills
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Query overdue drills
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SECRET: ${{ secrets.RELEASE_GUARD_CRON_SECRET }}
+        run: |
+          set -u
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then echo "::error::secrets not configured"; exit 1; fi
+          code=$(curl -sS -m 60 -o out.json -w '%{http_code}' -X POST -H "X-Cron-Secret: ${CRON_SECRET}" "${SUPABASE_URL}/functions/v1/release-guard-tick?mode=drills")
+          cat out.json; echo
+          [ "$code" = "200" ] || { echo "::error::HTTP $code"; exit 1; }
+          n=$(jq '.overdue | length' out.json)
+          if [ "$n" != "0" ]; then echo "::error::$n kill switch(es) overdue for a drill: $(jq -c '.overdue' out.json)"; exit 1; fi
