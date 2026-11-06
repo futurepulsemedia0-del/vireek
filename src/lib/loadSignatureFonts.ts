@@ -1,12 +1,31 @@
-const HREF = 'https://fonts.googleapis.com/css2?family=Dancing+Script&family=Caveat&family=Great+Vibes&display=swap';
-let loaded = false;
+const FILES = [
+  { family: 'Dancing Script', url: '/fonts/dancing-script-latin-400-normal.woff2' },
+  { family: 'Caveat', url: '/fonts/caveat-latin-400-normal.woff2' },
+  { family: 'Great Vibes', url: '/fonts/great-vibes-latin-400-normal.woff2' },
+] as const;
+let pending: Promise<void> | null = null;
 
-/** Handwriting fonts are only needed on signature/handwriting screens: load them on demand, not for every visitor. */
-export function loadSignatureFonts(): void {
-  if (loaded || typeof document === 'undefined') return;
-  loaded = true;
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = HREF;
-  document.head.appendChild(link);
+/**
+ * Handwriting fonts are only needed on signature screens: load them on demand from our own origin.
+ * Never rejects: on failure the `cursive` fallback stays and a later call retries.
+ */
+export function loadSignatureFonts(): Promise<void> {
+  if (pending) return pending;
+  if (typeof document === 'undefined' || typeof FontFace === 'undefined' || !document.fonts) {
+    return Promise.resolve();
+  }
+  let failed = false;
+  pending = Promise.all(
+    FILES.map(async ({ family, url }) => {
+      try {
+        const face = new FontFace(family, `url(${url}) format('woff2')`, { weight: '400', style: 'normal', display: 'swap' });
+        document.fonts.add(await face.load());
+      } catch {
+        failed = true;
+      }
+    }),
+  ).then(() => {
+    if (failed) pending = null;
+  });
+  return pending;
 }
