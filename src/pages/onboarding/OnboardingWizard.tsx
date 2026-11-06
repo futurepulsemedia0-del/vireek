@@ -19,7 +19,7 @@ import type { StepProps } from './types';
 
 export function OnboardingWizard() {
   const wizard = useOnboardingWizard();
-  const { stepId, data, update, loading, saving, launched, goNext, goBack, skip, launch, finishToDashboard } = wizard;
+  const { stepId, data, update, loading, saving, launched, launchError, goNext, goBack, skip, launch, finishToDashboard } = wizard;
 
   const stepProps: StepProps = {
     data,
@@ -80,7 +80,7 @@ export function OnboardingWizard() {
             {stepId === 'test_call' && <TestCallStep key="test_call" {...stepProps} />}
             {stepId === 'confirm' && <ConfirmStep key="confirm" {...stepProps} onSkip={undefined} />}
             {stepId === 'launch' && (
-              <LaunchStep key="launch" {...stepProps} onLaunch={launch} onFinish={finishToDashboard} launched={launched} />
+              <LaunchStep key="launch" {...stepProps} onLaunch={launch} onFinish={finishToDashboard} launched={launched} launchError={launchError} />
             )}
           </AnimatePresence>
         </div>
