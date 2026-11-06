@@ -1,0 +1,30 @@
+name: Release guard
+
+# Every 5 minutes: evaluates active canary rollouts and AUTO-ROLLS BACK on an SLO breach.
+# The run FAILS (so GitHub notifies the on-call) when a rollback happened or an evaluation errored.
+# GitHub cron can be delayed; for tighter timing also schedule the same call from Supabase (pg_cron).
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: release-guard
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    name: Evaluate canaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Call release-guard-tick
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SECRET: ${{ secrets.RELEASE_GUARD_CRON_SECRET }}
+        run: |
+          set -u
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then echo "::error::SUPABASE_URL / RELEASE_GUARD_CRON_SECRET not configured"; exit 1; fi
+          code=$(curl -sS -m 60 -o out.json -w '%{http_code}' -X POST -H "X-Cron-Secret: ${CRON_SECRET}" "${SUPABASE_URL}/functions/v1/release-guard-tick")
+          cat out.json; echo
+          if [ "$code" != "200" ]; then echo "::error::release-guard-tick returned HTTP $code (207 = rollback or evaluation error)"; exit 1; fi
