@@ -3,10 +3,10 @@ import { ShieldCheck, Lock, Server, Clock, Globe, Headphones } from 'lucide-reac
 
 const TRUST_ITEMS = [
   { icon: ShieldCheck, label: 'Row-Level Security' },
-  { icon: Lock, label: 'End-to-End Encrypted' },
+  { icon: Lock, label: 'Encrypted in Transit & at Rest' },
   { icon: Server, label: '99.9% Uptime SLA' },
   { icon: Clock, label: '24/7 Availability' },
-  { icon: Globe, label: 'Multi-Region' },
+  { icon: Globe, label: 'Audit Log' },
   { icon: Headphones, label: 'Human Support' },
 ];
 
