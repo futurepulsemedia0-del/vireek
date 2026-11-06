@@ -55,8 +55,8 @@ describe('vercel.json security headers', () => {
     expect(csp['connect-src']).toContain(MAP_HOST)
     expect(csp['img-src']).toEqual(expect.arrayContaining(['https:', 'blob:']))
     expect(csp['worker-src']).toContain('blob:')
-    expect(csp['style-src']).toContain('https://fonts.googleapis.com')
-    expect(csp['font-src']).toContain('https://fonts.gstatic.com')
+    expect(csp['style-src']).not.toContain('https://fonts.googleapis.com')
+    expect(csp['font-src']).toEqual(["'self'"])
   })
 
   it('keeps script-src hash/nonce based and never weakens it', () => {
