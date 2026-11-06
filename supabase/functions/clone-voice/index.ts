@@ -70,6 +70,12 @@ Deno.serve(async (req: Request) => {
       });
     }
     const caller = userData.user;
+    if (await getKillSwitchGuard(admin).isStopped("voice_cloning", caller.id)) {
+      return new Response(JSON.stringify({ error: "Voice cloning is temporarily unavailable." }), {
+        status: 503,
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" },
+      });
+    }
 
     const body = (await req.json()) as CloneRequestBody;
     const storagePath = (body.storagePath ?? "").trim();
