@@ -27,7 +27,8 @@ jobs:
 
       - name: Lint
         run: npm run lint
-
+      - name: Flag lifecycle (stale / unowned flags)
+        run: npm run lint:flags
       - name: Colour tokens (ratchet) + generated tokens up to date
         run: |
           npm run lint:colors
