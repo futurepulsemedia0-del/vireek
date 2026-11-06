@@ -1,0 +1,33 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes: { label: What happened?, description: Expected vs actual behaviour. }
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes: { label: Steps to reproduce, placeholder: "1. ...\n2. ..." }
+    validations: { required: true }
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Dashboard (web), Technician app (/tech), Customer portal, Staff console, Edge function, Database / RLS, Mobile (Capacitor), Chrome extension, CLI / SDK, Docs, Other]
+    validations: { required: true }
+  - type: input
+    id: env
+    attributes: { label: Environment, description: "Prod / staging / local, browser or device, app version." }
+  - type: textarea
+    id: logs
+    attributes: { label: Logs / screenshots, description: "Remove tokens, phone numbers, emails and any customer data before pasting." }
+  - type: checkboxes
+    id: safe
+    attributes:
+      label: Checks
+      options:
+        - label: This is not a security vulnerability (those go to ali@vireek.com).
+          required: true
+        - label: I removed secrets and personal data from this report.
+          required: true
