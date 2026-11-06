@@ -65,11 +65,13 @@ Deno.serve(async (req: Request) => {
     auth: { persistSession: false },
   });
   const deps = createDeps(admin);
+  const killSwitches = getKillSwitchGuard(admin);
 
   if (url.searchParams.get("action") === "sweep") {
     const cronSecret = Deno.env.get("CRON_SECRET");
     if (!cronSecret || !timingSafeEqual(req.headers.get("x-cron-secret") ?? "", cronSecret)) return json({ error: "Unauthorized" }, 401);
     try {
+      if (await killSwitches.isStopped("marketplace_ingestion")) return json({ ok: true, paused: true });
       return json({ ok: true, ...(await sweepPending(deps)) });
     } catch (error) {
       console.error(JSON.stringify({ event: "lead_marketplace_sweep_failed", error: String(error) }));
@@ -82,6 +84,9 @@ Deno.serve(async (req: Request) => {
   const source = await deps.store.getSourceByToken(token);
   if (!source) return json({ error: "Unauthorized" }, 401);
 
+  if (await killSwitches.isStopped("marketplace_ingestion", source.user_id)) {
+    return new Response(JSON.stringify({ error: "Ingestion paused" }), { status: 503, headers: { "Content-Type": "application/json", "Retry-After": "300" } });
+  }
   const read = await readBody(req);
   if ("tooLarge" in read) return json({ error: "Payload too large" }, 413);
 
