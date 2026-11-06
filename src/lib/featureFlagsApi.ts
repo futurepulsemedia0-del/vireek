@@ -10,7 +10,7 @@ interface DbError { message?: string; code?: string }
 
 function fail(error: DbError | null | undefined, fallback: string): never {
   if (error?.code === '23505') throw new Error('A flag with that key already exists.');
-  if (error?.code === '42501') throw new Error('Staff access is required for this action.');
+  if (error?.code === '42501') throw new Error(error.message?.includes('second approver') ? error.message : 'Staff access is required for this action.');
   if (error?.code === 'P0002' || error?.code === '22023') throw new Error(error.message || fallback);
   throw new Error(fallback);
 }
