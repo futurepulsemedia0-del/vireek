@@ -1,0 +1,18 @@
+name: Feature request
+description: Propose a feature or improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Problem / goal, description: Who is blocked and what outcome do they need? }
+    validations: { required: true }
+  - type: textarea
+    id: proposal
+    attributes: { label: Proposed behaviour }
+    validations: { required: true }
+  - type: textarea
+    id: accept
+    attributes: { label: Acceptance criteria, placeholder: "- [ ] testable statement" }
+  - type: textarea
+    id: risk
+    attributes: { label: Data, permissions and tenant impact, description: "New tables? RLS? Roles that can see it? Third-party providers?" }
