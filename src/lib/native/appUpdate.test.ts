@@ -27,6 +27,13 @@ describe('evaluatePolicy', () => {
     expect(evaluatePolicy('1.2.0', policy('1.0.0', '1.3.0'), '1.3.0').kind).toBe('none');
   });
 
+  it('stages the soft prompt by install bucket but never stages a forced update', () => {
+    const staged = { ...policy('1.0.0', '1.3.0'), rollout_pct: 10 };
+    expect(evaluatePolicy('1.2.0', staged, null, 5).kind).toBe('soft');
+    expect(evaluatePolicy('1.2.0', staged, null, 50).kind).toBe('none');
+    expect(evaluatePolicy('0.9.0', { ...staged, min_version: '1.0.0' }, null, 50).kind).toBe('force');
+  });
+  
   it('is quiet when up to date', () => {
     expect(evaluatePolicy('1.3.0', policy('1.0.0', '1.3.0'), null).kind).toBe('none');
   });
