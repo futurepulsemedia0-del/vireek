@@ -29,6 +29,7 @@ Deno.serve(async (req: Request) => {
       auth: { persistSession: false },
     });
 
+    const killSwitches = getKillSwitchGuard(admin);
     const { data: liveCampaigns, error: liveError } = await admin
       .from("marketing_campaigns")
       .select("id")
@@ -65,6 +66,7 @@ Deno.serve(async (req: Request) => {
         continue;
       }
 
+      if (step.channel === "sms" && (await killSwitches.isStopped("sms_campaigns", enrollment.user_id))) continue;
       const name = await resolveContactName(admin, enrollment);
       const vars = { name: name ?? "there" };
       const body = fillTemplate(step.body, vars);
