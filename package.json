@@ -34,6 +34,7 @@
        "security:check": "node scripts/security/function-matrix.mjs --check && node scripts/security/rls-audit.mjs --check",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "check:assets": "node scripts/check-asset-budget.mjs",
+    "fonts:sync": "node scripts/fonts/sync-fonts.mjs",
     "docs:inventory": "node scripts/gen-docs-inventory.mjs",
     "surface:inventory": "node scripts/gen-surface-inventory.mjs",
     "surface:check": "node scripts/gen-surface-inventory.mjs --check",
