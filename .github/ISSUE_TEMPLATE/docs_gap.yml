@@ -1,0 +1,12 @@
+name: Documentation gap
+description: Missing, wrong, or outdated documentation
+labels: [documentation]
+body:
+  - type: input
+    id: where
+    attributes: { label: File or page }
+    validations: { required: true }
+  - type: textarea
+    id: problem
+    attributes: { label: What is missing or wrong? }
+    validations: { required: true }
