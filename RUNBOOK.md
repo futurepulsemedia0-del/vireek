@@ -73,9 +73,7 @@ a user-called function deployed with it OFF loses the platform auth check. The f
 `weather-surge-check`, `automation-*`, `compute-*`, `property-intelligence-agent`, `predictive-failure`, `home-health-agent`,
 `service-guarantee-tick`, `switching-shield`, `workflow-graph-executor`.
 
-The repository has **no `supabase/config.toml`**, so per-function `verify_jwt` settings are not version-controlled. Until you add one
-(`[functions.<name>] verify_jwt = false` for each function above), the deploy flag is the only source of truth — which is why the
-CI deploy job in `edge-functions.yml` is **disabled by default** (`EDGE_DEPLOY_ENABLED`) and refuses to run without `config.toml`.
+T`supabase/config.toml` exists and lists `verify_jwt = false` for 49 functions, but far more functions are deployed with `--no-verify-jwt` (see the matrix in `docs/security/function-matrix.md`). Reconcile the two before enabling CI deploys: the CI deploy job in `edge-functions.yml` is **disabled by default** (`EDGE_DEPLOY_ENABLED`) and refuses to run without `config.toml`.
 
 Steps:
 1. Typecheck locally: `deno check supabase/functions/<name>/index.ts` (CI does this for changed functions).
