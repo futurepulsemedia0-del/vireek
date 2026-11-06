@@ -8,6 +8,7 @@ import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { dismissVersion, evaluatePolicy, loadPolicy, readCachedPolicy, readDismissedVersion, type UpdateState } from '@/lib/native/appUpdate';
 import { isNative, nativePlatform } from '@/lib/native/platform';
+import { installBucket } from '@/lib/native/releaseStaging';
 
 const REFRESH_EVERY_MS = 10 * 60_000;
 const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.vireek.field';
@@ -29,7 +30,7 @@ export function UpdateGate() {
     }
     if (useNetwork) lastCheck.current = Date.now();
     const policy = useNetwork ? await loadPolicy(platform) : readCachedPolicy();
-    setState(evaluatePolicy(version.current, policy, readDismissedVersion()));
+    evaluatePolicy(version.current, policy, readDismissedVersion(), installBucket())
   }, []);
 
   useEffect(() => {
