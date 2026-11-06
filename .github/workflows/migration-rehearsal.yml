@@ -1,0 +1,45 @@
+name: Migration rehearsal
+
+# Applies pending migrations to a PRODUCTION-LIKE SNAPSHOT database with a short lock_timeout, so a migration
+# that would block writers fails here, not in production. Requires a secret REHEARSAL_DB_URL pointing at a
+# restored snapshot (never production). Skipped when the secret is absent (e.g. forks).
+# NOTE: PGOPTIONS support in `supabase db push` is expected (libpq-compatible) but confirm on the first run.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ['supabase/migrations/**', '.github/workflows/migration-rehearsal.yml']
+
+concurrency:
+  group: migration-rehearsal
+  cancel-in-progress: false
+
+jobs:
+  rehearse:
+    name: Rehearse on snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REHEARSAL_DB_URL: ${{ secrets.REHEARSAL_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Release-safety lint
+        run: node scripts/lint-migrations.mjs
+      - uses: supabase/setup-cli@v1
+        if: env.REHEARSAL_DB_URL != ''
+      - name: Pending migrations (dry run)
+        if: env.REHEARSAL_DB_URL != ''
+        run: supabase db push --db-url "$REHEARSAL_DB_URL" --include-all --dry-run
+      - name: Apply with lock_timeout=5s, statement_timeout=120s
+        if: env.REHEARSAL_DB_URL != ''
+        env:
+          PGOPTIONS: '-c lock_timeout=5000 -c statement_timeout=120000'
+        run: |
+          start=$(date +%s)
+          supabase db push --db-url "$REHEARSAL_DB_URL" --include-all
+          echo "Rehearsal took $(( $(date +%s) - start ))s"
+      - name: Not configured
+        if: env.REHEARSAL_DB_URL == ''
+        run: echo "REHEARSAL_DB_URL not set; only the lint ran."
