@@ -7,6 +7,7 @@
  */
 
 import { supabase } from '@/lib/supabase';
+import { loadSignatureFonts } from './loadSignatureFonts';
 
 export type InspectionType = 'pre_trip' | 'post_trip';
 export type ItemSeverity = 'minor' | 'major' | 'out_of_service';
@@ -361,6 +362,7 @@ export async function signatureToBlob(sig: SignatureInput, typedFamily = "'Danci
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = '#171717';
+  await loadSignatureFonts(); // typed signatures must be drawn with the real face, never a fallback
   ctx.font = `64px ${typedFamily}`;
   ctx.textBaseline = 'middle';
   ctx.fillText(sig.data, 24, 90, canvas.width - 48);
