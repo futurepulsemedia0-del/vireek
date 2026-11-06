@@ -8,7 +8,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"Sora"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                sans: ['var(--font-sans)'],
+        display: ['var(--font-display)'],
       },
       transitionDuration: { fast: '120ms', base: '180ms', slow: '280ms' },
       transitionTimingFunction: { 'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)' },
