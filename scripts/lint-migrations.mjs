@@ -12,6 +12,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { join } from 'node:path'
+import { checkMigrationSql } from './lib/migrationSafety.mjs'
 
 const DIR = 'supabase/migrations'
 const NAME_RE = /^(\d{14})_[a-z0-9_]+\.sql$/
@@ -90,6 +91,8 @@ for (const f of all) {
   const allowNoRls = /--\s*lint:allow-no-rls\b/i.test(raw)
   const code = stripStrings(stripComments(raw))
   const outsideBodies = stripDollar(code)
+  
+  for (const msg of checkMigrationSql(raw)) err(f, `release safety: ${msg}`)
 
   if (!allowDestructive) {
     for (const [re, label] of DESTRUCTIVE) {
