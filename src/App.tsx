@@ -428,6 +428,7 @@ const UnknownsEnginePage = lazy(() => import('@/pages/UnknownsEnginePage').then(
 const EventBusPage = lazy(() => import('@/pages/EventBusPage').then((m) => ({ default: m.EventBusPage })));
 const EventPredictionMeshPage = lazy(() => import('@/pages/EventPredictionMeshPage').then((m) => ({ default: m.EventPredictionMeshPage })));
 const ActivityLedgerPage = lazy(() => import('@/pages/ActivityLedgerPage').then((m) => ({ default: m.ActivityLedgerPage })));
+const WorkflowHealthPage = lazy(() => import('@/pages/WorkflowHealthPage').then((m) => ({ default: m.WorkflowHealthPage })));
 const TrashPage = lazy(() => import('@/pages/TrashPage').then((m) => ({ default: m.TrashPage })));
 const DuplicatesPage = lazy(() => import('@/pages/DuplicatesPage').then((m) => ({ default: m.DuplicatesPage })));
 const ComplianceRulesPage = lazy(() => import('@/pages/ComplianceRulesPage').then((m) => ({ default: m.ComplianceRulesPage })));
@@ -4311,6 +4312,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ActivityLedgerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/workflow-health"
+          element={
+            <ProtectedRoute>
+              <WorkflowHealthPage />
             </ProtectedRoute>
           }
         />
