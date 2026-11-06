@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { selectOutboundNumber, recordDialAttempt } from "../_shared/number-reputation/attempts.ts";
+import { getKillSwitchGuard } from "../_shared/flags/killSwitch.ts";
 import { VapiEngine } from "../_shared/voice-engine/vapiEngine.ts";
 import { OpenAiRealtimeEngine } from "../_shared/voice-engine/openAiRealtimeEngine.ts";
 import { resolveVoiceEngine } from "../_shared/voice-engine/resolve.ts";
@@ -34,6 +35,10 @@ Deno.serve(async (req: Request) => {
   if (!vapiKey) return new Response(JSON.stringify({ error: "VAPI_PRIVATE_KEY is not configured." }), { status: 500 });
 
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+  const killSwitches = getKillSwitchGuard(admin);
+  if (await killSwitches.isStopped("outbound_dialer")) {
+    return new Response(JSON.stringify({ dialed: 0, stopped: true }), { headers: { "Content-Type": "application/json" } });
+  }
 
   const { data: queue, error } = await admin
     .from("outbound_calls")
@@ -51,6 +56,7 @@ Deno.serve(async (req: Request) => {
   const voiceEngines = { vapi: new VapiEngine({ apiKey: vapiKey }), openai_realtime: new OpenAiRealtimeEngine() };
 
   for (const call of queue as QueuedCall[]) {
+    if (await killSwitches.isStopped("outbound_dialer", call.user_id)) continue; // تماس در صف می‌ماند
     const { data: business } = await admin
       .from("business_profile")
       .select("vapi_assistant_id, vapi_phone_number_id, assistant_voice")
