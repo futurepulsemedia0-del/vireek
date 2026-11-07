@@ -13,6 +13,8 @@
     "mobile:preflight": "node scripts/mobile-preflight.mjs",
     "mobile:privacy": "node scripts/check-privacy-map.mjs",
     "audit:contrast": "node scripts/audit-text-contrast.mjs",
+    "audit:contrast": "node scripts/audit-text-contrast.mjs",
+    "codemod:text-alpha": "node scripts/color/codemod-text-alpha.mjs",
     "lint:design": "node scripts/check-design-system.mjs",
     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
