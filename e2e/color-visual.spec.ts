@@ -2,7 +2,7 @@
 // First run: `npx playwright test e2e/color-visual.spec.ts --update-snapshots` and commit the PNGs.
 import { test, expect } from '@playwright/test';
 
-const PAGES = [['home', '/'], ['pricing', '/pricing'], ['login', '/login'], ['brand', '/brand']] as const;
+const PAGES = [['home', '/'], ['pricing', '/pricing'], ['login', '/login'], ['brand', '/brand'], ['about', '/about'], ['contact', '/contact'], ['blog', '/blog'], ['calculator', '/calculator'], ['compare', '/compare'], ['customers', '/customers']] as const;
 for (const theme of ['light', 'dark'] as const) {
   for (const [name, path] of PAGES) {
     test(`visual ${name} [${theme}]`, async ({ page }) => {
