@@ -35,9 +35,6 @@ Deno.serve(async (req: Request) => {
   if (error) return jsonResponse({ error: error.message }, 500);
 
   const results = await assignJobsWithRules(admin, userId, unassigned ?? []);
-    const result = await assignBestTechnician(admin, userId, job);
-    results.push({ job_id: job.id, ...result });
-  }
 
   return jsonResponse({ assigned: results.filter((r) => r.technicianId).length, total: results.length, results });
 });
