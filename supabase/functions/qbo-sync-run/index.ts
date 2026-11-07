@@ -1282,12 +1282,21 @@ async function executeRun(admin: AnyClient, conn: ConnRow, runId: string) {
         ...(status === "failed" ? { last_error: error } : { last_error: status === "partial" ? error : null, last_synced_at: new Date().toISOString() }),
       })
       .eq("id", conn.id);
+    try {
+      await admin.rpc("connector_record_result", {
+        p_user_id: conn.user_id, p_connector: "qbo", p_connection_id: conn.id, p_status: status, p_error: error, p_stats: ctx?.stats ?? {},
+      });
+    } catch { /* never affects the sync */ }
     if (markError) await mirrorIntegration(admin, conn, "error", { error_code: errorCode, error_message: error, failed_at: new Date().toISOString() });
     else if (status !== "failed") await mirrorIntegration(admin, conn, "connected", { last_synced_at: new Date().toISOString() });
   }
 }
 
 async function beginRun(admin: AnyClient, conn: ConnRow, trigger: "manual" | "scheduled" | "webhook"): Promise<string | null> {
+   if (trigger === "scheduled") {
+    const { data: open } = await admin.rpc("connector_breaker_open", { p_user_id: conn.user_id, p_connector: "qbo", p_connection_id: conn.id });
+    if (open === true) return null;
+  }
   if (!(await acquireLock(admin, conn.id))) return null;
   await admin.from("qbo_sync_runs").update({ status: "failed", error: "Interrupted.", finished_at: new Date().toISOString() }).eq("connection_id", conn.id).eq("status", "running").lt("started_at", new Date(Date.now() - 10 * 60_000).toISOString());
   const { data } = await admin.from("qbo_sync_runs").insert({ user_id: conn.user_id, connection_id: conn.id, trigger, status: "running" }).select("id").single();
