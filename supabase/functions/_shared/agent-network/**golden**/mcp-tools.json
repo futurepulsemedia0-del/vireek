@@ -1,0 +1,400 @@
+{
+  "tools": [
+    {
+      "name": "get_customer",
+      "title": "Get customer",
+      "description": "Look up ONE customer by exactly one of customer_id, phone or email. Returns contact details and lifecycle stage. Never lists or searches all customers.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254
+          }
+        },
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "customer_id"
+            ]
+          },
+          {
+            "required": [
+              "phone"
+            ]
+          },
+          {
+            "required": [
+              "email"
+            ]
+          }
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_equipment",
+      "title": "Get customer equipment",
+      "description": "List the equipment installed for one customer (type, make, model, serial, install date, warranty expiry, service interval).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "replaced",
+              "removed",
+              "all"
+            ],
+            "default": "active"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_job",
+      "title": "Get job",
+      "description": "Fetch one job by id: status, schedule, address, assigned technician and invoice status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "check_schedule",
+      "title": "Check schedule & technician availability",
+      "description": "Jobs booked in a time window (max 14 days) and, per technician, how many job slots remain each UTC day. Use before dispatch_technician.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "technician_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "check_inventory",
+      "title": "Check parts inventory",
+      "description": "Stock for parts matching an exact part_number or a name search: on hand, reserved and available per location, plus a below-reorder-point flag. Max 20 parts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "part_number": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "query": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60
+          }
+        },
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "part_number"
+            ]
+          },
+          {
+            "required": [
+              "query"
+            ]
+          }
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_quote",
+      "title": "Create draft quote",
+      "description": "Create a DRAFT quote (never sent to the customer). Needs human approval by default. A person reviews and sends it from Vireek. Amounts are integer cents.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]{8,128}$",
+            "description": "Unique key you choose for this action. Re-sending the same key never repeats the action and is how you collect the result after human approval."
+          },
+          "customer_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "customer_phone": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "customer_email": {
+            "type": "string",
+            "maxLength": 254
+          },
+          "line_items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "quantity": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 10000
+                },
+                "unit_price_cents": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100000000
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "unit_price_cents"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "tax_percent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30,
+            "default": 0
+          },
+          "valid_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 90,
+            "default": 14
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "customer_name",
+          "line_items"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "dispatch_technician",
+      "title": "Assign technician to job",
+      "description": "Assign one technician to one scheduled job. Enforces the technician's daily capacity. Needs human approval by default. Call check_schedule first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]{8,128}$",
+            "description": "Unique key you choose for this action. Re-sending the same key never repeats the action and is how you collect the result after human approval."
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "technician_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Shown to the human approver."
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "job_id",
+          "technician_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "send_customer_message",
+      "title": "Send customer SMS",
+      "description": "Send an SMS to an EXISTING customer (by customer_id). Goes through A2P registration and do-not-contact checks. Needs human approval by default.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]{8,128}$",
+            "description": "Unique key you choose for this action. Re-sending the same key never repeats the action and is how you collect the result after human approval."
+          },
+          "customer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 480
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "customer_id",
+          "body"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "collect_payment",
+      "title": "Create payment link for a job",
+      "description": "Create a Stripe payment link for a job's invoice amount (the amount cannot be chosen by the caller). Does NOT message the customer. Use send_customer_message for that. Needs human approval by default.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]{8,128}$",
+            "description": "Unique key you choose for this action. Re-sending the same key never repeats the action and is how you collect the result after human approval."
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "job_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_action_status",
+      "title": "Get action status",
+      "description": "Status and result of one of YOUR earlier calls (call_id). If a human has approved a pending action, calling this runs it and returns the result.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "call_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "call_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}
