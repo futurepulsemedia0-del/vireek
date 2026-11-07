@@ -86,6 +86,8 @@ jobs:
         with:
           node-version: '20'
       - run: node scripts/check-asset-budget.mjs
+      - run: npm ci
+      - run: npm run check:images
   bundle-size:
     name: Bundle-size budget
     runs-on: ubuntu-latest
