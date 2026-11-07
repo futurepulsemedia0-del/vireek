@@ -194,6 +194,7 @@ const DashboardSnapshotsPage = lazy(() => import('@/pages/DashboardSnapshotsPage
 const SharedDashboardPage = lazy(() => import('@/pages/SharedDashboardPage').then((m) => ({ default: m.SharedDashboardPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const DispatchRulesPage = lazy(() => import('@/pages/DispatchRulesPage').then((m) => ({ default: m.DispatchRulesPage })));
+   const DispatchRandomizationPage = lazy(() => import('@/pages/DispatchRandomizationPage').then((m) => ({ default: m.DispatchRandomizationPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InventoryCountsPage = lazy(() => import('@/pages/InventoryCountsPage').then((m) => ({ default: m.InventoryCountsPage })));
 const ToolCribPage = lazy(() => import('@/pages/ToolCribPage').then((m) => ({ default: m.ToolCribPage })));
@@ -2955,6 +2956,14 @@ function AppRoutes() {
       </ProtectedRoute>
     }
   />
+   <Route
+     path="/dashboard/assignment-rules/fair-tiebreaking"
+     element={
+       <ProtectedRoute>
+         <DispatchRandomizationPage />
+       </ProtectedRoute>
+     }
+   />
         <Route
           path="/dashboard/routing"
           element={
