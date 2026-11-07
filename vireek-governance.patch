@@ -1,0 +1,1431 @@
+diff -ruN a/.github/workflows/ai-regression.yml b/.github/workflows/ai-regression.yml
+--- a/.github/workflows/ai-regression.yml	2026-11-05 18:28:21.000000000 +0000
++++ b/.github/workflows/ai-regression.yml	2026-11-06 11:04:03.000000000 +0000
+@@ -36,7 +36,8 @@
+           HALLUCINATIONS=$(echo "$BODY" | grep -o '"hallucinationCount":[0-9]*' | grep -o '[0-9]*')
+           echo "Pass rate: $PASS_COUNT / $CASE_COUNT — hallucinations: $HALLUCINATIONS"
+           if [ "$HALLUCINATIONS" -gt 0 ]; then
+-            echo "::warning::AI regression suite flagged $HALLUCINATIONS possible hallucination(s) — review ai_eval_results."
++            echo "::error::AI regression suite flagged $HALLUCINATIONS possible hallucination(s) — review ai_eval_results."
++            exit 1
+           fi
+           if [ "$CASE_COUNT" -gt 0 ] && [ "$PASS_COUNT" -lt "$CASE_COUNT" ]; then
+             echo "::error::$((CASE_COUNT - PASS_COUNT)) of $CASE_COUNT eval cases failed."
+diff -ruN a/scripts/check-fail-open-secrets.mjs b/scripts/check-fail-open-secrets.mjs
+--- a/scripts/check-fail-open-secrets.mjs	1970-01-01 00:00:00.000000000 +0000
++++ b/scripts/check-fail-open-secrets.mjs	2026-11-06 11:03:09.000000000 +0000
+@@ -0,0 +1,23 @@
++// Fails (exit 1) if any Edge Function uses a fail-open secret guard.
++// Run: node scripts/check-fail-open-secrets.mjs
++import { readdirSync, readFileSync, existsSync } from "node:fs";
++import { join } from "node:path";
++const root = "supabase/functions";
++// `if (cronSecret && header !== cronSecret)` style: secret optional => unset == open
++const FAIL_OPEN = [
++  /if\s*\(\s*(cronSecret|expectedSecret|secret)\s*&&.*(!==|!=)/,
++  /if\s*\(\s*(expectedSecret)\s*\)\s*\{/,
++];
++const bad = [];
++for (const d of readdirSync(root, { withFileTypes: true })) {
++  if (!d.isDirectory() || d.name === "_shared") continue;
++  const f = join(root, d.name, "index.ts");
++  if (!existsSync(f)) continue;
++  const src = readFileSync(f, "utf8");
++  src.split("\n").forEach((line, i) => {
++    if (FAIL_OPEN.some((r) => r.test(line))) bad.push(`${f}:${i + 1}: ${line.trim()}`);
++  });
++}
++console.log(bad.length ? bad.join("\n") : "OK");
++console.log(`fail-open entry points: ${bad.length}`);
++process.exit(bad.length ? 1 : 0);
+diff -ruN a/scripts/check-ungoverned-side-effects.mjs b/scripts/check-ungoverned-side-effects.mjs
+--- a/scripts/check-ungoverned-side-effects.mjs	1970-01-01 00:00:00.000000000 +0000
++++ b/scripts/check-ungoverned-side-effects.mjs	2026-11-06 11:03:50.000000000 +0000
+@@ -0,0 +1,36 @@
++// CI ratchet: every Edge Function with an outbound send / call / charge / refund must call
++// authorizeAgentAction OR carry `// governance-exempt: <reason>` (e.g. human-initiated).
++// Existing offenders live in scripts/governance-baseline.json; NEW offenders fail CI,
++// and the baseline can only shrink. Heuristic (text-based): it proves absence of the gate
++// call, not correctness of its placement.
++//   node scripts/check-ungoverned-side-effects.mjs            -> check
++//   node scripts/check-ungoverned-side-effects.mjs --write    -> regenerate baseline (shrink only in review)
++import { readdirSync, readFileSync, existsSync, writeFileSync } from "node:fs";
++import { join } from "node:path";
++const root = "supabase/functions";
++const baselinePath = "scripts/governance-baseline.json";
++const SIDE_EFFECT = /sendSms|sendVoiceCall|sendCompliantSms|api\.vapi\.ai\/call|api\.stripe\.com\/v1\/(refunds|payment_intents|charges)|stripe\.(refunds|paymentIntents|charges)\.create|from\(["']twilio|twilio\.com\/.*Messages|api\.twilio\.com/;
++const GATE = /authorizeAgentAction|governedGate/;
++const EXEMPT = /governance-exempt:\s*\S+/;
++const found = []; let governed = 0, exempt = 0;
++for (const d of readdirSync(root, { withFileTypes: true })) {
++  if (!d.isDirectory() || d.name === "_shared") continue;
++  const f = join(root, d.name, "index.ts");
++  if (!existsSync(f)) continue;
++  const src = readFileSync(f, "utf8");
++  if (!SIDE_EFFECT.test(src)) continue;
++  if (GATE.test(src)) governed++; else if (EXEMPT.test(src)) exempt++; else found.push(d.name);
++}
++const total = governed + exempt + found.length;
++if (process.argv.includes("--write")) {
++  writeFileSync(baselinePath, JSON.stringify({ ungoverned: found.sort() }, null, 2) + "\n");
++  console.log(`baseline written: ${found.length} ungoverned`); process.exit(0);
++}
++const base = new Set(existsSync(baselinePath) ? JSON.parse(readFileSync(baselinePath, "utf8")).ungoverned : []);
++const fresh = found.filter((n) => !base.has(n));
++const fixed = [...base].filter((n) => !found.includes(n));
++console.log(`side-effect functions: ${total} | governed: ${governed} | exempt: ${exempt} | ungoverned: ${found.length} (baseline ${base.size})`);
++console.log(`governed coverage: ${total ? ((100 * (governed + exempt)) / total).toFixed(1) : 100}%`);
++if (fixed.length) console.log(`now governed (remove from baseline via --write): ${fixed.join(", ")}`);
++if (fresh.length) { console.error(`NEW ungoverned side-effect functions:\n  ${fresh.join("\n  ")}`); process.exit(1); }
++console.log("OK: no new ungoverned side effects");
+diff -ruN a/scripts/codemod-cron-auth.mjs b/scripts/codemod-cron-auth.mjs
+--- a/scripts/codemod-cron-auth.mjs	1970-01-01 00:00:00.000000000 +0000
++++ b/scripts/codemod-cron-auth.mjs	2026-11-06 11:02:41.000000000 +0000
+@@ -0,0 +1,39 @@
++// Migrates fail-open `if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {...}` guards
++// to requireCronAuth(). Idempotent. Usage: node scripts/codemod-cron-auth.mjs [--dry]
++import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
++import { join } from "node:path";
++const dry = process.argv.includes("--dry");
++const root = "supabase/functions";
++const GUARD = /^(\s*)if \(cronSecret && req\.headers\.get\("X-Cron-Secret"\) !== cronSecret\)\s*(\{)?(.*)$/;
++const IMPORT_LINE = /^(import\b.*|\}\s*from\s*["'][^"']+["']);\s*$/;
++const changed = [], skipped = [];
++for (const d of readdirSync(root, { withFileTypes: true })) {
++  if (!d.isDirectory() || d.name === "_shared") continue;
++  const f = join(root, d.name, "index.ts");
++  if (!existsSync(f)) continue;
++  const lines = readFileSync(f, "utf8").split("\n");
++  const gi = lines.findIndex((l) => GUARD.test(l));
++  if (gi < 0) continue;
++  const m = lines[gi].match(GUARD); const indent = m[1];
++  let end = gi;
++  if (m[2]) { // block form: find matching close brace
++    let depth = 0;
++    for (let i = gi; i < lines.length; i++) {
++      for (const ch of lines[i]) { if (ch === "{") depth++; else if (ch === "}") depth--; }
++      if (depth === 0) { end = i; break; }
++    }
++    if (end === gi && !lines[gi].includes("}")) { skipped.push(`${f}: unbalanced`); continue; }
++  }
++  lines.splice(gi, end - gi + 1, `${indent}const cronAuth = requireCronAuth(req);`, `${indent}if (!cronAuth.ok) return cronAuth.response;`);
++  let src = lines.join("\n");
++  // drop now-unused `const cronSecret = ...;` (only if no other reference remains)
++  const decl = /^\s*const cronSecret = Deno\.env\.get\("CRON_SECRET"\);\s*\n/m;
++  if (decl.test(src) && (src.match(/\bcronSecret\b/g) || []).length === 1) src = src.replace(decl, "");
++  const arr = src.split("\n");
++  let last = -1; arr.forEach((l, i) => { if (IMPORT_LINE.test(l)) last = i; });
++  if (last < 0) { skipped.push(`${f}: no import anchor`); continue; }
++  arr.splice(last + 1, 0, `import { requireCronAuth } from "../_shared/http/cronAuth.ts";`);
++  if (!dry) writeFileSync(f, arr.join("\n"));
++  changed.push(f);
++}
++console.log(`${dry ? "[dry] " : ""}migrated ${changed.length}`); if (skipped.length) console.log("skipped:\n" + skipped.join("\n"));
+diff -ruN a/scripts/governance-baseline.json b/scripts/governance-baseline.json
+--- a/scripts/governance-baseline.json	1970-01-01 00:00:00.000000000 +0000
++++ b/scripts/governance-baseline.json	2026-11-06 11:03:50.000000000 +0000
+@@ -0,0 +1,53 @@
++{
++  "ungoverned": [
++    "arrival-window-notify",
++    "auto-reply-review",
++    "automation-insurance-claim-status-update",
++    "automation-no-show-reschedule",
++    "backfill-claim",
++    "business-immune-scan",
++    "call-queue-sms",
++    "capacity-guard-tick",
++    "commitment-monitor-tick",
++    "csr-call-transfer",
++    "deferred-message-dispatcher",
++    "detect-service-recovery-signals",
++    "emergency-mode-activate",
++    "emergency-network-orchestrator",
++    "emergency-ops-broadcast",
++    "escalate-emergency",
++    "escalation-tick",
++    "financing-create-offer",
++    "first-call-start",
++    "franchise-royalty-issue",
++    "interpreter",
++    "issue-refund",
++    "job-summary-engine",
++    "lifecycle-touch-tick",
++    "live-call-control",
++    "mass-incident",
++    "membership-lifecycle-agent",
++    "mutual-aid-notify",
++    "notification-router",
++    "outbound-queue-builder",
++    "pm-notify-customer",
++    "rich-fallback-sweep",
++    "rich-send",
++    "self-healing-orchestrator",
++    "send-payment-reminders",
++    "send-service-recovery-response",
++    "send-signature-request",
++    "service-guarantee-tick",
++    "sms-send",
++    "sms-webhook",
++    "survey-dispatcher",
++    "switching-shield",
++    "synthetic-probe",
++    "vapi-webhook",
++    "voice-account",
++    "voice-call",
++    "voice-studio-test-call",
++    "wallet-issue",
++    "weather-surge-check"
++  ]
++}
+diff -ruN a/supabase/functions/_shared/governance/shadowGate.test.ts b/supabase/functions/_shared/governance/shadowGate.test.ts
+--- a/supabase/functions/_shared/governance/shadowGate.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/governance/shadowGate.test.ts	2026-11-06 11:01:22.000000000 +0000
+@@ -0,0 +1,40 @@
++import { beforeEach, describe, expect, it } from "vitest";
++import { governedGate, isEnforced } from "./shadowGate.ts";
++
++const store = new Map<string, string>();
++(globalThis as any).Deno ??= {
++  env: { get: (k: string) => store.get(k), set: (k: string, v: string) => void store.set(k, v), delete: (k: string) => void store.delete(k) },
++};
++const p = { userId: "u1", actionSlug: "outbound_dial", agentSource: "t" };
++const ok = (decision: string) => async () => ({ decision: decision as any, logId: "l1", existing: false });
++const boom = async () => { throw new Error("db down"); };
++
++describe("governedGate", () => {
++  beforeEach(() => Deno.env.delete("GOVERNANCE_ENFORCE"));
++
++  it("defaults to shadow", () => expect(isEnforced("outbound_dial")).toBe(false));
++  it("enforce flag: list, all, other slug", () => {
++    Deno.env.set("GOVERNANCE_ENFORCE", "outbound_dial, x");
++    expect(isEnforced("outbound_dial")).toBe(true);
++    expect(isEnforced("followup_dispatch")).toBe(false);
++    Deno.env.set("GOVERNANCE_ENFORCE", "all");
++    expect(isEnforced("anything")).toBe(true);
++  });
++  it("approved actions always allowed", async () => {
++    Deno.env.set("GOVERNANCE_ENFORCE", "all");
++    expect((await governedGate({} as any, p, ok("auto_approved"))).allow).toBe(true);
++  });
++  it("shadow: pending/rejected/error are allowed but flagged wouldBlock", async () => {
++    for (const [fn, wb] of [[ok("pending_approval"), "pending_approval"], [ok("rejected"), "rejected"], [boom, "gate_error"]] as const) {
++      const r = await governedGate({} as any, p, fn as any);
++      expect(r.allow).toBe(true);
++      expect(r.wouldBlock).toBe(wb);
++    }
++  });
++  it("enforce: pending/rejected/error are blocked (fail closed)", async () => {
++    Deno.env.set("GOVERNANCE_ENFORCE", "outbound_dial");
++    for (const fn of [ok("pending_approval"), ok("rejected"), boom]) {
++      expect((await governedGate({} as any, p, fn as any)).allow).toBe(false);
++    }
++  });
++});
+diff -ruN a/supabase/functions/_shared/governance/shadowGate.ts b/supabase/functions/_shared/governance/shadowGate.ts
+--- a/supabase/functions/_shared/governance/shadowGate.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/governance/shadowGate.ts	2026-11-06 11:01:22.000000000 +0000
+@@ -0,0 +1,48 @@
++// supabase/functions/_shared/governance/shadowGate.ts
++// Rollout wrapper around authorizeAgentAction: SHADOW first, enforce per action class.
++//   GOVERNANCE_ENFORCE=""                       -> shadow for everything (default)
++//   GOVERNANCE_ENFORCE="outbound_dial,followup_dispatch" -> enforce those slugs only
++//   GOVERNANCE_ENFORCE="all"                    -> enforce everything
++// Shadow: the decision is computed and audited, a would-block is LOGGED, the caller proceeds.
++// Enforce: pending_approval / rejected / gate error => allow=false (fail closed).
++import { authorizeAgentAction, type AuthorizeAgentActionParams } from "./agentGovernance.ts";
++import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
++
++export function isEnforced(slug: string): boolean {
++  const v = (Deno.env.get("GOVERNANCE_ENFORCE") ?? "").trim();
++  if (!v) return false;
++  if (v === "all") return true;
++  return v.split(",").map((s) => s.trim()).includes(slug);
++}
++
++export interface GateResult {
++  allow: boolean;
++  enforced: boolean;
++  decision?: string;
++  logId?: string;
++  wouldBlock?: string;
++}
++
++export async function governedGate(
++  admin: SupabaseClient,
++  params: AuthorizeAgentActionParams,
++  authorize: typeof authorizeAgentAction = authorizeAgentAction,
++): Promise<GateResult> {
++  const enforced = isEnforced(String(params.actionSlug));
++  const note = (reason: string) => console.warn(JSON.stringify({
++    event: enforced ? "governance_blocked" : "governance_would_block",
++    action_slug: params.actionSlug, agent_source: params.agentSource, reason,
++  }));
++  try {
++    const a = await authorize(admin, params);
++    if (a.decision === "pending_approval" || a.decision === "rejected") {
++      note(a.decision);
++      return { allow: !enforced, enforced, decision: a.decision, logId: a.logId, wouldBlock: a.decision };
++    }
++    return { allow: true, enforced, decision: a.decision, logId: a.logId };
++  } catch (err) {
++    note("gate_error");
++    console.error(JSON.stringify({ event: "governance_gate_error", error: err instanceof Error ? err.message : String(err) }));
++    return { allow: !enforced, enforced, wouldBlock: "gate_error" };
++  }
++}
+diff -ruN a/supabase/functions/_shared/http/cronAuth.test.ts b/supabase/functions/_shared/http/cronAuth.test.ts
+--- a/supabase/functions/_shared/http/cronAuth.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/http/cronAuth.test.ts	2026-11-06 11:01:22.000000000 +0000
+@@ -0,0 +1,46 @@
++import { beforeEach, describe, expect, it } from "vitest";
++import { requireCronAuth } from "./cronAuth.ts";
++
++// vitest runs on Node: provide a minimal Deno.env when the real one is absent.
++const store = new Map<string, string>();
++(globalThis as any).Deno ??= {
++  env: { get: (k: string) => store.get(k), set: (k: string, v: string) => void store.set(k, v), delete: (k: string) => void store.delete(k) },
++};
++
++const req = (h?: string) => new Request("https://x.test/", { headers: h ? { "x-cron-secret": h } : {} });
++
++describe("requireCronAuth (fail closed)", () => {
++  beforeEach(() => { Deno.env.delete("CRON_SECRET"); Deno.env.delete("CRON_SECRET_NEXT"); });
++
++  it("rejects with 503 when the secret is unset, even with no header", () => {
++    const r = requireCronAuth(req());
++    expect(r.ok).toBe(false);
++    if (!r.ok) expect(r.response.status).toBe(503);
++  });
++  it("rejects when secret unset and caller sends a guessed header", () => {
++    expect(requireCronAuth(req("anything")).ok).toBe(false);
++  });
++  it("treats an empty-string secret as unset", () => {
++    Deno.env.set("CRON_SECRET", "");
++    expect(requireCronAuth(req("")).ok).toBe(false);
++  });
++  it("accepts the correct secret, rejects wrong/missing with 401", () => {
++    Deno.env.set("CRON_SECRET", "s3cret-value");
++    expect(requireCronAuth(req("s3cret-value")).ok).toBe(true);
++    const bad = requireCronAuth(req("nope"));
++    expect(bad.ok).toBe(false);
++    if (!bad.ok) expect(bad.response.status).toBe(401);
++    expect(requireCronAuth(req()).ok).toBe(false);
++  });
++  it("accepts a rotation secret via extraEnvNames", () => {
++    Deno.env.set("CRON_SECRET", "old");
++    Deno.env.set("CRON_SECRET_NEXT", "new");
++    expect(requireCronAuth(req("new"), { extraEnvNames: ["CRON_SECRET_NEXT"] }).ok).toBe(true);
++  });
++  it("accepts Bearer only when allowBearer is set", () => {
++    Deno.env.set("CRON_SECRET", "tok");
++    const b = new Request("https://x.test/", { headers: { authorization: "Bearer tok" } });
++    expect(requireCronAuth(b).ok).toBe(false);
++    expect(requireCronAuth(b, { allowBearer: true }).ok).toBe(true);
++  });
++});
+diff -ruN a/supabase/functions/_shared/http/cronAuth.ts b/supabase/functions/_shared/http/cronAuth.ts
+--- a/supabase/functions/_shared/http/cronAuth.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/http/cronAuth.ts	2026-11-06 10:55:44.000000000 +0000
+@@ -0,0 +1,51 @@
++// supabase/functions/_shared/http/cronAuth.ts
++// Fail-CLOSED authentication for cron / internal service entry points.
++// Replaces the fail-open pattern:  if (cronSecret && header !== cronSecret) { 401 }
++// (which lets EVERY request through when CRON_SECRET is unset).
++import { checkSharedSecret } from "./core.ts";
++
++export interface CronAuthOptions {
++  /** Env var holding the secret. Default: CRON_SECRET */
++  envName?: string;
++  /** Headers checked in order. Default: x-cron-secret */
++  headers?: readonly string[];
++  /** Also accept `Authorization: Bearer <secret>`. Default: false */
++  allowBearer?: boolean;
++  /** Optional extra secret env names (e.g. rotation: CRON_SECRET_NEXT). */
++  extraEnvNames?: readonly string[];
++}
++
++export type CronAuthResult = { ok: true } | { ok: false; response: Response };
++
++function deny(status: number, error: string): CronAuthResult {
++  return {
++    ok: false,
++    response: new Response(JSON.stringify({ error }), {
++      status,
++      headers: { "Content-Type": "application/json" },
++    }),
++  };
++}
++
++/**
++ * Returns ok:true ONLY when a secret is configured AND the request presents it.
++ * Unset/empty secret => 503 (misconfigured, never "allow").
++ */
++export function requireCronAuth(req: Request, opts: CronAuthOptions = {}): CronAuthResult {
++  const names = [opts.envName ?? "CRON_SECRET", ...(opts.extraEnvNames ?? [])];
++  const secrets = names.map((n) => Deno.env.get(n)).filter((s): s is string => !!s && s.length > 0);
++  if (secrets.length === 0) {
++    console.error(JSON.stringify({ event: "cron_auth_misconfigured", env: names }));
++    return deny(503, "Service not configured.");
++  }
++  const headers = opts.headers ?? ["x-cron-secret"];
++  const presented: string[] = headers.map((h) => req.headers.get(h) ?? "").filter(Boolean);
++  if (opts.allowBearer) {
++    const a = req.headers.get("authorization") ?? "";
++    if (a.toLowerCase().startsWith("bearer ")) presented.push(a.slice(7).trim());
++  }
++  for (const p of presented) {
++    for (const s of secrets) if (checkSharedSecret(s, p)) return { ok: true };
++  }
++  return deny(401, "Unauthorized");
++}
+diff -ruN a/supabase/functions/_shared/http/inboundSignature.test.ts b/supabase/functions/_shared/http/inboundSignature.test.ts
+--- a/supabase/functions/_shared/http/inboundSignature.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/http/inboundSignature.test.ts	2026-11-06 11:01:22.000000000 +0000
+@@ -0,0 +1,38 @@
++import { beforeEach, describe, expect, it } from "vitest";
++import { applySigPolicy, verifyMetaSignature } from "./inboundSignature.ts";
++import { hmacSha256 } from "./webhook.ts";
++
++const store = new Map<string, string>();
++(globalThis as any).Deno ??= {
++  env: { get: (k: string) => store.get(k), set: (k: string, v: string) => void store.set(k, v), delete: (k: string) => void store.delete(k) },
++};
++
++const body = '{"entry":[{"id":"1"}]}';
++const sign = async (s: string, b = body) => "sha256=" + (await hmacSha256(s, b, "hex"));
++
++describe("verifyMetaSignature", () => {
++  it("accepts a valid signature", async () => {
++    expect((await verifyMetaSignature(body, await sign("app"), ["app"])).ok).toBe(true);
++  });
++  it("rejects wrong secret, tampered body, missing header, no secret", async () => {
++    expect((await verifyMetaSignature(body, await sign("wrong"), ["app"])).ok).toBe(false);
++    expect((await verifyMetaSignature(body + " ", await sign("app"), ["app"])).ok).toBe(false);
++    expect((await verifyMetaSignature(body, null, ["app"])).ok).toBe(false);
++    expect((await verifyMetaSignature(body, await sign("app"), [undefined, ""])).ok).toBe(false);
++  });
++  it("supports secret rotation", async () => {
++    expect((await verifyMetaSignature(body, await sign("new"), ["old", "new"])).ok).toBe(true);
++  });
++});
++
++describe("applySigPolicy", () => {
++  beforeEach(() => Deno.env.delete("WEBHOOK_SIG_MODE"));
++  it("shadow (default) lets failures through", () => {
++    expect(applySigPolicy("whatsapp", { ok: false, reason: "x" })).toBeNull();
++  });
++  it("enforce rejects failures with 403 and passes successes", () => {
++    Deno.env.set("WEBHOOK_SIG_MODE", "enforce");
++    expect(applySigPolicy("whatsapp", { ok: false, reason: "x" })?.status).toBe(403);
++    expect(applySigPolicy("whatsapp", { ok: true })).toBeNull();
++  });
++});
+diff -ruN a/supabase/functions/_shared/http/inboundSignature.ts b/supabase/functions/_shared/http/inboundSignature.ts
+--- a/supabase/functions/_shared/http/inboundSignature.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/http/inboundSignature.ts	2026-11-06 10:58:36.000000000 +0000
+@@ -0,0 +1,39 @@
++// supabase/functions/_shared/http/inboundSignature.ts
++// Shared helpers for inbound provider webhooks that lacked verification (Meta/WhatsApp, Twilio SMS).
++// Rollout is shadow-first: WEBHOOK_SIG_MODE=shadow (default) logs what WOULD be rejected and lets the
++// request through; WEBHOOK_SIG_MODE=enforce rejects. Flip to enforce only after shadow logs show 0
++// `webhook_sig_would_reject` for legitimate traffic.
++import { constantTimeEqual } from "./core.ts";
++import { hmacSha256 } from "./webhook.ts";
++
++export type SigMode = "shadow" | "enforce";
++export const sigMode = (): SigMode => (Deno.env.get("WEBHOOK_SIG_MODE") === "enforce" ? "enforce" : "shadow");
++
++/** Meta (WhatsApp/Messenger) signature: header `X-Hub-Signature-256: sha256=<hex hmac(appSecret, rawBody)>`. */
++export async function verifyMetaSignature(
++  rawBody: string,
++  header: string | null,
++  appSecrets: ReadonlyArray<string | null | undefined>,
++): Promise<{ ok: boolean; reason?: string }> {
++  const secrets = appSecrets.filter((s): s is string => typeof s === "string" && s.length > 0);
++  if (secrets.length === 0) return { ok: false, reason: "no app secret configured" };
++  if (!header || !header.startsWith("sha256=")) return { ok: false, reason: "missing or malformed signature" };
++  const sent = header.slice(7).trim().toLowerCase();
++  let ok = false;
++  for (const s of secrets) ok = constantTimeEqual(sent, await hmacSha256(s, rawBody, "hex")) || ok;
++  return ok ? { ok: true } : { ok: false, reason: "bad signature" };
++}
++
++/**
++ * Applies shadow/enforce policy. Returns a Response to send (reject) or null to continue.
++ * Never logs payloads or secrets.
++ */
++export function applySigPolicy(provider: string, result: { ok: boolean; reason?: string }): Response | null {
++  if (result.ok) return null;
++  const mode = sigMode();
++  console.warn(JSON.stringify({
++    event: mode === "enforce" ? "webhook_sig_rejected" : "webhook_sig_would_reject",
++    provider, reason: result.reason, mode,
++  }));
++  return mode === "enforce" ? new Response("Forbidden", { status: 403 }) : null;
++}
+diff -ruN a/supabase/functions/automation-insurance-claim-status-update/index.ts b/supabase/functions/automation-insurance-claim-status-update/index.ts
+--- a/supabase/functions/automation-insurance-claim-status-update/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/automation-insurance-claim-status-update/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -10,6 +10,7 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+ import { isAutomationEnabled } from "../_shared/automation/gate.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const STATUS_COPY: Record<string, string> = {
+   submitted: "has been submitted to your insurance company",
+@@ -19,9 +20,8 @@
+ 
+ Deno.serve(async (req: Request) => {
+   const cronSecret = Deno.env.get("INSURANCE_CLAIM_CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/automation-no-show-reschedule/index.ts b/supabase/functions/automation-no-show-reschedule/index.ts
+--- a/supabase/functions/automation-no-show-reschedule/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/automation-no-show-reschedule/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -12,12 +12,12 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+ import { isAutomationEnabled } from "../_shared/automation/gate.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ Deno.serve(async (req: Request) => {
+   const cronSecret = Deno.env.get("NO_SHOW_CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/automation-vip-customer-tag/index.ts b/supabase/functions/automation-vip-customer-tag/index.ts
+--- a/supabase/functions/automation-vip-customer-tag/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/automation-vip-customer-tag/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -7,12 +7,12 @@
+ //   supabase secrets set VIP_TAG_CRON_SECRET=<random-string>
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ Deno.serve(async (req: Request) => {
+   const cronSecret = Deno.env.get("VIP_TAG_CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/causal-outcome-tracker/index.ts b/supabase/functions/causal-outcome-tracker/index.ts
+--- a/supabase/functions/causal-outcome-tracker/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/causal-outcome-tracker/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -1,4 +1,5 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ // Runs on a schedule (e.g. daily via pg_cron -> net.http_post, same
+ // operational pattern as compute-benchmarks — see that function's
+@@ -31,9 +32,8 @@
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+ 
+   const cronSecret = Deno.env.get("CAUSAL_TRACKER_CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return jsonResponse({ error: "Unauthorized." }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const supabaseUrl = Deno.env.get("SUPABASE_URL");
+   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+diff -ruN a/supabase/functions/commitment-monitor-tick/index.ts b/supabase/functions/commitment-monitor-tick/index.ts
+--- a/supabase/functions/commitment-monitor-tick/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/commitment-monitor-tick/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -19,6 +19,7 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { sendSms } from "../_shared/notify/deliver.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -46,11 +47,8 @@
+   if (req.method === "OPTIONS") {
+     return new Response(null, { status: 200, headers: corsHeaders });
+   }
+-
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   try {
+     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+diff -ruN a/supabase/functions/compute-benchmarks/index.ts b/supabase/functions/compute-benchmarks/index.ts
+--- a/supabase/functions/compute-benchmarks/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/compute-benchmarks/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -1,4 +1,5 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -17,9 +18,8 @@
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+ 
+   const cronSecret = Deno.env.get("BENCHMARK_CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return jsonResponse({ error: "Unauthorized." }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const supabaseUrl = Deno.env.get("SUPABASE_URL");
+   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+diff -ruN a/supabase/functions/compute-fleet-economics/index.ts b/supabase/functions/compute-fleet-economics/index.ts
+--- a/supabase/functions/compute-fleet-economics/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/compute-fleet-economics/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -11,6 +11,7 @@
+ // Can also be invoked on demand from the Fleet Economics page's "Refresh" button.
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -59,13 +60,8 @@
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+ 
+   const cronSecret = Deno.env.get("FLEET_ECONOMICS_CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    // Allow authenticated dashboard users to trigger a refresh too — the
+-    // frontend calls this with the user's own JWT rather than the cron
+-    // secret, so only hard-block requests carrying neither.
+-    const authHeader = req.headers.get("Authorization");
+-    if (!authHeader) return jsonResponse({ error: "Unauthorized." }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const supabaseUrl = Deno.env.get("SUPABASE_URL");
+   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+diff -ruN a/supabase/functions/compute-regional-demand/index.ts b/supabase/functions/compute-regional-demand/index.ts
+--- a/supabase/functions/compute-regional-demand/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/compute-regional-demand/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -1,4 +1,5 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -17,9 +18,8 @@
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+ 
+   const cronSecret = Deno.env.get("BENCHMARK_CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return jsonResponse({ error: "Unauthorized." }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const supabaseUrl = Deno.env.get("SUPABASE_URL");
+   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+diff -ruN a/supabase/functions/deferred-message-dispatcher/index.ts b/supabase/functions/deferred-message-dispatcher/index.ts
+--- a/supabase/functions/deferred-message-dispatcher/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/deferred-message-dispatcher/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -8,6 +8,7 @@
+ import { sendEmail, sendSms } from "../_shared/notify/deliver.ts";
+ import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+ import { gateOutbound } from "../_shared/messaging/quietHours.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const BATCH = 50;
+ const MAX_ATTEMPTS = 5;
+@@ -30,8 +31,8 @@
+ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+ 
+ Deno.serve(async (req: Request) => {
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) return json({ error: "Unauthorized" }, 401);
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+ 
+diff -ruN a/supabase/functions/detect-service-recovery-signals/index.ts b/supabase/functions/detect-service-recovery-signals/index.ts
+--- a/supabase/functions/detect-service-recovery-signals/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/detect-service-recovery-signals/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -25,6 +25,7 @@
+ 
+ import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { sendSms } from "../_shared/notify/deliver.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -138,11 +139,8 @@
+ 
+ Deno.serve(async (req: Request) => {
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+-
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return json({ error: "Unauthorized" }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/escalate-emergency/index.ts b/supabase/functions/escalate-emergency/index.ts
+--- a/supabase/functions/escalate-emergency/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/escalate-emergency/index.ts	2026-11-06 11:03:09.000000000 +0000
+@@ -22,6 +22,7 @@
+ import { sendSms, sendVoiceCall } from "../_shared/notify/deliver.ts";
+ import { isAutomationEnabled } from "../_shared/automation/gate.ts";
+ import { startEmergencyIncident } from "../_shared/emergency/startIncident.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+   "Access-Control-Allow-Methods": "POST, OPTIONS",
+@@ -59,16 +60,11 @@
+   }
+ 
+   try {
+-    // Optional shared-secret check. Only enforced if you've set
+-    // ESCALATION_WEBHOOK_SECRET, so existing no-code setups keep working
+-    // until you choose to lock it down.
+-    const expectedSecret = Deno.env.get("ESCALATION_WEBHOOK_SECRET");
+-    if (expectedSecret) {
+-      const providedSecret = req.headers.get("X-Webhook-Secret");
+-      if (providedSecret !== expectedSecret) {
+-        console.error(JSON.stringify({ event: "emergency_escalation_unauthorized", requestId }));
+-        return jsonResponse({ success: false, error: "Unauthorized", requestId }, 401);
+-      }
++    // Shared secret is REQUIRED (fail closed): set ESCALATION_WEBHOOK_SECRET and send it as X-Webhook-Secret.
++    const secretAuth = requireCronAuth(req, { envName: "ESCALATION_WEBHOOK_SECRET", headers: ["x-webhook-secret"] });
++    if (!secretAuth.ok) {
++      console.error(JSON.stringify({ event: "emergency_escalation_unauthorized", requestId }));
++      return jsonResponse({ success: false, error: "Unauthorized", requestId }, secretAuth.response.status);
+     }
+ 
+     let payload: EmergencyPayload;
+diff -ruN a/supabase/functions/escalation-tick/index.ts b/supabase/functions/escalation-tick/index.ts
+--- a/supabase/functions/escalation-tick/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/escalation-tick/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -15,12 +15,11 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { sendSms, sendVoiceCall } from "../_shared/notify/deliver.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ Deno.serve(async (req: Request) => {
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const supabaseUrl = Deno.env.get("SUPABASE_URL");
+   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+diff -ruN a/supabase/functions/estimate-recovery-agent/index.ts b/supabase/functions/estimate-recovery-agent/index.ts
+--- a/supabase/functions/estimate-recovery-agent/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/estimate-recovery-agent/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -27,6 +27,7 @@
+   BOOKING_MIN_HOURS, COLLECTION_MIN_DAYS, FINANCING_MIN_HOURS, FINANCING_MIN_VALUE_CENTS,
+   INVOICE_MIN_HOURS, PARTS_GAP_MIN_CENTS, riskScore,
+ } from "../_shared/estimate-recovery/rules.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -74,11 +75,8 @@
+ 
+ Deno.serve(async (req: Request) => {
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+-
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return json({ error: "Unauthorized" }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/followup-agent-dispatcher/index.ts b/supabase/functions/followup-agent-dispatcher/index.ts
+--- a/supabase/functions/followup-agent-dispatcher/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/followup-agent-dispatcher/index.ts	2026-11-06 11:03:42.000000000 +0000
+@@ -31,6 +31,9 @@
+ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+ import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+ import { claimCoordinationSlot, recordCoordinationOutcome } from "../_shared/ai-core/emergentCoordination.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
++import { governedGate } from "../_shared/governance/shadowGate.ts";
++import { recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
+ 
+ const BATCH_SIZE = 20;
+ const MAX_ATTEMPTS_PER_STEP = 3;
+@@ -283,10 +286,8 @@
+ }
+ 
+ Deno.serve(async (req: Request) => {
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const vapiKey = Deno.env.get("VAPI_PRIVATE_KEY");
+   const admin = createClient(
+@@ -354,6 +355,24 @@
+     const channel = step === "legacy_call" ? "call" : step.channel;
+     const stepNumber = step === "legacy_call" ? 1 : step.step_number;
+ 
++    // Governance gate (shadow-first; see GOVERNANCE_ENFORCE). Runs BEFORE the coordination bid so a
++    // blocked step doesn't burn the agent's reputation.
++    const gate = await governedGate(admin, {
++      userId: enrollment.user_id,
++      actionSlug: "followup_dispatch",
++      agentSource: "followup-agent-dispatcher",
++      targetTable: "followup_agent_enrollments",
++      targetId: `${enrollment.id}:${stepNumber}`,
++      reasoning: `${enrollment.campaign_type} step ${stepNumber} via ${channel}`,
++      payload: { campaign_type: enrollment.campaign_type, channel },
++    });
++    if (!gate.allow) {
++      await admin.from("followup_agent_enrollments").update({
++        next_action_at: new Date(Date.now() + 15 * 60_000).toISOString(),
++      }).eq("id", enrollment.id);
++      continue;
++    }
++
+     // Emergent coordination: bid for this exact lead/job before actually
+     // contacting them. Other independently-scheduled agents bid on the
+     // same slot from their own runs — whichever bid currently ranks
+@@ -394,6 +413,7 @@
+     }
+ 
+     await recordCoordinationOutcome(admin, claim.bidId, ok ? "success" : "failed");
++    if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: ok ? "executed" : "failed", error: ok ? undefined : "step failed" });
+ 
+     if (ok) {
+       sent += 1;
+diff -ruN a/supabase/functions/followup-agent-enroller/index.ts b/supabase/functions/followup-agent-enroller/index.ts
+--- a/supabase/functions/followup-agent-enroller/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/followup-agent-enroller/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -19,6 +19,7 @@
+ import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+ import { isAutomationEnabled } from "../_shared/automation/gate.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ type CampaignType = "quote_followup" | "appointment_reminder" | "review_request_call";
+ // appointment_reminder has no Marketplace equivalent yet, so it's left out
+@@ -136,10 +137,8 @@
+ }
+ 
+ Deno.serve(async (req: Request) => {
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/marketing-campaign-dispatcher/index.ts b/supabase/functions/marketing-campaign-dispatcher/index.ts
+--- a/supabase/functions/marketing-campaign-dispatcher/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/marketing-campaign-dispatcher/index.ts	2026-11-06 11:03:42.000000000 +0000
+@@ -10,6 +10,8 @@
+ import { sendEmail } from "../_shared/notify/deliver.ts";
+ import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+ import { gateOutbound } from "../_shared/messaging/quietHours.ts";
++import { governedGate } from "../_shared/governance/shadowGate.ts";
++import { recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -80,6 +82,21 @@
+           continue;
+         }
+       }
++      // Governance gate (shadow-first; see GOVERNANCE_ENFORCE).
++      const gate = await governedGate(admin, {
++        userId: enrollment.user_id,
++        actionSlug: "marketing_campaign_send",
++        agentSource: "marketing-campaign-dispatcher",
++        targetTable: "marketing_campaign_enrollments",
++        targetId: `${enrollment.id}:${nextStepOrder}`,
++        reasoning: `Campaign step ${nextStepOrder} via ${step.channel}`,
++        payload: { channel: step.channel },
++      });
++      if (!gate.allow) {
++        await admin.from("marketing_campaign_enrollments").update({ next_send_at: new Date(Date.now() + 15 * 60_000).toISOString() }).eq("id", enrollment.id);
++        held += 1;
++        continue;
++      }
+       let sendResult: { ok: boolean; error?: string } | { ok: true; sid: string } | { ok: false; reason: string; detail?: string };
+ 
+       if (step.channel === "email" && enrollment.contact_email) {
+@@ -104,6 +121,7 @@
+         error: sendResult.ok ? null : ("error" in sendResult ? sendResult.error : sendResult.detail) ?? "unknown",
+       });
+ 
++      if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: sendResult.ok ? "executed" : "failed", error: sendResult.ok ? undefined : "send failed" });
+       if (sendResult.ok) sent += 1;
+       else failed += 1;
+ 
+diff -ruN a/supabase/functions/membership-lifecycle-agent/index.ts b/supabase/functions/membership-lifecycle-agent/index.ts
+--- a/supabase/functions/membership-lifecycle-agent/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/membership-lifecycle-agent/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -33,6 +33,7 @@
+ import { runRenewalPipeline } from "../_shared/membershipRenewal/pipeline.ts";
+ import { makeStripeCharger } from "../_shared/membershipRenewal/stripeCharger.ts";
+ import { cardUsable, winBackEventData } from "../_shared/membershipRenewal/logic.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, X-Cron-Secret" };
+ function json(data: unknown, status = 200) {
+@@ -72,9 +73,8 @@
+ 
+ Deno.serve(async (req: Request) => {
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+-
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) return json({ error: "Unauthorized" }, 401);
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+   const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
+diff -ruN a/supabase/functions/mine-organizational-memory/index.ts b/supabase/functions/mine-organizational-memory/index.ts
+--- a/supabase/functions/mine-organizational-memory/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/mine-organizational-memory/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -16,6 +16,7 @@
+ // the same X-Cron-Secret / CRON_SECRET header.
+ 
+ import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -61,11 +62,8 @@
+ 
+ Deno.serve(async (req: Request) => {
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+-
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return json({ error: "Unauthorized" }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/notify-status-subscribers/index.ts b/supabase/functions/notify-status-subscribers/index.ts
+--- a/supabase/functions/notify-status-subscribers/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/notify-status-subscribers/index.ts	2026-11-06 11:03:09.000000000 +0000
+@@ -28,6 +28,7 @@
+ //   supabase functions deploy notify-status-subscribers
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -67,13 +68,8 @@
+     return jsonResponse({ success: false, error: "Method not allowed" }, 405);
+   }
+ 
+-  const expectedSecret = Deno.env.get("STATUS_NOTIFY_WEBHOOK_SECRET");
+-  if (expectedSecret) {
+-    const providedSecret = req.headers.get("X-Webhook-Secret");
+-    if (providedSecret !== expectedSecret) {
+-      return jsonResponse({ success: false, error: "Unauthorized" }, 401);
+-    }
+-  }
++  const secretAuth = requireCronAuth(req, { envName: "STATUS_NOTIFY_WEBHOOK_SECRET", headers: ["x-webhook-secret"] });
++  if (!secretAuth.ok) return jsonResponse({ success: false, error: "Unauthorized" }, secretAuth.response.status);
+ 
+   let payload: NotifyPayload;
+   try {
+diff -ruN a/supabase/functions/outbound-dialer/index.ts b/supabase/functions/outbound-dialer/index.ts
+--- a/supabase/functions/outbound-dialer/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/outbound-dialer/index.ts	2026-11-06 11:03:50.000000000 +0000
+@@ -7,6 +7,9 @@
+ import { resolveVoiceEngine } from "../_shared/voice-engine/resolve.ts";
+ import { voiceOverride } from "../_shared/voice/voiceMap.ts";
+ import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
++import { governedGate } from "../_shared/governance/shadowGate.ts";
++import { recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
+ 
+ const BATCH_SIZE = 20;
+ interface QueuedCall {
+@@ -25,10 +28,8 @@
+ };
+ 
+ Deno.serve(async (req: Request) => {
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const vapiKey = Deno.env.get("VAPI_PRIVATE_KEY");
+   if (!vapiKey) return new Response(JSON.stringify({ error: "VAPI_PRIVATE_KEY is not configured." }), { status: 500 });
+@@ -91,6 +92,22 @@
+       await admin.from("outbound_calls").update({ scheduled_for: pick.retryAt, outcome_notes: pick.note }).eq("id", call.id);
+       continue;
+     }
++    const gate = await governedGate(admin, {
++      userId: call.user_id,
++      actionSlug: "outbound_dial",
++      agentSource: "outbound-dialer",
++      targetTable: "outbound_calls",
++      targetId: call.id,
++      reasoning: `Outbound ${call.campaign_type} call to customer`,
++      payload: { campaign_type: call.campaign_type },
++    });
++    if (!gate.allow) {
++      await admin.from("outbound_calls").update({
++        scheduled_for: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
++        outcome_notes: `Awaiting governance: ${gate.decision ?? gate.wouldBlock}`,
++      }).eq("id", call.id);
++      continue;
++    }
+     try {
+        const { engine } = await resolveVoiceEngine({
+         ownerId: call.user_id,
+@@ -110,6 +127,7 @@
+       });
+ 
+       if (!started.ok) {
++        if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: "failed", error: String(started.note ?? "start failed") });
+         await admin.from("outbound_calls").update({
+           status: call.attempt_count + 1 >= 3 ? "failed" : "queued",
+           outcome_notes: started.note,
+@@ -126,6 +144,7 @@
+         await recordDialAttempt(admin, { userId: call.user_id, phoneNumberId: pick.phoneNumberId, outboundCallId: call.id, campaignType: call.campaign_type, vapiCallId: started.callId });
+       }
+       dialed += 1;
++      if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: "executed" });
+     } catch (err) {
+       await admin.from("outbound_calls").update({
+         status: call.attempt_count + 1 >= 3 ? "failed" : "queued",
+diff -ruN a/supabase/functions/outbound-queue-builder/index.ts b/supabase/functions/outbound-queue-builder/index.ts
+--- a/supabase/functions/outbound-queue-builder/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/outbound-queue-builder/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -15,12 +15,11 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { sendSms, sendVoiceCall } from "../_shared/notify/deliver.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ Deno.serve(async (req: Request) => {
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const supabaseUrl = Deno.env.get("SUPABASE_URL");
+   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+diff -ruN a/supabase/functions/rescue-sla-monitor/index.ts b/supabase/functions/rescue-sla-monitor/index.ts
+--- a/supabase/functions/rescue-sla-monitor/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/rescue-sla-monitor/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -15,6 +15,7 @@
+ // Idempotent: running it twice in a row never double-alerts.
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const JSON_HEADERS = { "Content-Type": "application/json" };
+ 
+@@ -22,11 +23,8 @@
+   if (req.method !== "POST" && req.method !== "GET") {
+     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: JSON_HEADERS });
+   }
+-
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: JSON_HEADERS });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/self-healing-orchestrator/index.ts b/supabase/functions/self-healing-orchestrator/index.ts
+--- a/supabase/functions/self-healing-orchestrator/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/self-healing-orchestrator/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -32,6 +32,7 @@
+ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { claimCoordinationSlot, recordCoordinationOutcome } from "../_shared/ai-core/emergentCoordination.ts";
+ import { sendSms } from "../_shared/notify/deliver.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -562,11 +563,8 @@
+ 
+ Deno.serve(async (req: Request) => {
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+-
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return json({ error: "Unauthorized" }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } },
+diff -ruN a/supabase/functions/service-recovery-agent/index.ts b/supabase/functions/service-recovery-agent/index.ts
+--- a/supabase/functions/service-recovery-agent/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/service-recovery-agent/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -20,6 +20,7 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { claimCoordinationSlot } from "../_shared/ai-core/emergentCoordination.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -97,11 +98,8 @@
+ 
+ Deno.serve(async (req: Request) => {
+   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+-
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return json({ error: "Unauthorized" }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/sms-webhook/index.ts b/supabase/functions/sms-webhook/index.ts
+--- a/supabase/functions/sms-webhook/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/sms-webhook/index.ts	2026-11-06 11:04:03.000000000 +0000
+@@ -22,6 +22,8 @@
+ import { classifySymptom } from "../_shared/mass-incident/core.ts";
+ import { ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
+ import { handleIncidentSms } from "../_shared/mass-incident/runtime.ts";
++import { validTwilioSignature } from "../_shared/pbx/twilio.ts";
++import { applySigPolicy } from "../_shared/http/inboundSignature.ts";
+ 
+ 
+ function emptyTwiml() {
+@@ -42,6 +44,16 @@
+ 
+   try {
+     const form = await req.formData();
++    const sigParams: Record<string, string> = {};
++    form.forEach((v, k) => { if (typeof v === "string") sigParams[k] = v; });
++    const sigOk = await validTwilioSignature(
++      Deno.env.get("SMS_WEBHOOK_URL") ?? "",
++      sigParams,
++      req.headers.get("X-Twilio-Signature"),
++      Deno.env.get("TWILIO_AUTH_TOKEN") ?? "",
++    );
++    const sigReject = applySigPolicy("twilio-sms", { ok: sigOk, reason: sigOk ? undefined : "invalid twilio signature" });
++    if (sigReject) return sigReject;
+     const from = normalizePhone(String(form.get("From") ?? ""));
+     const to = normalizePhone(String(form.get("To") ?? ""));
+     const body = String(form.get("Body") ?? "").trim();
+diff -ruN a/supabase/functions/vertical-ai-pipeline/index.ts b/supabase/functions/vertical-ai-pipeline/index.ts
+--- a/supabase/functions/vertical-ai-pipeline/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/vertical-ai-pipeline/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -15,6 +15,7 @@
+ // anyone maintaining one already knows how the other works.
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -34,9 +35,8 @@
+   if (req.method !== "POST") return jsonResponse({ error: "Method not allowed." }, 405);
+ 
+   const cronSecret = Deno.env.get("VERTICAL_AI_CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return jsonResponse({ error: "Unauthorized." }, 401);
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const admin = createClient(
+     Deno.env.get("SUPABASE_URL") ?? "",
+diff -ruN a/supabase/functions/whatsapp-webhook/index.ts b/supabase/functions/whatsapp-webhook/index.ts
+--- a/supabase/functions/whatsapp-webhook/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/whatsapp-webhook/index.ts	2026-11-06 11:04:03.000000000 +0000
+@@ -15,6 +15,8 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
++import { applySigPolicy, verifyMetaSignature } from "../_shared/http/inboundSignature.ts";
++import { dbReplayStore } from "../_shared/http/rateLimit.ts";
+ 
+ Deno.serve(async (req: Request) => {
+   const url = new URL(req.url);
+@@ -39,7 +41,14 @@
+   );
+ 
+   try {
+-    const payload = await req.json();
++    const rawBody = await req.text();
++    const sigReject = applySigPolicy("whatsapp", await verifyMetaSignature(
++      rawBody,
++      req.headers.get("x-hub-signature-256"),
++      [Deno.env.get("WHATSAPP_APP_SECRET"), Deno.env.get("WHATSAPP_APP_SECRET_NEXT")],
++    ));
++    if (sigReject) return sigReject;
++    const payload = JSON.parse(rawBody);
+     const value = payload?.entry?.[0]?.changes?.[0]?.value;
+     const message = value?.messages?.[0];
+     const phoneNumberId = value?.metadata?.phone_number_id;
+@@ -49,6 +58,10 @@
+       return new Response(JSON.stringify({ received: true }), { headers: { "Content-Type": "application/json" } });
+     }
+ 
++    if (message.id && !(await dbReplayStore(admin).claim("whatsapp", String(message.id)))) {
++      return new Response(JSON.stringify({ received: true, duplicate: true }), { headers: { "Content-Type": "application/json" } });
++    }
++
+     const { data: connection } = await admin
+       .from("dm_channel_connections")
+       .select("user_id, access_token")
+diff -ruN a/supabase/functions/workflow-engine-executor/index.ts b/supabase/functions/workflow-engine-executor/index.ts
+--- a/supabase/functions/workflow-engine-executor/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/workflow-engine-executor/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -28,6 +28,7 @@
+ import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+ import { appendBookingLink, buildTrackedBookingLink, wantsBookingLink } from "../_shared/rescue/bookingLink.ts";
+ import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const BATCH_SIZE = 25;
+ const VAPI_CALL_URL = "https://api.vapi.ai/call";
+@@ -224,10 +225,8 @@
+ }
+ 
+ Deno.serve(async (req: Request) => {
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+ 
+   const vapiKey = Deno.env.get("VAPI_PRIVATE_KEY");
+   const admin = createClient(
+diff -ruN a/supabase/functions/workflow-graph-executor/index.ts b/supabase/functions/workflow-graph-executor/index.ts
+--- a/supabase/functions/workflow-graph-executor/index.ts	2026-11-05 18:28:21.000000000 +0000
++++ b/supabase/functions/workflow-graph-executor/index.ts	2026-11-06 11:02:44.000000000 +0000
+@@ -30,6 +30,7 @@
+   evaluateRule, getPath, maskPii, renderTemplate,
+   type CompiledGraph, type EdgeOn, type IrNode,
+ } from "../_shared/workflow-compiler/spec.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const RUNS_PER_TICK = 10;
+ const MAX_HOPS_PER_RUN = 60;
+@@ -403,10 +404,8 @@
+ // ---------------------------------------------------------------------------
+ 
+ Deno.serve(async (req: Request) => {
+-  const cronSecret = Deno.env.get("CRON_SECRET");
+-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+-  }
++  const cronAuth = requireCronAuth(req);
++  if (!cronAuth.ok) return cronAuth.response;
+   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+   const started = Date.now();
+   const stats = { expiredApprovals: 0, slaBreaches: 0, runsProcessed: 0, errors: 0 };
+diff -ruN a/supabase/migrations/20290201000000_agent_audit_hash_chain.sql b/supabase/migrations/20290201000000_agent_audit_hash_chain.sql
+--- a/supabase/migrations/20290201000000_agent_audit_hash_chain.sql	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/migrations/20290201000000_agent_audit_hash_chain.sql	2026-11-06 10:56:33.000000000 +0000
+@@ -0,0 +1,130 @@
++-- Tamper-evident audit chain over agent_action_log (per tenant).
++-- agent_action_log rows legitimately change status (pending -> approved -> executed),
++-- so the log itself can't be immutable. Instead EVERY insert/update is appended to an
++-- immutable per-tenant hash chain. Editing/deleting a log row or a chain row later is detectable.
++-- Additive only. Safe on fresh DB and current schema.
++
++CREATE TABLE IF NOT EXISTS public.agent_audit_chain (
++  user_id     uuid        NOT NULL,
++  seq         bigint      NOT NULL,
++  log_id      uuid        NOT NULL,
++  event       text        NOT NULL CHECK (event IN ('INSERT','UPDATE')),
++  snapshot    jsonb       NOT NULL,
++  prev_hash   text        NOT NULL,
++  row_hash    text        NOT NULL,
++  created_at  timestamptz NOT NULL DEFAULT now(),
++  PRIMARY KEY (user_id, seq)
++);
++CREATE INDEX IF NOT EXISTS idx_agent_audit_chain_log ON public.agent_audit_chain (log_id, seq DESC);
++
++ALTER TABLE public.agent_audit_chain ENABLE ROW LEVEL SECURITY;
++DROP POLICY IF EXISTS "select_own_agent_audit_chain" ON public.agent_audit_chain;
++CREATE POLICY "select_own_agent_audit_chain" ON public.agent_audit_chain FOR SELECT TO authenticated
++  USING (user_id = public.get_account_owner_id());
++REVOKE ALL ON public.agent_audit_chain FROM anon, authenticated;
++GRANT SELECT ON public.agent_audit_chain TO authenticated;
++
++-- Chain rows can never be updated or deleted (also blocks service_role / table owner via trigger).
++CREATE OR REPLACE FUNCTION public.agent_audit_chain_immutable() RETURNS trigger
++LANGUAGE plpgsql AS $$
++BEGIN
++  RAISE EXCEPTION 'agent_audit_chain is append-only' USING ERRCODE = '42501';
++END $$;
++DROP TRIGGER IF EXISTS trg_agent_audit_chain_immutable ON public.agent_audit_chain;
++CREATE TRIGGER trg_agent_audit_chain_immutable
++  BEFORE UPDATE OR DELETE ON public.agent_audit_chain
++  FOR EACH ROW EXECUTE FUNCTION public.agent_audit_chain_immutable();
++
++-- Hash helper (sha256 is built into PG >= 11; no extension needed).
++CREATE OR REPLACE FUNCTION public.agent_audit_hash(p_prev text, p_seq bigint, p_log uuid, p_event text, p_snap jsonb)
++RETURNS text LANGUAGE sql IMMUTABLE AS $$
++  SELECT encode(sha256(convert_to(p_prev || '|' || p_seq::text || '|' || p_log::text || '|' || p_event || '|' || p_snap::text, 'UTF8')), 'hex')
++$$;
++
++-- Append on every insert/update of agent_action_log (serialized per tenant).
++CREATE OR REPLACE FUNCTION public.agent_audit_chain_append() RETURNS trigger
++LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
++DECLARE v_prev text; v_seq bigint; v_snap jsonb; v_event text := TG_OP;
++BEGIN
++  PERFORM pg_advisory_xact_lock(hashtextextended('agent_audit_chain:' || NEW.user_id::text, 0));
++  SELECT row_hash, seq INTO v_prev, v_seq FROM agent_audit_chain
++    WHERE user_id = NEW.user_id ORDER BY seq DESC LIMIT 1;
++  v_prev := COALESCE(v_prev, repeat('0', 64));
++  v_seq  := COALESCE(v_seq, 0) + 1;
++  v_snap := to_jsonb(NEW);
++  INSERT INTO agent_audit_chain (user_id, seq, log_id, event, snapshot, prev_hash, row_hash)
++  VALUES (NEW.user_id, v_seq, NEW.id, v_event, v_snap, v_prev,
++          public.agent_audit_hash(v_prev, v_seq, NEW.id, v_event, v_snap));
++  RETURN NEW;
++END $$;
++DROP TRIGGER IF EXISTS trg_agent_audit_chain_append ON public.agent_action_log;
++CREATE TRIGGER trg_agent_audit_chain_append
++  AFTER INSERT OR UPDATE ON public.agent_action_log
++  FOR EACH ROW EXECUTE FUNCTION public.agent_audit_chain_append();
++
++-- Block hard deletes of audit rows.
++CREATE OR REPLACE FUNCTION public.agent_action_log_no_delete() RETURNS trigger
++LANGUAGE plpgsql AS $$
++BEGIN
++  RAISE EXCEPTION 'agent_action_log rows cannot be deleted' USING ERRCODE = '42501';
++END $$;
++DROP TRIGGER IF EXISTS trg_agent_action_log_no_delete ON public.agent_action_log;
++CREATE TRIGGER trg_agent_action_log_no_delete
++  BEFORE DELETE ON public.agent_action_log
++  FOR EACH ROW EXECUTE FUNCTION public.agent_action_log_no_delete();
++
++-- Verification: recompute the whole chain + compare each live row with its latest snapshot.
++CREATE OR REPLACE FUNCTION public.verify_agent_audit_chain(p_user_id uuid)
++RETURNS TABLE (ok boolean, checked bigint, broken_seq bigint, reason text)
++LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
++DECLARE r record; v_prev text := repeat('0', 64); v_expect bigint := 1; v_n bigint := 0; live record;
++BEGIN
++  IF auth.uid() IS NOT NULL AND p_user_id IS DISTINCT FROM public.get_account_owner_id() THEN
++    RAISE EXCEPTION 'Not allowed to verify another account.' USING ERRCODE = '42501';
++  END IF;
++  FOR r IN SELECT * FROM agent_audit_chain WHERE user_id = p_user_id ORDER BY seq LOOP
++    v_n := v_n + 1;
++    IF r.seq <> v_expect THEN RETURN QUERY SELECT false, v_n, r.seq, 'sequence gap (row removed)'; RETURN; END IF;
++    IF r.prev_hash <> v_prev THEN RETURN QUERY SELECT false, v_n, r.seq, 'prev_hash mismatch'; RETURN; END IF;
++    IF r.row_hash <> public.agent_audit_hash(r.prev_hash, r.seq, r.log_id, r.event, r.snapshot) THEN
++      RETURN QUERY SELECT false, v_n, r.seq, 'row_hash mismatch (chain row altered)'; RETURN;
++    END IF;
++    v_prev := r.row_hash; v_expect := r.seq + 1;
++  END LOOP;
++  -- live rows must equal the latest snapshot (detects edits made while triggers were bypassed)
++  FOR live IN
++    SELECT l.id, to_jsonb(l) AS j,
++           (SELECT c.snapshot FROM agent_audit_chain c WHERE c.log_id = l.id ORDER BY c.seq DESC LIMIT 1) AS snap,
++           (SELECT c.seq FROM agent_audit_chain c WHERE c.log_id = l.id ORDER BY c.seq DESC LIMIT 1) AS seq
++    FROM agent_action_log l WHERE l.user_id = p_user_id
++  LOOP
++    IF live.snap IS NULL THEN
++      RETURN QUERY SELECT false, v_n, NULL::bigint, 'log row has no chain entry: ' || live.id::text; RETURN;
++    ELSIF live.j IS DISTINCT FROM live.snap THEN
++      RETURN QUERY SELECT false, v_n, live.seq, 'log row differs from audited snapshot: ' || live.id::text; RETURN;
++    END IF;
++  END LOOP;
++  RETURN QUERY SELECT true, v_n, NULL::bigint, NULL::text;
++END $$;
++REVOKE ALL ON FUNCTION public.verify_agent_audit_chain(uuid) FROM PUBLIC, anon;
++GRANT EXECUTE ON FUNCTION public.verify_agent_audit_chain(uuid) TO authenticated, service_role;
++
++-- Backfill: seed chain for pre-existing log rows (once, in created_at order).
++DO $$
++DECLARE r record; v_prev text; v_seq bigint;
++BEGIN
++  FOR r IN SELECT * FROM agent_action_log l
++           WHERE NOT EXISTS (SELECT 1 FROM agent_audit_chain c WHERE c.log_id = l.id)
++           ORDER BY l.user_id, l.created_at, l.id LOOP
++    SELECT row_hash, seq INTO v_prev, v_seq FROM agent_audit_chain WHERE user_id = r.user_id ORDER BY seq DESC LIMIT 1;
++    v_prev := COALESCE(v_prev, repeat('0', 64)); v_seq := COALESCE(v_seq, 0) + 1;
++    INSERT INTO agent_audit_chain (user_id, seq, log_id, event, snapshot, prev_hash, row_hash)
++    VALUES (r.user_id, v_seq, r.id, 'INSERT', to_jsonb(r), v_prev,
++            public.agent_audit_hash(v_prev, v_seq, r.id, 'INSERT', to_jsonb(r)));
++  END LOOP;
++END $$;
++
++-- Rollback (manual, only if needed):
++--   DROP TRIGGER trg_agent_audit_chain_append ON public.agent_action_log;
++--   DROP TRIGGER trg_agent_action_log_no_delete ON public.agent_action_log;
++--   (chain table is kept on purpose; dropping it destroys audit evidence)
+diff -ruN a/supabase/tests/database/agent_audit_chain.test.sql b/supabase/tests/database/agent_audit_chain.test.sql
+--- a/supabase/tests/database/agent_audit_chain.test.sql	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/tests/database/agent_audit_chain.test.sql	2026-11-06 10:56:37.000000000 +0000
+@@ -0,0 +1,29 @@
++-- Agent audit chain: append, tamper detection, immutability, delete block (pgTAP).
++-- Run with:  supabase test db
++begin;
++create extension if not exists pgtap with schema extensions;
++select plan(7);
++
++insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000a1', 'o@acme.test');
++insert into public.agent_action_catalog (slug, agent_source, label, category, default_requires_approval)
++  values ('zz_test_action', 'test', 'Test', 'other', false) on conflict do nothing;
++
++insert into public.agent_action_log (id, user_id, action_slug, agent_source, status)
++values ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000a1', 'zz_test_action', 'test', 'auto_approved');
++update public.agent_action_log set status = 'executed' where id = '00000000-0000-0000-0000-0000000000e1';
++
++select is((select count(*)::int from public.agent_audit_chain where user_id = '00000000-0000-0000-0000-0000000000a1'), 2, 'insert + update both chained');
++select is((select ok from public.verify_agent_audit_chain('00000000-0000-0000-0000-0000000000a1')), true, 'untampered chain verifies');
++select throws_ok($$delete from public.agent_action_log where id = '00000000-0000-0000-0000-0000000000e1'$$, '42501', null, 'log delete blocked');
++select throws_ok($$update public.agent_audit_chain set event = 'INSERT' where seq = 1$$, '42501', null, 'chain update blocked');
++select throws_ok($$delete from public.agent_audit_chain where seq = 2$$, '42501', null, 'chain delete blocked');
++
++-- tamper with the live row while bypassing triggers (simulates a privileged out-of-band edit)
++set local session_replication_role = replica;
++update public.agent_action_log set amount_cents = 999999 where id = '00000000-0000-0000-0000-0000000000e1';
++set local session_replication_role = origin;
++select is((select ok from public.verify_agent_audit_chain('00000000-0000-0000-0000-0000000000a1')), false, 'tampered live row detected');
++select matches((select reason from public.verify_agent_audit_chain('00000000-0000-0000-0000-0000000000a1')), 'differs from audited snapshot', 'reason names the diff');
++
++select * from finish();
++rollback;
