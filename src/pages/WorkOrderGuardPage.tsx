@@ -7,14 +7,16 @@ import { AuditPanel } from '@/components/workorderguard/AuditPanel';
 import { DepositsPanel } from '@/components/workorderguard/DepositsPanel';
 import { ImportPanel } from '@/components/workorderguard/ImportPanel';
 import { OrdersPanel } from '@/components/workorderguard/OrdersPanel';
+import { FmCheckPanel } from '@/components/workorderguard/FmCheckPanel';
 import { ProfilePanel } from '@/components/workorderguard/ProfilePanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import type { WorkOrder } from '@/lib/workOrderGuard';
 import { createDefaultProfile, listOrders, listProfiles, type PortalProfile } from '@/lib/workOrderGuardApi';
+import { useFmcheckT } from '@/i18n/fmcheckNamespace';
 
 const PAGE = 'Work-Order Guard';
-type Tab = 'orders' | 'audit' | 'import' | 'deposits' | 'rules';
+{ id: 'deposits', label: 'Deposits' }, { id: 'fmcheck', label: 'Fix before sending' }, { id: 'rules', label: 'Rules' },
 const TABS: { id: Tab; label: string }[] = [
   { id: 'orders', label: 'Orders' }, { id: 'audit', label: 'Quarter Audit' }, { id: 'import', label: 'Import' },
   { id: 'deposits', label: 'Deposits' }, { id: 'rules', label: 'Rules' },
@@ -23,6 +25,7 @@ const TABS: { id: Tab; label: string }[] = [
 export function WorkOrderGuardPage() {
   const { profile, teamMember, isOwner, permissions, loading: authLoading, profileLoading } = useAuth();
   const { toast } = useToast();
+  const { t: tf } = useFmcheckT();
   // Everything is keyed by the ACCOUNT OWNER's id (differs from user.id for team members).
   const ownerId = (isOwner ? profile?.id : teamMember?.account_owner_id) ?? null;
   const canAccess = isOwner || permissions.can_view_billing;
@@ -109,6 +112,7 @@ export function WorkOrderGuardPage() {
             {tab === 'audit' && <AuditPanel saved={orders} rules={active.rules} timezone={active.timezone} />}
             {tab === 'import' && <ImportPanel profileId={active.id} timezone={active.timezone} onImported={() => { setStatus('loading'); void loadOrders(active.id); }} />}
             {tab === 'deposits' && <DepositsPanel ownerId={ownerId} profile={active} orders={orders} />}
+            {tab === 'fmcheck' && <FmCheckPanel orders={orders} rules={active.rules} timezone={active.timezone} />}
             {tab === 'rules' && (
               <ProfilePanel key={active.id + active.timezone} profile={active} canDelete={profiles.length > 1}
                 onSaved={(p) => setProfiles((xs) => xs.map((x) => (x.id === p.id ? p : x)))}
