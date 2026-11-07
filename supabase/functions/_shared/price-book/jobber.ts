@@ -5,10 +5,11 @@
 
 import type { NormalizedPriceItem } from "./types.ts";
 import { graphqlWithRetry, type GraphQlBody } from "../http/retry.ts";
+import { denyUnlessCanManageCrm } from "../_shared/auth/crmPermission.ts";
 
-const JOBBER_API_VERSION = "2025-04-16";
+export const JOBBER_API_VERSION = "2025-04-16";
 const JOBBER_TOKEN_URL = "https://api.getjobber.com/api/oauth/token";
-const JOBBER_GRAPHQL_URL = "https://api.getjobber.com/api/graphql";
+export const JOBBER_GRAPHQL_URL = "https://api.getjobber.com/api/graphql";
 
 interface JobberProductConnection {
   nodes?: Array<{ id: string | number; name?: unknown; category?: unknown; defaultUnitCost?: unknown }>;
