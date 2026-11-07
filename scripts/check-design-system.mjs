@@ -19,6 +19,7 @@
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
+import { collectLayoutViolations } from './design/layout-guard.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const SRC = join(ROOT, 'src');
@@ -125,6 +126,7 @@ walk(SRC, (file) => {
   checkEmptyStateStandard(file);
 });
 
+collectLayoutViolations((v) => violations.push(v));
 if (violations.length === 0) {
   console.log('✔ Design-system check passed — no drift detected.');
   process.exit(0);
@@ -141,6 +143,10 @@ const RULE_TITLES = {
   'no-handrolled-card': 'Rule 2 — Use <Card> from @/components/ui/Card instead of copying its className',
   'no-handrolled-button': 'Rule 3 — Use <Button variant="primary"> from @/components/ui/Button instead of copying its className',
   'loading-standard': 'Rule 4 — Use the Skeleton family from @/components/Skeleton for full-view loading states',
+    'no-arbitrary-layout': 'Rule 6 — No arbitrary size/spacing values: use theme tokens or var(--x)',
+  'no-numeric-z': 'Rule 7 — No numeric z-index: use z-base…z-max',
+  'no-raw-shadow': 'Rule 8 — Use shadow-card / shadow-elevation-1…4 / glow tokens',
+  'no-static-inline-style': 'Rule 9 — Static inline style: use a class; dynamic values via cssVars()',
   'empty-state-standard': 'Rule 5 — Use <EmptyState> from @/components/EmptyState instead of bare "No X found/yet" text',
 };
 
