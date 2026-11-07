@@ -1,4 +1,5 @@
 # Vireek — SOC 2 Readiness Control Map
+> Program continues in `docs/compliance/soc2/` (control registry, policies, evidence pipeline, READINESS_REPORT.md).
 
 > **This document is NOT a statement of compliance.** Vireek has not completed a SOC 2 audit and holds no SOC 2 report
 > (Type I or II) — consistent with `src/lib/complianceStatus.ts`. This is an internal, engineering-authored mapping of what the
