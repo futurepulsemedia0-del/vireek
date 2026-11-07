@@ -325,6 +325,10 @@ export function DispatchRulesPage() {
           </div>
         </div>
 
+        <p className="mb-4 text-xs">
+          <Link to="/dashboard/assignment-rules/fair-tiebreaking" className="focus-ring font-medium text-accent hover:underline">Fair tie-breaking experiment</Link>
+          <span className="text-text-secondary"> – let a fair lottery choose between practically tied technicians, and learn from it.</span>
+        </p>
         {!canEdit && <p role="status" className="mb-4 rounded-xl border border-border bg-bg-secondary p-3 text-xs text-text-secondary">You can view the rules. Only owners and team managers can change them.</p>}
         {error && <p role="alert" className="mb-4 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm text-text-primary">Couldn’t load dispatch rules: {error}</p>}
         {!bundle && !error && <div className="flex justify-center py-12"><Loader2 className="animate-spin text-text-secondary" aria-label="Loading" /></div>}
