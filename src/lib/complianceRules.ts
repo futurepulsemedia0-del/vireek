@@ -51,10 +51,17 @@ export const KIND_LABELS: Record<RuleKind, string> = {
   rescission: 'Right to cancel',
   required_notice: 'Required notice',
   price_cap: 'Price cap',
+    fm_nte_cap: 'NTE cap',
+    fm_proposal_before_parts: 'Proposal before parts',
+    fm_invoice_deadline: 'Invoice deadline',
+    fm_ineligibility_window: 'Ineligibility window',
+    fm_prohibited_line_item: 'Prohibited line item',
+    fm_single_invoice: 'One invoice per work order',
+    fm_required_attachment: 'Required attachment',
 };
 
 export const SURFACE_LABELS: Record<Surface, string> = {
-  call: 'Calls', sms: 'Texts', email: 'Emails', quote: 'Quotes', contract: 'Contracts',
+  call: 'Calls', sms: 'Texts', email: 'Emails', quote: 'Quotes', contract: 'Contracts', fm_submission: 'Portal submissions',
 };
 
 export const SEVERITY_LABELS: Record<Severity, string> = {
