@@ -1,0 +1,64 @@
+Syntax errors found in the UPLOADED ZIP (before any change), via TypeScript parser. Count: 62
+
+src/components/ErrorBoundary.tsx:70  ';' expected.
+src/components/ui/RevealImage.tsx:75  JSX element 'picture' has no corresponding closing tag.
+src/components/projects/ProjectDetail.tsx:189  Declaration or statement expected.
+src/components/sections/AccessibilityStatementContent.tsx:57  Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/sections/CcpaContent.tsx:282  Expected corresponding JSX closing tag for 'p'.
+src/components/technician/FieldFormsPanel.tsx:148  Identifier expected.
+src/components/CommandPalette.tsx:57  ',' expected.
+src/components/chat/ChatVisuals.tsx:105  JSX expressions must have one parent element.
+src/components/dispatch/DispatchIntelligencePanel.tsx:251  ',' expected.
+src/components/AccessibilityWidget.tsx:520  Identifier expected.
+src/components/paymentPlans/PlanDetailPanel.tsx:65  Expression expected.
+src/components/DashboardNav.tsx:188  ',' expected.
+src/components/GettingStartedCard.tsx:28  Declaration or statement expected.
+src/contexts/AuthContext.tsx:165  Declaration or statement expected.
+src/lib/workflowPlaybooks.ts:805  Expression or comma expected.
+src/lib/technicianSchedule.test.ts:117  '>' expected.
+src/lib/breakRules.ts:122  Property assignment expected.
+src/lib/installProjectsApi.ts:179  Declaration or statement expected.
+src/lib/workflowEngine.ts:29  Expression expected.
+src/lib/serviceGraph.ts:195  ';' expected.
+src/lib/helpCenter.ts:230  Property assignment expected.
+src/lib/landingPages.ts:289  Declaration or statement expected.
+src/lib/customerPortal.ts:51  '>' expected.
+src/lib/unifiedInbox.ts:14  ';' expected.
+src/lib/unknownsEngineApi.ts:192  Expression expected.
+src/lib/bookingSettings.ts:155  ',' expected.
+src/lib/technicianPerformance.ts:251  ':' expected.
+src/lib/experiments.ts:126  'catch' or 'finally' expected.
+src/lib/invoices.ts:85  Declaration or statement expected.
+src/lib/productTours.ts:5  ';' expected.
+src/lib/supabase.ts:1045  Property or signature expected.
+src/lib/microsoftCalendar.test.ts:93  '>' expected.
+src/pages/PressPage.tsx:359  Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/CalendarPage.tsx:562  Expected corresponding JSX closing tag for 'div'.
+src/pages/NextBestActionsPage.tsx:114  '>' expected.
+src/pages/PublicPaymentPage.tsx:109  JSX element 'div' has no corresponding closing tag.
+src/pages/DecisionDebtPage.tsx:84  Invalid character.
+src/pages/DecisionLedgerPage.tsx:89  Identifier expected.
+src/pages/JobRoomPage.tsx:192  Property assignment expected.
+src/pages/LeadsPage.tsx:581  '>' expected.
+src/pages/JobsPage.tsx:595  '>' expected.
+src/pages/BookingPage.tsx:102  Expression expected.
+src/pages/CallDetailPage.tsx:586  ',' expected.
+src/pages/SettingsPage.tsx:3  Identifier expected.
+src/pages/ChangelogPage.tsx:29  Unknown keyword or identifier. Did you mean 'function'?
+src/pages/VoiceStudioPage.tsx:142  Expected corresponding JSX closing tag for 'Card'.
+src/pages/StatusPage.tsx:445  JSX element 'motion.div' has no corresponding closing tag.
+src/pages/UnifiedInboxPage.tsx:179  Unterminated string literal.
+src/pages/CustomerPortalPage.tsx:11  ',' expected.
+src/pages/SitemapPage.tsx:103  Property assignment expected.
+src/pages/TechnicianPerformancePage.tsx:133  '>' expected.
+src/pages/InvoicesPage.tsx:412  Declaration or statement expected.
+src/pages/AssistantPersonaPage.tsx:291  Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/ServiceRecoveryPage.tsx:219  Identifier expected. 'const' is a reserved word that cannot be used here.
+src/pages/SecuritySettingsPage.tsx:7  Declaration or statement expected.
+src/pages/WarrantyClaimRecoveryPage.tsx:518  Identifier expected.
+src/pages/BusinessConstitutionPage.tsx:83  JSX element 'div' has no corresponding closing tag.
+src/pages/ApiReferencePage.tsx:334  Expected corresponding JSX closing tag for 'div'.
+src/pages/DashboardPage.tsx:833  ')' expected.
+src/pages/SupportInboxPage.tsx:119  Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/CustomerSitesPage.tsx:353  Identifier expected.
+src/pages/BillingPage.tsx:428  ')' expected.
