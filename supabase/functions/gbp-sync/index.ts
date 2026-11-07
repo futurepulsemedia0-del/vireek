@@ -12,6 +12,7 @@
 // Deploy: supabase functions deploy gbp-sync
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { loadSecrets, saveSecrets } from "../_shared/secrets/providerCredentials.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -48,9 +49,18 @@ async function freshToken(admin: ReturnType<typeof createClient>, userId: string
   if (!res.ok) return null;
   const tok = await res.json();
   if (!tok.access_token) return null;
-  await admin.from("integrations").update({
-    config: { ...cfg, access_token: tok.access_token, expires_at: new Date(Date.now() + (tok.expires_in ?? 3600) * 1000).toISOString() },
-  }).eq("user_id", userId).eq("integration_type", "google_business_profile");
+const expiresAtIso = new Date(Date.now() + (tok.expires_in ?? 3600) * 1000).toISOString();
+let vaulted = false;
+try {
+  await saveSecrets(admin, userId, "google_business_profile", { access_token: tok.access_token });
+  vaulted = true;
+} catch {
+  vaulted = false;
+}
+const { access_token: _at, refresh_token: _rt, ...publicCfg } = cfg;
+await admin.from("integrations").update({
+  config: vaulted ? { ...publicCfg, expires_at: expiresAtIso } : { ...cfg, access_token: tok.access_token, expires_at: expiresAtIso },
+}).eq("user_id", userId).eq("integration_type", "google_business_profile");
   return tok.access_token as string;
 }
 
@@ -92,7 +102,18 @@ Deno.serve(async (req: Request) => {
 
     const { data: integ } = await admin.from("integrations").select("status, config")
       .eq("user_id", ctx.owner_id).eq("integration_type", "google_business_profile").maybeSingle();
-    const cfg = (integ?.config ?? {}) as GbpConfig;
+const storedCfg = (integ?.config ?? {}) as GbpConfig;
+let vaultBag: Record<string, string> | null = null;
+try {
+  vaultBag = await loadSecrets(admin, ctx.owner_id as string, "google_business_profile");
+} catch (err) {
+  console.error(JSON.stringify({ event: "credential_hydrate_failed", provider: "google_business_profile", error: err instanceof Error ? err.message : String(err) }));
+}
+const cfg: GbpConfig = {
+  ...storedCfg,
+  ...(vaultBag?.access_token ? { access_token: vaultBag.access_token } : {}),
+  ...(vaultBag?.refresh_token ? { refresh_token: vaultBag.refresh_token } : {}),
+};
     if (!integ || integ.status !== "connected" || !cfg.location_name || !LOCATION_RE.test(cfg.location_name)) {
       await finish("approved", "not_connected");
       return json({ ok: false, code: "not_connected" }, 409);
