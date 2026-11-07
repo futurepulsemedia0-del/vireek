@@ -12,6 +12,7 @@ Commands:
   api         <path> [--param k=v]             Raw authenticated GET
   export      <calls|leads|jobs> [options]     Export to CSV / JSON / NDJSON
   webhooks    events | trigger | listen | verify | sign
+  conformance --url <mcp-server url>           Self-test an Agent Network endpoint (MCP + A2A)
 
 Global options:
   --profile <name>     Saved profile to use (env: VIREEK_PROFILE)
@@ -46,6 +47,11 @@ On a terminal, list prints a table; when piped (or with --json) it prints the ra
 Example: vireek api calls --param limit=5
 Only GET is supported; the API is read-only today.`,
 
+  conformance: `Usage:
+  VIREEK_AGENT_KEY=vrk_agent_... vireek conformance --url https://<project>.supabase.co/functions/v1/mcp-server [--json]
+
+Runs read-only protocol checks (agent card, auth, version negotiation, tool schemas, error codes,
+idempotency enforcement). Exit code 1 when any check fails.`,
   export: `Usage:
   vireek export <calls|leads|jobs> [options]
 
