@@ -5,6 +5,10 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { ResultPanel } from '@/components/experimentation/ResultPanel';
+   import { NaturalProgressCard } from '@/components/experimentation/NaturalProgressCard';
+   import { analyzeNaturalExperiment, type DecisionRow, type NaturalAnalysis } from '@/lib/naturalRandomization';
+   import { RZ_NS } from '@/i18n/dispatchRandomizationNamespace';
+   import { useTranslation } from 'react-i18next';
 import type { ExperimentRow } from '@/lib/opsExperimentsApi';
 import {
   CATEGORY_LABELS,
@@ -40,6 +44,10 @@ interface Props {
   experiment: ExperimentRow;
   jobs: ExpJob[];
   assignments: Assignment[];
+     /** Near-tie draws (dispatch_decisions) — only used by the 'natural' design. */
+     decisions?: DecisionRow[];
+     /** Whether near-tie randomization is currently switched on (natural design); null while unknown. */
+     randomizationEnabled?: boolean | null;
   canManage: boolean;
   busy: string | null;
   onStart: () => void;
@@ -50,15 +58,18 @@ interface Props {
 }
 
 export function ExperimentDetail({ experiment: e, jobs, assignments, canManage, busy, onStart, onEnroll, onConclude, onArchive, onDeleteDraft }: Props) {
+  decisions = [], randomizationEnabled = null,
   const [decision, setDecision] = useState<Decision | ''>('');
   const [learning, setLearning] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  const { t: tRz } = useTranslation(RZ_NS);
 
   const analysis = useMemo(() => {
     if (e.status !== 'running') return null;
     const at = new Date();
     const baseline = historicalBaseline(e.primary_metric, jobs, e.service_types, e.maturity_days, at);
-    return analyzeExperiment(e, jobs, assignments, baseline, at);
+   if (e.design === 'natural') return analyzeNaturalExperiment(e, decisions, jobs, assignments, baseline, at);
+       return analyzeExperiment(e, jobs, assignments, baseline, at);
   }, [e, jobs, assignments]);
 
   const enrolledJobIds = useMemo(() => new Set(assignments.filter((a) => a.unit_type === 'job').map((a) => a.unit_id)), [assignments]);
@@ -149,7 +160,7 @@ export function ExperimentDetail({ experiment: e, jobs, assignments, canManage, 
           <div>
             <dt className="text-xs font-semibold uppercase text-text-secondary">Method</dt>
             <dd className="mt-1 text-text-primary">
-              {e.design === 'randomized' ? `Randomized jobs (${e.treatment_share}% get the intervention)` : 'Technician groups, before and after (difference-in-differences)'}
+   {e.design === 'randomized' ? `Randomized jobs (${e.treatment_share}% get the intervention)` : e.design === 'natural' ? tRz('experiment.method') : 'Technician groups, before and after (difference-in-differences)'}
             </dd>
           </div>
           <div>
@@ -216,6 +227,9 @@ export function ExperimentDetail({ experiment: e, jobs, assignments, canManage, 
             </Card>
           )}
 
+   {e.design === 'natural' && analysis && 'balance' in analysis && (
+               <NaturalProgressCard analysis={analysis as NaturalAnalysis} elapsedDays={progress.elapsedDays} randomizationEnabled={randomizationEnabled} />
+             )}
           {analysis && <ResultPanel snapshot={buildSnapshot(e, analysis)} alpha={e.alpha} analysis={analysis} />}
 
           {canManage && analysis && (
