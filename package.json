@@ -12,6 +12,7 @@
     "native:assets": "node scripts/make-native-assets.mjs && capacitor-assets generate --ios --android",
     "mobile:preflight": "node scripts/mobile-preflight.mjs",
     "mobile:privacy": "node scripts/check-privacy-map.mjs",
+    "audit:contrast": "node scripts/audit-text-contrast.mjs",
     "lint:design": "node scripts/check-design-system.mjs",
     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
