@@ -32,6 +32,7 @@ export const RPC = {
   // A2A-specific
   TASK_NOT_FOUND: -32001,
   TASK_NOT_CANCELABLE: -32002,
+  PUSH_NOT_SUPPORTED: -32003,
   UNSUPPORTED_OPERATION: -32004,
 } as const;
 
