@@ -42,6 +42,7 @@ export function RevealImage({
   const ref = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const meta = IMAGES[name];
+  const fallbackSize = { width: 1600, height: 900 };
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -73,16 +74,23 @@ export function RevealImage({
           className="aspect-[4/5] w-full overflow-hidden will-change-transform sm:aspect-[16/10] lg:aspect-[16/9]"
         >
 <picture className="contents">
+            {meta ? (
+              <>
+                <source type="image/avif" srcSet={imageSrcSet(name, meta.widths, 'avif')} sizes={IMAGE_SIZES} />
+                <source type="image/webp" srcSet={imageSrcSet(name, meta.widths, 'webp')} sizes={IMAGE_SIZES} />
+              </>
+            ) : null}
   {meta ? (
     <>
       <source type="image/avif" srcSet={imageSrcSet(name, meta.widths, 'avif')} sizes={IMAGE_SIZES} />
       <source type="image/webp" srcSet={imageSrcSet(name, meta.widths, 'webp')} sizes={IMAGE_SIZES} />
     </>
   ) : null}
-  width={meta?.width} height={meta?.height}
           <motion.img
             src={`/${name}.png`}
             alt={alt}
+            width={meta?.width ?? fallbackSize.width}
+            height={meta?.height ?? fallbackSize.height}
             loading={priority ? 'eager' : 'lazy'}
             fetchPriority={priority ? 'high' : 'auto'}
             decoding="async"
@@ -94,6 +102,7 @@ export function RevealImage({
             viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
             transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
           />
+          </picture>.
         </motion.div>
 
         {/* Brand-tint overlays so the photo blends with the theme instead of looking pasted-on */}
