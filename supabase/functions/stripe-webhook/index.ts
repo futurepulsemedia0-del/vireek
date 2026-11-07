@@ -291,6 +291,20 @@ Deno.serve(async (req: Request) => {
         const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
         const planId = session.metadata?.plan_id as string | undefined;
         if (session.metadata?.results_plan === "1" && session.metadata.supabase_user_id) {
+          const rpUser = session.metadata.supabase_user_id;
+          const { data: rpAcct } = await admin.from("results_plan_accounts").select("terms_id").eq("user_id", rpUser).maybeSingle();
+          if (rpAcct?.terms_id) {
+            const { data: rpTerms } = await admin.from("results_plan_pricing_terms").select("fair_use_minutes").eq("id", rpAcct.terms_id).maybeSingle();
+            if (rpTerms?.fair_use_minutes) await admin.from("profiles").update({ minutes_included: rpTerms.fair_use_minutes }).eq("id", rpUser);
+          }
+          const { error: rpErr } = await admin
+            .from("results_plan_accounts")
+            .update({ status: "active", opted_in_at: new Date().toISOString(), opted_in_by: rpUser, updated_at: new Date().toISOString() })
+            .eq("user_id", rpUser)
+            .eq("status", "draft");
+          if (rpErr) console.error("results plan activation failed", rpErr.message);
+        }
+        if (session.metadata?.results_plan === "1" && session.metadata.supabase_user_id) {
           const { error: rpErr } = await admin
             .from("results_plan_accounts")
             .update({ status: "active", opted_in_at: new Date().toISOString(), opted_in_by: session.metadata.supabase_user_id, updated_at: new Date().toISOString() })
