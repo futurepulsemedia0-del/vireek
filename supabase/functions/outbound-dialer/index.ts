@@ -1,6 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
+import { governedGate } from "../_shared/governance/shadowGate.ts";
+import { recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
 import { selectOutboundNumber, recordDialAttempt } from "../_shared/number-reputation/attempts.ts";
 import { getKillSwitchGuard } from "../_shared/flags/killSwitch.ts";
 import { VapiEngine } from "../_shared/voice-engine/vapiEngine.ts";
@@ -97,6 +99,22 @@ Deno.serve(async (req: Request) => {
       await admin.from("outbound_calls").update({ scheduled_for: pick.retryAt, outcome_notes: pick.note }).eq("id", call.id);
       continue;
     }
+    const gate = await governedGate(admin, {
+      userId: call.user_id,
+      actionSlug: "outbound_dial",
+      agentSource: "outbound-dialer",
+      targetTable: "outbound_calls",
+      targetId: call.id,
+      reasoning: `Outbound ${call.campaign_type} call to customer`,
+      payload: { campaign_type: call.campaign_type },
+    });
+    if (!gate.allow) {
+      await admin.from("outbound_calls").update({
+        scheduled_for: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+        outcome_notes: `Awaiting governance: ${gate.decision ?? gate.wouldBlock}`,
+      }).eq("id", call.id);
+      continue;
+    }
     try {
        const { engine } = await resolveVoiceEngine({
         ownerId: call.user_id,
@@ -116,6 +134,7 @@ Deno.serve(async (req: Request) => {
       });
 
       if (!started.ok) {
+        if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: "failed", error: String(started.note ?? "start failed") });
         await admin.from("outbound_calls").update({
           status: call.attempt_count + 1 >= 3 ? "failed" : "queued",
           outcome_notes: started.note,
@@ -132,6 +151,7 @@ Deno.serve(async (req: Request) => {
         await recordDialAttempt(admin, { userId: call.user_id, phoneNumberId: pick.phoneNumberId, outboundCallId: call.id, campaignType: call.campaign_type, vapiCallId: started.callId });
       }
       dialed += 1;
+      if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: "executed" });
     } catch (err) {
       await admin.from("outbound_calls").update({
         status: call.attempt_count + 1 >= 3 ? "failed" : "queued",
