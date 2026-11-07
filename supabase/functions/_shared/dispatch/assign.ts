@@ -75,3 +75,4 @@ export async function assignBestTechnician(admin: SupabaseClient, userId: string
   }
 
   return { technicianId, technicianName, reason };
+  }
