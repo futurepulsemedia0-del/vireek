@@ -14,6 +14,7 @@ import type { NormalizedChatRequest, NormalizedChatResponse, ProviderId, TaskTyp
 import { AiCoreError } from "./types.ts";
 import type { RouteChatResult } from "./router.ts";
 import { isOptionalAiTask } from "../billing/costPolicy.ts";
+import { appendCostEvent, usdEvent } from "../economics/ledgerWriter.ts";
 
 // ---------------------------------------------------------------------
 // Pricing — $ per 1,000,000 tokens. Approximate list prices at the time
@@ -169,6 +170,19 @@ export async function logUsage(input: LogUsageInput): Promise<number> {
   } catch (err) {
     console.error("[ai-core] failed to write ai_usage_logs:", err);
   }
+  await appendCostEvent(db(), usdEvent({
+    accountId: input.accountId ?? null,
+    provider: input.response.provider,
+    resourceType: "llm_tokens",
+    component: "llm",
+    quantity: input.usage.inputTokens + input.usage.outputTokens,
+    unit: "tokens",
+    costUsd: cost,
+    basis: "estimated", // list-price table in this file, not provider-reported
+    taskType: input.task,
+    source: "ai_core",
+    ref: crypto.randomUUID(),
+  }));
   return cost;
 }
 
