@@ -15,8 +15,8 @@ export const THEMES = ['light', 'dark', 'light-hc', 'dark-hc'];
 // ---------------------------------------------------------------- thresholds
 export const MIN = { text: 4.5, textAAA: 7, ui: 3, large: 3 };
 // Solver targets carry a safety margin over the AA minimum (rounding to 8-bit, anti-aliasing, compositing).
-const T = { text: 4.8, strong: 7.0, ui: 3.3, secondary: 5.6, muted: 4.65, on: 4.8 };
-const HC = { text: 7.0, ui: 4.5, secondary: 7.0, muted: 7.0, on: 7.0 };
+const T = { text: 4.8, strong: 7.0, ui: 3.3, secondary: 5.6, muted: 4.65, placeholder: 4.6, on: 4.8 };
+const HC = { text: 7.0, ui: 4.5, secondary: 7.0, muted: 7.0, placeholder: 7.0, on: 7.0 };
 
 // Peak alpha of the brand radial wash (.bg-gradient-mesh). Was .22/.16 — lowered so secondary text keeps AA
 // without darkening the whole neutral ramp. Used by the solver AND emitted into the CSS.
@@ -145,6 +145,8 @@ export function buildTheme(theme) {
   const solveNeutral = (seedL, C, target) => oklchToRgb(solveL(seedL, C, nL, [...SF, ...POOLS], target, dir), C, nL);
   tok['text-secondary'] = solveNeutral(mode === 'light' ? 0.5169 : 0.6891, mode === 'light' ? 0.014 : 0.013, tgt.secondary);
   tok['text-muted'] = oklchToRgb(solveL(mode === 'light' ? 0.6 : 0.62, 0.012, nL, SF, tgt.muted, dir), 0.012, nL); // never place muted text over .bg-gradient-mesh
+  tok['text-placeholder'] = oklchToRgb(solveL(mode === 'light' ? 0.64 : 0.58, 0.012, nL, SF, tgt.placeholder, dir), 0.012, nL); // informational placeholder: AA on every neutral surface
+  tok['graphic-muted'] = oklchToRgb(solveL(mode === 'light' ? 0.68 : 0.52, 0.01, nL, SF, tgt.ui, dir), 0.01, nL); // neutral icon/glyph colour (non-text, >= 3:1, WCAG 1.4.11)
   tok['text-inverse'] = mode === 'light' ? rgbOf(SURFACE.light.bg1) : rgbOf(SURFACE.dark.bg1);
 
   // borders: tier 1 decorative (exempt), tier 2 control borders >= 3:1 (WCAG 1.4.11)
@@ -210,6 +212,7 @@ export function buildTheme(theme) {
   tok['selection-fg'] = tok['text-primary'];
   tok['disabled-bg'] = oklchToRgb(mode === 'light' ? 0.94 : 0.24, 0.006, 85);
   tok['disabled-fg'] = oklchToRgb(mode === 'light' ? 0.66 : 0.5, 0.008, 85);
+  tok['text-disabled'] = tok['disabled-fg']; // EXEMPT from contrast (WCAG 1.4.3: inactive components) — never use for readable content
   tok['overlay'] = mode === 'light' ? [9, 10, 13] : [0, 0, 0];
   tok['static-white'] = WHITE;
   tok['static-black'] = [0, 0, 0];
@@ -252,6 +255,8 @@ export function declaredPairs(theme) {
     add('text-primary', s, hc ? 7 : 7, 'body text (AAA)');
     add('text-secondary', s, hc ? 7 : 4.5, 'secondary text');
     add('text-muted', s, hc ? 7 : 4.5, 'muted text');
+    add('text-placeholder', s, hc ? 7 : 4.5, 'placeholder text (informational)');
+    add('graphic-muted', s, hc ? 4.5 : 3, 'neutral icon / glyph (1.4.11)');
     add('border-strong', s, hc ? 4.5 : 3, 'control border (1.4.11)');
     add('focus-ring', s, 3, 'focus indicator (2.4.11)');
     for (const f of Object.keys(FAMILIES)) {
@@ -260,6 +265,7 @@ export function declaredPairs(theme) {
     }
     for (let i = 1; i <= 8; i++) add(`viz-${i}`, s, 3, `chart series ${i}`);
   }
+  add('text-disabled', 'disabled-bg', 1, 'EXEMPT: inactive component (WCAG 1.4.3) — no AA claim, never for readable content');
   add('text-inverse', 'text-primary', 7, 'text on ink panel');
   add('on-inverse', 'surface-inverse', 7, 'text on inverse panel');
   add('on-inverse-muted', 'surface-inverse', hc ? 7 : 4.5, 'muted text on inverse panel');
