@@ -152,3 +152,36 @@ export function FadeIn({ children, className = '' }: { children: React.ReactNode
     </motion.div>
   );
 }
+
+export function SkeletonPage({ className = '' }: { className?: string }) {
+  return (
+    <div role="status" aria-busy="true" className={`space-y-6 ${className}`}>
+      <Skeleton className="h-8 w-1/3" />
+      <SkeletonStatGrid count={4} />
+      <SkeletonTable rows={5} columns={4} />
+    </div>
+  );
+}
+
+export function SkeletonForm({ fields = 4, className = '' }: { fields?: number; className?: string }) {
+  return (
+    <div role="status" aria-busy="true" className={`space-y-5 ${className}`}>
+      {Array.from({ length: fields }, (_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-11 w-full rounded-xl" />
+        </div>
+      ))}
+      <Skeleton className="h-11 w-32 rounded-xl" />
+    </div>
+  );
+}
+
+export function SkeletonChart({ className = '' }: { className?: string }) {
+  return (
+    <div role="status" aria-busy="true" className={`space-y-3 ${className}`}>
+      <Skeleton className="h-5 w-40" />
+      <Skeleton className="h-56 w-full rounded-xl" />
+    </div>
+  );
+}
