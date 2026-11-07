@@ -249,7 +249,7 @@ Deno.serve(async (req: Request) => {
         const email = buildDunningEmail({
           toEmail: profile.email,
           greetingName: profile.full_name?.split(" ")[0] || "there",
-          stage: nextStage,
+          stage: update.dunning_stage,
           daysLeft,
           declineReason,
           updatePaymentUrl: `${siteUrl}/dashboard/billing/update-payment`,
@@ -290,6 +290,14 @@ Deno.serve(async (req: Request) => {
         const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
         const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
         const planId = session.metadata?.plan_id as string | undefined;
+        if (session.metadata?.results_plan === "1" && session.metadata.supabase_user_id) {
+          const { error: rpErr } = await admin
+            .from("results_plan_accounts")
+            .update({ status: "active", opted_in_at: new Date().toISOString(), opted_in_by: session.metadata.supabase_user_id, updated_at: new Date().toISOString() })
+            .eq("user_id", session.metadata.supabase_user_id)
+            .eq("status", "draft");
+          if (rpErr) console.error("results plan activation failed", rpErr.message);
+        }
         if (!customerId) break;
 
         await admin
