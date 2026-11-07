@@ -1,0 +1,439 @@
+--- a/supabase/functions/_shared/dispatch/rulesAssign.ts
++++ b/supabase/functions/_shared/dispatch/rulesAssign.ts
+@@ -8,7 +8,9 @@
+ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2.57.4';
+ import { assignBestTechnician, type AssignResult } from './assign.ts';
+ import { dayKey, loadRulesContext, loadVipCustomerIds, toEngineJob, type RulesContext } from './rulesContext.ts';
+-import { loadsForDay, rankTechnicians, snapshotForAudit, type RankResult } from './rulesEngine.ts';
++import { driveMinutes, loadsForDay, rankTechnicians, snapshotForAudit, type RankResult } from './rulesEngine.ts';
++import { attemptOrder, buildRandomizationLog, planRandomization } from './nearTieRandomization.ts';
++import { loadRandomizationSettings } from './randomizationSettings.ts';
+ import { buildDispatchEvidence, recordAiDecision } from '../governance/aiDecisionRecorder.ts';
+ 
+ export interface AutoAssignJob {
+@@ -29,7 +31,8 @@
+ 
+ async function logDecision(admin: SupabaseClient, row: Record<string, unknown>) {
+   try {
+-    await admin.from('dispatch_decisions').insert(row);
++    const { error } = await admin.from('dispatch_decisions').insert(row);
++    if (error) console.error(JSON.stringify({ event: 'dispatch_decision_log_failed', error: error.message }));
+   } catch (e) {
+     console.error(JSON.stringify({ event: 'dispatch_decision_log_failed', error: e instanceof Error ? e.message : String(e) }));
+   }
+@@ -55,6 +58,10 @@
+ 
+   if (!ctx.rules.some((r) => r.enabled)) return legacy(admin, userId, jobs);
+ 
++  // Near-tie randomization: default OFF; any load failure => OFF (identical to the previous behaviour).
++  const rz = await loadRandomizationSettings(admin, userId);
++  const driveRule = ctx.rules.find((r) => r.enabled && r.rule_type === 'max_drive_time');
++
+   const byId = new Map(rows.map((r) => [r.id as string, r]));
+   // VIP jobs are placed first (they get first pick of capacity), then chronologically.
+   const ordered = [...jobs].sort((a, b) => {
+@@ -71,17 +78,24 @@
+     const day = dayKey(row.scheduled_datetime as string | null) ?? dayKey(new Date().toISOString())!;
+     const ranking: RankResult = rankTechnicians({ job: engineJob, technicians: ctx.technicians, rules: ctx.rules, territories: ctx.territories, preferences: ctx.preferences, loads: loadsForDay(ctx.openJobs, day, job.id) });
+     const audit = { rules_applied: ranking.rules_applied, margin: ranking.margin, candidates: snapshotForAudit(ranking) };
++    const plan = planRandomization({
++      settings: rz,
++      job: { id: job.id, service_type: engineJob.service_type, is_vip: engineJob.is_vip },
++      ranked: ranking.ranked,
++      etaMinutes: (id) => { const t = ctx.technicians.find((x) => x.id === id); return t ? driveMinutes(t, engineJob, driveRule) : null; },
++    });
++    const attempts = attemptOrder(ranking.ranked.filter((r) => r.eligible), plan);
+ 
+     let outcome: RulesAssignResult | null = null;
+     const blockedNotes: string[] = [];
+-    for (const cand of ranking.ranked.filter((r) => r.eligible)) {
++    for (const cand of attempts) {
+       const { data, error } = await admin.rpc('assign_technician_to_job', { p_job_id: job.id, p_technician_id: cand.technician_id });
+       const res = (data ?? {}) as { status?: string; reason?: string };
+       if (!error && res.status === 'assigned') {
+         const reason = `Rules engine: ${cand.summary}`;
+         outcome = { job_id: job.id, engine: 'rules', technicianId: cand.technician_id, technicianName: cand.technician_name, reason, score: cand.score, explanation: cand.summary };
+         ctx.openJobs.push({ id: job.id, technician_id: cand.technician_id, day, minutes: engineJob.duration_minutes && engineJob.duration_minutes > 0 ? engineJob.duration_minutes : 60 });
+-        await logDecision(admin, { user_id: userId, job_id: job.id, technician_id: cand.technician_id, recommended_technician_id: ranking.best?.technician_id ?? null, mode: 'auto', score: cand.score, explanation: audit, note: blockedNotes.length ? `Skipped by system gates: ${blockedNotes.join('; ')}` : null });
++        await logDecision(admin, { user_id: userId, job_id: job.id, technician_id: cand.technician_id, recommended_technician_id: ranking.best?.technician_id ?? null, mode: 'auto', score: cand.score, explanation: rz.enabled ? { ...audit, randomization: buildRandomizationLog(plan, cand.technician_id) } : audit, note: blockedNotes.length ? `Skipped by system gates: ${blockedNotes.join('; ')}` : null });
+         await recordGovernance(admin, userId, row, cand.technician_id, cand.technician_name, reason);
+         break;
+       }
+--- a/src/lib/opsExperiments.ts
++++ b/src/lib/opsExperiments.ts
+@@ -23,7 +23,8 @@
+ 
+ export type MetricKey = 'ftf_rate' | 'callback_rate' | 'completion_rate' | 'sla_met_rate' | 'avg_revenue';
+ export type MetricUnit = 'pct' | 'usd';
+-export type DesignKind = 'randomized' | 'comparison';
++/** 'natural' = near-tie draws made by dispatch itself (see naturalRandomization.ts); no job enrollment, technician groups only. */
++export type DesignKind = 'randomized' | 'comparison' | 'natural';
+ export type ExperimentStatus = 'draft' | 'running' | 'concluded' | 'archived';
+ export type Arm = 'control' | 'treatment';
+ export type UnitType = 'job' | 'technician';
+@@ -236,9 +237,9 @@
+ export const MIN_CELL_N = 30;
+ /** Binary outcomes need at least this many events and non-events per cell for the normal approximation. */
+ export const MIN_BINARY_EVENTS = 5;
+-const SRM_ALPHA = 0.001;
++export const SRM_ALPHA = 0.001;
+ 
+-const Z_TWO_SIDED: Record<Alpha, number> = { 0.01: 2.5758293035489, 0.05: 1.959963984540054, 0.1: 1.6448536269514722 };
++export const Z_TWO_SIDED: Record<Alpha, number> = { 0.01: 2.5758293035489, 0.05: 1.959963984540054, 0.1: 1.6448536269514722 };
+ const Z_POWER_80 = 0.8416212335729143;
+ 
+ export function normalCdf(z: number): number {
+@@ -347,6 +348,9 @@
+   const cells: Cells = { treatment: [], control: [], treatmentPre: [], controlPre: [] };
+   const ctx: ObserveContext = { reworked: buildReworkedSet(jobs), now, maturityDays: cfg.maturity_days };
+ 
++  // 'natural' is analysed from dispatch draws (analyzeNaturalExperiment), never from job cells.
++  if (cfg.design === 'natural') return cells;
++
+   if (cfg.design === 'randomized') {
+     const arms = new Map<string, Arm>();
+     for (const a of assignments) if (a.unit_type === 'job') arms.set(a.unit_id, a.arm);
+@@ -501,7 +505,7 @@
+ // ANALYSIS
+ // ============================================================
+ 
+-function benefitOf(metric: MetricKey, est: Estimate | null): number | null {
++export function benefitOf(metric: MetricKey, est: Estimate | null): number | null {
+   if (!est) return null;
+   return METRICS[metric].higherIsBetter ? est.effect : -est.effect;
+ }
+@@ -567,12 +571,7 @@
+     if (status === 'breached') warnings.push(`Guardrail breached: ${METRICS[gMetric].label} got worse than the agreed tolerance.`);
+   }
+ 
+-  let verdict: Verdict;
+-  if (srm?.failed) verdict = 'invalid';
+-  else if (!estimate || observedPerArm < MIN_CELL_N || sparse) verdict = 'collecting';
+-  else if (Math.abs(estimate.z) >= zCritical) verdict = (primary.benefit ?? 0) > 0 ? 'win' : 'loss';
+-  else if (informationFraction >= 1) verdict = estimate.ciLow >= -mde && estimate.ciHigh <= mde ? 'no_effect' : 'inconclusive';
+-  else verdict = 'collecting';
++  const verdict = decideVerdict({ srmFailed: !!srm?.failed, estimate, benefit: primary.benefit, observedPerArm, sparse, zCritical, informationFraction, mde });
+ 
+   const recommendation = recommend(verdict, guardrail);
+   const evidence: EvidenceGrade =
+@@ -594,6 +593,26 @@
+   };
+ }
+ 
++export interface VerdictInput {
++  srmFailed: boolean;
++  estimate: Estimate | null;
++  benefit: number | null;
++  observedPerArm: number;
++  sparse: boolean;
++  zCritical: number;
++  informationFraction: number;
++  mde: number;
++}
++
++/** Single source of truth for the verdict rules (shared by every design). */
++export function decideVerdict(v: VerdictInput): Verdict {
++  if (v.srmFailed) return 'invalid';
++  if (!v.estimate || v.observedPerArm < MIN_CELL_N || v.sparse) return 'collecting';
++  if (Math.abs(v.estimate.z) >= v.zCritical) return (v.benefit ?? 0) > 0 ? 'win' : 'loss';
++  if (v.informationFraction >= 1) return v.estimate.ciLow >= -v.mde && v.estimate.ciHigh <= v.mde ? 'no_effect' : 'inconclusive';
++  return 'collecting';
++}
++
+ export function recommend(verdict: Verdict, guardrail: GuardrailResult | null): Recommendation {
+   switch (verdict) {
+     case 'invalid':
+@@ -680,7 +699,7 @@
+   if (!(d.min_detectable_effect > 0)) errors.push('The smallest effect worth detecting must be greater than zero.');
+   if (d.guardrail_metric && d.guardrail_metric === d.primary_metric) errors.push('The guardrail must be a different metric from the primary metric.');
+   if (d.guardrail_metric && (d.guardrail_tolerance === null || !(d.guardrail_tolerance >= 0))) errors.push('Set how much the guardrail metric may worsen.');
+-  if (d.design === 'comparison') {
++  if (d.design !== 'randomized') {
+     if (d.treatmentTechnicians.length === 0 || d.comparisonTechnicians.length === 0) errors.push('Pick at least one technician for each group.');
+     if (d.treatmentTechnicians.some((id) => d.comparisonTechnicians.includes(id))) errors.push('A technician cannot be in both groups.');
+   }
+@@ -746,6 +765,20 @@
+     duration_days: 28,
+   },
+   {
++    id: 'senior-vs-junior-near-ties',
++    label: 'Near-tie dispatch: senior vs. junior technician',
++    category: 'dispatch',
++    hypothesis: 'When two technicians are practically tied for a job, sending a senior technician instead of a junior one raises the first-time-fix rate.',
++    intervention: 'Dispatch randomly picks between practically tied technicians; the senior group is the intervention group.',
++    comparison_desc: 'The junior group, drawn by the same near-tie lottery.',
++    design: 'natural',
++    primary_metric: 'ftf_rate',
++    guardrail_metric: 'sla_met_rate',
++    guardrail_tolerance: 2,
++    min_detectable_effect: 5,
++    duration_days: 90,
++  },
++  {
+     id: 'apprenticeship-drills',
+     label: 'Targeted skill drills for technicians',
+     category: 'training',
+--- a/src/lib/opsExperimentsApi.ts
++++ b/src/lib/opsExperimentsApi.ts
+@@ -134,7 +134,7 @@
+   if (error) throw error;
+   const id = (data as { id: string }).id;
+ 
+-  if (input.design === 'comparison') {
++  if (input.design !== 'randomized') {
+     const rows = [
+       ...input.treatmentTechnicians.map((unit_id) => ({ experiment_id: id, unit_type: 'technician', unit_id, arm: 'treatment' })),
+       ...input.comparisonTechnicians.map((unit_id) => ({ experiment_id: id, unit_type: 'technician', unit_id, arm: 'control' })),
+--- a/src/components/experimentation/ExperimentForm.tsx
++++ b/src/components/experimentation/ExperimentForm.tsx
+@@ -1,4 +1,6 @@
+ import { useMemo, useState } from 'react';
++import { useTranslation } from 'react-i18next';
++import { RZ_NS } from '@/i18n/dispatchRandomizationNamespace';
+ import { AlertTriangle, CheckCircle2, Info, Loader2 } from 'lucide-react';
+ import { Button } from '@/components/ui/Button';
+ import { Card } from '@/components/ui/Card';
+@@ -57,6 +59,7 @@
+ 
+ export function ExperimentForm({ jobs, technicians, onSubmit, onCancel }: Props) {
+   const now = useMemo(() => new Date(), []);
++  const { t: tRz, i18n } = useTranslation(RZ_NS);
+   const [title, setTitle] = useState('');
+   const [category, setCategory] = useState<ExperimentCategory>('operations');
+   const [hypothesis, setHypothesis] = useState('');
+@@ -97,8 +100,10 @@
+     if (!(mdeNum > 0) || !(durationNum > 0)) return null;
+     const baseline = historicalBaseline(primary, jobs, serviceTypes, Number.isFinite(maturityNum) ? maturityNum : 14, now);
+     const required = requiredPerArm(primary, design, baseline, fromDisplay(primary, mdeNum), alpha);
+-    let expected: number;
+-    if (design === 'randomized') {
++    let expected: number | null;
++    if (design === 'natural') {
++      expected = null; // depends on how often technicians are practically tied; see the fair tie-breaking page
++    } else if (design === 'randomized') {
+       const fraction = Number.isFinite(shareNum) ? Math.min(shareNum, 100 - shareNum) / 100 : 0.5;
+       expected = Math.floor(jobsPerDay(jobs, serviceTypes, now) * durationNum * fraction);
+     } else {
+@@ -156,7 +161,7 @@
+     }
+   }
+ 
+-  const feasible = planner && planner.required !== null ? planner.expected >= planner.required : null;
++  const feasible = planner && planner.required !== null && planner.expected !== null ? planner.expected >= planner.required : null;
+ 
+   return (
+     <form onSubmit={(e) => void submit(e)} className="space-y-6" noValidate>
+@@ -211,11 +216,14 @@
+             helper={
+               design === 'randomized'
+                 ? 'Jobs are randomly split by the system. The strongest evidence.'
+-                : 'Compare two technician groups before and after. Use when jobs cannot be split.'
++                : design === 'natural'
++                  ? tRz('experiment.designHelp')
++                  : 'Compare two technician groups before and after. Use when jobs cannot be split.'
+             }
+           >
+             <option value="randomized">Randomized jobs</option>
+             <option value="comparison">Technician groups (before / after)</option>
++            <option value="natural">{tRz('experiment.designName')}</option>
+           </SelectField>
+           <SelectField label="Service types in scope" value="" onChange={(e) => e.target.value && setServiceTypes((s) => (s.includes(e.target.value) ? s : [...s, e.target.value]))} helper="Leave empty to include every service type.">
+             <option value="">Add a service type...</option>
+@@ -242,7 +250,7 @@
+           </div>
+         )}
+ 
+-        {design === 'comparison' && (
++        {design !== 'randomized' && (
+           <div className="mt-4">
+             <p className="text-sm font-medium text-text-primary">Technician groups</p>
+             {technicians.length < 2 ? (
+@@ -343,6 +351,8 @@
+             <div className="text-text-primary">
+               {planner.required === null ? (
+                 <p>There is not enough recent history to size this test. You can still run it; the system will show how much evidence is collected.</p>
++              ) : planner.expected === null ? (
++                <p>{tRz('experiment.planNeeds', { n: planner.required.toLocaleString(i18n.language) })}</p>
+               ) : (
+                 <p>
+                   Needs about <strong>{planner.required.toLocaleString('en-US')}</strong> jobs per group. At your recent volume you would get about{' '}
+--- a/src/components/experimentation/ExperimentDetail.tsx
++++ b/src/components/experimentation/ExperimentDetail.tsx
+@@ -5,6 +5,10 @@
+ import { Button } from '@/components/ui/Button';
+ import { Textarea } from '@/components/ui/Input';
+ import { ResultPanel } from '@/components/experimentation/ResultPanel';
++import { NaturalProgressCard } from '@/components/experimentation/NaturalProgressCard';
++import { analyzeNaturalExperiment, type DecisionRow, type NaturalAnalysis } from '@/lib/naturalRandomization';
++import { RZ_NS } from '@/i18n/dispatchRandomizationNamespace';
++import { useTranslation } from 'react-i18next';
+ import type { ExperimentRow } from '@/lib/opsExperimentsApi';
+ import {
+   CATEGORY_LABELS,
+@@ -40,6 +44,10 @@
+   experiment: ExperimentRow;
+   jobs: ExpJob[];
+   assignments: Assignment[];
++  /** Near-tie draws (dispatch_decisions) — only used by the 'natural' design. */
++  decisions?: DecisionRow[];
++  /** Whether near-tie randomization is currently switched on (natural design); null while unknown. */
++  randomizationEnabled?: boolean | null;
+   canManage: boolean;
+   busy: string | null;
+   onStart: () => void;
+@@ -49,17 +57,19 @@
+   onDeleteDraft: () => void;
+ }
+ 
+-export function ExperimentDetail({ experiment: e, jobs, assignments, canManage, busy, onStart, onEnroll, onConclude, onArchive, onDeleteDraft }: Props) {
++export function ExperimentDetail({ experiment: e, jobs, assignments, decisions = [], randomizationEnabled = null, canManage, busy, onStart, onEnroll, onConclude, onArchive, onDeleteDraft }: Props) {
+   const [decision, setDecision] = useState<Decision | ''>('');
+   const [learning, setLearning] = useState('');
+   const [formError, setFormError] = useState<string | null>(null);
++  const { t: tRz } = useTranslation(RZ_NS);
+ 
+   const analysis = useMemo(() => {
+     if (e.status !== 'running') return null;
+     const at = new Date();
+     const baseline = historicalBaseline(e.primary_metric, jobs, e.service_types, e.maturity_days, at);
++    if (e.design === 'natural') return analyzeNaturalExperiment(e, decisions, jobs, assignments, baseline, at);
+     return analyzeExperiment(e, jobs, assignments, baseline, at);
+-  }, [e, jobs, assignments]);
++  }, [e, jobs, assignments, decisions]);
+ 
+   const enrolledJobIds = useMemo(() => new Set(assignments.filter((a) => a.unit_type === 'job').map((a) => a.unit_id)), [assignments]);
+   const candidates = useMemo(() => enrollmentCandidates(e, jobs, enrolledJobIds), [e, jobs, enrolledJobIds]);
+@@ -149,7 +159,7 @@
+           <div>
+             <dt className="text-xs font-semibold uppercase text-text-secondary">Method</dt>
+             <dd className="mt-1 text-text-primary">
+-              {e.design === 'randomized' ? `Randomized jobs (${e.treatment_share}% get the intervention)` : 'Technician groups, before and after (difference-in-differences)'}
++              {e.design === 'randomized' ? `Randomized jobs (${e.treatment_share}% get the intervention)` : e.design === 'natural' ? tRz('experiment.method') : 'Technician groups, before and after (difference-in-differences)'}
+             </dd>
+           </div>
+           <div>
+@@ -166,7 +176,7 @@
+         <Card className="!p-5">
+           <p className="text-sm text-text-secondary">
+             Starting locks the design: the outcome, effect size, groups and duration can no longer be changed, so the result cannot be bent after the fact.
+-            {e.design === 'comparison' && ` Groups: ${armCounts.treatment} intervention and ${armCounts.control} comparison technicians.`}
++            {e.design !== 'randomized' && ` Groups: ${armCounts.treatment} intervention and ${armCounts.control} comparison technicians.`}
+           </p>
+           <div className="mt-4 flex flex-wrap gap-3">
+             <Button type="button" disabled={busy !== null} onClick={onStart}>
+@@ -216,6 +226,10 @@
+             </Card>
+           )}
+ 
++          {e.design === 'natural' && analysis && 'balance' in analysis && (
++            <NaturalProgressCard analysis={analysis as NaturalAnalysis} elapsedDays={progress.elapsedDays} randomizationEnabled={randomizationEnabled} />
++          )}
++
+           {analysis && <ResultPanel snapshot={buildSnapshot(e, analysis)} alpha={e.alpha} analysis={analysis} />}
+ 
+           {canManage && analysis && (
+--- a/src/pages/OpsExperimentsPage.tsx
++++ b/src/pages/OpsExperimentsPage.tsx
+@@ -9,6 +9,8 @@
+ import { SkeletonCardList, FadeIn } from '@/components/Skeleton';
+ import { ExperimentForm } from '@/components/experimentation/ExperimentForm';
+ import { ExperimentDetail } from '@/components/experimentation/ExperimentDetail';
++import type { DecisionRow } from '@/lib/naturalRandomization';
++import { fetchRandomizedDecisions, fetchSettings } from '@/lib/dispatchRandomizationApi';
+ import {
+   CATEGORY_LABELS,
+   METRICS,
+@@ -55,7 +57,8 @@
+ const DECISION_SHORT: Record<Decision, string> = { adopt: 'Adopted', iterate: 'Redesign', reject: 'Stopped' };
+ 
+ export function OpsExperimentsPage() {
+-  const { isOwner, permissions } = useAuth();
++  const { isOwner, permissions, profile, teamMember } = useAuth();
++  const ownerId = (isOwner ? profile?.id : teamMember?.account_owner_id) ?? null;
+   const { toast } = useToast();
+   const canManage = isOwner || permissions.can_view_billing;
+ 
+@@ -63,6 +66,8 @@
+   const [jobs, setJobs] = useState<ExpJob[]>([]);
+   const [technicians, setTechnicians] = useState<TechnicianOption[]>([]);
+   const [assignments, setAssignments] = useState<Assignment[]>([]);
++  const [decisions, setDecisions] = useState<DecisionRow[]>([]);
++  const [rzEnabled, setRzEnabled] = useState<boolean | null>(null);
+   const [selectedId, setSelectedId] = useState<string | null>(null);
+   const [view, setView] = useState<View>('experiments');
+   const [filter, setFilter] = useState<Filter>('active');
+@@ -136,6 +141,27 @@
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [selectedKey]);
+ 
++  // Near-tie experiments are analysed from dispatch draws; load them only for the selected natural experiment.
++  useEffect(() => {
++    setDecisions([]);
++    setRzEnabled(null);
++    if (!selected || selected.design !== 'natural' || !ownerId || !selected.started_at) return;
++    let cancelled = false;
++    Promise.all([fetchRandomizedDecisions(ownerId, selected.started_at), fetchSettings(ownerId)])
++      .then(([rows, s]) => {
++        if (cancelled) return;
++        setDecisions(rows);
++        setRzEnabled(s.enabled);
++      })
++      .catch(() => {
++        if (!cancelled) toast('Could not load the near-tie draws', 'error');
++      });
++    return () => {
++      cancelled = true;
++    };
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [selectedKey, ownerId]);
++
+   async function run(key: string, action: () => Promise<void>, success: string, after?: () => Promise<void>) {
+     if (busy) return;
+     setBusy(key);
+@@ -306,6 +332,8 @@
+                               experiment={selected}
+                               jobs={jobs}
+                               assignments={assignments}
++                              decisions={decisions}
++                              randomizationEnabled={rzEnabled}
+                               canManage={canManage}
+                               busy={busy}
+                               onStart={() => void run('start', () => startExperiment(selected.id), 'Experiment started')}
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -186,6 +186,7 @@
+ const SharedDashboardPage = lazy(() => import('@/pages/SharedDashboardPage').then((m) => ({ default: m.SharedDashboardPage })));
+ const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
+ const DispatchRulesPage = lazy(() => import('@/pages/DispatchRulesPage').then((m) => ({ default: m.DispatchRulesPage })));
++const DispatchRandomizationPage = lazy(() => import('@/pages/DispatchRandomizationPage').then((m) => ({ default: m.DispatchRandomizationPage })));
+ const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
+ const InventoryCountsPage = lazy(() => import('@/pages/InventoryCountsPage').then((m) => ({ default: m.InventoryCountsPage })));
+ const ToolCribPage = lazy(() => import('@/pages/ToolCribPage').then((m) => ({ default: m.ToolCribPage })));
+@@ -2878,6 +2879,14 @@
+       </ProtectedRoute>
+     }
+   />
++  <Route
++    path="/dashboard/assignment-rules/fair-tiebreaking"
++    element={
++      <ProtectedRoute>
++        <DispatchRandomizationPage />
++      </ProtectedRoute>
++    }
++  />
+         <Route
+           path="/dashboard/routing"
+           element={
+--- a/src/pages/DispatchRulesPage.tsx
++++ b/src/pages/DispatchRulesPage.tsx
+@@ -325,6 +325,10 @@
+           </div>
+         </div>
+ 
++        <p className="mb-4 text-xs">
++          <Link to="/dashboard/assignment-rules/fair-tiebreaking" className="focus-ring font-medium text-accent hover:underline">Fair tie-breaking experiment</Link>
++          <span className="text-text-secondary"> – let a fair lottery choose between practically tied technicians, and learn from it.</span>
++        </p>
+         {!canEdit && <p role="status" className="mb-4 rounded-xl border border-border bg-bg-secondary p-3 text-xs text-text-secondary">You can view the rules. Only owners and team managers can change them.</p>}
+         {error && <p role="alert" className="mb-4 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm text-text-primary">Couldn’t load dispatch rules: {error}</p>}
+         {!bundle && !error && <div className="flex justify-center py-12"><Loader2 className="animate-spin text-text-secondary" aria-label="Loading" /></div>}
