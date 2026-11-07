@@ -1,0 +1,183 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Vireek",
+  "description": "Field-service operations agent: customers, equipment, jobs, schedule, parts inventory, quotes, dispatch, customer messaging and payment links. Skills are invoked with a data part {\"skill\": <id>, \"arguments\": {...}}. Writes are human-approved by default.",
+  "url": "https://x.supabase.co/functions/v1/mcp-server/a2a",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "Vireek",
+    "url": "https://vireek.com"
+  },
+  "documentationUrl": "https://vireek.com/docs",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "securitySchemes": {
+    "agentKey": {
+      "type": "http",
+      "scheme": "bearer",
+      "description": "Vireek agent key (vrk_agent_...) created by the business in Dashboard > Agent Network."
+    }
+  },
+  "security": [
+    {
+      "agentKey": []
+    }
+  ],
+  "defaultInputModes": [
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "get_customer",
+      "name": "Get customer",
+      "description": "Look up ONE customer by exactly one of customer_id, phone or email. Returns contact details and lifecycle stage. Never lists or searches all customers.",
+      "tags": [
+        "crm",
+        "customer"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "get_equipment",
+      "name": "Get customer equipment",
+      "description": "List the equipment installed for one customer (type, make, model, serial, install date, warranty expiry, service interval).",
+      "tags": [
+        "equipment",
+        "warranty"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "get_job",
+      "name": "Get job",
+      "description": "Fetch one job by id: status, schedule, address, assigned technician and invoice status.",
+      "tags": [
+        "jobs"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "check_schedule",
+      "name": "Check schedule & technician availability",
+      "description": "Jobs booked in a time window (max 14 days) and, per technician, how many job slots remain each UTC day. Use before dispatch_technician.",
+      "tags": [
+        "schedule",
+        "dispatch"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "check_inventory",
+      "name": "Check parts inventory",
+      "description": "Stock for parts matching an exact part_number or a name search: on hand, reserved and available per location, plus a below-reorder-point flag. Max 20 parts.",
+      "tags": [
+        "inventory",
+        "parts"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "create_quote",
+      "name": "Create draft quote",
+      "description": "Create a DRAFT quote (never sent to the customer). Needs human approval by default. A person reviews and sends it from Vireek. Amounts are integer cents.",
+      "tags": [
+        "quote",
+        "sales"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "dispatch_technician",
+      "name": "Assign technician to job",
+      "description": "Assign one technician to one scheduled job. Enforces the technician's daily capacity. Needs human approval by default. Call check_schedule first.",
+      "tags": [
+        "dispatch"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "send_customer_message",
+      "name": "Send customer SMS",
+      "description": "Send an SMS to an EXISTING customer (by customer_id). Goes through A2P registration and do-not-contact checks. Needs human approval by default.",
+      "tags": [
+        "messaging"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "collect_payment",
+      "name": "Create payment link for a job",
+      "description": "Create a Stripe payment link for a job's invoice amount (the amount cannot be chosen by the caller). Does NOT message the customer. Use send_customer_message for that. Needs human approval by default.",
+      "tags": [
+        "payments"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "get_action_status",
+      "name": "Get action status",
+      "description": "Status and result of one of YOUR earlier calls (call_id). If a human has approved a pending action, calling this runs it and returns the result.",
+      "tags": [
+        "status"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    }
+  ]
+}
