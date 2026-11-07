@@ -13,6 +13,7 @@ import { runInputGuardrails, runOutputGuardrails, createStreamGuard } from "./gu
 import { secureInput, secureOutput, createRehydrator, rehydrate, type AiSecurityContext } from "./aiSecurity.ts";
 import { routeChat, routeChatStream, type RouteChatResult } from "./router.ts";
 import { checkBudget, logUsage, resolveUsage } from "./costTracking.ts";
+import type { LedgerCorrelation } from "../economics/ledgerWriter.ts";
 import { REMOTE_RESOLUTION_INSTRUCTIONS } from "./remoteResolutionPrompt.ts";
 
 import {
@@ -419,6 +420,7 @@ export interface AskVireekAiOptions {
   accountId?: string;
   /** Edge function name for the cost log. Defaults to security.agentSource. */
   source?: string;
+  correlation?: LedgerCorrelation;
 }
 
 export interface AskVireekAiResult {
@@ -550,10 +552,10 @@ export async function askVireekAiStream(
 }
 
 export function safeFallbackMessage(err: unknown): string {
-  if (
   if (err instanceof AiCoreError && err.code === "BUDGET_EXCEEDED") {
     return "This optional feature is paused for this account until the next billing month.";
   }
+  if (
     err instanceof AiCoreError &&
     err.code === "ALL_PROVIDERS_FAILED"
   ) {
