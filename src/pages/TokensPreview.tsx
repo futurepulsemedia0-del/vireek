@@ -148,7 +148,7 @@ export function TokensPreview() {
       <header className="sticky top-0 z-10 border-b border-border bg-bg-primary/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-on-accent">
               <PhoneCall size={16} strokeWidth={2.5} />
             </span>
             <span className="text-lg font-bold tracking-tight">Vireek</span>
@@ -236,13 +236,13 @@ export function TokensPreview() {
               <p className="text-sm font-semibold text-text-secondary">Status colors</p>
               <div className="mt-4 space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-success-500" /> Success
+                  <span className="h-2.5 w-2.5 rounded-full bg-success" /> Success
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-warning-500" /> Warning
+                  <span className="h-2.5 w-2.5 rounded-full bg-warning" /> Warning
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-danger-500" /> Danger / urgent
+                  <span className="h-2.5 w-2.5 rounded-full bg-danger" /> Danger / urgent
                 </div>
               </div>
             </Card>
