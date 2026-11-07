@@ -32,12 +32,14 @@ import {
   type ToolDef, type QuoteLine,
 } from "../_shared/agent-network/tools.ts";
 import { runCheckAvailability } from "../_shared/booking/mcpHandler.ts";
+import { batchCost, corsHeadersFor, originAllowed, parseAllowedOrigins, protocolHeaderValid } from "../_shared/agent-network/guards.ts";
 
 const MAX_BODY_BYTES = 64 * 1024;
 const AGENT_SOURCE = "mcp-server";
+const GATE_V2 = Deno.env.get("AGENT_NET_GATE_V2") === "1";
+const ALLOWED_ORIGINS = parseAllowedOrigins(Deno.env.get("AGENT_NET_ALLOWED_ORIGINS"));
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept, Mcp-Protocol-Version, Mcp-Session-Id",
   "Access-Control-Max-Age": "86400",
@@ -531,7 +533,14 @@ type Invoke = { kind: "unknown_tool" } | { kind: "done"; result: CallResult };
 
 async function invoke(ctx: Ctx, name: string, rawArgs: unknown): Promise<Invoke> {
   const def = getTool(name);
-  if (!def || !hasScope(ctx.scopes, def)) return { kind: "unknown_tool" };
+  if (!def || !hasScope(ctx.scopes, def)) {
+    if (GATE_V2) {
+      await ctx.admin.rpc("agent_network_record_denial", {
+        p_client_id: ctx.clientId, p_reason: def ? "scope_denied" : "unknown_tool", p_tool: name.slice(0, 64), p_protocol: ctx.protocol,
+      });
+    }
+    return { kind: "unknown_tool" };
+  }
   const t0 = Date.now();
 
   const v = def.validate(rawArgs ?? {});
@@ -641,12 +650,14 @@ async function handleA2a(ctx: Ctx, rpc: RpcRequest): Promise<Record<string, unkn
       if (!ok) return rpcError(id, RPC.TASK_NOT_CANCELABLE, "Task can no longer be canceled");
       return rpcResult(id, taskFromResult(rowOutcome({ ...row, status: "canceled" }), crypto.randomUUID()));
     }
-    case "message/stream":
+        case "message/stream":
     case "tasks/resubscribe":
+      return rpcError(id, RPC.UNSUPPORTED_OPERATION, "Streaming is not supported; poll tasks/get.");
     case "tasks/pushNotificationConfig/set":
     case "tasks/pushNotificationConfig/get":
-      return rpcError(id, RPC.UNSUPPORTED_OPERATION, "Streaming and push notifications are not supported; poll tasks/get.");
-    default:
+    case "tasks/pushNotificationConfig/list":
+    case "tasks/pushNotificationConfig/delete":
+      return rpcError(id, RPC.PUSH_NOT_SUPPORTED, "Push notifications are not supported; poll tasks/get.");
       return rpcError(id, RPC.METHOD_NOT_FOUND, `Method not found: ${rpc.method.slice(0, 64)}`);
   }
 }
@@ -656,7 +667,17 @@ async function handleA2a(ctx: Ctx, rpc: RpcRequest): Promise<Record<string, unkn
 // ------------------------------------------------------------------
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+  const origin = req.headers.get("origin");
+  if (!originAllowed(origin, ALLOWED_ORIGINS)) {
+    return new Response(JSON.stringify(rpcError(null, RPC.INVALID_REQUEST, "Origin not allowed")), { status: 403, headers: { "Content-Type": "application/json", Vary: "Origin" } });
+  }
+  const res = await handleRequest(req);
+  for (const [k, v] of Object.entries(corsHeadersFor(origin, ALLOWED_ORIGINS))) res.headers.set(k, v);
+  return res;
+});
+
+async function handleRequest(req: Request): Promise<Response> {
+  if (req.method === "OPTIONS"
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -674,6 +695,9 @@ Deno.serve(async (req: Request) => {
   if (!protocol) return json({ error: "Not found" }, 404);
   if (req.method !== "POST") return json({ error: "Method not allowed. POST JSON-RPC 2.0 messages." }, 405, { Allow: "POST, OPTIONS" });
 
+  if (protocol === "mcp" && !protocolHeaderValid(req.headers.get("mcp-protocol-version"))) {
+    return json(rpcError(null, RPC.INVALID_REQUEST, "Unsupported MCP-Protocol-Version header"), 400);
+  }
   const declared = Number(req.headers.get("content-length") ?? "0");
   if (declared > MAX_BODY_BYTES) return json(rpcError(null, RPC.INVALID_REQUEST, "Request too large"), 413);
   const text = await req.text();
@@ -686,11 +710,16 @@ Deno.serve(async (req: Request) => {
     json({ error: msg }, 401, { "WWW-Authenticate": 'Bearer realm="vireek-agent-network"' });
   if (!rawKey.startsWith("vrk_agent_") || rawKey.length > 200) return unauthorized("Missing or invalid agent key. Use: Authorization: Bearer vrk_agent_...");
 
+  const parsed = parseRpcBody(text);
+  const cost = parsed.kind === "requests" ? batchCost(parsed.items.length) : 1;
+  const keyHash = await sha256Hex(rawKey);
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
-  const { data: gate, error: gateErr } = await admin.rpc("agent_network_begin", { p_key_hash: await sha256Hex(rawKey) });
+  const { data: gate, error: gateErr } = GATE_V2
+    ? await admin.rpc("agent_network_begin_v2", { p_key_hash: keyHash, p_cost: cost })
+    : await admin.rpc("agent_network_begin", { p_key_hash: keyHash });
   if (gateErr || !gate) return json({ error: "Service unavailable" }, 503);
   if (!gate.ok) {
-    if (gate.reason === "rate_limited" || gate.reason === "quota_exceeded") {
+    if (gate.reason === "rate_limited" || gate.reason === "quota_exceeded" || gate.reason === "throttled") {
       return json({ error: gate.reason }, 429, { "Retry-After": String(gate.retry_after ?? 30) });
     }
     return unauthorized("Invalid, revoked or expired agent key");
@@ -702,7 +731,6 @@ Deno.serve(async (req: Request) => {
   };
 
   // ---- Dispatch ----
-  const parsed = parseRpcBody(text);
   if (parsed.kind === "invalid") return json(rpcError(null, parsed.error.code, parsed.error.message), 400);
 
   const handler = protocol === "mcp" ? handleMcp : handleA2a;
@@ -723,4 +751,4 @@ Deno.serve(async (req: Request) => {
 
   if (responses.length === 0) return new Response(null, { status: 202, headers: corsHeaders });
   return json(parsed.batch ? responses : responses[0]);
-});
+}
