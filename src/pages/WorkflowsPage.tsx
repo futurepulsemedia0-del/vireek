@@ -377,7 +377,7 @@ export function WorkflowsPage() {
 
         <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-6">
           {loading ? (
-            <div className="flex justify-center py-16"><Loader2 size={24} className="animate-spin text-text-secondary" /></div>
+            <SkeletonTable rows={5} columns={4} />
           ) : (
             <>
               {tab === 'catalog' && <CatalogTab installedSlugs={installedSlugs} onInstall={load} />}
