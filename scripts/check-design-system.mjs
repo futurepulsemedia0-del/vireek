@@ -84,7 +84,8 @@ function checkLoadingStandard(filePath) {
   const usesLoader2AsPageLoader = /<Loader2[^>]*size=\{?(2[4-9]|[3-9]\d)/.test(text); // size >=24 ~= page-level, not inline-in-button
   const importsSkeleton = /from ['"]@\/components\/Skeleton['"]/.test(text);
   if (usesLoader2AsPageLoader && !importsSkeleton) {
-    const lineIdx = text.split('\n').findIndex((l) => /<Loader2[^>]*size=\{?(2[4-9]|[3-9]\d)/.test(l));
+    const m = /<Loader2[^>]*size=\{?(2[4-9]|[3-9]\d)/.exec(text);
+    const lineIdx = m ? text.slice(0, m.index).split('\n').length - 1 : 0;
     violations.push({
       rule: 'loading-standard',
       file: rel,
@@ -104,7 +105,8 @@ function checkEmptyStateStandard(filePath) {
   const hasBareEmptyCopy = />\s*No [^<]{2,40}(found|yet)\.?\s*</i.test(text);
   const importsEmptyState = /from ['"]@\/components\/EmptyState['"]/.test(text);
   if (hasBareEmptyCopy && !importsEmptyState) {
-    const lineIdx = text.split('\n').findIndex((l) => />\s*No [^<]{2,40}(found|yet)\.?\s*</i.test(l));
+    const m = />\s*No [^<]{2,40}(found|yet)\.?\s*</i.exec(text);
+    const lineIdx = m ? text.slice(0, m.index).split('\n').length - 1 : 0;
     violations.push({
       rule: 'empty-state-standard',
       file: rel,
@@ -117,6 +119,7 @@ function checkEmptyStateStandard(filePath) {
 walk(SRC, (file) => {
   // The primitives are allowed to contain their own reference recipe.
   if (file.endsWith(join('ui', 'Button.tsx')) || file.endsWith(join('ui', 'Card.tsx')) || file.endsWith(join('ui', 'Input.tsx'))) {
+   file.endsWith(join('components', 'Skeleton.tsx')) || 
     return;
   }
   scanLines(file, RULE_INPUT, 'no-local-input-class');
