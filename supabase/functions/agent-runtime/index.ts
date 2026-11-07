@@ -26,6 +26,7 @@ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.5
 import { askVireekAi } from "../_shared/ai-core/index.ts";
 import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { LoopDetector } from "../_shared/economics/loopDetector.ts";
 import {
   ACTION_GOVERNANCE_SLUG,
   MAX_RESPONSE_BYTES,
@@ -243,6 +244,9 @@ async function callWebhookAgent(
   }
 }
 
+// Runaway-loop guard: the same action (type + params) proposed more than 3 times within one run stops the run.
+// Rollback: set AGENT_LOOP_GUARD_DISABLED=1.
+const loopDetector = new LoopDetector({ maxRepeats: 3, windowMs: 120_000 });
 async function callBuiltinAgent(
   manifest: AgentManifest,
   run: RunRow,
@@ -257,6 +261,7 @@ async function callBuiltinAgent(
     maxTokens: 1500,
     temperature: 0.2,
     timeoutMs,
+    correlation: { marketplaceRunId: run.id
     extraInstructions: `${manifest.system_prompt ?? ""}\n\n${outputContract(allowed, maxActions)}`,
     messages: [{ role: "user", content: JSON.stringify({ trigger: run.trigger, allowed_actions: allowed, context }) }],
   });
@@ -411,6 +416,10 @@ async function processRun(admin: SupabaseClient, run: RunRow): Promise<RunResult
     let failed = 0;
 
     for (const [i, action] of parsed.actions.entries()) {
+      if (Deno.env.get("AGENT_LOOP_GUARD_DISABLED") !== "1") {
+        const verdict = loopDetector.record(run.id, `${action.type}:${JSON.stringify(action.params ?? {})}`, Date.now());
+        if (verdict.tripped) { rejected += parsed.actions.length - i; break; } // runaway loop: reject this and every remaining action
+      }
       let auth;
       try {
         auth = await authorizeAgentAction(admin, {
@@ -440,7 +449,8 @@ async function processRun(admin: SupabaseClient, run: RunRow): Promise<RunResult
       await recordAgentActionOutcome(admin, auth.logId, outcome.ok ? { status: "executed" } : { status: "failed", error: outcome.error });
       if (outcome.ok) executed++; else failed++;
     }
-
+    
+    loopDetector.clearRun(run.id);
     const total = parsed.actions.length + parsed.rejected.length;
     const acted = executed + pending;
     const status: RunResult["status"] = total === 0 ? "succeeded" : acted === 0 ? "failed" : failed + rejected > 0 ? "partial" : "succeeded";
