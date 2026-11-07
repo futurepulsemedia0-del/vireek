@@ -4,6 +4,7 @@
 // Add/remove/reorder a provider by editing this file only.
 
 import type { ProviderAdapter, ProviderId, RouteEntry, TaskType } from "./types.ts";
+import { applyRouteOverrides } from "../economics/routeOverrides.ts";
 
 import { geminiAdapter } from "./providers/gemini.ts";
 import { groqAdapter } from "./providers/groq.ts";
@@ -72,5 +73,9 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   inbound_auto_reply: JSON_CHAIN,
 };
 export function getRouteForTask(task: TaskType): RouteEntry[] {
-  return [...(TASK_ROUTES[task] ?? DEFAULT_CHAIN)].sort((a, b) => a.priority - b.priority);
+  const base = [...(TASK_ROUTES[task] ?? DEFAULT_CHAIN)].sort((a, b) => a.priority - b.priority);
+  // Evidence-gated per-task override (economics layer). One switch to roll back: AI_ROUTE_OVERRIDES_DISABLED=1.
+  return applyRouteOverrides(
+    task, base, Deno.env.get("AI_ROUTE_OVERRIDES_JSON"), Deno.env.get("AI_ROUTE_OVERRIDES_DISABLED") === "1", Object.keys(ALL_ADAPTERS),
+  ).route as RouteEntry[];
 }
