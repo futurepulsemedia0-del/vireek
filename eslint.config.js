@@ -61,6 +61,16 @@ export default tseslint.config(
           selector: 'Literal[value=/\\b(?:rgba?|hsla?)\\(\\s*[0-9]/]',
           message: 'Use rgb(var(--token)) instead of rgb()/hsl() literals.',
         },
+        // Alpha on text colour is banned (WCAG 1.4.3). WARN while legacy usages are migrated; the hard gate is `npm run lint:design`
+        // (ratchet baseline). Flip to 'error' once scripts/color/text-alpha-baseline.json is {}. Slash is written as \\x2f (esquery has no escape).
+        {
+          selector: 'Literal[value=/(^|[\\s:!])text-(?!(?:xs|sm|base|lg|xl|[2-9]xl|eyebrow)\\x2f)[a-z][a-z0-9-]*\\x2f[0-9\\[]/]',
+          message: 'No alpha on text colour. Use text-text-secondary / text-text-muted / text-text-placeholder / text-graphic-muted (or `// contrast-ok: reason`).',
+        },
+        {
+          selector: 'TemplateElement[value.raw=/(^|[\\s:!])text-(?!(?:xs|sm|base|lg|xl|[2-9]xl|eyebrow)\\x2f)[a-z][a-z0-9-]*\\x2f[0-9\\[]/]',
+          message: 'No alpha on text colour. Use text-text-secondary / text-text-muted / text-text-placeholder / text-graphic-muted (or `// contrast-ok: reason`).',
+        },
       ],
     },
   },
