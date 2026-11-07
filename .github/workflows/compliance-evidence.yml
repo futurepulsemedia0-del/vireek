@@ -1,0 +1,86 @@
+name: Compliance evidence
+
+# SOC 2 READINESS evidence collection. Produces timestamped, hashed records; it does not certify anything.
+# Required repository secrets (Settings > Secrets and variables > Actions):
+#   COMPLIANCE_INGEST_URL     https://<project-ref>.supabase.co/functions/v1/compliance-evidence
+#   COMPLIANCE_INGEST_TOKEN   same value as the Supabase secret of that name
+#   COMPLIANCE_GITHUB_TOKEN   fine-grained read-only token for THIS repository only:
+#       Administration: read, Pull requests: read, Actions: read, Contents: read, Metadata: read,
+#       Code scanning alerts: read, Dependabot alerts: read, Secret scanning alerts: read
+# Without COMPLIANCE_GITHUB_TOKEN the GitHub collectors record "blocked" (never "pass").
+
+on:
+  schedule:
+    - cron: '23 4 * * *' # daily; evidence freshness windows are 8 days or longer
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'docs/compliance/soc2/**'
+      - 'scripts/compliance/**'
+      - '.github/workflows/compliance-evidence.yml'
+
+concurrency:
+  group: compliance-evidence-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate control registry
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Registry is valid and CONTROL_MAP.md is current
+        run: |
+          node scripts/compliance/validate-controls.mjs --check
+
+  collect:
+    name: Collect and store evidence
+    needs: validate
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: compliance-evidence
+    env:
+      COMPLIANCE_INGEST_URL: ${{ secrets.COMPLIANCE_INGEST_URL }}
+      COMPLIANCE_INGEST_TOKEN: ${{ secrets.COMPLIANCE_INGEST_TOKEN }}
+      COMPLIANCE_GITHUB_TOKEN: ${{ secrets.COMPLIANCE_GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fail early if ingest is not configured
+        run: |
+          if [ -z "$COMPLIANCE_INGEST_URL" ] || [ -z "$COMPLIANCE_INGEST_TOKEN" ]; then
+            echo "::error::COMPLIANCE_INGEST_URL / COMPLIANCE_INGEST_TOKEN are not set; evidence cannot be stored."
+            exit 1
+          fi
+
+      - name: Collect repository and GitHub evidence
+        run: node scripts/compliance/evidence.mjs collect --out evidence-out
+
+      # Redundant copy outside Supabase: 400-day retention, hash manifest included.
+      - name: Upload evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-evidence-${{ github.run_id }}
+          path: evidence-out/
+          retention-days: 400
+          if-no-files-found: error
+
+      - name: Sync control definitions
+        run: node scripts/compliance/evidence.mjs sync
+
+      - name: Push CI evidence
+        run: node scripts/compliance/evidence.mjs push --dir evidence-out
+
+      - name: Collect Supabase-side evidence
+        run: node scripts/compliance/evidence.mjs collect-remote
