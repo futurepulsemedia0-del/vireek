@@ -111,6 +111,9 @@ const PilotResultsPage = lazy(() => import('@/pages/PilotResultsPage').then((m) 
 const MoneyRecoveredStatementsPage = lazy(() => import('@/pages/MoneyRecoveredStatementsPage').then((m) => ({ default: m.MoneyRecoveredStatementsPage })));
 const ValueScoreboardPage = lazy(() => import('@/pages/ValueScoreboardPage').then((m) => ({ default: m.ValueScoreboardPage })));
 const StaffValueScoreboardPage = lazy(() => import('@/pages/StaffValueScoreboardPage').then((m) => ({ default: m.StaffValueScoreboardPage })));
+const ResultsPlanPage = lazy(() => import('@/pages/ResultsPlanPage').then((m) => ({ default: m.ResultsPlanPage })));
+const HowWeVerifyPage = lazy(() => import('@/pages/HowWeVerifyPage').then((m) => ({ default: m.HowWeVerifyPage })));
+const StaffResultsPlanPage = lazy(() => import('@/pages/StaffResultsPlanPage').then((m) => ({ default: m.StaffResultsPlanPage })));
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
 const BusinessDecisionEnginePage = lazy(() => import('@/pages/BusinessDecisionEnginePage').then((m) => ({ default: m.BusinessDecisionEnginePage })));
 const ChiefOfStaffPage = lazy(() => import('@/pages/ChiefOfStaffPage').then((m) => ({ default: m.ChiefOfStaffPage })));
@@ -776,6 +779,7 @@ function AppRoutes() {
        <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
         <Route path="/staff/open-voice-benchmark" element={<StaffRoute><StaffOpenVoiceBenchmarkPage /></StaffRoute>} />
        <Route path="/staff/value-scoreboard" element={<StaffRoute><StaffValueScoreboardPage /></StaffRoute>} />
+        <Route path="/staff/results-plan" element={<StaffRoute><StaffResultsPlanPage /></StaffRoute>} />
         <Route
           path="/staff/partners"
           element={
@@ -929,6 +933,7 @@ function AppRoutes() {
         <Route path="/locations/:city" element={<LocationCityPage />} />
         <Route path="/locations/:city/:trade" element={<LocationTradePage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/how-we-verify" element={<HowWeVerifyPage />} />
         <Route path="/enterprise" element={<EnterprisePage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/sdks" element={<SdksPage />} />
@@ -2751,6 +2756,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/dashboard/results-plan" element={<ProtectedRoute><ResultsPlanPage /></ProtectedRoute>} />
         <Route path="/dashboard/pilot-results" element={<ProtectedRoute><PilotResultsPage /></ProtectedRoute>} />
         <Route
           path="/dashboard/results"
