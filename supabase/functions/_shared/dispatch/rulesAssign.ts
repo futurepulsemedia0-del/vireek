@@ -8,7 +8,9 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2.57.4';
 import { assignBestTechnician, type AssignResult } from './assign.ts';
 import { dayKey, loadRulesContext, loadVipCustomerIds, toEngineJob, type RulesContext } from './rulesContext.ts';
-import { loadsForDay, rankTechnicians, snapshotForAudit, type RankResult } from './rulesEngine.ts';
+import { driveMinutes, loadsForDay, rankTechnicians, snapshotForAudit, type RankResult } from './rulesEngine.ts';
+import { attemptOrder, buildRandomizationLog, planRandomization } from './nearTieRandomization.ts';
+import { loadRandomizationSettings } from './randomizationSettings.ts';
 import { buildDispatchEvidence, recordAiDecision } from '../governance/aiDecisionRecorder.ts';
 import { DEFAULT_EXPLORATION_CONFIG, POLICY_VERSION, selectWithExploration, type ExplorationCandidate, type ExplorationOutcome } from './exploration.ts';
 import { applyOutcome, loadExplorationPolicy, type PolicyContext } from './explorationPolicy.ts';
@@ -34,6 +36,7 @@ const CAUSAL_COLUMNS = ['propensity', 'indifference_set', 'set_size', 'arm', 'po
 async function logDecision(admin: SupabaseClient, row: Record<string, unknown>) {
   try {
     const { error } = await admin.from('dispatch_decisions').insert(row);
+    if (error) console.error(JSON.stringify({ event: 'dispatch_decision_log_failed', error: error.message }));
     if (!error) return;
     // Edge function deployed before the causal-dispatch migration: keep the audit row, drop only the new columns.
     if ((error.code === '42703' || error.code === 'PGRST204') && CAUSAL_COLUMNS.some((c) => String(error.message).includes(c))) {
@@ -69,6 +72,10 @@ export async function assignJobsWithRules(admin: SupabaseClient, userId: string,
   }
 
   if (!ctx.rules.some((r) => r.enabled)) return legacy(admin, userId, jobs);
+  
+  // Near-tie randomization: default OFF; any load failure => OFF (identical to the previous behaviour).
+  const rz = await loadRandomizationSettings(admin, userId);
+  const driveRule = ctx.rules.find((r) => r.enabled && r.rule_type === 'max_drive_time');
 
   const byId = new Map(rows.map((r) => [r.id as string, r]));
   // VIP jobs are placed first (they get first pick of capacity), then chronologically.
@@ -88,7 +95,14 @@ export async function assignJobsWithRules(admin: SupabaseClient, userId: string,
     const day = dayKey(row.scheduled_datetime as string | null) ?? dayKey(new Date().toISOString())!;
     const ranking: RankResult = rankTechnicians({ job: engineJob, technicians: ctx.technicians, rules: ctx.rules, territories: ctx.territories, preferences: ctx.preferences, loads: loadsForDay(ctx.openJobs, day, job.id) });
     const audit = { rules_applied: ranking.rules_applied, margin: ranking.margin, candidates: snapshotForAudit(ranking) };
-
+    const plan = planRandomization({
+      settings: rz,
+      job: { id: job.id, service_type: engineJob.service_type, is_vip: engineJob.is_vip },
+      ranked: ranking.ranked,
+      etaMinutes: (id) => { const t = ctx.technicians.find((x) => x.id === id); return t ? driveMinutes(t, engineJob, driveRule) : null; },
+    });
+    const attempts = attemptOrder(ranking.ranked.filter((r) => r.eligible), plan);
+    
         const pick = decideTechnician(userId, job.id, engineJob.is_vip, ranking, ctx, policy);
     const eligibleInOrder = ranking.ranked.filter((r) => r.eligible);
     // The randomized pick goes first; every other eligible technician stays behind it in engine order as the fallback.
