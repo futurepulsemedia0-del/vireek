@@ -135,6 +135,44 @@ body {
       radial-gradient(ellipse 60% 45% at 50% 115%, rgb(var(--accent-primary) / 0.10), transparent 62%);
   }
 
+  /*
+   * Icon scale + touch-target tokens (docs/design/ICON_SCALE.md).
+   * Four icon sizes, one constant stroke. rem-based so icons follow the user's font-size setting.
+   * `.hit-area` expands the tappable area of a small control to >= 44x44 CSS px WITHOUT changing its visual box,
+   * layout, focus ring (box-shadow on the element itself) or hover shape. Needs a positioned element (the codemod adds `relative`).
+   */
+  :root {
+    --icon-micro: 0.75rem;
+    --icon-sm: 1rem;
+    --icon-md: 1.25rem;
+    --icon-lg: 1.5rem;
+    --icon-stroke: 2;
+    --hit-target: 2.75rem;
+  }
+  .icon-micro,
+  .icon-sm,
+  .icon-md,
+  .icon-lg {
+    flex-shrink: 0;
+    stroke-width: var(--icon-stroke);
+  }
+  .icon-micro { width: var(--icon-micro); height: var(--icon-micro); }
+  .icon-sm { width: var(--icon-sm); height: var(--icon-sm); }
+  .icon-md { width: var(--icon-md); height: var(--icon-md); }
+  .icon-lg { width: var(--icon-lg); height: var(--icon-lg); }
+
+  .hit-area::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, var(--hit-target));
+    height: max(100%, var(--hit-target));
+    transform: translate(-50%, -50%);
+  }
+  /* Dense desktop tables: opt out explicitly (documented minimum 32px, never below 24px). */
+  .hit-area-none::after { content: none; }
+
   .focus-ring {
     outline: 2px solid transparent;
     outline-offset: 2px;
