@@ -1,0 +1,116 @@
+{
+  "dashboard": {
+    "title": "SOC 2 readiness controls",
+    "subtitle": "Internal view of control status and evidence freshness. Staff only.",
+    "notice": "This is readiness tracking, not a SOC 2 report. Vireek has not completed an audit. “Met” means implemented in the repository with automated evidence; it does not mean audited.",
+    "refresh": "Refresh",
+    "export": {
+      "controls": "Export controls (CSV)",
+      "evidence": "Export evidence index (CSV)",
+      "bundle": "Export auditor bundle (JSON)",
+      "failed": "Export failed. Try again."
+    },
+    "loading": "Loading controls",
+    "error": {
+      "title": "Could not load controls",
+      "body": "The control list could not be loaded. You may not have staff access, or the database migration has not been applied.",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "No controls synced yet",
+      "body": "Run the “sync” step of the evidence workflow to load docs/compliance/soc2/controls.json into the database."
+    },
+    "summary": {
+      "total": "Controls",
+      "met": "Met",
+      "partial": "Partial",
+      "missing": "Missing",
+      "attention": "Need attention",
+      "unassigned": "No owner assigned"
+    },
+    "filter": {
+      "label": "Show",
+      "all": "All controls",
+      "attention": "Needs attention only"
+    },
+    "table": {
+      "caption": "SOC 2 controls with declared status and evidence state",
+      "control": "Control",
+      "criteria": "Criteria",
+      "status": "Declared status",
+      "evidence": "Evidence",
+      "owner": "Owner",
+      "lastEvidence": "Last evidence",
+      "nextDue": "Next due"
+    },
+    "status": {
+      "met": "Met",
+      "partial": "Partial",
+      "missing": "Missing"
+    },
+    "state": {
+      "fresh": "Fresh",
+      "overdue": "Overdue",
+      "failing": "Failing",
+      "incomplete": "Incomplete",
+      "never": "No evidence yet",
+      "not_applicable": "Verify outside repo"
+    },
+    "owner": {
+      "unassigned": "Unassigned",
+      "proposed": "Proposed role: {{role}}"
+    },
+    "date": {
+      "none": "—"
+    },
+    "detail": {
+      "gap": "Gap / unverified",
+      "collectors": "Evidence collectors",
+      "none": "None configured"
+    },
+    "noMatch": "No controls match this filter."
+  },
+  "claims": {
+    "heading": "What we can show evidence for",
+    "intro": "Each item is marked “Evidenced” only while automated checks keep confirming it. Anything else stays “In progress”.",
+    "footnote": "This is not a SOC 2 report or certification. Vireek has not completed a SOC 2 audit.",
+    "state": {
+      "evidenced": "Evidenced",
+      "in_progress": "In progress"
+    },
+    "verified": "Last verified {{date}}",
+    "unverified": "Not yet verified",
+    "tenant_isolation_rls": {
+      "title": "Account isolation in the database",
+      "body": "Every application table has row-level security enabled, checked automatically."
+    },
+    "automated_security_scanning": {
+      "title": "Automated security scanning",
+      "body": "Dependency audit, code analysis and secret scanning run on a schedule and on code changes, with no critical or high findings past our target fix times."
+    },
+    "automated_ci_checks": {
+      "title": "Automated checks on code changes",
+      "body": "Linting, type checks, tests and builds run automatically, and recent runs on the main branch are passing."
+    },
+    "availability_monitoring": {
+      "title": "Continuous call-answering monitoring",
+      "body": "Synthetic test calls and service-level objectives monitor whether the AI answers calls; probes ran within the last day."
+    },
+    "vulnerability_disclosure": {
+      "title": "Security contact and disclosure policy",
+      "body": "A security.txt file and a vulnerability disclosure page are published and current."
+    },
+    "backup_and_restore_testing": {
+      "title": "Backups and restore testing",
+      "body": "Application backups complete at least daily and a restore drill has passed within the last eight days."
+    },
+    "enforced_mfa_for_staff": {
+      "title": "Multi-factor authentication for Vireek staff",
+      "body": "Every Vireek staff account has a verified second factor enrolled."
+    },
+    "independent_penetration_test": {
+      "title": "Independent penetration test",
+      "body": "A third-party penetration test has been completed and recorded."
+    }
+  }
+}
