@@ -178,8 +178,14 @@ const RUN_RE = /[A-Za-z0-9_:[\]\/.%!#()-]+(?:\s+[A-Za-z0-9_:[\]\/.%!#()-]+)*/g;
 const HAS_CANDIDATE = /(-(slate|gray|zinc|neutral|stone|red|rose|orange|amber|yellow|green|emerald|lime|teal|blue|sky|cyan|indigo|violet|purple|fuchsia|pink|accent|cta|success|danger|warning|info)-\d{2,3}|(bg|border|divide)-(white|black)|(?<![\w-])text-(white|black)(?![\w-]))/;
 // Latent typos found by the audit: these class names never existed in tailwind.config.js, so they silently did nothing.
 const TYPOS = [[/\bborder-border-primary\b/g, 'border-border'], [/\bdivide-border-primary\b/g, 'divide-border'], [/\bbg-accent-secondary\b/g, 'bg-cta']];
+// Repeated literal patterns with a token equivalent (found by the re-measure audit)
+const LITERAL_RULES = [
+  [/accent-\[var\(--[a-z-]+,#[0-9a-fA-F]{6}\)\]/g, 'accent-accent'],
+  [/rgba\(255,255,255,0\.14\), transparent 45%/g, 'rgb(var(--static-white) / 0.14), transparent 45%'],
+];
 function transformFile(text) {
   for (const [re, to] of TYPOS) text = text.replace(re, to);
+  for (const [re, to] of LITERAL_RULES) text = text.replace(re, to);
   let out = text.replace(RUN_RE, (run) => (HAS_CANDIDATE.test(run) && run.length < 4000 ? transformClassString(run) : run));
   out = transformHex(out);
   return out;
