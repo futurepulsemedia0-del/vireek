@@ -1,0 +1,202 @@
+{
+  "_readme": "Documented allowlist for colour literals (hex/rgb()/hsl()) outside the token files. Every entry needs a category with a reason. `max` may only go DOWN (node scripts/color/check-colors.mjs --update-baseline lowers it). New files are never added automatically: convert to tokens, add `// color-ok: <reason>` on the line, or add an entry here in review.",
+  "categories": {
+    "brand-asset": "Brand marks, logo construction and the brand guide render the exact brand hex on purpose; they document or ARE the identity, so they must not follow theme tokens.",
+    "tenant-brand-data": "Tenant-entered or tenant-default brand colours (hex strings stored in the database, colour pickers, validators, placeholders and \"must look like #1A2B3C\" hints). The value is data, not a Vireek theme colour.",
+    "document-output": "PDF, print, e-mail HTML, QR codes, labels and exported canvases. These render outside the app DOM where CSS variables do not exist, so resolved hex is required.",
+    "persisted-data-palette": "Categorical palettes stored with records or sent as data (zones, outcomes, graph node kinds, territories). Changing them needs a data migration; to be moved to viz tokens separately.",
+    "token-docs": "Token documentation page: displays resolved hex values of the tokens on purpose.",
+    "third-party-surface": "Embeddable badge/widget preview that must look identical on third-party sites regardless of the visitor's Vireek theme.",
+    "forced-print-bw": "Print stylesheet forces pure black on white regardless of theme (ink/toner and legibility)."
+  },
+  "files": {
+    "src/components/brand/BrandLogoGuide.tsx": {
+      "category": "brand-asset",
+      "max": 14
+    },
+    "src/components/brand/Logo.tsx": {
+      "category": "brand-asset",
+      "max": 3
+    },
+    "src/components/brand/LogoConstruction.tsx": {
+      "category": "brand-asset",
+      "max": 1
+    },
+    "src/components/chatWidget/ChatWidgetPreview.tsx": {
+      "category": "third-party-surface",
+      "max": 4
+    },
+    "src/components/data-platform/EmbedsTab.tsx": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/components/documentTemplates/DesignerPanel.tsx": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/components/documentTemplates/DocumentPreview.tsx": {
+      "category": "document-output",
+      "max": 8
+    },
+    "src/components/locations/BrandsPanel.tsx": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/components/passport/EquipmentPassportLabel.tsx": {
+      "category": "document-output",
+      "max": 6
+    },
+    "src/lib/bookingPolicy.ts": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/lib/brand/brandConfig.ts": {
+      "category": "brand-asset",
+      "max": 4
+    },
+    "src/lib/branding.ts": {
+      "category": "tenant-brand-data",
+      "max": 12
+    },
+    "src/lib/canvassing.ts": {
+      "category": "persisted-data-palette",
+      "max": 10
+    },
+    "src/lib/chatWidget.ts": {
+      "category": "tenant-brand-data",
+      "max": 5
+    },
+    "src/lib/dailyBriefing.ts": {
+      "category": "document-output",
+      "max": 12
+    },
+    "src/lib/directMail.ts": {
+      "category": "tenant-brand-data",
+      "max": 2
+    },
+    "src/lib/documentTemplates.ts": {
+      "category": "document-output",
+      "max": 5
+    },
+    "src/lib/dvir.ts": {
+      "category": "document-output",
+      "max": 2
+    },
+    "src/lib/geofences.ts": {
+      "category": "persisted-data-palette",
+      "max": 8
+    },
+    "src/lib/inspectionReportPdf.ts": {
+      "category": "document-output",
+      "max": 1
+    },
+    "src/lib/inventory.ts": {
+      "category": "persisted-data-palette",
+      "max": 3
+    },
+    "src/lib/jobAutopsy.ts": {
+      "category": "persisted-data-palette",
+      "max": 7
+    },
+    "src/lib/jobCosting.ts": {
+      "category": "persisted-data-palette",
+      "max": 6
+    },
+    "src/lib/landingPageUtils.ts": {
+      "category": "tenant-brand-data",
+      "max": 4
+    },
+    "src/lib/locations.ts": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/lib/marketingCreative.ts": {
+      "category": "tenant-brand-data",
+      "max": 8
+    },
+    "src/lib/paymentElement.ts": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/lib/richMessaging.ts": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/lib/serviceAreas.ts": {
+      "category": "persisted-data-palette",
+      "max": 8
+    },
+    "src/lib/serviceGraph.ts": {
+      "category": "persisted-data-palette",
+      "max": 18
+    },
+    "src/lib/telephonyBrand.ts": {
+      "category": "document-output",
+      "max": 2
+    },
+    "src/lib/trustBadge/core.ts": {
+      "category": "third-party-surface",
+      "max": 4
+    },
+    "src/lib/trustPack/notices.ts": {
+      "category": "document-output",
+      "max": 3
+    },
+    "src/lib/universalIdentity.ts": {
+      "category": "persisted-data-palette",
+      "max": 12
+    },
+    "src/lib/websiteWidgets.ts": {
+      "category": "tenant-brand-data",
+      "max": 2
+    },
+    "src/pages/AdvancedRoutingPage.tsx": {
+      "category": "persisted-data-palette",
+      "max": 1
+    },
+    "src/pages/BadgePage.tsx": {
+      "category": "third-party-surface",
+      "max": 6
+    },
+    "src/pages/BookingSettingsPage.tsx": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/pages/BrandingSettingsPage.tsx": {
+      "category": "tenant-brand-data",
+      "max": 6
+    },
+    "src/pages/ChatWidgetSettingsPage.tsx": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/pages/LandingPagesPage.tsx": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/pages/RichMessagingSettingsPage.tsx": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/pages/TokensPreview.tsx": {
+      "category": "token-docs",
+      "max": 53
+    },
+    "src/pages/WalletLandingPage.tsx": {
+      "category": "tenant-brand-data",
+      "max": 2
+    },
+    "src/pages/WebsiteWidgetsPage.tsx": {
+      "category": "tenant-brand-data",
+      "max": 1
+    },
+    "src/styles/print-documents.css": {
+      "category": "forced-print-bw",
+      "max": 2
+    },
+    "src/styles/print.css": {
+      "category": "forced-print-bw",
+      "max": 2
+    }
+  }
+}
