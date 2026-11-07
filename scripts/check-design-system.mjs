@@ -86,6 +86,9 @@ function checkLoadingStandard(filePath) {
   if (usesLoader2AsPageLoader && !importsSkeleton) {
     const m = /<Loader2[^>]*size=\{?(2[4-9]|[3-9]\d)/.exec(text);
     const lineIdx = m ? text.slice(0, m.index).split('\n').length - 1 : 0;
+    // Explicit, auditable opt-out: `ds-allow-loader: <reason ≥ 15 chars>` on the Loader2 line or the 2 lines above.
+    const near = text.split('\n').slice(Math.max(0, lineIdx - 2), lineIdx + 1).join('\n');
+    if (/ds-allow-loader:\s*\S.{14,}/.test(near)) return;
     violations.push({
       rule: 'loading-standard',
       file: rel,
