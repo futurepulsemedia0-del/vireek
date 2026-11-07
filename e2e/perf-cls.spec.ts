@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-const ROUTES = ['/', '/pricing', '/login', '/faq', '/security', '/accessibility-statement'];
+const ROUTES = ['/', '/pricing', '/login', '/faq', '/security', '/accessibility-statement', '/blog', '/press', '/leadership', '/brand'];
 const CLS_BUDGET = 0.05;
 
 for (const path of ROUTES) {
