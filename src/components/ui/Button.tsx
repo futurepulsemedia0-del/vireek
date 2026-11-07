@@ -19,6 +19,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
   iconOnly?: boolean;
   tooltip?: string;
+  /** Stretches to the container width (w-full). */
+  fullWidth?: boolean;
+  /** 'cta' swaps the primary fill to the brand CTA colour. Only affects variant="primary". */
+  tone?: 'default' | 'cta';
 }
 
 const baseStyles = `focus-ring relative inline-flex items-center justify-center gap-2 rounded-xl font-semibold ${motionClass} ${pressable} ${disabledLook}`;
@@ -36,7 +40,7 @@ const surfaceFor: Record<ButtonVariant, SurfaceKind> = { primary: 'solid', secon
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { variant = 'primary', size = 'md', className = '', children, loading = false, loadingLabel, disabledReason, selected, iconOnly = false, tooltip, disabled, onClick, ...props },
+    { variant = 'primary', size = 'md', className = '', children, loading = false, loadingLabel, disabledReason, selected, iconOnly = false, tooltip, fullWidth = false, tone = 'default', disabled, onClick, ...props },
     ref,
   ) => {
     const { t } = useTranslation();
@@ -69,7 +73,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         data-selected={selected || undefined}
         data-loading={loading || undefined}
         onClick={handleClick}
-        className={`${baseStyles} ${iconOnly ? iconSizeStyles[size] : sizeStyles[size]} ${surfaceClass(surfaceFor[variant])} ${className}`}
+        className={`${baseStyles} ${iconOnly ? iconSizeStyles[size] : sizeStyles[size]} ${variant === 'primary' && tone === 'cta' ? surfaceClass(surfaceFor[variant]).replace('bg-accent', 'bg-cta') : surfaceClass(surfaceFor[variant])} ${fullWidth ? 'w-full' : ''} ${className}`}
         {...props}
       >
         {/* opacity-0 (not invisible/hidden) so the accessible name survives while loading */}
