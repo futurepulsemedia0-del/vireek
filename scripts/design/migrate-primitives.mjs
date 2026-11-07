@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-// Conservative codemod for design-system Rule 2 (Card) and Rule 3 (primary Button).
-//   node scripts/design/migrate-primitives.mjs                       # dry run
-//   node scripts/design/migrate-primitives.mjs --write --limit=40    # apply a batch
-//   node scripts/design/migrate-primitives.mjs --rule=card|button
-//   node scripts/design/migrate-primitives.mjs --queue               # manual-migration queue
+// scripts/design/migrate-primitives.mjs
+//
+// Conservative codemod for design-system Rule 2 (Card), Rule 3 (primary Button) and Rule 5 (EmptyState).
+//   node scripts/design/migrate-primitives.mjs                          # dry run
+//   node scripts/design/migrate-primitives.mjs --write --limit=40       # apply a batch
+//   node scripts/design/migrate-primitives.mjs --rule=card|button|empty # one rule only
+//   node scripts/design/migrate-primitives.mjs --queue                  # manual-migration queue
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
@@ -31,6 +33,7 @@ function walk(dir, out = []) {
   return out;
 }
 
+/** End index (exclusive) of an opening tag starting at `start` ('<'), skipping braces and quotes. */
 function tagEnd(text, start) {
   let depth = 0;
   let quote = null;
@@ -51,6 +54,7 @@ function tagEnd(text, start) {
 
 const lineOf = (text, idx) => text.slice(0, idx).split('\n').length;
 
+/** Index of the matching `</tag>` for an opening tag that ends at `from`. */
 function matchingClose(text, tag, from) {
   const re = new RegExp(`<${tag}\\b|</${tag}>`, 'g');
   re.lastIndex = from;
@@ -69,11 +73,19 @@ function matchingClose(text, tag, from) {
   return -1;
 }
 
-function addImport(text, name, from) {
-  const already = new RegExp(`import[^;]*\\b${name}\\b[^;]*from\\s+['"]${from.replace(/[/]/g, '\\/')}['"]`).test(text);
-  if (already) return text;
+/** Adds named imports, merging into an existing `import { … } from '<from>'` when there is one. */
+function addImport(text, names, from) {
+  const wanted = names.split(',').map((s) => s.trim()).filter(Boolean);
+  const esc = from.replace(/[/]/g, '\\/');
+  const existing = new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s*['"]${esc}['"];?`).exec(text);
+  if (existing) {
+    const have = existing[1].split(',').map((s) => s.trim()).filter(Boolean);
+    const merged = [...have, ...wanted.filter((w) => !have.includes(w))];
+    if (merged.length === have.length) return text;
+    return text.replace(existing[0], `import { ${merged.join(', ')} } from '${from}';`);
+  }
   const imports = [...text.matchAll(/^import[\s\S]*?from\s+['"][^'"]+['"];?[ \t]*$/gm)];
-  const stmt = `import { ${name} } from '${from}';`;
+  const stmt = `import { ${wanted.join(', ')} } from '${from}';`;
   if (!imports.length) return `${stmt}\n${text}`;
   const last = imports[imports.length - 1];
   const at = last.index + last[0].length;
@@ -88,12 +100,15 @@ function conflictingIdentifier(text, name, from) {
 
 const CLASS_ATTR = /\sclassName=(?:"([^"]*)"|'([^']*)')/;
 
+// ---------------------------------------------------------------- Rule 2
 function migrateCards(rel, text) {
   if (conflictingIdentifier(text, 'Card', '@/components/ui/Card')) {
     if (CARD_RE.test(text)) queue.push({ file: rel, line: 0, rule: 'card', reason: 'file already defines/imports another `Card`' });
     return { text, n: 0 };
   }
   let n = 0;
+  let usedMotion = false;
+  let usedPlain = false;
   let out = text;
   let search = 0;
   for (;;) {
@@ -111,18 +126,21 @@ function migrateCards(rel, text) {
       continue;
     }
     const line = lineOf(out, hit.index);
-    if (hit[1] !== 'div') {
+    if (hit[1] !== 'div' && hit[1] !== 'motion.div') {
       queue.push({ file: rel, line, rule: 'card', reason: `host element <${hit[1]}> (Card renders a div)` });
       continue;
     }
+    const isMotion = hit[1] === 'motion.div';
+    const comp = isMotion ? 'MotionCard' : 'Card';
+    const closeTag = isMotion ? 'motion.div' : 'div';
     if (/\s(onClick|onKeyDown|role|tabIndex|ref)=/.test(open) || /\{\.\.\./.test(open)) {
       queue.push({ file: rel, line, rule: 'card', reason: 'interactive/ref/spread props (Card would add role/tabIndex)' });
       continue;
     }
     if (open.endsWith('/>')) continue;
-    const close = matchingClose(out, 'div', end);
+    const close = matchingClose(out, closeTag.replace('.', '\\.'), end);
     if (close < 0) {
-      queue.push({ file: rel, line, rule: 'card', reason: 'no matching </div> found' });
+      queue.push({ file: rel, line, rule: 'card', reason: `no matching </${closeTag}> found` });
       continue;
     }
     const pad = /p-([68])\b/.exec(cls[1] ?? cls[2])[1] === '6' ? 'md' : 'lg';
@@ -130,17 +148,26 @@ function migrateCards(rel, text) {
       .split(/\s+/)
       .filter((t) => !['rounded-2xl', 'border', 'border-border', 'bg-bg-secondary', 'p-6', 'p-8', 'shadow-card', 'dark:shadow-card-dark'].includes(t))
       .join(' ');
-    const attrs = open.slice('<div'.length, -1).replace(CLASS_ATTR, '').trimEnd();
+    const attrs = open
+      .slice(`<${closeTag}`.length, -1)
+      .replace(CLASS_ATTR, '')
+      .trimEnd();
     const props = `${pad === 'md' ? ' padding="md"' : ''} interactive={false}${rest ? ` className="${rest}"` : ''}`;
-    const newOpen = `<Card${props}${attrs ? ` ${attrs.trimStart()}` : ''}>`;
-    out = `${out.slice(0, hit.index)}${newOpen}${out.slice(end, close)}</Card>${out.slice(close + '</div>'.length)}`;
+    const newOpen = `<${comp}${props}${attrs ? ` ${attrs.trimStart()}` : ''}>`;
+    out = `${out.slice(0, hit.index)}${newOpen}${out.slice(end, close)}</${comp}>${out.slice(close + `</${closeTag}>`.length)}`;
+    if (isMotion) usedMotion = true;
+    else usedPlain = true;
     search = hit.index + newOpen.length;
     n++;
   }
-  if (n) out = addImport(out, 'Card', '@/components/ui/Card');
+  if (n) {
+    const names = [usedPlain ? 'Card' : '', usedMotion ? 'MotionCard' : ''].filter(Boolean).join(', ');
+    out = addImport(out, names, '@/components/ui/Card');
+  }
   return { text: out, n };
 }
 
+// ---------------------------------------------------------------- Rule 3
 const DROP = [
   /^rounded-xl$/, /^bg-(accent|cta)$/, /^text-white$/, /^focus-ring$/, /^px-[\d.]+$/, /^py-[\d.]+$/, /^text-(xs|sm|base)$/,
   /^font-(medium|semibold)$/, /^hover:(brightness-110|bg-accent\/90|opacity-90)$/, /^transition-(all|colors|opacity)$/,
@@ -210,27 +237,62 @@ function migrateButtons(rel, text) {
   return { text: out, n };
 }
 
+// ---------------------------------------------------------------- Rule 5
+// Only the unambiguous shape: <p className="…">No X yet.</p> with plain text. Everything else is queued.
+const EMPTY_P = /<p\b([^<>]*)>\s*(No [^<>{}"]{2,40}(?:found|yet)\.?)\s*<\/p>/gi;
+const EMPTY_DROP = [/^text-(xs|sm|base)$/, /^text-text-secondary$/, /^text-slate-\d+$/, /^dark:text-slate-\d+$/, /^text-center$/, /^py-\d+$/];
+const EMPTY_KEEP = /^-?m[tbxy]-\d+(\.\d+)?$/;
+
+function migrateEmpty(rel, text) {
+  if (conflictingIdentifier(text, 'EmptyState', '@/components/EmptyState')) return { text, n: 0 };
+  let n = 0;
+  const out = text.replace(EMPTY_P, (full, attrs, copy, offset) => {
+    const cls = CLASS_ATTR.exec(` ${attrs}`);
+    const line = lineOf(text, offset);
+    const tokens = cls ? (cls[1] ?? cls[2]).split(/\s+/).filter(Boolean) : [];
+    const rest = attrs.replace(CLASS_ATTR, '').trim();
+    const unknown = tokens.filter((tk) => !EMPTY_DROP.some((r) => r.test(tk)) && !EMPTY_KEEP.test(tk));
+    if (rest || unknown.length || (!cls && attrs.trim())) {
+      queue.push({ file: rel, line, rule: 'empty', reason: `<p> has extra attrs/tokens: ${[rest, ...unknown].filter(Boolean).join(' ')}` });
+      return full;
+    }
+    const keep = tokens.filter((tk) => EMPTY_KEEP.test(tk)).join(' ');
+    n++;
+    return `<EmptyState compact title="${copy.trim()}"${keep ? ` className="${keep}"` : ''} />`;
+  });
+  // Report what remains so the checker's file-level import exemption cannot hide it.
+  for (const m of out.matchAll(/>\s*No [^<>{}]{2,40}(?:found|yet)\.?\s*</gi)) {
+    queue.push({ file: rel, line: lineOf(out, m.index), rule: 'empty', reason: 'bare "No X" copy that is not a plain <p> (li/td/span/h2/h3/div/option)' });
+  }
+  return { text: n ? addImport(out, 'EmptyState', '@/components/EmptyState') : out, n };
+}
+
+// ---------------------------------------------------------------- main
 const report = [];
 let written = 0;
 for (const file of walk(join(ROOT, 'src'))) {
   const rel = relative(ROOT, file);
   const src = readFileSync(file, 'utf8');
-  if (!CARD_RE.test(src) && !BTN_RE.test(src)) continue;
+  if (!CARD_RE.test(src) && !BTN_RE.test(src) && !/>\s*No [^<>{}]{2,40}(?:found|yet)\.?\s*</i.test(src)) continue;
   let text = src;
   let cards = 0;
   let buttons = 0;
-  if (ONLY !== 'button') ({ text, n: cards } = migrateCards(rel, text));
-  if (ONLY !== 'card') ({ text, n: buttons } = migrateButtons(rel, text));
-  if (!cards && !buttons) continue;
+  let empties = 0;
+  if (!ONLY || ONLY === 'card') ({ text, n: cards } = migrateCards(rel, text));
+  if (!ONLY || ONLY === 'button') ({ text, n: buttons } = migrateButtons(rel, text));
+  if (!ONLY || ONLY === 'empty') ({ text, n: empties } = migrateEmpty(rel, text));
+  if (!cards && !buttons && !empties) continue;
   if (WRITE && written >= LIMIT) break;
-  report.push({ rel, cards, buttons });
+  report.push({ rel, cards, buttons, empties });
   if (WRITE) {
     writeFileSync(file, text);
     written++;
   }
 }
 
-if (QUEUE) for (const q of queue) console.log(`${q.file}:${q.line}\t[${q.rule}]\t${q.reason}`);
+if (QUEUE) {
+  for (const q of queue) console.log(`${q.file}:${q.line}\t[${q.rule}]\t${q.reason}`);
+}
 const sum = (k) => report.reduce((a, r) => a + r[k], 0);
-console.log(`${WRITE ? 'WROTE' : 'DRY RUN'}: ${report.length} files, ${sum('cards')} <Card>, ${sum('buttons')} <Button>, ${queue.length} queued for manual migration`);
+console.log(`${WRITE ? 'WROTE' : 'DRY RUN'}: ${report.length} files, ${sum('cards')} <Card>, ${sum('buttons')} <Button>, ${sum('empties')} <EmptyState compact>, ${queue.length} queued for manual migration`);
 if (!WRITE) console.log('Re-run with --write --limit=40 to apply a batch.');
