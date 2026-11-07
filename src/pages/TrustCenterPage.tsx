@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { useSEO } from '@/lib/seo';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { SUBPROCESSOR_CATEGORIES } from '@/lib/subprocessors';
+import { TrustClaimsSection } from '@/components/compliance/TrustClaimsSection';
 
 // ============================================================
 // CONTENT
@@ -413,6 +414,7 @@ export function TrustCenterPage() {
           </div>
         </section>
 
+        <TrustClaimsSection />
         {/* Resources */}
         <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-4xl">
