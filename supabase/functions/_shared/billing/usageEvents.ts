@@ -21,6 +21,7 @@ export function estimateSmsSegments(body: string): number {
   return u16 <= 70 ? 1 : Math.ceil(u16 / 67);
 }
 
+import { appendPricedUsage } from "../economics/usageLedger.ts";
 interface InsertClient {
   from(table: string): {
     upsert(rows: unknown, opts: { onConflict: string; ignoreDuplicates: boolean }): PromiseLike<{ error: { message: string } | null }>;
@@ -38,6 +39,7 @@ export async function recordUsageEvent(
       { onConflict: "source,ref", ignoreDuplicates: true },
     );
     if (error) console.error("[usage-event] not recorded:", error.message);
+      else await appendPricedUsage(admin, { userId: e.userId, component: e.component, quantity: e.quantity, source: e.source, ref: e.ref, estimated: e.estimated ?? true });
   } catch (err) {
     console.error("[usage-event] not recorded:", err);
   }
