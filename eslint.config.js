@@ -3,6 +3,7 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import vireekA11y from './scripts/eslint/vireek-a11y-plugin.mjs'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 import vireekImg from './eslint-rules/vireek-img.mjs'
 
@@ -61,6 +62,15 @@ export default tseslint.config(
           message: 'Use rgb(var(--token)) instead of rgb()/hsl() literals.',
         },
       ],
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}'],
+    plugins: { 'vireek-a11y': vireekA11y },
+    rules: {
+      'vireek-a11y/no-raw-icon-size': 'error',
+      'vireek-a11y/icon-only-name': 'warn', // به 'error' تغییر دهید وقتی ۵۲ مورد اصلاح شد
     },
   },
   {
