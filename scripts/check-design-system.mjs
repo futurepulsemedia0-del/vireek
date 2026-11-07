@@ -19,6 +19,7 @@
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
+import { applyTextAlphaRule } from './lib/text-alpha-rule.mjs';
 import { collectLayoutViolations } from './design/layout-guard.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
@@ -133,6 +134,8 @@ walk(SRC, (file) => {
 });
 
 collectLayoutViolations((v) => violations.push(v));
+// Rule 6 — no alpha on text colour (ratchet baseline; see scripts/lib/text-alpha-rule.mjs)
+applyTextAlphaRule(ROOT, violations);
 if (violations.length === 0) {
   console.log('✔ Design-system check passed — no drift detected.');
   process.exit(0);
@@ -154,6 +157,7 @@ const RULE_TITLES = {
   'no-raw-shadow': 'Rule 8 — Use shadow-card / shadow-elevation-1…4 / glow tokens',
   'no-static-inline-style': 'Rule 9 — Static inline style: use a class; dynamic values via cssVars()',
   'empty-state-standard': 'Rule 5 — Use <EmptyState> from @/components/EmptyState instead of bare "No X found/yet" text',
+   'no-alpha-text': 'Rule 6 — No alpha on text colour (text-x/60, opacity-60 on text). Use text-text-secondary / text-text-muted / text-text-placeholder / text-graphic-muted, or `// contrast-ok: reason`',
 };
 
 for (const [rule, items] of Object.entries(byRule)) {
