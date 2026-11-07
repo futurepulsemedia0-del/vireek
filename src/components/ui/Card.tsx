@@ -1,4 +1,5 @@
 import { HTMLAttributes, KeyboardEvent, forwardRef } from 'react';
+import { motion } from 'framer-motion';
 import { motionClass, surfaceClass } from '@/lib/ui/interaction';
 
 export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
@@ -42,3 +43,6 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 );
 
 Card.displayName = 'Card';
+
+/** Card that accepts framer-motion props (initial/animate/whileHover…). */
+export const MotionCard = motion.create(Card);
