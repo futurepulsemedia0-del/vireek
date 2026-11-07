@@ -7,6 +7,7 @@
 // NOT LEGAL ADVICE. Rule packs are a compliance aid. Every rule version must
 // be reviewed by qualified counsel before it is approved (see the staff review
 // workflow in supabase/migrations/20271110000000_compliance_rule_packs.sql).
+  import type { FmFacts, FmFix } from "./fmSubmission.ts";
 
 export const RULE_KINDS = [
   "recording_consent",
@@ -17,10 +18,17 @@ export const RULE_KINDS = [
   "rescission",
   "required_notice",
   "price_cap",
+    "fm_nte_cap",
+    "fm_proposal_before_parts",
+    "fm_invoice_deadline",
+    "fm_ineligibility_window",
+    "fm_prohibited_line_item",
+    "fm_single_invoice",
+    "fm_required_attachment",
 ] as const;
 export type RuleKind = (typeof RULE_KINDS)[number];
 
-export const SURFACES = ["call", "sms", "email", "quote", "contract"] as const;
+export const SURFACES = ["call", "sms", "email", "quote", "contract", "fm_submission"] as const;
 export type Surface = (typeof SURFACES)[number];
 
 export type Purpose = "marketing" | "service" | "emergency";
@@ -125,6 +133,8 @@ export interface EvalContext {
   consent?: Partial<Record<ConsentType, ConsentState>>;
   licenses?: BusinessLicense[];
   document?: DocumentFacts;
+    /** Facts for the fm_submission surface (portal pre-submission checks). */
+    fm?: FmFacts;
 }
 
 export type FindingStatus = "pass" | "fail" | "action" | "info";
@@ -156,13 +166,16 @@ export type ActionType =
   | "wait_until"
   | "hold_work"
   | "provide_baseline"
-  | "reduce_price";
+    | "reduce_price"
+    | "fix_before_sending";
 
 export interface RequiredAction {
   type: ActionType;
   text: string;
   versionId: string;
   ruleKey: string;
+    /** Structured fix for fm_submission findings (applied to a draft by the app; never submits). */
+    fix?: FmFix;
 }
 
 export interface SkippedRule {
