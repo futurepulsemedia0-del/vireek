@@ -3,7 +3,8 @@
 // Extracts the provider-REPORTED cost from a Vapi end-of-call-report and stores it per component.
 // These are provider-reported numbers (basis = 'provider_reported'): measured by the provider, but
 // NOT yet reconciled against a monthly invoice. Never throws: cost capture must not break call handling.
-
+import { buildLedgerRow, componentToResource } from "../economics/ledgerWriter.ts";
+import { usdToMicro } from "../economics/microDollars.ts";
 export const VAPI_COMPONENT_MAP = {
   transport: "carrier",
   stt: "asr",
@@ -63,7 +64,7 @@ export function extractVapiCostLines(message: CostMessageLike): CostLineInput[] 
 
 interface UpsertClient {
   from(table: string): {
-    upsert(rows: unknown, opts: { onConflict: string }): PromiseLike<{ error: { message: string } | null }>;
+    upsert(rows: unknown, opts: { onConflict: string; ignoreDuplicates?: boolean }): PromiseLike<{ error: { message: string } | null }>;
   };
 }
 
@@ -84,6 +85,21 @@ export async function recordCallCostLines(
     }));
     const { error } = await admin.from("call_cost_components").upsert(rows, { onConflict: "vapi_call_id,component" });
     if (error) console.error("[call-cost] not recorded:", error.message);
+    const ledgerRows = args.lines.map((l) =>
+      buildLedgerRow({
+        accountId: args.userId,
+        provider: "vapi",
+        resourceType: componentToResource(l.component),
+        component: l.component,
+        costMicro: usdToMicro(l.amountUsd),
+        basis: "provider_reported",
+        callId: args.vapiCallId,
+        source: "vapi_end_of_call_report",
+        ref: `${args.vapiCallId}:${l.component}`,
+      }),
+    );
+    const { error: ledgerErr } = await admin.from("cost_ledger").upsert(ledgerRows, { onConflict: "source,ref", ignoreDuplicates: true });
+    if (ledgerErr) console.error("[cost-ledger] not recorded:", ledgerErr.message);
   } catch (err) {
     console.error("[call-cost] not recorded:", err);
   }
