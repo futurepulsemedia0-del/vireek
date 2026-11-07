@@ -1,3 +1,5 @@
+[functions.compliance-evidence]
+verify_jwt = false
  [functions.consumer-agent]
  verify_jwt = false
 [functions.value-scoreboard-run]
