@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/Button';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+import { PricingModeSwitch } from '@/components/pricing/PricingModeSwitch';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useExperiment } from '@/contexts/ExperimentContext';
 import { formatPrice } from '@/lib/currency';
@@ -380,6 +381,7 @@ const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as Bi
           </div>
         </section>
 
+       <PricingModeSwitch>
         {/* Plan cards */}
         <section className="px-6 py-16 sm:py-20">
           <div className="mx-auto max-w-[1400px]">
@@ -410,6 +412,7 @@ const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as Bi
           </div>
         </section>
 
+        </PricingModeSwitch>
         {/* Full comparison table */}
         <section className="px-6 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl">
