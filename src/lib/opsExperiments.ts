@@ -23,7 +23,8 @@
 
 export type MetricKey = 'ftf_rate' | 'callback_rate' | 'completion_rate' | 'sla_met_rate' | 'avg_revenue';
 export type MetricUnit = 'pct' | 'usd';
-export type DesignKind = 'randomized' | 'comparison';
+   /** 'natural' = near-tie draws made by dispatch itself (see naturalRandomization.ts); no job enrollment, technician groups only. */
+   export type DesignKind = 'randomized' | 'comparison' | 'natural';
 export type ExperimentStatus = 'draft' | 'running' | 'concluded' | 'archived';
 export type Arm = 'control' | 'treatment';
 export type UnitType = 'job' | 'technician';
@@ -236,9 +237,9 @@ const HOUR = 3_600_000;
 export const MIN_CELL_N = 30;
 /** Binary outcomes need at least this many events and non-events per cell for the normal approximation. */
 export const MIN_BINARY_EVENTS = 5;
-const SRM_ALPHA = 0.001;
+export  const SRM_ALPHA = 0.001;
 
-const Z_TWO_SIDED: Record<Alpha, number> = { 0.01: 2.5758293035489, 0.05: 1.959963984540054, 0.1: 1.6448536269514722 };
+export const Z_TWO_SIDED: Record<Alpha, number> = { 0.01: 2.5758293035489, 0.05: 1.959963984540054, 0.1: 1.6448536269514722 };
 const Z_POWER_80 = 0.8416212335729143;
 
 export function normalCdf(z: number): number {
@@ -501,7 +502,7 @@ export function requiredPerArm(metric: MetricKey, design: DesignKind, baseline: 
 // ANALYSIS
 // ============================================================
 
-function benefitOf(metric: MetricKey, est: Estimate | null): number | null {
+export function benefitOf(metric: MetricKey, est: Estimate | null): number | null {
   if (!est) return null;
   return METRICS[metric].higherIsBetter ? est.effect : -est.effect;
 }
@@ -529,6 +530,8 @@ export function analyzeExperiment(
 
   let srm: SrmResult | null = null;
   if (cfg.design === 'randomized') {
+     // 'natural' is analysed from dispatch draws (analyzeNaturalExperiment), never from job cells.
+     if (cfg.design === 'natural') return cells;
     const enrolled = assignments.filter((a) => a.unit_type === 'job');
     srm = srmCheck(
       enrolled.filter((a) => a.arm === 'treatment').length,
@@ -594,6 +597,25 @@ export function analyzeExperiment(
   };
 }
 
+   export interface VerdictInput {
+     srmFailed: boolean;
+     estimate: Estimate | null;
+     benefit: number | null;
+     observedPerArm: number;
+     sparse: boolean;
+     zCritical: number;
+     informationFraction: number;
+     mde: number;
+   }
+
+   /** Single source of truth for the verdict rules (shared by every design). */
+   export function decideVerdict(v: VerdictInput): Verdict {
+     if (v.srmFailed) return 'invalid';
+     if (!v.estimate || v.observedPerArm < MIN_CELL_N || v.sparse) return 'collecting';
+     if (Math.abs(v.estimate.z) >= v.zCritical) return (v.benefit ?? 0) > 0 ? 'win' : 'loss';
+     if (v.informationFraction >= 1) return v.estimate.ciLow >= -v.mde && v.estimate.ciHigh <= v.mde ? 'no_effect' : 'inconclusive';
+     return 'collecting';
+   }
 export function recommend(verdict: Verdict, guardrail: GuardrailResult | null): Recommendation {
   switch (verdict) {
     case 'invalid':
@@ -746,7 +768,21 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     duration_days: 28,
   },
   {
-    id: 'apprenticeship-drills',
+   id: 'senior-vs-junior-near-ties',
+       label: 'Near-tie dispatch: senior vs. junior technician',
+       category: 'dispatch',
+       hypothesis: 'When two technicians are practically tied for a job, sending a senior technician instead of a junior one raises the first-time-fix rate.',
+       intervention: 'Dispatch randomly picks between practically tied technicians; the senior group is the intervention group.',
+       comparison_desc: 'The junior group, drawn by the same near-tie lottery.',
+       design: 'natural',
+       primary_metric: 'ftf_rate',
+       guardrail_metric: 'sla_met_rate',
+       guardrail_tolerance: 2,
+       min_detectable_effect: 5,
+       duration_days: 90,
+     },
+     {
+       id: 'apprenticeship-drills',
     label: 'Targeted skill drills for technicians',
     category: 'training',
     hypothesis: 'Technicians who complete targeted simulator drills fix more jobs on the first visit.',
