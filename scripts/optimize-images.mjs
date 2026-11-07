@@ -10,7 +10,7 @@ import sharp from 'sharp'
 const SRC = 'public'
 const OUT = 'public/img'
 const WIDTHS = [480, 800, 1200, 1600]
-const SKIP = /^(og-image|apple|icon|favicon|android|logo|manifest)/i
+const SKIP = /^(og-image|apple|icon|favicon|android|logo|manifest|web-app)/i
 mkdirSync(OUT, { recursive: true })
 
 const meta = {}
