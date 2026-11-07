@@ -1,5 +1,6 @@
 /* Colour tokens are GENERATED (npm run tokens:build) from scripts/color/palette.mjs — never edit them by hand. */
 @import './styles/tokens.generated.css';
+@import './styles/elevation.css';
 @import './styles/fonts.css';
 
 @tailwind base;
