@@ -125,7 +125,7 @@ export function BlogArticlePage() {
                 <div className="mx-auto max-w-3xl">
                   {post.cover && (
                     <figure className="mb-10">
-                      <img src={post.cover.src} alt={post.cover.alt} width={post.cover.width} height={post.cover.height} decoding="async" fetchPriority="high" className="h-auto w-full rounded-2xl border border-border" />
+                      <img src={post.cover.src} alt={post.cover.alt} width={post.cover.width} height={post.cover.height} decoding="async"loading="eager"  fetchPriority="high" className="h-auto w-full rounded-2xl border border-border" />
                     </figure>
                   )}
                   <TableOfContentsMobile post={post} />
