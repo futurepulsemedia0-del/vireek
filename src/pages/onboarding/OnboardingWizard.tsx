@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Loader as Loader2, Phone } from 'lucide-react';
+import { Phone } from 'lucide-react'; ت
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useOnboardingWizard } from './useOnboardingWizard';
 import { Stepper } from './Stepper';
