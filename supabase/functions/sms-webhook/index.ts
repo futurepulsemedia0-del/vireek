@@ -15,6 +15,8 @@
 // going live.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { validTwilioSignature } from "../_shared/pbx/twilio.ts";
+import { applySigPolicy } from "../_shared/http/inboundSignature.ts";
 import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { normalizePhone } from "../_shared/compliance/dncCheck.ts";
 import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
@@ -41,7 +43,17 @@ Deno.serve(async (req: Request) => {
   );
 
   try {
-    const form = await req.formData();
+const form = await req.formData();
+const sigParams: Record<string, string> = {};
+form.forEach((v, k) => { if (typeof v === "string") sigParams[k] = v; });
+const sigOk = await validTwilioSignature(
+  Deno.env.get("SMS_WEBHOOK_URL") ?? "",
+  sigParams,
+  req.headers.get("X-Twilio-Signature"),
+  Deno.env.get("TWILIO_AUTH_TOKEN") ?? "",
+);
+const sigReject = applySigPolicy("twilio-sms", { ok: sigOk, reason: sigOk ? undefined : "invalid twilio signature" });
+if (sigReject) return sigReject;
     const from = normalizePhone(String(form.get("From") ?? ""));
     const to = normalizePhone(String(form.get("To") ?? ""));
     const body = String(form.get("Body") ?? "").trim();
