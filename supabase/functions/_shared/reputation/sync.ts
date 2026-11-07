@@ -16,6 +16,7 @@ import {
   type NormalizedReview,
 } from "./engine.ts";
 import { NotConfiguredError, ReauthRequiredError, fetchReviewsFor, type ConnectionRow } from "./providers.ts";
+import { evaluateAccount } from "../review-shield/run.ts";
 
 export interface SettingsRow {
   alerts_enabled: boolean;
@@ -114,6 +115,10 @@ export async function syncConnection(
     }
 
     await markConnection({ status: "active", last_error: null, last_synced_at: now.toISOString() });
+       if (result.inserted > 0) {
+         try { await evaluateAccount(admin, conn.user_id, now); }
+         catch (shieldErr) { console.error("review_shield_eval_failed", shieldErr instanceof Error ? shieldErr.message : String(shieldErr)); }
+       }  
   } catch (e) {
     const reauth = e instanceof ReauthRequiredError || (e instanceof HttpError && (e.status === 401 || e.status === 403));
     const message = e instanceof NotConfiguredError ? "Integration isn't configured on this server." : e instanceof Error ? e.message : String(e);
