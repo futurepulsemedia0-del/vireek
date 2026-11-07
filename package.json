@@ -13,6 +13,8 @@
     "mobile:preflight": "node scripts/mobile-preflight.mjs",
     "mobile:privacy": "node scripts/check-privacy-map.mjs",
     "lint:design": "node scripts/check-design-system.mjs",
+    "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
+    "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
     "a11y:targets": "node scripts/a11y/audit-targets.mjs",
     "a11y:targets:check": "node scripts/a11y/audit-targets.mjs --check",
     "a11y:icons:codemod": "node scripts/a11y/codemod-icons.mjs --targets",
