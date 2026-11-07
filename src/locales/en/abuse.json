@@ -1,0 +1,96 @@
+{
+  "title": "Fraud & abuse",
+  "subtitle": "Toll fraud, SMS pumping and signup farming controls. Every action here is audited and reversible.",
+  "loading": "Loading abuse controls…",
+  "loadError": "Could not load abuse controls. Try again.",
+  "forbidden": "You do not have access to this page.",
+  "refresh": "Refresh",
+  "stats": {
+    "openCases": "Open cases",
+    "suspended": "Suspended accounts",
+    "throttled": "Throttled accounts",
+    "denied24h": "Blocked attempts (24h)"
+  },
+  "kill": {
+    "title": "Global kill switches",
+    "hint": "These apply to every account immediately. Domestic emergency hand-offs and 911/112/999 are never blocked.",
+    "reasonLabel": "Reason (recorded in the audit log)",
+    "confirm": "Apply change",
+    "applied": "Kill switch updated.",
+    "enforce": "Enforce limits (turn off for shadow mode: log only)",
+    "kill_outbound_calls": "Pause all outbound calls",
+    "kill_sms": "Pause all outbound texts",
+    "kill_international": "Pause all international destinations",
+    "kill_otp_sms": "Pause SMS verification codes"
+  },
+  "cases": {
+    "title": "Case queue",
+    "empty": "No open cases.",
+    "account": "Account",
+    "severity": "Severity",
+    "summary": "Summary",
+    "appeal": "Owner appeal",
+    "actions": "Actions",
+    "suspend": "Suspend",
+    "throttle": "Throttle 24h",
+    "restore": "Restore",
+    "resolve": "Resolve",
+    "reasonPrompt": "Reason for this action",
+    "done": "Account status updated.",
+    "failed": "Could not update the account."
+  },
+  "severity": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+  "loss": {
+    "title": "Maximum possible loss per signup (30 days)",
+    "hint": "Worst case under the current limits and cost assumptions. Unit costs are assumptions: calibrate them against carrier invoices.",
+    "plan": "Plan",
+    "unverified": "Unverified account",
+    "verified": "Verified account"
+  },
+  "denied": {
+    "title": "Blocked attempts by reason (24h)",
+    "empty": "Nothing was blocked in the last 24 hours."
+  },
+  "report": {
+    "title": "Weekly report",
+    "generate": "Generate report",
+    "failed": "Could not build the report."
+  },
+  "notice": {
+    "suspendedTitle": "Outbound activity is paused",
+    "suspendedBody": "We saw unusual activity and paused outbound calling and texting. Incoming calls and emergency transfers keep working.",
+    "appealLabel": "Tell us what happened",
+    "appealSubmit": "Send appeal",
+    "appealSent": "Appeal sent. A person will review it.",
+    "appealFailed": "Could not send your appeal."
+  },
+  "auth": {
+    "captchaLabel": "Security check",
+    "captchaFailed": "The security check failed. Reload and try again.",
+    "signupGeneric": "We couldn't create your account with these details. Try signing in, or contact support.",
+    "codeSentGeneric": "If this number can receive codes, a text is on its way. You can also use email or a passkey.",
+    "useEmailInstead": "Use email or a passkey instead"
+  },
+  "rollout": {
+    "title": "Rollout switches",
+    "hint": "Consent and free-minute rules start in log-only mode so you can see the impact before enforcing.",
+    "consent": "Marketing consent check",
+    "off": "Off",
+    "log": "Log only",
+    "enforce": "Enforce",
+    "freeMinutes": "Free minutes counted",
+    "monthly": "Per month (current behaviour)",
+    "lifetime": "Lifetime (strictest)"
+  },
+  "approvals": {
+    "title": "Campaign approvals (new accounts)",
+    "empty": "No campaigns waiting for approval.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "done": "Decision saved."
+  }
+}
