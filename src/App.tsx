@@ -671,6 +671,7 @@ const InHomeSalesPage = lazy(() => import('@/pages/InHomeSalesPage').then((m) =>
 const SalesPresentationPage = lazy(() => import('@/pages/SalesPresentationPage').then((m) => ({ default: m.SalesPresentationPage })));
 const FindingsPackagePublicPage = lazy(() => import('@/pages/FindingsPackagePublicPage').then((m) => ({ default: m.FindingsPackagePublicPage })));
 const ReputationPage = lazy(() => import('@/pages/ReputationPage'));
+const ReviewShieldPage = lazy(() => import('@/pages/ReviewShieldPage'));
 const ListingsPage = lazy(() => import('@/pages/ListingsPage').then((m) => ({ default: m.ListingsPage })));
 const InspectionReportPublicPage = lazy(() => import('@/pages/InspectionReportPublicPage').then((m) => ({ default: m.InspectionReportPublicPage })));
 const EmailSettingsPage = lazy(() => import('@/pages/EmailSettingsPage').then((m) => ({ default: m.EmailSettingsPage })));
@@ -913,6 +914,7 @@ function AppRoutes() {
         <Route path="/newsletter/confirm" element={<NewsletterConfirmPage mode="confirm" />} />
         <Route path="/newsletter/unsubscribe" element={<NewsletterConfirmPage mode="unsubscribe" />} />
         <Route path="/dashboard/reputation" element={<ReputationPage />} />
+        <Route path="/dashboard/review-shield" element={<ReviewShieldPage />} />
         <Route path="/dashboard/listings" element={<ListingsPage />} />
         <Route path="/report" element={<ReportPage />} />
         <Route path="/podcast" element={<PodcastPage />} />
