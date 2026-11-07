@@ -103,3 +103,31 @@ describe('data-viz', () => {
     });
   }
 });
+
+describe.each(THEMES)('text hierarchy — %s', (theme) => {
+  const tok = buildTheme(theme).tok;
+  const hc = theme.endsWith('-hc');
+  const surfaces = ['bg-primary', 'bg-secondary', 'bg-tertiary', 'surface-overlay'];
+  const AA = hc ? 7 : 4.5;
+  it.each(['text-secondary', 'text-muted', 'text-placeholder'])('%s meets AA on every neutral surface', (t) => {
+    for (const s of surfaces) expect(contrast(tok[t], tok[s]), `${t} on ${s}`).toBeGreaterThanOrEqual(AA);
+  });
+  it('graphic-muted (icons) meets 3:1 on every neutral surface', () => {
+    for (const s of surfaces) expect(contrast(tok['graphic-muted'], tok[s]), `graphic-muted on ${s}`).toBeGreaterThanOrEqual(hc ? 4.5 : 3);
+  });
+  it('hierarchy is carried by the tokens: primary > secondary > muted >= placeholder', () => {
+    const c = (t: string) => contrast(tok[t], tok['bg-primary']);
+    expect(c('text-primary')).toBeGreaterThan(c('text-secondary'));
+    expect(c('text-secondary')).toBeGreaterThan(c('text-muted'));
+    expect(c('text-muted')).toBeGreaterThanOrEqual(c('text-placeholder'));
+  });
+  it('text-disabled is declared as EXEMPT (no AA claim) and is the only token allowed below AA', () => {
+    const p = declaredPairs(theme).filter((x) => x.fg === 'text-disabled');
+    expect(p).toHaveLength(1);
+    expect(p[0].min).toBe(1);
+    expect(p[0].label).toContain('EXEMPT');
+  });
+  it('every declared text-* / *-text pair is >= its minimum (no silent alpha)', () => {
+    for (const p of declaredPairs(theme).filter((x) => /^(text-|.*-text$)/.test(x.fg) && x.fg !== 'text-disabled')) expect(contrast(p.fgRgb, p.bgRgb), `${p.fg} on ${p.bg}`).toBeGreaterThanOrEqual(p.min);
+  });
+});
