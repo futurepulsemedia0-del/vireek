@@ -38,6 +38,9 @@ const neutrals = {
   'text-primary': v('text-primary'),
   'text-secondary': v('text-secondary'),
   'text-muted': v('text-muted'),
+  'text-placeholder': v('text-placeholder'),
+  'text-disabled': v('text-disabled'),
+  'graphic-muted': v('graphic-muted'),
   'text-inverse': v('text-inverse'),
   'focus-ring': v('focus-ring'),
   overlay: v('overlay'),
@@ -61,6 +64,7 @@ const graphicUtilities = ['borderColor', 'ringColor', 'outlineColor', 'divideCol
 export const tailwindTheme = {
   colors: { ...neutrals, ...pick('bg'), border: borderTokens },
   textColor: { ...pick('text') },
-  ...Object.fromEntries(graphicUtilities.map((u) => [u, { ...pick('graphic'), border: borderTokens, 'focus-ring': v('focus-ring') }])),
-  placeholderColor: { 'text-muted': v('text-muted') },
+  ...Object.fromEntries(graphicUtilities.map((u) => [u, { ...pick('graphic'), border: borderTokens, 'focus-ring': v('focus-ring'), 'graphic-muted': v('graphic-muted') }
+  ...Object.fromEntries(graphicUtilities.map((u) => [u, ])),
+  placeholderColor: { 'text-muted': v('text-muted'), 'text-placeholder': v('text-placeholder') },
 };
