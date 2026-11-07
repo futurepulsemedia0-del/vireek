@@ -1,0 +1,706 @@
+{
+  "registryVersion": "2026-11-02",
+  "notice": "DRAFT for human review. This file maps repository controls to SOC 2 Trust Services Criteria. It is NOT an attestation and Vireek holds no SOC 2 report. 'status' describes the control's design/implementation in the repo as reviewed on the basis date; it never means 'audited'. Owners are proposed roles only; a named person must be assigned by management.",
+  "basisDate": "2026-11-02",
+  "statusLegend": {
+    "met": "Implemented in the repository AND at least one automated evidence collector exists for it. Public claims still require FRESH evidence.",
+    "partial": "Partly implemented, or implemented but not provable from the repository (needs verification outside the repo, or a process is missing).",
+    "missing": "No implementation or process exists yet."
+  },
+  "controls": [
+    {
+      "id": "GOV-01",
+      "criteria": [
+        "CC1.1",
+        "CC1.3",
+        "CC5.3"
+      ],
+      "category": "security",
+      "title": "Information security policy set approved and communicated",
+      "status": "missing",
+      "ownerRole": "CEO / accountable security owner (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "docs/compliance/soc2/policies/01-information-security-policy.md"
+      ],
+      "collectors": [
+        "repo.docs",
+        "manual.policy_approval"
+      ],
+      "gap": "All eleven policies are DRAFTS. None is approved, versioned by management, or acknowledged by staff."
+    },
+    {
+      "id": "GOV-02",
+      "criteria": [
+        "CC1.4",
+        "CC1.5",
+        "CC2.2"
+      ],
+      "category": "security",
+      "title": "Workforce onboarding, offboarding, background checks and security-awareness training",
+      "status": "missing",
+      "ownerRole": "CEO / People owner (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "docs/compliance/soc2/policies/11-onboarding-offboarding-policy.md",
+        "docs/compliance/soc2/templates/training-records.csv"
+      ],
+      "collectors": [
+        "manual.training"
+      ],
+      "gap": "No training records, no offboarding checklist for GitHub / Vercel / Supabase / provider consoles."
+    },
+    {
+      "id": "GOV-03",
+      "criteria": [
+        "CC2.1",
+        "CC2.2"
+      ],
+      "category": "security",
+      "title": "Security documentation available to internal and external users",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 90,
+      "implementation": [
+        "RUNBOOK.md",
+        "ARCHITECTURE.md",
+        "src/lib/securityWhitepaper.ts",
+        "src/pages/SecurityWhitepaperPage.tsx"
+      ],
+      "collectors": [
+        "repo.docs"
+      ],
+      "gap": "Documentation exists but has no review cadence or named maintainer."
+    },
+    {
+      "id": "COM-01",
+      "criteria": [
+        "CC2.3"
+      ],
+      "category": "security",
+      "title": "Security commitments and incidents communicated to customers",
+      "status": "partial",
+      "ownerRole": "CEO (proposed)",
+      "frequencyDays": 90,
+      "implementation": [
+        "src/pages/TrustCenterPage.tsx",
+        "src/pages/ComplianceStatusPage.tsx",
+        "src/pages/SubprocessorsPage.tsx",
+        "supabase/functions/subprocessor-notice-dispatch/index.ts",
+        "supabase/functions/notify-status-subscribers/index.ts"
+      ],
+      "collectors": [
+        "repo.docs"
+      ],
+      "gap": "No breach-notification template or timeline."
+    },
+    {
+      "id": "COM-02",
+      "criteria": [
+        "CC2.3",
+        "CC7.1"
+      ],
+      "category": "security",
+      "title": "Public vulnerability-disclosure channel (security.txt + policy page)",
+      "status": "met",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 30,
+      "implementation": [
+        "public/.well-known/security.txt",
+        "src/pages/VulnerabilityDisclosurePage.tsx"
+      ],
+      "collectors": [
+        "repo.security_txt"
+      ],
+      "gap": "security.txt carries an expiry date; evidence turns 'failing' when it is within 30 days of expiry or already expired."
+    },
+    {
+      "id": "RSK-01",
+      "criteria": [
+        "CC3.1",
+        "CC3.2",
+        "CC3.3",
+        "CC3.4"
+      ],
+      "category": "security",
+      "title": "Annual risk assessment and risk register",
+      "status": "missing",
+      "ownerRole": "CEO / security owner (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "docs/compliance/soc2/policies/10-risk-assessment-policy.md"
+      ],
+      "collectors": [
+        "manual.risk_assessment"
+      ],
+      "gap": "No risk register exists."
+    },
+    {
+      "id": "MON-01",
+      "criteria": [
+        "CC4.1",
+        "CC4.2"
+      ],
+      "category": "security",
+      "title": "Ongoing evaluation of controls (this program)",
+      "status": "partial",
+      "ownerRole": "Security owner (proposed)",
+      "frequencyDays": 7,
+      "implementation": [
+        "docs/compliance/soc2/controls.json",
+        "scripts/compliance/validate-controls.mjs",
+        "scripts/compliance/collect-repo.mjs",
+        ".github/workflows/compliance-evidence.yml",
+        "supabase/functions/compliance-evidence/index.ts",
+        "src/pages/admin/StaffComplianceControlsPage.tsx"
+      ],
+      "collectors": [
+        "repo.registry"
+      ],
+      "gap": "Program is new: no scheduled run has produced evidence yet, and no owner reviews the dashboard on a cadence."
+    },
+    {
+      "id": "ACC-01",
+      "criteria": [
+        "CC6.1"
+      ],
+      "category": "security",
+      "title": "Tenant data isolation enforced by Postgres row-level security",
+      "status": "met",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 8,
+      "implementation": [
+        "supabase/migrations/20260821101104_create_profiles_and_team_members.sql",
+        "scripts/lint-migrations.mjs",
+        "supabase/tests/database/calendar_feeds_rls.test.sql"
+      ],
+      "collectors": [
+        "supabase.rls_coverage"
+      ],
+      "gap": "Evidence reports public tables without RLS and permissive USING(true) SELECT policies; any listed table needs a documented reason or a fix (see SOC2_READINESS.md F3)."
+    },
+    {
+      "id": "ACC-02",
+      "criteria": [
+        "CC6.1",
+        "CC6.2"
+      ],
+      "category": "security",
+      "title": "Authentication and multi-factor authentication",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 30,
+      "implementation": [
+        "src/components/ProtectedRoute.tsx",
+        "src/lib/mfaChallenge.ts",
+        "supabase/functions/trusted-device/index.ts"
+      ],
+      "collectors": [
+        "supabase.access_review"
+      ],
+      "gap": "MFA is opt-in; it is not enforced for Vireek staff or tenant owners/admins. Evidence lists staff accounts without a verified MFA factor."
+    },
+    {
+      "id": "ACC-03",
+      "criteria": [
+        "CC6.2",
+        "CC6.3"
+      ],
+      "category": "security",
+      "title": "Provisioning, deprovisioning and role-based access (SCIM / SSO / RBAC) with periodic access review",
+      "status": "partial",
+      "ownerRole": "Security owner (proposed)",
+      "frequencyDays": 90,
+      "implementation": [
+        "supabase/functions/scim-v2/index.ts",
+        "supabase/functions/admin-sso/index.ts",
+        "supabase/migrations/20261103000000_enterprise_identity_security.sql",
+        "src/components/StaffRoute.tsx",
+        "docs/compliance/soc2/templates/access-review-signoff.md"
+      ],
+      "collectors": [
+        "supabase.access_review",
+        "manual.access_review_signoff"
+      ],
+      "gap": "No quarterly access-review sign-off has been performed; provider consoles (GitHub, Vercel, Supabase, Stripe, Twilio, Vapi) are outside the automated export."
+    },
+    {
+      "id": "ACC-04",
+      "criteria": [
+        "CC6.1",
+        "CC6.3"
+      ],
+      "category": "security",
+      "title": "Privileged flag (profiles.is_staff) cannot be changed from the client",
+      "status": "met",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 30,
+      "implementation": [
+        "supabase/migrations/20270411000000_protect_profiles_is_staff.sql"
+      ],
+      "collectors": [
+        "supabase.access_review"
+      ],
+      "gap": "Other privileged columns (role, plan, billing state) are not covered by the same trigger (SOC2_READINESS.md F6)."
+    },
+    {
+      "id": "ACC-05",
+      "criteria": [
+        "CC6.6",
+        "CC6.7"
+      ],
+      "category": "security",
+      "title": "Boundary protection: security headers, IP allow-lists, session policy",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 90,
+      "implementation": [
+        "vercel.json",
+        "supabase/functions/check-ip-policy/index.ts",
+        "src/lib/enterpriseSecurity.ts",
+        ".github/workflows/vercel-preview-smoke.yml"
+      ],
+      "collectors": [
+        "repo.headers"
+      ],
+      "gap": "IP allow-lists and session policies apply to enterprise accounts only; TLS termination is inherited from the hosting providers."
+    },
+    {
+      "id": "ACC-06",
+      "criteria": [
+        "CC6.1",
+        "CC6.8"
+      ],
+      "category": "security",
+      "title": "Secret handling and secret scanning",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 8,
+      "implementation": [
+        ".gitleaks.toml",
+        ".github/workflows/security.yml",
+        "RUNBOOK.md"
+      ],
+      "collectors": [
+        "github.secret_scanning",
+        "github.workflow_runs"
+      ],
+      "gap": "No rotation cadence defined (RUNBOOK section 7 says 'decide'). GitHub secret-scanning alerts may be unavailable on the current plan; the collector reports that as 'blocked', never as 'pass'."
+    },
+    {
+      "id": "SDL-01",
+      "criteria": [
+        "CC7.1",
+        "CC8.1"
+      ],
+      "category": "security",
+      "title": "Automated vulnerability and dependency scanning (npm audit, CodeQL, gitleaks, Dependabot)",
+      "status": "met",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 8,
+      "implementation": [
+        ".github/workflows/security.yml",
+        ".github/dependabot.yml",
+        ".gitleaks.toml"
+      ],
+      "collectors": [
+        "github.workflow_runs",
+        "github.code_scanning",
+        "github.dependabot"
+      ],
+      "gap": "Remediation SLAs exist only in the DRAFT vulnerability-management policy; evidence reports alerts older than those proposed thresholds."
+    },
+    {
+      "id": "SDL-02",
+      "criteria": [
+        "CC8.1"
+      ],
+      "category": "security",
+      "title": "Peer review and branch protection for production changes",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 30,
+      "implementation": [
+        "CONTRIBUTING.md",
+        ".github/workflows/ci.yml"
+      ],
+      "collectors": [
+        "github.branch_protection",
+        "github.pull_requests",
+        "repo.change_config"
+      ],
+      "gap": "No CODEOWNERS file and no PR template in the repository. Branch protection and required reviews can only be proven from the GitHub API; evidence reports merged PRs without an independent approval."
+    },
+    {
+      "id": "SDL-03",
+      "criteria": [
+        "CC8.1",
+        "CC7.1"
+      ],
+      "category": "security",
+      "title": "Automated CI gates: lint, type-check, unit tests, build, migration lint, edge-function check",
+      "status": "met",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 8,
+      "implementation": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/quality-gates.yml",
+        ".github/workflows/edge-functions.yml",
+        ".github/workflows/migrations.yml",
+        ".github/workflows/database-tests.yml"
+      ],
+      "collectors": [
+        "github.workflow_runs"
+      ],
+      "gap": "Authenticated E2E specs are skipped in CI (no test credentials); migration clean-replay is non-blocking."
+    },
+    {
+      "id": "SDL-04",
+      "criteria": [
+        "CC8.1"
+      ],
+      "category": "security",
+      "title": "Database migration discipline (additive policy, destructive-SQL lint)",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 30,
+      "implementation": [
+        "scripts/lint-migrations.mjs",
+        ".github/workflows/migrations.yml",
+        "docs/runbooks/migration-version-repair.md"
+      ],
+      "collectors": [
+        "repo.migrations"
+      ],
+      "gap": "Duplicate migration versions documented in RUNBOOK section 3.3."
+    },
+    {
+      "id": "ENV-01",
+      "criteria": [
+        "CC8.1",
+        "CC6.1"
+      ],
+      "category": "security",
+      "title": "Environment separation and no shared or demo credentials in production",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 90,
+      "implementation": [
+        "supabase/migrations/20260821101216_seed_demo_data.sql",
+        "RUNBOOK.md"
+      ],
+      "collectors": [],
+      "gap": "A demo user with a known password is created by a migration (SOC2_READINESS.md F5). Whether it exists in production, and whether a separate staging project exists, must be verified outside the repository."
+    },
+    {
+      "id": "LOG-01",
+      "criteria": [
+        "CC7.2",
+        "CC4.1"
+      ],
+      "category": "security",
+      "title": "Application audit trail (audit_log) with tenant-scoped read access",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 30,
+      "implementation": [
+        "supabase/migrations/20260831090000_notifications_and_audit_log.sql",
+        "supabase/migrations/20271215090000_audit_log_cross_tenant_guard.sql",
+        "src/pages/AuditLogPage.tsx",
+        "src/lib/auditLog.ts"
+      ],
+      "collectors": [
+        "supabase.audit_summary"
+      ],
+      "gap": "No immutability protection against the service role; log retention period is not defined."
+    },
+    {
+      "id": "LOG-02",
+      "criteria": [
+        "CC7.2"
+      ],
+      "category": "security",
+      "title": "Error and security-event monitoring",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 30,
+      "implementation": [
+        "src/lib/sentry.ts",
+        "supabase/migrations/20280401000000_security_events.sql"
+      ],
+      "collectors": [],
+      "gap": "Sentry is active only when VITE_SENTRY_DSN is set in production (verify). No central log store or alert routing to a named on-call person."
+    },
+    {
+      "id": "INC-01",
+      "criteria": [
+        "CC7.3",
+        "CC7.4",
+        "CC7.5"
+      ],
+      "category": "security",
+      "title": "Incident response procedure with named roles and annual exercise",
+      "status": "partial",
+      "ownerRole": "CEO / incident commander (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "RUNBOOK.md",
+        "docs/compliance/soc2/policies/04-incident-response-policy.md"
+      ],
+      "collectors": [
+        "manual.tabletop"
+      ],
+      "gap": "Procedure exists in RUNBOOK section 6; no named incident commander, no tabletop exercise record, no breach-notification timeline."
+    },
+    {
+      "id": "INC-02",
+      "criteria": [
+        "CC7.4",
+        "CC2.3"
+      ],
+      "category": "security",
+      "title": "Public status page and subscriber notifications for incidents",
+      "status": "met",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 8,
+      "implementation": [
+        "src/pages/StatusPage.tsx",
+        "supabase/functions/status-feed/index.ts",
+        "supabase/functions/notify-status-subscribers/index.ts"
+      ],
+      "collectors": [
+        "supabase.incidents"
+      ],
+      "gap": "Incident post-mortems are not stored in a structured register."
+    },
+    {
+      "id": "AVL-01",
+      "criteria": [
+        "A1.1"
+      ],
+      "category": "availability",
+      "title": "Availability monitoring: synthetic probes and SLO evaluation",
+      "status": "met",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 8,
+      "implementation": [
+        "supabase/functions/synthetic-probe/index.ts",
+        "supabase/functions/slo-evaluate/index.ts",
+        "supabase/migrations/20271102000000_synthetic_monitoring_slo.sql",
+        "docs/runbooks/synthetic-monitoring.md"
+      ],
+      "collectors": [
+        "supabase.slo"
+      ],
+      "gap": "Probe targets and the alert webhook must be configured in production (verify). Capacity planning is not documented."
+    },
+    {
+      "id": "AVL-02",
+      "criteria": [
+        "A1.2"
+      ],
+      "category": "availability",
+      "title": "Scheduled logical backups to a private bucket with checksum",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 8,
+      "implementation": [
+        "supabase/functions/dr-backup-run/index.ts",
+        "supabase/migrations/20261121000000_disaster_recovery_data_governance.sql"
+      ],
+      "collectors": [
+        "supabase.backups"
+      ],
+      "gap": "The scheduler, the private 'dr-backups' bucket and Supabase PITR/plan retention cannot be proven from the repository; the evidence shows only whether runs actually happened."
+    },
+    {
+      "id": "AVL-03",
+      "criteria": [
+        "A1.3",
+        "CC9.1"
+      ],
+      "category": "availability",
+      "title": "Periodic restore drills with measured recovery time",
+      "status": "partial",
+      "ownerRole": "Engineering lead (proposed)",
+      "frequencyDays": 8,
+      "implementation": [
+        "supabase/functions/dr-restore-drill/index.ts",
+        "supabase/migrations/20261121000000_disaster_recovery_data_governance.sql"
+      ],
+      "collectors": [
+        "supabase.restore_drills"
+      ],
+      "gap": "RTO/RPO targets are not defined; no passed drill has been evidenced yet. platform_restore_drills / platform_backup_runs are readable by all authenticated tenants (SOC2_READINESS.md F3)."
+    },
+    {
+      "id": "AVL-04",
+      "criteria": [
+        "A1.2",
+        "CC9.1"
+      ],
+      "category": "availability",
+      "title": "Business continuity and disaster recovery plan with RTO/RPO",
+      "status": "missing",
+      "ownerRole": "CEO / Engineering lead (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "docs/compliance/soc2/policies/05-business-continuity-dr-policy.md"
+      ],
+      "collectors": [
+        "manual.policy_approval"
+      ],
+      "gap": "Policy is a draft; targets are proposals."
+    },
+    {
+      "id": "CON-01",
+      "criteria": [
+        "C1.1"
+      ],
+      "category": "confidentiality",
+      "title": "Identification and classification of confidential data (PII registry, AI PII modes)",
+      "status": "partial",
+      "ownerRole": "Security owner (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "src/lib/dataGovernance.ts",
+        "src/lib/aiSecurity.ts",
+        "supabase/migrations/20261121000000_disaster_recovery_data_governance.sql"
+      ],
+      "collectors": [],
+      "gap": "No approved data-classification policy; pii_field_registry must be kept current by hand."
+    },
+    {
+      "id": "CON-02",
+      "criteria": [
+        "C1.2"
+      ],
+      "category": "confidentiality",
+      "title": "Data retention, legal hold and secure disposal (retention sweep, erasure workflow)",
+      "status": "partial",
+      "ownerRole": "Security owner (proposed)",
+      "frequencyDays": 30,
+      "implementation": [
+        "supabase/functions/data-retention-sweep/index.ts",
+        "supabase/functions/delete-account/index.ts",
+        "supabase/migrations/20261121000000_disaster_recovery_data_governance.sql",
+        "docs/compliance/soc2/policies/07-data-retention-disposal-policy.md"
+      ],
+      "collectors": [
+        "supabase.retention"
+      ],
+      "gap": "Retention periods for platform logs, backups and evidence are not defined in an approved policy."
+    },
+    {
+      "id": "VND-01",
+      "criteria": [
+        "CC9.2"
+      ],
+      "category": "security",
+      "title": "Vendor inventory, sub-processor list and annual vendor review",
+      "status": "partial",
+      "ownerRole": "Security owner (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "src/lib/subprocessors.ts",
+        "src/pages/SubprocessorsPage.tsx",
+        "docs/compliance/soc2/policies/06-vendor-management-policy.md",
+        "docs/compliance/soc2/templates/vendor-review-register.csv"
+      ],
+      "collectors": [
+        "manual.vendor_review"
+      ],
+      "gap": "No vendor risk assessments or collected SOC 2 / ISO reports for Supabase, Vercel, Stripe, Twilio, Vapi, or AI providers."
+    },
+    {
+      "id": "PEN-01",
+      "criteria": [
+        "CC4.1",
+        "CC7.1"
+      ],
+      "category": "security",
+      "title": "Independent penetration test (annual, third party)",
+      "status": "missing",
+      "ownerRole": "CEO / security owner (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "docs/compliance/soc2/PENTEST_SCOPE.md",
+        "src/pages/StaffTrustAdminPage.tsx"
+      ],
+      "collectors": [
+        "manual.pentest"
+      ],
+      "gap": "No third-party penetration test has been performed. The page that publishes pentest summaries exists; no summary exists."
+    },
+    {
+      "id": "PHY-01",
+      "criteria": [
+        "CC6.4",
+        "CC6.5"
+      ],
+      "category": "security",
+      "title": "Physical and environmental security (inherited from hosting sub-service organizations)",
+      "status": "partial",
+      "ownerRole": "Security owner (proposed)",
+      "frequencyDays": 365,
+      "implementation": [
+        "docs/compliance/soc2/policies/06-vendor-management-policy.md"
+      ],
+      "collectors": [
+        "manual.vendor_review"
+      ],
+      "gap": "Vireek operates no data centers. Reliance on Supabase / Vercel requires their current attestation reports, which have not been collected."
+    }
+  ],
+  "claims": [
+    {
+      "key": "tenant_isolation_rls",
+      "controlIds": [
+        "ACC-01"
+      ]
+    },
+    {
+      "key": "automated_security_scanning",
+      "controlIds": [
+        "SDL-01"
+      ]
+    },
+    {
+      "key": "automated_ci_checks",
+      "controlIds": [
+        "SDL-03"
+      ]
+    },
+    {
+      "key": "availability_monitoring",
+      "controlIds": [
+        "AVL-01"
+      ]
+    },
+    {
+      "key": "vulnerability_disclosure",
+      "controlIds": [
+        "COM-02"
+      ]
+    },
+    {
+      "key": "backup_and_restore_testing",
+      "controlIds": [
+        "AVL-02",
+        "AVL-03"
+      ]
+    },
+    {
+      "key": "enforced_mfa_for_staff",
+      "controlIds": [
+        "ACC-02"
+      ]
+    },
+    {
+      "key": "independent_penetration_test",
+      "controlIds": [
+        "PEN-01"
+      ]
+    }
+  ]
+}
