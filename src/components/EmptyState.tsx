@@ -10,13 +10,16 @@ interface EmptyStateAction {
 export type EmptyStateVariant = 'no-data' | 'no-results' | 'no-permission' | 'load-failed';
 
 interface EmptyStateProps {
-  icon: LucideIcon;
+  /** Optional. Omit together with `compact` for an inline one-line empty message. */
+  icon?: LucideIcon;
   title: string;
   description?: string;
   /** Primary CTA, contextual to the page (e.g. "Schedule a job"). */
   action?: EmptyStateAction;
   secondaryAction?: EmptyStateAction;
   className?: string;
+  /** Single-line, borderless variant for table cells and small panels (no illustration). */
+  compact?: boolean;
   /** Default 'no-data'. 'no-results' = filters matched nothing; 'no-permission'; 'load-failed'. */
   variant?: EmptyStateVariant;
   /** variant 'no-results': becomes the primary "Clear filters" button when no `action` is given. */
@@ -64,6 +67,7 @@ export function EmptyState({
   action,
   secondaryAction,
   className = '',
+  compact = false,
   variant = 'no-data',
   onClearFilters,
   onRetry,
@@ -90,6 +94,19 @@ export function EmptyState({
 
   return (
     <motion.div
+  if (compact) {
+    return (
+      <p role={variant === 'load-failed' ? 'alert' : undefined} className={`py-4 text-center text-sm text-text-secondary ${className}`}>
+        {title}
+        {text ? ` ${text}` : ''}
+        {primary && (
+          <button type="button" onClick={primary.onClick} className="focus-ring ms-2 rounded-md font-medium text-accent hover:underline">
+            {primary.label}
+          </button>
+        )}
+      </p>
+    );
+  }
       role={variant === 'load-failed' ? 'alert' : undefined}
       initial={reduce ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -103,7 +120,7 @@ export function EmptyState({
           <circle cx="70" cy="58" r="2.5" fill="currentColor" />
         </svg>
         <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${tone.chip}`}>
-          <Icon size={26} />
+          {Icon ? <Icon size={26} /> : null}
         </span>
       </span>
       <h3 className="mt-4 text-base font-semibold text-text-primary">{title}</h3>
