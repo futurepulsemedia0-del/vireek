@@ -47,6 +47,10 @@ function json(data: unknown, status = 200, extraHeaders: Record<string, string> 
   });
 }
 
+/** Catalog-coded error response: { error, code, doc_url, request_id } with the status the catalog defines. */
+function fail(ctx: LogCtx, code: ErrorCode, message: string, extraHeaders: Record<string, string> = {}) {
+  return json(errorBody(code, message, ctx.requestId), errorStatus(code), extraHeaders);
+}
 async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
   const digest = await crypto.subtle.digest("SHA-256", data);
