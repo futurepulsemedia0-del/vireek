@@ -106,7 +106,7 @@ export function EmergencyTriagePage() {
       <div className="flex min-h-screen flex-col bg-bg-primary">
         <Header />
         <main className="flex flex-1 items-center justify-center px-4 py-12">
-          <Loader2 className="animate-spin text-text-secondary" size={24} />
+          <SkeletonForm fields={3} className="w-full max-w-md" />
         </main>
         <Footer />
       </div>
