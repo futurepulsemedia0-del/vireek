@@ -15,6 +15,7 @@
 // instead of the full cron sweep.
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { wilsonInterval } from "../_shared/outcomes/intervals.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -129,6 +130,72 @@ async function promoteConfirmedThreats(admin: SupabaseClient, userId: string): P
 }
 
 // ---------------------------------------------------------------
+// PROMOTE (measured) — agent_action_learning_stats -> next_best_actions
+// Only accounts with outcome capture enabled; needs n >= 30 and a 95% Wilson
+// interval that clears the bar. Once per (action, verdict).
+// ---------------------------------------------------------------
+const MIN_MEASURED_N = 30;
+
+async function promoteMeasuredOutcomes(admin: SupabaseClient, userId: string): Promise<{ created: number }> {
+  const { data: settings } = await admin
+    .from("outcome_learning_settings").select("capture_enabled").eq("user_id", userId).maybeSingle();
+  if (!settings?.capture_enabled) return { created: 0 };
+
+  const { data: stats } = await admin
+    .from("agent_action_learning_stats")
+    .select("action_slug, outcomes_recorded, success_count")
+    .eq("user_id", userId)
+    .gte("outcomes_recorded", MIN_MEASURED_N);
+
+  let created = 0;
+  for (const s of stats ?? []) {
+    const n = s.outcomes_recorded as number;
+    const k = s.success_count as number;
+    const ci = wilsonInterval(k, n);
+    if (!ci) continue;
+    const verdict = ci.lower >= 0.8 ? "working" : ci.upper <= 0.4 ? "failing" : null;
+    if (!verdict) continue;
+
+    const sourceKey = `${s.action_slug}:${verdict}`;
+    const { data: existing } = await admin
+      .from("flywheel_promotions").select("id")
+      .eq("user_id", userId).eq("source_type", "measured_outcome").eq("source_key", sourceKey).maybeSingle();
+    if (existing) continue;
+
+    const pct = (x: number) => `${Math.round(x * 100)}%`;
+    const { data: nba, error: nbaError } = await admin
+      .from("next_best_actions")
+      .insert({
+        user_id: userId,
+        category: "compounding_insight",
+        title: verdict === "working"
+          ? `Measured: "${s.action_slug}" is working`
+          : `Measured: "${s.action_slug}" is failing`,
+        reasoning: `${k} of ${n} attributed outcomes succeeded (95% interval ${pct(ci.lower)}–${pct(ci.upper)}). Unknown and conflicted outcomes are excluded.`,
+        recommended_action: verdict === "working"
+          ? "Consider relaxing approval or extending this automation."
+          : "Review this automation and consider requiring approval or pausing it.",
+        priority_score: verdict === "failing" ? 80 : 60,
+        entity_type: "agent_action",
+        entity_label: s.action_slug as string,
+        cta_href: "/dashboard/agent-governance",
+      })
+      .select("id")
+      .single();
+    if (nbaError || !nba) continue;
+
+    const { error: promoError } = await admin.from("flywheel_promotions").insert({
+      user_id: userId,
+      source_type: "measured_outcome",
+      source_key: sourceKey,
+      next_best_action_id: nba.id,
+      detail: `${k}/${n} successes, 95% CI ${pct(ci.lower)}–${pct(ci.upper)}`,
+    });
+    if (!promoError) created++;
+  }
+  return { created };
+}
+// ---------------------------------------------------------------
 // MEASURE — deterministic weekly-comparable snapshot
 // ---------------------------------------------------------------
 async function writeSnapshot(admin: SupabaseClient, userId: string, promotionsCreatedToday: number): Promise<void> {
@@ -196,10 +263,12 @@ Deno.serve(async (req: Request) => {
       const userId = p.id as string;
       accountsProcessed++;
 
-      const [memoryResult, threatResult] = await Promise.all([
+      const [memoryResult, threatResult, measuredResult] = await Promise.all([
         promoteMemoryEntries(admin, userId),
         promoteConfirmedThreats(admin, userId),
+        promoteMeasuredOutcomes(admin, userId),
       ]);
+      const promotionsToday = memoryResult.created + threatResult.created + measuredResult.created;
       const promotionsToday = memoryResult.created + threatResult.created;
       totalPromotions += promotionsToday;
 
