@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     try { body = (await req.json()) as Record<string, unknown>; } catch { return json({ error: "Invalid JSON body." }, 400); }
     if (!body || typeof body !== "object") return json({ error: "Invalid JSON body." }, 400);
 
-    if (!(SURFACES as readonly string[]).includes(String(body.surface))) return json({ error: "surface must be call | sms | email | quote | contract." }, 400);
+    if (!(SURFACES as readonly string[]).includes(String(body.surface)) || body.surface === "fm_submission") return json({ error: "surface must be call | sms | email | quote | contract." }, 400);
     if (body.purpose !== undefined && !PURPOSES.has(String(body.purpose))) return json({ error: "purpose must be marketing | service | emergency." }, 400);
     const doc = body.document;
     if (doc !== undefined && (typeof doc !== "object" || doc === null || Array.isArray(doc))) return json({ error: "document must be an object." }, 400);
