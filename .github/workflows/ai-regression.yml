@@ -35,8 +35,9 @@ jobs:
           CASE_COUNT=$(echo "$BODY" | grep -o '"caseCount":[0-9]*' | grep -o '[0-9]*')
           HALLUCINATIONS=$(echo "$BODY" | grep -o '"hallucinationCount":[0-9]*' | grep -o '[0-9]*')
           echo "Pass rate: $PASS_COUNT / $CASE_COUNT — hallucinations: $HALLUCINATIONS"
-          if [ "$HALLUCINATIONS" -gt 0 ]; then
-            echo "::warning::AI regression suite flagged $HALLUCINATIONS possible hallucination(s) — review ai_eval_results."
+            echo "::error::AI regression suite flagged $HALLUCINATIONS possible hallucination(s)."
+            exit 1
+          fi
           fi
           if [ "$CASE_COUNT" -gt 0 ] && [ "$PASS_COUNT" -lt "$CASE_COUNT" ]; then
             echo "::error::$((CASE_COUNT - PASS_COUNT)) of $CASE_COUNT eval cases failed."
