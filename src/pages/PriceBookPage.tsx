@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ProviderDisconnectControl } from '@/components/integrations/ProviderDisconnectControl';
 import { supabase } from '@/lib/supabase';
 import {
   PriceBookItem,
@@ -58,8 +59,7 @@ function CrmConnections({
   const [connectingHcp, setConnectingHcp] = useState(false);
   const [syncingProvider, setSyncingProvider] = useState<CrmProvider | null>(null);
 
-  const byProvider = (p: CrmProvider) => connections.find((c) => c.provider === p);
-
+  const byProvider = (p: CrmProvider) => connections.find((c) => c.provider === p && c.status !== 'disconnected');
   const handleConnectServiceTitan = async () => {
     if (!stForm.client_id || !stForm.client_secret || !stForm.app_key || !stForm.tenant_id || !stForm.business_unit_id || !stForm.job_type_id) return;
     setConnectingSt(true);
@@ -144,14 +144,27 @@ function CrmConnections({
                 )}
               </div>
               {conn ? (
-                <button
-                  type="button"
-                  onClick={() => handleSync(provider)}
-                  disabled={syncingProvider === provider}
-                  className="focus-ring flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary disabled:opacity-50"
-                >
-                  <RefreshCw size={12} className={syncingProvider === provider ? 'animate-spin' : ''} /> Sync now
-                </button>
+<div className="flex items-center gap-2">
+  <button
+    type="button"
+    onClick={() => handleSync(provider)}
+    disabled={syncingProvider === provider}
+    className="focus-ring flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary disabled:opacity-50"
+  >
+    <RefreshCw size={12} className={syncingProvider === provider ? 'animate-spin' : ''} /> Sync now
+  </button>
+  <ProviderDisconnectControl
+    provider={provider}
+    providerLabel={CRM_PROVIDER_LABELS[provider]}
+    consequences={[
+      `Stop syncing prices from ${CRM_PROVIDER_LABELS[provider]}`,
+      `Stop sending booked jobs to ${CRM_PROVIDER_LABELS[provider]}`,
+      'Delete the stored access credentials',
+      'Keep the prices already imported',
+    ]}
+    onDisconnected={onChanged}
+  />
+</div>
               ) : provider === 'service_titan' ? (
                 <button
                   type="button"
