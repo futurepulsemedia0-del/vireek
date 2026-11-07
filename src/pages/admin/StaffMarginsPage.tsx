@@ -12,6 +12,7 @@ import { MarginOverview } from '@/components/staff/margins/MarginOverview';
 import { PlanningPanel } from '@/components/staff/margins/PlanningPanel';
 import { InputsPanel } from '@/components/staff/margins/InputsPanel';
 import { ReportPanel } from '@/components/staff/margins/ReportPanel';
+import { LedgerPanel } from '@/components/staff/margins/LedgerPanel';
 import { INPUT } from '@/components/staff/margins/shared';
 import { useToast } from '@/contexts/ToastContext';
 import { useSEO } from '@/lib/seo';
@@ -27,6 +28,7 @@ import { aiCostByAccount, aiCoverageByModel, aiPricingSummary, applyAiRepricing,
 const TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'planning', label: 'Simulator & quotes' },
+  { id: 'ledger', label: 'Ledger & unit costs' },
   { id: 'inputs', label: 'Inputs' },
   { id: 'report', label: 'Report' },
 ] as const;
@@ -178,6 +180,7 @@ export function StaffMarginsPage() {
               <div id={`margins-panel-${tab}`} role="tabpanel" aria-labelledby={`margins-tab-${tab}`} tabIndex={0} className="focus-ring rounded-xl">
                 {tab === 'overview' && <MarginOverview summary={summary} plans={plans} negative={negativeMarginOrgs(margins)} drivers={drivers} cohorts={cohortStats(margins, extras.signupByAccount)} features={extras.features} freeTier={freeTierSummary(margins)} daily={daily} coverage={coverage} measuredCpm={measuredCpm} usage={priced} truncated={ue.truncated} />}
                 {tab === 'planning' && <PlanningPanel margins={margins} plans={plans} days={win.days} defaultCpm={measuredCpm ?? fallbackCpm} />}
+                tab === 'ledger' && <LedgerPanel start={win.start} end={win.end} />}
                 {tab === 'inputs' && <InputsPanel onChanged={() => void load(true)} />}
                 {tab === 'report' && <ReportPanel model={reportModel} />}
               </div>
