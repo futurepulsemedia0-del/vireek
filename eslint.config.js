@@ -3,6 +3,8 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
+import vireekImg from './eslint-rules/vireek-img.mjs'
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -23,6 +25,16 @@ export default tseslint.config(
     },
   },
   {
+  {
+    files: ['src/**/*.{jsx,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}', 'src/components/ui/Img.tsx'],
+    plugins: { 'jsx-a11y': jsxA11y, 'vireek-img': vireekImg },
+    rules: {
+      'jsx-a11y/alt-text': ['error', { img: ['Img', 'RevealImage'] }],
+      'jsx-a11y/img-redundant-alt': 'error',
+      'vireek-img/policy': 'error',
+    },
+  },
     // Formatting policy: use @/lib/format (or useFormat()). CI enforces a ratchet via
     // `npm run lint:locale`; this rule gives immediate editor feedback.
     files: ['src/**/*.{ts,tsx}'],
