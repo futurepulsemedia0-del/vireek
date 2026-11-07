@@ -1,0 +1,19 @@
+--- a/supabase/functions/_shared/dispatch/assign.ts
++++ b/supabase/functions/_shared/dispatch/assign.ts
+@@ -75,3 +75,4 @@
+   }
+ 
+   return { technicianId, technicianName, reason };
++}
+--- a/supabase/functions/dispatch-auto-assign/index.ts
++++ b/supabase/functions/dispatch-auto-assign/index.ts
+@@ -35,9 +35,6 @@
+   if (error) return jsonResponse({ error: error.message }, 500);
+ 
+   const results = await assignJobsWithRules(admin, userId, unassigned ?? []);
+-    const result = await assignBestTechnician(admin, userId, job);
+-    results.push({ job_id: job.id, ...result });
+-  }
+ 
+   return jsonResponse({ assigned: results.filter((r) => r.technicianId).length, total: results.length, results });
+ });
