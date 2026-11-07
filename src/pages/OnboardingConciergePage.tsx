@@ -139,7 +139,7 @@ export function OnboardingConciergePage() {
   if (profileLoading || initializing) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg-primary">
-        <Loader2 size={24} className="animate-spin text-accent" />
+        <SkeletonForm fields={3} className="w-full max-w-md px-4" />
       </div>
     );
   }
