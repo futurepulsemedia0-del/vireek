@@ -22,6 +22,7 @@ import {
   type ExportFormat,
 } from './export.js';
 import { renderTable } from './format.js';
+import { runConformance, summarize } from './conformance.js';
 import { HELP } from './help.js';
 import { ApiClient, type Page } from './http.js';
 import { DEFAULT_COLUMNS, RESOURCES, isResource, type Resource } from './resources.js';
@@ -142,6 +143,8 @@ async function dispatch(argv: string[], io: Io): Promise<void> {
       return exportCommand(rest, io);
     case 'webhooks':
       return webhooksCommand(rest, io);
+    case 'conformance':
+      return conformanceCommand(rest, io);
     default:
       throw usageError(`Unknown command "${command}".`, 'Run "vireek help" to see available commands.');
   }
@@ -361,6 +364,21 @@ async function apiCommand(args: string[], io: Io): Promise<void> {
   out(io, JSON.stringify(await client.get(target, query), null, 2));
 }
 
+async function conformanceCommand(args: string[], io: Io): Promise<void> {
+  const { values } = parse(args, { url: { type: 'string' }, key: { type: 'string' } });
+  const key = values.key ?? io.env.VIREEK_AGENT_KEY;
+  const url = values.url ?? io.env.VIREEK_MCP_URL;
+  if (!url) throw usageError('Missing endpoint.', 'Pass --url <.../functions/v1/mcp-server> or set VIREEK_MCP_URL.');
+  if (!key || !key.startsWith('vrk_agent_')) throw usageError('Missing or invalid agent key.', 'Set VIREEK_AGENT_KEY to a vrk_agent_... key (flags land in shell history).');
+  const results = await runConformance({ baseUrl: normalizeBaseUrl(url), key, fetchImpl: io.fetchImpl });
+  const sum = summarize(results);
+  if (values.json) out(io, JSON.stringify({ summary: sum, results }, null, 2));
+  else {
+    for (const r of results) out(io, `${r.status === 'pass' ? 'PASS' : r.status === 'skip' ? 'SKIP' : 'FAIL'}  ${r.name}${r.detail ? ` — ${r.detail}` : ''}`);
+    out(io, `\n${sum.passed} passed, ${sum.failed} failed, ${sum.skipped} skipped`);
+  }
+  if (sum.failed > 0) throw new CliError(`${sum.failed} conformance check(s) failed.`, { exitCode: EXIT.ERROR });
+}
 /* ----------------------------------- export -------------------------------- */
 
 async function exportCommand(args: string[], io: Io): Promise<void> {
