@@ -593,6 +593,7 @@ const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ de
 const SecurityWhitepaperPage = lazy(() => import('@/pages/SecurityWhitepaperPage').then((m) => ({ default: m.SecurityWhitepaperPage })));
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })));
 const StaffReliabilityPage = lazy(() => import('@/pages/admin/StaffReliabilityPage').then((m) => ({ default: m.StaffReliabilityPage })));
+const StaffComplianceControlsPage = lazy(() => import('@/pages/admin/StaffComplianceControlsPage').then((m) => ({ default: m.StaffComplianceControlsPage })));
 const StaffVoiceObservabilityPage = lazy(() => import('@/pages/admin/StaffVoiceObservabilityPage').then((m) => ({ default: m.StaffVoiceObservabilityPage })));
 const OfflinePage = lazy(() => import('@/pages/OfflinePage').then((m) => ({ default: m.OfflinePage })));
 const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
@@ -810,6 +811,16 @@ function AppRoutes() {
             <StaffRoute>
               <Suspense fallback={<PageLoader />}>
                 <StaffReliabilityPage />
+              </Suspense>
+            </StaffRoute>
+          }
+        />
+        <Route
+          path="/staff/compliance-controls"
+          element={
+            <StaffRoute>
+              <Suspense fallback={<PageLoader />}>
+                <StaffComplianceControlsPage />
               </Suspense>
             </StaffRoute>
           }
