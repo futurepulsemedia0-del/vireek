@@ -4,6 +4,7 @@ import { fetchJobberProducts, refreshJobberTokenIfNeeded } from "../_shared/pric
 import { upsertPriceBookItems } from "../_shared/price-book/upsert.ts";
 import type { PriceBookConnectionRow } from "../_shared/price-book/types.ts";
 import { hydrateRow, saveSecrets } from "../_shared/secrets/providerCredentials.ts";
+import { recordJobberAccountId } from "../_shared/price-book/jobberAccount.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,6 +41,9 @@ async function syncOneConnection(admin: SupabaseClient, conn: PriceBookConnectio
         expires_at: conn.jobber_token_expires_at,
       });
       const accessToken = refreshed?.access_token ?? conn.jobber_access_token;
+      if (!(conn as PriceBookConnectionRow & { jobber_account_id?: string | null }).jobber_account_id) {
+  await recordJobberAccountId(admin, conn.id, accessToken);
+}
 
  await saveSecrets(admin, conn.user_id, "jobber", {
   jobber_access_token: refreshed.access_token,
