@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+   import { useTranslation } from 'react-i18next';
+   import { RZ_NS } from '@/i18n/dispatchRandomizationNamespace';
 import { AlertTriangle, CheckCircle2, Info, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -57,6 +59,7 @@ function SelectField({ label, helper, children, ...rest }: { label: string; help
 
 export function ExperimentForm({ jobs, technicians, onSubmit, onCancel }: Props) {
   const now = useMemo(() => new Date(), []);
+  const { t: tRz, i18n } = useTranslation(RZ_NS);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<ExperimentCategory>('operations');
   const [hypothesis, setHypothesis] = useState('');
@@ -97,8 +100,10 @@ export function ExperimentForm({ jobs, technicians, onSubmit, onCancel }: Props)
     if (!(mdeNum > 0) || !(durationNum > 0)) return null;
     const baseline = historicalBaseline(primary, jobs, serviceTypes, Number.isFinite(maturityNum) ? maturityNum : 14, now);
     const required = requiredPerArm(primary, design, baseline, fromDisplay(primary, mdeNum), alpha);
-    let expected: number;
-    if (design === 'randomized') {
+   let expected: number | null;
+       if (design === 'natural') {
+         expected = null; // depends on how often technicians are practically tied; see the fair tie-breaking page
+       } else if (design === 'randomized') {
       const fraction = Number.isFinite(shareNum) ? Math.min(shareNum, 100 - shareNum) / 100 : 0.5;
       expected = Math.floor(jobsPerDay(jobs, serviceTypes, now) * durationNum * fraction);
     } else {
@@ -156,7 +161,7 @@ export function ExperimentForm({ jobs, technicians, onSubmit, onCancel }: Props)
     }
   }
 
-  const feasible = planner && planner.required !== null ? planner.expected >= planner.required : null;
+   const feasible = planner && planner.required !== null && planner.expected !== null ? planner.expected >= planner.required : null;
 
   return (
     <form onSubmit={(e) => void submit(e)} className="space-y-6" noValidate>
@@ -211,11 +216,14 @@ export function ExperimentForm({ jobs, technicians, onSubmit, onCancel }: Props)
             helper={
               design === 'randomized'
                 ? 'Jobs are randomly split by the system. The strongest evidence.'
-                : 'Compare two technician groups before and after. Use when jobs cannot be split.'
+                 : design === 'natural'
+                     ? tRz('experiment.designHelp')
+                     : 'Compare two technician groups before and after. Use when jobs cannot be split.'
             }
           >
             <option value="randomized">Randomized jobs</option>
             <option value="comparison">Technician groups (before / after)</option>
+               <option value="natural">{tRz('experiment.designName')}</option>
           </SelectField>
           <SelectField label="Service types in scope" value="" onChange={(e) => e.target.value && setServiceTypes((s) => (s.includes(e.target.value) ? s : [...s, e.target.value]))} helper="Leave empty to include every service type.">
             <option value="">Add a service type...</option>
@@ -242,7 +250,7 @@ export function ExperimentForm({ jobs, technicians, onSubmit, onCancel }: Props)
           </div>
         )}
 
-        {design === 'comparison' && (
+        {design !== 'randomized' && (
           <div className="mt-4">
             <p className="text-sm font-medium text-text-primary">Technician groups</p>
             {technicians.length < 2 ? (
@@ -343,7 +351,9 @@ export function ExperimentForm({ jobs, technicians, onSubmit, onCancel }: Props)
             <div className="text-text-primary">
               {planner.required === null ? (
                 <p>There is not enough recent history to size this test. You can still run it; the system will show how much evidence is collected.</p>
-              ) : (
+                 ) : planner.expected === null ? (
+                   <p>{tRz('experiment.planNeeds', { n: planner.required.toLocaleString(i18n.language) })}</p>
+                 ) : (
                 <p>
                   Needs about <strong>{planner.required.toLocaleString('en-US')}</strong> jobs per group. At your recent volume you would get about{' '}
                   <strong>{planner.expected.toLocaleString('en-US')}</strong> in {durationNum || 0} days.
