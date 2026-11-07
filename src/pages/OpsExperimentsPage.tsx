@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { SkeletonCardList, FadeIn } from '@/components/Skeleton';
 import { ExperimentForm } from '@/components/experimentation/ExperimentForm';
+   import type { DecisionRow } from '@/lib/naturalRandomization';
+   import { fetchRandomizedDecisions, fetchSettings } from '@/lib/dispatchRandomizationApi';
 import { ExperimentDetail } from '@/components/experimentation/ExperimentDetail';
 import {
   CATEGORY_LABELS,
@@ -55,7 +57,8 @@ const DECISION_STYLE: Record<Decision, string> = {
 const DECISION_SHORT: Record<Decision, string> = { adopt: 'Adopted', iterate: 'Redesign', reject: 'Stopped' };
 
 export function OpsExperimentsPage() {
-  const { isOwner, permissions } = useAuth();
+   const { isOwner, permissions, profile, teamMember } = useAuth();
+     const ownerId = (isOwner ? profile?.id : teamMember?.account_owner_id) ?? null;
   const { toast } = useToast();
   const canManage = isOwner || permissions.can_view_billing;
 
@@ -63,6 +66,8 @@ export function OpsExperimentsPage() {
   const [jobs, setJobs] = useState<ExpJob[]>([]);
   const [technicians, setTechnicians] = useState<TechnicianOption[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+     const [decisions, setDecisions] = useState<DecisionRow[]>([]);
+     const [rzEnabled, setRzEnabled] = useState<boolean | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [view, setView] = useState<View>('experiments');
   const [filter, setFilter] = useState<Filter>('active');
@@ -136,6 +141,26 @@ export function OpsExperimentsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey]);
 
+   // Near-tie experiments are analysed from dispatch draws; load them only for the selected natural experiment.
+     useEffect(() => {
+       setDecisions([]);
+       setRzEnabled(null);
+       if (!selected || selected.design !== 'natural' || !ownerId || !selected.started_at) return;
+       let cancelled = false;
+       Promise.all([fetchRandomizedDecisions(ownerId, selected.started_at), fetchSettings(ownerId)])
+         .then(([rows, s]) => {
+           if (cancelled) return;
+           setDecisions(rows);
+           setRzEnabled(s.enabled);
+         })
+         .catch(() => {
+           if (!cancelled) toast('Could not load the near-tie draws', 'error');
+         });
+       return () => {
+         cancelled = true;
+       };
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+     }, [selectedKey, ownerId]);
   async function run(key: string, action: () => Promise<void>, success: string, after?: () => Promise<void>) {
     if (busy) return;
     setBusy(key);
@@ -306,6 +331,8 @@ export function OpsExperimentsPage() {
                               experiment={selected}
                               jobs={jobs}
                               assignments={assignments}
+                               decisions={decisions}
+                              randomizationEnabled={rzEnabled}
                               canManage={canManage}
                               busy={busy}
                               onStart={() => void run('start', () => startExperiment(selected.id), 'Experiment started')}
