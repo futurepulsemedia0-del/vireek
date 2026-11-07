@@ -9,6 +9,7 @@
 
 import { isValidTimezone, parseHHMM, zonedParts, zonedToUtc } from "../messaging/quietHoursCore.ts";
 import { normalizeState, stateOfJurisdiction, US_STATES } from "./jurisdiction.ts";
+import { evalFm, isFmKind, validateFmParams, type FmFix } from "./fmSubmission.ts";
 import type {
   ActionType,
   ConsentType,
@@ -41,6 +42,13 @@ export const KIND_SURFACES: Record<RuleKind, readonly Surface[]> = {
   rescission: ["quote", "contract"],
   required_notice: ["call", "sms", "email", "quote", "contract"],
   price_cap: ["quote", "contract"],
+    fm_nte_cap: ["fm_submission"],
+    fm_proposal_before_parts: ["fm_submission"],
+    fm_invoice_deadline: ["fm_submission"],
+    fm_ineligibility_window: ["fm_submission"],
+    fm_prohibited_line_item: ["fm_submission"],
+    fm_single_invoice: ["fm_submission"],
+    fm_required_attachment: ["fm_submission"],
 };
 
 /** Which party's state a rule is matched against unless params.matchOn overrides it. */
@@ -53,6 +61,13 @@ const DEFAULT_MATCH_ON: Record<RuleKind, MatchOn> = {
   rescission: "counterparty",
   required_notice: "either",
   price_cap: "counterparty",
+    fm_nte_cap: "either",
+    fm_proposal_before_parts: "either",
+    fm_invoice_deadline: "either",
+    fm_ineligibility_window: "either",
+    fm_prohibited_line_item: "either",
+    fm_single_invoice: "either",
+    fm_required_attachment: "either",
 };
 
 const CONSENT_TYPES: readonly ConsentType[] = [
@@ -107,6 +122,7 @@ export function validateRuleParams(kind: RuleKind, params: unknown): string[] {
   if (p.matchOn !== undefined && !["either", "counterparty", "business"].includes(String(p.matchOn))) {
     errs.push("matchOn must be either | counterparty | business");
   }
+  if (isFmKind(kind)) return [...errs, ...validateFmParams(kind, p)];
   switch (kind) {
     case "recording_consent":
       if (p.mode !== "all_party" && p.mode !== "one_party") errs.push("mode must be all_party or one_party");
@@ -317,7 +333,7 @@ const hhmm = (mins: number): string => `${String(Math.floor(mins / 60) % 24).pad
 interface Outcome1 {
   status: FindingStatus;
   message: string;
-  actions?: Array<{ type: ActionType; text: string }>;
+  actions?: Array<{ type: ActionType; text: string; fix?: FmFix }>;
 }
 
 interface QuietCheck { v: RuleVersion; windows: Window[]; purposes: string[] }
@@ -334,16 +350,18 @@ export function evaluate(ctx: EvalContext, versions: readonly RuleVersion[]): Ev
   const localTz = cpTz ?? bizTz ?? DEFAULT_TZ;
   const dateTz = bizTz ?? cpTz ?? "UTC";
   const effectiveDate = zonedParts(at, dateTz).dateKey;
-
+  const isFmSurface = ctx.surface === "fm_submission";
   if (ctx.surface === "call" || ctx.surface === "sms") {
     if (!cpTz) assumptions.push(`Recipient timezone unknown — used ${bizTz ?? DEFAULT_TZ}.`);
   }
-  if (counterparty === null) {
+     if (isFmSurface) {
+      // Portal requirements are not jurisdiction-based: no state assumptions apply.
+    } else if (counterparty === null) {
     assumptions.push("Customer state unknown — state-specific rules for the customer's location could not be matched (recording consent defaults to the strictest rule).");
   } else if (ctx.counterpartyStateBasis === "phone") {
     assumptions.push(`Customer state (${counterparty}) was inferred from the phone area code and may be wrong — confirm the service address.`);
   }
-  if (business === null) assumptions.push("Business state not set — set it in Compliance → Business profile so your home-state rules apply.");
+  if (business === null && !isFmSurface) assumptions.push("Business state not set — set it in Compliance → Business profile so your home-state rules apply.");
 
   const active = selectEffective(versions, effectiveDate);
   const findings: Finding[] = [];
@@ -401,6 +419,7 @@ export function evaluate(ctx: EvalContext, versions: readonly RuleVersion[]): Ev
       }
       case "required_notice": r = evalNotice(p, ctx); break;
       case "price_cap": r = evalPriceCap(p, ctx); break;
+      default: if (isFmKind(v.kind)) r = evalFm(v.kind, p, ctx.fm, at); break;
     }
     if (!r) { skip(v, v.kind === "quiet_hours" ? "purpose" : "condition"); continue; }
 
