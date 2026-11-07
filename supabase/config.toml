@@ -106,6 +106,9 @@ verify_jwt = false
 verify_jwt = false
 [functions.voice-reconcile]
 verify_jwt = false
-
 [functions.release-guard-tick]
+verify_jwt = false
+[functions.results-plan-ingest]
+verify_jwt = false
+[functions.results-plan-bill]
 verify_jwt = false
