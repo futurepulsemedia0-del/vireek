@@ -33,7 +33,7 @@ export function OnboardingWizard() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-noise bg-gradient-mesh">
-        <Loader2 size={28} className="animate-spin text-accent" />
+        <SkeletonForm fields={3} className="w-full max-w-md px-4" />
       </div>
     );
   }
