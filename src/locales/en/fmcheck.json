@@ -1,0 +1,74 @@
+{
+  "tab": "Fix before sending",
+  "check": {
+    "title": "Fix before sending",
+    "intro": "Check a draft against the customer portal's published rules before you send it. Nothing is ever sent from here, and a fix only changes this draft.",
+    "orderLabel": "Work order",
+    "orderPlaceholder": "Choose a work order",
+    "billingLabel": "Who you bill",
+    "billingUnknown": "Not set",
+    "billingPortal": "The portal (e.g. ServiceChannel)",
+    "billingCustomer": "The customer directly",
+    "subcontractor": "A subcontractor worked on this job",
+    "subInvoiceAttached": "The subcontractor's invoice is attached",
+    "noOrders": "No work orders yet. Import some on the Import tab.",
+    "noActiveRules": "No reviewed portal rules are active yet, so nothing was checked. Rules start in review and only apply once a reviewer approves them.",
+    "loading": "Loading portal rules…",
+    "loadFailed": "Could not load the portal rules.",
+    "retry": "Try again",
+    "draftNote": "Draft only. Nothing has been sent.",
+    "outcome": {
+      "allow": "Nothing to fix. {{count}} rules passed.",
+      "allow_with_actions": "Do these before you send.",
+      "block": "Fix these before you send."
+    },
+    "severity": { "block": "Must fix", "require": "Required step", "warn": "Heads up", "info": "Note" },
+    "source": "Source",
+    "retrieved": "checked {{date}}",
+    "removeLine": "Remove this line",
+    "lineRemoved": "Line removed from the draft.",
+    "draftTotal": "Draft total: {{amount}}",
+    "fix": {
+      "reduce_total_to_cap": "Reduce the invoice to the NTE.",
+      "create_proposal": "Submit a proposal to raise the NTE first.",
+      "wait_for_approval": "Wait for the proposal to be approved.",
+      "attach_file": "Attach the missing document.",
+      "enter_nte": "Enter the NTE from the portal.",
+      "enter_confirmed_date": "Enter the missing date.",
+      "confirm_billing_party": "Set who you bill above.",
+      "contact_client": "Ask the customer whether they will accept it.",
+      "merge_into_existing_invoice": "Add the charges to the existing invoice."
+    }
+  },
+  "risk": {
+    "title": "Money at risk",
+    "intro": "Open work orders where money may be lost. Measured amounts come from a real invoice total or the exact amount over the NTE. Estimated amounts come from your working estimate or proposal. They are never added together.",
+    "measured": "Measured",
+    "estimated": "Estimated",
+    "unknown": "No amount",
+    "unknownHint": "{{count}} orders have no invoice, estimate or proposal amount.",
+    "empty": "Nothing is at risk right now.",
+    "deadline": "Deadline {{date}}",
+    "notCounted": "Also in a higher-priority group; counted once.",
+    "basis": { "measured": "Measured", "estimated": "Estimated", "unknown": "No amount" },
+    "bucket": {
+      "ineligible": "No longer eligible to bill",
+      "invoice_overdue": "Invoice overdue",
+      "nte_overrun": "Over the NTE",
+      "eligibility_closing": "Eligibility closing soon",
+      "invoice_due_soon": "Invoice due soon",
+      "proposal_not_approved": "Work under an unapproved proposal"
+    }
+  },
+  "candidates": {
+    "title": "Patterns in your rejections",
+    "intro": "Suggestions only, grouped by keyword from the reasons you recorded. A reviewer decides whether any becomes a rule. Nothing here is saved or turned on.",
+    "empty": "No repeated rejection reasons yet. Record the reason on rejected invoices to see patterns.",
+    "evidence": "{{count}} rejections",
+    "covered": "A rule of this kind already exists",
+    "notCovered": "No rule of this kind yet",
+    "copy": "Copy for review",
+    "copied": "Copied",
+    "examples": "Examples"
+  }
+}
