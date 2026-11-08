@@ -20,6 +20,7 @@
 // ============================================================
 // TYPES
 // ============================================================
+import { MIN_BINARY_EVENTS, MIN_CELL_N, normalCdf, srmCheck, summarize, twoSidedP } from '@/lib/stats/inference';
 
 export type MetricKey = 'ftf_rate' | 'callback_rate' | 'completion_rate' | 'sla_met_rate' | 'avg_revenue';
 export type MetricUnit = 'pct' | 'usd';
@@ -233,42 +234,13 @@ export interface ResultSnapshot {
 const DAY = 86_400_000;
 const HOUR = 3_600_000;
 
-/** Minimum observations in every cell before any verdict is issued. */
-export const MIN_CELL_N = 30;
-/** Binary outcomes need at least this many events and non-events per cell for the normal approximation. */
-export const MIN_BINARY_EVENTS = 5;
-export  const SRM_ALPHA = 0.001;
 
 export const Z_TWO_SIDED: Record<Alpha, number> = { 0.01: 2.5758293035489, 0.05: 1.959963984540054, 0.1: 1.6448536269514722 };
 const Z_POWER_80 = 0.8416212335729143;
 
-export function normalCdf(z: number): number {
-  return 0.5 * (1 + erf(z / Math.SQRT2));
-}
-
-/** Two-sided p-value for a standard-normal statistic. */
-export function twoSidedP(z: number): number {
-  const x = Math.abs(z) / Math.SQRT2;
-  return Math.min(1, Math.max(0, 1 - erf(x)));
-}
-
-// Abramowitz & Stegun 7.1.26 (max absolute error 1.5e-7).
-function erf(x: number): number {
-  const sign = x < 0 ? -1 : 1;
-  const a = Math.abs(x);
-  const t = 1 / (1 + 0.3275911 * a);
-  const y = 1 - (((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t) * Math.exp(-a * a);
-  return sign * y;
-}
-
-export function summarize(values: number[]): Sample {
-  const n = values.length;
-  if (n === 0) return { n: 0, mean: 0, variance: 0 };
-  const mean = values.reduce((s, v) => s + v, 0) / n;
-  if (n === 1) return { n, mean, variance: 0 };
-  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
-  return { n, mean, variance };
-}
+// Statistical primitives live in src/lib/stats/inference.ts (shared with growth experiments); re-exported here
+// so every existing import from '@/lib/opsExperiments' keeps working.
+export { MIN_BINARY_EVENTS, MIN_CELL_N, normalCdf, srmCheck, summarize, twoSidedP };
 
 /** Display units (pp / $) -> internal scale (proportion / $). */
 export function fromDisplay(metric: MetricKey, v: number): number {
