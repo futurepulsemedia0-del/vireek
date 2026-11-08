@@ -34,15 +34,18 @@ import { initSentry } from '@/lib/sentry';
 import { installChunkRecovery } from '@/lib/chunkRecovery';
 import { registerServiceWorker } from '@/lib/pwa/swUpdate';
 import { initWebVitals } from '@/lib/perf/webVitals';
+import { installMotionRuntime } from '@/lib/motionPolicy';
 import { IdleMount } from '@/components/system/LazyMount';
 import '@/i18n'; // site-wide react-i18next setup — must load before any component uses useTranslation()
 import './index.css';
 import './styles/a11y.css';
+import './styles/motion.css';
 import './styles/print.css';
 
 const SiteAssistant = lazy(() => import('@/components/SiteAssistant').then((m) => ({ default: m.SiteAssistant })));
 const LiveChatWidget = lazy(() => import('@/components/LiveChatWidget').then((m) => ({ default: m.LiveChatWidget })));
 
+installMotionRuntime(); // data-motion روی <html> (OS + Accessibility Center) + توقف انیمیشن‌ها در تب پنهان
 initWebVitals();
 initSentry();
 installChunkRecovery();
