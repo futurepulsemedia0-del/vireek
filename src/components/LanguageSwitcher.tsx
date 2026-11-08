@@ -4,6 +4,7 @@ import { Globe, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { LANGUAGES, type LanguageCode } from '@/lib/i18n';
+import { isBeta } from '@/i18n/locales.config';
 
 /* ------------------------------------------------------------------ */
 /*  Site-wide language switcher.                                       */
@@ -79,6 +80,11 @@ export function LanguageSwitcher({ variant = 'header', className = '' }: Languag
               >
                 <span aria-hidden="true">{lang.flag}</span>
                 <span className="flex-1">{lang.nativeName}</span>
+                {isBeta(lang.code) && (
+                  <span className="rounded-md border border-border/70 px-1.5 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-text-secondary">
+                    {t('language.beta')}
+                  </span>
+                )}
                 {lang.code === language && <Check className="h-3.5 w-3.5 text-accent" aria-hidden="true" />}
               </button>
             ))}
