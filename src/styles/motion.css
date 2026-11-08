@@ -1,0 +1,88 @@
+/* src/styles/motion.css — the ONE global motion policy layer.
+   Imported in src/main.tsx AFTER index.css and a11y.css.
+   Trigger: <html data-motion="reduce|stop">, set by public/a11y-boot.js + src/lib/motionPolicy.ts from
+   (OS prefers-reduced-motion) OR (Accessibility Center classes). Decision table: docs/design/MOTION_POLICY.md.
+   Design rules: no colours here; essential feedback is never removed, only made non-rotating / opacity-only. */
+
+@keyframes vk-essential-fade {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* 1. Smooth scrolling off */
+html:is([data-motion='reduce'], [data-motion='stop']) { scroll-behavior: auto !important; }
+
+/* 2. Default for everything not opted-in as essential: unknown/third-party keyframes end instantly,
+      transitions shrink to short opacity/colour fades. */
+html:is([data-motion='reduce'], [data-motion='stop']) *:not([data-motion-essential]),
+html:is([data-motion='reduce'], [data-motion='stop']) *:not([data-motion-essential])::before,
+html:is([data-motion='reduce'], [data-motion='stop']) *:not([data-motion-essential])::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-property: opacity, color, background-color, border-color, text-decoration-color, fill, stroke !important;
+  transition-duration: 120ms !important;
+  transition-delay: 0s !important;
+}
+
+/* 3. Decorative loops: static. */
+html[data-motion='reduce'] :is(.animate-pulse, .animate-bounce, .animate-marquee, .animate-glow-slow, .logo-marquee__track) {
+  animation: none !important;
+}
+html[data-motion='reduce'] .animate-ping { animation: none !important; opacity: 0 !important; }
+
+/* 4. Essential indeterminate indicators: keep a "working" cue, no rotation, <1 Hz, opacity only. */
+html[data-motion='reduce'] :is(.animate-spin, .vrk-mini, [data-motion-essential~='spin']) {
+  animation: vk-essential-fade 1.8s ease-in-out infinite !important;
+}
+/* loading.css module: same alternatives as its own OS-only block, now also for the Accessibility Center. */
+html[data-motion='reduce'] :is(.vrk-pulse, .vrk-spin) { animation: vrk-soft 2s ease-in-out infinite !important; }
+html[data-motion='reduce'] .vrk-fill--ind { transform: scaleX(1) !important; animation: vrk-soft 1.6s ease-in-out infinite !important; }
+html[data-motion='reduce'] .vrk-skel::after,
+html[data-motion='reduce'] .vrk-pulse__ring { display: none; }
+
+/* 5. Marquee-style regions (aria-hidden decorative strips): no auto-motion, so hide the strip and show its
+      sr-only summary (marked data-motion-summary) as normal visible text instead. No hidden scrolling content. */
+html:is([data-motion='reduce'], [data-motion='stop']) [data-motion-region='marquee'] { display: none !important; }
+html:is([data-motion='reduce'], [data-motion='stop']) [data-motion-summary] {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 42rem !important;
+  margin: 1.5rem auto 0 !important;
+  padding: 0 1.25rem !important;
+  overflow: visible !important;
+  clip: auto !important;
+  clip-path: none !important;
+  white-space: normal !important;
+  text-align: center !important;
+  font-size: 0.875rem !important;
+  line-height: 1.6 !important;
+  color: rgb(var(--text-secondary)) !important;
+}
+
+/* 6. Hover / press transforms removed (Tailwind v3 transform variables). */
+html:is([data-motion='reduce'], [data-motion='stop']) :is(
+  [class*='hover:scale-']:hover, [class*='hover:-translate-y-']:hover, [class*='hover:translate-']:hover,
+  [class*='group-hover:scale-'], [class*='active:scale-']:active) {
+  --tw-scale-x: 1 !important; --tw-scale-y: 1 !important; --tw-translate-x: 0px !important; --tw-translate-y: 0px !important;
+}
+
+/* 7. Stop Animations: nothing animates at all. */
+html[data-motion='stop'] *, html[data-motion='stop'] *::before, html[data-motion='stop'] *::after {
+  animation: none !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* 8. Hidden tab, or a visitor-paused region: everything that is moving freezes (all modes). */
+html[data-tab-hidden] *, html[data-tab-hidden] *::before, html[data-tab-hidden] *::after { animation-play-state: paused !important; }
+[data-motion-paused='true'] :is(.animate-marquee, .animate-spin, .animate-pulse, .animate-ping, .logo-marquee__track),
+[data-motion-paused='true'].animate-marquee { animation-play-state: paused !important; }
+
+/* 9. No-JS safety net (prerendered pages before hydration): OS preference only, core loops. */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion]) { scroll-behavior: auto !important; }
+  html:not([data-motion]) :is(.animate-spin, .animate-pulse, .animate-ping, .animate-bounce, .animate-marquee, .logo-marquee__track) {
+    animation: none !important;
+  }
+}
