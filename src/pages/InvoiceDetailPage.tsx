@@ -46,6 +46,7 @@ import { downloadInvoiceWithDefaultTemplate } from '@/lib/invoiceTemplatePdf';
 import { SplitPaymentsCard } from '@/components/invoicing/SplitPaymentsCard';
 import { CommercialApprovalPanel } from '@/components/CommercialApprovalPanel';
 import { ApprovalToCashCard } from '@/components/invoicing/ApprovalToCashCard';
+import { PhotoEvidenceSummaryCard } from '@/components/photoProvenance/PhotoEvidenceSummaryCard';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const card = 'rounded-2xl border border-border bg-bg-secondary p-4 shadow-card sm:p-5 dark:shadow-card-dark';
@@ -395,6 +396,7 @@ export function InvoiceDetailPage() {
         </div>
 
         <aside className="space-y-5">
+          {invoice.job_id && <PhotoEvidenceSummaryCard jobId={invoice.job_id} />}
           <section className={card} aria-labelledby="cust-title">
             <h2 id="cust-title" className="text-sm font-semibold text-text-primary">Customer</h2>
             <dl className="mt-3 space-y-2 text-sm">
