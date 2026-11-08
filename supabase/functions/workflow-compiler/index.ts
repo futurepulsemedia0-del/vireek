@@ -19,6 +19,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { askVireekAi } from "../_shared/ai-core/index.ts";
 import { capabilityCatalog, compileIr, TRIGGER_EVENTS, MAX_NODES } from "../_shared/workflow-compiler/spec.ts";
+import type { WorkflowIr } from "../_shared/workflow-compiler/spec.ts";
+import { applyEdits, diffIr, type EditOp } from "../_shared/workflow-compiler/graph-diff.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -118,7 +120,11 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     const instruction = typeof body?.instruction === "string" ? body.instruction.trim() : "";
     const parentId = typeof body?.parent_id === "string" ? body.parent_id : null;
-    if (instruction.length < 15) return json({ error: "Describe what should happen in a full sentence or two." }, 400);
+    const rollbackOf = typeof body?.rollback_of === "string" ? body.rollback_of : null;
+    const editOf = typeof body?.edit_of === "string" ? body.edit_of : null;
+    const diffIds = Array.isArray(body?.diff) && body.diff.length === 2 && body.diff.every((x: unknown) => typeof x === "string") ? (body.diff as string[]) : null;
+    const derive = !!(rollbackOf || editOf || diffIds);
+    if (!derive && instruction.length < 15) return json({ error: "Describe what should happen in a full sentence or two." }, 400);
     if (instruction.length > MAX_INSTRUCTION) return json({ error: `Instruction is too long (max ${MAX_INSTRUCTION} characters).` }, 400);
 
     const db = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
