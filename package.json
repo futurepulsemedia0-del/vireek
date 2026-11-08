@@ -10,6 +10,7 @@
     "test:built": "vitest run -c vitest.built.config.ts",
     "lint": "eslint .",
     "native:assets": "node scripts/make-native-assets.mjs && capacitor-assets generate --ios --android",
+    "mobile:doctor": "node scripts/mobile-deps-doctor.mjs",
     "mobile:preflight": "node scripts/mobile-preflight.mjs",
     "mobile:privacy": "node scripts/check-privacy-map.mjs",
     "audit:contrast": "node scripts/audit-text-contrast.mjs",
