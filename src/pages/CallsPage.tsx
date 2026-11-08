@@ -28,6 +28,8 @@ import { applyRowPatches } from '@/lib/bulk/engine';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call } from '@/lib/supabase';
+import { useSensitiveCall } from '@/lib/privacy/useSensitiveCall';
+import { searchCallsText } from '@/lib/privacy/accessLog';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { TagEditor } from '@/components/TagEditor';
 import { SavedViewsBar } from '@/components/SavedViewsBar';
@@ -199,7 +201,8 @@ function CallDetailPanel({
 }) {
   const sentimentCfg = call.sentiment ? sentimentConfig[call.sentiment] : null;
   const navigate = useNavigate();
-
+  // Recording + transcript come from the logged server-side read, not from the list query.
+  const sensitive = useSensitiveCall(call.id);
   return (
     <motion.div
       initial={{ x: '100%' }}
@@ -533,6 +536,24 @@ const updateCall = useCallback(
   });
 
   // Filtered + sorted data
+  const [searchHits, setSearchHits] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const tokens = search.toLowerCase().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) {
+      setSearchHits(new Set());
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      searchCallsText(tokens)
+        .then((ids) => { if (!cancelled) setSearchHits(new Set(ids)); })
+        .catch(() => { if (!cancelled) setSearchHits(new Set()); });
+    }, 350);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [search]);
   const filteredCalls = useMemo(() => {
     let result = [...allCalls];
 
