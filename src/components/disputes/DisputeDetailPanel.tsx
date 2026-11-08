@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CircleAlert, CircleCheck, ExternalLink, FileText, Loader2, RefreshCw, Trash2, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { InsertPhotoSummaryButton } from '@/components/photoProvenance/InsertPhotoSummaryButton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EmptyStateError } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
@@ -255,6 +256,14 @@ export function DisputeDetailPanel({ dispute, ownerId, onClose, onChanged }: Pro
                       </label>
                     );
                   })}
+                  {dispute.job_id && (
+                    <InsertPhotoSummaryButton
+                      jobId={dispute.job_id}
+                      current={draft.uncategorized_text ?? ''}
+                      max={TEXT_FIELD_MAX}
+                      onInsert={(next) => setField('uncategorized_text', next)}
+                    />
+                  )}
                   {otherFields.length > 0 && (
                     <button type="button" onClick={() => setShowAllFields((v) => !v)} className="focus-ring rounded text-xs font-semibold text-accent">
                       {showAllFields ? 'Show fewer fields' : `Show ${otherFields.length} more fields`}
