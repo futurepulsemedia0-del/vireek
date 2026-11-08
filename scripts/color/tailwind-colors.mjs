@@ -53,6 +53,10 @@ const neutrals = {
   // legacy aliases kept so existing class names keep resolving
   text: { primary: v('text-primary'), secondary: v('text-secondary'), muted: v('text-muted'), inverse: v('text-inverse') },
   ai: v('cta-fill'),
+  // brand gradient: `bg-gradient-to-br from-brand-from to-brand-to text-on-brand` (contrast-solved in both themes)
+  'brand-from': v('brand-from'),
+  'brand-to': v('brand-to'),
+  'on-brand': v('on-brand'),
   viz: Object.fromEntries([...Array(8)].map((_, i) => [i + 1, v(`viz-${i + 1}`)])),
 };
 for (const [p, n] of [['on', FAMILY_NAMES]]) for (const f of n) neutrals[`${p}-${f}`] = v(`on-${f}`);
