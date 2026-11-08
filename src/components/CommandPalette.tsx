@@ -53,7 +53,7 @@ const PAGES: StaticPage[] = [
   { label: 'NetSuite', href: '/dashboard/netsuite', icon: Building2, keywords: 'netsuite oracle erp accounting sync invoices' },
   { label: 'Property Management', href: '/dashboard/property-management', icon: Building2, keywords: 'buildium appfolio yardi propertyware rentvine property management work orders' },
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, keywords: 'fields custom properties' },
-  { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, keywords: 'export csv excel xlsx pdf download' }
+  { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, keywords: 'export csv excel xlsx pdf download' },
   { label: 'Getting Started', href: '/dashboard/getting-started', icon: Rocket, keywords: 'setup checklist onboarding tour' },
   { label: 'Business Profile', href: '/dashboard/business-profile', icon: Settings, keywords: 'settings' },
   { label: 'Support', href: '/dashboard/support', icon: LifeBuoy, keywords: 'help ticket contact' },
@@ -66,6 +66,7 @@ const PAGES: StaticPage[] = [
   { label: 'Sessions & devices', href: '/dashboard/settings/sessions', icon: ShieldCheck, keywords: 'sessions devices sign out login alerts' },
   { label: 'Account activity', href: '/dashboard/settings/activity', icon: ShieldCheck, keywords: 'activity security history sign-ins export log' },
   { label: 'Audit log', href: '/dashboard/settings/audit-log', icon: ShieldCheck, keywords: 'audit history activity export' },
+  { label: 'Sensitive access', href: '/dashboard/settings/access-history', icon: ShieldCheck, keywords: 'access history who viewed recordings transcripts staff alerts' },
   { label: 'Voice brief and phone line', href: '/dashboard/settings/voice', icon: ShieldCheck, keywords: 'voice audio brief morning call phone pin' },
   { label: 'SIEM log streaming', href: '/dashboard/settings/siem-streaming', icon: ShieldCheck, keywords: 'siem splunk datadog log streaming security events forward' },
 ];
