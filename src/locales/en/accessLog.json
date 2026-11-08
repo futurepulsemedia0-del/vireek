@@ -1,0 +1,71 @@
+{
+  "page": {
+    "title": "Sensitive access",
+    "intro": "Every time a recording, transcript, customer detail, document or export is read, we keep a record of who, when and what kind of data. We never store the content itself.",
+    "back": "Back to settings",
+    "ownerOnly": "Only the account owner can open this page."
+  },
+  "alerts": {
+    "title": "Alerts",
+    "empty": "No unusual access detected.",
+    "observed": "{{observed}} reads (limit {{threshold}})",
+    "acknowledge": "Acknowledge",
+    "dismiss": "Dismiss",
+    "runbook": "What to do",
+    "severity": { "medium": "Medium", "high": "High", "critical": "Critical" },
+    "status": { "open": "Open", "acknowledged": "Acknowledged", "dismissed": "Dismissed" },
+    "rules": {
+      "bulk_scraping": "Large number of records read in a few minutes",
+      "off_hours_spike": "Unusual reads outside normal hours",
+      "former_employee_access": "Access by someone who is no longer on your team",
+      "export_volume": "Unusually large exports today"
+    },
+    "runbooks": {
+      "bulk_scraping": ["Open the access history of a recently viewed record and check who read it.", "Ask that person whether the activity was expected.", "If not, remove their access under Team and rotate any API key they could use."],
+      "off_hours_spike": ["Check whether the person was working late on purpose.", "If unexpected, ask them to sign in again and review their recent activity.", "Consider limiting their permissions."],
+      "former_employee_access": ["Remove the person from Team immediately if they should not have access.", "Revoke their active sessions and any API keys they created.", "Review the access history of the records they opened."],
+      "export_volume": ["Open Exports and check who created the large export.", "Confirm the export was needed. Expire it if not.", "Review who has the export permission."]
+    }
+  },
+  "staff": {
+    "title": "Vireek support access",
+    "empty": "Vireek support has not accessed your account.",
+    "events": {
+      "account_view": "Support viewed your account details",
+      "impersonation_start": "Support signed in to your account",
+      "impersonation_end": "Support session ended",
+      "view": "Support viewed a record",
+      "list": "Support viewed a list of records"
+    }
+  },
+  "history": {
+    "title": "Access history",
+    "empty": "No one has opened this yet.",
+    "error": "Access history could not be loaded.",
+    "forbidden": "You don't have permission to see who viewed this.",
+    "retry": "Try again",
+    "loading": "Loading access history",
+    "you": "You",
+    "support": "Vireek support",
+    "apiKey": "An API key",
+    "system": "System",
+    "publicLink": "A shared link",
+    "unknownUser": "A team member",
+    "records": "{{count}} records",
+    "actions": { "view": "viewed", "list": "listed", "download": "downloaded", "api_read": "read via API", "signed_url": "opened a file link", "export_create": "created an export of", "export_download": "downloaded an export of" },
+    "assets": { "call_recording": "call recording", "transcript": "transcript", "customer_pii": "customer details", "payment_data": "payment data", "document": "document", "export": "export" }
+  },
+  "visibility": {
+    "label": "Let team members with access to a record see who viewed it",
+    "hint": "Owners and team managers can always see this. Vireek support is shown as \"Vireek support\" without a name.",
+    "saved": "Setting saved",
+    "error": "The setting could not be saved."
+  },
+  "errors": {
+    "rate_limited": "You're reading records very quickly. Please wait a few minutes.",
+    "step_up_required": "Please confirm it's you by signing in again, then retry.",
+    "forbidden": "You don't have permission for this.",
+    "unauthenticated": "Your session ended. Sign in again.",
+    "unknown": "Something went wrong. Please try again."
+  }
+}
