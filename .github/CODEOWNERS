@@ -1,10 +1,60 @@
-# REQUIRED ACTION: replace @OWNER with real GitHub users or teams, then enable
-# "Require review from Code Owners" in branch protection (cannot be done from the repo).
-# Invalid owners are ignored by GitHub, so this file does nothing until edited.
-*                                  @OWNER
-/supabase/migrations/              @OWNER
-/supabase/functions/               @OWNER
-/.github/                          @OWNER
-/docs/compliance/                  @OWNER
-/public/.well-known/               @OWNER
-/ios/ /android/ /capacitor.config.ts @OWNER
+# CODEOWNERS — Vireek. Last matching rule wins; ONE path pattern per line, owners after it.
+#
+# DECISION REQUIRED (maintainer): every @OWNER_* token below is a PLACEHOLDER. GitHub silently ignores invalid
+# owners, so until they are replaced this file protects nothing. Replace each token everywhere
+# (find/replace), using real users or teams that have WRITE access, e.g. @your-org/security.
+# Then enable "Require review from Code Owners" in branch protection (docs/governance/BRANCH_PROTECTION.md).
+# Validate with:  node scripts/governance/check-codeowners.mjs   (add --strict once placeholders are gone)
+
+*                                              @OWNER_PLATFORM
+
+# Application
+/src/                                          @OWNER_FRONTEND
+/src/lib/native/                               @OWNER_MOBILE
+/src/lib/trustPack/                            @OWNER_SECURITY
+/src/locales/                                  @OWNER_FRONTEND
+/public/                                       @OWNER_FRONTEND
+/e2e/                                          @OWNER_FRONTEND
+/vireek-a11y/                                  @OWNER_FRONTEND
+/public/.well-known/                           @OWNER_COMPLIANCE
+
+# Backend, data, security
+/supabase/functions/                           @OWNER_BACKEND
+/supabase/functions/_shared/ai-core/           @OWNER_SECURITY
+/supabase/functions/_shared/voice-security/    @OWNER_VOICE
+/supabase/functions/vapi-webhook/              @OWNER_VOICE
+/supabase/migrations/                          @OWNER_DATA
+/supabase/tests/                               @OWNER_DATA
+/supabase/config.toml                          @OWNER_DATA
+/scripts/security/                             @OWNER_SECURITY
+/docs/security/                                @OWNER_SECURITY
+/SECURITY.md                                   @OWNER_SECURITY
+/.gitleaks.toml                                @OWNER_SECURITY
+
+# Mobile
+/ios/                                          @OWNER_MOBILE
+/android/                                      @OWNER_MOBILE
+/capacitor.config.ts                           @OWNER_MOBILE
+/docs/MOBILE_RELEASE.md                        @OWNER_MOBILE
+
+# Voice
+/eval/voice-redteam/                           @OWNER_VOICE
+/docs/voice/                                   @OWNER_VOICE
+
+# Repo, CI, supply chain, governance
+/.github/                                      @OWNER_PLATFORM
+/scripts/governance/                           @OWNER_PLATFORM
+/scripts/supply-chain/                         @OWNER_PLATFORM
+/package.json                                  @OWNER_PLATFORM
+/package-lock.json                             @OWNER_PLATFORM
+/docs/adr/                                     @OWNER_PLATFORM
+/docs/governance/                              @OWNER_PLATFORM
+/docs/governance/license-policy.json           @OWNER_COMPLIANCE
+/docs/governance/ASSET_LICENSES.csv            @OWNER_COMPLIANCE
+
+# Compliance and business registers (not legal advice; counsel reviews contracts)
+/docs/compliance/                              @OWNER_COMPLIANCE
+/docs/registers/                               @OWNER_COMPLIANCE
+/docs/claims-register.json                     @OWNER_COMPLIANCE
+/scripts/check-claims.mjs                      @OWNER_COMPLIANCE
+/scripts/registers/                            @OWNER_COMPLIANCE
