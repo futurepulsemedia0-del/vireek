@@ -10,8 +10,10 @@
 //                 --lowerIr()----->  CompiledGraph (what the executor runs)
 //                 --buildReport()->  risk / coverage report shown to the owner
 //
-// Zero imports, zero I/O: runs unchanged under Deno (edge functions) and under
-// vitest (spec.test.ts), so every safety rule below is unit-tested.
+// No I/O. The only import is the pure ./semantics.ts (join / fan-out limits). Runs unchanged
+// under Deno (edge functions) and under vitest (spec.test.ts), so every safety rule below is unit-tested.
+
+import { validateFanOut, validateJoinConfig, type JoinConfig } from "./semantics.ts";
 
 // ---------------------------------------------------------------------------
 // Vocabulary
@@ -29,8 +31,9 @@ export const TRIGGER_EVENTS = [
 ] as const;
 export type TriggerEvent = (typeof TRIGGER_EVENTS)[number];
 
-export type NodeKind = "lookup" | "reason" | "decision" | "action" | "approval" | "verify" | "wait";
-export type EdgeOn = "next" | "true" | "false" | "fail" | "approved" | "rejected" | "timeout" | "pass";
+export type NodeKind = "lookup" | "reason" | "decision" | "action" | "approval" | "verify" | "wait" | "parallel" | "join" | "foreach";
+export type EdgeOn = "next" | "true" | "false" | "fail" | "approved" | "rejected" | "timeout" | "pass"
+  | "b0" | "b1" | "b2" | "b3" | "b4" | "b5" | "b6" | "b7";
 
 export const TRADES = ["hvac", "plumbing", "electrical", "roofing", "restoration", "locksmith", "general"] as const;
 export const RULE_OPS = ["eq", "neq", "gt", "gte", "lt", "lte", "truthy", "falsy", "in", "contains"] as const;
@@ -60,6 +63,8 @@ export interface IrNode {
   prompt?: string;
   timeout_minutes?: number;
   gates?: string[];
+  // action: id of the undo node that runs if the run later fails (a side node: it has no edges)
+  compensator?: string;
 }
 
 export interface IrEdge { from: string; to: string; on: EdgeOn }
@@ -148,6 +153,9 @@ const OUTPUTS_BY_KIND: Partial<Record<NodeKind, string[]>> = {
   approval: ["approved", "price_cents", "note"],
   decision: ["result"],
   wait: ["waited"],
+  parallel: [],
+  join: ["succeeded"],
+  foreach: ["processed", "failed"],
 };
 const REASON_BASE = ["choice", "confidence", "rationale"];
 const ROOTS = ["trigger", "customer", "sla"];
@@ -208,7 +216,8 @@ function findCycle(ids: string[], adj: Map<string, IrEdge[]>): string[] | null {
 /** Entry = the one node with no incoming edge. */
 export function findEntry(ir: Pick<WorkflowIr, "nodes" | "edges">): string[] {
   const incoming = new Set(ir.edges.map((e) => e.to));
-  return ir.nodes.filter((n) => !incoming.has(n.id)).map((n) => n.id);
+  const side = sideNodes(ir);
+  return ir.nodes.filter((n) => !incoming.has(n.id) && !side.has(n.id)).map((n) => n.id);
 }
 
 // ---------------------------------------------------------------------------
@@ -218,11 +227,13 @@ export function findEntry(ir: Pick<WorkflowIr, "nodes" | "edges">): string[] {
 const REQUIRED_EDGES: Record<NodeKind, EdgeOn[]> = {
   lookup: ["next"], reason: ["next"], decision: ["true", "false"],
   action: [], approval: ["approved"], verify: [], wait: ["next"],
+  parallel: [], join: ["next"], foreach: ["next"],
 };
 const ALLOWED_EDGES: Record<NodeKind, EdgeOn[]> = {
   lookup: ["next", "fail"], reason: ["next", "fail"], decision: ["true", "false"],
   action: ["next", "fail"], approval: ["approved", "rejected", "timeout"],
   verify: ["pass", "fail"], wait: ["next"],
+  parallel: ["b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"], join: ["next", "fail"], foreach: ["next", "fail"],
 };
 
 function str(v: unknown, max: number): string | null {
@@ -239,6 +250,7 @@ function checkTemplate(text: string, where: string, scope: Set<string>, ir: Work
 function checkPathRef(path: string, scope: Set<string>, ir: WorkflowIr): string | null {
   const [root, field] = path.split(".");
   if (!field) return "must look like node.field";
+  if (root === "item") return scope.has("#item") ? null : '"item" is only available inside a foreach body';
   if (ROOTS.includes(root)) return null; // trigger.* / customer.* / sla.* are open-ended
   if (!scope.has(root)) return `"${root}" is not an earlier node on every path to this step`;
   const node = ir.nodes.find((n) => n.id === root)!;
@@ -261,7 +273,142 @@ function guaranteedBefore(id: string, entry: string, ir: WorkflowIr, adj: Map<st
   return out;
 }
 
-export function validateIr(raw: unknown): { errors: string[]; ir: WorkflowIr | null } {
+// ---------------------------------------------------------------------------
+// Parallel blocks: parallel(b0..bN-1) -> branch regions -> join
+//   - a branch arrives at the join through a non-fail edge = succeeded, through a fail edge = failed
+//   - nodes inside a branch never escalate on their own: a missing fail edge routes to the join
+//   - branches may not contain approval, nested parallel or another join; they cannot be entered or left except via the fork/join
+// ---------------------------------------------------------------------------
+
+const BRANCH_RE = /^b[0-7]$/;
+const JOIN_PARAMS = ["parallel", "mode", "n", "timeout_minutes", "on_timeout", "min_success"];
+
+export interface ParallelBlock { parallel: string; join: string | null; starts: string[]; regions: Set<string>[] }
+
+export function computeBlocks(ir: Pick<WorkflowIr, "nodes" | "edges">): ParallelBlock[] {
+  const adj = adjacency(ir.edges);
+  return ir.nodes.filter((n) => n.kind === "parallel").map((p) => {
+    const starts = (adj.get(p.id) ?? []).filter((e) => BRANCH_RE.test(e.on))
+      .sort((a, b) => Number(a.on.slice(1)) - Number(b.on.slice(1))).map((e) => e.to);
+    const joins = ir.nodes.filter((n) => n.kind === "join" && n.params?.parallel === p.id);
+    const join = joins.length === 1 ? joins[0].id : null;
+    return { parallel: p.id, join, starts, regions: starts.map((s) => (join ? reachableFrom(s, adj, join) : reachableFrom(s, adj))) };
+  });
+}
+
+export function joinConfigFromParams(p: Record<string, unknown> | undefined): JoinConfig | null {
+  const mode = p?.mode;
+  if (mode === "all" || mode === "any") return { mode };
+  if (mode === "n_of_m") return { mode, n: Number(p?.n) };
+  if (mode === "timeout") {
+    return {
+      mode, timeout_ms: Number(p?.timeout_minutes) * 60_000, on_timeout: p?.on_timeout as "proceed" | "fail",
+      min_success: p?.min_success === undefined ? undefined : Number(p.min_success),
+    };
+  }
+  return null;
+}
+
+function validateParallel(ir: WorkflowIr, adj: Map<string, IrEdge[]>, errors: string[]) {
+  const byId = new Map(ir.nodes.map((n) => [n.id, n]));
+  const closedBy = new Map<string, number>();
+  for (const j of ir.nodes.filter((n) => n.kind === "join")) {
+    const target = typeof j.params?.parallel === "string" ? byId.get(j.params.parallel) : undefined;
+    if (!target || target.kind !== "parallel") errors.push(`node "${j.id}": params.parallel must be the id of a parallel node`);
+    else closedBy.set(target.id, (closedBy.get(target.id) ?? 0) + 1);
+    for (const k of Object.keys(j.params ?? {})) if (!JOIN_PARAMS.includes(k)) errors.push(`node "${j.id}": unknown param "${k}"`);
+  }
+
+  for (const b of computeBlocks(ir)) {
+    const idx = (adj.get(b.parallel) ?? []).map((e) => Number(e.on.slice(1))).sort((x, y) => x - y);
+    if (!idx.every((v, i) => v === i)) errors.push(`parallel "${b.parallel}": branch edges must be b0, b1, ... without gaps`);
+    if ((closedBy.get(b.parallel) ?? 0) !== 1) { errors.push(`parallel "${b.parallel}" must be closed by exactly one join node (found ${closedBy.get(b.parallel) ?? 0})`); continue; }
+    const join = b.join!;
+    const cfg = joinConfigFromParams(byId.get(join)!.params);
+    if (!cfg) errors.push(`join "${join}": params.mode must be all, any, n_of_m or timeout`);
+    else for (const m of validateJoinConfig(cfg, idx.length)) errors.push(`join "${join}": ${m}`);
+
+    const seen = new Set<string>();
+    b.regions.forEach((region, i) => {
+      if (region.size === 0) errors.push(`parallel "${b.parallel}": branch b${i} is empty`);
+      for (const id of region) {
+        if (seen.has(id)) errors.push(`node "${id}" belongs to more than one branch of "${b.parallel}"`);
+        seen.add(id);
+        const kind = byId.get(id)!.kind;
+        if (kind === "approval" || kind === "parallel" || kind === "join" || kind === "foreach" || kind === "wait") errors.push(`node "${id}" (${kind}) is not allowed inside a parallel branch`);
+        if (!reachableFrom(id, adj).has(join)) errors.push(`node "${id}" inside branch b${i} must lead to join "${join}"`);
+      }
+    });
+    for (const e of ir.edges) {
+      const into = b.regions.findIndex((r) => r.has(e.to));
+      if (into >= 0 && !b.regions[into].has(e.from) && !(e.from === b.parallel && e.on === `b${into}` && e.to === b.starts[into])) {
+        errors.push(`node "${e.to}" inside branch b${into} of "${b.parallel}" is entered from outside the branch (from "${e.from}")`);
+      }
+      if (e.to === join && !b.regions.some((r) => r.has(e.from))) errors.push(`join "${join}" can only be entered from its own branches (edge from "${e.from}")`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Side nodes: a fan-out body (foreach.params.body) and an undo action (action.compensator).
+// They are declared, not wired: no edges, never an entry, never "reachable". The runtime invokes them.
+// ---------------------------------------------------------------------------
+
+const FOREACH_PARAMS = ["collection_path", "max_items", "concurrency", "body"];
+
+export function sideNodes(ir: Pick<WorkflowIr, "nodes">): Map<string, string> {
+  const m = new Map<string, string>();
+  for (const n of ir.nodes) {
+    if (n.kind === "foreach" && typeof n.params?.body === "string") m.set(n.params.body, n.id);
+    if (typeof n.compensator === "string") m.set(n.compensator, n.id);
+  }
+  return m;
+}
+
+function validateSide(ir: WorkflowIr, errors: string[]) {
+  const byId = new Map(ir.nodes.map((n) => [n.id, n]));
+  const refs = new Map<string, { owner: string; as: "body" | "compensator" }[]>();
+  const add = (side: string, owner: string, as: "body" | "compensator") => (refs.get(side) ?? refs.set(side, []).get(side)!).push({ owner, as });
+  for (const n of ir.nodes) {
+    if (n.kind === "foreach") {
+      if (typeof n.params?.body !== "string") errors.push(`node "${n.id}": foreach needs params.body (the id of the node to run for each item)`);
+      else add(n.params.body, n.id, "body");
+    }
+    if (n.compensator !== undefined) {
+      if (n.kind !== "action") errors.push(`node "${n.id}": only action nodes can have a compensator`);
+      else if (typeof n.compensator !== "string") errors.push(`node "${n.id}": compensator must be a node id`);
+      else add(n.compensator, n.id, "compensator");
+    }
+  }
+  for (const [sideId, uses] of refs) {
+    const t = byId.get(sideId);
+    if (!t) { errors.push(`node "${uses[0].owner}" refers to unknown node "${sideId}"`); continue; }
+    if (uses.length > 1) errors.push(`node "${sideId}" is used by more than one step (${uses.map((u) => u.owner).join(", ")})`);
+    for (const u of uses) {
+      if (u.owner === sideId) errors.push(`node "${sideId}" cannot refer to itself`);
+      if (u.as === "body" && t.kind !== "action" && t.kind !== "lookup") errors.push(`foreach body "${sideId}" must be an action or lookup node`);
+      if (u.as === "compensator" && t.kind !== "action") errors.push(`compensator "${sideId}" must be an action node`);
+    }
+    if (ir.edges.some((e) => e.from === sideId || e.to === sideId)) errors.push(`node "${sideId}" is a ${uses[0].as} and must not have any edges`);
+    if (t.compensator !== undefined) errors.push(`node "${sideId}" is a ${uses[0].as} and cannot have a compensator of its own`);
+  }
+}
+
+/** What a side node may read: everything guaranteed before its owner; a foreach body also gets `item`, a compensator also gets its owner's outputs. */
+function sideScope(sideId: string, owner: string, ir: WorkflowIr, entry: string, adj: Map<string, IrEdge[]>): Set<string> {
+  const s = new Set(guaranteedBefore(owner, entry, ir, adj));
+  const o = ir.nodes.find((x) => x.id === owner)!;
+  if (o.kind === "foreach" && o.params?.body === sideId) s.add("#item");
+  else s.add(owner);
+  return s;
+}
+
+export interface CompileOptions {
+  /** Parallel/join nodes are rejected unless the runtime that will execute the graph supports them. */
+  allowParallel?: boolean;
+}
+
+export function validateIr(raw: unknown, opts: CompileOptions = {}): { errors: string[]; ir: WorkflowIr | null } {
   const errors: string[] = [];
   if (!raw || typeof raw !== "object") return { errors: ["IR must be a JSON object"], ir: null };
   const ir = raw as WorkflowIr;
@@ -287,6 +434,11 @@ export function validateIr(raw: unknown): { errors: string[]; ir: WorkflowIr | n
   }
   if (errors.length) return { errors, ir: null };
 
+  if (!opts.allowParallel) {
+    const usesParallel = ir.nodes.some((n) => n && (n.kind === "parallel" || n.kind === "join" || n.kind === "foreach" || n.compensator !== undefined)) || ir.edges.some((e) => e && BRANCH_RE.test(String(e.on)));
+    if (usesParallel) return { errors: ["parallel branches, joins, fan-out and compensation are not enabled for this workflow runtime yet"], ir: null };
+  }
+
   const byId = new Map(ir.nodes.map((n) => [n.id, n]));
   for (const e of ir.edges) {
     if (!byId.has(e.from) || !byId.has(e.to)) { errors.push(`edge ${e.from}->${e.to} references an unknown node`); continue; }
@@ -304,6 +456,8 @@ export function validateIr(raw: unknown): { errors: string[]; ir: WorkflowIr | n
     seenOn.add(key);
   }
 
+  validateSide(ir, errors);
+  const side = sideNodes(ir);
   const entries = findEntry(ir);
   if (entries.length !== 1) errors.push(`graph must have exactly one entry node (no incoming edge); found ${entries.length}: ${entries.join(", ") || "none"}`);
   const cycle = findCycle([...ids], adj);
@@ -312,7 +466,7 @@ export function validateIr(raw: unknown): { errors: string[]; ir: WorkflowIr | n
 
   const entry = entries[0];
   const reachable = reachableFrom(entry, adj);
-  for (const id of ids) if (!reachable.has(id)) errors.push(`node "${id}" is unreachable from the entry`);
+  for (const id of ids) if (!reachable.has(id) && !side.has(id)) errors.push(`node "${id}" is unreachable from the entry`);
 
   for (const n of ir.nodes) {
     if (!str(n.label, 90)) errors.push(`node "${n.id}": label is required (max 90 chars)`);
@@ -320,8 +474,18 @@ export function validateIr(raw: unknown): { errors: string[]; ir: WorkflowIr | n
     for (const need of REQUIRED_EDGES[n.kind] ?? []) if (!out.has(need)) errors.push(`node "${n.id}" (${n.kind}) needs a "${need}" edge`);
     if (!(n.kind in REQUIRED_EDGES)) { errors.push(`node "${n.id}": unknown kind "${n.kind}"`); continue; }
 
-    const scope = guaranteedBefore(n.id, entry, ir, adj);
+    const owner = side.get(n.id);
+    const scope = owner ? sideScope(n.id, owner, ir, entry, adj) : guaranteedBefore(n.id, entry, ir, adj);
     const cap = n.capability ? CAPABILITIES[n.capability] : undefined;
+
+    if (n.kind === "foreach") {
+      const p = n.params ?? {};
+      for (const k of Object.keys(p)) if (!FOREACH_PARAMS.includes(k)) errors.push(`node "${n.id}": unknown param "${k}"`);
+      if (typeof p.collection_path !== "string" || !PATH_RE.test(p.collection_path)) errors.push(`node "${n.id}": params.collection_path must look like node.field`);
+      else { const e2 = checkPathRef(p.collection_path, scope, ir); if (e2) errors.push(`node "${n.id}": params.collection_path — ${e2}`); }
+      if (!(Number(p.max_items) >= 1)) errors.push(`node "${n.id}": params.max_items must be a number of at least 1`);
+      for (const m of validateFanOut(Number(p.max_items), Number(p.concurrency))) errors.push(`node "${n.id}": ${m}`);
+    }
 
     if (n.kind === "reason") {
       if (!str(n.question, 500)) errors.push(`node "${n.id}": reason needs a question (max 500 chars)`);
@@ -365,11 +529,14 @@ export function validateIr(raw: unknown): { errors: string[]; ir: WorkflowIr | n
     }
   }
 
+  validateParallel(ir, adj, errors);
+
   // Commitment safety: no money/staff/third-party commitment without a human gate on EVERY path.
   const approvals = ir.nodes.filter((n) => n.kind === "approval");
   for (const n of ir.nodes) {
     if (n.kind !== "action" || !n.capability || !CAPABILITIES[n.capability]?.commitment) continue;
-    const dominated = approvals.some((a) => guaranteedBefore(n.id, entry, ir, adj).has(a.id));
+    const subject = side.get(n.id) ?? n.id; // a side node is gated by whatever gates its owner
+    const dominated = approvals.some((a) => guaranteedBefore(subject, entry, ir, adj).has(a.id));
     if (!dominated) errors.push(`commitment action "${n.id}" (${n.capability}) must be preceded by a human_approval node on every path — add an approval before any branch that reaches it`);
   }
   for (const a of approvals) for (const g of a.gates ?? []) {
@@ -399,10 +566,17 @@ export function lowerIr(ir: WorkflowIr): { graph: CompiledGraph; autoEscalations
 
   let autoEscalations = 0;
   const wantsEscalate = (kind: NodeKind, on: EdgeOn) =>
-    (on === "fail" && ["lookup", "reason", "action", "verify"].includes(kind)) || (on === "timeout" && kind === "approval");
+    (on === "fail" && ["lookup", "reason", "action", "verify", "join", "foreach"].includes(kind)) || (on === "timeout" && kind === "approval");
+  // Inside a parallel branch a failure belongs to the branch: it flows to the join, never straight to escalation.
+  const joinOf = new Map<string, string>();
+  for (const b of computeBlocks(ir)) if (b.join) for (const r of b.regions) for (const id of r) joinOf.set(id, b.join);
+  const sideIds = sideNodes(ir);
   for (const n of ir.nodes) {
+    if (sideIds.has(n.id)) continue; // side nodes are invoked by their owner and never escalate on their own
     for (const on of ["fail", "timeout"] as EdgeOn[]) {
       if (ALLOWED_EDGES[n.kind].includes(on) && wantsEscalate(n.kind, on) && !edges[n.id][on]) {
+        const branchJoin = on === "fail" ? joinOf.get(n.id) : undefined;
+        if (branchJoin) { edges[n.id][on] = branchJoin; continue; }
         edges[n.id][on] = ESCALATE_ID;
         autoEscalations++;
       }
@@ -439,6 +613,10 @@ export interface CompileReport {
   paths: string[][];
   paths_truncated: boolean;
   warnings: string[];
+  /** Present only when the workflow contains parallel blocks. */
+  parallel_blocks?: number;
+  fan_out_nodes?: number;
+  compensated_actions?: number;
 }
 
 export function enumeratePaths(graph: CompiledGraph): { paths: string[][]; truncated: boolean } {
@@ -446,7 +624,12 @@ export function enumeratePaths(graph: CompiledGraph): { paths: string[][]; trunc
   let truncated = false;
   const walk = (id: string, acc: string[]) => {
     if (paths.length >= MAX_PATHS) { truncated = true; return; }
-    const next = Object.values(graph.edges[id] ?? {}) as string[];
+    let next = Object.values(graph.edges[id] ?? {}) as string[];
+    // A parallel block is one step on a path: its branches run together, so they are not separate routes.
+    if (graph.nodes[id]?.kind === "parallel") {
+      const join = Object.values(graph.nodes).find((n) => n.kind === "join" && n.params?.parallel === id);
+      if (join) next = [join.id];
+    }
     const here = [...acc, id];
     if (next.length === 0) { paths.push(here); return; }
     for (const to of new Set(next)) walk(to, here);
@@ -466,7 +649,23 @@ export function buildReport(ir: WorkflowIr, graph: CompiledGraph, autoEscalation
   if (count((n) => n.kind === "action" && !!n.capability && !!CAPABILITIES[n.capability]?.commitment) > 0 && count((n) => n.kind === "verify") === 0) {
     warnings.push("A commitment action has no verification step; consider confirming the outcome.");
   }
+  const blocks = computeBlocks(ir);
+  if (blocks.length > 0) {
+    const byId = new Map(ir.nodes.map((n) => [n.id, n]));
+    const cancelsSiblings = blocks.some((b) => b.join && joinConfigFromParams(byId.get(b.join)?.params)?.mode !== "all"
+      && b.regions.some((r) => [...r].some((id) => !!byId.get(id)?.capability && !!CAPABILITIES[byId.get(id)!.capability!]?.commitment)));
+    if (cancelsSiblings) warnings.push("A join that does not wait for every branch can cancel branches whose commitment actions already ran; cancellation does not undo them.");
+  }
+  const fanOut = ir.nodes.filter((n) => n.kind === "foreach");
+  const compensated = ir.nodes.filter((n) => n.compensator !== undefined).length;
+  const sideById = new Map(ir.nodes.map((n) => [n.id, n]));
+  if (fanOut.some((f) => { const b = sideById.get(String(f.params?.body)); return !!b?.capability && !!CAPABILITIES[b.capability]?.commitment; })) {
+    warnings.push("A fan-out body is a commitment action: it runs once per item after a single approval, so the approval covers every item.");
+  }
   return {
+    ...(blocks.length > 0 ? { parallel_blocks: blocks.length } : {}),
+    ...(fanOut.length > 0 ? { fan_out_nodes: fanOut.length } : {}),
+    ...(compensated > 0 ? { compensated_actions: compensated } : {}),
     ok: true,
     node_count: ir.nodes.length,
     stages: {
@@ -494,10 +693,10 @@ export function buildReport(ir: WorkflowIr, graph: CompiledGraph, autoEscalation
 }
 
 /** Full pipeline used by the compile function. */
-export function compileIr(raw: unknown):
+export function compileIr(raw: unknown, opts: CompileOptions = {}):
   | { ok: true; ir: WorkflowIr; graph: CompiledGraph; report: CompileReport }
   | { ok: false; errors: string[] } {
-  const { errors, ir } = validateIr(raw);
+  const { errors, ir } = validateIr(raw, opts);
   if (!ir) return { ok: false, errors };
   const { graph, autoEscalations } = lowerIr(ir);
   return { ok: true, ir, graph, report: buildReport(ir, graph, autoEscalations) };
