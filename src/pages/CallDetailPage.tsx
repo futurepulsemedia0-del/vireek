@@ -31,6 +31,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { supabase, type Call } from '@/lib/supabase';
+import { AccessHistoryPanel } from '@/components/privacy/AccessHistoryPanel';
+import { readCallSensitive } from '@/lib/privacy/accessLog';
 import { CallDispositionPanel } from '@/components/call-dispositions/CallDispositionPanel';
 import { AgentLeadPanel } from '@/components/agent-callers/AgentLeadPanel';
 import { useKeyboardShortcut } from '@/lib/hooks';
@@ -367,6 +369,14 @@ export function CallDetailPage() {
       return;
     }
 
+    // Server-side logged read of the recording + transcript (fails closed if it cannot be logged).
+    try {
+      const sensitive = await readCallSensitive(id);
+      row = { ...row, recording_url: sensitive?.recordingUrl ?? null, transcript: sensitive?.transcript ?? null };
+    } catch {
+      if (token === loadToken.current) setStatus('error');
+      return;
+    }
     const [leadsR, jobsR] = await Promise.allSettled([
       run<LinkedLead[]>(supabase.from('leads').select('id, name, stage, customer_id, created_at').eq('call_id', id).eq('user_id', accountOwnerId).order('created_at', { ascending: false })),
       run<LinkedJob[]>(supabase.from('jobs').select('id, service_type, job_status, scheduled_datetime, address, invoice_status').eq('call_id', id).eq('user_id', accountOwnerId).order('created_at', { ascending: false })),
@@ -525,6 +535,7 @@ export function CallDetailPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         {/* ---------- MAIN COLUMN ---------- */}
         <div className="space-y-4 lg:col-span-2">
+          <AccessHistoryPanel targetTable="calls" targetId={call.id} />
           <Panel title="Recording" icon={Volume2}>
             {call.recording_url ? (
               <RecordingPlayer url={call.recording_url} audioRef={audioRef} fallbackDuration={call.duration_seconds} onTime={setCurrentSec} onPlayingChange={setIsPlaying} />
