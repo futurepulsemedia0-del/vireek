@@ -39,3 +39,5 @@ public/changelog-rss.xml
 *.jks
 *.keystore
 android/keystore.properties
+# Generated SBOM (CI artifact)
+sbom/
