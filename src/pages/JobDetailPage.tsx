@@ -26,6 +26,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { JobWorkflowPanel } from '@/components/jobs/JobWorkflowPanel';
 import { JobStatusPanel } from '@/components/jobs/JobStatusPanel';
+import { JobStatusPanel } from '@/components/jobs/JobStatusPanel';
 import { JobSummaryPanel } from '@/components/jobs/JobSummaryPanel';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import type { RealtimeStatus } from '@/lib/realtime';
