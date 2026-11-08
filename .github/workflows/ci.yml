@@ -32,6 +32,7 @@ jobs:
       - name: Colour tokens (ratchet) + generated tokens up to date
         run: |
           npm run lint:colors
+          npm run lint:surfaces
           npm run tokens:build
           git diff --exit-code -- src/styles docs/design/COLOR_TOKENS.md supabase/functions/_shared/brand-colors.ts
 
