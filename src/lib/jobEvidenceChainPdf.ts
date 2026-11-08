@@ -14,6 +14,7 @@ import {
   type EvidenceEntry,
 } from '@/lib/jobEvidenceChain';
 import { drawPassportLabels, type PdfPassport } from '@/lib/passportLabelPdf';
+import { photoEvidencePlainLines, type PhotoCaptureView } from '@/lib/photoProvenance';
 
 const ACCENT: [number, number, number] = [32, 58, 216];
 const INK: [number, number, number] = [23, 23, 23];
@@ -73,9 +74,10 @@ export async function exportEvidenceChainPdf(input: {
   report: ChainReport;
   businessName?: string | null;
   passports?: PdfPassport[];
+  photoProvenance?: PhotoCaptureView[];
 }): Promise<void> {
   const { jsPDF } = await import('jspdf');
-  const { job, entries, report, businessName, passports = [] } = input;
+  const { job, entries, report, businessName, passports = [], photoProvenance = [] } = input;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const level = LEVEL_META[report.level];
   const byId = new Map(entries.map((e) => [e.id, e]));
@@ -231,6 +233,15 @@ export async function exportEvidenceChainPdf(input: {
     );
   }
 
+  // ---------- Photo provenance (verified photo summary; never coordinates) ----------
+  if (photoProvenance.length > 0) {
+    const lines = photoEvidencePlainLines(photoProvenance);
+    ensure(70);
+    y += 6;
+    write(lines[0], { size: 11, bold: true, gap: 3 });
+    lines.slice(1, -1).forEach((line) => write(line, { size: 8, color: MUTED, gap: 1 }));
+    write(lines[lines.length - 1], { size: 8, color: WARNING, gap: 6 });
+  }
   // ---------- Verification block ----------
   ensure(90);
   y += 6;
