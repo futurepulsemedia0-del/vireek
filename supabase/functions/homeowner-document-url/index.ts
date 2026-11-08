@@ -4,6 +4,7 @@
 // document ownership), evaluated with the CALLER's JWT.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { logSensitiveRead } from "../_shared/privacy/readLog.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -54,6 +55,12 @@ Deno.serve(async (req: Request) => {
   const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", {
     auth: { persistSession: false },
   });
+  // Read-access log against the business that owns the document. Fail closed: no log, no link.
+  try {
+    await logSensitiveRead(admin, { accountId: String(data.business_user_id ?? ""), actorKind: "public_link", assetClass: "document", action: "signed_url", channel: "edge", targetTable: "documents", targetId: documentId });
+  } catch {
+    return reply(503, { error: "Couldn't open the document." });
+  }
   const signed = await admin.storage
     .from("documents")
     .createSignedUrl(data.storage_path, TTL_SECONDS, { download: data.file_name ?? true });
