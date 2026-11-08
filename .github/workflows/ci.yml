@@ -52,6 +52,8 @@ jobs:
           npm run lint:voice
           npm run lint:tells
           npm run i18n:keys
+          npm run i18n:coverage
+          npm run i18n:freshness
 
       - name: Unit tests
         run: npm run test -- --coverage
