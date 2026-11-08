@@ -20,29 +20,26 @@ beforeEach(() => {
   state.language = 'en';
 });
 
-describe('useSEO hreflang + canonical', () => {
-  it('English: clean canonical, 9 languages + x-default', () => {
+describe('useSEO canonical (no misleading hreflang)', () => {
+  it('English: clean canonical and no hreflang links', () => {
     renderHook(() => useSEO(config));
     expect(canonicalHref()).toBe(CANONICAL);
-    expect(hreflangs()).toHaveLength(10);
-    expect(hreflangs().find((l) => l.hreflang === 'x-default')?.href).toBe(CANONICAL);
+    expect(hreflangs()).toHaveLength(0);
   });
 
-  it('Persian: self-canonical localized URL matches its own hreflang entry, og:locale is fa_IR', () => {
+  it('Persian: canonical stays the clean URL, og:locale is fa_IR, still no hreflang', () => {
     state.language = 'fa';
     renderHook(() => useSEO(config));
-    expect(canonicalHref()).toBe('https://vireek.com/pricing?lang=fa');
-    expect(hreflangs().find((l) => l.hreflang === 'fa')?.href).toBe(canonicalHref());
+    expect(canonicalHref()).toBe(CANONICAL);
+    expect(hreflangs()).toHaveLength(0);
     expect(document.querySelector('meta[property="og:locale"]')?.getAttribute('content')).toBe('fa_IR');
-    expect(document.querySelector('meta[property="og:url"]')?.getAttribute('content')).toBe(
-      'https://vireek.com/pricing?lang=fa',
-    );
+    expect(document.querySelector('meta[property="og:url"]')?.getAttribute('content')).toBe(CANONICAL);
   });
 
-  it('removes hreflang links on unmount', () => {
+  it('removes managed og:locale:alternate tags on unmount', () => {
     const { unmount } = renderHook(() => useSEO(config));
-    expect(hreflangs().length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('meta[property="og:locale:alternate"]').length).toBeGreaterThan(0);
     unmount();
-    expect(hreflangs()).toHaveLength(0);
+    expect(document.querySelectorAll('meta[property="og:locale:alternate"]')).toHaveLength(0);
   });
 });
