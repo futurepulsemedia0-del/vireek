@@ -16,6 +16,7 @@ import { refreshFormTemplates } from './forms';
 import { forgetFromVault, rehydrateFromVault } from '../native/vault';
 import { replaceBundle, type Bundle } from './store';
 import { isDataSaverActive } from '../native/dataSaver';
+import { prepareInOrder } from './replayOrder';
 
 // ------------------------------------------------------------
 // Observable sync state
@@ -225,11 +226,12 @@ async function pushOutbox(userId: string): Promise<boolean> {
     (o) => o.user_id === userId && o.state === 'pending' && o.next_attempt_at <= now,
   );
 
-  const ready: OutboxOp[] = [];
-  for (const op of candidates) {
-    if (op.blob_id && !op.uploaded && !(await uploadBlob(op, userId))) continue;
-    ready.push(op);
-  }
+  // seq order; when one op's file can't be uploaded, later ops of the same job wait for the next run
+  // instead of overtaking it.
+  const ready = await prepareInOrder(
+    candidates,
+    async (op) => !(op.blob_id && !op.uploaded) || (await uploadBlob(op, userId)),
+  );
 
   let delivered = false;
   for (let i = 0; i < ready.length; i += 50) {
