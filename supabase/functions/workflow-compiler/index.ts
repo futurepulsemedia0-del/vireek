@@ -132,7 +132,36 @@ Deno.serve(async (req: Request) => {
     const since = new Date(Date.now() - 3600_000).toISOString();
     const { count } = await db.from("compiled_workflows").select("id", { count: "exact", head: true }).eq("user_id", owner).gte("created_at", since);
     if ((count ?? 0) >= HOURLY_LIMIT) return json({ error: "Compile limit reached (20 per hour). Try again shortly." }, 429);
-
+    if (derive) {
+      // Read-only comparison of two of the owner's versions.
+      if (diffIds) {
+        const { data: rows } = await db.from("compiled_workflows").select("id, ir").in("id", diffIds).eq("user_id", owner);
+        const a = rows?.find((r) => r.id === diffIds[0]), b = rows?.find((r) => r.id === diffIds[1]);
+        if (!a || !b) return json({ error: "Workflow not found." }, 404);
+        return json({ diff: diffIr(a.ir as WorkflowIr, b.ir as WorkflowIr) });
+      }
+      // Rollback / constrained edit: the old graph (plus validated edits) goes through the SAME validator and becomes a NEW draft.
+      const sourceId = (rollbackOf ?? editOf) as string;
+      const { data: src } = await db.from("compiled_workflows").select("id, ir, instruction").eq("id", sourceId).eq("user_id", owner).maybeSingle();
+      if (!src) return json({ error: "Workflow not found." }, 404);
+      let candidate: unknown = src.ir;
+      if (editOf) {
+        const edits = Array.isArray(body?.edits) ? (body.edits as EditOp[]) : [];
+        const applied = applyEdits(src.ir as WorkflowIr, edits);
+        if (!applied.ir) return json({ error: "Those edits are not allowed.", details: applied.errors }, 422);
+        candidate = applied.ir;
+      }
+      const derived = compileIr(candidate, { allowParallel: Deno.env.get("WORKFLOW_PARALLEL_ENABLED") === "true" });
+      if (!derived.ok) return json({ error: "The result does not pass validation.", details: derived.errors.slice(0, 12) }, 422);
+      const { data: row, error: insertError } = await db.from("compiled_workflows").insert({
+        user_id: owner, parent_id: src.id, name: derived.ir.name, instruction: src.instruction, summary: derived.ir.summary,
+        trigger_event: derived.ir.trigger.event, sla_minutes: derived.ir.sla_minutes ?? null,
+        ir: derived.ir, graph: derived.graph, report: derived.report,
+        compiler_meta: { provider: "none", model: "none", attempts: 0, derived: editOf ? "edit" : "rollback", compiler_version: derived.graph.version },
+      }).select("*").single();
+      if (insertError || !row) throw insertError ?? new Error("Could not save the derived workflow.");
+      return json({ workflow: row, attempts: 0 });
+    }
     const { count: techCount } = await db.from("team_members").select("id", { count: "exact", head: true }).eq("account_owner_id", owner);
 
     const messages: { role: "user" | "assistant"; content: string }[] = [
