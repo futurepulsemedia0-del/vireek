@@ -153,6 +153,7 @@ export async function checkMyDocumentExpiries(): Promise<void> {
  * `download: true` forces a save dialog using the original file name.
  */
 export async function getSignedUrl(
+  version: Pick<DocumentVersion, 'storage_path' | 'file_name'> & Partial<Pick<DocumentVersion, 'id' | 'document_id'>>,
   version: Pick<DocumentVersion, 'storage_path' | 'file_name'>,
   mode: 'view' | 'download',
 ): Promise<string> {
@@ -164,6 +165,16 @@ export async function getSignedUrl(
       mode === 'download' ? { download: version.file_name } : undefined,
     );
   if (error || !data?.signedUrl) throw error ?? new Error('Could not create a secure link.');
+  // Per-document access log. Best effort: a logging failure must never block opening a file.
+  if (version.document_id && version.id) {
+    void supabase
+      .rpc('log_document_access', {
+        p_document_id: version.document_id,
+        p_version_id: version.id,
+        p_action: mode === 'download' ? 'download' : 'view',
+      })
+      .then(() => undefined, () => undefined);
+  }
   return data.signedUrl;
 }
 
