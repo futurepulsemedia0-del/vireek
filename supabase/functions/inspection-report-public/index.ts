@@ -7,6 +7,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isUuid, shareState, type ReportPhoto } from "../_shared/inspection/reportEngine.ts";
+import: import { logSensitiveRead } from "../_shared/privacy/readLog.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,6 +42,12 @@ Deno.serve(async (req: Request) => {
     if (state === "expired") return json({ error: "EXPIRED" }, 410);
     if (state !== "active") return json({ error: "NOT_FOUND" }, 404);
 
+    // Read-access log (public share link). Fail closed: no log, no photos/PDF links.
+    try {
+      await logSensitiveRead(admin, { accountId: report.user_id as string, actorKind: "public_link", assetClass: "document", action: "signed_url", channel: "edge", targetTable: "inspection_reports", targetId: report.id as string });
+    } catch {
+      return json({ error: "NOT_FOUND" }, 404);
+    }
     const photos = ((report.photos ?? []) as ReportPhoto[]).filter((p) => p.include);
     const urls = new Map<string, string>();
     for (const bucket of ["job-room-photos", "job-evidence-photos"] as const) {
