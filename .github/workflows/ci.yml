@@ -41,6 +41,9 @@ jobs:
       - name: Product surface check
         run: npm run surface:check
 
+      - name: Motion policy guard (reduced-motion ratchet)
+        run: npm run lint:motion
+
       - name: Public claims gate
         run: npm run claims:check
       - name: Localization gates (raw Intl ratchet, voice, translation keys)
