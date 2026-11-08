@@ -8,6 +8,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isValidE164 } from "../_shared/pbx/logic.ts";
 import { mintVoiceToken } from "../_shared/pbx/twilio.ts";
+import: import { logSensitiveRead, ReadLogError } from "../_shared/privacy/readLog.ts";
+
 import {
   FALLBACK_HOLD_MUSIC, callerIdFor, clientIdentity, confSid, createLeg, endLeg, loadSettings,
   setEndOnExit, setHold, type Row,
@@ -46,6 +48,12 @@ Deno.serve(async (req: Request) => {
       if (!["recording", "voicemail"].includes(body.kind) || !UUID.test(body.id ?? "")) return json({ error: "Bad request" }, 400);
       const { data: path, error } = await userClient.rpc("pbx_authorize_media", { p_kind: body.kind, p_id: body.id });
       if (error || !path) return json({ error: "Not available" }, error?.code === "42501" ? 403 : 404);
+      try {
+        await logSensitiveRead(admin, { accountId: owner as string, actorKind: "user", actorId: user.id, assetClass: "call_recording", action: "signed_url", channel: "edge", targetId: body.id });
+      } catch (e) {
+        if (e instanceof ReadLogError) return json({ error: "Not available" }, 503); // fail closed: no log, no URL
+        throw e;
+      }
       const { data: signed } = await admin.storage.from("pbx-media").createSignedUrl(path, 120);
       return signed ? json({ url: signed.signedUrl }) : json({ error: "Could not sign URL" }, 502);
     }
