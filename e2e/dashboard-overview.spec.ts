@@ -29,6 +29,15 @@ test.describe('Overview', () => {
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
   });
 
+  test('has no WCAG 2.2 AA violations [dark]', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.addInitScript(() => { try { localStorage.setItem('vireek-theme', 'dark'); } catch { /* ignore */ } document.documentElement.classList.add('dark'); });
+    await page.goto('/dashboard');
+    await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
+    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+  });
+  
   test('shows no gradients, glass, or large radii on the page', async ({ page }) => {
     await page.goto('/dashboard');
     await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
