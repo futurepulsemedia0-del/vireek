@@ -1,0 +1,175 @@
+{
+  "error": {
+    "network": {
+      "title": "No podemos conectarnos con Vireek",
+      "body": "Revisa tu conexión e inténtalo de nuevo. No se perdió nada de lo que hiciste."
+    },
+    "auth": {
+      "title": "Se cerró tu sesión",
+      "body": "Por tu seguridad, tu sesión terminó. Inicia sesión de nuevo y continúa donde te quedaste."
+    },
+    "permission": {
+      "title": "No tienes acceso a esto",
+      "body": "Tu rol no permite esta acción. Pídele al propietario de la cuenta que te dé acceso o comunícate con soporte."
+    },
+    "validation": {
+      "title": "Hay datos que corregir",
+      "body": "Revisa los campos resaltados e inténtalo de nuevo."
+    },
+    "conflict": {
+      "title": "Alguien más cambió esto",
+      "body": "Este registro se actualizó mientras trabajabas. Actualiza para ver la versión más reciente antes de continuar."
+    },
+    "rate_limit": {
+      "title": "Ve más despacio un momento",
+      "body": "Vas un poco más rápido de lo que podemos procesar. Inténtalo de nuevo en unos segundos."
+    },
+    "server": {
+      "title": "Algo falló de nuestro lado",
+      "body": "Fue un error nuestro, no tuyo. Ya nos avisaron. Inténtalo de nuevo en un momento."
+    },
+    "unknown": {
+      "title": "Eso no funcionó",
+      "body": "No pudimos completar la acción y no estamos seguros del motivo. Nuestro equipo de soporte puede ayudarte."
+    }
+  },
+  "recovery": {
+    "retry": "Reintentar",
+    "fix_field": "Revisar campos",
+    "sign_in": "Iniciar sesión de nuevo",
+    "refresh": "Actualizar",
+    "wait": "Inténtalo de nuevo en {{seconds}} s",
+    "contact_support": "Contactar a soporte"
+  },
+  "reference": {
+    "label": "Referencia",
+    "copy": "Copiar referencia",
+    "copied": "Copiado",
+    "mailSubject": "Solicitud de soporte"
+  },
+  "mutation": {
+    "failedTitle": "No se pudo guardar ese cambio",
+    "reverted": "Lo dejamos como estaba.",
+    "retry": "Reintentar"
+  },
+  "nouns": {
+    "job_one": "trabajo",
+    "job_many": "trabajos",
+    "job_other": "trabajos",
+    "lead_one": "cliente potencial",
+    "lead_many": "clientes potenciales",
+    "lead_other": "clientes potenciales",
+    "customer_one": "cliente",
+    "customer_many": "clientes",
+    "customer_other": "clientes",
+    "quote_one": "presupuesto",
+    "quote_many": "presupuestos",
+    "quote_other": "presupuestos",
+    "invoice_one": "factura",
+    "invoice_many": "facturas",
+    "invoice_other": "facturas",
+    "call_one": "llamada",
+    "call_many": "llamadas",
+    "call_other": "llamadas",
+    "payment_one": "pago",
+    "payment_many": "pagos",
+    "payment_other": "pagos",
+    "item_one": "elemento",
+    "item_many": "elementos",
+    "item_other": "elementos"
+  },
+  "confirm": {
+    "delete": "Eliminar",
+    "lineDelete": "Eliminar {{count}} {{noun}}",
+    "lineAlso": "y {{count}} {{noun}}",
+    "recoverable": "Puedes restaurarlo desde Eliminados recientemente durante 30 días.",
+    "permanent": "Esta acción no se puede deshacer.",
+    "typeToConfirm": "Escribe \"{{phrase}}\" para confirmar",
+    "working": "Procesando…",
+    "cancel": "Cancelar",
+    "undoHint": "Tendrás 10 segundos para deshacerlo.",
+    "yesDelete": "Sí, eliminar"
+  },
+  "bulk": {
+    "allDone": "{{succeeded}} de {{requested}} completados",
+    "partial": "{{succeeded}} correctos, {{failed}} con error",
+    "partialSkipped": "{{succeeded}} correctos, {{failed}} con error, {{skipped}} omitidos",
+    "none": "No se cambió nada",
+    "showReasons": "Mostrar motivos",
+    "hideReasons": "Ocultar motivos",
+    "retryFailed": "Reintentar solo los fallidos",
+    "retrying": "Reintentando…",
+    "download": "Descargar informe",
+    "colId": "ID",
+    "colName": "Nombre",
+    "colStatus": "Estado",
+    "colReason": "Motivo",
+    "failed": "Con error",
+    "skipped": "Omitido",
+    "dismiss": "Cerrar"
+  },
+  "fresh": {
+    "updated": "Actualizado {{when}}",
+    "justNow": "justo ahora",
+    "refresh": "Actualizar datos",
+    "refreshing": "Actualizando…",
+    "stale": "Puede estar desactualizado",
+    "offline": "Estás sin conexión. Mostrando los últimos datos cargados.",
+    "disconnected": "Las actualizaciones en vivo están en pausa. Reconectando…",
+    "old": "Estos datos se están quedando viejos. Actualiza para ver lo más reciente."
+  },
+  "conflict": {
+    "title": "Este registro cambió mientras lo editabas",
+    "body": "Elige qué conservar en cada campo que se modificó en ambos lados. Todo lo demás se combina automáticamente.",
+    "field": "Campo",
+    "mine": "Conservar el mío",
+    "theirs": "Tomar el de ellos",
+    "yours": "Tu versión",
+    "server": "Versión más reciente",
+    "original": "Original",
+    "keepAllMine": "Conservar todos los míos",
+    "takeAllTheirs": "Tomar todos los de ellos",
+    "apply": "Aplicar y guardar",
+    "cancel": "Cancelar",
+    "gone": "Otra persona eliminó este registro.",
+    "saving": "Guardando…",
+    "empty": "(vacío)"
+  },
+  "history": {
+    "title": "Historial",
+    "empty": "Aún no hay cambios registrados para este registro.",
+    "emptyHint": "Aquí aparecerán las ediciones, los cambios de estado y las eliminaciones.",
+    "from": "de",
+    "to": "a",
+    "by": "por {{who}}",
+    "system": "Sistema",
+    "noAccess": "Solo el propietario de la cuenta puede ver el historial.",
+    "loadFailed": "No se pudo cargar el historial",
+    "verify": "Verificar integridad",
+    "verifying": "Verificando…",
+    "verified": "Verificado: {{count}} entradas, sin manipulación detectada",
+    "legacyNote": "Las entradas anteriores a la activación de la protección de integridad no están cubiertas.",
+    "broken": "Falló la verificación de integridad en la entrada n.º {{seq}}. Comunícate con soporte e indica la referencia {{ref}}.",
+    "device": "Dispositivo",
+    "ip": "Dirección IP"
+  },
+  "empty": {
+    "noData": {
+      "learnMore": "Más información"
+    },
+    "noResults": {
+      "title": "Sin resultados",
+      "description": "Nada coincide con tus filtros actuales.",
+      "clear": "Borrar filtros"
+    },
+    "noPermission": {
+      "title": "No tienes acceso",
+      "description": "Pídele al propietario de la cuenta que te dé acceso a esta área."
+    },
+    "loadFailed": {
+      "title": "No se pudo cargar",
+      "description": "Algo salió mal al cargar. Tus datos están a salvo.",
+      "retry": "Reintentar"
+    }
+  }
+}
