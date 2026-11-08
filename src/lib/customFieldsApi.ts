@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   CUSTOM_ENTITY_META,
+  CUSTOM_FIELD_TYPES,
   normalizeOptions,
   slugifyKey,
   sortDefs,
@@ -59,6 +60,7 @@ async function fetchCustomFields(entity: CustomEntity, ownerId: string): Promise
     .select(DEF_COLUMNS)
     .eq('user_id', ownerId)
     .eq('entity', entity)
+    .in('field_type', [...CUSTOM_FIELD_TYPES])
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true });
   if (error) throw error;
