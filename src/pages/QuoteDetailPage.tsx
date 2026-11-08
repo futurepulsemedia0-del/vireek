@@ -30,6 +30,7 @@ import { QuoteVideoPanel } from '@/components/quotes/QuoteVideoPanel';
 import { QuoteArPanel } from '@/components/quotes/QuoteArPanel';
 import { SiteSketchPanel } from '@/components/sketch/SiteSketchPanel';
 import { QuoteHvacPanel } from '@/components/quotes/QuoteHvacPanel';
+import { PhotoEvidenceSummaryCard } from '@/components/photoProvenance/PhotoEvidenceSummaryCard';
 import { QUOTE_STATUS_COLORS, QUOTE_STATUS_LABELS, getQuoteLink } from '@/lib/quotes';
 import {
   UUID_RE,
@@ -494,6 +495,7 @@ function ConvertSection({
         <Link to="/dashboard/jobs" className={`${LINK_BTN} mt-3`}>
           Open jobs board <ExternalLink size={13} aria-hidden="true" />
         </Link>
+        <div className="mt-3"><PhotoEvidenceSummaryCard jobId={job.id} /></div>
       </section>
     );
   }
