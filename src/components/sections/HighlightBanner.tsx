@@ -15,6 +15,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { EASE, viewport } from '@/lib/motion';
+import { useMotionLoop } from '@/hooks/useMotionLoop';
+import { MotionPauseButton } from '@/components/ui/MotionPauseButton';
 
 type Tone = 'accent' | 'cta' | 'success' | 'danger' | 'neutral';
 
@@ -79,6 +81,11 @@ export function HighlightBanner() {
   const dragStartScrollRef = useRef(0);
 
   const [hasInteracted, setHasInteracted] = useState(false);
+  const loop = useMotionLoop<HTMLElement>();
+  const runningRef = useRef(true);
+  useEffect(() => {
+    runningRef.current = loop.running;
+  }, [loop.running]);
 
   // Slow, deliberate drift — roughly one pill every ~2.5s. Direction is
   // "content moves left / new items arrive from the right", which reads
@@ -115,7 +122,7 @@ export function HighlightBanner() {
       const delta = time - lastTimeRef.current;
       lastTimeRef.current = time;
 
-      if (track && !isPausedRef.current && !isDraggingRef.current) {
+      if (track && runningRef.current && !isPausedRef.current && !isDraggingRef.current) {
         track.scrollLeft += PIXELS_PER_MS * delta;
         normalize();
       }
@@ -126,8 +133,6 @@ export function HighlightBanner() {
 
   useEffect(() => {
     measure();
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    isPausedRef.current = reduceMotion;
 
     const onResize = () => measure();
     window.addEventListener('resize', onResize);
@@ -169,6 +174,7 @@ export function HighlightBanner() {
 
   return (
     <section
+      ref={loop.ref}
       aria-label="Why home service businesses choose Vireek"
       className="relative overflow-hidden border-y border-border/60 bg-bg-secondary/50 bg-noise py-10 sm:py-14"
     >
@@ -241,6 +247,10 @@ export function HighlightBanner() {
           Drag to explore
         </motion.div>
       </motion.div>
+
+            <div className="mt-10 flex justify-center">
+        <MotionPauseButton loop={loop} />
+      </div>
 
       {/* Accessible summary for screen readers, since the marquee track
           itself is decorative/duplicated and hidden from the a11y tree. */}
