@@ -28,6 +28,8 @@
     "lint:tells": "node scripts/design/ai-tells.mjs --check",
     "lint:settings": "node --experimental-strip-types --no-warnings scripts/check-settings-registry.mjs",
     "lint:colors": "node scripts/color/check-colors.mjs",
+    "lint:surfaces": "node scripts/color/check-surfaces.mjs",
+    "fix:surfaces": "node scripts/color/fix-surfaces.mjs",
     "tokens:build": "node scripts/color/build-tokens.mjs",
     "codemod:colors": "node scripts/color/codemod-colors.mjs",
     "lint:locale": "node scripts/check-raw-locale.mjs",
