@@ -16,6 +16,8 @@
     "audit:contrast": "node scripts/audit-text-contrast.mjs",
     "codemod:text-alpha": "node scripts/color/codemod-text-alpha.mjs",
     "lint:design": "node scripts/check-design-system.mjs",
+    "lint:motion": "node scripts/check-motion.mjs",
+    "test:motion": "node --test scripts/motion/codemod-lib.test.mjs && playwright test e2e/reduced-motion.spec.ts",
     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
     "a11y:targets": "node scripts/a11y/audit-targets.mjs",
