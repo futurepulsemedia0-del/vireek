@@ -32,7 +32,7 @@ for (const theme of themes) {
       test('visual: every state section', async ({ page }) => {
         await open(page, theme, dir);
         await page.addStyleTag({ content: '*{animation:none!important;transition:none!important;caret-color:transparent!important}' });
-        for (const name of ['Button', 'IconButton', 'Link', 'Form controls', 'Tab / Table row / Menu item', 'Card', 'Copy']) {
+        for (const name of ['Button', 'IconButton', 'Link', 'Form controls', 'Tab / Table row / Menu item', Badge / chip', 'Card', 'Copy'].) {
           await expect(page.getByRole('region', { name })).toHaveScreenshot(`${name.replace(/\W+/g, '-')}-${theme}-${dir}.png`, { maxDiffPixelRatio: 0.002 });
         }
       });
