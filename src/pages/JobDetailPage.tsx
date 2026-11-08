@@ -25,6 +25,7 @@ import { ArrowLeft, Briefcase, MessagesSquare } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { JobWorkflowPanel } from '@/components/jobs/JobWorkflowPanel';
+import { JobStatusPanel } from '@/components/jobs/JobStatusPanel';
 import { JobSummaryPanel } from '@/components/jobs/JobSummaryPanel';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import type { RealtimeStatus } from '@/lib/realtime';
@@ -139,7 +140,6 @@ function PageSkeleton() {
       <Skeleton className="h-8 w-64 rounded-lg" />
       <Skeleton className="h-40 w-full rounded-2xl" />
      <JobWorkflowPanel job={j} canEdit={access.canEdit} onChanged={() => void syncJob()} />
-      <div className="grid gap-4 md:grid-cols-2">
         <Skeleton className="h-48 w-full rounded-2xl" />
         <Skeleton className="h-48 w-full rounded-2xl" />
       </div>
@@ -515,6 +515,8 @@ export function JobDetailPage() {
         onAdvance={(s) => void changeStatus(s)}
         onTerminate={(s) => setConfirm(s)}
       />
+      <JobWorkflowPanel job={j} canEdit={access.canEdit} onChanged={() => void syncJob()} />
+      <JobStatusPanel job={j} canEdit={access.canEdit} onChanged={() => void syncJob()} />
 
       <div className="grid gap-4 md:grid-cols-2">
         <JobCustomerCard job={j} />
