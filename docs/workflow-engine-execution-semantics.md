@@ -25,3 +25,13 @@ Branches cannot contain approvals, nested parallels, joins or foreach. A join th
 
 ## Not implemented
 Multi-token executor, token table, idempotency UNIQUE constraint, runtime compensation, kill switch, load tests.
+
+## Runtime (unverified until deployed)
+- Orchestration logic: `_shared/workflow-compiler/orchestrate.ts` (parallel, fan-out, compensation). The executor persists its state in `run.state` under `__par_<node>` / `__fe_<node>` and completed actions under `__done`.
+- At-most-once side effects: `compiled_workflow_step_keys` (`cwf_claim_step`), key = `runId:nodeId:purpose:branch:item`.
+- Kill switch: `WORKFLOW_PARALLEL_ENABLED=true` (secret). Off = runs reaching these nodes fail safely and compensate; the compiler also rejects such graphs.
+- Rollback and constrained edits always create a new draft through the same validator (`workflow-compiler` modes `rollback_of`, `edit_of`, `diff`).
+- `compensating` is a conceptual state only: the run table does not allow it, so undo steps run inside the failing tick and are audited as `compensation_done` / `compensation_failed`.
+
+## UI
+Outline (keyboard/screen-reader list view), run overlay, version history/diff/rollback/edit, Insights tab, run debugger with redacted replay and a test-mode what-if.
