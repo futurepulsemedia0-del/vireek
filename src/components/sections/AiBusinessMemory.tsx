@@ -1,4 +1,6 @@
 import { useId } from 'react';
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import { motion } from 'framer-motion';
 import {
   Building2,
@@ -93,6 +95,7 @@ const NODES: MemoryNode[] = [
 
 export function AiBusinessMemory() {
   const gradientId = useId();
+  const reduced = usePrefersReducedMotion();
 
   return (
     <section id="ai-business-memory" className="relative overflow-hidden py-16 sm:py-24 md:py-32">
@@ -167,8 +170,8 @@ export function AiBusinessMemory() {
                 transition={{ duration: 0.7, delay: 0.25 + i * 0.08, ease: EASE }}
               />
             ))}
-            {/* Traveling data-flow pulses */}
-            {NODES.map((node, i) => (
+            {/* Traveling data-flow pulses (decorative; omitted when motion is reduced) */}
+            {!reduced && NODES.map((node, i) => (
               <motion.circle
                 key={`pulse-${node.title}`}
                 r={0.9}
