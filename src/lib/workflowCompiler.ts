@@ -8,6 +8,9 @@
  */
 
 import { supabase } from '@/lib/supabase';
+import type { EditOp, IrDiff } from '../../supabase/functions/_shared/workflow-compiler/graph-diff.ts';
+
+export type { EditOp, IrDiff };
 
 // ============================================================
 // TYPES (mirror supabase/functions/_shared/workflow-compiler/spec.ts)
@@ -193,6 +196,30 @@ export async function compileWorkflow(instruction: string, parentId?: string): P
   return data as { workflow: CompiledWorkflow; attempts: number };
 }
 
+async function invokeCompiler(body: Record<string, unknown>, fallback: string) {
+  const { data, error } = await supabase.functions.invoke('workflow-compiler', { body });
+  if (error) {
+    const e = await functionError(error, fallback);
+    throw new CompileError(e.message, e.details);
+  }
+  if (data?.error) throw new CompileError(String(data.error), Array.isArray(data.details) ? data.details.map(String) : []);
+  return data as Record<string, unknown>;
+}
+
+/** What changed between two of your versions (read-only). */
+export async function diffWorkflows(fromId: string, toId: string): Promise<IrDiff> {
+  return (await invokeCompiler({ diff: [fromId, toId] }, 'Could not compare these versions.')).diff as IrDiff;
+}
+
+/** Restores an older version as a NEW draft. The server validates it again; nothing is deleted. */
+export async function rollbackWorkflow(id: string): Promise<CompiledWorkflow> {
+  return (await invokeCompiler({ rollback_of: id }, 'Could not restore this version.')).workflow as CompiledWorkflow;
+}
+
+/** Constrained edits (rename, parameter, approval timeout, swap) saved as a NEW draft after server validation. */
+export async function editWorkflow(id: string, edits: EditOp[]): Promise<CompiledWorkflow> {
+  return (await invokeCompiler({ edit_of: id, edits }, 'Could not save these changes.')).workflow as CompiledWorkflow;
+}
 export async function fetchCompiledWorkflows(): Promise<CompiledWorkflow[]> {
   const { data, error } = await supabase.from('compiled_workflows').select('*').neq('status', 'archived').order('created_at', { ascending: false }).limit(100);
   if (error) throw error;
