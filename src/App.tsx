@@ -1,5 +1,6 @@
 import { CustomDomainGate } from '@/components/CustomDomainGate';
 import { PdfBrandSync } from '@/components/PdfBrandSync';
+import { GrowthAttributionSync } from '@/components/GrowthAttributionSync';
 import { Suspense, lazy } from 'react';
 import { RouteFallback } from '@/components/loading/RouteFallback';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -68,6 +69,7 @@ const MessagingChannelsSettingsPage = lazy(() => import('@/pages/MessagingChanne
 const GoalOrchestratorPage = lazy(() => import('@/pages/GoalOrchestratorPage').then((m) => ({ default: m.GoalOrchestratorPage })));
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
 const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
+const GrowthAnalyticsPage = lazy(() => import('@/pages/admin/GrowthAnalyticsPage').then((m) => ({ default: m.GrowthAnalyticsPage })));
 const LeadDetailPage = lazy(() => import('@/pages/LeadDetailPage').then((m) => ({ default: m.LeadDetailPage })));
 const CustomerIntelligencePage = lazy(() => import('@/pages/CustomerIntelligencePage').then((m) => ({ default: m.CustomerIntelligencePage })));
 const TradePlaybooksPage = lazy(() => import('@/pages/TradePlaybooksPage').then((m) => ({ default: m.TradePlaybooksPage })));
@@ -865,6 +867,16 @@ function AppRoutes() {
           element={
             <StaffRoute>
               <FeatureFlagsAdminPage />
+            </StaffRoute>
+          }
+        />
+        <Route
+          path="/staff/growth"
+          element={
+            <StaffRoute>
+              <Suspense fallback={<PageLoader />}>
+                <GrowthAnalyticsPage />
+              </Suspense>
             </StaffRoute>
           }
         />
