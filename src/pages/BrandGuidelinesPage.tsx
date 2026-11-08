@@ -91,7 +91,7 @@ function ColorSwatch({ token }: { token: ColorToken }) {
         className="flex h-20 w-full items-end justify-end p-2.5"
         style={{ backgroundColor: token.lightHex }}
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-overlay/20 text-static-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-overlay text-static-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
           {copied ? <Check size={14} /> : <Copy size={14} />}
         </span>
       </span>
