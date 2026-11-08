@@ -195,6 +195,16 @@ export function buildTheme(theme) {
     }
   }
 
+    // brand gradient (cobalt → copper). ONE on-colour has to clear BOTH ends, and in dark mode the light copper fill
+  // (cta-fill, graphite text) can never share a text colour with cobalt — so the copper END is solved darker until white passes.
+  // sRGB interpolation of two colours that each clear the target is never lighter than the lighter end (luminance is convex).
+  {
+    const [cL, cC, ch] = FAMILIES.cta.fillSeed[mode];
+    tok['brand-from'] = tok['accent-fill'];
+    tok['brand-to'] = oklchToRgb(solveL(cL, cC, ch, [WHITE], tgt.on, -1), cC, ch);
+    tok['on-brand'] = WHITE;
+  }
+
   // legacy aliases (kept so every existing `rgb(var(--accent-primary))` keeps working)
   tok['accent-primary'] = tok['accent-text'];
   tok['accent-secondary'] = tok['cta-graphic'];
@@ -280,6 +290,10 @@ export function declaredPairs(theme) {
     add('text-primary', `${f}-subtle`, 7, `body text on ${f} tint`);
     add('text-secondary', `${f}-subtle`, 4.5, `secondary text on ${f} tint`);
   }
+  add('on-brand', 'brand-from', hc ? 7 : 4.5, 'text on brand gradient (start)');
+  add('on-brand', 'brand-to', hc ? 7 : 4.5, 'text on brand gradient (end)');
+  // High-contrast: a white-7:1 fill is necessarily dark, so its edge vs a black page can't also reach 3:1 — the label (7:1) carries identification, as for every other *-fill.
+  if (!hc) for (const s of surfaces) { add('brand-from', s, 3, 'brand gradient start vs page (1.4.11)'); add('brand-to', s, 3, 'brand gradient end vs page (1.4.11)'); }
   // translucent / composited surfaces
   const ink = tok['text-primary'], sec = tok['text-secondary'];
   for (const bd of [WHITE, [0, 0, 0]]) {
