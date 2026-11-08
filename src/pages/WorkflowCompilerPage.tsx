@@ -20,18 +20,26 @@ import {
   fetchRunAudit, formatCents, layoutGraph, setCompiledWorkflowStatus, startTestRun, verifyAuditChain,
 } from '@/lib/workflowCompiler';
 import type { AuditEvent, CompiledApproval, CompiledRun, CompiledWorkflow, NodeKind } from '@/lib/workflowCompiler';
+import { NODE_STATE_LABEL } from '@/lib/workflowInsights';
+import type { NodeState } from '@/lib/workflowInsights';
+import RunAnalyticsPanel from '@/components/workflow-compiler/RunAnalyticsPanel';
+import RunDebugger from '@/components/workflow-compiler/RunDebugger';
+import WorkflowOutline from '@/components/workflow-compiler/WorkflowOutline';
+import WorkflowVersionPanel from '@/components/workflow-compiler/WorkflowVersionPanel';
 
-type TabKey = 'compile' | 'workflows' | 'runs' | 'approvals';
+type TabKey = 'compile' | 'workflows' | 'runs' | 'approvals' | 'insights';
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'compile', label: 'Compile' },
   { key: 'workflows', label: 'My Compiled Workflows' },
   { key: 'runs', label: 'Runs & Audit' },
+  { key: 'insights', label: 'Insights' },
   { key: 'approvals', label: 'Approvals' },
 ];
 
 const KIND_STROKE: Record<NodeKind, string> = {
   lookup: 'stroke-accent-500', reason: 'stroke-accent-500', decision: 'stroke-warning-500', action: 'stroke-success-500',
 approval: 'stroke-warning-500', verify: 'stroke-accent-500', wait: 'stroke-border',
+  parallel: 'stroke-accent-500', join: 'stroke-accent-500', foreach: 'stroke-accent-500',
   parallel: 'stroke-accent-500', join: 'stroke-accent-500', foreach: 'stroke-accent-500',
 };
 
@@ -62,7 +70,7 @@ function PipelineStrip({ wf }: { wf: CompiledWorkflow }) {
   );
 }
 
-function GraphView({ wf }: { wf: CompiledWorkflow }) {
+function GraphView({ wf, overlay }: { wf: CompiledWorkflow; overlay?: Map<string, NodeState> }) {
   const layout = useMemo(() => layoutGraph(wf.graph), [wf.graph]);
   const pad = 12;
   return (
@@ -84,6 +92,7 @@ function GraphView({ wf }: { wf: CompiledWorkflow }) {
             <rect width={NODE_W} height={NODE_H} rx={10} strokeWidth={n.node.auto ? 1 : 1.75} strokeDasharray={n.node.auto ? '4 3' : undefined} className={`fill-bg-secondary ${KIND_STROKE[n.node.kind]}`} />
             <text x={10} y={19} fontSize={10} className="fill-text-secondary">{KIND_LABEL[n.node.kind]}{n.node.auto ? ' · auto' : ''}</text>
             <text x={10} y={39} fontSize={12} fontWeight={600} className="fill-text-primary">{n.node.label.length > 24 ? `${n.node.label.slice(0, 23)}…` : n.node.label}</text>
+            {overlay?.get(n.id) && <text x={10} y={NODE_H - 6} fontSize={9} className="fill-text-secondary">● {NODE_STATE_LABEL[overlay.get(n.id) as NodeState]}</text>}
             <title>{n.node.label}</title>
           </g>
         ))}
@@ -163,7 +172,7 @@ function SampleEventForm({ wf, onStarted }: { wf: CompiledWorkflow; onStarted: (
   );
 }
 
-function WorkflowDetail({ wf, onChanged, onGoRuns }: { wf: CompiledWorkflow; onChanged: () => void; onGoRuns: () => void }) {
+function WorkflowDetail({ wf, onChanged, onGoRuns, all }: { wf: CompiledWorkflow; onChanged: () => void; onGoRuns: () => void; all?: CompiledWorkflow[] }) {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [showSample, setShowSample] = useState(false);
@@ -210,6 +219,11 @@ function WorkflowDetail({ wf, onChanged, onGoRuns }: { wf: CompiledWorkflow; onC
       {showSample && <SampleEventForm wf={wf} onStarted={() => { setShowSample(false); onChanged(); onGoRuns(); }} />}
       <PipelineStrip wf={wf} />
       <GraphView wf={wf} />
+      <details className="rounded-xl border border-border bg-bg-secondary p-3">
+        <summary className="focus-ring cursor-pointer text-sm font-medium text-text-primary">Step outline (list view)</summary>
+        <div className="mt-2"><WorkflowOutline wf={wf} /></div>
+      </details>
+      <WorkflowVersionPanel wf={wf} all={all ?? [wf]} onChanged={onChanged} />
       <ReportPanel wf={wf} />
       <p className="text-xs text-text-secondary" dir="auto">Original request: “{wf.instruction}”</p>
     </div>
@@ -289,7 +303,7 @@ function WorkflowsTab({ workflows, onChanged, onGoRuns }: { workflows: CompiledW
             </span>
             {openId === wf.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
-          {openId === wf.id && <div className="mt-4 border-t border-border pt-4"><WorkflowDetail wf={wf} onChanged={onChanged} onGoRuns={onGoRuns} /></div>}
+          {openId === wf.id && <div className="mt-4 border-t border-border pt-4"><WorkflowDetail wf={wf} onChanged={onChanged} onGoRuns={onGoRuns} all={workflows} /></div>}
         </div>
       ))}
     </div>
@@ -360,6 +374,7 @@ function RunRow({ run, wf, onChanged }: { run: CompiledRun; wf?: CompiledWorkflo
             {active && <button type="button" className={btn} onClick={async () => { if (await cancelCompiledRun(run.id)) { toast('Run cancelled.', 'success'); onChanged(); } else toast('Could not cancel this run.', 'error'); }}><XCircle size={14} /> Cancel run</button>}
             {chain && <span className={`inline-flex items-center gap-1 text-xs font-medium ${chain.ok ? 'text-success-500' : 'text-danger'}`}>{chain.ok ? <CheckCircle2 size={14} /> : <XCircle size={14} />}{chain.ok ? `Intact — ${chain.checked} entries verified` : `Tampering detected at entry ${chain.first_bad_seq}`}</span>}
           </div>
+                    {events && wf && <RunDebugger run={run} wf={wf} events={events} renderGraph={(overlay) => <GraphView wf={wf} overlay={overlay} />} onStarted={onChanged} />}
           {events === null ? <Loader2 size={18} className="animate-spin text-text-secondary" /> : (
             <ol className="space-y-1.5">
               {events.filter((e) => e.event_type !== 'node_started').map((e) => (
@@ -488,6 +503,7 @@ export function WorkflowCompilerPage() {
           )}
           {tab === 'workflows' && (loading ? <div className="flex justify-center py-16"><Loader2 size={24} className="animate-spin text-text-secondary" /></div> : <WorkflowsTab workflows={workflows} onChanged={() => load(true)} onGoRuns={() => setTab('runs')} />)}
           {tab === 'runs' && (runs.length === 0 ? <p className="py-12 text-center text-sm text-text-secondary">No runs yet. Start a test run from a compiled workflow.</p> : <div className="space-y-3">{runs.map((r) => <RunRow key={r.id} run={r} wf={byId.get(r.workflow_id)} onChanged={() => load(true)} />)}</div>)}
+          {tab === 'insights' && <RunAnalyticsPanel runs={runs} workflows={workflows} />}
           {tab === 'approvals' && (approvals.length === 0 ? <p className="py-12 text-center text-sm text-text-secondary">Nothing is waiting for you.</p> : <div className="space-y-3">{approvals.map((a) => <ApprovalCard key={a.id} a={a} wf={byId.get(a.workflow_id)} onChanged={() => load(true)} />)}</div>)}
         </motion.div>
       </div>
