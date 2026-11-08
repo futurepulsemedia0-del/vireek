@@ -94,6 +94,16 @@
     "build:home": "vite build --mode home --outDir dist-home",
     "cap:home": "node scripts/cap-home.mjs",
     "test:e2e:home": "playwright test e2e/homepage.spec.ts"
+    "test:e2e:home": "playwright test e2e/homepage.spec.ts",
+    "doctor": "node scripts/dependency-doctor.mjs --check",
+    "doctor:strict": "node scripts/dependency-doctor.mjs",
+    "check:layers": "node scripts/governance/check-layers.mjs --check",
+    "debt:report": "node scripts/governance/debt-report.mjs --write",
+    "licenses:check": "node scripts/supply-chain/license-check.mjs",
+    "sbom": "node scripts/supply-chain/sbom.mjs",
+    "assets:check": "node scripts/supply-chain/asset-inventory.mjs --check",
+    "registers:check": "node scripts/registers/check-registers.mjs",
+    "owners:check": "node scripts/governance/check-codeowners.mjs"
   },
   "dependencies": {
     "@sentry/react": "^10.74.0",
