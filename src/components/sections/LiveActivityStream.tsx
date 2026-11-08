@@ -10,6 +10,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { EASE, viewport } from '@/lib/motion';
+import { useMotionLoop } from '@/hooks/useMotionLoop';
+import { MotionPauseButton } from '@/components/ui/MotionPauseButton';
 
 type StageTone = 'accent' | 'cta' | 'danger' | 'success' | 'neutral';
 
@@ -125,9 +127,12 @@ function MarqueeTrack() {
 }
 
 export function LiveActivityStream() {
+  const loop = useMotionLoop<HTMLElement>();
   return (
     <section
       id="live-activity"
+      ref={loop.ref}
+      data-motion-paused={loop.running ? 'false' : 'true'}
       aria-label="Live AI activity stream"
       className="relative overflow-hidden border-y border-border/60 bg-bg-secondary/60 bg-noise py-12 sm:py-16 md:py-20"
     >
@@ -170,6 +175,7 @@ export function LiveActivityStream() {
         viewport={viewport}
         transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
         className="group relative mt-10 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:mt-12"
+        data-motion-region="marquee"
         aria-hidden="true"
       >
         {/*
@@ -185,8 +191,12 @@ export function LiveActivityStream() {
         </div>
       </motion.div>
 
-      {/* Accessible summary */}
-      <p className="sr-only">
+      <div className="mt-4 flex justify-center">
+        <MotionPauseButton loop={loop} />
+      </div>
+
+      {/* Accessible summary (در حالت reduce/stop به‌صورت متن عادی نمایش داده می‌شود) */}
+      <p className="sr-only" data-motion-summary>
         Every call is answered instantly, the customer&rsquo;s issue is understood, emergencies
         are automatically prioritized, the job is booked on your calendar, the customer receives
         a confirmation, and the details sync to your CRM — automatically, for every call.
