@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call } from '@/lib/supabase';
+import { useSensitiveCall } from '@/lib/privacy/useSensitiveCall';
 
 // ============================================================
 // HELPERS
@@ -125,7 +126,8 @@ function VoicemailCard({
   call: Call;
   onMarkListened: (call: Call) => void;
 }) {
-  const listened = Boolean(call.voicemail_listened_at);
+  // Recording + transcript come from the logged server-side read, not from the list query.
+  const sensitive = useSensitiveCall(call.id);
 
   return (
     <div
@@ -169,13 +171,13 @@ function VoicemailCard({
         <span>{formatDuration(call.duration_seconds)}</span>
       </div>
 
-      {call.recording_url && (
+      {sensitive.recordingUrl && (
         <div className="mt-4">
-          <SealedAudio url={call.recording_url}>{(u) => <AudioPlayer url={u} />}</SealedAudio>
+          <SealedAudio url={sensitive.recordingUrl}>{(u) => <AudioPlayer url={u} />}</SealedAudio>
         </div>
       )}
 
-      {call.transcript && (
+      {sensitive.transcript && (
         <div className="mt-4">
           <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-text-secondary">
             <MessageSquare size={12} />
@@ -183,7 +185,7 @@ function VoicemailCard({
           </p>
           <div className="max-h-48 overflow-y-auto rounded-xl border border-border bg-bg-primary p-4">
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
-              {call.transcript}
+                {sensitive.transcript}
             </p>
           </div>
         </div>
