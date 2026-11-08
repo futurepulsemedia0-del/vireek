@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type CSSProperties, type MutableRefObject } from 'react';
+import { useEffect, useRef, type CSSProperties, type MutableRefObject } from 'react';
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import './sarah-orb.css';
 import {
   barCountFor,
