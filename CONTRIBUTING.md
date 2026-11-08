@@ -17,6 +17,17 @@ npm run dev                 # Vite dev server
 
 Seed realistic demo data: [docs/LOCAL_SEED.md](docs/LOCAL_SEED.md). Secrets/vars for edge functions: [ENVIRONMENT.md](ENVIRONMENT.md).
 
+### 1a. Quick start check and dependency doctor
+
+```bash
+node --version                      # CI uses Node 20
+npm run doctor:strict               # lists drift between package.json, package-lock.json and imports (offline, changes nothing)
+npm run doctor                      # CI mode: fails only on NEW drift versus scripts/governance/baselines/
+```
+
+Known state (2026-11-05): `npm ci` is expected to fail until decision D-1 in `docs/governance/DECISIONS_NEEDED.md` is resolved (lockfile out of sync, undeclared native plugins). The "15 minutes from clone to running app" target has **not** been measured; time it on a clean machine after D-1 and record the result here.
+
+Governance checks before a PR: `npm run check:layers && npm run owners:check && npm run registers:check && npm run licenses:check` (all offline). Decisions are recorded in `docs/adr/`; see `docs/governance/README.md`.
 ## 2. Commands
 
 | Command | Purpose |
