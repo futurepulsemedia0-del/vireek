@@ -318,6 +318,7 @@ const PublicTagPage = lazy(() => import('@/pages/PublicTagPage').then((m) => ({ 
 const TagsPage = lazy(() => import('@/pages/TagsPage').then((m) => ({ default: m.TagsPage })));
 const WarrantyRegisterPage = lazy(() => import('@/pages/WarrantyRegisterPage').then((m) => ({ default: m.WarrantyRegisterPage })));
 const PublicHomePassportPage = lazy(() => import('@/pages/PublicHomePassportPage').then((m) => ({ default: m.PublicHomePassportPage })));
+const PublicPhotoEvidencePage = lazy(() => import('@/pages/PublicPhotoEvidencePage').then((m) => ({ default: m.PublicPhotoEvidencePage })));
 const HomePassportsPage = lazy(() => import('@/pages/HomePassportsPage').then((m) => ({ default: m.HomePassportsPage })));
 const HomePassportDetailPage = lazy(() => import('@/pages/HomePassportDetailPage').then((m) => ({ default: m.HomePassportDetailPage })));
 const OEMIntelligencePage = lazy(() => import('@/pages/OEMIntelligencePage').then((m) => ({ default: m.OEMIntelligencePage })));
@@ -996,6 +997,7 @@ function AppRoutes() {
         <Route path="/financing/:token" element={<FinancingOfferPage />} />
         <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
         <Route path="/verify/home/:token" element={<PublicHomePassportPage />} />
+        <Route path="/verify/photo/:token" element={<PublicPhotoEvidencePage />} />
         <Route path="/e/:code" element={<PublicEquipmentPassportPage />} />
         <Route path="/t/:token" element={<PublicTagPage />} />
         <Route path="/warranty/register" element={<WarrantyRegisterPage />} />
