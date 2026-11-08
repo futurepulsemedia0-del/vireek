@@ -1,0 +1,131 @@
+name: Mobile build integrity
+
+# Proves both apps build from a clean clone: dependency doctor, `cap sync`,
+# Android debug APK + release AAB (unsigned), iOS simulator build.
+# "home" is continue-on-error until ios-home/ and android-home/ are committed (see docs/mobile/build-integrity.md).
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'capacitor.config.ts'
+      - 'android/**'
+      - 'ios/**'
+      - 'android-home/**'
+      - 'ios-home/**'
+      - 'src/lib/native/**'
+      - 'scripts/mobile-*.mjs'
+      - 'scripts/cap-home.mjs'
+      - '.github/workflows/mobile-build-integrity.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: mobile-integrity-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+  VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+  VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+
+jobs:
+  doctor:
+    name: Dependency doctor
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - run: npm run mobile:doctor
+
+  android:
+    name: Android (${{ matrix.app }})
+    needs: doctor
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    continue-on-error: ${{ matrix.app == 'home' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { app: field, dir: android, sync: 'npm run build && npx cap sync android' }
+          - { app: home, dir: android-home, sync: 'npm run cap:home -- sync android' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - run: npm run mobile:doctor -- --native --app ${{ matrix.app }}
+      - name: Build web + cap sync
+        run: ${{ matrix.sync }}
+      - name: Debug APK
+        working-directory: ${{ matrix.dir }}
+        run: ./gradlew assembleDebug --no-daemon
+      - name: Release AAB (unsigned)
+        working-directory: ${{ matrix.dir }}
+        run: ./gradlew bundleRelease --no-daemon
+      - name: Merged manifest must declare the location foreground service
+        if: matrix.app == 'field'
+        working-directory: ${{ matrix.dir }}
+        run: |
+          M=$(find app/build/intermediates -path '*merged_manifests*release*' -name AndroidManifest.xml | head -1)
+          test -n "$M" || { echo "::error::merged release manifest not found"; exit 1; }
+          grep -q 'FOREGROUND_SERVICE_LOCATION' "$M" || { echo "::error::FOREGROUND_SERVICE_LOCATION missing in merged manifest"; exit 1; }
+          grep -q 'foregroundServiceType="location"' "$M" || { echo "::error::foregroundServiceType=location missing in merged manifest"; exit 1; }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ matrix.app }}-integrity
+          path: |
+            ${{ matrix.dir }}/app/build/outputs/apk/debug/*.apk
+            ${{ matrix.dir }}/app/build/outputs/bundle/release/*.aab
+          retention-days: 7
+
+  ios:
+    name: iOS simulator (${{ matrix.app }})
+    needs: doctor
+    runs-on: macos-15
+    timeout-minutes: 60
+    continue-on-error: ${{ matrix.app == 'home' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { app: field, dir: ios, sync: 'npm run build && npx cap sync ios' }
+          - { app: home, dir: ios-home, sync: 'npm run cap:home -- sync ios' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - run: npm run mobile:doctor -- --native --app ${{ matrix.app }}
+      - name: Xcode version (App Store uploads need Xcode 26+)
+        run: |
+          xcodebuild -version
+          MAJOR=$(xcodebuild -version | awk 'NR==1{split($2,a,".");print a[1]}')
+          [ "$MAJOR" -ge 26 ] || echo "::warning::Xcode $MAJOR on this runner; App Store Connect requires Xcode 26+ for uploads (store-risk-register #2)"
+      - name: Build web + cap sync (runs pod install)
+        run: ${{ matrix.sync }}
+      - name: Build for iOS Simulator (no signing)
+        working-directory: ${{ matrix.dir }}/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App \
+            -configuration Debug -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build
