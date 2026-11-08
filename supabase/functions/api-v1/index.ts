@@ -14,6 +14,7 @@
 //   supabase functions deploy api-v1 --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { apiReadEntries, logSensitiveRead } from "../_shared/privacy/readLog.ts";
 import {
   API_VERSION,
   API_VERSION_HEADER,
@@ -157,6 +158,11 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
     const { data, error } = await query.eq("id", route.id).maybeSingle();
     if (error) return fail(ctx, "query_failed", "Query failed");
     if (!data) return fail(ctx, "record_not_found", `${route.resource} not found`);
+    try {
+      for (const entry of apiReadEntries({ accountId: keyRow.user_id as string, apiKeyId: keyRow.id as string, table: route.table, recordId: route.id, returned: 1 })) await logSensitiveRead(admin, entry);
+    } catch {
+      return fail(ctx, "query_failed", "Query failed"); // fail closed: no log, no data
+    }
     return json({ data });
   }
 
@@ -168,6 +174,11 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
 
   const { data, error } = await query;
   if (error) return fail(ctx, "query_failed", "Query failed");
+  try {
+    for (const entry of apiReadEntries({ accountId: keyRow.user_id as string, apiKeyId: keyRow.id as string, table: route.table, recordId: null, returned: data.length })) await logSensitiveRead(admin, entry);
+  } catch {
+    return fail(ctx, "query_failed", "Query failed"); // fail closed: no log, no data
+  }
   return json({ data, has_more: data.length === limit, next_before: data.length ? data[data.length - 1].created_at : null });
 }
 
