@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import type { LanguageCode } from '@/lib/i18n';
-import { buildHreflangLinks, localizedUrl } from '@/lib/languageSync';
 import { BRAND, ogUrlFor } from '@/lib/brand/brandConfig';
 
 export interface SEOConfig {
@@ -82,7 +81,6 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
     const previousTitle = document.title;
     clearPrerenderedHead();
     const currentLocale = OG_LOCALE_MAP[language] ?? 'en_US';
-    const pageUrl = localizedUrl(canonical, language);
     const ogImage = ogUrlFor(canonical);
     document.title = title;
 
@@ -119,12 +117,6 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
         return el;
       });
 
-    // hreflang: since language-switching here is client-side (one URL
-    // serves every language, not /fa/... /ar/... paths), we self-reference
-    // the same canonical for every hreflang value plus x-default. This is
-    // the correct honest signal for this architecture ("this URL serves
-    // all these languages") — it is NOT equivalent to true per-locale URLs,
-    // which would need locale-prefixed routing to do better.
     const hreflangEls = [...LANGUAGES.map((l) => l.code), 'x-default'].map((code) => {
       const el = document.createElement('link');
       el.setAttribute('rel', 'alternate');
@@ -135,18 +127,19 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
     });
 
     const jsonLdEls = (jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []).map((schema) => {
+    // hreflang is intentionally NOT emitted: language switching is client-side on one URL, so it gives no SEO benefit.
+    // Emit real, reciprocal hreflang only once locale URLs exist (docs/i18n/decision-report.md, section 7).
       const script = document.createElement('script');
       script.type = 'application/ld+json';
       script.text = JSON.stringify(schema);
       document.head.appendChild(script);
       return script;
     });
-    [...alternateEls, ...hreflangEls, ...jsonLdEls].forEach((el) => el.setAttribute('data-seo-managed', '1'));
+    [...alternateEls, ...jsonLdEls].forEach((el) => el.setAttribute('data-seo-managed', '1'));
     return () => {
       document.title = previousTitle;
       cleanups.forEach((fn) => fn());
       alternateEls.forEach((el) => el.remove());
-      hreflangEls.forEach((el) => el.remove());
       jsonLdEls.forEach((el) => el.remove());
     };
   }, [title, description, canonical, type, language, jsonLd]);
