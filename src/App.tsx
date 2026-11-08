@@ -63,6 +63,7 @@ const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ 
 const CallDetailPage = lazy(() => import('@/pages/CallDetailPage').then((m) => ({ default: m.CallDetailPage })));
 const UnifiedInboxPage = lazy(() => import('@/pages/UnifiedInboxPage').then((m) => ({ default: m.UnifiedInboxPage })));
 const RichMessagingSettingsPage = lazy(() => import('@/pages/RichMessagingSettingsPage').then((m) => ({ default: m.RichMessagingSettingsPage })));
+const SettingsHubPage = lazy(() => import('@/pages/SettingsHubPage').then((m) => ({ default: m.SettingsHubPage })));
 const MessagingChannelsSettingsPage = lazy(() => import('@/pages/MessagingChannelsSettingsPage').then((m) => ({ default: m.MessagingChannelsSettingsPage })));
 const GoalOrchestratorPage = lazy(() => import('@/pages/GoalOrchestratorPage').then((m) => ({ default: m.GoalOrchestratorPage })));
 const VoicemailsPage = lazy(() => import('@/pages/VoicemailsPage').then((m) => ({ default: m.VoicemailsPage })));
@@ -1258,6 +1259,14 @@ function AppRoutes() {
   />
         <Route
           path="/dashboard/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/account"
           element={
             <ProtectedRoute>
               <SettingsPage />
