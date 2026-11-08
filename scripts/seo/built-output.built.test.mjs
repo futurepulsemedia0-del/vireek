@@ -165,10 +165,8 @@ describe.each(manifest.routes.map((r) => [r.path]))('prerendered %s', (routePath
     for (const raw of head.jsonLd) expect(() => JSON.parse(raw)).not.toThrow();
     expect(head.leftoverManaged).toBe(false);
     if (!gap) {
-      expect(head.hreflang).toHaveLength(10);
-      expect(head.hreflang.map((h) => h.hreflang)).toContain('x-default');
-      expect(head.hreflang.find((h) => h.hreflang === 'en')?.href).toBe(canonicalFor(routePath));
-      for (const h of head.hreflang) expect(h.href.startsWith(SITE_URL)).toBe(true);
+      // hreflang is not emitted until real per-locale URLs exist (docs/i18n/decision-report.md §7).
+      expect(head.hreflang).toHaveLength(0);
       expect(head.ssgTagCount).toBeGreaterThan(0);
     }
   });
