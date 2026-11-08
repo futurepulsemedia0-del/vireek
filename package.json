@@ -25,6 +25,7 @@
     "a11y:icons:codemod": "node scripts/a11y/codemod-icons.mjs --targets",
     "test:e2e:targets": "playwright test e2e/a11y/touch-targets.spec.ts --project=chromium",
     "lint:tells": "node scripts/design/ai-tells.mjs --check",
+    "lint:settings": "node --experimental-strip-types --no-warnings scripts/check-settings-registry.mjs",
     "lint:colors": "node scripts/color/check-colors.mjs",
     "tokens:build": "node scripts/color/build-tokens.mjs",
     "codemod:colors": "node scripts/color/codemod-colors.mjs",
