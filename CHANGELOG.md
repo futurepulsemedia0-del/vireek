@@ -7,6 +7,7 @@ Add one line per user-visible or operator-visible change under **Unreleased** in
 ## [Unreleased]
 
 ### Added
+- Governance: CODEOWNERS by area (fixed invalid line), risk-checklist PR template, ADRs 0002-0011, dependency doctor, module-boundary and cycle ratchet, tech-debt register, licence policy gate, CycloneDX SBOM, asset licence inventory, business registers (commitments, sub-processors, policy calendar), release-notes automation. See `docs/governance/README.md`.
 - Documentation set: catalogs (`docs/generated/*`), runbooks, policies (drafts), READMEs, GitHub templates.
 
 ### Changed
