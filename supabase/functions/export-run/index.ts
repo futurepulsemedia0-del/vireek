@@ -37,6 +37,7 @@ import {
   type ExportRequest,
   type FilterableQuery,
 } from "../_shared/exports/engine.ts";
+import { readGateStatus } from "../_shared/privacy/readLog.ts";
 
 declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void } | undefined;
 
@@ -68,6 +69,7 @@ interface JobRow {
   expires_at: string;
   created_at: string;
   download_count: number;
+  row_count: number | null;
 }
 
 // deno-lint-ignore no-explicit-any
@@ -263,6 +265,10 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Export limit reached for this hour. Please try again later." }, 429);
     }
 
+    // Read-access gate: step-up (large exports), per-actor rate limit, and the log row, in one DB call.
+    const gateCreate = await caller.rpc("begin_sensitive_export_action", { p_action: "export_create", p_target_id: null, p_record_count: 1 });
+    const gateCreateErr = readGateStatus(gateCreate.error as { message: string; code?: string } | null);
+    if (gateCreateErr) return json({ error: gateCreateErr.code }, gateCreateErr.status);
     const { data: job, error: insErr } = await service
       .from("export_jobs")
       .insert({
@@ -299,7 +305,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: found } = await service
       .from("export_jobs")
-      .select("id, user_id, dataset, format, filters, status, file_path, expires_at, created_at, download_count")
+      .select("id, user_id, dataset, format, filters, status, file_path, expires_at, created_at, download_count, row_count")
       .eq("id", jobId)
       .eq("user_id", ownerId)
       .maybeSingle();
@@ -328,6 +334,10 @@ Deno.serve(async (req: Request) => {
       return json({ error: "This export has expired. Please create a new one." }, 410);
     }
 
+    // Read-access gate: ALWAYS requires a recent sign-in (and aal2 if MFA is enrolled) before a file link is minted.
+    const gateDl = await caller.rpc("begin_sensitive_export_action", { p_action: "export_download", p_target_id: job.id, p_record_count: Math.max(1, job.row_count ?? 1) });
+    const gateDlErr = readGateStatus(gateDl.error as { message: string; code?: string } | null);
+    if (gateDlErr) return json({ error: gateDlErr.code }, gateDlErr.status);
     const fileName = exportFileName(
       job.dataset as ExportRequest["dataset"],
       job.format,
