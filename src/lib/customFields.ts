@@ -214,6 +214,10 @@ export function sanitizeCustomData(defs: CustomFieldDef[], data: CustomData | nu
       out[def.key] = raw;
     }
   }
+  const known = new Set(defs.map((x) => x.key));
+  for (const key of Object.keys(d)) {
+    if (!known.has(key) && !isBlank(d[key])) out[key] = d[key];
+  }
   return out;
 }
 
