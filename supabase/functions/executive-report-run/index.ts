@@ -13,6 +13,7 @@ import { generateCommentary } from "../_shared/executive-report/commentary.ts";
 import { renderReportEmail } from "../_shared/executive-report/render.ts";
 import { buildExecutiveReportPdf } from "../_shared/executive-report/pdf.ts";
 import { sendReportEmail } from "../_shared/executive-report/email.ts";
+import { logSensitiveRead } from "../_shared/privacy/readLog.ts";
 import type {
   Commentary, ExecutiveMetrics, ReportData, ReportPeriod, ReportSettings,
 } from "../_shared/executive-report/types.ts";
@@ -297,7 +298,17 @@ async function handleOwner(admin: Admin, userId: string, userEmail: string | nul
   const { data: fresh } = await admin.from("executive_reports")
     .select("id,period_label,period_start,status,commentary_source,pdf_path,generated_at,sent_at,last_error")
     .eq("id", current.report.id).single();
-  return json({ report: { ...fresh, pdf_url: await signedUrl(admin, fresh?.pdf_path ?? null) }, delivery });
+  let pdfUrl: string | null = null;
+  if (fresh?.pdf_path) {
+    // Read-access log for the owner opening the report PDF. Fail closed: no log, no link.
+    try {
+      await logSensitiveRead(admin, { accountId: userId, actorKind: "user", actorId: userId, assetClass: "document", action: "signed_url", channel: "edge", targetTable: "executive_reports", targetId: String(fresh.id) });
+    } catch {
+      return json({ error: "Not available" }, 503);
+    }
+    pdfUrl = await signedUrl(admin, fresh.pdf_path);
+  }
+  return json({ report: { ...fresh, pdf_url: pdfUrl }, delivery });
 }
 
 Deno.serve(async (req: Request) => {
