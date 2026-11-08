@@ -211,9 +211,18 @@ export async function loadLiveStatement(
   const callIds = [...new Set(events.map((e) => e.call_id).filter((x): x is string => Boolean(x)))];
   const calls: CallInfo[] = [];
   for (let i = 0; i < callIds.length; i += 150) {
-    const { data, error } = await supabase.from('calls').select('id,summary,recording_url').in('id', callIds.slice(i, i + 150));
+    // recording_url itself is never read here: the server only reports whether a recording exists.
+    const ids = callIds.slice(i, i + 150);
+    const [{ data, error }, { data: flags, error: flagsError }] = await Promise.all([
+      supabase.from('calls_safe').select('id,summary').in('id', ids),
+      supabase.rpc('calls_recording_flags', { p_ids: ids }),
+    ]);
     if (error) throw error;
-    for (const c of (data ?? []) as { id: string; summary: string | null; recording_url: string | null }[]) {
+    if (flagsError) throw flagsError;
+    const hasRecording = new Map(((flags ?? []) as { id: string; has_recording: boolean }[]).map((f) => [f.id, f.has_recording === true]));
+    for (const c of (data ?? []) as { id: string; summary: string | null }[]) {
+      calls.push({ id: c.id, summary: c.summary, has_recording: hasRecording.get(c.id) === true });
+    }
       calls.push({ id: c.id, summary: c.summary, has_recording: typeof c.recording_url === 'string' && c.recording_url.startsWith('https://') });
     }
   }
