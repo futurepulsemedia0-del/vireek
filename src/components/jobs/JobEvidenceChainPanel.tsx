@@ -763,6 +763,10 @@ export function JobEvidenceChainPanel({ job, defaultExpanded = false }: { job: J
         import('@/lib/jobEvidenceChainPdf'),
         import('@/lib/passportLabelPdf'),
       ]);
+      const photoProvenance = await import('@/lib/photoProvenanceApi')
+        .then((m) => m.fetchPhotoSummary(job.id))
+        .then((s) => s.captures)
+        .catch(() => []);
       await exportEvidenceChainPdf({
         job: { id: job.id, customer_name: job.customer_name, service_type: job.service_type, address: job.address },
         entries,
