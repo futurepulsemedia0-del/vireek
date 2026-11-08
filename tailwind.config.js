@@ -57,6 +57,11 @@ export default {
         spotlight: '0 0 0 9999px rgba(0,0,0,0.45)',
         showcase: '0 30px 80px -30px rgba(0,0,0,0.65)',
       },
+      // transition-interactive / transition-layout جایگزین transition-all (فقط پراپرتی‌های لازم)
+      transitionProperty: {
+        interactive: 'color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform',
+        layout: 'color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, width, height, max-height, margin, padding, inset, gap, grid-template-rows',
+      },
       keyframes: {
         // نوار حرکتی راست‌به‌چپ و بی‌درز برای Live AI Activity Stream.
         // ترک، محتوا را دقیقاً دو بار پشت‌سرهم رندر می‌کند، پس ترنسلیت -50%
