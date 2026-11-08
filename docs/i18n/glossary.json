@@ -1,0 +1,10 @@
+{
+  "_comment": "doNotTranslate: must appear verbatim in every translation whose English source contains it. Extend with domain terms after reviewer input.",
+  "doNotTranslate": ["Vireek", "NTE", "HVAC", "SMS", "STOP", "HELP", "PDF", "Labs"],
+  "consistent": {
+    "es": { "job": "trabajo", "quote": "presupuesto", "invoice": "factura", "lead": "cliente potencial", "dispatch": "despachar" }
+  },
+  "forbiddenTerms": {
+    "es": ["cotización"]
+  }
+}
