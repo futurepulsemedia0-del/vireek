@@ -243,6 +243,7 @@ const PayrollSyncPage = lazy(() => import('@/pages/PayrollSyncPage').then((m) =>
 const PayrollConnectorsPage = lazy(() => import('@/pages/PayrollConnectorsPage').then((m) => ({ default: m.PayrollConnectorsPage })));
 const ServiceTwinPage = lazy(() => import('@/pages/ServiceTwinPage').then((m) => ({ default: m.ServiceTwinPage })));
 const JobQualityGateSettingsPage = lazy(() => import('@/pages/JobQualityGateSettingsPage').then((m) => ({ default: m.JobQualityGateSettingsPage })));
+const StatusSettingsPage = lazy(() => import('@/pages/StatusSettingsPage').then((m) => ({ default: m.StatusSettingsPage })));
 const ChatWidgetSettingsPage = lazy(() => import('@/pages/ChatWidgetSettingsPage').then((m) => ({ default: m.ChatWidgetSettingsPage })));
 const VideoSessionRoomPage = lazy(() => import('@/pages/VideoSessionRoomPage').then((m) => ({ default: m.VideoSessionRoomPage })));
 const VideoSessionsPage = lazy(() => import('@/pages/VideoSessionsPage').then((m) => ({ default: m.VideoSessionsPage })));
@@ -3285,6 +3286,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <JobQualityGateSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings/statuses"
+          element={
+            <ProtectedRoute>
+              <StatusSettingsPage />
             </ProtectedRoute>
           }
         />
