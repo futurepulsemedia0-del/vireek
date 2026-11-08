@@ -13,6 +13,9 @@
 
 import { FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import i18n from '@/i18n';
+import '@/lib/privacy/i18n';
+import { withReauth } from '@/lib/session/reauthGate';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   EXPORT_DATASETS,
@@ -71,21 +74,44 @@ export function useCanExport(): boolean {
   return isOwner || permissions.can_export_data === true;
 }
 
-async function invokeExport<T>(body: Record<string, unknown>): Promise<T> {
+/** The server wants a recent sign-in (and MFA if enrolled) before this export action. */
+export class StepUpRequiredError extends Error {
+  constructor() {
+    super('step_up_required');
+    this.name = 'StepUpRequiredError';
+  }
+}
+
+async function invokeExportOnce<T>(body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke('export-run', { body });
   if (error) {
     let message = 'Export request failed. Please try again.';
+    let stepUp = false;
     if (error instanceof FunctionsHttpError) {
       try {
         const payload = await error.context.json();
-        if (payload && typeof payload.error === 'string') message = payload.error;
+        if (payload && typeof payload.error === 'string') {
+          if (payload.error === 'step_up_required') stepUp = true;
+          else message = i18n.t(`accessLog:errors.${payload.error}`, { defaultValue: payload.error });
+        }
       } catch {
         /* keep generic message */
       }
     }
+    if (stepUp) throw new StepUpRequiredError();
     throw new Error(message);
   }
   return data as T;
+}
+
+/** Runs the export call; on "step up required" shows the existing re-auth prompt once and replays the request. */
+async function invokeExport<T>(body: Record<string, unknown>): Promise<T> {
+  try {
+    return await withReauth(() => invokeExportOnce<T>(body), (e) => e instanceof StepUpRequiredError);
+  } catch (e) {
+    if (e instanceof StepUpRequiredError) throw new Error(i18n.t('accessLog:errors.step_up_required'));
+    throw e;
+  }
 }
 
 export async function createExport(input: {
