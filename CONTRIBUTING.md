@@ -43,6 +43,7 @@ Governance checks before a PR: `npm run check:layers && npm run owners:check && 
 | `npm run format` / `format:check` | Prettier |
 | `npm run lint:migrations` | Migration lint (§6) |
 | `npm run check:bundle` | Bundle budget (run after `build`) |
+| `npm run doctor` / `check:layers` / `licenses:check` / `sbom` / `registers:check` | Governance and supply-chain checks (docs/governance/README.md) |
 | `npm run docs:inventory` | Regenerate `docs/generated/*` (tables, functions, env usage) |
 
 **Before every PR run, at minimum:** `npm run lint && npm run typecheck && npm run test && npm run build`
