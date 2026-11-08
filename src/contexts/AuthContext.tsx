@@ -174,6 +174,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearSessionStart();
     await supabase.auth.signOut();
     clearScheduleCache();
+    // Explicit sign-out only (session expiry goes through the re-auth modal and keeps the cache).
+    void import('@/lib/offline/wipe').then((m) => m.wipeLocalData({ includeUnsynced: false })).catch(() => undefined);
     setProfile(null);
     setTeamMember(null);
     setSession(null);
