@@ -93,6 +93,8 @@ if (!trust.ok) return json({ error: "Some encrypted data could not be removed ye
     if (restErr) return json({ error: `Failed to erase remaining data: ${restErr.message}` }, 500);
     const blockedTables = Object.keys((rest as { blocked?: Record<string, string> } | null)?.blocked ?? {});
     if (blockedTables.length) return json({ error: `Some data could not be removed yet (${blockedTables.length} tables). Please try again shortly.` }, 503);
+    const { error: srlErr } = await admin.rpc("erase_sensitive_read_log_for_account", { p_account_id: userId });
+    if (srlErr) return json({ error: `Failed to erase access log: ${srlErr.message}` }, 500);
     // NOTE: if calls/recording_url points at a Supabase Storage bucket,
     // deleting these rows does NOT delete the underlying audio files.
     // Add a `storage.from('<your-bucket>').remove([...])` step here once
