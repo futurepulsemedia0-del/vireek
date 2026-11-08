@@ -76,6 +76,18 @@ for (const f of ['docs/store/review-notes.md']) {
   should(!(read(f) ?? '').includes('REPLACE_'), `${f}: fill in the REPLACE_ values (demo account) before submitting`);
 }
 
+// ---- Store-rule checks (Phase 1, see docs/mobile/store-risk-register.md) ---------------------
+const vars = read('android/variables.gradle');
+const tsdk = Number(vars?.match(/targetSdkVersion\s*=\s*(\d+)/)?.[1]);
+if (vars) must(tsdk >= 36, `android/variables.gradle: targetSdkVersion is ${tsdk || 'not found'}; Google Play requires 36+ for new apps/updates since 2026-08-31`);
+else warnings.push('android/variables.gradle missing — targetSdkVersion (must be >= 36) could not be checked');
+must(/deleteMyAccount/.test(read('src/pages/SecuritySettingsPage.tsx') ?? ''), 'In-app account deletion (Guideline 5.1.1(v)) is not wired in SecuritySettingsPage');
+const login = read('src/pages/LoginPage.tsx') ?? '';
+if (/provider:\s*'(google|facebook)'/.test(login)) must(/provider:\s*'apple'/.test(login), 'LoginPage offers third-party sign-in without Sign in with Apple (Guideline 4.8)');
+if (login.includes('signInWithOAuth') && !/isNative|Capacitor|Browser\./.test(login)) {
+  warnings.push('LoginPage: OAuth runs inside the WebView on native (Google blocks embedded WebViews) — use the system browser + deep-link callback');
+}
+if (manifest?.includes('USE_FULL_SCREEN_INTENT')) warnings.push('AndroidManifest: USE_FULL_SCREEN_INTENT needs a Play Console declaration and is default-off for non-calling/alarm apps');
 for (const e of errors) console.log(`✖ ${e}`);
 for (const w of warnings) console.log(`! ${w}`);
 console.log(errors.length ? `\n${errors.length} blocking problem(s), ${warnings.length} warning(s).` : `\n✔ Ready for submission checks (${warnings.length} warning(s)).`);
