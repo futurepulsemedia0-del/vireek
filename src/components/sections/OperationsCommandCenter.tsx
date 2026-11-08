@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import {
   PhoneCall,
   Users,
@@ -192,6 +193,7 @@ function PanelHeader({ icon: Icon, title, badge }: { icon: LucideIcon; title: st
 }
 
 function Waveform({ tone }: { tone: Tone }) {
+  const reduced = usePrefersReducedMotion();
   const bars = [6, 12, 8, 16, 10];
   return (
     <div className="flex h-4 items-center gap-[3px]">
@@ -199,8 +201,8 @@ function Waveform({ tone }: { tone: Tone }) {
         <motion.span
           key={i}
           className={`w-[3px] rounded-full ${TONE_DOT[tone]}`}
-          animate={{ height: [h * 0.4, h, h * 0.4] }}
-          transition={{ duration: 0.9 + i * 0.1, repeat: Infinity, ease: 'easeInOut', delay: i * 0.08 }}
+          animate={{ height: reduced ? h : [h * 0.4, h, h * 0.4] }}
+          transition={reduced ? { duration: 0 } : { duration: 0.9 + i * 0.1, repeat: Infinity, ease: 'easeInOut', delay: i * 0.08 }}
         />
       ))}
     </div>
