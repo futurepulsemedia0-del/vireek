@@ -1,6 +1,13 @@
 /* Applies saved accessibility settings before first paint (no flash). Keep in sync with src/lib/a11y/apply.ts (parity-tested).
    Color-blindness filter is applied by React after load (its SVG defs do not exist yet). */
 (function () {
+  // Single motion signal for CSS: html[data-motion=full|reduce|stop]. Keep in sync with src/lib/motionPolicy.ts.
+  function motionAttr(stop, reduce) {
+    var os = false;
+    try { os = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) {}
+    document.documentElement.setAttribute('data-motion', stop ? 'stop' : (reduce || os) ? 'reduce' : 'full');
+  }
+  motionAttr(false, false);
   try {
     var raw = localStorage.getItem('vireek-a11y-settings');
     if (!raw) return;
@@ -41,6 +48,7 @@
       'a11y-text-scaled': !near(ts, 1), 'a11y-zoomed': !near(cs, 1),
       'a11y-lh': !near(lh, 1.6), 'a11y-ls': ls > 0, 'a11y-ws': ws > 0
     };
-    for (var k in m) if (Object.prototype.hasOwnProperty.call(m, k)) c.toggle(k, m[k]);
+for (var k in m) if (Object.prototype.hasOwnProperty.call(m, k)) c.toggle(k, m[k]);
+    motionAttr(on('stopAnimations'), on('reduceMotion'));
   } catch (e) { /* storage blocked or corrupt JSON: React applies defaults */ }
 })();
