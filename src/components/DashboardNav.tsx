@@ -731,7 +731,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const isActive = (href: string) => {
     if (href === '/dashboard') return location.pathname === '/dashboard';
     if (href === '/dashboard/settings') {
-      return location.pathname === href || (location.pathname.startsWith(href + '/') && !location.pathname.startsWith('/dashboard/settings/email'));
+      return location.pathname === href || location.pathname === '/dashboard/settings/account';
     }
     if (href === '/dashboard/inventory') return location.pathname === '/dashboard/inventory';
     if (href === '/dashboard/marketing') return location.pathname === '/dashboard/marketing';
