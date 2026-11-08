@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { User } from 'lucide-react';
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import { SarahOrb, type SarahState } from '@/components/sarah/SarahOrb';
 import type { ReactNode } from 'react';
 
@@ -38,13 +39,14 @@ export function ChatAvatar({ role, state = 'idle' }: { role: 'user' | 'assistant
  * (or omit the prop while a message is done) to render nothing.
  */
 export function StreamingCaret({ active = true }: { active?: boolean }) {
+  const reduced = usePrefersReducedMotion();
   if (!active) return null;
   return (
     <motion.span
       aria-hidden="true"
       className="ml-0.5 inline-block h-[1em] w-[2px] translate-y-[2px] rounded-full bg-current align-middle"
-      animate={{ opacity: [1, 1, 0, 0] }}
-      transition={{ duration: 0.9, repeat: Infinity, ease: 'linear', times: [0, 0.5, 0.5, 1] }}
+      animate={{ opacity: reduced ? 1 : [1, 1, 0, 0] }}
+      transition={reduced ? { duration: 0 } : { duration: 0.9, repeat: Infinity, ease: 'linear', times: [0, 0.5, 0.5, 1] }}
     />
   );
 }
