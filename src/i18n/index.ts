@@ -27,6 +27,7 @@ import faCommon from '@/locales/fa/common.json';
 import jaCommon from '@/locales/ja/common.json';
 import enForms from '@/locales/en/forms.json';
 import esForms from '@/locales/es/forms.json';
+import esTrust from '@/locales/es/trust.json';
 import zhForms from '@/locales/zh/forms.json';
 import hiForms from '@/locales/hi/forms.json';
 import frForms from '@/locales/fr/forms.json';
@@ -48,7 +49,7 @@ function getInitialLanguage(): string {
 void i18n.use(initReactI18next).init({
   resources: {
     en: { common: enCommon, dashboard: enDashboard, trust: enTrust, forms: enForms },
-    es: { common: esCommon, forms: esForms },
+    es: { common: esCommon, forms: esForms, trust: esTrust },
     zh: { common: zhCommon, forms: zhForms },
     hi: { common: hiCommon, forms: hiForms },
     fr: { common: frCommon, forms: frForms },
