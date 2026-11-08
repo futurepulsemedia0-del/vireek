@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
+import { PhotoProvenancePanel } from '@/components/photoProvenance/PhotoProvenancePanel';
 import { Link } from 'react-router-dom';
 import type { Job } from '@/lib/supabase';
 import {
@@ -827,6 +828,7 @@ export function JobEvidenceChainPanel({ job, defaultExpanded = false }: { job: J
       </Link>
       {expanded && (
         <div className="mt-3 space-y-4 border-t border-border/60 pt-3">
+          <PhotoProvenancePanel jobId={job.id} />
           {/* Stage rail */}
           <ol className="flex flex-wrap gap-1" aria-label="Chain stages">
             {report.stages.map((s) => (
