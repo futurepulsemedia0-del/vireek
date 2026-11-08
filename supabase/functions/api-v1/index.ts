@@ -66,6 +66,9 @@ interface LogCtx {
   resource: string | null;
 }
 
+function fail(ctx: LogCtx, code: ErrorCode, message: string, extraHeaders: Record<string, string> = {}): Response {
+  return json(errorBody(code, message, ctx.requestId), errorStatus(code), extraHeaders);
+}
 async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "GET") return fail(ctx, "method_not_allowed", "Method not allowed", { Allow: "GET, OPTIONS" });
