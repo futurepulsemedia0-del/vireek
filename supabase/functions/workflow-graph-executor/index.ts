@@ -26,6 +26,8 @@ import { askVireekAi } from "../_shared/ai-core/index.ts";
 import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { advanceForeach, advanceParallel, runCompensation, startForeach, startParallel, type ExecResult, type ForeachState, type ParallelState } from "../_shared/workflow-compiler/orchestrate.ts";
+import { idempotencyKey, type SagaStep } from "../_shared/workflow-compiler/semantics.ts";
 import {
   evaluateRule, getPath, maskPii, renderTemplate,
   type CompiledGraph, type EdgeOn, type IrNode,
@@ -164,6 +166,11 @@ async function runReason(run: Run, node: GraphNode): Promise<Record<string, unkn
       : f.type === "boolean" ? v === true || String(v).toLowerCase() === "true"
       : clip(String(v), 200);
   }
+  // Token usage, if the AI core reports it (not verified: ai-core's result shape was not inspected).
+  const usage = (result as unknown as { usage?: Record<string, unknown> }).usage;
+  const tin = Number(usage?.inputTokens ?? usage?.input_tokens ?? usage?.prompt_tokens);
+  const tout = Number(usage?.outputTokens ?? usage?.output_tokens ?? usage?.completion_tokens);
+  if (Number.isFinite(tin) || Number.isFinite(tout)) usageOf.set(out, { in: Number.isFinite(tin) ? tin : 0, out: Number.isFinite(tout) ? tout : 0 });
   return out;
 }
 
@@ -318,6 +325,139 @@ async function patch(admin: SupabaseClient, run: Run, fields: Record<string, unk
   if (error) throw new Error(`run update failed: ${error.message}`);
 }
 
+// ---------------------------------------------------------------------------
+// Parallel / fan-out / compensation glue. The decisions live in _shared/workflow-compiler/orchestrate.ts.
+// Kill switch: WORKFLOW_PARALLEL_ENABLED must be "true", otherwise any run that reaches these nodes fails safely.
+// ---------------------------------------------------------------------------
+
+const PARALLEL_ENABLED = Deno.env.get("WORKFLOW_PARALLEL_ENABLED") === "true";
+const usageOf = new WeakMap<object, { in: number; out: number }>();
+const tokenDetail = (o: Outcome): Record<string, number> => {
+  const u = o.output ? usageOf.get(o.output) : undefined;
+  return u ? { tokens_in: u.in, tokens_out: u.out } : {};
+};
+
+type DoneEntry = { nodeId: string; seq: number; status: "completed" | "failed" };
+function recordDone(run: Run, nodeId: string, status: "completed" | "failed") {
+  const done = ((run.state.__done as DoneEntry[] | undefined) ?? []).slice(-100);
+  run.state = { ...run.state, __done: [...done, { nodeId, seq: (done.at(-1)?.seq ?? 0) + 1, status }] };
+}
+
+/** true = this caller owns the step. Test mode simulates side effects, so it needs no claim. */
+async function claimStep(admin: SupabaseClient, run: Run, nodeId: string, purpose: "exec" | "compensate", extra: { branch?: number; item?: number } = {}): Promise<boolean> {
+  if (run.mode !== "live") return true;
+  const { data, error } = await admin.rpc("cwf_claim_step", {
+    p_run_id: run.id, p_user_id: run.user_id, p_key: idempotencyKey({ runId: run.id, nodeId, purpose, ...extra }), p_node: nodeId, p_purpose: purpose,
+  });
+  if (error) throw new Error(`step claim failed: ${error.message}`);
+  return data === true;
+}
+
+/** Undo completed reversible steps (reverse order, best effort), then fail the run. */
+async function failWithCompensation(admin: SupabaseClient, run: Run, graph: CompiledGraph, reason: string) {
+  const done = (run.state.__done as DoneEntry[] | undefined) ?? [];
+  const steps: SagaStep[] = done.flatMap((d) => {
+    const compensator = (graph.nodes[d.nodeId] as GraphNode | undefined)?.compensator;
+    return compensator ? [{ nodeId: d.nodeId, status: d.status, compensator, seq: d.seq }] : [];
+  });
+  if (steps.length > 0) {
+    const result = await runCompensation(steps, {
+      run: async (id) => {
+        if (!(await claimStep(admin, run, id, "compensate"))) return; // already undone by an earlier attempt
+        const o = await executeNode(admin, run, graph.nodes[id] as GraphNode);
+        if (o.error) throw new Error(o.error);
+      },
+      record: (event, id, error) => audit(admin, run, event, id, error ? { error: clip(error, 300) } : {}),
+    });
+    if (result.failed.length > 0 || result.manual.length > 0) {
+      await notify(admin, run, "Workflow needs manual follow-up", `A workflow failed and some undo steps did not complete (${[...result.failed, ...result.manual].join(", ")}). Check the real-world result.`);
+    }
+  }
+  return finish(admin, run, "failed", reason);
+}
+
+async function execBranchNode(admin: SupabaseClient, run: Run, graph: CompiledGraph, nodeId: string, branch: number): Promise<ExecResult> {
+  const node = graph.nodes[nodeId] as GraphNode;
+  await audit(admin, run, "node_started", nodeId, { kind: node.kind, capability: node.capability ?? null, label: node.label, branch });
+  if (node.kind === "action" && !(await claimStep(admin, run, nodeId, "exec", { branch }))) return { edge: "fail", error: "step_already_claimed" };
+  const o = await executeNode(admin, run, node);
+  const error = o.wait ? "wait_not_allowed_in_branch" : o.error;
+  if (o.output && !o.wait) run.state = { ...run.state, [nodeId]: o.output };
+  if (node.kind === "action") recordDone(run, nodeId, error ? "failed" : "completed");
+  await audit(admin, run, error ? "node_failed" : "node_completed", nodeId, { edge: o.edge, branch, ...tokenDetail(o), ...(error ? { error: clip(error, 300) } : {}) });
+  return { edge: o.wait ? "fail" : o.edge, error };
+}
+
+type BlockResult = { yield: true } | { yield: false; edge: "next" | "fail"; next: string | null };
+
+async function runParallelNode(admin: SupabaseClient, run: Run, graph: CompiledGraph, node: GraphNode, deadline: number): Promise<BlockResult> {
+  const join = Object.values(graph.nodes).find((n) => n.kind === "join" && n.params?.parallel === node.id) as GraphNode | undefined;
+  const cfg = joinConfigFromParams(join?.params);
+  if (!join || !cfg) throw new Error("parallel block is not closed by a valid join");
+  const key = `__par_${node.id}`;
+  const starts = Object.entries(graph.edges[node.id] ?? {}).filter(([on]) => /^b[0-7]$/.test(on))
+    .sort(([a], [b]) => Number(a.slice(1)) - Number(b.slice(1))).map(([, to]) => to as string);
+
+  let st = run.state[key] as ParallelState | undefined;
+  if (!st) {
+    st = startParallel(starts, Date.now());
+    await audit(admin, run, "node_started", node.id, { kind: "parallel", label: node.label, branches: starts.length, mode: cfg.mode });
+  }
+  const r = await advanceParallel(st, {
+    graph, joinId: join.id, cfg, maxHopsPerBranch: MAX_HOPS_PER_RUN, deadline, now: Date.now,
+    exec: (branch, nodeId) => execBranchNode(admin, run, graph, nodeId, branch),
+    checkpoint: async (s) => { run.state = { ...run.state, [key]: s }; await patch(admin, run, { state: run.state }); },
+  });
+  run.state = { ...run.state, [key]: r.state };
+  if (r.decision.action === "wait") return { yield: true };
+
+  const statuses = r.state.branches.map((b) => b.status);
+  const { [key]: _drop, ...rest } = run.state;
+  run.state = { ...rest, [join.id]: { succeeded: statuses.filter((s) => s === "succeeded").length } };
+  const edge = r.decision.action === "proceed" ? "next" : "fail";
+  await audit(admin, run, "join_released", join.id, { decision: r.decision.action, reason: r.decision.action === "fail" ? r.decision.reason : null, statuses });
+  const next = graph.edges[join.id]?.[edge as EdgeOn] ?? null;
+  await audit(admin, run, "edge_taken", node.id, { edge, to: next });
+  return { yield: false, edge, next };
+}
+
+async function runForeachNode(admin: SupabaseClient, run: Run, graph: CompiledGraph, node: GraphNode, deadline: number): Promise<BlockResult> {
+  const p = (node.params ?? {}) as { collection_path?: string; max_items?: number; concurrency?: number; body?: string };
+  const body = p.body ? (graph.nodes[p.body] as GraphNode | undefined) : undefined;
+  const items = p.collection_path ? getPath(run.state, p.collection_path) : undefined;
+  if (!body || !Array.isArray(items) || items.length > Number(p.max_items)) {
+    await audit(admin, run, "node_failed", node.id, { error: "foreach_invalid_collection" });
+    const next = graph.edges[node.id]?.fail ?? null;
+    await audit(admin, run, "edge_taken", node.id, { edge: "fail", to: next });
+    return { yield: false, edge: "fail", next };
+  }
+  const key = `__fe_${node.id}`;
+  let st = run.state[key] as ForeachState | undefined;
+  if (!st) {
+    st = startForeach(items.length, Number(p.concurrency));
+    await audit(admin, run, "node_started", node.id, { kind: "foreach", label: node.label, items: items.length, concurrency: st.concurrency });
+  }
+  const r = await advanceForeach(st, {
+    deadline, now: Date.now,
+    checkpoint: async (s) => { run.state = { ...run.state, [key]: s }; await patch(admin, run, { state: run.state }); },
+    runItem: async (i) => {
+      if (body.kind === "action" && !(await claimStep(admin, run, body.id, "exec", { item: i }))) return { ok: false };
+      const itemRun: Run = { ...run, state: { ...run.state, item: items[i] } }; // `item` is visible to the body only
+      const o = await executeNode(admin, itemRun, body);
+      return { ok: !o.error && !o.wait };
+    },
+  });
+  run.state = { ...run.state, [key]: r.state };
+  if (r.status === "running") return { yield: true };
+
+  const { [key]: _drop, ...rest } = run.state;
+  run.state = { ...rest, [node.id]: { processed: r.state.done.length, failed: r.state.failed.length } };
+  const edge = r.status === "completed" ? "next" : "fail";
+  await audit(admin, run, edge === "next" ? "node_completed" : "node_failed", node.id, { processed: r.state.done.length, failed: r.state.failed.length });
+  const next = graph.edges[node.id]?.[edge] ?? null;
+  await audit(admin, run, "edge_taken", node.id, { edge, to: next });
+  return { yield: false, edge, next };
+}
 async function finish(admin: SupabaseClient, run: Run, status: "completed" | "failed" | "cancelled", reason: string | null) {
   await patch(admin, run, { status, stop_reason: reason, completed_at: iso(), locked_until: null, inflight_node: null, state: run.state, hop_count: run.hop_count });
   await audit(admin, run, `run_${status}`, run.current_node, { reason, hops: run.hop_count });
@@ -343,10 +483,28 @@ async function processRun(admin: SupabaseClient, raw: Run, deadline: number) {
   }
 
   while (Date.now() < deadline) {
-    if (run.hop_count >= MAX_HOPS_PER_RUN) return finish(admin, run, "failed", "hop_limit");
+      if (run.hop_count >= MAX_HOPS_PER_RUN) return failWithCompensation(admin, run, graph, "hop_limit");
     const node = graph.nodes[run.current_node] as GraphNode | undefined;
     if (!node) return finish(admin, run, "failed", `missing_node:${run.current_node}`);
 
+    if (node.kind === "parallel" || node.kind === "foreach") {
+      if (!PARALLEL_ENABLED) return failWithCompensation(admin, run, graph, "parallel_disabled");
+      const res = node.kind === "parallel"
+        ? await runParallelNode(admin, run, graph, node, deadline)
+        : await runForeachNode(admin, run, graph, node, deadline);
+      if (res.yield) {
+        await patch(admin, run, { state: run.state, hop_count: run.hop_count, next_wake_at: iso(), locked_until: null });
+        return;
+      }
+      run.hop_count += 1;
+      if (!res.next) {
+        if (res.edge === "fail") return failWithCompensation(admin, run, graph, `unhandled_failure:${node.id}`);
+        return finish(admin, run, "completed", null);
+      }
+      run.current_node = res.next;
+      await patch(admin, run, { current_node: res.next, state: run.state, hop_count: run.hop_count, inflight_node: null });
+      continue;
+    }
     let outcome: Outcome;
     if (run.inflight_node === node.id) {
       // We crashed after starting this action. Never repeat a side effect whose outcome is unknown.
@@ -360,6 +518,7 @@ async function processRun(admin: SupabaseClient, raw: Run, deadline: number) {
 
     run.hop_count += 1;
     if (outcome.output) run.state = { ...run.state, [node.id]: outcome.output };
+    if (node.kind === "action") recordDone(run, node.id, outcome.error ? "failed" : "completed");
 
     // Human approval: create the request and park the run.
     if (outcome.wait === "approval") {
@@ -383,7 +542,8 @@ async function processRun(admin: SupabaseClient, raw: Run, deadline: number) {
     const next = graph.edges[node.id]?.[outcome.edge];
     if (!next) {
       run.current_node = node.id;
-      return finish(admin, run, outcome.error && outcome.edge === "fail" ? "failed" : "completed", outcome.error && outcome.edge === "fail" ? `unhandled_failure:${node.id}` : null);
+            if (outcome.error && outcome.edge === "fail") return failWithCompensation(admin, run, graph, `unhandled_failure:${node.id}`);
+      return finish(admin, run, "completed", null);
     }
     run.current_node = next;
 
