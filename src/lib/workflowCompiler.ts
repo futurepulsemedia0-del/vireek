@@ -13,8 +13,8 @@ import { supabase } from '@/lib/supabase';
 // TYPES (mirror supabase/functions/_shared/workflow-compiler/spec.ts)
 // ============================================================
 
-export type NodeKind = 'lookup' | 'reason' | 'decision' | 'action' | 'approval' | 'verify' | 'wait';
-export type EdgeOn = 'next' | 'true' | 'false' | 'fail' | 'approved' | 'rejected' | 'timeout' | 'pass';
+export type NodeKind = 'lookup' | 'reason' | 'decision' | 'action' | 'approval' | 'verify' | 'wait' | 'parallel' | 'join' | 'foreach';
+export type EdgeOn = 'next' | 'true' | 'false' | 'fail' | 'approved' | 'rejected' | 'timeout' | 'pass' | 'b0' | 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7';
 export type CompiledStatus = 'draft' | 'test' | 'live' | 'paused' | 'archived';
 export type CompiledRunStatus = 'active' | 'waiting_approval' | 'waiting_timer' | 'completed' | 'failed' | 'cancelled';
 
@@ -129,7 +129,7 @@ export const RUN_STATUS_STYLE: Record<CompiledRunStatus, string> = {
   cancelled: 'bg-bg-tertiary text-text-secondary',
 };
 export const KIND_LABEL: Record<NodeKind, string> = {
-  lookup: 'Data lookup', reason: 'AI reasoning', decision: 'Decision', action: 'Agent action', approval: 'Human approval', verify: 'Verification', wait: 'Wait',
+  lookup: 'Data lookup', reason: 'AI reasoning', decision: 'Decision', action: 'Agent action', approval: 'Human approval', verify: 'Verification', wait: 'Wait', parallel: 'Parallel split', join: 'Join', foreach: 'For each item',
 };
 
 export const TRIGGER_LABEL: Record<string, string> = {
