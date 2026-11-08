@@ -22,7 +22,7 @@ const TEMPLATE_SERVER_URL = 'https://{projectRef}.supabase.co/functions/v1/api-v
 /*  Resource definitions (routes + scopes + response schemas)           */
 /* ------------------------------------------------------------------ */
 
-export type FieldType = 'string' | 'integer' | 'number' | 'boolean' | 'array';
+export type FieldType = 'string' | 'integer' | 'number' | 'boolean' | 'array' | 'object';
 export type ApiResourceName = 'calls' | 'leads' | 'jobs';
 
 export interface FieldDef {
@@ -48,6 +48,7 @@ const id = (description: string, nullable = false): Omit<FieldDef, 'name'> => ({
 const text = (description: string, nullable = true): Omit<FieldDef, 'name'> => ({ type: 'string', nullable, description });
 const stamp = (description: string, nullable = false): Omit<FieldDef, 'name'> => ({ type: 'string', format: 'date-time', nullable, description });
 const f = (name: string, def: Omit<FieldDef, 'name'>): FieldDef => ({ name, ...def });
+const customData: Omit<FieldDef, 'name'> = { type: 'object', description: 'Your custom field values, keyed by field key (see the custom fields settings).' };
 
 export const RESOURCES: ResourceDef[] = [
   {
@@ -95,6 +96,7 @@ export const RESOURCES: ResourceDef[] = [
       f('stage', text('Pipeline stage, e.g. new.', false)),
       f('tags', { type: 'array', description: 'Free-form tags.' }),
       f('customer_id', id('Linked customer ID.', true)),
+      f('custom_data', customData),
       f('created_at', stamp('When the record was created.')),
     ],
   },
@@ -121,6 +123,8 @@ export const RESOURCES: ResourceDef[] = [
       f('invoice_status', text('Invoice status, e.g. not_sent.', false)),
       f('notes', text('Free-form notes.')),
       f('completed_at', stamp('When the job was completed.', true)),
+      f('custom_status_id', id('Your own status for this job, when one is set. job_status always holds the standard status it counts as.', true)),
+      f('custom_data', customData),
       f('created_at', stamp('When the record was created.')),
     ],
   },
@@ -145,48 +149,6 @@ export const ERROR_RESPONSES: Record<string, string> = {
 };
 
 export const NOT_FOUND_MESSAGE = `Not found. Available resources: ${RESOURCES.map((r) => r.name).join(', ')}`;
-/* ------------------------------------------------------------------ */
-/*  Error catalog — every error the API can return, one place           */
-/* ------------------------------------------------------------------ */
-
-export const ERROR_DOC_BASE = 'https://vireek.com/developers/api-reference#error-';
-
-export interface ErrorDef {
-  code: string;
-  status: number;
-  cause: string;
-  fix: string;
-}
-
-export const ERROR_CATALOG = [
-  { code: 'missing_api_key', status: 401, cause: 'The request has no Authorization header, or it is not a Bearer token.', fix: 'Send Authorization: Bearer vrk_live_… with every request.' },
-  { code: 'invalid_api_key', status: 401, cause: 'The key does not exist or has been revoked.', fix: 'Create a new key under Settings → API Keys and update your integration.' },
-  { code: 'insufficient_scope', status: 403, cause: 'The key does not have the scope this endpoint requires.', fix: 'Create a key that includes the scope named in the error message (see x-required-scope in the spec).' },
-  { code: 'invalid_id', status: 400, cause: 'The id in the path is not a UUID.', fix: 'Use the id value returned by the list endpoint.' },
-  { code: 'invalid_before', status: 400, cause: 'The before parameter is not an ISO 8601 timestamp.', fix: 'Pass the next_before value from the previous page, URL-encoded.' },
-  { code: 'route_not_found', status: 404, cause: 'The path is not a documented resource route.', fix: 'Check the path against the API reference.' },
-  { code: 'record_not_found', status: 404, cause: 'No record with this id exists on your account.', fix: 'Confirm the id and that the record belongs to the account that owns the key.' },
-  { code: 'method_not_allowed', status: 405, cause: 'The API is read-only; only GET is supported.', fix: 'Use GET.' },
-  { code: 'rate_limited', status: 429, cause: `More than ${RATE_LIMIT_PER_MINUTE} requests in one minute with the same key.`, fix: 'Wait the number of seconds in the Retry-After header, then retry with backoff.' },
-  { code: 'query_failed', status: 500, cause: 'The database query failed.', fix: 'Retry with backoff. If it persists, contact support with the X-Request-Id value.' },
-  { code: 'server_not_configured', status: 500, cause: 'The API deployment is missing required configuration.', fix: 'Self-hosted deployments: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY for the function.' },
-  { code: 'internal_error', status: 500, cause: 'An unexpected error occurred.', fix: 'Retry with backoff. If it persists, contact support with the X-Request-Id value.' },
-] as const satisfies readonly ErrorDef[];
-
-export type ErrorCode = (typeof ERROR_CATALOG)[number]['code'];
-
-export function errorStatus(code: ErrorCode): number {
-  return ERROR_CATALOG.find((e) => e.code === code)!.status;
-}
-
-/**
- * Consistent error JSON. `error` stays a plain string (existing clients, the CLI and the
- * request logs read it); `code`, `doc_url` and `request_id` are additive.
- */
-export function errorBody(code: ErrorCode, message: string, requestId: string) {
-  return { error: message, code, doc_url: `${ERROR_DOC_BASE}${code}`, request_id: requestId };
-}
-
 /* ------------------------------------------------------------------ */
 /*  Error catalog — every error the API can return, one place           */
 /* ------------------------------------------------------------------ */
@@ -368,7 +330,6 @@ export interface OpenApiSpec {
   externalDocs: { description: string; url: string };
   security: Record<string, string[]>[];
   paths: Record<string, Record<string, OpenApiOperation>>;
-    webhooks: Record<string, unknown>;
   webhooks: Record<string, unknown>;
   components: {
     securitySchemes: Record<string, unknown>;
@@ -415,6 +376,7 @@ export const SCHEMA_EXAMPLES: Record<ResourceDef['schema'], Record<string, unkno
     stage: 'new',
     tags: ['hvac'],
     customer_id: EXAMPLE_CUSTOMER,
+    custom_data: { property_type: 'Rental' },
     created_at: EXAMPLE_TS,
   },
   Job: {
@@ -433,6 +395,8 @@ export const SCHEMA_EXAMPLES: Record<ResourceDef['schema'], Record<string, unkno
     invoice_status: 'not_sent',
     notes: null,
     completed_at: null,
+    custom_status_id: null,
+    custom_data: { permit_no: 'B-10442' },
     created_at: EXAMPLE_TS,
   },
 };
@@ -473,10 +437,6 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
     const responses: Record<string, unknown> = {
       '200': {
         description: op.hasId ? `The ${singular(resource.name)}.` : `A page of ${resource.name}, newest first.`,
-        headers: {
-          'X-Request-Id': { $ref: '#/components/headers/XRequestId' },
-          'X-RateLimit-Limit': { $ref: '#/components/headers/XRateLimitLimit' },
-        },
         headers: {
           'X-Request-Id': { $ref: '#/components/headers/XRequestId' },
           'X-RateLimit-Limit': { $ref: '#/components/headers/XRateLimitLimit' },
@@ -588,10 +548,6 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
         '**Stability** — the three resources above are stable. Webhook events marked `x-stability: beta` may change their payload.',
         '',
         '**Test mode** — keys starting `vrk_test_` return deterministic synthetic data (`livemode: false`) and never touch your account. Use them to build and test; switch to a `vrk_live_` key for real data. Keys can also be restricted to an IP allowlist.',
-        '',
-        '**Errors** — every error is `{ error, code, doc_url, request_id }`. Branch on `code`; every response carries an `X-Request-Id` header.',
-        '',
-        '**Stability** — the three resources above are stable. Webhook events marked `x-stability: beta` may change their payload.',
       ].join('\n'),
       contact: { name: 'Vireek Developers', url: 'https://vireek.com/developers/api-reference' },
     },
