@@ -14,9 +14,26 @@ import { Switch } from '@/components/ui/Switch';
 import { Card } from '@/components/ui/Card';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { Tooltip } from '@/components/ui/Tooltip';
+import { DeltaBadge } from '@/components/DeltaBadge';
+import type { Delta } from '@/lib/dateRange';
 import { useToast } from '@/contexts/ToastContext';
 import { useAction } from '@/hooks/useAction';
 import { surfaceClass } from '@/lib/ui/interaction';
+
+/** Literal class strings on purpose: Tailwind's JIT cannot see dynamically built names. Canonical pairs from docs/design/COLOR_TOKENS.md. */
+const CHIPS: ReadonlyArray<{ label: string; tint: string; solid: string }> = [
+  { label: 'Accent', tint: 'bg-accent-subtle text-accent-strong', solid: 'bg-accent text-on-accent' },
+  { label: 'CTA', tint: 'bg-cta-subtle text-cta-strong', solid: 'bg-cta text-on-cta' },
+  { label: 'Success', tint: 'bg-success-subtle text-success-strong', solid: 'bg-success text-on-success' },
+  { label: 'Danger', tint: 'bg-danger-subtle text-danger-strong', solid: 'bg-danger text-on-danger' },
+  { label: 'Warning', tint: 'bg-warning-subtle text-warning-strong', solid: 'bg-warning text-on-warning' },
+  { label: 'Info', tint: 'bg-info-subtle text-info-strong', solid: 'bg-info text-on-info' },
+];
+const DELTAS: ReadonlyArray<Delta> = [
+  { kind: 'percent', direction: 'up', value: 12.5, sentiment: 'good', current: 90, previous: 80 },
+  { kind: 'percent', direction: 'down', value: -8, sentiment: 'bad', current: 46, previous: 50 },
+  { kind: 'percent', direction: 'flat', value: 0, sentiment: 'neutral', current: 50, previous: 50 },
+];
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -209,6 +226,24 @@ export default function StatesPage() {
         </div>
       </Section>
 
+      <Section title="Badge / chip">
+        <div className="flex flex-wrap gap-3">
+          {CHIPS.map((c) => (
+            <span key={`t-${c.label}`} className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${c.tint}`}>{c.label} tint</span>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {CHIPS.map((c) => (
+            <span key={`s-${c.label}`} className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${c.solid}`}>{c.label} solid</span>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {DELTAS.map((d) => (
+            <DeltaBadge key={d.direction} delta={d} />
+          ))}
+        </div>
+      </Section>
+      
       <Section title="Copy">
         <div className="flex flex-wrap gap-4">
           <CopyButton text="vrk_live_example_key" />
