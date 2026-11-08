@@ -1,0 +1,196 @@
+{
+  "status": {
+    "unmodified": "Unmodified since capture",
+    "imported": "Imported",
+    "offline": "Offline capture",
+    "integrity_failed": "Integrity check failed"
+  },
+  "statusHelp": {
+    "unmodified": "Taken with the Vireek camera while online. The file is identical to what the server received.",
+    "imported": "Not taken with the in-app camera (gallery or browser upload). Only integrity since upload is proven.",
+    "offline": "Taken without a connection. The time shown is the device clock, not a verified time.",
+    "integrity_failed": "The file or its record no longer matches the sealed evidence chain. Do not rely on it."
+  },
+  "note": {
+    "integrityFailed": "The evidence record does not match its seal.",
+    "notFromAppCamera": "Not captured by the in-app camera.",
+    "offlineDeviceTime": "Captured offline: the capture time is the device clock.",
+    "deviceTime": {
+      "missing": "The device did not report a capture time.",
+      "future": "The device clock was ahead of the server. Its time is not trusted.",
+      "stale": "The device clock was more than 30 days behind the server. Its time is not trusted."
+    },
+    "clockSkew": "The device clock differs from the server time by more than 5 minutes.",
+    "locationAccuracy": {
+      "high": "Location recorded, accuracy about 20 m or better.",
+      "medium": "Location recorded, accuracy about 20–100 m.",
+      "low": "Location recorded, accuracy worse than 100 m.",
+      "unknown": "Location recorded, accuracy unknown."
+    },
+    "location": {
+      "not_requested": "No location attached.",
+      "policy_off": "No location: photo location is switched off for this account.",
+      "consent_not_configured": "No location: technician consent is not set up for this account.",
+      "no_consent": "No location: the technician had not consented.",
+      "off_duty": "No location: the technician was off duty.",
+      "outside_job_window": "No location: the photo was outside the job time window.",
+      "invalid": "No location: the reading was invalid.",
+      "purged": "Location removed (retention or deletion request).",
+      "recorded": "Location recorded."
+    },
+    "hasRedactedCopy": "A redacted copy exists. Redaction changes the pixels; the original stays on record."
+  },
+  "summary": {
+    "heading": "Verified photo summary (Vireek evidence chain)",
+    "counts": "{{total}} photos: {{unmodified}} unmodified since capture, {{imported}} imported, {{offline}} offline captures, {{integrityFailed}} failed integrity checks.",
+    "line": "{{n}}. {{status}} · received {{received}} · fingerprint {{hash}}…",
+    "copy": "Copy summary text",
+    "copied": "Summary copied"
+  },
+  "limits": {
+    "title": "What this does and does not prove",
+    "proves": "It proves the photo file has not changed since the server received it, and records when and how it was captured.",
+    "doesNot": "It does not prove the work was done correctly, or that the photo shows what it is claimed to show.",
+    "spoofing": "The device clock and GPS can be spoofed. Photos taken outside the app camera carry no capture guarantee.",
+    "summary": "Limits: this proves integrity since the server received the photo, not that the work was done correctly. Device time and GPS can be spoofed."
+  },
+  "capture": {
+    "take": "Take photo",
+    "import": "Import from gallery",
+    "taking": "Saving photo…",
+    "saved": "Photo saved and sealed.",
+    "queued": "Photo saved on this device. It will be sealed when you are back online.",
+    "failed": "The photo could not be saved.",
+    "unsupported": "This image type is not supported. Use JPEG, PNG, WebP or HEIC.",
+    "queue": "{{pending}} waiting to upload",
+    "queueFailed": "{{failed}} could not be uploaded"
+  },
+  "panel": {
+    "title": "Photo provenance",
+    "empty": "No sealed photos for this job yet.",
+    "loading": "Loading photos…",
+    "error": "Could not load photo provenance.",
+    "received": "Server received",
+    "deviceTime": "Device time",
+    "deviceTimeNote": "(device clock)",
+    "source": {
+      "in_app_camera": "In-app camera",
+      "gallery_import": "Gallery import",
+      "web_input": "Browser upload",
+      "unknown": "Unknown"
+    },
+    "fingerprint": "SHA-256",
+    "derivatives": "Copies",
+    "derivative": {
+      "analysis_resize": "Resized copy",
+      "thumbnail": "Thumbnail",
+      "redacted": "Redacted copy"
+    },
+    "verified": "verified",
+    "notVerified": "not verified",
+    "redact": "Redact",
+    "purgeLocation": "Remove location",
+    "erase": "Erase photo files",
+    "eraseConfirm": "Erase the stored photo files? The sealed record (hashes and times) stays; the image cannot be recovered.",
+    "erased": "Files erased",
+    "locationRemoved": "Location removed",
+    "coordinates": "Location (managers only)",
+    "select": "Select for sharing",
+    "action": {
+      "done": "Done"
+    }
+  },
+  "share": {
+    "title": "Evidence link",
+    "help": "A public page shows fingerprints, times and status for the selected photos. It never shows the images, names, addresses or coordinates.",
+    "create": "Create link",
+    "days": "Link valid for (days)",
+    "label": "Internal label (not shown publicly)",
+    "created": "Link created. Copy it now; it is shown only once.",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "revoke": "Revoke",
+    "revoked": "Revoked",
+    "expires": "Expires {{date}}",
+    "views": "{{count}} views",
+    "none": "No links yet.",
+    "chooseOne": "Select at least one photo to share."
+  },
+  "settings": {
+    "title": "Photo location and retention",
+    "location": "Attach location to photos during the job",
+    "locationHelp": "Only recorded when the technician has consented, is on duty and the photo is inside the job window. Coordinates are rounded to about 11 m.",
+    "consentMissing": "Technician location consent is not set up. Turn on consent in Location privacy first; until then no photo location is stored.",
+    "locationDays": "Keep photo locations (days)",
+    "photoDays": "Keep photo files (days)",
+    "save": "Save",
+    "saved": "Settings saved",
+    "counsel": "Tracking technicians can be regulated by labor and privacy law where you operate. Have counsel review before you enable it."
+  },
+  "redact": {
+    "title": "Redact people and sensitive areas",
+    "help": "Drag on the photo to cover faces, people or sensitive areas. A new copy is saved and sealed; the original stays unchanged.",
+    "person": "Person / face",
+    "sensitive": "Sensitive area",
+    "undo": "Undo last box",
+    "save": "Save redacted copy",
+    "cancel": "Cancel",
+    "saved": "Redacted copy saved and sealed.",
+    "failed": "Could not save the redacted copy.",
+    "noRegions": "Draw at least one box.",
+    "canvas": "Photo to redact. Use the buttons below to add or remove boxes."
+  },
+  "public": {
+    "title": "Photo evidence verification",
+    "intro": "This page shows integrity facts recorded by Vireek for the photos in this evidence link.",
+    "notFound": "Link not found",
+    "notFoundBody": "The link is incorrect or was never issued.",
+    "expired": "This link has expired",
+    "expiredBody": "Ask the sender for a new link.",
+    "revoked": "This link was revoked",
+    "revokedBody": "The sender withdrew access.",
+    "chainBroken": "The evidence chain for this job failed its integrity check. Do not rely on these records.",
+    "chainOk": "Evidence chain intact",
+    "issued": "Issued {{date}}",
+    "validUntil": "Valid until {{date}}",
+    "photo": "Photo {{id}}",
+    "received": "Server received",
+    "device": "Device time",
+    "skew": "Device clock differed from the server by {{seconds}} s",
+    "source": "Capture source",
+    "location": "Location",
+    "locationNone": "None attached",
+    "locationRecorded": "Recorded — accuracy {{meters}} m ({{class}})",
+    "accuracyClass": {
+      "high": "high",
+      "medium": "medium",
+      "low": "low",
+      "unknown": "unknown"
+    },
+    "original": "Original fingerprint (SHA-256)",
+    "copies": "Derived copies",
+    "modifiedCopy": "edited copy",
+    "checkTitle": "Check a file",
+    "checkHelp": "Choose a photo file. Its fingerprint is calculated in your browser; the file is never uploaded.",
+    "checkButton": "Choose file",
+    "checkMatchOriginal": "Match: this file is the original of photo {{id}}.",
+    "checkMatchCopy": "Match: this file is a {{kind}} of photo {{id}}.",
+    "checkNoMatch": "No match. This file is not on record for this link.",
+    "checkWorking": "Calculating…",
+    "loading": "Checking…",
+    "error": "Could not check this link right now. Try again."
+  },
+  "card": {
+    "title": "Verified photos",
+    "copy": "Copy summary for the client",
+    "copied": "Summary copied",
+    "note": "Photo files are sealed in the job's evidence chain. Share a verification link from the job's evidence panel."
+  },
+  "dispute": {
+    "insert": "Insert verified photo summary",
+    "inserted": "Photo summary added to the explanation.",
+    "none": "This job has no sealed photos yet.",
+    "tooLong": "The summary does not fit in this field. Shorten the text first.",
+    "failed": "Could not load the photo summary."
+  }
+}
