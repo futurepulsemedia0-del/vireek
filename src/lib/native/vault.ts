@@ -10,12 +10,24 @@
 
 import { idb, notifyData, notifyEnqueue, transact, type OutboxOp, type StoredBlob } from '../offline/db';
 import { isNative } from './platform';
+import { nativeAuthStorage } from './secureStorage';
+import { createVaultCipher } from './vaultCrypto';
 
 const ROOT = 'vireek-vault';
+
+// Entries and files are sealed with AES-GCM; the key lives in the Keychain/Keystore.
+const cipher = createVaultCipher({
+  get: async (name) => (await nativeAuthStorage.getItem(name)) ?? null,
+  set: async (name, value) => {
+    await nativeAuthStorage.setItem(name, value);
+  },
+});
 
 interface VaultEntry {
   op: OutboxOp;
   blob: { id: string; mime: string; ext: string } | null;
+  /** true when the .bin file is sealed (older entries have no flag and are plaintext). */
+  enc?: boolean;
 }
 
 async function loadFs() {
@@ -49,15 +61,22 @@ export async function mirrorToVault(op: OutboxOp, stored?: StoredBlob): Promise<
     const dir = `${ROOT}/${op.user_id}`;
     await Filesystem.mkdir({ path: dir, directory: Directory.Data, recursive: true }).catch(() => undefined);
     // The binary goes first; the .json is the commit marker that makes the entry visible.
+        let encrypted = false;
     if (stored) {
-      await Filesystem.writeFile({ path: `${dir}/${op.id}.bin`, directory: Directory.Data, data: await blobToBase64(stored.blob) });
+      const sealed = await cipher.sealBytes(await stored.blob.arrayBuffer());
+      encrypted = sealed !== null;
+      await Filesystem.writeFile({
+        path: `${dir}/${op.id}.bin`,
+        directory: Directory.Data,
+        data: sealed ?? (await blobToBase64(stored.blob)),
+      });
     }
-    const entry: VaultEntry = { op, blob: stored ? { id: stored.id, mime: stored.mime, ext: stored.ext } : null };
+    const entry: VaultEntry = { op, blob: stored ? { id: stored.id, mime: stored.mime, ext: stored.ext } : null, enc: encrypted };
     await Filesystem.writeFile({
       path: `${dir}/${op.id}.json`,
       directory: Directory.Data,
       encoding: Encoding.UTF8,
-      data: JSON.stringify(entry),
+      data: (await cipher.sealJson(entry)) ?? JSON.stringify(entry),
     });
   } catch {
     /* disk full / plugin unavailable — the IndexedDB copy is still intact */
@@ -98,7 +117,7 @@ export async function rehydrateFromVault(userId: string): Promise<number> {
       if (!file.name.endsWith('.json')) continue;
       try {
         const raw = await Filesystem.readFile({ path: `${dir}/${file.name}`, directory: Directory.Data, encoding: Encoding.UTF8 });
-        const entry = JSON.parse(String(raw.data)) as VaultEntry;
+        const entry = await cipher.openJson<VaultEntry>(String(raw.data));
         const op = entry.op;
         if (!op?.id || op.user_id !== userId) continue;
         if (await idb.get('outbox', op.id)) continue; // IndexedDB still has it
@@ -107,7 +126,10 @@ export async function rehydrateFromVault(userId: string): Promise<number> {
         if (entry.blob) {
           const bin = await Filesystem.readFile({ path: `${dir}/${op.id}.bin`, directory: Directory.Data });
           const meta = entry.blob;
-          const stored: StoredBlob = { id: meta.id, blob: base64ToBlob(String(bin.data), meta.mime), mime: meta.mime, ext: meta.ext };
+const blob = entry.enc
+            ? new Blob([await cipher.openBytes(String(bin.data))], { type: meta.mime })
+            : base64ToBlob(String(bin.data), meta.mime);
+          const stored: StoredBlob = { id: meta.id, blob, mime: meta.mime, ext: meta.ext };
           await transact(['outbox', 'blobs'], 'readwrite', (s) => {
             s('blobs').put(stored);
             return s('outbox').put(revived);
@@ -129,4 +151,17 @@ export async function rehydrateFromVault(userId: string): Promise<number> {
     notifyEnqueue();
   }
   return restored;
+}
+
+/** Deletes every vault file of one technician (or the whole vault). Never throws. */
+export async function wipeVault(userId?: string): Promise<void> {
+  if (!isNative()) return;
+  try {
+    const { Filesystem, Directory } = await loadFs();
+    await Filesystem.rmdir({ path: userId ? `${ROOT}/${userId}` : ROOT, directory: Directory.Data, recursive: true }).catch(() => undefined);
+  } catch {
+    /* nothing to wipe */
+  }
+  if (userId) restoredFor.delete(userId);
+  else restoredFor.clear();
 }
