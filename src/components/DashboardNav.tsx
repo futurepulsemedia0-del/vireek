@@ -411,6 +411,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Payroll Sync', href: '/dashboard/payroll-sync', icon: Plug, requiresPermission: 'can_view_billing' },
   { label: 'Payroll Connectors', href: '/dashboard/payroll-connectors', icon: ArrowRightLeft, requiresPermission: 'can_view_billing' },
   { label: 'Job Quality Gate', href: '/dashboard/job-quality-gate', icon: ClipboardCheck },
+  { label: 'Job Statuses', href: '/dashboard/settings/statuses', icon: ListChecks },
   { label: 'Evidence Chain', href: '/dashboard/evidence-chain', icon: Link2 },
   { label: 'Warranty Claim Recovery', href: '/dashboard/warranty-claims', icon: FileClock },
   { label: 'Install Closeout', href: '/dashboard/install-closeout', icon: ClipboardCheck, requiresPermission: 'can_view_all_jobs' },
