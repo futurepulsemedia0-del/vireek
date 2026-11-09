@@ -79,6 +79,9 @@ if (sigReject) return sigReject;
         .upsert({ user_id: userId, phone_number: from, reason: "customer_opt_out" }, { onConflict: "user_id,phone_number" });
     }
 
+    // Site Safety Intelligence: a technician's SMS fallback ("OK 123456" / "HELP") never enters the customer inbox.
+    const { data: safetyReply } = await admin.rpc("safety_checkin_by_sms", { p_user: userId, p_phone: from, p_body: body });
+    if ((safetyReply as { handled?: boolean } | null)?.handled) return emptyTwiml();
     const { data: conversation } = await admin
       .from("sms_conversations")
       .upsert(
