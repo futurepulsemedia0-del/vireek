@@ -77,6 +77,8 @@
     "brand:gallery": "node scripts/brand/build-gallery.mjs",
     "check:pwa": "node scripts/brand/check-pwa.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "vertical:eval": "node scripts/vertical-eval.mjs",
+    "vertical:test": "vitest run supabase/functions/_shared/vertical-ai",
     "interpreter:eval": "node scripts/interpreter-eval.mjs",
     "interpreter:eval:live": "node scripts/interpreter-eval.mjs --live",
     "interpreter:test": "node --experimental-strip-types --test supabase/functions/_shared/interpreter/interpreter.test.ts",
