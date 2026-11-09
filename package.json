@@ -18,6 +18,7 @@
     "codemod:text-alpha": "node scripts/color/codemod-text-alpha.mjs",
     "lint:design": "node scripts/check-design-system.mjs",
     "audit:radius": "node scripts/design/radius-audit.mjs",
+    "audit:radius": "node scripts/design/radius-audit.mjs",
     "lint:motion": "node scripts/check-motion.mjs",
     "test:motion": "node --test scripts/motion/codemod-lib.test.mjs && playwright test e2e/reduced-motion.spec.ts",
     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
