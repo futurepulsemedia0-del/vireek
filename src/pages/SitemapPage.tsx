@@ -26,6 +26,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
 import { SARAH_PHONE } from '@/lib/site';
+import { getEndorsement } from '@/lib/brand/platformEndorsement';
 import { BLOG_POSTS } from '@/lib/blogContent';
 import { publishedResources, resourcePath } from '@/lib/resources';
 import { INDUSTRIES } from '@/lib/industries';
@@ -177,6 +178,7 @@ function useSiteSections(): SiteSection[] {
           { label: 'AI Call Disclosure & Recording', href: '/ai-disclosure' },
           { label: 'CCPA Rights', href: '/ccpa' },
           { label: 'SMS Terms', href: '/sms-terms' },
+          ...(getEndorsement().enabled ? [{ label: 'Company information', href: '/legal/company' }] : []),
         ],
       },
     ],
