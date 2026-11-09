@@ -199,6 +199,7 @@ import {
   Trophy,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import { rememberDashboardPath } from '@/lib/helpCenter';
 import { useToast } from '@/contexts/ToastContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
@@ -242,6 +243,8 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
   ownerOnly?: boolean;
+  /** Hidden unless this feature flag is on for the tenant. */
+  requiresFlag?: string;
   /** Hidden unless the account is entitled to this module (see src/lib/entitlements.ts). */
   requiresModule?: string;
 }
@@ -601,6 +604,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Local Rank Grid', href: '/dashboard/geo-grid', icon: MapPin, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trade Playbooks', href: '/dashboard/trade-playbooks', icon: ClipboardCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
+  { label: 'Agent Actions', href: '/dashboard/agent-actions', icon: Bot, requiresPermission: 'can_manage_security', requiresFlag: 'agent_action_framework' },
   { label: 'AI Security Center', href: '/dashboard/security-center', icon: LockKeyhole, requiresPermission: 'can_manage_security' },
   { label: 'AI Reliability', href: '/dashboard/ai-reliability', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
   { label: 'AI Transparency', href: '/dashboard/ai-transparency', icon: Fingerprint, requiresPermission: 'can_manage_security' },
@@ -697,14 +701,9 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'system', label: 'System', icon: Monitor },
 ];
-export function filterItems(
-  items: NavItem[],
-  isOwner: boolean,
-  permissions: import('@/contexts/AuthContext').UserPermissions,
-  hasModule?: (id: string) => boolean,
-) {
+export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, flagOn?: (key: string) => boolean) {
   return items.filter((item) => {
-    if (!passesModuleGate(item.requiresModule, hasModule)) return false;
+    if (item.requiresFlag && !(flagOn?.(item.requiresFlag) ?? false)) return false;
     if (item.ownerOnly && !isOwner) return false;
     if (!item.requiresPermission) return true;
     if (isOwner) return true;
@@ -720,6 +719,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     rememberDashboardPath(location.pathname);
   }, [location.pathname]);
   const { user, isOwner, permissions, signOut } = useAuth();
+  const { isEnabled: flagOn } = useFeatureFlags();
   const { toast } = useToast();
   const { preference, setThemePreference } = useTheme();
   const { t } = useTranslation('dashboard');
