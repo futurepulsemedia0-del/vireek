@@ -200,6 +200,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFeatureFlags } from '@/hooks/useFeatureFlag';
+import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import { rememberDashboardPath } from '@/lib/helpCenter';
 import { useToast } from '@/contexts/ToastContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
@@ -247,6 +248,8 @@ interface NavItem {
   requiresFlag?: string;
   /** Hidden unless the account is entitled to this module (see src/lib/entitlements.ts). */
   requiresModule?: string;
+  /** Hidden unless this feature flag is ON for the tenant. */
+  requiresFlag?: string;
 }
 
 // Primary, daily-use items stay immediately visible at the top level —
@@ -481,6 +484,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Field Intelligence', href: '/dashboard/field-intelligence', icon: Brain },
   { label: 'Home Health', href: '/dashboard/home-health', icon: Activity },
   { label: 'Home Service Passport', href: '/dashboard/home-passport', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+  { label: 'Home Passport Pilot', href: '/dashboard/home-passport/pilot', icon: ShieldCheck, requiresPermission: 'can_view_billing', requiresFlag: 'home_passport_pilot' },
   { label: 'Property Intelligence', href: '/dashboard/property-intelligence', icon: Radar },
   { label: 'Fleet Economics', href: '/dashboard/fleet-economics', icon: Fuel },
   { label: 'Telematics OS', href: '/dashboard/telematics', icon: Satellite },
@@ -701,8 +705,10 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'system', label: 'System', icon: Monitor },
 ];
-export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, flagOn?: (key: string) => boolean) {
+export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, isFlagOn?: (key: string) => boolean) {
   return items.filter((item) => {
+    if (item.ownerOnly && !isOwner) return false;
+    if (item.requiresFlag && !(isFlagOn?.(item.requiresFlag) ?? false)) return false;
     if (item.requiresFlag && !(flagOn?.(item.requiresFlag) ?? false)) return false;
     if (item.ownerOnly && !isOwner) return false;
     if (!item.requiresPermission) return true;
@@ -754,8 +760,9 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     return location.pathname.startsWith(href);
   };
 
-  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, hasModule);
-  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, hasModule);
+  const { isEnabled: isFlagOn } = useFeatureFlags();
+  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, isFlagOn);
+  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, isFlagOn);
   const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
   const [showLabs, setShowLabs] = useState(() => {
     try {
