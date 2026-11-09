@@ -206,6 +206,7 @@ const ToolCribPage = lazy(() => import('@/pages/ToolCribPage').then((m) => ({ de
 const BreakCompliancePage = lazy(() => import('@/pages/BreakCompliancePage').then((m) => ({ default: m.BreakCompliancePage })));
 const VendorManagementPage = lazy(() => import('@/pages/VendorManagementPage').then((m) => ({ default: m.VendorManagementPage })));
 const SupplierCatalogPage = lazy(() => import('@/pages/SupplierCatalogPage').then((m) => ({ default: m.SupplierCatalogPage })));
+const PartsSourcingPage = lazy(() => import('@/pages/PartsSourcingPage').then((m) => ({ default: m.PartsSourcingPage })));
 const SupplierPunchoutPage = lazy(() => import('@/pages/SupplierPunchoutPage').then((m) => ({ default: m.SupplierPunchoutPage })));
 const InsuranceClaimsPage = lazy(() => import('@/pages/InsuranceClaimsPage').then((m) => ({ default: m.InsuranceClaimsPage })));
 const RiskIntelligencePage = lazy(() => import('@/pages/RiskIntelligencePage').then((m) => ({ default: m.RiskIntelligencePage })));
@@ -3900,6 +3901,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <SupplierCatalogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/parts-sourcing"
+          element={
+            <ProtectedRoute>
+              <PartsSourcingPage />
             </ProtectedRoute>
           }
         />
