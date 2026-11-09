@@ -27,6 +27,8 @@ import { LiveIndicator } from '@/components/LiveIndicator';
 import { TruckAlertsBanner } from '@/components/dispatch/TruckAlertsBanner';
 import { ScheduleDndProvider, DraggableJob, DropZone } from '@/components/schedule/ScheduleDnd';
 import { useScheduleBoard } from '@/hooks/useScheduleBoard';
+import { PartsEtaBadge } from '@/components/partsSourcing/PartsEtaBadge';
+import { fetchJobEtaWarnings, type JobEtaWarnings } from '@/lib/partsSourcingApi';
 import type { MoveTargetOption } from '@/lib/scheduleDnd';
 
 function formatTime(dateStr: string | null): string {
@@ -67,6 +69,7 @@ export function DispatchBoardPage() {
   const [passportFit, setPassportFit] = useState<Record<string, Record<string, PassportFitRow>>>({});
   const [firstTimeFixByTechnician, setFirstTimeFixByTechnician] = useState<Record<string, number | null>>({});
   const [fleetSignals, setFleetSignals] = useState<Record<string, FleetDispatchSignal>>({});
+  const [partsEta, setPartsEta] = useState<JobEtaWarnings>({});
   const [expandedProfitJob, setExpandedProfitJob] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<string | null>(null);
   const [availability, setAvailability] = useState<AvailabilityData | null>(null);
@@ -108,6 +111,7 @@ export function DispatchBoardPage() {
           .catch(() => setAvailability(null));
       }
       void fetchFleetDispatchSignals().then(setFleetSignals);
+      void fetchJobEtaWarnings(loadedJobs.map((j) => j.id)).then(setPartsEta);
       void fetchTechnicianScorecards().then((rows) => {
         const map: Record<string, number | null> = {};
         rows.forEach((r) => {
@@ -398,6 +402,9 @@ const handleAssign = async (job: Job, technicianId: string) => {
                               <RiskChip report={riskMap[job.id]} />
                             </div>
                           )}
+                          <div className="mt-1.5 empty:hidden">
+                            <PartsEtaBadge check={partsEta[job.id]} />
+                          </div>
                                                     {job.dispatch_note && (
                             <p className="mt-1 text-xs italic text-accent/80">{job.dispatch_note}</p>
                           )}
