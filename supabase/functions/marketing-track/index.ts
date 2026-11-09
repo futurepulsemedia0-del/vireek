@@ -18,6 +18,10 @@
 //   });
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { dbRateLimiter } from "../_shared/http/rateLimit.ts";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const RATE_LIMIT_PER_MINUTE = 120;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -65,10 +69,41 @@ Deno.serve(async (req: Request) => {
     const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", {
       auth: { persistSession: false },
     });
-
+    // Public endpoint: اعتبارسنجی tenant، clamp فیلدها، rate limit بر اساس IP.
+    if (!UUID_RE.test(body.user_id) || typeof body.anonymous_id !== "string" || body.anonymous_id.length > 128) {
+      return new Response(JSON.stringify({ ok: false, error: "invalid user_id or anonymous_id" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    for (const key of Object.keys(body) as (keyof TrackPayload)[]) {
+      const v = body[key];
+      if (typeof v === "string") (body as unknown as Record<string, unknown>)[key] = v.slice(0, 500);
+      else if (key !== "user_id") delete (body as unknown as Record<string, unknown>)[key];
+    }
+    const ip = (req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? "unknown").split(",")[0].trim();
+    try {
+      const rl = await dbRateLimiter(admin).hit(`marketing-track:${ip}`, RATE_LIMIT_PER_MINUTE, 60);
+      if (!rl.allowed) {
+        return new Response(JSON.stringify({ ok: false, error: "rate_limited" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rl.retryAfter) },
+        });
+      }
+    } catch (rlErr) {
+      console.error("marketing-track rate limiter unavailable (failing open):", rlErr);
+    }
+    const { data: account } = await admin.from("profiles").select("id").eq("id", body.user_id).maybeSingle();
+    if (!account) {
+      return new Response(JSON.stringify({ ok: false, error: "unknown account" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const { data: existingTouch } = await admin
       .from("marketing_attribution_touches")
       .select("id")
+      .eq("user_id", body.user_id).
       .eq("anonymous_id", body.anonymous_id)
       .limit(1)
       .maybeSingle();
