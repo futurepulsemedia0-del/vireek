@@ -8,6 +8,8 @@ import {
 import { createExpertAssistRequest, snapshotFromBrief } from '@/lib/expertAssist';
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
+import { SiteSafetyBriefCard } from '@/components/safety/SiteSafetyBriefCard';
+import { LoneWorkerPanel } from '@/components/safety/LoneWorkerPanel';
 import { CollectPaymentPanel } from '@/components/technician/CollectPaymentPanel';
 import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
 import { JobPaymentPanel } from '@/components/technician/JobPaymentPanel';
@@ -113,6 +115,8 @@ export function TechnicianJobBriefPage() {
           🆘 Ask Vireek Expert
         </button>
 
+        <SiteSafetyBriefCard jobId={job.id} />
+        <LoneWorkerPanel jobId={job.id} expectedMinutes={job.expected_duration_minutes} />
         <PermitCompliancePanel job={job} />
         <JobRefrigerantPanel job={job} />
         <JobUnknownsPanel job={job} />
