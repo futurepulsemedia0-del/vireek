@@ -1,0 +1,14 @@
+{
+  "cases": 232,
+  "emergencyCases": 87,
+  "emergencyRecall": 1,
+  "falseEmergencyRate": 0.006896551724137931,
+  "urgencyAccuracy": 0.9913793103448276,
+  "tradeAccuracy": 1,
+  "priceAccuracy": 1,
+  "spokenPriceGroundedRate": 1,
+  "groundedStatementRate": 1,
+  "handoffCorrectness": 1,
+  "refusalCorrectness": 1,
+  "crossTenantLeakage": 0
+}
