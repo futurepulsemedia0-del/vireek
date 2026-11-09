@@ -16,6 +16,7 @@
 // Types
 // ---------------------------------------------------------------------------
 
+   import { ASSET_POLICIES, ASSET_SOURCES } from "../asset-reality/sources.ts";
 export type SourceKind = "authority" | "system" | "document" | "human" | "ai";
 
 export interface SourceDef {
@@ -116,6 +117,7 @@ export const SOURCE_CATALOG: Record<string, SourceDef> = {
   owner_entered: { key: "owner_entered", label: "Owner Entered", kind: "human", reliability: 0.7, authoritative: false, userAssertable: true },
   customer_stated: { key: "customer_stated", label: "Customer Stated", kind: "human", reliability: 0.6, authoritative: false, userAssertable: true },
   ai_inference: { key: "ai_inference", label: "AI Inference", kind: "ai", reliability: 0.45, authoritative: false, userAssertable: false },
+     ...ASSET_SOURCES,
 };
 
 const UNKNOWN_SOURCE: Omit<SourceDef, "key" | "label"> = { kind: "human", reliability: 0.3, authoritative: false, userAssertable: false };
@@ -142,6 +144,7 @@ export function computeBaseConfidence(sourceKey: string, evidenceCount: number, 
 const DEFAULT_POLICY = { min_confidence: 0.7, max_age_days: 90, min_independent_sources: 1, expiring_warning_days: 14 };
 
 const BUILTIN_POLICIES: TruthPolicy[] = [
+     ...ASSET_POLICIES,
   { predicate: "credential.", min_confidence: 0.8, max_age_days: 90, min_independent_sources: 1, expiring_warning_days: 30 },
   { predicate: "qualification.", min_confidence: 0.8, max_age_days: 90, min_independent_sources: 1, expiring_warning_days: 30 },
   { predicate: "insurance.", min_confidence: 0.85, max_age_days: 30, min_independent_sources: 1, expiring_warning_days: 14 },
