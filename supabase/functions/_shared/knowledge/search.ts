@@ -117,7 +117,7 @@ export async function embedTexts(
   }
 }
 
-aasync function embedQuery(question: string, onUsage?: (usage: { inputTokens: number; measured: boolean }) => void): Promise<number[] | null> {
+async function embedQuery(question: string, onUsage?: (usage: { inputTokens: number; measured: boolean }) => void): Promise<number[] | null> {
   const vectors = await embedTexts([question], "search_query", 8000, onUsage);
   return vectors?.[0] ?? null;
 }
