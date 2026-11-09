@@ -89,6 +89,19 @@ Deno.serve(async (req: Request) => {
     body = {};
   }
 
+  // Auth: service-role key (scheduler) همه‌ی tenantها؛ کاربر فقط حساب خودش.
+  const bearer = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+  if (bearer !== serviceRoleKey) {
+    const caller = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
+      global: { headers: { Authorization: `Bearer ${bearer}` } },
+      auth: { persistSession: false },
+    });
+    const { data: userData } = await caller.auth.getUser();
+    if (!userData?.user) return json({ error: "Unauthorized" }, 401);
+    const { data: ownerId } = await caller.rpc("get_account_owner_id");
+    if (typeof ownerId !== "string") return json({ error: "Forbidden" }, 403);
+    body.user_id = ownerId; // هرگز tenant id ارسالی کلاینت را قبول نکن
+  }
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
   const model = embeddingModelName();
 
