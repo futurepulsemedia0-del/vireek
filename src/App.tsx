@@ -283,6 +283,8 @@ const RenewMembershipPage = lazy(() => import('@/pages/RenewMembershipPage').the
 const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TradePacksPage = lazy(() => import('@/pages/TradePacksPage').then((m) => ({ default: m.TradePacksPage })));
+const PacksPage = lazy(() => import('@/pages/PacksPage').then((m) => ({ default: m.PacksPage })));
+const StaffPacksPage = lazy(() => import('@/pages/staff/StaffPacksPage').then((m) => ({ default: m.StaffPacksPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
 const TechnicianTimesheetPage = lazy(() => import('@/pages/TechnicianTimesheetPage').then((m) => ({ default: m.TechnicianTimesheetPage })));
 const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
@@ -769,6 +771,7 @@ function AppRoutes() {
         <Route path="/academy/certificate" element={<AcademyCertificatePage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/ambassador" element={<AmbassadorPage />} />
+        <Route path="/staff/packs" element={<StaffRoute><StaffPacksPage /></StaffRoute>} />
         <Route path="/staff/web-vitals" element={<StaffRoute><StaffWebVitalsPage /></StaffRoute>} />
         <Route
           path="/staff/support-inbox"
@@ -3531,6 +3534,14 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+        <Route
+          path="/dashboard/packs"
+          element={
+            <ProtectedRoute>
+              <PacksPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/tech/today"
           element={
