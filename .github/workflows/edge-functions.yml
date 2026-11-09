@@ -107,6 +107,8 @@ jobs:
       # estimate-recovery-agent, money-recovered-run, payment-plan-runner, dispute-evidence,
       # check-warranty-claim-deadlines, send-payment-reminders + the estimate-to-cash / warranty-recovery workflow contracts.
       # Runs the real index.ts files against an in-memory supabase fake - no network, no secrets.
+      - name: verify_jwt config in sync
+        run: npm run verify-jwt:check
       - name: Edge-function & workflow reliability tests
         run: npm run test:edge
 
