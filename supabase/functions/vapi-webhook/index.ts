@@ -13,6 +13,7 @@ import { redactCallTranscript } from "../_shared/pci/transcript.ts";
 import { UUID_RE } from "../_shared/pci/session.ts";
 import { applyCallResult as applySpeedToLeadResult } from "../_shared/speed-to-lead/runtime.ts";
 import { autoTagCallDisposition } from "../_shared/call-dispositions/autoDisposition.ts";
+import { recordSafetyFactsFromCall } from "../_shared/safety/callFacts.ts";
 import { buildIdentityContext, lookupCallerIdentity, mergeCallerContext } from "../_shared/identity-resolution.ts";
 import { getSealPolicy, sealCallArtifacts } from "../_shared/trust/vault.ts";
 import { recordAttemptOutcome } from "../_shared/number-reputation/attempts.ts";
@@ -2638,6 +2639,17 @@ transcript = pci.text;
     } catch (error) {
       logError("agent_caller_finalize_failed", requestId, error, {});
     }
+  }
+  // Site Safety Intelligence: hazards the caller volunteered, stored as pending-review facts (never throws).
+  if (message.type === "end-of-call-report" && callRow && transcript) {
+    const safety = await recordSafetyFactsFromCall(admin, {
+      userId: tenant.userId,
+      callId: callRow.id,
+      transcript: typeof transcript === "string" ? transcript : null,
+      summary: typeof patch.summary === "string" ? patch.summary : null,
+      callDatetime: (callRow as { call_datetime?: string | null }).call_datetime ?? null,
+    });
+    if (safety.stored > 0) logEvent("safety_facts_recorded", requestId, { count: safety.stored });
   }
   // Customer language — detected from the caller's own words; only fills an empty preference (never throws).
   if (message.type === "end-of-call-report" && transcript) {
