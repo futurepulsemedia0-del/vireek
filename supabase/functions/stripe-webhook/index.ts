@@ -188,22 +188,23 @@ Deno.serve(async (req: Request) => {
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
-  // Idempotency: Stripe redelivers events (retries, or you replaying them
-  // from the Dashboard). If we've already logged this event id, stop here
-  // before sending a second "your card was declined" email for the same
-  // failure.
-  const { error: dedupeError } = await admin
-    .from("billing_events")
-    .insert({ stripe_event_id: event.id, event_type: event.type, payload: event as unknown as Record<string, unknown> });
-  if (dedupeError) {
-    // Unique violation on stripe_event_id means we've already handled this
-    // exact event — acknowledge with 200 so Stripe stops retrying it.
-    if (dedupeError.code === "23505") {
-      return new Response(JSON.stringify({ received: true, duplicate: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    console.error("Failed to log billing event:", dedupeError);
+  // Idempotency + retry safety (migration 20290202000000_billing_events_processing_state.sql).
+  const { data: claim, error: claimError } = await admin.rpc("claim_billing_event", {
+    p_event_id: event.id,
+    p_event_type: event.type,
+    p_payload: event as unknown as Record<string, unknown>,
+  });
+  if (claimError) {
+    console.error("Failed to claim billing event:", claimError.message);
+    return new Response("Temporarily unavailable.", { status: 500, headers: corsHeaders });
+  }
+  if (claim === "duplicate") {
+    return new Response(JSON.stringify({ received: true, duplicate: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  if (claim === "in_progress") {
+    return new Response("Event is being processed.", { status: 409, headers: corsHeaders });
   }
 
   try {
@@ -242,7 +243,8 @@ Deno.serve(async (req: Request) => {
             payment_grace_period_ends_at: update.payment_grace_period_ends_at,
             last_payment_error: update.last_payment_error,
           })
-          .eq("id", profile.id);
+          .eq("id", profile.id)
+          .throwOnError();
 
         const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
         const daysLeft = update.daysLeft;
@@ -254,7 +256,12 @@ Deno.serve(async (req: Request) => {
           declineReason,
           updatePaymentUrl: `${siteUrl}/dashboard/billing/update-payment`,
         });
-        await sendEmail({ to: profile.email, ...email });
+        // update بالا idempotent نیست (dunning_stage را جلو می‌برد)؛ خطای ایمیل نباید retry بسازد.
+        try {
+          await sendEmail({ to: profile.email, ...email });
+        } catch (mailErr) {
+          console.error("dunning email failed (not retried):", mailErr);
+        }
         break;
       }
 
@@ -354,13 +361,18 @@ Deno.serve(async (req: Request) => {
         break;
     }
   } catch (err) {
-    // We've already logged the event for idempotency above, so a failure
-    // here means "retry the side effects", not "Stripe should resend this".
-    // Returning 500 makes Stripe retry the whole delivery, which would hit
-    // the dedupe check and no-op — so return 200 and just log loudly for
-    // manual follow-up instead.
+   } catch (err) {
     console.error(`Error handling Stripe event ${event.type} (${event.id}):`, err);
+    await admin.rpc("complete_billing_event", {
+      p_event_id: event.id,
+      p_error: err instanceof Error ? err.message : String(err),
+    });
+    // 500 => Stripe دوباره می‌فرستد و claim مقدار 'retry' برمی‌گرداند.
+    return new Response("Handler failed; will retry.", { status: 500, headers: corsHeaders });
   }
+
+  const { error: completeError } = await admin.rpc("complete_billing_event", { p_event_id: event.id, p_error: null });
+  if (completeError) console.error("Failed to mark billing event processed:", completeError.message);
 
   return new Response(JSON.stringify({ received: true }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
