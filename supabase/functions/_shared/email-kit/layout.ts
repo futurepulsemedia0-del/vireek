@@ -6,6 +6,7 @@
 // plain-text twin, every dynamic value escaped, links restricted to http(s)/mailto.
 
 import type { Severity } from "../notify/routing.ts";
+import { platformEndorsementLine } from "./endorsement.ts";
 
 // ---------- design tokens (email clients can't read CSS variables) ----------
 export interface Palette {
@@ -129,6 +130,7 @@ export interface RenderEmailInput {
   brandName?: string;
   /** Tenant/white-label footer lines appended after the Vireek footer (already plain text). */
   extraFooterLines?: string[];
+  endorsementLine?: string | null;
 }
 export interface RenderedEmail {
   subject: string;
@@ -178,12 +180,14 @@ export function renderEmail(i: RenderEmailInput): RenderedEmail {
     ? `<p class="muted" style="margin:0 0 16px;font:12px/1.5 ${FONT};color:${L.muted};word-break:break-all">${esc(chrome.viewInBrowserFallback)}<br>${esc(safeUrl(i.action.url))}</p>`
     : "";
 
+  const platformBranded = !i.brandName || i.brandName === "Vireek";
+  const endorsement = platformBranded ? (i.endorsementLine === undefined ? platformEndorsementLine() : i.endorsementLine) : null;
   const footerLines = [chrome.sentBecause, ...(i.extraFooterLines ?? [])];
   const footerHtml =
     footerLines.map((l) => `<p class="muted" style="margin:0 0 6px;font:12px/1.5 ${FONT};color:${L.muted}">${esc(l)}</p>`).join("") +
     `<p class="muted" style="margin:0;font:12px/1.5 ${FONT};color:${L.muted}">${esc(chrome.help)}` +
     (i.preferencesUrl ? ` · <a class="lnk" href="${esc(safeUrl(i.preferencesUrl))}" style="color:${L.muted};text-decoration:underline">${esc(chrome.preferences)}</a>` : "") +
-    `</p>`;
+    `</p>` + (endorsement ? `<p class="muted" style="margin:6px 0 0;font:12px/1.5 ${FONT};color:${L.muted}">${esc(endorsement)}</p>` : "");
 
   const dark = (P: Palette) =>
     `.pg{background:${P.page}!important}.card{background:${P.card}!important}.txt{color:${P.text}!important}.muted,.lnk{color:${P.muted}!important}` +
@@ -227,6 +231,7 @@ export function renderEmail(i: RenderEmailInput): RenderedEmail {
     (i.notYou ? `\n${i.notYou.text}\n${i.notYou.action.label}: ${safeUrl(i.notYou.action.url)}\n` : "") +
     `\n--\n${footerLines.join("\n")}\n${chrome.help}` +
     (i.preferencesUrl ? `\n${chrome.preferences}: ${safeUrl(i.preferencesUrl)}` : "") +
+    (endorsement ? `\n${endorsement}` : "") +
     `\n`;
 
   return { subject: i.subject, html, text, lang, dir };
