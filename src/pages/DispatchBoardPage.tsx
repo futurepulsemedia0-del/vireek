@@ -30,6 +30,9 @@ import { useScheduleBoard } from '@/hooks/useScheduleBoard';
 import { PartsEtaBadge } from '@/components/partsSourcing/PartsEtaBadge';
 import { fetchJobEtaWarnings, type JobEtaWarnings } from '@/lib/partsSourcingApi';
 import type { MoveTargetOption } from '@/lib/scheduleDnd';
+import { evaluateMove } from '@/lib/scheduleDnd';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { OptimizerPanel } from '@/components/dispatch/OptimizerPanel';
 
 function formatTime(dateStr: string | null): string {
   if (!dateStr) return 'Unscheduled';
