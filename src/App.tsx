@@ -224,6 +224,8 @@ const AccountingPage = lazy(() => import('@/pages/AccountingPage').then((m) => (
 const MultiEntityAccountingPage = lazy(() => import('@/pages/MultiEntityAccountingPage').then((m) => ({ default: m.MultiEntityAccountingPage })));
 const BudgetsPage = lazy(() => import('@/pages/BudgetsPage').then((m) => ({ default: m.BudgetsPage })));
 const LocationPrivacyPage = lazy(() => import('@/pages/LocationPrivacyPage').then((m) => ({ default: m.LocationPrivacyPage })));
+const SiteSafetyPage = lazy(() => import('@/pages/SiteSafetyPage').then((m) => ({ default: m.SiteSafetyPage })));
+const TechnicianSafetyPage = lazy(() => import('@/pages/TechnicianSafetyPage').then((m) => ({ default: m.TechnicianSafetyPage })));
 const PerDiemPage = lazy(() => import('@/pages/PerDiemPage').then((m) => ({ default: m.PerDiemPage })));
 const SiteSketchesPage = lazy(() => import('@/pages/SiteSketchesPage').then((m) => ({ default: m.SiteSketchesPage })));
 const SiteSketchEditorPage = lazy(() => import('@/pages/SiteSketchEditorPage').then((m) => ({ default: m.SiteSketchEditorPage })));
@@ -3192,6 +3194,14 @@ function AppRoutes() {
   }
 />
 <Route
+<Route
+  path="/dashboard/site-safety"
+  element={
+    <ProtectedRoute>
+      <SiteSafetyPage />
+    </ProtectedRoute>
+  }
+/>
   path="/dashboard/per-diem"
   element={
     <ProtectedRoute>
@@ -3553,6 +3563,14 @@ function AppRoutes() {
             </TechnicianRoute>
           }
         />
+<Route
+  path="/tech/safety"
+  element={
+    <TechnicianRoute>
+      <TechnicianSafetyPage />
+    </TechnicianRoute>
+  }
+/>
         <Route
           path="/tech/job/:jobId"
           element={
