@@ -1,0 +1,451 @@
+{
+  "note": "Pre-existing unguarded side-effect files. Shrink only: never add to this list by hand — wire the file to the governed path or add a reviewed exempt marker.",
+  "files": {
+    "supabase/functions/_shared/agent-callers/engine.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/agent-callers/runtime.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/audit/providers.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/audit/script.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/autoReply/runtime.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/capacity-guard/engine.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/compliance/a2pGate.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/compliance/providerErasure.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/lead-marketplace/ingest.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/lead-marketplace/runtime.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/lead-marketplace/types.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/mass-incident/runtime.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/membershipRenewal/pipeline.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/notify/deliver.ts": {
+      "effects": [
+        "sms",
+        "sms_provider"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/operator/runner.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/ovb/runtime.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/paymentPlans/charge.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/pci/ports.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/recurring-jobs/invoice.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/richMessaging/runtime.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/richMessaging/send.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/richMessaging/sinch.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/speed-to-lead/runtime.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/telematics/zoneRuntime.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/voice-engine/vapiEngine.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/voice-security/ports.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/_shared/voice-security/verifyTools.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "library"
+    },
+    "supabase/functions/arrival-window-notify/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/automation-insurance-claim-status-update/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/backfill-claim/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "other"
+    },
+    "supabase/functions/business-immune-scan/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "other"
+    },
+    "supabase/functions/call-queue-sms/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/capacity-guard-tick/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/commitment-monitor-tick/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/create-checkout-session/index.ts": {
+      "effects": [
+        "payment"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/csr-call-transfer/index.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/deferred-message-dispatcher/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/emergency-mode-activate/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/emergency-network-orchestrator/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator_or_cron"
+    },
+    "supabase/functions/emergency-ops-broadcast/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/escalate-emergency/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "webhook"
+    },
+    "supabase/functions/escalation-tick/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/financing-create-offer/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/first-call-start/index.ts": {
+      "effects": [
+        "sms",
+        "call"
+      ],
+      "mode": "operator_or_cron"
+    },
+    "supabase/functions/franchise-royalty-issue/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "other"
+    },
+    "supabase/functions/interpreter/index.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/issue-refund/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/job-summary-engine/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator_or_cron"
+    },
+    "supabase/functions/live-call-control/index.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/manage-subscription-plan/index.ts": {
+      "effects": [
+        "payment"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/marketing-campaign-dispatcher/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "other"
+    },
+    "supabase/functions/mass-incident/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator_or_cron"
+    },
+    "supabase/functions/membership-lifecycle-agent/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/mutual-aid-notify/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/notification-router/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/outbound-queue-builder/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/pm-notify-customer/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/rich-fallback-sweep/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/rich-send/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/self-healing-orchestrator/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/send-payment-reminders/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/send-signature-request/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/service-guarantee-tick/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "cron"
+    },
+    "supabase/functions/sms-send/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/sms-webhook/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "webhook"
+    },
+    "supabase/functions/survey-dispatcher/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator_or_cron"
+    },
+    "supabase/functions/switching-shield/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator_or_cron"
+    },
+    "supabase/functions/synthetic-probe/index.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "webhook"
+    },
+    "supabase/functions/vapi-webhook/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "webhook"
+    },
+    "supabase/functions/voice-account/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/voice-call/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "webhook"
+    },
+    "supabase/functions/voice-studio-test-call/index.ts": {
+      "effects": [
+        "call"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/wallet-issue/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator"
+    },
+    "supabase/functions/weather-surge-check/index.ts": {
+      "effects": [
+        "sms"
+      ],
+      "mode": "operator_or_cron"
+    }
+  }
+}
