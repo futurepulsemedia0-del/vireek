@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 import { loadBlog } from '../blog/pipeline.mjs';
+import { isEndorsementEnabled } from './platformFlag.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..', '..');
@@ -26,7 +27,7 @@ export const STATIC_PUBLIC_PATHS = [
   '/partners', '/affiliate', '/referral', '/beta', '/webinars', '/roi', '/system-requirements',
   '/sitemap',
 ];
-
+export const FLAG_GATED_PUBLIC_PATHS = ['/legal/company'];
 /** Routes whose pages come from data modules (one URL per slug). */
 export const DATA_ROUTE_PATTERNS = [
   '/blog/:slug', '/blog/category/:slug', '/industries/:slug', '/compare/:slug', '/integrations/:slug', '/switch/:slug',
@@ -56,7 +57,7 @@ const matchesPrefix = (p, prefix) => p === prefix || p.startsWith(`${prefix}/`);
 
 /** 'static' | 'data' | 'alias' | 'private' | null (null = unclassified -> test fails). */
 export function classifyRoute(p) {
-  if (STATIC_PUBLIC_PATHS.includes(p)) return 'static';
+  if (STATIC_PUBLIC_PATHS.includes(p) || FLAG_GATED_PUBLIC_PATHS.includes(p)) return 'static';
   if (DATA_ROUTE_PATTERNS.includes(p)) return 'data';
   if (ALIAS_PATHS.includes(p)) return 'alias';
   if (
@@ -164,6 +165,7 @@ export async function collectRoutes() {
     add(p, 'static', p === '/blog' ? newestPost : p === '/changelog' ? changelogDate : undefined);
   }
   const dynamic = (items, base, kind, lastmodOf) => {
+    if (isEndorsementEnabled(ROOT)) add('/legal/company', 'static');
     for (const item of items) {
       if (typeof item.slug !== 'string' || !SLUG_RE.test(item.slug)) {
         throw new Error(`[seo] invalid slug "${item.slug}" under ${base}`);
