@@ -1,0 +1,13 @@
+{
+  "_comment": "Heuristic list of over-used startup-name affixes. Used only for saturation flags (no effect on scores). Extend with --affixes <file>.",
+  "prefixes": [
+    "get", "try", "use", "hey", "neo", "uni", "omni", "meta", "next", "pro", "smart", "fast",
+    "hyper", "super", "ultra", "zen", "flow", "pulse", "nova", "apex", "cloud", "data", "tech",
+    "link", "sync", "open", "bright", "swift"
+  ],
+  "suffixes": [
+    "ify", "ly", "fy", "io", "ai", "ix", "ex", "ia", "ora", "ium", "ity", "hub", "labs", "base",
+    "stack", "wise", "verse", "ware", "soft", "tech", "ster", "ful", "able", "era", "eon", "ova",
+    "ara", "ize", "ics", "go"
+  ]
+}
