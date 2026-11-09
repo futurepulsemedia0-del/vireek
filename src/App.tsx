@@ -329,6 +329,9 @@ const PublicTagPage = lazy(() => import('@/pages/PublicTagPage').then((m) => ({ 
 const TagsPage = lazy(() => import('@/pages/TagsPage').then((m) => ({ default: m.TagsPage })));
 const WarrantyRegisterPage = lazy(() => import('@/pages/WarrantyRegisterPage').then((m) => ({ default: m.WarrantyRegisterPage })));
 const PublicHomePassportPage = lazy(() => import('@/pages/PublicHomePassportPage').then((m) => ({ default: m.PublicHomePassportPage })));
+const PublicHomePassportCodePage = lazy(() => import('@/pages/PublicHomePassportCodePage').then((m) => ({ default: m.PublicHomePassportCodePage })));
+const PublicHomePassportSharePage = lazy(() => import('@/pages/PublicHomePassportSharePage').then((m) => ({ default: m.PublicHomePassportSharePage })));
+const HomePassportPilotPage = lazy(() => import('@/pages/HomePassportPilotPage').then((m) => ({ default: m.HomePassportPilotPage })));
 const PublicPhotoEvidencePage = lazy(() => import('@/pages/PublicPhotoEvidencePage').then((m) => ({ default: m.PublicPhotoEvidencePage })));
 const HomePassportsPage = lazy(() => import('@/pages/HomePassportsPage').then((m) => ({ default: m.HomePassportsPage })));
 const HomePassportDetailPage = lazy(() => import('@/pages/HomePassportDetailPage').then((m) => ({ default: m.HomePassportDetailPage })));
@@ -1031,7 +1034,8 @@ function AppRoutes() {
         <Route path="/warranty/register" element={<WarrantyRegisterPage />} />
         <Route path="/protection/:token" element={<PublicProtectionPlanPage />} />
         <Route path="/change-order/:token" element={<PublicChangeOrderPage />} />
-        <Route path="/h/:code" element={<PublicHomePassportPage />} />
+        <Route path="/h/:code" element={<PublicHomePassportCodePage />} />
+        <Route path="/passport/share/:token" element={<PublicHomePassportSharePage />} />
         <Route path="/emergency/:token" element={<EmergencyTriagePage />} />
         <Route path="/service/:token" element={<JobRoomPage />} />
         <Route path="/approve/:token" element={<NoSurpriseApprovePage />} />
@@ -4130,6 +4134,14 @@ function AppRoutes() {
           }
         />
         <Route
+        <Route
+          path="/dashboard/home-passport/pilot"
+          element={
+            <ProtectedRoute>
+              <HomePassportPilotPage />
+            </ProtectedRoute>
+          }
+        />
           path="/dashboard/property-intelligence"
           element={
             <ProtectedRoute>
