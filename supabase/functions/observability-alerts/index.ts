@@ -46,7 +46,9 @@ Deno.serve(async (req: Request) => {
     async loadMetrics(w) {
       const { data, error } = await admin.rpc("obs_voice_metrics", { p_window_minutes: w });
       if (error) throw new Error(`obs_voice_metrics: ${error.message}`);
-      return (data ?? []) as MetricRow[];
+      // Agent runtime metrics are additive: a failure here must never blind the voice alerts.
+      const agent = await admin.rpc("obs_agent_metrics", { p_window_minutes: w });
+      return [...((data ?? []) as MetricRow[]), ...(agent.error ? [] : ((agent.data ?? []) as MetricRow[]))];
     },
     async loadSliCounts(windows) {
       const { data, error } = await admin.rpc("obs_sli_counts", { p_windows: windows });
