@@ -7,6 +7,7 @@ import { PlugZap } from 'lucide-react';
 import { PlugZap } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { Snowflake } from 'lucide-react';
+import { usePartsSourcingEnabled } from '@/hooks/usePartsSourcingEnabled';
 import { FlaskConical } from 'lucide-react';
 import { PackageCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
@@ -245,6 +246,7 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
   ownerOnly?: boolean;
+  requiresModule?: 'parts_sourcing';
   requiresFlag?: string;
   /** Hidden unless this feature flag is on for the tenant. */
   requiresFlag?: string;
@@ -709,13 +711,10 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'system', label: 'System', icon: Monitor },
 ];
-export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, isFlagOn?: (key: string) => boolean) {
+const NO_MODULES: ReadonlySet<string> = new Set();
+export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, modules: ReadonlySet<string> = NO_MODULES) {
   return items.filter((item) => {
-    if (item.requiresFlag && !(isFlagOn?.(item.requiresFlag) ?? false)) return false;
-  return items.filter((item) => {
-    if (item.ownerOnly && !isOwner) return false;
-    if (item.requiresFlag && !(isFlagOn?.(item.requiresFlag) ?? false)) return false;
-    if (item.requiresFlag && !(flagOn?.(item.requiresFlag) ?? false)) return false;
+    if (item.requiresModule && !modules.has(item.requiresModule)) return false;
     if (item.ownerOnly && !isOwner) return false;
     if (!item.requiresPermission) return true;
     if (isOwner) return true;
@@ -731,6 +730,8 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     rememberDashboardPath(location.pathname);
   }, [location.pathname]);
   const { user, isOwner, permissions, signOut } = useAuth();
+  const { enabled: partsSourcingOn } = usePartsSourcingEnabled();
+  const enabledModules: ReadonlySet<string> = new Set(partsSourcingOn ? ['parts_sourcing'] : []);
   const { isEnabled: isFlagOn } = useFeatureFlags();
   const { isEnabled: flagOn } = useFeatureFlags();
   const { toast } = useToast();
@@ -768,7 +769,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   };
 
   const { isEnabled: isFlagOn } = useFeatureFlags();
-  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, isFlagOn);
+  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, enabledModules), isFlagOn);
   const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, isFlagOn);
   const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
   const [showLabs, setShowLabs] = useState(() => {
