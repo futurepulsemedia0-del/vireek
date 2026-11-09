@@ -4,11 +4,13 @@ import { useState, useRef, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, Loader2, ShieldCheck, Sparkles, CreditCard } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { SARAH_PHONE } from '@/lib/site';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { PlatformEndorsement, EndorsementStructuredData } from '@/components/brand/PlatformEndorsement';
+import { getEndorsementLineForPath } from '@/lib/brand/platformEndorsement';
 
 const FOOTER_COLUMN_TITLE_KEYS: Record<string, string> = {
   Product: 'footer.product',
@@ -449,6 +451,8 @@ function NewsletterSection() {
 
 export function Footer() {
 const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const showEndorsement = getEndorsementLineForPath(pathname) !== null;
   return (
     <footer className="border-t border-border bg-bg-tertiary">
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -598,6 +602,15 @@ const { t } = useTranslation();
             </button>
           </div>
         </div>
+        {showEndorsement && (
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-text-secondary sm:justify-start">
+            <PlatformEndorsement />
+            <Link to="/legal/company" className="focus-ring rounded underline-offset-2 hover:text-text-primary hover:underline">
+              Company information
+            </Link>
+            <EndorsementStructuredData />
+          </div>
+        )}
       </div>
     </footer>
   );
