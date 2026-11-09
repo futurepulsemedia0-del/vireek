@@ -7,6 +7,7 @@ export const CAPABILITIES = [
   'outbound_dialer',
   'voice_cloning',
   'agent_auto_actions',
+  'agent_action_framework',
   'price_auto_apply',
   'auto_replies',
   'ai_model_prompt_versions',
