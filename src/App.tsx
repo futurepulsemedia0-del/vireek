@@ -285,6 +285,7 @@ const RenewMembershipPage = lazy(() => import('@/pages/RenewMembershipPage').the
 const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TradePacksPage = lazy(() => import('@/pages/TradePacksPage').then((m) => ({ default: m.TradePacksPage })));
+const CommercialPackPage = lazy(() => import('@/pages/CommercialPackPage').then((m) => ({ default: m.CommercialPackPage })));
 const PacksPage = lazy(() => import('@/pages/PacksPage').then((m) => ({ default: m.PacksPage })));
 const StaffPacksPage = lazy(() => import('@/pages/staff/StaffPacksPage').then((m) => ({ default: m.StaffPacksPage })));
 const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
@@ -3553,6 +3554,14 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+        <Route
+          path="/dashboard/commercial"
+          element={
+            <ProtectedRoute>
+              <CommercialPackPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/packs"
           element={
