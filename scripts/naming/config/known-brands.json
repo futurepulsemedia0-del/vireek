@@ -1,0 +1,12 @@
+{
+  "_comment": "Starter list of well-known brands used ONLY for the lookalike heuristic. It is not exhaustive and is not a trademark search. Extend it with --brands <file> (array of strings, or {\"brands\": [...]}).",
+  "brands": [
+    "adidas", "adobe", "airbnb", "amazon", "anthropic", "apple", "asana", "atlassian",
+    "buildertrend", "canva", "cloudflare", "dropbox", "fieldedge", "figma", "github",
+    "google", "housecall", "hubspot", "intuit", "jobber", "klarna", "mastercard", "meta",
+    "microsoft", "monday", "netflix", "nike", "notion", "openai", "oracle", "paypal",
+    "procore", "quickbooks", "revolut", "salesforce", "samsung", "sentry", "servicetitan",
+    "shopify", "simpro", "slack", "spotify", "square", "stripe", "supabase", "tesla",
+    "toyota", "twilio", "uber", "vapi", "vercel", "visa", "workiz", "xero", "zendesk", "zoom"
+  ]
+}
