@@ -1,4 +1,5 @@
 import { tailwindTheme } from './scripts/color/tailwind-colors.mjs'
+import { tailwindBorderRadius } from './scripts/design/radius-tokens.mjs'
 import { Z_LAYERS, EXACT_TOKENS, invert } from './scripts/design/layout-tokens.mjs'
 
 /** @type {import('tailwindcss').Config} */
@@ -31,11 +32,9 @@ export default {
       },
       // Colours are GENERATED from scripts/color/palette.mjs (OKLCH source of truth) — see docs/design/COLOR_TOKENS.md.
       ...tailwindTheme,
-
-      borderRadius: {
-        full: '9999px',
-        md: '12px',
-      },
+      
+      borderRadius: tailwindBorderRadius(),
+      
       boxShadow: {
         sm: '0 1px 2px rgba(15,15,18,0.04)',
         md: '0 2px 8px rgba(15,15,18,0.06)',
