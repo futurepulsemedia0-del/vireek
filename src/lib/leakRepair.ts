@@ -385,7 +385,7 @@ export function calendarYearLeakPct(
 }
 
 export function isChronicLeaker(pct: number | null): boolean {
-  return pct !== null && pct > CHRONIC_LEAK_PCT;
+return pct !== null && pct >= CHRONIC_LEAK_PCT;
 }
 
 /* ------------------------------------------------------------------ */
