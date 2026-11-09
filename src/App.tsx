@@ -522,6 +522,7 @@ const AiDisclosurePage = lazy(() => import('@/pages/AiDisclosurePage').then((m) 
 const OpenVoiceBenchmarkPage = lazy(() => import('@/pages/OpenVoiceBenchmarkPage').then((m) => ({ default: m.OpenVoiceBenchmarkPage })));
 const StaffOpenVoiceBenchmarkPage = lazy(() => import('@/pages/StaffOpenVoiceBenchmarkPage').then((m) => ({ default: m.StaffOpenVoiceBenchmarkPage })));
 const TrademarkPolicyPage = lazy(() => import('@/pages/TrademarkPolicyPage').then((m) => ({ default: m.TrademarkPolicyPage })));
+const CompanyPage = lazy(() => import('@/pages/CompanyPage').then((m) => ({ default: m.CompanyPage })));
 const DmcaPage = lazy(() => import('@/pages/DmcaPage').then((m) => ({ default: m.DmcaPage })));
 const VulnerabilityDisclosurePage = lazy(() => import('@/pages/VulnerabilityDisclosurePage').then((m) => ({ default: m.VulnerabilityDisclosurePage })));
 const CcpaPage = lazy(() => import('@/pages/CcpaPage').then((m) => ({ default: m.CcpaPage })));
@@ -917,6 +918,7 @@ function AppRoutes() {
         <Route path="/ai-disclosure" element={<AiDisclosurePage />} />
         <Route path="/open-voice-benchmark" element={<OpenVoiceBenchmarkPage />} />
         <Route path="/trademark-policy" element={<TrademarkPolicyPage />} />
+        <Route path="/legal/company" element={<CompanyPage />} />
         <Route path="/dmca" element={<DmcaPage />} />
         <Route path="/vulnerability-disclosure" element={<VulnerabilityDisclosurePage />} />
         <Route path="/ccpa" element={<CcpaPage />} />
