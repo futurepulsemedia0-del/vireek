@@ -229,6 +229,8 @@ import { useShortcutContext, useShortcutHandlers, useShortcutScope } from '@/lib
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '@/hooks/useDirection';
+import { useEntitlements } from '@/hooks/useEntitlement';
+import { passesModuleGate } from '@/lib/entitlements';
 import { navLabelKey } from '@/lib/navLabel';
 import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
@@ -240,6 +242,8 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
   ownerOnly?: boolean;
+  /** Hidden unless the account is entitled to this module (see src/lib/entitlements.ts). */
+  requiresModule?: string;
 }
 
 // Primary, daily-use items stay immediately visible at the top level —
@@ -693,8 +697,14 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'system', label: 'System', icon: Monitor },
 ];
-export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions) {
+export function filterItems(
+  items: NavItem[],
+  isOwner: boolean,
+  permissions: import('@/contexts/AuthContext').UserPermissions,
+  hasModule?: (id: string) => boolean,
+) {
   return items.filter((item) => {
+    if (!passesModuleGate(item.requiresModule, hasModule)) return false;
     if (item.ownerOnly && !isOwner) return false;
     if (!item.requiresPermission) return true;
     if (isOwner) return true;
@@ -703,6 +713,7 @@ export function filterItems(items: NavItem[], isOwner: boolean, permissions: imp
 }
 export const ALL_NAV_ITEMS = [...PRIMARY_ITEMS, ...ACCOUNT_ITEMS];
 export function DashboardNav({ activeLabel }: { activeLabel: string }) {
+  const { has: hasModule } = useEntitlements();
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => {
@@ -743,8 +754,8 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     return location.pathname.startsWith(href);
   };
 
-  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions);
-  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions);
+  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, hasModule);
+  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, hasModule);
   const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
   const [showLabs, setShowLabs] = useState(() => {
     try {
