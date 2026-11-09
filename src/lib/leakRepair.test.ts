@@ -310,7 +310,8 @@ describe('chronic leaker (>125% in a calendar year)', () => {
     ];
     expect(calendarYearLeakPct(entries, 50, 2026)).toBe(140);
     expect(isChronicLeaker(140)).toBe(true);
-    expect(isChronicLeaker(CHRONIC_LEAK_PCT)).toBe(false);
+    expect(isChronicLeaker(CHRONIC_LEAK_PCT)).toBe(true); // 40 CFR 84.106(j): "125 percent or more"
+    expect(isChronicLeaker(CHRONIC_LEAK_PCT - 0.1)).toBe(false);
     expect(isChronicLeaker(null)).toBe(false);
     expect(calendarYearLeakPct(entries, null, 2026)).toBeNull();
   });
