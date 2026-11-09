@@ -409,6 +409,13 @@ async function fetchRow(ctx: Ctx, id: string): Promise<CallRow | null> {
   return (data as CallRow | null) ?? null;
 }
 
+function agentAmountCents(human: unknown): number | undefined {
+  const h = (human ?? {}) as Record<string, unknown>;
+  const cents = Number(h.total_cents);
+  if (Number.isFinite(cents) && cents > 0) return Math.round(cents);
+  const usd = Number(h.amount_usd);
+  return Number.isFinite(usd) && usd > 0 ? Math.round(usd * 100) : undefined;
+}
 async function advance(ctx: Ctx, def: ToolDef, row: CallRow): Promise<CallResult> {
   if (!["received", "pending_approval"].includes(row.status)) return rowOutcome(row);
 
@@ -428,6 +435,8 @@ async function advance(ctx: Ctx, def: ToolDef, row: CallRow): Promise<CallResult
       targetId: row.id,
       reasoning: `External agent "${ctx.clientName}" via ${ctx.protocol.toUpperCase()} requested: ${def.title}`,
       payload: { ...pf.human, client: ctx.clientName, protocol: ctx.protocol },
+      // Without the amount, agent_spending_limits and auto_approve_max_cents are never evaluated.
+      amountCents: agentAmountCents(pf.human),
       correlationId: row.id,
     });
   } catch {
