@@ -670,6 +670,7 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Pay by Bank', href: '/dashboard/pay-by-bank', icon: Banknote, requiresPermission: 'can_view_billing' },
   { label: 'Disputes', href: '/dashboard/disputes', icon: ShieldAlert, requiresPermission: 'can_view_billing' },
   { label: 'Financing Center', href: '/dashboard/financing', icon: Landmark, requiresPermission: 'can_view_billing' },
+  { label: 'Partner Financing', href: '/dashboard/financing/partners', icon: Landmark, requiresPermission: 'can_view_billing' },
   { label: 'Benchmarks', href: '/dashboard/benchmarks', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Hours Audit', href: '/dashboard/hours-audit', icon: Timer, requiresPermission: 'can_view_billing' },
   { label: 'Hidden Technician', href: '/dashboard/hidden-technician', icon: Timer, requiresPermission: 'can_view_billing' },
