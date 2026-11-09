@@ -93,7 +93,9 @@ import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts"
 import { getFeatureGate, recordProvenanceSidecar } from "../_shared/ai-transparency/gate.ts";
 import { verifyPriceAccuracy, type PriceLookupLite } from "../_shared/ai-core/priceEnforcement.ts";
 import { extractPromises, computeDueAt } from "../_shared/ai-core/promiseExtraction.ts";
+import { finalizePriceConversation, logPolicyLookup, lookupPolicyReply, recordPlaybookEvents, resolveJurisdictionState } from "../_shared/price-playbook/runtime.ts";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
+import { applyEmergencyOverride, lookupPriceDeterministic } from "../_shared/vertical-ai/runtime.ts";
 import { createSupabasePorts, promptCanaries } from "../_shared/voice-security/ports.ts";
 import { finalizeToolResult, guardToolCall, type GateResult } from "../_shared/voice-security/gate.ts";
 import { completeVerification, requestVerification } from "../_shared/voice-security/verifyTools.ts";
@@ -109,7 +111,6 @@ import { recordLanguageFromCall, resolveVoiceLanguage } from "../_shared/i18n/cu
 import { bindTrace, releaseTrace, traceFor } from "../_shared/observability/requestTrace.ts";
 import { deriveTraceId } from "../_shared/observability/traceContext.ts";
 import { classifyToolResult, isBookingSuccess, recordEndOfCall, recordTraceEvent, runInBackground } from "../_shared/observability/recorder.ts";
-import { buildIncidentVoiceContext, getAreaGuidance, ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
 import { buildIncidentVoiceContext, getAreaGuidance, getBookingIncidentNote, ingestIncidentContact, linkJobToIncidentContact } from "../_shared/mass-incident/runtime.ts";
 import { buildInterpreterContext, customGreeting, loadInterpreterSettings, recordAssistantCall } from "../_shared/interpreter/runtime.ts";
 import { normalizeInterpLang } from "../_shared/interpreter/languages.ts";
@@ -821,7 +822,7 @@ service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regi
   if (tenant.agentOrchestrationEnabled) {
     logEvent("assistant_request_squad_mode", requestId, { user_id: tenant.userId });
     return jsonResponse({
-      squad: buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues, voiceOverride.voice), tenantVoice)
+      squad: buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues, voiceOverride.voice, tenantVoice),
     });
   }
 
@@ -1563,6 +1564,45 @@ async function toolCheckWeather(args: Record<string, unknown>): Promise<string> 
 // promising to "have someone call back with pricing."
 // ---------------------------------------------------------------------------
 
+/** Flatten the string values of tool arguments (max `depth` levels deep) for the deterministic safety rules. */
+function collectToolStrings(v: unknown, depth: number): string[] {
+  if (typeof v === "string") return [v.slice(0, 600)];
+  if (depth < 0 || v === null || typeof v !== "object") return [];
+  return Object.values(v as Record<string, unknown>).slice(0, 40).flatMap((x) => collectToolStrings(x, depth - 1));
+}
+
+async function tryPricePolicyReply(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  query: string,
+  args: Record<string, unknown>,
+  vapiCallId: string | undefined,
+): Promise<string | null> {
+  // Price-First Playbook: if the owner defined a price policy for this service, ONLY the policy may be spoken.
+  const policyState = await resolveJurisdictionState(admin, tenant.userId, {
+    explicitState: typeof args.state === "string" ? args.state : null,
+    address: typeof args.address === "string" ? args.address : null,
+  });
+  const found = await lookupPolicyReply(admin, tenant.userId, query, "voice", policyState, new Set(), true);
+  if (found.kind === "error") {
+    // A policy can be stricter than the price book, so never fall through to the price book on error.
+    return "I couldn't reach the price list right now \u2014 let the caller know a team member will confirm pricing.";
+  }
+  if (found.kind === "matched") {
+    await logPolicyLookup(admin, tenant.userId, vapiCallId ?? null, query, found);
+    if (vapiCallId) {
+      await recordPlaybookEvents(admin, tenant.userId, "voice", vapiCallId, [
+        { stage: "price_asked", service_key: found.policy.service_key },
+        { stage: "answer_given", service_key: found.policy.service_key, mode_used: found.reply.answer.mode_used, downgraded_reason: found.reply.answer.downgraded_reason },
+      ]);
+    }
+    if (found.reply.answer.downgraded_reason === "region_unknown") {
+      return "Ask the caller for the ZIP code or state of the service address, then call lookup_price again with that state. Do not mention any dollar amount until then.";
+    }
+    return `Say this to the caller in your own natural voice. You may rephrase, but never change, add or round any dollar amount, and keep the fee and inclusions: "${found.reply.text}"\n${found.guidance}`;
+  }
+  return null;
+}
 async function toolLookupPrice(
   admin: SupabaseClient,
   tenant: TenantContext,
@@ -1583,41 +1623,16 @@ async function toolLookupPrice(
       return "This caller is an AI agent. Use agent_quote for pricing instead of lookup_price.";
     }
   }
-  const { data: items, error } = await admin
-    .from("price_book_items")
-    .select("service_name, category, pricing_model, price_cents, price_max_cents, unit_label, keywords")
-    .eq("user_id", tenant.userId)
-    .eq("active", true);
-
-  if (error) {
-    return "I couldn't reach the price list right now — let the caller know a team member will confirm pricing.";
-  }
-  if (!items || items.length === 0) {
-    return "No price list has been set up for this business yet — let the caller know a team member will follow up with pricing.";
-  }
-
-  const scored = matchPriceItems(items, query);
-
-  if (scored.length === 0) {
-    return `Nothing on the price list matches "${query}" — let the caller know a team member will confirm that price.`;
-  }
-
-  const matches = scored.slice(0, 3).map(({ item }) => formatPriceLine(item));
-
-  await admin.from("price_lookup_log").insert({
-    user_id: tenant.userId,
-    external_call_id: vapiCallId ?? null,
+  // Vertical AI: deterministic, grounded price resolution (see _shared/vertical-ai/pricing.ts). The model only
+  // chooses among candidates built from this tenant's own price_book_items; it never computes an amount.
+  return await lookupPriceDeterministic(admin, null, {
+    userId: tenant.userId,
     query,
-    matched_items: scored.slice(0, 3).map(({ item }) => ({
-      service_name: item.service_name,
-      pricing_model: item.pricing_model,
-      price_cents: item.price_cents,
-      price_max_cents: item.price_max_cents,
-    })),
+    afterHours: isAfterHoursAt(tenant.businessHours, tenant.holidays, new Date()),
+    afterHoursFee: tenant.afterHoursFee,
+    emergency: false,
+    vapiCallId: vapiCallId ?? null,
   });
-
-  return matches.length === 1 ? matches[0] : `A few things matched "${query}": ${matches.join(" ")}`;
-}
 
 async function toolFlagEmergencyCall(
   admin: SupabaseClient,
@@ -2041,6 +2056,26 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
 
       let result: string;
       let gate: Extract<GateResult, { allow: true }> | null = null;
+      // Vertical AI: deterministic emergency override. Pure rules, no LLM: it still fires if every model provider is
+      // down and even if the voice-security gate below denies the tool. It flags the call (if the model has not
+      // already) and prepends the safety instruction to whatever the tool returns.
+      let emergencyPrefix = "";
+      if (name !== "flag_emergency_call" && name !== "request_human_transfer") {
+        try {
+          const callText = collectToolStrings(rawArgs, 2).join(". ");
+          if (callText) {
+            const ov = await applyEmergencyOverride(admin, traceCtx ?? null, callText, {
+              isAlreadyFlagged: async () => {
+                if (!vapiCallId) return false;
+                const { data: cr } = await admin.from("calls").select("is_emergency").eq("vapi_call_id", vapiCallId).eq("user_id", tenant.userId).maybeSingle();
+                return cr?.is_emergency === true;
+              },
+              flag: () => toolFlagEmergencyCall(admin, tenant, { reason: "Emergency detected by deterministic safety rules" }, vapiCallId, callerNumber, callerName),
+            }, { source: `tool:${name}` });
+            if (ov) emergencyPrefix = `SAFETY OVERRIDE: ${ov.spoken}`;
+          }
+        } catch { /* the override must never break a tool call */ }
+      }
       try {
         // Voice-security gate: tool arguments are attacker-influenced (see docs/security/voice-threat-model.md).
         if (!vs) {
@@ -2163,6 +2198,7 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
         }));
       }
       return { toolCallId, result };
+      if (emergencyPrefix) result = `${emergencyPrefix}\n${result}`;
     }),
   );
 
