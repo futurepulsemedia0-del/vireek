@@ -121,7 +121,14 @@ Deno.serve(async (req: Request) => {
     if (!existingCall) {
       return jsonResponse({ success: false, error: "Call not found", requestId }, 404);
     }
-
+    // Tenant check BEFORE any write or SMS: a caller-supplied user_id must own this call.
+    if (payload.user_id && existingCall.user_id !== payload.user_id) {
+      console.error(JSON.stringify({ event: "emergency_escalation_tenant_mismatch", requestId, call_id: payload.call_id }));
+      return jsonResponse({ success: false, error: "Call not found", requestId }, 404);
+    }
+    if (!expectedSecret) {
+      console.warn(JSON.stringify({ event: "emergency_escalation_secret_not_set", requestId }));
+    }
     if (!(await isAutomationEnabled(supabase, existingCall.user_id, "after-hours-emergency-escalation"))) {
       return jsonResponse({ success: true, skipped: true, reason: "automation_paused", requestId }, 200);
     }
@@ -160,6 +167,7 @@ Deno.serve(async (req: Request) => {
         detected_language: payload.caller_language ?? null,
       })
       .eq("id", payload.call_id)
+      .eq("user_id", existingCall.user_id)
       .select("id, user_id")
       .maybeSingle();
 
