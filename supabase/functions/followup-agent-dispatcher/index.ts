@@ -31,6 +31,13 @@ import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
 import { claimCoordinationSlot, recordCoordinationOutcome } from "../_shared/ai-core/emergentCoordination.ts";
+import { voiceOverride } from "../_shared/voice/voiceMap.ts";
+import { createRuntimeBase } from "../_shared/agent-run/adapters.ts";
+import { ToolError } from "../_shared/agent-run/core.ts";
+import { approvalParkMs, completeFollowupRun, runGovernedFollowup } from "../_shared/agent-run/followupGoverned.ts";
+import { isAgentRuntimeEnabled } from "../_shared/agent-run/runtimeFlags.ts";
+import type { RunHandle } from "../_shared/agent-run/store.ts";
+import { twilioSmsLookup } from "../_shared/agent-run/twilioLookup.ts";
 
 const BATCH_SIZE = 20;
 const MAX_ATTEMPTS_PER_STEP = 3;
@@ -247,6 +254,44 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
   }
 }
 
+async function placeVapiCall(
+  admin: SupabaseClient,
+  enrollment: Enrollment,
+  step: Step | "legacy_call",
+  vapiKey: string,
+): Promise<{ providerId: string | null }> {
+  const { data: business } = await admin
+    .from("business_profile")
+    .select("vapi_assistant_id, vapi_phone_number_id, assistant_voice")
+    .eq("user_id", enrollment.user_id)
+    .maybeSingle();
+  if (!business?.vapi_assistant_id || !business?.vapi_phone_number_id) {
+    throw new ToolError("No Vapi assistant/phone number configured for this business.", "policy_blocked", false, false);
+  }
+  const variableValues: Record<string, string> = {
+    customer_name: enrollment.customer_name,
+    call_purpose: CAMPAIGN_CONTEXT[enrollment.campaign_type],
+  };
+  if (step !== "legacy_call" && step.call_context) variableValues.followup_context = step.call_context;
+
+  const res = await fetch(VAPI_CALL_URL, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${vapiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      assistantId: business.vapi_assistant_id,
+      phoneNumberId: business.vapi_phone_number_id,
+      customer: { number: enrollment.customer_phone },
+      assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues },
+    }),
+  });
+  if (!res.ok) {
+    const bodyText = await res.text();
+    throw Object.assign(new Error(`Vapi error ${res.status}: ${bodyText.slice(0, 300)}`), { status: res.status });
+  }
+  const json = await res.json();
+  return { providerId: json.id ?? null };
+}
+
 async function runSmsStep(admin: SupabaseClient, enrollment: Enrollment, step: Step) {
   const vars = await buildTemplateVars(admin, enrollment);
   const body = renderTemplate(step.sms_body ?? "", vars);
@@ -307,6 +352,12 @@ Deno.serve(async (req: Request) => {
   if (!enrollments || enrollments.length === 0) {
     return new Response(JSON.stringify({ processed: 0 }), { headers: { "Content-Type": "application/json" } });
   }
+
+  const runtimeBase = createRuntimeBase(admin);
+  const lookupSms = twilioSmsLookup({
+    accountSid: Deno.env.get("TWILIO_ACCOUNT_SID"),
+    authToken: Deno.env.get("TWILIO_AUTH_TOKEN"),
+  });
 
   let sent = 0, stopped = 0, failed = 0;
 
@@ -381,8 +432,51 @@ Deno.serve(async (req: Request) => {
       continue;
     }
 
+    // ── Agent run runtime (per-tenant flag; OFF → legacy path below unchanged) ──
+    let governedHandled = false;
+    let governedOk = false;
+    let governedRun: RunHandle | null = null;
+    if (
+      enrollment.customer_phone &&
+      (channel === "sms" || vapiKey) &&
+      (await isAgentRuntimeEnabled(admin, enrollment.user_id, "followup-agent-dispatcher"))
+    ) {
+      const g = await runGovernedFollowup({
+        base: runtimeBase,
+        toolDeps: {
+          admin,
+          sendSms: sendCompliantSms,
+          lookupSms,
+          placeCall: () => placeVapiCall(admin, enrollment, step, vapiKey ?? ""),
+        },
+        enrollment,
+        channel: channel as "sms" | "call",
+        stepNumber,
+        smsBody: channel === "sms"
+          ? renderTemplate((step as Step).sms_body ?? "", await buildTemplateVars(admin, enrollment))
+          : undefined,
+      });
+      if (g.kind === "parked" || g.kind === "awaiting_approval") {
+        const retryAt = g.kind === "parked" ? g.retryAt : new Date(Date.now() + approvalParkMs);
+        await admin.from("followup_agent_enrollments").update({ next_action_at: retryAt.toISOString() }).eq("id", enrollment.id);
+        continue;
+      }
+      if (g.kind === "stopped") {
+        await admin.from("followup_agent_enrollments").update({ status: "stopped", stop_reason: g.reason }).eq("id", enrollment.id);
+        stopped += 1;
+        continue;
+      }
+      governedHandled = true;
+      if (g.kind === "sent") {
+        governedOk = true;
+        governedRun = g.run;
+      }
+    }
+
     let ok: boolean;
-    if (channel === "call") {
+    if (governedHandled) {
+      ok = governedOk;
+    } else if (channel === "call") {
       if (!vapiKey) {
         await admin.from("followup_agent_enrollments").update({ status: "completed", stop_reason: "vapi_not_configured" }).eq("id", enrollment.id);
         stopped += 1;
@@ -398,6 +492,7 @@ Deno.serve(async (req: Request) => {
     if (ok) {
       sent += 1;
       await scheduleNext(admin, enrollment, stepNumber);
+      if (governedRun) await completeFollowupRun(runtimeBase, governedRun);
     } else {
       failed += 1;
       const attempts = enrollment.attempt_count + 1;
