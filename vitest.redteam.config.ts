@@ -12,7 +12,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['eval/voice-redteam/**/*.redteam.ts'],
+    include: ['eval/voice-redteam/**/*.redteam.ts', 'eval/agent-actions-redteam/**/*.redteam.ts'],
     testTimeout: 60_000,
   },
 });
