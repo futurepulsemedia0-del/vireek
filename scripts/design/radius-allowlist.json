@@ -1,0 +1,5 @@
+{
+  "_comment": "hero3xl: files that may keep rounded-3xl (marketing hero bands) - keep tiny. rawFiles: files that legitimately show raw radius steps (the design-system documentation page).",
+  "hero3xl": [],
+  "rawFiles": ["src/pages/dev/DesignSystemPage.tsx"]
+}
