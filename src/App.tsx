@@ -731,6 +731,7 @@ const ApiReferencePage = lazy(() => import('@/pages/ApiReferencePage').then((m) 
 const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').then((m) => ({ default: m.CoachingReportsPage })));
 const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) => ({ default: m.InviteAcceptPage })));
 const LoadingDemo = import.meta.env.DEV ? lazy(() => import('@/pages/dev/LoadingDemo')) : null; // dev-only
+const DesignSystemPage = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_STATES === 'true' ? lazy(() => import('@/pages/dev/DesignSystemPage')) : null; // dev-only
 const InterpreterPlayground = import.meta.env.DEV ? lazy(() => import('@/pages/dev/InterpreterPlayground')) : null; // dev-only
 
 function RouteLoadingFallback() {
@@ -746,6 +747,7 @@ function AppRoutes() {
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
         {LoadingDemo && <Route path="/dev/loading" element={<Suspense fallback={<RouteFallback />}><LoadingDemo /></Suspense>} />}
+        {DesignSystemPage && <Route path="/dev/design-system" element={<Suspense fallback={<RouteFallback />}><DesignSystemPage /></Suspense>} />}
         {InterpreterPlayground && <Route path="/dev/interpreter" element={<Suspense fallback={<RouteFallback />}><InterpreterPlayground /></Suspense>} />}
         <Route path="/" element={<HomeTargetGate><HomePage /></HomeTargetGate>} />
         <Route path="/login" element={<LoginPage />} />
