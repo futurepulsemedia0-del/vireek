@@ -49,6 +49,7 @@
     "sitemap:locations": "node scripts/generate-locations-sitemap.mjs",
     "lint:migrations": "node scripts/lint-migrations.mjs",
     "lint:flags": "node scripts/check-flag-lifecycle.mjs",
+    "naming:screen": "node scripts/naming/screen.mjs",
        "security:matrix": "node scripts/security/function-matrix.mjs --write",
        "security:matrix:check": "node scripts/security/function-matrix.mjs --check",
        "security:rls": "node scripts/security/rls-audit.mjs --write",
