@@ -1,6 +1,14 @@
 {
   "flags": [
     {
+      "key": "trade_pack_framework",
+      "kind": "release",
+      "owner": "platform-oncall",
+      "created": "2026-11-09",
+      "expires": "2027-03-01",
+      "cleanup": "Remove isEnabled('trade_pack_framework') gate in PacksPage and delete the flag row"
+    },
+    {
       "key": "data_residency_ui",
       "kind": "release",
       "owner": "platform-oncall",
