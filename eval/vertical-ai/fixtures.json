@@ -1,0 +1,19 @@
+{
+  "tenantA": [
+    {"id":"A-drain","service_name":"Drain Cleaning","category":"plumbing","pricing_model":"starting_at","price_cents":14900,"price_max_cents":null,"unit_label":null,"keywords":["clogged drain","drain cleaning","slow drain"]},
+    {"id":"A-actune","service_name":"AC Tune-Up","category":"hvac","pricing_model":"flat","price_cents":8900,"price_max_cents":null,"unit_label":null,"keywords":["ac tune-up","ac maintenance","tune up"]},
+    {"id":"A-furndx","service_name":"Furnace Diagnostic","category":"hvac","pricing_model":"flat","price_cents":12900,"price_max_cents":null,"unit_label":null,"keywords":["furnace diagnostic"]},
+    {"id":"A-outlet","service_name":"Outlet Replacement","category":"electrical","pricing_model":"flat","price_cents":17900,"price_max_cents":null,"unit_label":null,"keywords":["outlet replacement","replace outlet"]},
+    {"id":"A-panel","service_name":"Panel Inspection","category":"electrical","pricing_model":"range","price_cents":19900,"price_max_cents":29900,"unit_label":null,"keywords":["panel inspection"]},
+    {"id":"A-hourly","service_name":"Hourly Labor","category":"general","pricing_model":"hourly","price_cents":15000,"price_max_cents":null,"unit_label":null,"keywords":["hourly rate","labor rate"]},
+    {"id":"A-faucet","service_name":"Faucet Repair","category":"plumbing","pricing_model":"starting_at","price_cents":17500,"price_max_cents":null,"unit_label":null,"keywords":["faucet repair","leaking faucet","fix a leaking faucet"]},
+    {"id":"A-breaker","service_name":"Breaker Replacement","category":"electrical","pricing_model":"starting_at","price_cents":21900,"price_max_cents":null,"unit_label":null,"keywords":["breaker replacement"]},
+    {"id":"A-whr","service_name":"Water Heater Replacement","category":"plumbing","pricing_model":"range","price_cents":145000,"price_max_cents":285000,"unit_label":null,"keywords":["water heater replacement","new water heater"]}
+  ],
+  "tenantB": [
+    {"id":"B-drain","service_name":"Drain Cleaning","category":"plumbing","pricing_model":"flat","price_cents":9900,"price_max_cents":null,"unit_label":null,"keywords":["drain cleaning","clogged drain"]},
+    {"id":"B-actune","service_name":"AC Tune-Up","category":"hvac","pricing_model":"flat","price_cents":5900,"price_max_cents":null,"unit_label":null,"keywords":["ac tune-up"]},
+    {"id":"B-sewercam","service_name":"Sewer Camera Inspection","category":"plumbing","pricing_model":"flat","price_cents":37500,"price_max_cents":null,"unit_label":null,"keywords":["sewer camera"]},
+    {"id":"B-hourly","service_name":"Hourly Labor","category":"general","pricing_model":"hourly","price_cents":11000,"price_max_cents":null,"unit_label":null,"keywords":["hourly rate"]}
+  ]
+}
