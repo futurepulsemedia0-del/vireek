@@ -18,6 +18,7 @@ import { Crown } from 'lucide-react';
 import { DoorOpen } from 'lucide-react';
 import { CalendarRange } from 'lucide-react';
 import { Warehouse } from 'lucide-react';
+import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import {
   BarChart3,
   Ruler,
@@ -244,6 +245,7 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
   ownerOnly?: boolean;
+  requiresFlag?: string;
   /** Hidden unless this feature flag is on for the tenant. */
   requiresFlag?: string;
   /** Hidden unless the account is entitled to this module (see src/lib/entitlements.ts). */
@@ -458,6 +460,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Wallet Passes', href: '/dashboard/wallet-passes', icon: Wallet },
   { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
   { label: 'Trade Packs', href: '/dashboard/trade-packs', icon: PackageCheck, requiresPermission: 'can_edit_business_profile' },
+    { label: 'Commercial', href: '/dashboard/commercial', icon: PackageCheck, requiresPermission: 'can_view_billing', requiresFlag: 'commercial_pack' },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
@@ -707,6 +710,8 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
 ];
 export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, isFlagOn?: (key: string) => boolean) {
   return items.filter((item) => {
+    if (item.requiresFlag && !(isFlagOn?.(item.requiresFlag) ?? false)) return false;
+  return items.filter((item) => {
     if (item.ownerOnly && !isOwner) return false;
     if (item.requiresFlag && !(isFlagOn?.(item.requiresFlag) ?? false)) return false;
     if (item.requiresFlag && !(flagOn?.(item.requiresFlag) ?? false)) return false;
@@ -725,6 +730,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     rememberDashboardPath(location.pathname);
   }, [location.pathname]);
   const { user, isOwner, permissions, signOut } = useAuth();
+  const { isEnabled: isFlagOn } = useFeatureFlags();
   const { isEnabled: flagOn } = useFeatureFlags();
   const { toast } = useToast();
   const { preference, setThemePreference } = useTheme();
