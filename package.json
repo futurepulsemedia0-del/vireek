@@ -48,6 +48,7 @@
     "migrations:plan": "node scripts/migrations-dedupe.mjs plan",
     "sitemap:locations": "node scripts/generate-locations-sitemap.mjs",
     "lint:migrations": "node scripts/lint-migrations.mjs",
+    "verify-jwt:check": "node scripts/sync-verify-jwt.mjs check",
     "lint:flags": "node scripts/check-flag-lifecycle.mjs",
     "naming:screen": "node scripts/naming/screen.mjs",
        "security:matrix": "node scripts/security/function-matrix.mjs --write",
