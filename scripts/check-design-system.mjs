@@ -19,6 +19,7 @@
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
+import { radiusViolations } from './design/check-radius.mjs';
 import { applyTextAlphaRule } from './lib/text-alpha-rule.mjs';
 import { collectLayoutViolations } from './design/layout-guard.mjs';
 
@@ -63,13 +64,13 @@ const RULE_INPUT = /^\s*const\s+inputClass\s*=/;
 // Rule 2 — no hand-copied <Card> recipe. If you need a card, import
 // <Card> from '@/components/ui/Card'.
 // ------------------------------------------------------------------
-const RULE_CARD = /rounded-2xl border border-border bg-bg-secondary p-[68] shadow-card/;
+const RULE_CARD = /rounded-(2xl|surface) border border-border bg-bg-secondary p-[68] shadow-card/;
 
 // ------------------------------------------------------------------
 // Rule 3 — no hand-copied primary-button recipe. Import <Button
 // variant="primary"> from '@/components/ui/Button'.
 // ------------------------------------------------------------------
-const RULE_BUTTON = /rounded-xl bg-(cta|accent) px-\d/;
+const RULE_BUTTON = /rounded-(xl|control) bg-(cta|accent) px-\d/;
 
 // ------------------------------------------------------------------
 // Rule 4 — a page that imports Loader2 for a full-view loading state
@@ -136,6 +137,8 @@ walk(SRC, (file) => {
 collectLayoutViolations((v) => violations.push(v));
 // Rule 6 — no alpha on text colour (ratchet baseline; see scripts/lib/text-alpha-rule.mjs)
 applyTextAlphaRule(ROOT, violations);
+// Rule 6 — border-radius scale (ratchet; see scripts/design/check-radius.mjs)
+for (const v of radiusViolations(new URL('..', import.meta.url).pathname)) violations.push(v);
 if (violations.length === 0) {
   console.log('✔ Design-system check passed — no drift detected.');
   process.exit(0);
@@ -157,6 +160,12 @@ const RULE_TITLES = {
   'no-raw-shadow': 'Rule 8 — Use shadow-card / shadow-elevation-1…4 / glow tokens',
   'no-static-inline-style': 'Rule 9 — Static inline style: use a class; dynamic values via cssVars()',
   'empty-state-standard': 'Rule 5 — Use <EmptyState> from @/components/EmptyState instead of bare "No X found/yet" text',
+  'radius-raw': 'Rule 6 — Use radius role aliases (rounded-control / inset / chip / surface / overlay) in new code, not raw steps',
+  'radius-smallLarge': 'Rule 6 — Small elements never exceed rounded-lg (no rounded-2xl/3xl on buttons, inputs, chips, tiles)',
+  'radius-legacyMd': 'Rule 6 — rounded-legacy-md is a one-release alias; migrate by role',
+  'radius-arbitrary': 'Rule 6 — No arbitrary radii; use the scale',
+  'radius-hero3xl': 'Rule 6 — rounded-3xl only for files in scripts/design/radius-allowlist.json',
+  'radius-baseline': 'Rule 6 — radius baseline missing',
    'no-alpha-text': 'Rule 6 — No alpha on text colour (text-x/60, opacity-60 on text). Use text-text-secondary / text-text-muted / text-text-placeholder / text-graphic-muted, or `// contrast-ok: reason`',
 };
 
