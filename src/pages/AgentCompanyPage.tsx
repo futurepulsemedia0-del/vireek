@@ -14,6 +14,7 @@ import { Users2, Bot, Loader2, Plus, X, ListTodo, Activity } from 'lucide-react'
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { fetchAgentActionLog } from '@/lib/agentGovernance';
+import { AgentApprovalPanel } from '@/components/agent/AgentApprovalPanel';
 import {
   fetchAgentRoster,
   fetchAgentTasks,
@@ -123,6 +124,7 @@ export function AgentCompanyPage() {
           Every autonomous agent already running here, and the shared board they use to hand work to each other.
         </p>
 
+        <AgentApprovalPanel onChanged={() => void load()} />
         {/* Roster */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {roster.map((r) => (
