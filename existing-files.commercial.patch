@@ -1,0 +1,96 @@
+--- a/src/App.tsx	2026-11-07 18:38:19.000000000 +0000
++++ b/src/App.tsx	2026-11-09 05:13:00.535596830 +0000
+@@ -276,6 +276,7 @@
+ const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
+ const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
+ const TradePacksPage = lazy(() => import('@/pages/TradePacksPage').then((m) => ({ default: m.TradePacksPage })));
++const CommercialPackPage = lazy(() => import('@/pages/CommercialPackPage').then((m) => ({ default: m.CommercialPackPage })));
+ const TechnicianTodayPage = lazy(() => import('@/pages/TechnicianTodayPage').then((m) => ({ default: m.TechnicianTodayPage })));
+ const TechnicianTimesheetPage = lazy(() => import('@/pages/TechnicianTimesheetPage').then((m) => ({ default: m.TechnicianTimesheetPage })));
+ const TechnicianJobBriefPage = lazy(() => import('@/pages/TechnicianJobBriefPage').then((m) => ({ default: m.TechnicianJobBriefPage })));
+@@ -3478,6 +3479,14 @@
+   }
+ />
+         <Route
++          path="/dashboard/commercial"
++          element={
++            <ProtectedRoute>
++              <CommercialPackPage />
++            </ProtectedRoute>
++          }
++        />
++        <Route
+           path="/tech/today"
+           element={
+             <TechnicianRoute>
+--- a/src/components/DashboardNav.tsx	2026-11-07 18:38:19.000000000 +0000
++++ b/src/components/DashboardNav.tsx	2026-11-09 05:13:00.537679354 +0000
+@@ -1,3 +1,4 @@
++import { useFeatureFlags } from '@/hooks/useFeatureFlag';
+ import { useEffect, useState } from 'react';
+ import { Link, useLocation, useNavigate } from 'react-router-dom';
+ import { AnimatePresence, motion } from 'framer-motion';
+@@ -240,6 +241,8 @@
+   icon: typeof LayoutDashboard;
+   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
+   ownerOnly?: boolean;
++  /** Hidden unless this feature flag is on for the account (items without it are unaffected). */
++  requiresFlag?: string;
+ }
+ 
+ // Primary, daily-use items stay immediately visible at the top level —
+@@ -445,6 +448,7 @@
+   { label: 'Wallet Passes', href: '/dashboard/wallet-passes', icon: Wallet },
+   { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
+   { label: 'Trade Packs', href: '/dashboard/trade-packs', icon: PackageCheck, requiresPermission: 'can_edit_business_profile' },
++  { label: 'Commercial', href: '/dashboard/commercial', icon: PackageCheck, requiresPermission: 'can_view_billing', requiresFlag: 'commercial_pack' },
+   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
+   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
+   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
+@@ -689,8 +693,9 @@
+   { value: 'light', label: 'Light', icon: Sun },
+   { value: 'system', label: 'System', icon: Monitor },
+ ];
+-export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions) {
++export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, isFlagOn?: (key: string) => boolean) {
+   return items.filter((item) => {
++    if (item.requiresFlag && !(isFlagOn?.(item.requiresFlag) ?? false)) return false;
+     if (item.ownerOnly && !isOwner) return false;
+     if (!item.requiresPermission) return true;
+     if (isOwner) return true;
+@@ -705,6 +710,7 @@
+     rememberDashboardPath(location.pathname);
+   }, [location.pathname]);
+   const { user, isOwner, permissions, signOut } = useAuth();
++  const { isEnabled: isFlagOn } = useFeatureFlags();
+   const { toast } = useToast();
+   const { preference, setThemePreference } = useTheme();
+   const { t } = useTranslation('dashboard');
+@@ -739,8 +745,8 @@
+     return location.pathname.startsWith(href);
+   };
+ 
+-  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions);
+-  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions);
++  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, isFlagOn);
++  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, isFlagOn);
+   const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
+   const [showLabs, setShowLabs] = useState(() => {
+     try {
+--- a/config/flags.registry.json	2026-11-07 18:38:19.000000000 +0000
++++ b/config/flags.registry.json	2026-11-09 05:13:00.538151797 +0000
+@@ -7,6 +7,14 @@
+       "created": "2026-11-03",
+       "expires": "2027-02-01",
+       "cleanup": "Remove useFeatureFlag('data_residency_ui') gate in TrustPackPage and delete the flag row"
++    },
++    {
++      "key": "commercial_pack",
++      "kind": "release",
++      "owner": "platform-oncall",
++      "created": "2026-11-09",
++      "expires": "2027-05-01",
++      "cleanup": "Remove useFeatureFlag('commercial_pack') in CommercialPackPage and the requiresFlag gate in DashboardNav, drop commercial_pack_enabled()'s flag_evaluate call, delete the flag row"
+     }
+   ]
+ }
