@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useEntitlements } from '@/hooks/useEntitlement';
 import { ALL_NAV_ITEMS, filterItems } from '@/components/DashboardNav';
 import { audienceFor, pillarFor, plainLabel, searchTerms, visibleToAudience } from '@/lib/surface/surface';
 
@@ -93,6 +94,7 @@ export function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { isOwner, permissions } = useAuth();
+  const { has: hasModule } = useEntitlements();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -127,7 +129,7 @@ export function CommandPalette() {
         keywords: `${p.keywords ?? ''} ${p.label} ${searchTerms(p.href)}`.toLowerCase(),
       });
     }
-    for (const n of filterItems(ALL_NAV_ITEMS, isOwner, permissions)) {
+    for (const n of filterItems(ALL_NAV_ITEMS, isOwner, permissions, hasModule)) {
       if (byHref.has(n.href) || !visibleToAudience(n.href, audience)) continue;
       byHref.set(n.href, {
         label: plainLabel(n.href, n.label),
@@ -139,7 +141,7 @@ export function CommandPalette() {
     return [...byHref.values()]
       .filter((p) => p.label.toLowerCase().includes(q) || p.keywords?.includes(q))
       .slice(0, 15);
-  }, [query, isOwner, permissions]);
+  }, [query, isOwner, permissions, hasModule]);
 
   useEffect(() => {
     const q = query.trim();
