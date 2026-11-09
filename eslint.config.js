@@ -107,8 +107,10 @@ export default tseslint.config(
         { selector: 'Literal[value=/\\b(?:rgba?|hsla?)\\(\\s*[0-9]/]', message: 'Use rgb(var(--token)) instead of rgb()/hsl() literals.' },
         { selector: 'Literal[value=/bg-gradient-|linear-gradient|radial-gradient|backdrop-blur/]', message: 'No gradients or glass in the dashboard.' },
         { selector: 'TemplateElement[value.raw=/bg-gradient-|linear-gradient|radial-gradient|backdrop-blur/]', message: 'No gradients or glass in the dashboard.' },
-        { selector: 'Literal[value=/\\brounded-(2xl|3xl)\\b/]', message: 'Large radii are for modals only. Use rounded-md/lg.' },
-        { selector: 'TemplateElement[value.raw=/\\brounded-(2xl|3xl)\\b/]', message: 'Large radii are for modals only. Use rounded-md/lg.' },
+        { selector: 'Literal[value=/\\brounded-(2xl|3xl)\\b/]', message: '
+Large radii are for modals only (rounded-overlay). Use rounded-control, rounded-inset, rounded-chip or rounded-surface.' },
+        { selector: 'TemplateElement[value.raw=/\\brounded-(2xl|3xl)\\b/]', message: '
+Large radii are for modals only (rounded-overlay). Use rounded-control, rounded-inset, rounded-chip or rounded-surface.' },
       ],
     },
   },
