@@ -20,6 +20,7 @@ import {
   AuthIconBadge,
 } from '@/components/auth/AuthParts';
 import { OtpEntry } from '@/components/auth/OtpEntry';
+import { PlatformEndorsement } from '@/components/brand/PlatformEndorsement';
 import { AppleButton, PasskeyButton } from '@/components/auth/SocialAuthButtons';
 import { PasskeyError, isConditionalUiAvailable, isPasskeySupported, signInWithPasskey } from '@/lib/passkeys';
 import { checkDeviceTrusted, registerTrustedDevice } from '@/lib/deviceTrust';
@@ -617,6 +618,7 @@ export function LoginPage() {
             </div>
 
             <AuthLegalLine />
+            <PlatformEndorsement className="mt-3 text-center text-xs text-text-secondary/70" />
           </>
         )}
       </AuthStepTransition>
