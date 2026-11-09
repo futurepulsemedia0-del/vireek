@@ -149,7 +149,8 @@ Routes found: **683**.
 | `/warranty/register` | `WarrantyRegisterPage` | public |
 | `/protection/:token` | `PublicProtectionPlanPage` | public |
 | `/change-order/:token` | `PublicChangeOrderPage` | public |
-| `/h/:code` | `PublicHomePassportPage` | public |
+| `/h/:code` | `PublicHomePassportCodePage` | public |
+| `/passport/share/:token` | `PublicHomePassportSharePage` | public |
 | `/emergency/:token` | `EmergencyTriagePage` | public |
 | `/service/:token` | `JobRoomPage` | public |
 | `/approve/:token` | `NoSurpriseApprovePage` | public |
@@ -599,6 +600,7 @@ Routes found: **683**.
 | `/dashboard/field-intelligence` | `FieldIntelligencePage` | ProtectedRoute |
 | `/dashboard/home-health` | `HomeHealthPage` | ProtectedRoute |
 | `/dashboard/home-passport` | `HomeServicePassportPage` | ProtectedRoute |
+| `/dashboard/home-passport/pilot` | `HomePassportPilotPage` | ProtectedRoute (flag `home_passport_pilot`) |
 | `/dashboard/property-intelligence` | `PropertyIntelligencePage` | ProtectedRoute |
 | `/dashboard/fleet-economics` | `FleetEconomicsPage` | ProtectedRoute |
 | `/dashboard/telematics` | `TelematicsOSPage` | ProtectedRoute |
