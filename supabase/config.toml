@@ -114,3 +114,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.results-plan-bill]
 verify_jwt = false
+[functions.financing-partner-webhook]
+verify_jwt = false
