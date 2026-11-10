@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CalendarClock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { CalendarClock, CheckCircle2, AlertCircle, Tag } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { validateBookingPromo, promoReasonMessage, type BookingPromoResult } from '@/lib/promoCodes';
 import { Footer } from '@/components/Footer';
@@ -93,19 +93,20 @@ const canSubmit = useMemo(
     setPromoChecking(false);
   };
 
-const result = windowOffers && selectedWindow
-  ? await submitBookingWithArrivalWindow({
-      slug, customerName: name, customerPhone: phone, customerEmail: email, serviceType: service,
-      notes, channel, refCode, intakeAnswers: /* همان مقداری که الان به تابع قبلی می‌دهی، یا {} */ {},
-      window: selectedWindow,
-    })
-  : /* همان فراخوانی قبلی */;
   
-  const handleSubmit = async () => {
-    if (!slug || !selectedSlot) return;
+   const handleSubmit = async () => {
+    if (!slug) return;
+    if (windowOffers ? !selectedWindow : !selectedSlot) return;
     setSubmitting(true);
     setError(null);
-    const result = await submitPublicBooking({ slug, customerName: name, customerPhone: phone, customerEmail: email, serviceType: service, scheduledDatetime: selectedSlot, notes, channel, refCode });
+    const result =
+      windowOffers && selectedWindow
+        ? await submitBookingWithArrivalWindow({
+            slug, customerName: name, customerPhone: phone, customerEmail: email, serviceType: service,
+            notes, channel, refCode, intakeAnswers: {},
+            window: selectedWindow,
+          })
+        : await submitPublicBooking({ slug, customerName: name, customerPhone: phone, customerEmail: email, serviceType: service, scheduledDatetime: selectedSlot as Date, notes, channel, refCode });
     if (result.ok) setDone(true);
     else if (result.reason === 'slot_taken') { setError('That time was just taken — please pick another.'); setSelectedSlot(null); }
     else setError('Could not book that appointment. Please call the business directly.');
