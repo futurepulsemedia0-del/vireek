@@ -10,7 +10,8 @@ export type ProviderId =
   | "cerebras"
   | "cloudflare"
   | "openrouter"
-  | "anthropic";
+  | "anthropic"
+  | "cohere";
 
 export type TaskType =
   | "remote_resolution"
@@ -52,6 +53,13 @@ export type TaskType =
   | "switching_shield_plan"
   | "bank_categorization"
   | "review_reply"
+  | "onboarding_extract"
+  | "onboarding_concierge";
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export interface NormalizedChatRequest {
   system: string;
@@ -123,8 +131,17 @@ export interface EmbeddingRequest {
   inputType?: "search_document" | "search_query";
 }
 
+export interface EmbeddingResponse {
+  vectors: number[][];
+  provider: ProviderId;
+  model: string;
+  latencyMs: number;
+}
+
 export interface ProviderAdapter {
   readonly id: ProviderId;
+  /** Optional capability tags (informational; routing still uses explicit task chains). */
+  readonly capabilities?: readonly ("chat" | "embedding" | "rerank")[];
   isConfigured(): boolean;
   chat(req: NormalizedChatRequest): Promise<NormalizedChatResponse>;
 
@@ -146,4 +163,9 @@ export interface RouteEntry {
   provider: ProviderId;
   priority: number;
   model: string;
+}
+
+/** A provider that can also produce embeddings. */
+export interface EmbeddingProviderAdapter extends ProviderAdapter {
+  embed(req: EmbeddingRequest): Promise<EmbeddingResponse>;
 }
