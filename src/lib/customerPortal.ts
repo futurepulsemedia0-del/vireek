@@ -213,6 +213,8 @@ export function CustomerPortalPage() {
                   <span className="block text-xs text-text-secondary">Appliances, receipts, manuals &amp; warranty reminders</span>
                 </span>
               </Link>
+
+              <a
                 href={`/emergency/${token}`}
                 className="mb-6 flex items-center justify-between rounded-2xl border border-danger/30 bg-danger/5 p-4 transition-colors hover:border-danger/50"
               >
