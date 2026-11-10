@@ -126,7 +126,7 @@ export function renderStatementEmail(input: StatementEmailInput): { subject: str
        ${hidden > 0 ? `<p style="${P}">+ ${hidden} more in the <a href="${escapeHtml(manageUrl)}" style="color:#203ad8">full statement</a> and the attached PDF.</p>` : ""}`
     : `<p style="${P}">No recoveries or active follow-ups this week.</p>`}
 </td></tr>
-${input.pilot ? <tr><td style="padding:8px 28px">${input.pilot.html}</td></tr> : ""}
+${input.pilot ? `<tr><td style="padding:8px 28px">${input.pilot.html}</td></tr>` : ""}
 <tr><td style="padding:8px 28px 20px"><div style="background:#f5f5f8;border-radius:10px;padding:14px 16px">
   <h2 style="${H2};margin-top:0">How we count (conservative attribution)</h2>
   <ol style="margin:0;padding-left:18px;font-size:12px;line-height:1.55;color:#44444f">
