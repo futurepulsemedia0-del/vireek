@@ -150,14 +150,14 @@ export async function fetchResolutions(jobId: string): Promise<RawResolution[]> 
 }
 
 export async function fetchUnknownsInput(job: Job): Promise<UnknownsInput> {
-  const [diagnosis, equipment, parts, site, compliance, noSurprise, resolutions] = await Promise.all([
+  const [diagnosis, equipment, parts, site, compliance, noSurprise, network, resolutions] = await Promise.all([
     safe(() => loadDiagnosis(job.id), [] as RawDiagnosisSession[]),
     safe(() => loadEquipment(job.id), [] as RawEquipment[]),
     safe(() => loadParts(job.id), [] as RawJobPart[]),
     safe(() => loadSite(job.site_id ?? null), null as RawSite | null),
     safe(() => loadCompliance(job.id), null as RawComplianceReview | null),
     loadNoSurprise(job.id),
-      fetchNetworkEvidence([job.id]),
+    fetchNetworkEvidence([job.id]),
     // Resolutions only ever add confidence, so on failure we fall back to none and stay conservative.
     fetchResolutions(job.id).catch(() => [] as RawResolution[]),
   ]);
@@ -185,10 +185,11 @@ export async function fetchUnknownsInput(job: Job): Promise<UnknownsInput> {
     site,
     compliance,
     noSurprise,
+    network: network.get(job.id) ?? null,
     resolutions,
   };
 }
-network: network.get(job.id) ?? null,
+
 export async function resolveUnknown(
   jobId: string,
   dimension: UnknownDimensionKey,
