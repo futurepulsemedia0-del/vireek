@@ -129,7 +129,6 @@ function TechnicianScorecardCard({ metrics }: { metrics: TechnicianMetrics }) {
           color={rateColor(metrics.csatAvg === null ? null : metrics.csatAvg * 20, 80)}
         />
         <StatBlock
-        <StatBlock
           label="Technician rating"
           value={metrics.techRatingAvg !== null ? `${metrics.techRatingAvg}/5` : '—'}
           sub={
@@ -139,6 +138,7 @@ function TechnicianScorecardCard({ metrics }: { metrics: TechnicianMetrics }) {
           }
           color={rateColor(metrics.techRatingAvg === null ? null : metrics.techRatingAvg * 20, 84)}
         />
+        <StatBlock
           label="Utilization"
           value={metrics.utilizationRate !== null ? `${metrics.utilizationRate}%` : '—'}
           color={metrics.utilizationRate !== null && metrics.utilizationRate > 95 ? 'text-warning-500' : undefined}
