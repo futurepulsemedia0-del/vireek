@@ -1,3 +1,7 @@
+import { PortalJobSummaries } from '@/components/portal/PortalJobSummaries';
+import { PortalWalletCard } from '@/components/portal/PortalWalletCard';
+import { PortalLoyaltyCard } from '@/components/portal/PortalLoyaltyCard';
+import { PortalContactsCard } from '@/components/portal/PortalContactsCard';
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -15,9 +19,9 @@ import {
   Gift,
   CreditCard,
   History as HistoryIcon,
+  Home as HomeIcon,
 } from 'lucide-react';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { PortalBrandShell } from '@/components/portal/PortalBrandShell';
 import {
   fetchPortalBundle,
   submitServiceRequest,
@@ -34,8 +38,6 @@ import {
   formatPortalDate,
   type PortalBundle,
 } from '@/lib/customerPortal';
-import { pt, usePortalLanguage } from '@/lib/portalI18n';
-import { LANGUAGE_OPTIONS, normalizeLanguage } from '@/lib/customerLanguage';
 
 type Tab = 'jobs' | 'quotes' | 'equipment' | 'referral' | 'request' | 'profile';
 
@@ -49,7 +51,7 @@ function JobStatusBadge({ status }: { status: PortalBundle['jobs'][number]['job_
   };
   return (
     <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${colors[status]}`}>
-      {pt(JOB_STATUS_LABELS[status])}
+      {JOB_STATUS_LABELS[status]}
     </span>
   );
 }
@@ -71,7 +73,7 @@ function QuoteStatusBadge({ status }: { status: PortalBundle['quotes'][number]['
   };
   return (
     <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${colors[status]}`}>
-      {pt(labels[status])}
+      {labels[status]}
     </span>
   );
 }
@@ -80,8 +82,6 @@ export function CustomerPortalPage() {
   const { token } = useParams<{ token: string }>();
   const [bundle, setBundle] = useState<PortalBundle | null | undefined>(undefined);
   const [tab, setTab] = useState<Tab>('jobs');
-  const { language, changeLanguage } = usePortalLanguage(token);
-  const [langSaved, setLangSaved] = useState(false);
 
   // Service request form
   const [reqServiceType, setReqServiceType] = useState('');
@@ -155,27 +155,26 @@ export function CustomerPortalPage() {
   };
 
   const TABS: { key: Tab; label: string; icon: typeof Briefcase }[] = [
-    { key: 'jobs', label: pt('My Appointments'), icon: Briefcase },
-    { key: 'quotes', label: pt('Quotes'), icon: FileText },
-    { key: 'equipment', label: pt('Equipment'), icon: ShieldCheck },
-    { key: 'referral', label: pt('Refer & Earn'), icon: Gift },
-    { key: 'request', label: pt('Request Service'), icon: Send },
-    { key: 'profile', label: pt('My Info'), icon: User },
+    { key: 'jobs', label: 'My Appointments', icon: Briefcase },
+    { key: 'quotes', label: 'Quotes', icon: FileText },
+    { key: 'equipment', label: 'Equipment', icon: ShieldCheck },
+    { key: 'referral', label: 'Refer & Earn', icon: Gift },
+    { key: 'request', label: 'Request Service', icon: Send },
+    { key: 'profile', label: 'My Info', icon: User },
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg-primary">
-      <Header />
+    <PortalBrandShell token={token} welcome>
       <main className="flex-1 px-4 py-12">
         <div className="mx-auto w-full max-w-3xl">
           {bundle === undefined && (
-            <p className="py-20 text-center text-sm text-text-secondary">{pt('Loading your account…')}</p>
+            <p className="py-20 text-center text-sm text-text-secondary">Loading your account…</p>
           )}
 
           {bundle === null && (
             <div className="rounded-2xl border border-border bg-bg-secondary p-8 text-center shadow-card dark:shadow-card-dark">
               <AlertCircle size={28} className="mx-auto mb-3 text-text-secondary" />
-              <h1 className="text-lg font-semibold text-text-primary">{pt('Portal not available')}</h1>
+              <h1 className="text-lg font-semibold text-text-primary">Portal not available</h1>
               <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                 This link isn't valid, or the self-service portal isn't turned on for this business yet.
                 Please call the business directly for help.
@@ -186,10 +185,10 @@ export function CustomerPortalPage() {
           {bundle && (
             <>
               <div className="mb-6">
-                <h1 className="text-2xl font-bold tracking-tight text-text-primary">{pt('Hi {{name}},', { name: bundle.customer.name.split(' ')[0] })}</h1>
-                <p className="mt-1 text-sm text-text-secondary">{pt('Your account with {{business}}', { business: bundle.business_name ?? 'us' })}</p>
+                <h1 className="text-2xl font-bold tracking-tight text-text-primary">Hi {bundle.customer.name.split(' ')[0]},</h1>
+                <p className="mt-1 text-sm text-text-secondary">Your account with {bundle.business_name ?? 'us'}</p>
               </div>
-              <Link
+                            <Link
                 to={`/portal/${token}/history`}
                 className="focus-ring mb-6 flex min-h-[44px] items-center gap-3 rounded-2xl border border-border bg-bg-secondary p-4 transition-colors hover:bg-bg-tertiary"
               >
@@ -197,19 +196,31 @@ export function CustomerPortalPage() {
                   <HistoryIcon size={18} aria-hidden="true" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-text-primary">{pt('Full service history')}</span>
+                  <span className="block text-sm font-semibold text-text-primary">Full service history</span>
                   <span className="block text-xs text-text-secondary">Past visits, invoices, membership &amp; equipment</span>
                 </span>
               </Link>
-              <a
+              
+              <Link
+                to={`/portal/${token}/inventory`}
+                className="focus-ring mb-6 flex min-h-[44px] items-center gap-3 rounded-2xl border border-border bg-bg-secondary p-4 transition-colors hover:bg-bg-tertiary"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <HomeIcon size={18} aria-hidden="true" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-text-primary">My home inventory</span>
+                  <span className="block text-xs text-text-secondary">Appliances, receipts, manuals &amp; warranty reminders</span>
+                </span>
+              </Link>
                 href={`/emergency/${token}`}
                 className="mb-6 flex items-center justify-between rounded-2xl border border-danger/30 bg-danger/5 p-4 transition-colors hover:border-danger/50"
               >
                 <div>
-                  <p className="text-sm font-semibold text-danger">{pt('Something is wrong?')}</p>
+                  <p className="text-sm font-semibold text-danger">Something is wrong?</p>
                   <p className="text-xs text-text-secondary">Report an emergency and get immediate safety steps</p>
                 </div>
-                <span className="rounded-full bg-danger px-3 py-1.5 text-xs font-semibold text-white">{pt('Start now')}</span>
+                <span className="rounded-full bg-danger px-3 py-1.5 text-xs font-semibold text-white">Start now</span>
               </a>
 
               {bundle.membership && (
@@ -251,14 +262,14 @@ export function CustomerPortalPage() {
                       href={getBookingLink(bundle.booking_slug)}
                       className="focus-ring flex items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-accent/90"
                     >
-                      <CalendarClock size={15} /> {pt('Book new service')}
+                      <CalendarClock size={15} /> Book new service
                     </a>
                   )}
 
                   <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
-                    <h2 className="text-sm font-semibold text-text-primary">{pt('Upcoming')}</h2>
+                    <h2 className="text-sm font-semibold text-text-primary">Upcoming</h2>
                     {upcomingJobs.length === 0 ? (
-                      <p className="mt-3 text-sm text-text-secondary">{pt('No upcoming appointments.')}</p>
+                      <p className="mt-3 text-sm text-text-secondary">No upcoming appointments.</p>
                     ) : (
                       <div className="mt-4 space-y-3">
                         {upcomingJobs.map((j) => (
@@ -279,7 +290,7 @@ export function CustomerPortalPage() {
                                     href={getRescheduleLink(j.reschedule_token)}
                                     className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
                                   >
-                                    <CalendarClock size={12} /> {pt('Reschedule')}
+                                    <CalendarClock size={12} /> Reschedule
                                   </a>
                                 )}
                                 {j.invoice_status === 'sent' && j.payment_link_url && (
@@ -287,7 +298,7 @@ export function CustomerPortalPage() {
                                     href={j.payment_link_url}
                                     className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90"
                                   >
-                                    <CreditCard size={12} /> {pt('Pay now')}
+                                    <CreditCard size={12} /> Pay now
                                   </a>
                                 )}
                               </div>
@@ -297,11 +308,15 @@ export function CustomerPortalPage() {
                       </div>
                     )}
                   </div>
+                  {token && <PortalJobSummaries portalToken={token} />}
+                     {token && <PortalWalletCard portalToken={token} />}
+                  {token && <PortalLoyaltyCard portalToken={token} />}
+
 
                   <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
-                    <h2 className="text-sm font-semibold text-text-primary">{pt('Past Service')}</h2>
+                    <h2 className="text-sm font-semibold text-text-primary">Past Service</h2>
                     {pastJobs.length === 0 ? (
-                      <p className="mt-3 text-sm text-text-secondary">{pt('No past service on file yet.')}</p>
+                      <p className="mt-3 text-sm text-text-secondary">No past service on file yet.</p>
                     ) : (
                       <div className="mt-4 space-y-3">
                         {pastJobs.map((j) => (
@@ -317,7 +332,7 @@ export function CustomerPortalPage() {
                             </div>
                             {j.invoice_amount !== null && (
                               <div className="mt-2 flex items-center justify-between border-t border-border/60 pt-2 text-xs">
-                                <span className="text-text-secondary">{pt(INVOICE_STATUS_LABELS[j.invoice_status])}</span>
+                                <span className="text-text-secondary">{INVOICE_STATUS_LABELS[j.invoice_status]}</span>
                                 <span className="font-semibold text-text-primary">{formatAmount(j.invoice_amount)}</span>
                               </div>
                             )}
@@ -332,7 +347,7 @@ export function CustomerPortalPage() {
               {/* Quotes */}
               {tab === 'quotes' && (
                 <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
-                  <h2 className="text-sm font-semibold text-text-primary">{pt('Quotes')}</h2>
+                  <h2 className="text-sm font-semibold text-text-primary">Quotes</h2>
                   {bundle.quotes.length === 0 ? (
                     <p className="mt-3 text-sm text-text-secondary">No quotes on file yet.</p>
                   ) : (
@@ -478,7 +493,7 @@ export function CustomerPortalPage() {
                         className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
                       >
                         <Send size={15} />
-                        {reqSubmitting ? 'Sending…' : pt('Send request')}
+                        {reqSubmitting ? 'Sending…' : 'Send request'}
                       </button>
                     </form>
                   )}
@@ -486,13 +501,14 @@ export function CustomerPortalPage() {
               )}
 
               {/* Profile */}
+              {tab === 'profile' && token && <PortalContactsCard portalToken={token} />}
               {tab === 'profile' && (
                 <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
                   <h2 className="text-sm font-semibold text-text-primary">My Info</h2>
                   <p className="mt-1 text-xs text-text-secondary">Keep your contact info up to date.</p>
                   <form onSubmit={handleSaveProfile} className="mt-5 space-y-4">
                     <div>
-                      <label htmlFor="portal-phone" className="mb-1.5 block text-xs font-medium text-text-secondary">{pt('Phone')}</label>
+                      <label htmlFor="portal-phone" className="mb-1.5 block text-xs font-medium text-text-secondary">Phone</label>
                       <input
                         id="portal-phone"
                         type="tel"
@@ -502,7 +518,7 @@ export function CustomerPortalPage() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="portal-email" className="mb-1.5 block text-xs font-medium text-text-secondary">{pt('Email')}</label>
+                      <label htmlFor="portal-email" className="mb-1.5 block text-xs font-medium text-text-secondary">Email</label>
                       <input
                         id="portal-email"
                         type="email"
@@ -518,39 +534,14 @@ export function CustomerPortalPage() {
                         <p className="mt-1 text-[11px] text-text-secondary">Call us to update your address.</p>
                       </div>
                     )}
-                    <div>
-                      <label htmlFor="portal-language" className="mb-1.5 block text-xs font-medium text-text-secondary">
-                        {pt('Language')}
-                      </label>
-                      <select
-                        id="portal-language"
-                        value={normalizeLanguage(language) ?? 'en'}
-                        onChange={async (e) => {
-                          const code = normalizeLanguage(e.target.value);
-                          if (!code) return;
-                          setLangSaved(false);
-                          setLangSaved(await changeLanguage(code));
-                        }}
-                        className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary"
-                      >
-                        {LANGUAGE_OPTIONS.map((o) => (
-                          <option key={o.code} value={o.code}>
-                            {o.label}
-                          </option>
-                        ))}
-                      </select>
-                      <p className="mt-1 text-[11px] text-text-secondary">
-                        {langSaved ? pt('Language saved.') : pt('Choose the language we use to contact you.')}
-                      </p>
-                    </div>
                     {profileError && <p className="text-xs text-danger">{profileError}</p>}
-                    {profileSaved && <p className="text-xs text-success">{pt('Saved.')}</p>}
+                    {profileSaved && <p className="text-xs text-success">Saved.</p>}
                     <button
                       type="submit"
                       disabled={profileSaving}
                       className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
                     >
-                      {profileSaving ? 'Saving…' : pt('Save changes')}
+                      {profileSaving ? 'Saving…' : 'Save changes'}
                     </button>
                   </form>
                 </div>
@@ -559,7 +550,6 @@ export function CustomerPortalPage() {
           )}
         </div>
       </main>
-      <Footer />
-    </div>
+      </PortalBrandShell>
   );
 }
