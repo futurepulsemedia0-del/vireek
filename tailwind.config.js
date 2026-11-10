@@ -12,6 +12,8 @@ export default {
       fontFamily: {
                 sans: ['var(--font-sans)'],
         display: ['var(--font-display)'],
+        serif: ['var(--font-serif)'],
+        mono: ['var(--font-mono)'],
       },
       zIndex: Z_LAYERS,
       spacing: { touch: '44px' },
@@ -29,6 +31,12 @@ export default {
         // never defined, so every section-label kicker silently fell back to
         // the browser default size instead of the intended small-caps label.
         eyebrow: ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.02em' }],
+        'display-2xl': ['clamp(2.75rem, 1.5rem + 5vw, 5rem)', { lineHeight: '1.04', letterSpacing: '-0.03em', fontWeight: '400' }],
+        'display-xl': ['clamp(2.25rem, 1.4rem + 3.6vw, 3.75rem)', { lineHeight: '1.08', letterSpacing: '-0.026em', fontWeight: '420' }],
+        'display-lg': ['clamp(1.875rem, 1.3rem + 2.2vw, 2.75rem)', { lineHeight: '1.12', letterSpacing: '-0.022em', fontWeight: '450' }],
+        'copy-lg': ['1.125rem', { lineHeight: '1.65', letterSpacing: '-0.006em' }],
+        copy: ['1rem', { lineHeight: '1.6', letterSpacing: '-0.011em' }],
+        note: ['0.8125rem', { lineHeight: '1.45' }],
       },
       // Colours are GENERATED from scripts/color/palette.mjs (OKLCH source of truth) — see docs/design/COLOR_TOKENS.md.
       ...tailwindTheme,
