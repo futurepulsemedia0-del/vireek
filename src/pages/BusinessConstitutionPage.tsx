@@ -171,8 +171,3 @@ export function BusinessConstitutionPage() {
     </DashboardLayout>
   );
 }
-        </div>
-      </div>
-    </DashboardLayout>
-  );
-}
