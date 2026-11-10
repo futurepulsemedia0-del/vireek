@@ -1,208 +1,31 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutTemplate } from 'lucide-react';
-import { Eye } from 'lucide-react';
-import { PlugZap } from 'lucide-react';
-import { PlugZap } from 'lucide-react';
-import { Banknote } from 'lucide-react';
-import { Snowflake } from 'lucide-react';
 import { usePartsSourcingEnabled } from '@/hooks/usePartsSourcingEnabled';
-import { FlaskConical } from 'lucide-react';
-import { PackageCheck } from 'lucide-react';
-import { ClipboardList } from 'lucide-react';
-import { Coffee } from 'lucide-react';
-import { Landmark as ValuationIcon } from 'lucide-react';
 import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
-import { Mic } from 'lucide-react';
-import { Crown } from 'lucide-react';
-import { DoorOpen } from 'lucide-react';
-import { CalendarRange } from 'lucide-react';
-import { Warehouse } from 'lucide-react';
 import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import {
-  BarChart3,
-  Ruler,
-  FileUp,
-  LayoutTemplate,
-  Globe,
-  BookOpen,
-  BookMarked,
-  ClipboardCheck,
-  Link2,
-  QrCode,
-  ScrollText,
-  Home,
-  Phone,
-  LogOut,
-  Menu,
-  X,
-  LayoutDashboard,
-  Calendar,
-  TrendingUp,
-  TrendingDown,
-  Radio,
-  PhoneCall,
-  PhoneMissed,
-  Inbox,
-  Target,
-  Users,
-  Wrench,
-  Medal,
-  BookUser,
-  Brain,
-  Settings,
-  Lightbulb,
-  GraduationCap,
-  BookOpenCheck,
-  Gauge,
-  Compass,
-  Hourglass,
-  Waves,
-  ShieldCheck,
-  Scale,
-  BadgePercent,
-  Tags,
-  TicketPercent,
-  FlaskConical,
-  FolderLock,
-  Hourglass,
-  Bot,
-  Ban,
-  Users2,
-  CreditCard,
-  MessagesSquare,
-  Plug,
-  ChevronDown,
-  Sparkles,
-  BrainCircuit,
-  Headset,
-  BadgeCheck,
-  Rocket,
-  Timer,
-  Star,
-  Smile,
-  Voicemail,
-  PhoneOutgoing,
-  Gift,
-  AudioLines,
-  Volume2,
-  Megaphone,
-  MailPlus,
-  Filter,
-  Award,
-  RotateCcw,
-   DollarSign,
-   Calculator,
-   Route,
-   AlertOctagon,
-   GitBranch,
-   ShieldCheck,
-  FileText,
-  FileBarChart,
-  CalendarClock,
-  ShieldAlert,
-  HeartHandshake,
-  SearchCheck,
-  ShieldCheck,
-  FileClock,
-  HandHelping,
-  FileSignature,
-  Zap,
-  Building2,
-  Webhook,
-  Lock,
-  History,
-  Activity,
-  CloudLightning,
-  User,
-  Cpu,
-  MapPinned,
-  Scale,
-  Telescope,
-  DatabaseZap,
-  Database,
-  PiggyBank,
-  Wallet,
-  Flame,
- Landmark,
-  MapPin,
-  AlarmClock,
-  BellRing,
-  LifeBuoy,
-  Workflow,
-  Network,
-  Package,
-  ArrowRightLeft,
-  Shuffle,
-  Truck,
-  Building2,
-  Fuel,
-  ScanEye,
-  ClipboardList,
-  ListChecks,
-  CalendarCheck,
-  Navigation,
-  Siren,
-  Layers,
-  FolderKanban,
-  GitBranch,
-  MousePointerClick,
-  Library,
-  Handshake,
-  Store,
-  PackageSearch,
-  HeartPulse,
-  Factory,
-  MessageSquareWarning,
-  CalendarOff,
-  MessageSquareText,
-  MessageSquareHeart,
-  MessageSquare,
-  ShieldCheck,
-  Target,
-  Stethoscope,
-  ClipboardCheck,
-  Radar,
-  Fingerprint,
-  Dna,
-  Crosshair,
-  Microscope,
-  MessageCircle,
-  Compass,
-  Receipt,
-  Coins,
-  Percent,
-  Monitor,
-  Moon,
-  Sun,
-  Check,
-  Skull,
-  FileSearch,
-  FileCheck2,
-  UserMinus,
-  BrainCircuit,
-  Infinity as InfinityIcon,
-  BrainCircuit,
-  Satellite,
-  Navigation,
-  Beaker
-  Landmark,
-  Undo2,
-  FileBarChart,
-  Trash2,
-  GitMerge,
-  FolderDown,
-  SlidersHorizontal,
-  Images,
-  Camera,
-  Paintbrush,
-  CalendarHeart,
-  Trophy,
+  BarChart3, Ruler, FileUp, LayoutTemplate, Globe, Globe2, BookOpen, BookMarked, ClipboardCheck, Link2, QrCode,
+  ScrollText, Home, Phone, LogOut, Menu, X, LayoutDashboard, Calendar, TrendingUp, TrendingDown, Radio, PhoneCall,
+  PhoneMissed, Inbox, Target, Users, Wrench, Medal, BookUser, Brain, Settings, Lightbulb, GraduationCap,
+  BookOpenCheck, Gauge, Compass, Hourglass, Waves, ShieldCheck, Scale, BadgePercent, Tags, TicketPercent,
+  FlaskConical, FolderLock, Bot, Ban, Users2, CreditCard, MessagesSquare, Plug, PlugZap, ChevronDown, Sparkles,
+  BrainCircuit, Headset, BadgeCheck, Rocket, Timer, Star, Smile, Voicemail, PhoneOutgoing, Gift, AudioLines,
+  Volume2, Megaphone, MailPlus, Mail, Filter, Award, RotateCcw, DollarSign, Calculator, Route, AlertOctagon,
+  GitBranch, FileText, FileBarChart, CalendarClock, ShieldAlert, HeartHandshake, SearchCheck, FileClock,
+  HandHelping, FileSignature, Zap, Building2, Webhook, Lock, LockKeyhole, History, Activity, CloudLightning, User,
+  Cpu, MapPinned, Telescope, DatabaseZap, Database, PiggyBank, Wallet, Flame, Landmark, MapPin, AlarmClock,
+  BellRing, LifeBuoy, Workflow, Network, Package, ArrowRightLeft, Shuffle, Truck, Fuel, ScanEye, ClipboardList,
+  ListChecks, CalendarCheck, Navigation, Siren, Layers, FolderKanban, MousePointerClick, Library, Handshake, Store,
+  PackageSearch, HeartPulse, Factory, MessageSquareWarning, CalendarOff, MessageSquareText, MessageSquareHeart,
+  MessageSquare, Stethoscope, Radar, Fingerprint, Dna, Crosshair, Microscope, MessageCircle, Receipt, Coins,
+  Percent, Monitor, Moon, Sun, Check, Skull, FileSearch, FileCheck2, UserMinus, Infinity as InfinityIcon,
+  Satellite, Beaker, Undo2, Trash2, GitMerge, FolderDown, SlidersHorizontal, Images, Camera, Paintbrush,
+  CalendarHeart, Trophy, Eye, Banknote, Snowflake, PackageCheck, Coffee, Landmark as ValuationIcon, Mic, Crown,
+  DoorOpen, CalendarRange, Warehouse, PencilRuler, Languages, Smartphone, Briefcase, Repeat, Video, RefreshCw,
+  Gavel,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useFeatureFlags } from '@/hooks/useFeatureFlag';
-import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import { rememberDashboardPath } from '@/lib/helpCenter';
 import { useToast } from '@/contexts/ToastContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
@@ -238,7 +61,7 @@ import { passesModuleGate } from '@/lib/entitlements';
 import { navLabelKey } from '@/lib/navLabel';
 import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
-import { PwaInstallBanner } from '@/components/mobile/PwaInstallBanner';پ
+import { PwaInstallBanner } from '@/components/mobile/PwaInstallBanner';
 
 interface NavItem {
   label: string;
@@ -246,11 +69,7 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
   ownerOnly?: boolean;
-  requiresModule?: 'parts_sourcing';
-  requiresFlag?: string;
-  /** Hidden unless this feature flag is on for the tenant. */
-  requiresFlag?: string;
-  /** Hidden unless the account is entitled to this module (see src/lib/entitlements.ts). */
+  /** Hidden unless the account is entitled to this module. */
   requiresModule?: string;
   /** Hidden unless this feature flag is ON for the tenant. */
   requiresFlag?: string;
@@ -462,7 +281,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Wallet Passes', href: '/dashboard/wallet-passes', icon: Wallet },
   { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
   { label: 'Trade Packs', href: '/dashboard/trade-packs', icon: PackageCheck, requiresPermission: 'can_edit_business_profile' },
-    { label: 'Commercial', href: '/dashboard/commercial', icon: PackageCheck, requiresPermission: 'can_view_billing', requiresFlag: 'commercial_pack' },
+  { label: 'Commercial', href: '/dashboard/commercial', icon: PackageCheck, requiresPermission: 'can_view_billing', requiresFlag: 'commercial_pack' },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
@@ -599,7 +418,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Market Intelligence', href: '/dashboard/market-intelligence', icon: Network },
   { label: 'Identity Learner', href: '/dashboard/identity', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Governance Center', href: '/dashboard/governance', icon: ShieldAlert },
-{ label: 'Trust Pack', href: '/dashboard/trust-pack', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
+  { label: 'Trust Pack', href: '/dashboard/trust-pack', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
   { label: 'Value at Risk', href: '/dashboard/value-at-risk', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Revenue Autopsy', href: '/dashboard/revenue-autopsy', icon: Skull, requiresPermission: 'can_view_billing' },
   { label: 'LTV Autopilot', href: '/dashboard/ltv-autopilot', icon: Rocket, requiresPermission: 'can_view_billing' },
@@ -607,7 +426,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Uncertainty & Evidence Map', href: '/dashboard/uncertainty-map', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Unknowns Engine', href: '/dashboard/unknowns', icon: Brain, requiresPermission: 'can_view_billing' },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
-{ label: 'Playbook Library', href: '/dashboard/playbook-library', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Playbook Library', href: '/dashboard/playbook-library', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
   { label: 'Templates', href: '/dashboard/templates', icon: MessageSquareText, requiresPermission: 'can_edit_business_profile' },
   { label: 'Document Templates', href: '/dashboard/document-templates', icon: ScrollText, requiresPermission: 'can_edit_business_profile' },
   { label: 'Local Rank Grid', href: '/dashboard/geo-grid', icon: MapPin, requiresPermission: 'can_edit_business_profile' },
@@ -658,11 +477,11 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'AI Agent Requests', href: '/dashboard/consumer-agent', icon: Bot, requiresPermission: 'can_manage_team' },
   { label: 'Locations', href: '/dashboard/settings/locations', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Acquisitions', href: '/dashboard/acquisitions', icon: Building2, requiresPermission: 'can_edit_business_profile' },
-  { label: 'Regional Packs', href: '/dashboard/settings/regional-packs', icon: Globe, requiresPermission: 'can_edit_business_profile' }, 
+  { label: 'Regional Packs', href: '/dashboard/settings/regional-packs', icon: Globe, requiresPermission: 'can_edit_business_profile' },
   { label: 'Team', href: '/dashboard/team', icon: ShieldCheck, requiresPermission: 'can_manage_team' },
   { label: 'Org Chart', href: '/dashboard/team/org-chart', icon: Network },
   { label: 'Time Off', href: '/dashboard/time-off', icon: CalendarOff, requiresPermission: 'can_manage_team' },
-  { label: 'HR & Onboarding', href: '/dashboard/hr', icon: ClipboardList, ownerOnly: true }, 
+  { label: 'HR & Onboarding', href: '/dashboard/hr', icon: ClipboardList, ownerOnly: true },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, requiresPermission: 'can_view_billing' },
   { label: 'Slack & Teams', href: '/dashboard/settings/slack-teams', icon: MessageSquareWarning, requiresPermission: 'can_manage_team' },
   { label: 'Billing Invoices', href: '/dashboard/billing/invoices', icon: Receipt, requiresPermission: 'can_view_billing' },
@@ -683,13 +502,13 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
   { label: 'NetSuite', href: '/dashboard/netsuite', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Sage Intacct', href: '/dashboard/sage-intacct', icon: Workflow, requiresPermission: 'can_edit_business_profile' },
-  { label: 'Xero', href: '/dashboard/xero', icon: <همان آیکون QuickBooks> },
+  { label: 'Xero', href: '/dashboard/xero', icon: Calculator },
   { label: 'Property Management', href: '/dashboard/property-management', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, requiresPermission: 'can_edit_business_profile' },
   { label: 'Exports', href: '/dashboard/exports', icon: FolderDown, requiresPermission: 'can_export_data' },
   { label: 'BI Export', href: '/dashboard/bi-export', icon: BarChart3, requiresPermission: 'can_export_data' },
   { label: 'Data Platform', href: '/dashboard/data-platform', icon: Database, requiresPermission: 'can_export_data' },
-   { label: 'BI Connectors', href: '/dashboard/bi-connectors', icon: PlugZap, requiresPermission: 'can_export_data' },
+  { label: 'BI Connectors', href: '/dashboard/bi-connectors', icon: PlugZap, requiresPermission: 'can_export_data' },
   { label: 'BI Connectors', href: '/dashboard/bi-connectors', icon: PlugZap, requiresPermission: 'can_export_data' },
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
   { label: 'Compliance Rules', href: '/dashboard/compliance-rules', icon: Scale, requiresPermission: 'can_edit_business_profile' },
@@ -712,8 +531,9 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'system', label: 'System', icon: Monitor },
 ];
 const NO_MODULES: ReadonlySet<string> = new Set();
-export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, modules: ReadonlySet<string> = NO_MODULES) {
+export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, modules: ReadonlySet<string> = NO_MODULES, isFlagOn?: (flag: string) => boolean) {
   return items.filter((item) => {
+    if (item.requiresFlag && isFlagOn && !isFlagOn(item.requiresFlag)) return false;
     if (item.requiresModule && !modules.has(item.requiresModule)) return false;
     if (item.ownerOnly && !isOwner) return false;
     if (!item.requiresPermission) return true;
@@ -733,7 +553,6 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const { enabled: partsSourcingOn } = usePartsSourcingEnabled();
   const enabledModules: ReadonlySet<string> = new Set(partsSourcingOn ? ['parts_sourcing'] : []);
   const { isEnabled: isFlagOn } = useFeatureFlags();
-  const { isEnabled: flagOn } = useFeatureFlags();
   const { toast } = useToast();
   const { preference, setThemePreference } = useTheme();
   const { t } = useTranslation('dashboard');
@@ -764,13 +583,11 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     }
     if (href === '/dashboard/inventory') return location.pathname === '/dashboard/inventory';
     if (href === '/dashboard/marketing') return location.pathname === '/dashboard/marketing';
-    if (href === '/dashboard/marketing') return location.pathname === href;
     return location.pathname.startsWith(href);
   };
 
-  const { isEnabled: isFlagOn } = useFeatureFlags();
-  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, enabledModules), isFlagOn);
-  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, isFlagOn);
+  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, enabledModules, isFlagOn);
+  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, enabledModules, isFlagOn);
   const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
   const [showLabs, setShowLabs] = useState(() => {
     try {
@@ -860,34 +677,6 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       >
         {showLabs ? t('nav.labs.hide', { defaultValue: 'Hide Labs (Beta)' }) : t('nav.labs.show', { defaultValue: 'Show Labs (Beta)' })}
       </button>
-        <div className="mt-2">
-          <button
-            type="button"
-            onClick={() => {t('nav.account')}((v) => !v)}
-            className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
-          >
-            Account
-            <ChevronDown size={14} className={`transition-transform ${accountOpen ? 'rotate-180' : ''}`} />
-          </button>
-          <AnimatePresence initial={false}>
-            {accountOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="flex flex-col gap-1 pt-1">
-                  {visibleAccount.map((item) => (
-                    <NavLink key={item.href} item={item} />
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
 
       <div className="mt-2">
         <button
@@ -940,7 +729,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   return (
     <>
       {/* Desktop sidebar */}
-            <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
+      <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
         <div className="flex items-center justify-between gap-2.5 px-5 py-5">
           <Link to="/dashboard" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
@@ -949,8 +738,8 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
           <div className="flex items-center gap-1">
-          <ReplayTourMenu align="start" />
-          <FeedbackButton />
+            <ReplayTourMenu align="start" />
+            <FeedbackButton />
             <WhatsNewButton />
             <NotificationBell />
           </div>
@@ -974,7 +763,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       </aside>
 
       {/* Mobile header */}
-            <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden print:hidden">
+      <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden print:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <Link to="/dashboard" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
@@ -983,8 +772,8 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
           </Link>
           <div className="flex items-center gap-2">
-          <ReplayTourMenu align="end" />
-          <FeedbackButton />
+            <ReplayTourMenu align="end" />
+            <FeedbackButton />
             <WhatsNewButton />
             <NotificationBell />
             <button
@@ -1013,7 +802,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
               className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm lg:hidden"
             />
             <motion.aside
-            initial={{ x: isRtl ? '100%' : '-100%' }}
+              initial={{ x: isRtl ? '100%' : '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: isRtl ? '100%' : '-100%' }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
@@ -1056,7 +845,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       {/* Mobile bottom navigation — "More" opens the same drawer as the header menu button */}
       <MobileBottomNav onMore={() => setDrawerOpen(true)} moreOpen={drawerOpen} />
       {/* Keyboard shortcuts help panel — opened via "?" from anywhere */}
-       <KeyboardShortcutsModal open={shortcutsHelpOpen} onClose={() => setShortcutsHelpOpen(false)} />
+      <KeyboardShortcutsModal open={shortcutsHelpOpen} onClose={() => setShortcutsHelpOpen(false)} />
     </>
   );
 }
@@ -1076,39 +865,40 @@ export function DashboardLayout({
     // them, both stay mounted). One provider = one realtime subscription
     // shared by both bells, instead of each opening its own and colliding.
     // See NotificationsContext.tsx for the full story on the bug this fixes.
-        <NotificationsProvider>
+    <NotificationsProvider>
+      <WhatsNewProvider>
         <ChatUnreadProvider>
-      <div className="min-h-screen bg-bg-primary">
-        <DashboardNav activeLabel={activeLabel} />
-        <div className="lg:pl-60 print:pl-0">
-          <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-24 lg:px-8 lg:py-8 print:max-w-none print:p-0">
-            <Breadcrumbs className="no-print mb-4" />
-            <div className="no-print">
-              <UpgradeBanner />
-              <ActivePlaybookBanner />
-              <SurgeModeBanner />
-              <PaymentFailedBanner />
-              <UsageLimitBanner />             
-              <PwaInstallBanner />
-              <SecurityAlertBanner />
+          <div className="min-h-screen bg-bg-primary">
+            <DashboardNav activeLabel={activeLabel} />
+            <div className="lg:pl-60 print:pl-0">
+              <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-24 lg:px-8 lg:py-8 print:max-w-none print:p-0">
+                <Breadcrumbs className="no-print mb-4" />
+                <div className="no-print">
+                  <UpgradeBanner />
+                  <ActivePlaybookBanner />
+                  <SurgeModeBanner />
+                  <PaymentFailedBanner />
+                  <UsageLimitBanner />
+                  <PwaInstallBanner />
+                  <SecurityAlertBanner />
+                </div>
+                <div key={i18n.language} className="contents">
+                  {children}
+                </div>
+              </main>
             </div>
-            <div key={i18n.language} className="contents">
-  {children}
-</div>
-          </main>
-        </div>
-        <div className="no-print">
-        <TaskReminderWatcher />
-          <GlobalSearchPalette />
-          <AiAssistant />
-          <NpsPrompt />
-                    <SurveyHost />
-          <FeedbackDialog />
-          <WhatsNewDrawer />
-        </div>
-      </div>
-    </ChatUnreadProvider>
-    </WhatsNewProvider>
+            <div className="no-print">
+              <TaskReminderWatcher />
+              <GlobalSearchPalette />
+              <AiAssistant />
+              <NpsPrompt />
+              <SurveyHost />
+              <FeedbackDialog />
+              <WhatsNewDrawer />
+            </div>
+          </div>
+        </ChatUnreadProvider>
+      </WhatsNewProvider>
     </NotificationsProvider>
   );
 }
