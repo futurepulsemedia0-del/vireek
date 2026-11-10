@@ -103,6 +103,8 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
   const pending = milestones.filter((m) => m.status === 'pending').length;
   const changeStatus = (status: ProjectStatus, success: string) => run('status', () => setProjectStatus(ownerId, project.id, status), success);
 
+  const actions: { label: string; variant: 'primary' | 'secondary'; onClick: () => void }[] = [];
+  if (project.status === 'active') {
     actions.push({
       label: 'Mark completed',
       variant: 'primary',
