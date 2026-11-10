@@ -25,6 +25,8 @@ import { effectiveLevel, loadLadderRouting, loadReducedAssistantId, recordOutcom
 import { findEscalationTarget, isValidE164 } from "../_shared/voice-hardening/escalation.ts";
 import { findDuplicateBooking } from "../_shared/voice-hardening/bookingIdempotency.ts";
 import { planDisclosure, recordDisclosureOutcome } from "../_shared/ai-disclosure/ledger.ts";
+import { FAIR_SALE_AGENT_RULES } from "../_shared/fair-sale/scripts.ts";
+import { toolFairSaleCheck, toolFairSaleTrustedContact } from "../_shared/fair-sale/voice.ts";
 import { buildCallScriptsContextVariable } from "../_shared/call-scripts/runtime.ts";
 import { formatPriceLine, matchPriceItems } from "../_shared/price-book/match.ts";
 import { agentHold, agentQuote, agentSummaryChannel, finalizeAgentCall, identifyCaller, type CallContext } from "../_shared/agent-callers/engine.ts";
@@ -784,6 +786,8 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   } catch (err) {
     console.error("[voice-persona] failed, continuing without it:", err);
   }
+  // Fair Sale conduct rules bind the assistant on every call, even if the persona block failed above.
+  voicePersonaContext = voicePersonaContext ? `${voicePersonaContext}\n\n${FAIR_SALE_AGENT_RULES}` : FAIR_SALE_AGENT_RULES;
   // Cloned voice (owner-selected, consented, ready) or {} => the assistant's own voice. Never throws.
   const voiceOverride = await loadVoiceOverride(admin, tenant.userId);
   logEvent("assistant_request_resolved", requestId, {
@@ -2162,6 +2166,12 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
             break;
           case "capture_vertical_intake":
             result = await captureVerticalIntake(admin, { userId: tenant.userId, voiceAssistantId: tenant.voiceAssistantId ?? null, vapiCallId }, args);
+            break;
+          case "fair_sale_check":
+            result = await toolFairSaleCheck(admin, tenant.userId, args, vapiCallId, callerNumber);
+            break;
+          case "fair_sale_trusted_contact":
+            result = await toolFairSaleTrustedContact(admin, tenant.userId, args, vapiCallId, callerNumber);
             break;
            case "request_verification":
             result = vs ? await requestVerification(vs, tenant.userId, callRef) : "Verification isn't available on this call.";
