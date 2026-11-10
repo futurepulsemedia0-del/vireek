@@ -101,13 +101,13 @@ function useSiteSections(): SiteSection[] {
         ],
       },
       {
-              {
         id: 'use-cases',
         title: 'Use Cases',
         description: 'Real scenarios: missed calls, emergencies, after hours and estimates.',
         icon: Rocket,
         links: USE_CASES.map((u) => ({ label: u.name, href: `/use-cases/${u.slug}` })),
       },
+      {
         id: 'integrations',
         title: 'Integrations',
         description: 'The tools Vireek connects to in your existing stack.',
