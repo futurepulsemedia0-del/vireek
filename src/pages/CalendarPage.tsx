@@ -1,20 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WORKFLOW_STATUS_DOT } from '@/lib/jobWorkflow';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
-  LayoutGrid,
-  Clock,
-  X,
-  Plus,
-  MapPin,
-  Wrench,
-  User as UserIcon,
-  TriangleAlert as AlertTriangle,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Plus, MapPin, Wrench } from 'lucide-react';
 import { DurationPredictionBadge } from '@/components/jobs/DurationPredictionBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -24,7 +11,13 @@ import { useKeyboardShortcut } from '@/lib/hooks';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { ScheduleDndProvider } from '@/components/schedule/ScheduleDnd';
-import { WeekGrid, DayLanes, UnscheduledStrip, CalendarJobCard } from '@/components/schedule/CalendarBoard';
+import {
+  WeekGrid,
+  DayLanes,
+  UnscheduledStrip,
+  CalendarJobCard,
+  type PaletteEntry,
+} from '@/components/schedule/CalendarBoard';
 import { useScheduleBoard } from '@/hooks/useScheduleBoard';
 import { CalendarExtendedViews, CalendarToolbarExtras, CalendarViewSwitcher } from '@/components/schedule/CalendarViews';
 import { useCalendarPrefs, useCalendarShortcuts } from '@/hooks/useCalendarView';
@@ -32,24 +25,17 @@ import { describeFilters, filterJobs, isExtendedView, periodLabel, shiftAnchor, 
 import { toDateKey, type MoveTargetOption } from '@/lib/scheduleDnd';
 
 // ============================================================
-// New: Dispatch Calendar — visual week/day scheduling board.
+// Dispatch Calendar — visual week/day scheduling board.
 // Closes the gap with ServiceTitan/Jobber/Housecall Pro, which all put a
 // drag-and-drop calendar in front of dispatchers instead of a plain list.
 // Jobs page remains the source of truth for full job detail, invoicing,
 // and creation; this page is purely a scheduling/reassignment surface
 // that writes to the same `jobs` table so both stay in sync in realtime.
+// The boards themselves (week grid, day lanes, unscheduled strip) live in
+// components/schedule/CalendarBoard.tsx and use @dnd-kit.
 // ============================================================
 
 type JobStatus = Job['job_status'];
-
-const STATUS_DOT: Record<JobStatus, string> = {
-  scheduled: 'bg-accent',
-  en_route: 'bg-blue-500',
-  no_show: 'bg-warning-500',
-  in_progress: 'bg-warning-500',
-  completed: 'bg-success-500',
-  cancelled: 'bg-danger',
-};
 
 const STATUS_OPTIONS: { key: JobStatus; label: string }[] = [
   { key: 'scheduled', label: 'Scheduled' },
@@ -60,11 +46,6 @@ const STATUS_OPTIONS: { key: JobStatus; label: string }[] = [
 ];
 
 const DURATION_OPTIONS = [30, 60, 90, 120, 180, 240];
-
-interface PaletteEntry {
-  bg: string;
-  text: string;
-}
 
 // A small fixed palette so each technician gets a stable, distinct color
 // across the week grid, the day lanes, and job cards. Indexed by position
@@ -103,35 +84,6 @@ function isSameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-function formatTime(iso: string | null): string {
-  if (!iso) return 'Unscheduled';
-  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-}
-
-function formatWeekRangeLabel(weekStart: Date): string {
-  const weekEnd = addDays(weekStart, 6);
-  const sameMonth = weekStart.getMonth() === weekEnd.getMonth();
-  const startStr = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const endStr = weekEnd.toLocaleDateString(
-    'en-US',
-    sameMonth ? { day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' }
-  );
-  return `${startStr} \u2013 ${endStr}`;
-}
-
-// Move a job to a new calendar day while preserving its existing
-// time-of-day (or defaulting to 9:00 AM if it had none yet).
-function reDateKeepTime(targetDay: Date, existingIso: string | null): string {
-  const result = new Date(targetDay);
-  if (existingIso) {
-    const existing = new Date(existingIso);
-    result.setHours(existing.getHours(), existing.getMinutes(), 0, 0);
-  } else {
-    result.setHours(9, 0, 0, 0);
-  }
-  return result.toISOString();
-}
-
 function toDatetimeLocalValue(iso: string | null): string {
   if (!iso) return '';
   const d = new Date(iso);
@@ -144,312 +96,12 @@ function fromDatetimeLocalValue(value: string): string | null {
   return new Date(value).toISOString();
 }
 
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
-
 // ============================================================
 // SHARED UI PIECES
 // ============================================================
 
 function SkeletonBlock({ className }: { className: string }) {
   return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
-}
-
-function CalendarJobCard({
-  job,
-  technician,
-  color,
-  isDragging,
-  onDragStart,
-  onDragEnd,
-  onClick,
-}: {
-  job: Job;
-  technician: TeamMember | null;
-  color: PaletteEntry;
-  isDragging: boolean;
-  onDragStart: (e: React.DragEvent) => void;
-  onDragEnd: () => void;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      draggable
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-      onClick={onClick}
-      className={`group w-full cursor-grab rounded-xl border border-border bg-bg-primary p-3 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card active:cursor-grabbing dark:shadow-card-dark ${
-        isDragging ? 'opacity-40' : ''
-      }`}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary">
-          <Clock size={12} />
-          {formatTime(job.scheduled_datetime)}
-        </span>
-        <span
-          className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[job.job_status]}`}
-          title={job.job_status.replace(/_/g, ' ')}
-        />
-      </div>
-      <p className="mt-1.5 truncate text-sm font-semibold text-text-primary">{job.customer_name}</p>
-      {job.service_type && <p className="truncate text-xs text-text-secondary">{job.service_type}</p>}
-      {job.address && (
-        <p className="mt-1 flex items-center gap-1 truncate text-xs text-text-secondary/80" title={job.address}>
-          <MapPin size={11} className="shrink-0" /> {job.address}
-        </p>
-      )}
-      <div className="mt-2 flex items-center gap-1.5">
-        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${color.bg} ${color.text}`}>
-          {technician ? initials(technician.member_name ?? technician.member_email) : <UserIcon size={11} />}
-        </span>
-        <span className="truncate text-xs text-text-secondary">
-          {technician ? technician.member_name ?? technician.member_email : 'Unassigned'}
-        </span>
-      </div>
-    </button>
-  );
-}
-
-// ============================================================
-// WEEK VIEW
-// ============================================================
-
-function WeekGrid({
-  weekDays,
-  jobsByDay,
-  technicians,
-  getColor,
-  draggingId,
-  dragOverKey,
-  onDragStart,
-  onDragEnd,
-  onDragOver,
-  onDrop,
-  onCardClick,
-}: {
-  weekDays: Date[];
-  jobsByDay: Map<string, Job[]>;
-  technicians: TeamMember[];
-  getColor: (techId: string | null) => PaletteEntry;
-  draggingId: string | null;
-  dragOverKey: string | null;
-  onDragStart: (e: React.DragEvent, jobId: string) => void;
-  onDragEnd: () => void;
-  onDragOver: (e: React.DragEvent, key: string) => void;
-  onDrop: (e: React.DragEvent, day: Date) => void;
-  onCardClick: (job: Job) => void;
-}) {
-  const today = new Date();
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
-      {weekDays.map((day) => {
-        const key = day.toDateString();
-        const jobs = jobsByDay.get(key) ?? [];
-        const isToday = isSameDay(day, today);
-        const isOver = dragOverKey === key;
-        return (
-          <div
-            key={key}
-            onDragOver={(e) => onDragOver(e, key)}
-            onDrop={(e) => onDrop(e, day)}
-            className={`flex min-h-[220px] flex-col rounded-2xl border p-3 shadow-card transition-colors dark:shadow-card-dark ${
-              isOver ? 'border-accent bg-accent/5' : 'border-border bg-bg-secondary'
-            }`}
-          >
-            <div className="mb-2.5 flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-                  {day.toLocaleDateString('en-US', { weekday: 'short' })}
-                </p>
-                <p className={`text-sm font-bold ${isToday ? 'text-accent' : 'text-text-primary'}`}>
-                  {day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </p>
-              </div>
-              {jobs.length > 0 && (
-                <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-semibold text-text-secondary">
-                  {jobs.length}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
-              {jobs.length === 0 ? (
-                <p className="mt-4 text-center text-xs text-text-secondary/60">No jobs</p>
-              ) : (
-                jobs.map((job) => (
-                  <CalendarJobCard
-                    key={job.id}
-                    job={job}
-                    technician={technicians.find((t) => t.id === job.assigned_technician_id) ?? null}
-                    color={getColor(job.assigned_technician_id)}
-                    isDragging={draggingId === job.id}
-                    onDragStart={(e) => onDragStart(e, job.id)}
-                    onDragEnd={onDragEnd}
-                    onClick={() => onCardClick(job)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ============================================================
-// DAY VIEW (technician lanes)
-// ============================================================
-
-function DayLanes({
-  lanes,
-  laneJobs,
-  getColor,
-  draggingId,
-  dragOverKey,
-  onDragStart,
-  onDragEnd,
-  onDragOver,
-  onDrop,
-  onCardClick,
-}: {
-  lanes: { key: string; technician: TeamMember | null }[];
-  laneJobs: Map<string, Job[]>;
-  getColor: (techId: string | null) => PaletteEntry;
-  draggingId: string | null;
-  dragOverKey: string | null;
-  onDragStart: (e: React.DragEvent, jobId: string) => void;
-  onDragEnd: () => void;
-  onDragOver: (e: React.DragEvent, key: string) => void;
-  onDrop: (e: React.DragEvent, techId: string | null) => void;
-  onCardClick: (job: Job) => void;
-}) {
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {lanes.map((lane) => {
-        const jobs = laneJobs.get(lane.key) ?? [];
-        const isOver = dragOverKey === lane.key;
-        const color = getColor(lane.technician?.id ?? null);
-        return (
-          <div
-            key={lane.key}
-            onDragOver={(e) => onDragOver(e, lane.key)}
-            onDrop={(e) => onDrop(e, lane.technician?.id ?? null)}
-            className={`flex min-h-[280px] flex-col rounded-2xl border p-3 shadow-card transition-colors dark:shadow-card-dark ${
-              isOver ? 'border-accent bg-accent/5' : 'border-border bg-bg-secondary'
-            }`}
-          >
-            <div className="mb-2.5 flex items-center gap-2">
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${color.bg} ${color.text}`}>
-                {lane.technician ? initials(lane.technician.member_name ?? lane.technician.member_email) : <UserIcon size={14} />}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-text-primary">
-                  {lane.technician ? lane.technician.member_name ?? lane.technician.member_email : 'Unassigned'}
-                </p>
-                <p className="text-xs text-text-secondary">
-                  {jobs.length} {jobs.length === 1 ? 'job' : 'jobs'}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
-              {jobs.length === 0 ? (
-                <p className="mt-4 text-center text-xs text-text-secondary/60">No jobs scheduled</p>
-              ) : (
-                jobs.map((job) => (
-                  <CalendarJobCard
-                    key={job.id}
-                    job={job}
-                    technician={lane.technician}
-                    color={color}
-                    isDragging={draggingId === job.id}
-                    onDragStart={(e) => onDragStart(e, job.id)}
-                    onDragEnd={onDragEnd}
-                    onClick={() => onCardClick(job)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ============================================================
-// UNSCHEDULED BUCKET — jobs with no scheduled_datetime never fall off the
-// board; drag them onto a day to schedule, or drag a scheduled job back
-// here to pull it off the calendar without deleting it.
-// ============================================================
-
-function UnscheduledStrip({
-  jobs,
-  technicians,
-  getColor,
-  draggingId,
-  isDragOver,
-  onDragStart,
-  onDragEnd,
-  onDragOver,
-  onDrop,
-  onCardClick,
-}: {
-  jobs: Job[];
-  technicians: TeamMember[];
-  getColor: (techId: string | null) => PaletteEntry;
-  draggingId: string | null;
-  isDragOver: boolean;
-  onDragStart: (e: React.DragEvent, jobId: string) => void;
-  onDragEnd: () => void;
-  onDragOver: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent) => void;
-  onCardClick: (job: Job) => void;
-}) {
-  return (
-    <div
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      className={`mt-5 rounded-2xl border p-4 shadow-card transition-colors dark:shadow-card-dark ${
-        isDragOver ? 'border-accent bg-accent/5' : 'border-dashed border-border bg-bg-secondary/60'
-      }`}
-    >
-      <div className="mb-3 flex items-center gap-2">
-        <AlertTriangle size={16} className="text-warning-500" />
-        <h3 className="text-sm font-semibold text-text-primary">Needs Scheduling</h3>
-        <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-semibold text-text-secondary">
-          {jobs.length}
-        </span>
-      </div>
-      {jobs.length === 0 ? (
-        <p className="text-xs text-text-secondary/70">
-          Every open job has a date. Drag a job card here to pull it off the schedule without deleting it.
-        </p>
-      ) : (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-          {jobs.map((job) => (
-            <CalendarJobCard
-              key={job.id}
-              job={job}
-              technician={technicians.find((t) => t.id === job.assigned_technician_id) ?? null}
-              color={getColor(job.assigned_technician_id)}
-              isDragging={draggingId === job.id}
-              onDragStart={(e) => onDragStart(e, job.id)}
-              onDragEnd={onDragEnd}
-              onClick={() => onCardClick(job)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
 }
 
 // ============================================================
@@ -498,6 +150,10 @@ function ScheduleDrawer({
     setSaving(false);
     if (ok) onClose();
   };
+
+  const durationOptions = DURATION_OPTIONS.includes(duration)
+    ? DURATION_OPTIONS
+    : [...DURATION_OPTIONS, duration].sort((a, b) => a - b);
 
   return (
     <motion.div
@@ -553,12 +209,13 @@ function ScheduleDrawer({
             onChange={(e) => setDuration(Number(e.target.value))}
             className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary"
           >
-            {(DURATION_OPTIONS.includes(duration) ? DURATION_OPTIONS : [...DURATION_OPTIONS, duration].sort((a, b) => a - b)).map((mins) => (
+            {durationOptions.map((mins) => (
               <option key={mins} value={mins}>
-                {mins < 60 ? `${mins} min` : `${(mins / 60).toString().replace('.0', '')} hr${mins > 60 && mins % 60 !== 0 ? ` ${mins % 60}m` : ''}`}
+                {mins < 60
+                  ? `${mins} min`
+                  : `${(mins / 60).toString().replace('.0', '')} hr${mins > 60 && mins % 60 !== 0 ? ` ${mins % 60}m` : ''}`}
               </option>
             ))}
-          </select>
           </select>
           <DurationPredictionBadge
             className="mt-2"
@@ -573,7 +230,6 @@ function ScheduleDrawer({
             currentMinutes={duration}
             onApply={setDuration}
           />
-        </div>
         </div>
 
         <div>
@@ -615,7 +271,7 @@ function ScheduleDrawer({
             disabled={saving}
             className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-110 disabled:opacity-60"
           >
-            {saving ? 'Saving\u2026' : 'Save Changes'}
+            {saving ? 'Saving…' : 'Save Changes'}
           </button>
           <button
             type="button"
@@ -629,7 +285,7 @@ function ScheduleDrawer({
             onClick={() => navigate('/dashboard/jobs')}
             className="focus-ring rounded-xl px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
           >
-            Open Full Job Record in Jobs \u2192
+            Open Full Job Record in Jobs →
           </button>
         </div>
       </div>
@@ -658,8 +314,6 @@ export function CalendarPage() {
   });
   const [techFilter, setTechFilter] = useState<string>('all');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [dragOverKey, setDragOverKey] = useState<string | null>(null);
 
   const canViewAll = isOwner || permissions.can_view_all_jobs;
 
@@ -694,6 +348,24 @@ export function CalendarPage() {
     }
   }, [profile, profileLoading, navigate]);
 
+  // ------------------------------------------------------------
+  // Drag & drop board (resolve → validate → optimistic commit with Undo)
+  // ------------------------------------------------------------
+
+  const syncSelected = useCallback(
+    (row: Job) => setSelectedJob((prev) => (prev?.id === row.id ? { ...prev, ...row } : prev)),
+    [],
+  );
+
+  const board = useScheduleBoard({
+    jobs: allJobs,
+    setJobs: setAllJobs,
+    technicians,
+    canManage: canViewAll,
+    viewDay: toDateKey(anchorDate),
+    onJobSynced: syncSelected,
+  });
+
   const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
 
   const jobsLiveStatus = useRealtimeSubscription<Job>({
@@ -715,7 +387,7 @@ export function CalendarPage() {
           return;
         }
         setAllJobs((prev) =>
-          prev.some((j) => j.id === row.id) ? prev.map((j) => (j.id === row.id ? row : j)) : [row, ...prev]
+          prev.some((j) => j.id === row.id) ? prev.map((j) => (j.id === row.id ? row : j)) : [row, ...prev],
         );
         setSelectedJob((prev) => (prev?.id === row.id ? row : prev));
       } else if (payload.eventType === 'DELETE') {
@@ -745,20 +417,20 @@ export function CalendarPage() {
 
   const getColor = useCallback(
     (techId: string | null) => (techId ? techColorMap.get(techId) ?? UNASSIGNED_COLOR : UNASSIGNED_COLOR),
-    [techColorMap]
+    [techColorMap],
   );
 
   const activeJobs = useMemo(() => allJobs.filter((j) => j.job_status !== 'cancelled'), [allJobs]);
 
- const visibleJobs = useMemo(
-  () => filterJobs(activeJobs, { technician: techFilter, statuses: statusFilter }),
-  [activeJobs, techFilter, statusFilter],
-);
+  const visibleJobs = useMemo(
+    () => filterJobs(activeJobs, { technician: techFilter, statuses: statusFilter }),
+    [activeJobs, techFilter, statusFilter],
+  );
 
   const scheduledJobs = useMemo(() => visibleJobs.filter((j) => j.scheduled_datetime), [visibleJobs]);
   const unscheduledJobs = useMemo(
     () => visibleJobs.filter((j) => !j.scheduled_datetime).sort((a, b) => a.customer_name.localeCompare(b.customer_name)),
-    [visibleJobs]
+    [visibleJobs],
   );
 
   const weekStart = useMemo(() => startOfWeekMonday(anchorDate), [anchorDate]);
@@ -772,23 +444,28 @@ export function CalendarPage() {
       const key = d.toDateString();
       if (map.has(key)) map.get(key)!.push(j);
     });
-    map.forEach((arr) => arr.sort((a, b) => new Date(a.scheduled_datetime!).getTime() - new Date(b.scheduled_datetime!).getTime()));
+    map.forEach((arr) =>
+      arr.sort((a, b) => new Date(a.scheduled_datetime!).getTime() - new Date(b.scheduled_datetime!).getTime()),
+    );
     return map;
   }, [weekDays, scheduledJobs]);
 
   const dayJobs = useMemo(
     () => scheduledJobs.filter((j) => isSameDay(new Date(j.scheduled_datetime as string), anchorDate)),
-    [scheduledJobs, anchorDate]
+    [scheduledJobs, anchorDate],
   );
 
   const laneTechnicians = useMemo(
     () => (canViewAll ? technicians : technicians.filter((t) => t.id === teamMember?.id)),
-    [canViewAll, technicians, teamMember]
+    [canViewAll, technicians, teamMember],
   );
 
   const lanes = useMemo(
-    () => [{ key: 'unassigned', technician: null as TeamMember | null }, ...laneTechnicians.map((t) => ({ key: t.id, technician: t }))],
-    [laneTechnicians]
+    () => [
+      { key: 'unassigned', technician: null as TeamMember | null },
+      ...laneTechnicians.map((t) => ({ key: t.id, technician: t as TeamMember | null })),
+    ],
+    [laneTechnicians],
   );
 
   const laneJobs = useMemo(() => {
@@ -798,102 +475,85 @@ export function CalendarPage() {
       const key = j.assigned_technician_id && map.has(j.assigned_technician_id) ? j.assigned_technician_id : 'unassigned';
       map.get(key)!.push(j);
     });
-    map.forEach((arr) => arr.sort((a, b) => new Date(a.scheduled_datetime!).getTime() - new Date(b.scheduled_datetime!).getTime()));
+    map.forEach((arr) =>
+      arr.sort((a, b) => new Date(a.scheduled_datetime!).getTime() - new Date(b.scheduled_datetime!).getTime()),
+    );
     return map;
   }, [lanes, dayJobs]);
 
   // ------------------------------------------------------------
-  // Mutations
+  // Mutations (used by the edit drawer)
   // ------------------------------------------------------------
 
-const updateJob = useCallback(
-  async (jobId: string, updates: Partial<Job>, successMessage?: string) => {
-    const previous = allJobs.find((j) => j.id === jobId) ?? null;
-    setAllJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, ...updates } : j)));
-    setSelectedJob((prev) => (prev && prev.id === jobId ? { ...prev, ...updates } : prev));
+  const updateJob = useCallback(
+    async (jobId: string, updates: Partial<Job>, successMessage?: string) => {
+      const previous = allJobs.find((j) => j.id === jobId) ?? null;
+      setAllJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, ...updates } : j)));
+      setSelectedJob((prev) => (prev && prev.id === jobId ? { ...prev, ...updates } : prev));
 
-    try {
-      if (updates.assigned_technician_id) {
-        const { data, error } = await supabase.rpc('assign_technician_to_job', {
-          p_job_id: jobId,
-          p_technician_id: updates.assigned_technician_id,
-        });
+      try {
+        if (updates.assigned_technician_id) {
+          const { data, error } = await supabase.rpc('assign_technician_to_job', {
+            p_job_id: jobId,
+            p_technician_id: updates.assigned_technician_id,
+          });
 
-        if (error || data?.status !== 'assigned') {
-          throw new Error(data?.reason || error?.message || 'Could not assign this job.');
+          if (error || data?.status !== 'assigned') {
+            throw new Error(data?.reason || error?.message || 'Could not assign this job.');
+          }
+
+          const rest = { ...updates };
+          delete rest.assigned_technician_id;
+
+          if (Object.keys(rest).length > 0) {
+            const { error: restError } = await supabase.from('jobs').update(rest).eq('id', jobId);
+            if (restError) throw restError;
+          }
+        } else {
+          const { error } = await supabase.from('jobs').update(updates).eq('id', jobId);
+          if (error) throw error;
         }
 
-        const rest = { ...updates };
-        delete rest.assigned_technician_id;
-
-        if (Object.keys(rest).length > 0) {
-          const { error: restError } = await supabase
-            .from('jobs')
-            .update(rest)
-            .eq('id', jobId);
-
-          if (restError) throw restError;
+        if (successMessage) toast(successMessage, 'success');
+        return true;
+      } catch (err) {
+        if (previous) {
+          setAllJobs((prev) => prev.map((j) => (j.id === jobId ? previous : j)));
+          setSelectedJob((prev) => (prev && prev.id === jobId ? previous : prev));
         }
-      } else {
-        const { error } = await supabase
-          .from('jobs')
-          .update(updates)
-          .eq('id', jobId);
 
-        if (error) throw error;
+        toast(err instanceof Error ? err.message : 'Could not update the job. Please try again.', 'error');
+
+        return false;
       }
-
-      if (successMessage) toast(successMessage, 'success');
-      return true;
-    } catch (err) {
-      if (previous) {
-        setAllJobs((prev) => prev.map((j) => (j.id === jobId ? previous : j)));
-        setSelectedJob((prev) => (prev && prev.id === jobId ? previous : prev));
-      }
-
-      toast(
-        err instanceof Error
-          ? err.message
-          : 'Could not update the job. Please try again.',
-        'error'
-      );
-
-      return false;
-    }
-  },
-  [allJobs, toast]
-);
-
-  // ------------------------------------------------------------
-   const syncSelected = useCallback(
-    (row: Job) => setSelectedJob((prev) => (prev?.id === row.id ? { ...prev, ...row } : prev)),
-    []
+    },
+    [allJobs, toast],
   );
 
-  const board = useScheduleBoard({
-    jobs: allJobs,
-    setJobs: setAllJobs,
-    technicians,
-    canManage: canViewAll,
-    viewDay: toDateKey(anchorDate),
-    onJobSynced: syncSelected,
-  });
-
   const moveTargetsFor = useCallback((): MoveTargetOption[] => {
-    const unscheduled: MoveTargetOption = { key: 'unscheduled', label: 'Needs scheduling', group: 'Other', target: { kind: 'unscheduled' } };
-    const techTargets = lanes.map((l): MoveTargetOption => ({
-      key: `lane-${l.key}`,
-      label: l.technician ? l.technician.member_name ?? l.technician.member_email : 'Unassigned',
-      group: 'Technician',
-      target: { kind: 'lane', technicianId: l.technician?.id ?? null },
-    }));
+    const unscheduled: MoveTargetOption = {
+      key: 'unscheduled',
+      label: 'Needs scheduling',
+      group: 'Other',
+      target: { kind: 'unscheduled' },
+    };
+    const techTargets = lanes.map(
+      (l): MoveTargetOption => ({
+        key: `lane-${l.key}`,
+        label: l.technician ? l.technician.member_name ?? l.technician.member_email : 'Unassigned',
+        group: 'Technician',
+        target: { kind: 'lane', technicianId: l.technician?.id ?? null },
+      }),
+    );
     if (viewMode === 'day') return [...techTargets, unscheduled];
-    const dayTargets = weekDays.map((d): MoveTargetOption => ({
-      key: `day-${toDateKey(d)}`,
-      label: d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
-      group: 'Day',
-      target: { kind: 'day', date: toDateKey(d) },
-    }));
+    const dayTargets = weekDays.map(
+      (d): MoveTargetOption => ({
+        key: `day-${toDateKey(d)}`,
+        label: d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+        group: 'Day',
+        target: { kind: 'day', date: toDateKey(d) },
+      }),
+    );
     return [...dayTargets, ...techTargets, unscheduled];
   }, [viewMode, weekDays, lanes]);
 
@@ -912,194 +572,177 @@ const updateJob = useCallback(
   // Navigation
   // ------------------------------------------------------------
 
-const goPrev = useCallback(() => setAnchorDate((d) => shiftAnchor(viewMode, d, -1)), [viewMode]);
-const goNext = useCallback(() => setAnchorDate((d) => shiftAnchor(viewMode, d, 1)), [viewMode]);
-const goToday = useCallback(() => {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  setAnchorDate(d);
-}, []);
-const openDay = useCallback(
-  (d: Date) => {
+  const goPrev = useCallback(() => setAnchorDate((d) => shiftAnchor(viewMode, d, -1)), [viewMode]);
+  const goNext = useCallback(() => setAnchorDate((d) => shiftAnchor(viewMode, d, 1)), [viewMode]);
+  const goToday = useCallback(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
     setAnchorDate(d);
-    setViewMode('day');
-  },
-  [setViewMode],
-);
-const rangeLabel = periodLabel(viewMode, anchorDate);
-const filterSummary = describeFilters(
-  techFilter === 'all'
-    ? null
-    : techFilter === 'unassigned'
-      ? 'Unassigned'
-      : technicians.find((t) => t.id === techFilter)?.member_name ?? 'Technician',
-  [...statusFilter].map((s) => statusColor(s).label),
-);
+  }, []);
+  const openDay = useCallback(
+    (d: Date) => {
+      setAnchorDate(d);
+      setViewMode('day');
+    },
+    [setViewMode],
+  );
 
-useCalendarShortcuts({ enabled: !selectedJob, onView: setViewMode, onPrev: goPrev, onNext: goNext, onToday: goToday });
+  const rangeLabel = periodLabel(viewMode, anchorDate);
+  const filterSummary = describeFilters(
+    techFilter === 'all'
+      ? null
+      : techFilter === 'unassigned'
+        ? 'Unassigned'
+        : technicians.find((t) => t.id === techFilter)?.member_name ?? 'Technician',
+    [...statusFilter].map((s) => statusColor(s).label),
+  );
+
+  useCalendarShortcuts({ enabled: !selectedJob, onView: setViewMode, onPrev: goPrev, onNext: goNext, onToday: goToday });
+
+  const boardCommon = {
+    getColor,
+    isDraggable: board.isDraggable,
+    pendingIds: board.moves.pendingIds,
+    moveTargetsFor,
+    onCardClick: setSelectedJob,
+  };
 
   return (
     <DashboardLayout activeLabel="Calendar">
-    <ScheduleDndProvider
-  plan={board.plan}
-  onMove={board.handleMove}
-  describeJob={(id) => {
-    const j = allJobs.find((x) => x.id === id);
-    return j ? `${j.customer_name}${j.service_type ? `, ${j.service_type}` : ''}` : 'job';
-  }}
-  renderOverlay={(id) => {
-    const j = allJobs.find((x) => x.id === id);
-    return j ? (
-      <div className="w-60">
-        <CalendarJobCard job={j} technician={technicians.find((t) => t.id === j.assigned_technician_id) ?? null} color={getColor(j.assigned_technician_id)} onClick={() => undefined} />
-      </div>
-    ) : null;
-  }}
->
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Dispatch Calendar</h1>
-            <LiveIndicator status={jobsLiveStatus} />
-          </div>
-          <p className="mt-1.5 text-sm text-text-secondary">
-            Drag a job onto a day to reschedule it, or onto a technician to reassign it.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate('/dashboard/jobs')}
-          className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta"
-        >
-          <Plus size={16} /> New Job
-        </button>
-      </div>
-
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-bg-secondary p-3 shadow-card dark:shadow-card-dark">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={goPrev}
-            aria-label="Previous"
-            className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors hover:text-text-primary"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={goToday}
-            className="focus-ring rounded-lg border border-border px-3 py-2 text-xs font-semibold text-text-secondary transition-colors hover:text-text-primary"
-          >
-            Today
-          </button>
-          <button
-            type="button"
-            onClick={goNext}
-            aria-label="Next"
-            className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors hover:text-text-primary"
-          >
-            <ChevronRight size={16} />
-          </button>
-          <span className="ml-2 text-sm font-semibold text-text-primary">{rangeLabel}</span>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={techFilter}
-            onChange={(e) => setTechFilter(e.target.value)}
-            className="focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
-          >
-            <option value="all">All technicians</option>
-            <option value="unassigned">Unassigned</option>
-            {technicians.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.member_name ?? t.member_email}
-              </option>
-            ))}
-          </select>
-<CalendarToolbarExtras
-  view={viewMode}
-  colorMode={colorMode}
-  onColorMode={setColorMode}
-  statusFilter={statusFilter}
-  onStatusFilter={setStatusFilter}
-  agendaGroupBy={agendaGroupBy}
-  onAgendaGroupBy={setAgendaGroupBy}
-/>
-<CalendarViewSwitcher view={viewMode} onChange={setViewMode} />
-        </div>
-      </div>
-
-      {dataLoading ? (
-        <div className={`grid gap-3 ${viewMode === 'week' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-7' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'}`}>
-          {Array.from({ length: viewMode === 'week' ? 7 : 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-border bg-bg-secondary p-3 shadow-card dark:shadow-card-dark">
-              <SkeletonBlock className="h-4 w-16" />
-              <SkeletonBlock className="mt-2 h-20 w-full" />
-              <SkeletonBlock className="mt-2 h-20 w-full" />
+      <ScheduleDndProvider
+        plan={board.plan}
+        onMove={board.handleMove}
+        describeJob={(id) => {
+          const j = allJobs.find((x) => x.id === id);
+          return j ? `${j.customer_name}${j.service_type ? `, ${j.service_type}` : ''}` : 'job';
+        }}
+        renderOverlay={(id) => {
+          const j = allJobs.find((x) => x.id === id);
+          return j ? (
+            <div className="w-60">
+              <CalendarJobCard
+                job={j}
+                technician={technicians.find((t) => t.id === j.assigned_technician_id) ?? null}
+                color={getColor(j.assigned_technician_id)}
+                onClick={() => undefined}
+              />
             </div>
-          ))}
+          ) : null;
+        }}
+      >
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Dispatch Calendar</h1>
+              <LiveIndicator status={jobsLiveStatus} />
+            </div>
+            <p className="mt-1.5 text-sm text-text-secondary">
+              Drag a job onto a day to reschedule it, or onto a technician to reassign it.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard/jobs')}
+            className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta"
+          >
+            <Plus size={16} /> New Job
+          </button>
         </div>
-) : isExtendedView(viewMode) ? (
-  <CalendarExtendedViews
-    view={viewMode}
-    anchorDate={anchorDate}
-    onAnchorChange={setAnchorDate}
-    onOpenDay={openDay}
-    jobs={scheduledJobs}
-    technicians={technicians}
-    lanes={lanes}
-    colorMode={colorMode}
-    agendaGroupBy={agendaGroupBy}
-    filterSummary={filterSummary}
-    isDraggable={board.isDraggable}
-    pendingIds={board.moves.pendingIds}
-    moveTargetsFor={moveTargetsFor}
-    onCardClick={setSelectedJob}
-  />
-) : viewMode === 'week' ? (
-        <WeekGrid
-          weekDays={weekDays}
-          jobsByDay={jobsByDay}
-          technicians={technicians}
-          getColor={getColor}
-          draggingId={draggingId}
-          dragOverKey={dragOverKey}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOverKey}
-          onDrop={handleDropOnDay}
-          onCardClick={setSelectedJob}
-        />
-      ) : (
-        <DayLanes
-          lanes={lanes}
-          laneJobs={laneJobs}
-          getColor={getColor}
-          draggingId={draggingId}
-          dragOverKey={dragOverKey}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOverKey}
-          onDrop={handleDropOnLane}
-          onCardClick={setSelectedJob}
-        />
-      )}
 
-      {!dataLoading && (
-        <UnscheduledStrip
-          jobs={unscheduledJobs}
-          technicians={technicians}
-          getColor={getColor}
-          draggingId={draggingId}
-          isDragOver={dragOverKey === 'unscheduled'}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragOver={(e) => handleDragOverKey(e, 'unscheduled')}
-          onDrop={handleDropOnUnscheduled}
-          onCardClick={setSelectedJob}
-        />
-      )}
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-bg-secondary p-3 shadow-card dark:shadow-card-dark">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={goPrev}
+              aria-label="Previous"
+              className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors hover:text-text-primary"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={goToday}
+              className="focus-ring rounded-lg border border-border px-3 py-2 text-xs font-semibold text-text-secondary transition-colors hover:text-text-primary"
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              aria-label="Next"
+              className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors hover:text-text-primary"
+            >
+              <ChevronRight size={16} />
+            </button>
+            <span className="ml-2 text-sm font-semibold text-text-primary">{rangeLabel}</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={techFilter}
+              onChange={(e) => setTechFilter(e.target.value)}
+              className="focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
+            >
+              <option value="all">All technicians</option>
+              <option value="unassigned">Unassigned</option>
+              {technicians.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.member_name ?? t.member_email}
+                </option>
+              ))}
+            </select>
+            <CalendarToolbarExtras
+              view={viewMode}
+              colorMode={colorMode}
+              onColorMode={setColorMode}
+              statusFilter={statusFilter}
+              onStatusFilter={setStatusFilter}
+              agendaGroupBy={agendaGroupBy}
+              onAgendaGroupBy={setAgendaGroupBy}
+            />
+            <CalendarViewSwitcher view={viewMode} onChange={setViewMode} />
+          </div>
+        </div>
+
+        {dataLoading ? (
+          <div
+            className={`grid gap-3 ${
+              viewMode === 'week' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-7' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+            }`}
+          >
+            {Array.from({ length: viewMode === 'week' ? 7 : 4 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border bg-bg-secondary p-3 shadow-card dark:shadow-card-dark">
+                <SkeletonBlock className="h-4 w-16" />
+                <SkeletonBlock className="mt-2 h-20 w-full" />
+                <SkeletonBlock className="mt-2 h-20 w-full" />
+              </div>
+            ))}
+          </div>
+        ) : isExtendedView(viewMode) ? (
+          <CalendarExtendedViews
+            view={viewMode}
+            anchorDate={anchorDate}
+            onAnchorChange={setAnchorDate}
+            onOpenDay={openDay}
+            jobs={scheduledJobs}
+            technicians={technicians}
+            lanes={lanes}
+            colorMode={colorMode}
+            agendaGroupBy={agendaGroupBy}
+            filterSummary={filterSummary}
+            isDraggable={board.isDraggable}
+            pendingIds={board.moves.pendingIds}
+            moveTargetsFor={moveTargetsFor}
+            onCardClick={setSelectedJob}
+          />
+        ) : viewMode === 'week' ? (
+          <WeekGrid weekDays={weekDays} jobsByDay={jobsByDay} technicians={technicians} {...boardCommon} />
+        ) : (
+          <DayLanes lanes={lanes} laneJobs={laneJobs} {...boardCommon} />
+        )}
+
+        {!dataLoading && <UnscheduledStrip jobs={unscheduledJobs} technicians={technicians} {...boardCommon} />}
+      </ScheduleDndProvider>
 
       <AnimatePresence>
         {selectedJob && (
