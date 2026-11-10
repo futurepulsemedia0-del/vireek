@@ -31,6 +31,8 @@ import {
   parseLimit,
   resolveRoute,
   selectColumns,
+  parseListQuery,
+  usesListExtensions,
   sandboxResponse,
   type ErrorCode,
 } from "./contract.ts";
@@ -177,6 +179,16 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   const limit = parseLimit(url.searchParams.get("limit"));
   const before = parseBefore(url.searchParams.get("before"));
   if (!before.ok) return fail(ctx, "invalid_before", "Invalid before: expected an ISO 8601 timestamp");
+  // Filters + sparse fieldsets: only for accounts with the public_api_v2 entitlement (fails closed -> ignored).
+  if (usesListExtensions(route.resource, url.searchParams)) {
+    const { data: v2 } = await admin.rpc("public_api_v2_enabled", { p_owner: keyRow.user_id });
+    if (v2 === true) {
+      const parsed = parseListQuery(route.resource, url.searchParams);
+      if (!parsed.ok) return fail(ctx, "invalid_filter", parsed.message);
+      for (const f of parsed.filters) query = query.eq(f.column, f.value);
+      query = query.select(parsed.columns);
+    }
+  }
   query = query.order("created_at", { ascending: false }).limit(limit);
   if (before.value) query = query.lt("created_at", before.value);
 
