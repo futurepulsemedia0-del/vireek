@@ -17,7 +17,6 @@ import {
   UserPlus,
   Timer,
   MessageSquareWarning,
-  HeartHandshake,
 } from 'lucide-react';
 import type { WorkflowStepDefinition, WorkflowTriggerEvent } from '@/lib/workflowEngine';
 
@@ -801,6 +800,7 @@ export const WORKFLOW_PLAYBOOKS: WorkflowPlaybook[] = [
       { step_number: 9, type: 'call', delay_minutes: 0, on_failure: 'continue', config: { call_context: 'membership_winback_call' } },
     ],
   },
+];
 
 export function findPlaybook(slug: string): WorkflowPlaybook | undefined {
   return WORKFLOW_PLAYBOOKS.find((p) => p.slug === slug);
