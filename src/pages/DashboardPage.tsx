@@ -820,8 +820,7 @@ export function DashboardPage() {
         );
       case 'kpi_calls':
         return busy ? <KpiSkeleton /> : (
-          <KpiCard icon={Phone} label="Calls" value={String(metrics.callsInRangeCount)} sub={`Inbound · ${range.label}`} accentColor="bg-accent/10 text-accent" delay={0} />
-delay={0} delta={deltaBadge('calls')} />
+          <KpiCard icon={Phone} label="Calls" value={String(metrics.callsInRangeCount)} sub={`Inbound · ${range.label}`} accentColor="bg-accent/10 text-accent" delay={0} delta={deltaBadge('calls')} />
         );
       case 'kpi_emergency':
         return busy ? <KpiSkeleton /> : (
@@ -837,13 +836,11 @@ delay={0} delta={deltaBadge('calls')} />
         );
       case 'kpi_jobs':
         return busy ? <KpiSkeleton /> : (
-          <KpiCard icon={CheckCircle2} label="Jobs Completed" value={String(metrics.jobsCompletedCount)} sub={range.label} accentColor="bg-success-500/10 text-success-500" delay={0.1} />
-delay={0.1} delta={deltaBadge('jobsCompleted')} />
+          <KpiCard icon={CheckCircle2} label="Jobs Completed" value={String(metrics.jobsCompletedCount)} sub={range.label} accentColor="bg-success-500/10 text-success-500" delay={0.1} delta={deltaBadge('jobsCompleted')} />
         );
       case 'kpi_revenue':
         return busy ? <KpiSkeleton /> : (
-          <KpiCard icon={DollarSign} label="Revenue" value={formatCurrency(metrics.revenueInRange)} sub="From paid invoices" accentColor="bg-cta/10 text-cta" delay={0.15} />
-delay={0.15} delta={deltaBadge('revenue', formatCurrency)} />
+          <KpiCard icon={DollarSign} label="Revenue" value={formatCurrency(metrics.revenueInRange)} sub="From paid invoices" accentColor="bg-cta/10 text-cta" delay={0.15} delta={deltaBadge('revenue', formatCurrency)} />
         );
       case 'kpi_renewal_rate':
         return <RenewalRateCard />;
@@ -867,8 +864,7 @@ delay={0.15} delta={deltaBadge('revenue', formatCurrency)} />
           </MetricCard>
         );
       case 'metric_sentiment':
-        return busy ? <MetricSkeleton /> : <MetricCard icon={Activity} label="Avg Response Sentiment" value={metrics.avgSentiment} delay={0.25} />;
-        delay={0.25} delta={deltaBadge('sentiment', asPercent)} />;
+        return busy ? <MetricSkeleton /> : <MetricCard icon={Activity} label="Avg Response Sentiment" value={metrics.avgSentiment} delay={0.25} delta={deltaBadge('sentiment', asPercent)} />;
       case 'metric_conversion':
         return busy ? <MetricSkeleton /> : (
           <MetricCard icon={TrendingUp} label="Conversion Rate" value={metrics.conversionRate} delay={0.3} delta={deltaBadge('conversion', asPercent)}>
@@ -878,8 +874,7 @@ delay={0.15} delta={deltaBadge('revenue', formatCurrency)} />
           </MetricCard>
         );
       case 'metric_missed':
-        return busy ? <MetricSkeleton /> : <MetricCard icon={XCircle} label="Missed Call Rate" value={metrics.missedCallRate} delay={0.35} />;
-                delay={0.35} delta={deltaBadge('missed', asPercent)} />;
+        return busy ? <MetricSkeleton /> : <MetricCard icon={XCircle} label="Missed Call Rate" value={metrics.missedCallRate} delay={0.35} delta={deltaBadge('missed', asPercent)} />;
       case 'call_volume':
         return dataLoading ? <ChartSkeleton /> : <CallVolumeChart
               data={metrics.chartData}
