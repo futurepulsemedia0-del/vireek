@@ -15,6 +15,8 @@ import {
   ArrowLeft,
   Wrench,
   Star,
+  Fingerprint,
+  Network,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -350,8 +352,6 @@ export function CustomerSitesPage() {
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                  <button
-                    type="button"
                     onClick={() => navigate(`/dashboard/homes/${site.id}/passport`)}
                     className={smallBtn}
                   >
@@ -365,8 +365,6 @@ export function CustomerSitesPage() {
                     <Network size={12} /> Intelligence
                   </button>
                   <button type="button" onClick={() => setAddingBuildingFor(site.id)} className={smallBtn}>
-                    <Plus size={12} /> Building
-                  </button>
                     <Plus size={12} /> Building
                   </button>
                   <button
