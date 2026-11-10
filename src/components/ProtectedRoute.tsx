@@ -84,7 +84,6 @@ function useMfaPending(userId: string | null): boolean | null {
   return pending;
 }
 
-
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading } = useAuth();
   const location = useLocation();
