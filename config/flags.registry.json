@@ -19,3 +19,4 @@
   ]
 }
 { "key": "commercial_pack", "kind": "release", "owner": "platform-oncall", "created": "2026-11-09", "expires": "2027-05-01", "cleanup": "Remove useFeatureFlag('commercial_pack') in CommercialPackPage and the requiresFlag gate in DashboardNav, drop commercial_pack_enabled()'s flag_evaluate call, delete the flag row" }
+{ "key": "pest_pack", "kind": "permission", "owner": "trade-packs", "created": "2026-11-09", "cleanup": "Permanent entitlement gate for the Pest Ops module: keep while packs:pest is sold separately; if it becomes default, remove useFeatureFlag('pest_pack') in usePestOpsAccess and the flag row." }
