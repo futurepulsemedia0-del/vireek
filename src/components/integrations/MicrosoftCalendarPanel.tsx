@@ -5,7 +5,7 @@ import {
   createTransactionId, hashPayload, jobWindow, mapOAuthError, needsRebaseline, normalizeTenant, parseGraphDateTime,
   parseRemoteEvent, planInboundChanges, planPushActions, signMsState, tokenNeedsRefresh, toBusyBlock, toGraphDateTime,
   verifyMsState, type InboundMapEntry, type SyncJob,
-} from '../../supabase/functions/_shared/microsoft-calendar/engine';
+} from '../../../supabase/functions/_shared/microsoft-calendar/engine'
 import {
   describeConnection, formatRelativeSync, oauthReasonMessage, sortConnections,
 } from '@/lib/microsoftCalendar';
