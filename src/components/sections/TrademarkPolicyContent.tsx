@@ -190,7 +190,7 @@ export function TrademarkPolicyContent() {
                     <ul className="ml-1 space-y-2">
                       <li>• The word mark &quot;Vireek&quot;</li>
                       <li>• The Vireek logo and app icon, in any color version</li>
-                      <li>• The Vireek wordmark set in our display typeface (Sora)</li>
+                      <li>• The Vireek wordmark, set in its own logo typeface (Sora)</li>
                       <li>• Any other names, logos, or slogans we use to identify our products</li>
                     </ul>
                   </div>
