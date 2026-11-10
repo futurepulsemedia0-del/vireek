@@ -190,9 +190,9 @@ async function perceive(kind: "photo" | "audio", mime: string, bytes: Uint8Array
 
   const model = Deno.env.get("GEMINI_MODEL") || "gemini-2.5-flash";
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         contents: [{ role: "user", parts: [{ text: kind === "photo" ? PHOTO_PROMPT : AUDIO_PROMPT }, { inline_data: { mime_type: mime, data: b64 } }] }],
         generationConfig: { maxOutputTokens: 700, temperature: 0.2, response_mime_type: "application/json" },
