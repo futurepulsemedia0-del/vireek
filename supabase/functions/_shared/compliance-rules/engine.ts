@@ -42,6 +42,8 @@ export const KIND_SURFACES: Record<RuleKind, readonly Surface[]> = {
   rescission: ["quote", "contract"],
   required_notice: ["call", "sms", "email", "quote", "contract"],
   price_cap: ["quote", "contract"],
+  deposit_limit: ["quote", "contract"],
+  written_contract_threshold: ["quote", "contract"],
     fm_nte_cap: ["fm_submission"],
     fm_proposal_before_parts: ["fm_submission"],
     fm_invoice_deadline: ["fm_submission"],
@@ -61,6 +63,8 @@ const DEFAULT_MATCH_ON: Record<RuleKind, MatchOn> = {
   rescission: "counterparty",
   required_notice: "either",
   price_cap: "counterparty",
+  deposit_limit: "counterparty",
+  written_contract_threshold: "counterparty",
     fm_nte_cap: "either",
     fm_proposal_before_parts: "either",
     fm_invoice_deadline: "either",
@@ -88,6 +92,7 @@ const strArr = (v: unknown): string[] | null =>
   Array.isArray(v) && v.every((x) => typeof x === "string") ? (v as string[]) : null;
 const money = (cents: number): string => `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const ELIGIBILITY_RE = /^[a-z0-9_]{2,40}$/;
 
 export function isDateKey(v: unknown): v is string {
   if (typeof v !== "string" || !DATE_RE.test(v)) return false;
@@ -155,6 +160,9 @@ export function validateRuleParams(kind: RuleKind, params: unknown): string[] {
       if (p.excludedWeekdays !== undefined && !(Array.isArray(p.excludedWeekdays) && p.excludedWeekdays.every((x) => Number.isInteger(x) && (x as number) >= 0 && (x as number) <= 6))) {
         errs.push("excludedWeekdays must be a list of 0-6");
       }
+      if (p.eligibilityCode !== undefined && !ELIGIBILITY_RE.test(String(p.eligibilityCode))) {
+        errs.push("eligibilityCode must match [a-z0-9_]{2,40}");
+      }
       break;
     }
     case "required_notice":
@@ -162,6 +170,23 @@ export function validateRuleParams(kind: RuleKind, params: unknown): string[] {
       if (!str(p.text)) errs.push("text is required");
       break;
     case "price_cap": {
+    case "deposit_limit": {
+      const pct = p.maxPercent;
+      const abs = p.maxAmountCents;
+      const hasPct = pct !== undefined;
+      const hasAbs = abs !== undefined;
+      if (!hasPct && !hasAbs) errs.push("set maxPercent and/or maxAmountCents");
+      if (hasPct && (typeof pct !== "number" || !(pct > 0 && pct <= 100))) errs.push("maxPercent must be a number > 0 and <= 100");
+      if (hasAbs && (int(abs) === null || (abs as number) < 0)) errs.push("maxAmountCents must be an integer >= 0");
+      if (p.minTotalCents !== undefined && (int(p.minTotalCents) === null || (p.minTotalCents as number) < 0)) errs.push("minTotalCents must be an integer >= 0");
+      if (p.eligibilityCode !== undefined && !ELIGIBILITY_RE.test(String(p.eligibilityCode))) errs.push("eligibilityCode must match [a-z0-9_]{2,40}");
+      break;
+    }
+    case "written_contract_threshold": {
+      const m = int(p.minAmountCents);
+      if (m === null || m < 0) errs.push("minAmountCents must be an integer >= 0");
+      break;
+    }
       if (p.condition !== "emergency_declared") errs.push("condition must be emergency_declared");
       const pct = p.maxIncreasePercent;
       if (typeof pct !== "number" || !(pct > 0 && pct <= 100)) errs.push("maxIncreasePercent must be a number > 0 and <= 100");
@@ -370,6 +395,7 @@ export function evaluate(ctx: EvalContext, versions: readonly RuleVersion[]): Ev
   const applied: string[] = [];
   const quietChecks: QuietCheck[] = [];
   let rescissionDeadline: string | null = null;
+  const eligibilityPrompts: EvaluationResult["eligibilityPrompts"] = [];
   let strictRecordingUsed = false;
 
   const skip = (v: RuleVersion, reason: SkippedRule["reason"]) => skipped.push({ versionId: v.id, ruleKey: v.ruleKey, reason });
@@ -397,6 +423,18 @@ export function evaluate(ctx: EvalContext, versions: readonly RuleVersion[]): Ev
     }
     if (!matches) { skip(v, "jurisdiction"); continue; }
 
+    // Eligibility-gated rules (e.g. an extended cancellation window) apply ONLY when the
+    // customer voluntarily declared the eligibility. We never infer it; we surface a prompt
+    // so staff / the assistant can offer the question as an option.
+    const eligibilityCode = v.kind === "rescission" || v.kind === "deposit_limit" ? str(p.eligibilityCode) : null;
+    if (eligibilityCode && !(ctx.document?.customerEligibility ?? []).includes(eligibilityCode)) {
+      if (!eligibilityPrompts.some((x) => x.code === eligibilityCode && x.jurisdiction === v.jurisdiction)) {
+        eligibilityPrompts.push({ code: eligibilityCode, jurisdiction: v.jurisdiction, ruleKey: v.ruleKey });
+      }
+      skip(v, "condition");
+      continue;
+    }
+
     let r: Outcome1 | null = null;
     switch (v.kind) {
       case "recording_consent": r = evalRecording(p, ctx, strictRecordingUsed && strictRecording?.id === v.id); break;
@@ -419,6 +457,8 @@ export function evaluate(ctx: EvalContext, versions: readonly RuleVersion[]): Ev
       }
       case "required_notice": r = evalNotice(p, ctx); break;
       case "price_cap": r = evalPriceCap(p, ctx); break;
+      case "deposit_limit": r = evalDepositLimit(p, ctx, assumptions); break;
+      case "written_contract_threshold": r = evalWrittenThreshold(p, ctx, assumptions); break;
       default: if (isFmKind(v.kind)) r = evalFm(v.kind, p, ctx.fm, at); break;
     }
     if (!r) { skip(v, v.kind === "quiet_hours" ? "purpose" : "condition"); continue; }
@@ -480,7 +520,7 @@ export function evaluate(ctx: EvalContext, versions: readonly RuleVersion[]): Ev
     outcome, findings, actions, skipped, assumptions: [...new Set(assumptions)],
     evaluatedAt: at.toISOString(), effectiveDate,
     jurisdictions: { business, counterparty },
-    appliedVersionIds: applied, nextAllowedAt, recording, rescissionDeadline,
+    appliedVersionIds: applied, nextAllowedAt, recording, rescissionDeadline, eligibilityPrompts,
   };
 }
 
@@ -620,4 +660,46 @@ function evalPriceCap(p: Record<string, unknown>, ctx: EvalContext): Outcome1 | 
     };
   }
   return { status: "pass", message: `${money(doc.totalCents)} is within the ${pct}% emergency price cap (maximum ${money(max)}).` };
+}
+
+function evalDepositLimit(p: Record<string, unknown>, ctx: EvalContext, assumptions: string[]): Outcome1 | null {
+  const doc = ctx.document ?? {};
+  if (doc.depositCents === undefined) return null; // no deposit requested: nothing to limit
+  const minTotal = int(p.minTotalCents);
+  if (minTotal !== null && doc.totalCents !== undefined && doc.totalCents < minTotal) return null;
+  const caps: number[] = [];
+  const abs = int(p.maxAmountCents);
+  if (abs !== null) caps.push(abs);
+  if (typeof p.maxPercent === "number") {
+    if (doc.totalCents === undefined) {
+      assumptions.push("Contract total not provided — the percentage deposit limit could not be checked.");
+      if (caps.length === 0) {
+        return { status: "action", message: "A percentage deposit limit applies but the contract total is missing.", actions: [{ type: "provide_baseline", text: "Enter the contract total so the deposit limit can be checked." }] };
+      }
+    } else {
+      caps.push(Math.floor((doc.totalCents * p.maxPercent) / 100));
+    }
+  }
+  const max = Math.min(...caps);
+  if (doc.depositCents > max) {
+    return {
+      status: "fail",
+      message: `A deposit of ${money(doc.depositCents)} exceeds the legal maximum of ${money(max)} for this contract.`,
+      actions: [{ type: "reduce_deposit", text: `Reduce the deposit to ${money(max)} or less.` }],
+    };
+  }
+  return { status: "pass", message: `The ${money(doc.depositCents)} deposit is within the ${money(max)} limit.` };
+}
+
+function evalWrittenThreshold(p: Record<string, unknown>, ctx: EvalContext, assumptions: string[]): Outcome1 | null {
+  const doc = ctx.document ?? {};
+  const min = int(p.minAmountCents)!;
+  if (doc.totalCents === undefined) assumptions.push("Contract total not provided — assumed it meets the written-contract threshold.");
+  else if (doc.totalCents < min) return null;
+  if (doc.isWritten === true) return { status: "pass", message: "The agreement is in writing." };
+  return {
+    status: "action",
+    message: `Agreements of ${money(min)} or more must be in writing before work or payment.`,
+    actions: [{ type: "get_written_contract", text: str(p.noticeText) ?? "Put the agreement in a written, signed contract before work begins or any payment is taken." }],
+  };
 }
