@@ -51,7 +51,7 @@ export function AccessibilityStatementContent() {
           these reports as priority bugs. Include the page URL and, if possible, the assistive
           technology you were using.
         </p>
-        
+        <a
           href={`mailto:${CONTACT_EMAIL}?subject=Accessibility%20issue`}
           className="focus-ring mt-3 inline-block text-sm font-semibold text-accent underline underline-offset-2"
         >
