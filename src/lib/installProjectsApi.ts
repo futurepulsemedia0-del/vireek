@@ -19,7 +19,7 @@ import {
   type ProjectRollup,
   type ProjectStatus,
 } from '@/lib/installProjects';
-import type { ChangeOrder, ProjectRfi, RfiAttachment } from '@/lib/projectRfis';
+import type { ProjectRfi, RfiAttachment } from '@/lib/projectRfis';
 import { collectProjectRfiFiles, fetchProjectRfiData } from '@/lib/projectRfisApi';
 import type { ChangeOrder } from '@/lib/changeOrders';
 
@@ -144,7 +144,6 @@ export interface ProjectBundle {
   invoices: Record<string, InvoiceLite>;
   rfis: ProjectRfi[];
   rfiAttachments: RfiAttachment[];
-  changeOrders: ChangeOrder[];
 }
 
 interface JobLinkRow {
@@ -164,19 +163,21 @@ interface JobRow {
 
 export async function fetchProjectBundle(ownerId: string, projectId: string): Promise<ProjectBundle | null> {
   const scoped = (table: string) => supabase.from(table).select('*').eq('user_id', ownerId).eq('project_id', projectId);
-  const [project, phases, milestones, billing, materials, links, rfiData] = await Promise.all([
+  const [project, phases, milestones, billing, materials, links, cos, rfiData] = await Promise.all([
     supabase.from('install_projects').select('*').eq('user_id', ownerId).eq('id', projectId).maybeSingle(),
     scoped('install_project_phases').order('sort_order').order('created_at'),
     scoped('install_project_milestones').order('sort_order').order('created_at'),
     scoped('install_project_billing').order('sort_order').order('created_at'),
     scoped('install_project_materials').order('created_at'),
+    scoped('install_project_jobs'),
     scoped('install_change_orders').order('seq'),
     fetchProjectRfiData(ownerId, projectId),
   ]);
   const proj = unwrap(project as Res<InstallProject>, 'Could not load this project.');
   if (!proj) return null;
   const billingRows = unwrap(billing as Res<ProjectBilling[]>, 'Could not load billing.') ?? [];
-  const coRows = unwrap(cos as Res<ChangeOrder[]>, 'Could not load change orders.') ?? [];, 'Could not load linked jobs.') ?? [];
+  const coRows = unwrap(cos as Res<ChangeOrder[]>, 'Could not load change orders.') ?? [];
+  const linkRows = unwrap(links as Res<JobLinkRow[]>, 'Could not load linked jobs.') ?? [];
 
   const jobIds = linkRows.map((l) => l.job_id);
   const [jobRows, invoices] = await Promise.all([
@@ -187,7 +188,7 @@ export async function fetchProjectBundle(ownerId: string, projectId: string): Pr
             'Could not load linked jobs.',
           ) ?? [])()
       : Promise.resolve([] as JobRow[]),
-        fetchInvoicesById(ownerId, [...billingRows.map((b) => b.invoice_id ?? ''), ...coRows.map((c) => c.invoice_id ?? ''), proj.retainage_invoice_id ?? '']),(b) => b.invoice_id ?? ''), proj.retainage_invoice_id ?? '']),
+    fetchInvoicesById(ownerId, [...billingRows.map((b) => b.invoice_id ?? ''), ...coRows.map((c) => c.invoice_id ?? ''), proj.retainage_invoice_id ?? '']),
   ]);
 
   const jobMap = new Map(jobRows.map((j) => [j.id, j]));
