@@ -213,7 +213,7 @@ function ReviewDialog({ card, settings, onClose, onApproved }: { card: WinCard; 
 function LiveCard({ card, origin, onRevoke, onChanged }: { card: WinCard; origin: string; onRevoke: () => void; onChanged: () => void }) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
-  const [targets, setTargets] = useState<ChatTarget[] | null>(null);
+  const [chatTargets, setChatTargets] = useState<ChatTarget[] | null>(null);
   const [pick, setPick] = useState('');
   const [posting, setPosting] = useState(false);
   const pub = card.public_fields;
@@ -250,7 +250,7 @@ function LiveCard({ card, origin, onRevoke, onChanged }: { card: WinCard; origin
               <button type="button" onClick={() => copy(text, 'instagram').then(() => toast(INSTAGRAM_HINT, 'info'))} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs">Instagram</button>
               <button type="button" onClick={() => copy(slackMessage(pub.headline, pub.caption, url), 'slack').then(() => toast('Copied for Slack. Paste it in a channel.', 'success'))} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs">Copy for Slack</button>
               <button type="button" onClick={() => open(targets.teams, 'teams')} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs">Teams</button>
-              <button type="button" onClick={async () => { const r = await winCardChatTargets(); if (!r.ok) return void toast(r.error, 'error'); setTargets(r.data.targets); if (!r.data.targets.some((t) => t.channels.length)) toast('Connect Slack or Teams and pick a channel in Integrations first.', 'info'); }} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs">Post to team chat</button>
+              <button type="button" onClick={async () => { const r = await winCardChatTargets(); if (!r.ok) return void toast(r.error, 'error'); setChatTargets(r.data.targets); if (!r.data.targets.some((t) => t.channels.length)) toast('Connect Slack or Teams and pick a channel in Integrations first.', 'info'); }} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs">Post to team chat</button>
               <button type="button" onClick={async () => { const r = await extendWinCard(card.id, 30); if (!r.ok) toast(r.error, 'error'); else { toast('Extended by 30 days from today', 'success'); onChanged(); } }} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs">Extend 30 days</button>
             </div>
           )}
