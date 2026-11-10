@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { CircleCheck, Loader2, X } from 'lucide-react';
 import { PricingBreakdown } from '@/components/payments/PricingBreakdown';
-import { PricingBreakdown } from '@/components/payments/PricingBreakdown';
 import { buildReceiptLines } from '@/lib/paymentPricing';
 import { TipSelector } from '@/components/payments/TipSelector';
 import { createPublicPaymentIntent, fetchPublicPayment, type PublicPaymentSummary } from '@/lib/publicPayment';
@@ -150,3 +149,6 @@ export function PublicPaymentPage() {
         onSuccess={setOutcome}
         onProcessingChange={setSubmitting}
       />
+    </div>,
+  );
+}
