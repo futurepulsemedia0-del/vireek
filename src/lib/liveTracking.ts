@@ -48,7 +48,6 @@ export async function fetchJobTracking(token: string): Promise<JobTracking | nul
   return data as JobTracking;
 }
 
-/** Minutes left in a technician-set ETA, counting down from when it was set. Null once expired. */
 /** Minutes left in a technician-set ETA, counting down from when it was set (0 once elapsed). */
 export function minutesRemaining(
   etaMinutes: number | null,
@@ -75,6 +74,18 @@ export async function setJobEta(jobId: string, minutes: number): Promise<boolean
 
 /** Staff-side: push the technician's current browser location onto the job. */
 export async function pushTechnicianLocation(jobId: string, lat: number, lng: number): Promise<boolean> {
+/** Staff-side: push the technician's current browser location onto the job. */
+export async function pushTechnicianLocation(jobId: string, lat: number, lng: number): Promise<boolean> {
+  const { error } = await supabase
+    .from('jobs')
+    .update({ technician_lat: lat, technician_lng: lng, location_updated_at: new Date().toISOString() })
+    .eq('id', jobId);
+  return !error;
+}
+
+// ---------------------------------------------------------------------------
+// "On my way" experience helpers (pure — unit-tested in liveTracking.test.ts)
+// ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // "On my way" experience helpers (pure — unit-tested in liveTracking.test.ts)
 // ---------------------------------------------------------------------------
@@ -165,9 +176,6 @@ export async function ensureReviewRequest(token: string): Promise<string | null>
   if (error || typeof data !== 'string') return null;
   return data;
 }
-  const { error } = await supabase
-    .from('jobs')
-    .update({ technician_lat: lat, technician_lng: lng, location_updated_at: new Date().toISOString() })
-    .eq('id', jobId);
-  return !error;
+  if (error || typeof data !== 'string') return null;
+  return data;
 }
