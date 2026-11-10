@@ -33,13 +33,13 @@ for (const path of ROUTES) {
   });
 }
 
-test('Inter and Sora are served from our origin and actually load', async ({ page }) => {
+test('Inter and Source Serif 4 are served from our origin and actually load', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   const loaded = await page.evaluate(async () => {
-    await Promise.all([document.fonts.load('400 16px Inter'), document.fonts.load('600 32px Sora')]);
+    await Promise.all([document.fonts.load('400 16px Inter'), document.fonts.load('450 32px "Source Serif 4"')]);
     return [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replaceAll('"', ''));
   });
-  expect(loaded).toEqual(expect.arrayContaining(['Inter', 'Sora']));
+  expect(loaded).toEqual(expect.arrayContaining(['Inter', 'Source Serif 4']));
 });
 
 test('swapping in the web fonts (1.5 s late) stays within the CLS budget', async ({ page, browserName }) => {
