@@ -12,11 +12,10 @@ export const GETTING_STARTED_PATH = '/dashboard/getting-started';
  * is complete or dismissed, plus the one-time first-run product tour.
  */
 export function GettingStartedCard() {
-export function GettingStartedCard() {
   const navigate = useNavigate();
   const { status, summary, progress, setDismissed } = useGettingStarted();
 
-  if (status === 'error') return null; // never show a broken card on the overview
+  const tour = (
     <ProductTour
       open={tourOpen}
       checklistHref={GETTING_STARTED_PATH}
