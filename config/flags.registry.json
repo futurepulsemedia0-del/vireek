@@ -1,6 +1,14 @@
 {
   "flags": [
     {
+      "key": "public_api_v2",
+      "kind": "release",
+      "owner": "api-platform",
+      "created": "2026-11-10",
+      "expires": "2027-04-30",
+      "cleanup": "Remove the isEnabled('public_api_v2') gate in WebhookDeliveriesPage, the flag option in DashboardNav, the public_api_v2_enabled() RPC call in api-v1, and delete the flag row"
+    },
+    {
       "key": "trade_pack_framework",
       "kind": "release",
       "owner": "platform-oncall",
