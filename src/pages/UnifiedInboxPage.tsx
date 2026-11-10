@@ -176,7 +176,7 @@ export function UnifiedInboxPage() {
   return (
     <DashboardLayout activeLabel="Inbox">
       <div className="flex h-[calc(100vh-4rem)] bg-bg-primary">
-        <aside className={`${selected ? 'hidden md:block' : 'block'} w-full shrink-0 overflow-y-auto border-r border-border md:w-80`}">
+        <aside className={`${selected ? 'hidden md:block' : 'block'} w-full shrink-0 overflow-y-auto border-r border-border md:w-80`}>
           <div className="flex items-center gap-2 border-b border-border px-4 py-4">
             <InboxIcon size={16} className="text-accent" />
             <h1 className="text-sm font-semibold text-text-primary">Inbox</h1>
