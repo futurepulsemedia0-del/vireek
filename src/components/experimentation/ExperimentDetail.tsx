@@ -57,8 +57,7 @@ interface Props {
   onDeleteDraft: () => void;
 }
 
-export function ExperimentDetail({ experiment: e, jobs, assignments, canManage, busy, onStart, onEnroll, onConclude, onArchive, onDeleteDraft }: Props) {
-  decisions = [], randomizationEnabled = null,
+export function ExperimentDetail({ experiment: e, jobs, assignments, decisions = [], randomizationEnabled = null, canManage, busy, onStart, onEnroll, onConclude, onArchive, onDeleteDraft }: Props) {
   const [decision, setDecision] = useState<Decision | ''>('');
   const [learning, setLearning] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
