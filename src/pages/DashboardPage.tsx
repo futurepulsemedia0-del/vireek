@@ -93,8 +93,10 @@ function KpiCard({
         </span>
       </div>
       <p className="mt-5 text-4xl font-bold tracking-tight text-text-primary">{value}</p>
-            <p className="mt-0.5 text-xs text-text-secondary/70">{sub}</p>
-
+      <div className="mt-1 flex flex-wrap items-center gap-2">
+        <p className="text-sm font-medium text-text-secondary">{label}</p>
+        {delta}
+      </div>
       <p className="mt-0.5 text-xs text-text-secondary/70">{sub}</p>
     </motion.div>
   );
@@ -801,17 +803,6 @@ export function DashboardPage() {
     { to: '/dashboard/billing', icon: CreditCard, title: 'Billing', sub: 'Plan & customer invoices', show: isOwner || permissions.can_view_billing },
     { to: '/dashboard/integrations', icon: Plug, title: 'Integrations', sub: 'Connect your tools', show: true },
   ];
-<div className="mb-6">
-  <TodayHome />
-</div>
-{!profileLoading && (
-  <div className="mb-6">
-    <DailyBriefingCard />
-  </div>
-)}
-<div className="mb-6">
-  <LeakReportCard />
-</div>
   const renderWidget = (id: OverviewWidgetId): React.ReactNode => {
     switch (id) {
       case 'since_yesterday':
@@ -830,8 +821,7 @@ export function DashboardPage() {
       case 'kpi_calls':
         return busy ? <KpiSkeleton /> : (
           <KpiCard icon={Phone} label="Calls" value={String(metrics.callsInRangeCount)} sub={`Inbound · ${range.label}`} accentColor="bg-accent/10 text-accent" delay={0} />
-                        delta={deltaBadge('calls')}
-
+delay={0} delta={deltaBadge('calls')} />
         );
       case 'kpi_emergency':
         return busy ? <KpiSkeleton /> : (
@@ -848,13 +838,12 @@ export function DashboardPage() {
       case 'kpi_jobs':
         return busy ? <KpiSkeleton /> : (
           <KpiCard icon={CheckCircle2} label="Jobs Completed" value={String(metrics.jobsCompletedCount)} sub={range.label} accentColor="bg-success-500/10 text-success-500" delay={0.1} />
-                delta={deltaBadge('jobsCompleted')}
+delay={0.1} delta={deltaBadge('jobsCompleted')} />
         );
       case 'kpi_revenue':
         return busy ? <KpiSkeleton /> : (
           <KpiCard icon={DollarSign} label="Revenue" value={formatCurrency(metrics.revenueInRange)} sub="From paid invoices" accentColor="bg-cta/10 text-cta" delay={0.15} />
-                delta={deltaBadge('revenue', formatCurrency)}
-                delta={deltaBadge('jobsCompleted')}
+delay={0.15} delta={deltaBadge('revenue', formatCurrency)} />
         );
       case 'kpi_renewal_rate':
         return <RenewalRateCard />;
@@ -879,11 +868,10 @@ export function DashboardPage() {
         );
       case 'metric_sentiment':
         return busy ? <MetricSkeleton /> : <MetricCard icon={Activity} label="Avg Response Sentiment" value={metrics.avgSentiment} delay={0.25} />;
-                delta={deltaBadge('sentiment', asPercent)}
+        delay={0.25} delta={deltaBadge('sentiment', asPercent)} />;
       case 'metric_conversion':
         return busy ? <MetricSkeleton /> : (
-          <MetricCard icon={TrendingUp} label="Conversion Rate" value={metrics.conversionRate} delay={0.3}>
-                delta={deltaBadge('conversion', asPercent)}
+          <MetricCard icon={TrendingUp} label="Conversion Rate" value={metrics.conversionRate} delay={0.3} delta={deltaBadge('conversion', asPercent)}>
             <p className="mt-1 text-xs text-text-secondary">
              {metrics.wonLeads} won / {metrics.leadCount} leads in period
             </p>
@@ -891,7 +879,7 @@ export function DashboardPage() {
         );
       case 'metric_missed':
         return busy ? <MetricSkeleton /> : <MetricCard icon={XCircle} label="Missed Call Rate" value={metrics.missedCallRate} delay={0.35} />;
-                delta={deltaBadge('missed', asPercent)}
+                delay={0.35} delta={deltaBadge('missed', asPercent)} />;
       case 'call_volume':
         return dataLoading ? <ChartSkeleton /> : <CallVolumeChart
               data={metrics.chartData}
@@ -966,8 +954,9 @@ export function DashboardPage() {
             </div>
           </div>
         );
+      case 'leak_cases':
+        return <LeakCasesCard />;
       case 'data_health':
-      case 'leak_cases': return <LeakCasesCard />;
         return <DataHealthCard />;
       case 'recent_activity':
         return <RecentActivity items={metrics.activityItems} highlightId={newlyArrivedId ? `call-${newlyArrivedId}` : null} />;
@@ -1013,6 +1002,17 @@ export function DashboardPage() {
           )}
         </div>
 
+        <div className="mb-6">
+          <TodayHome />
+        </div>
+        {!profileLoading && (
+          <div className="mb-6">
+            <DailyBriefingCard />
+          </div>
+        )}
+        <div className="mb-6">
+          <LeakReportCard />
+        </div>
         {(isOwner || permissions.can_manage_numbers || permissions.can_view_billing || permissions.can_edit_business_profile) && (
           <SystemHealthStrip />
         )}
@@ -1038,5 +1038,6 @@ export function DashboardPage() {
           onResize={overview.resize}
           onHide={overview.hide}
         />
+    </DashboardLayout>
   );
 }
