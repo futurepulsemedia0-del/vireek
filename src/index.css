@@ -75,11 +75,13 @@ html {
   color-scheme: dark;
 }
 
-/* Brand display typeface on every heading — not just the handful of
-   marketing sections that previously opted in via `font-display`. */
 h1, h2 {
   font-family: var(--font-display);
+  font-weight: 450;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
 }
+p { text-wrap: pretty; }
 
 body {
   font-family: var(--font-sans);
