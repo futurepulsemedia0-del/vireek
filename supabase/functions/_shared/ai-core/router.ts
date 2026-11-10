@@ -10,6 +10,7 @@ import type {
   NormalizedChatRequest,
   NormalizedChatResponse,
   ProviderId,
+  RouteEntry,
   TaskType,
 } from "./types.ts";
 import { AiCoreError } from "./types.ts";
@@ -22,8 +23,8 @@ interface RouteAttemptLog {
   ok: boolean;
   errorCode?: string;
   latencyMs: number;
+  firstTokenMs?: number;
 }
-
 export interface RouteChatResult {
   response: NormalizedChatResponse;
   attempts: RouteAttemptLog[];
@@ -131,7 +132,9 @@ export async function routeChatStream(
 
     const start = Date.now();
     const ttft = createTtftTracker(start);
+    let sentAnything = false;
     const guardedOnDelta: ChatStreamHandler = (delta) => {
+      if (delta) sentAnything = true;
       ttft.markDelta(delta);
       onDelta(delta);
     };
