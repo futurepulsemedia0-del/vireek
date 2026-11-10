@@ -180,7 +180,7 @@ export function StaffMarginsPage() {
               <div id={`margins-panel-${tab}`} role="tabpanel" aria-labelledby={`margins-tab-${tab}`} tabIndex={0} className="focus-ring rounded-xl">
                 {tab === 'overview' && <MarginOverview summary={summary} plans={plans} negative={negativeMarginOrgs(margins)} drivers={drivers} cohorts={cohortStats(margins, extras.signupByAccount)} features={extras.features} freeTier={freeTierSummary(margins)} daily={daily} coverage={coverage} measuredCpm={measuredCpm} usage={priced} truncated={ue.truncated} />}
                 {tab === 'planning' && <PlanningPanel margins={margins} plans={plans} days={win.days} defaultCpm={measuredCpm ?? fallbackCpm} />}
-                tab === 'ledger' && <LedgerPanel start={win.start} end={win.end} />}
+                {tab === 'ledger' && <LedgerPanel start={win.start} end={win.end} />}
                 {tab === 'inputs' && <InputsPanel onChanged={() => void load(true)} />}
                 {tab === 'report' && <ReportPanel model={reportModel} />}
               </div>
