@@ -5,6 +5,7 @@
 // RLS, so a team member and an owner always see the same account data.
 
 import { supabase } from '@/lib/supabase';
+import { hasConsent } from '@/lib/consent/engine';
 import {
   cleanSections,
   mapSubmitError,
@@ -281,11 +282,6 @@ let memoryVisitorId: string | null = null;
 // marketing OFF when Global Privacy Control or Do Not Track is set.
 function privacySignalOn(): boolean {
   return !hasConsent('marketing');
-}
-  return (
-    typeof navigator !== 'undefined' &&
-    (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
-  );
 }
 
 function newVisitorId(): string {
