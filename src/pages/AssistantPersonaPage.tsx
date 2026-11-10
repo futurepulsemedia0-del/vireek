@@ -284,7 +284,7 @@ export function AssistantPersonaPage() {
                     <p className="text-sm font-medium text-text-primary">{voice.name}</p>
                     <p className="mt-0.5 text-xs text-text-secondary">{voice.detail}</p>
                   </div>
-                 !useCustomVoice && assistantVoice === voice.id
+                  {!useCustomVoice && assistantVoice === voice.id && (
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
                       <Check size={12} />
                     </span>
