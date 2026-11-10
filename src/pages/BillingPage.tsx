@@ -424,6 +424,13 @@ export function BillingPage() {
                 <FileText size={15} /> View invoices <ArrowUpRight size={14} />
               </button>
             </div>
+          ) : (
+            <p className="mt-4 text-xs text-text-secondary">
+              No Vireek invoices yet. They appear here after your first subscription payment.
+            </p>
+          )}
+        </div>
+      </div>
 
       {/* SECTION 2: Customer Invoices */}
 <div className="mb-8 printable-invoice" id="invoice-print-area">
