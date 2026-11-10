@@ -3219,7 +3219,6 @@ function AppRoutes() {
   }
 />
 <Route
-<Route
   path="/dashboard/site-safety"
   element={
     <ProtectedRoute>
