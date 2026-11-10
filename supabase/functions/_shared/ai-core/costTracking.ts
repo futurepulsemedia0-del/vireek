@@ -15,7 +15,12 @@ import { AiCoreError } from "./types.ts";
 import type { RouteChatResult } from "./router.ts";
 import { isOptionalAiTask } from "../billing/costPolicy.ts";
 import { appendCostEvent, usdEvent, type LedgerCorrelation } from "../economics/ledgerWriter.ts";
-import { appendCostEvent, usdEvent } from "../economics/ledgerWriter.ts";
+  cohere: {
+    // command-r-plus (آداپتور پیش‌فرض). منابع عمومی قیمت‌ها را متفاوت گزارش می‌کنند؛ پیش‌فرض محافظه‌کارانه.
+    // قبل از اتکا، cohere.com/pricing را بررسی و در صورت نیاز با AI_PRICE_OVERRIDES_JSON اصلاح کنید.
+    default: { inputPer1M: 2.5, outputPer1M: 10.0 },
+  },
+  openrouter: {
 
 // ---------------------------------------------------------------------
 // Pricing — $ per 1,000,000 tokens. Approximate list prices at the time
