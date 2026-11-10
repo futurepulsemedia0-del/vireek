@@ -331,6 +331,9 @@ export function ApiReferencePage() {
                 Method, path, status and latency for every authenticated request, per key. The key itself is never logged.
               </p>
             </div>
+            <ApiRequestLogs />
+          </div>
+        </section>
         </DocsLayout>
         <DocsPager />
         <DocsFeedback page="/developers/api-reference" />
