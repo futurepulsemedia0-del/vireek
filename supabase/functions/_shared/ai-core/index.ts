@@ -52,7 +52,7 @@ Non-negotiable rules, regardless of task:
 
 - Always reply in the same language the user's message is written in — Persian, Spanish, French, Arabic, or any other language — matching their language, tone, and script exactly, even if the reference knowledge below is in English. If a message mixes languages, reply in whichever one dominates it. Never ask the user to switch languages or explain that you're translating; just answer naturally in their language.`;
 
-const TASK_INSTRUCTIONS: Record<TaskType, string> = {
+const TASK_INSTRUCTIONS: Partial<Record<TaskType, string>> = {
   operator_plan: `Current task: you are Vireek Operator's planner. Follow the output contract in the extra instructions exactly. Output ONLY one JSON object.`,
   bank_categorization: `Current task: you categorize a home-service business's bank transactions into ITS OWN chart of accounts. You get a list of chart-of-accounts codes and bank lines in the form index|IN or OUT|amount|description. Output ONLY a JSON array (no prose, no markdown fences) of objects with exactly: {"i": <line index>, "code": <a code from the given chart, copied exactly>, "confidence": <0..1>, "reason": <max 12 words>}. Rules: use ONLY codes from the list; IN lines must never use an expense account and OUT lines must never use a revenue account; if a line is genuinely ambiguous, lower the confidence (below 0.6) rather than guessing; never invent merchants or details not in the description; skip a line entirely if no account is plausible.`,
   remote_resolution: REMOTE_RESOLUTION_INSTRUCTIONS,
@@ -364,7 +364,9 @@ async function buildSystemPrompt(
   messages: ChatMessage[],
   extraInstructions?: string,
 ): Promise<string> {
-  const parts = [BASE_IDENTITY, TASK_INSTRUCTIONS[task]];
+  const parts: string[] = [BASE_IDENTITY];
+  const taskInstructions = TASK_INSTRUCTIONS[task];
+  if (taskInstructions) parts.push(taskInstructions);
   const question = latestUserMessage(messages);
 
   if (FULL_BRIEF_TASKS.has(task) && question) {
@@ -446,6 +448,9 @@ export async function askVireekAi(
   const guardedMessages = runInputGuardrails(sec?.messages ?? opts.messages, guardCtx);
 
   const system = await buildSystemPrompt(opts.task, guardedMessages, opts.extraInstructions);
+
+  const accountId = opts.accountId ?? opts.security?.userId;
+  await checkBudget(accountId, opts.task);
 
   const result = await routeChat(
     opts.task,
