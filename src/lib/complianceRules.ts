@@ -51,6 +51,8 @@ export const KIND_LABELS: Record<RuleKind, string> = {
   rescission: 'Right to cancel',
   required_notice: 'Required notice',
   price_cap: 'Price cap',
+  deposit_limit: 'Deposit limit',
+  written_contract_threshold: 'Written contract required',
     fm_nte_cap: 'NTE cap',
     fm_proposal_before_parts: 'Proposal before parts',
     fm_invoice_deadline: 'Invoice deadline',
