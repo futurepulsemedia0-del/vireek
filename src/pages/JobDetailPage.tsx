@@ -16,16 +16,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Briefcase, ShieldAlert, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, Briefcase, MessagesSquare, ShieldAlert, TriangleAlert } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { ArrowLeft, Briefcase, MessagesSquare } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { JobWorkflowPanel } from '@/components/jobs/JobWorkflowPanel';
-import { JobStatusPanel } from '@/components/jobs/JobStatusPanel';
 import { JobStatusPanel } from '@/components/jobs/JobStatusPanel';
 import { JobSummaryPanel } from '@/components/jobs/JobSummaryPanel';
 import { useRealtimeSubscription } from '@/lib/realtime';
@@ -140,7 +138,7 @@ function PageSkeleton() {
     <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6 sm:py-8" aria-busy="true" aria-label="Loading job">
       <Skeleton className="h-8 w-64 rounded-lg" />
       <Skeleton className="h-40 w-full rounded-2xl" />
-     <JobWorkflowPanel job={j} canEdit={access.canEdit} onChanged={() => void syncJob()} />
+      <div className="grid gap-4 md:grid-cols-2">
         <Skeleton className="h-48 w-full rounded-2xl" />
         <Skeleton className="h-48 w-full rounded-2xl" />
       </div>
