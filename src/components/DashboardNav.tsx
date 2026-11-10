@@ -520,6 +520,7 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'BI Connectors', href: '/dashboard/bi-connectors', icon: PlugZap, requiresPermission: 'can_export_data' },
   { label: 'Duplicates', href: '/dashboard/duplicates', icon: GitMerge, requiresPermission: 'can_view_billing' },
   { label: 'Compliance Rules', href: '/dashboard/compliance-rules', icon: Scale, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Fair Sale', href: '/dashboard/fair-sale', icon: Scale, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trash', href: '/dashboard/trash', icon: Trash2, requiresPermission: 'can_view_billing' },
   { label: 'API Usage', href: '/dashboard/settings/api-usage', icon: Activity },
   { label: 'Webhook Deliveries', href: '/dashboard/webhook-deliveries', icon: PlugZap, ownerOnly: true, flag: 'public_api_v2' },
