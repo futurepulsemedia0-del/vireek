@@ -451,32 +451,35 @@ export function StatusPage() {
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-sm font-semibold text-text-primary">Overall platform uptime</span>
-                <span className="text-2xl font-extrabold tracking-tight text-success-500">{uptimePercent}%</span>
-              </div>
-             {uptimePercent !== null ? (
-  <span className="text-2xl font-extrabold tracking-tight text-success-500">{uptimePercent}%</span>
-) : (
-  <span className="text-sm font-semibold text-text-secondary">Not yet measured</span>
-)}
-                {UPTIME_HISTORY.map((day, i) => (
-                  <span
-                    key={i}
-                    title={day === 'operational' ? 'Operational' : 'Incident reported'}
-                    className={`h-full flex-1 rounded-sm ${day === 'operational' ? 'bg-success-500/70' : 'bg-danger'}`}
-                  />
-                ))}
-              </div>
-              <div className="mt-3 flex justify-between text-xs text-text-secondary/70">
-                <span>90 days ago</span>
-                <span>Today</span>
-                </>) : (
-                <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-                 A per-day uptime history will appear here once measured monitoring is connected. Until then we show no
-                  uptime percentage. Our uptime commitment is stated in the{' '}
-                 <a href="/sla" className="font-semibold text-accent hover:underline">Service Level Agreement</a>.
-                </p>
+                {uptimePercent !== null ? (
+                  <span className="text-2xl font-extrabold tracking-tight text-success-500">{uptimePercent}%</span>
+                ) : (
+                  <span className="text-sm font-semibold text-text-secondary">Not yet measured</span>
                 )}
               </div>
+              {HAS_MEASURED_HISTORY ? (
+                <>
+                  <div className="mt-6 flex h-10 items-stretch gap-[2px]">
+                    {UPTIME_HISTORY.map((day, i) => (
+                      <span
+                        key={i}
+                        title={day === 'operational' ? 'Operational' : 'Incident reported'}
+                        className={`h-full flex-1 rounded-sm ${day === 'operational' ? 'bg-success-500/70' : 'bg-danger'}`}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-3 flex justify-between text-xs text-text-secondary/70">
+                    <span>90 days ago</span>
+                    <span>Today</span>
+                  </div>
+                </>
+              ) : (
+                <p className="mt-4 text-sm leading-relaxed text-text-secondary">
+                  A per-day uptime history will appear here once measured monitoring is connected. Until then we show no
+                  uptime percentage. Our uptime commitment is stated in the{' '}
+                  <a href="/sla" className="font-semibold text-accent hover:underline">Service Level Agreement</a>.
+                </p>
+              )}
             </motion.div>
           </div>
         </section>
@@ -500,8 +503,8 @@ export function StatusPage() {
                   No incidents reported in the last 90 days.
                 </p>
                 <p className="max-w-md text-sm leading-relaxed text-text-secondary">
-                  When something does go wrong, we\u2019ll post it here with a plain-language summary
-                  and what we did to fix it \u2014 not just a green checkmark.
+                  When something does go wrong, we&rsquo;ll post it here with a plain-language summary
+                  and what we did to fix it &mdash; not just a green checkmark.
                 </p>
               </motion.div>
             ) : (
@@ -599,6 +602,7 @@ export function StatusPage() {
             )}
           </div>
         </section>
+
         {/* FAQ */}
         <section className="px-6 py-16 sm:py-20">
           <div className="mx-auto max-w-4xl">
@@ -630,8 +634,8 @@ export function StatusPage() {
               Tell us before it costs you a call.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-text-secondary">
-              If your account is behaving differently than what\u2019s posted here, reach out and
-              we\u2019ll take a look right away.
+              If your account is behaving differently than what&rsquo;s posted here, reach out and
+              we&rsquo;ll take a look right away.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <a href={`mailto:${EMAIL}`}>
