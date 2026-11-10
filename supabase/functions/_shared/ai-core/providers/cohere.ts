@@ -12,6 +12,7 @@ import type {
   NormalizedChatResponse,
   EmbeddingRequest,
   EmbeddingResponse,
+  EmbeddingProviderAdapter,
 } from "../types.ts";
 import { AiCoreError } from "../types.ts";
 
@@ -22,7 +23,7 @@ function getApiKey(): string | undefined {
   return Deno.env.get("COHERE_API_KEY");
 }
 
-export const cohereAdapter: ProviderAdapter = {
+export const cohereAdapter: EmbeddingProviderAdapter = {
   id: "cohere",
   capabilities: ["embedding", "rerank", "chat"],
 
