@@ -41,7 +41,7 @@ const LOGO_DONT: { title: string; body: string }[] = [
 ];
 
 const TYPE_SCALE = [
-  { label: 'Display / Headings', family: 'Sora', weights: '500, 600, 700, 800', sample: 'Never miss a call again' },
+  { label: 'Display / Headings', family: 'Source Serif 4', weights: '400, 500, 600', sample: 'Never miss a call again' },
   { label: 'Body / UI', family: 'Inter', weights: '400, 500, 600, 700, 800', sample: 'Answer every call, capture every lead.' },
 ];
 
@@ -315,7 +315,7 @@ export function BrandGuidelinesPage() {
                   </div>
                   <p
                     className={`mt-4 text-3xl text-text-primary md:text-4xl ${
-                      type.family === 'Sora' ? 'font-display font-bold tracking-tight' : 'font-medium'
+                      type.family === 'Source Serif 4' ? 'font-display font-medium tracking-tight' : 'font-medium'
                     }`}
                   >
                     {type.sample}
