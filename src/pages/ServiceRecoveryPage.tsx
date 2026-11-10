@@ -216,8 +216,8 @@ function SignalCard({
 // PAGE
 // ============================================================
 
-export function const { user, isOwner, teamMember } = useAuth();() {
-  const { user } = useAuth();
+export function ServiceRecoveryPage() {
+  const { user, isOwner, teamMember } = useAuth();
   const { toast } = useToast();
 
   const [signals, setSignals] = useState<ServiceRecoverySignal[]>([]);
