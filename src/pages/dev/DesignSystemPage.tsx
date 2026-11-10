@@ -1,128 +1,181 @@
-import type { ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TYPE_SCALE, TYPE_UTILITIES, toPx, MIN_REM } from '../../scripts/type/type-scale.mjs';
+import { applyDensity, readDensity, setDensity, type Density } from '@/lib/density';
+import { findSmallText, type SmallTextHit } from '@/lib/typeAudit';
 
 /**
- * Dev-only (/dev/design-system): the border-radius scale and the role -> alias mapping, rendered with the
- * REAL Tailwind classes so what you see is what ships. Values mirror scripts/design/radius-tokens.mjs
- * (DesignSystemPage.test.tsx fails if they drift). Strings go through i18next with English defaults.
+ * /dev/design-system — developer-only (registered only when import.meta.env.DEV, like /dev/colors).
+ *
+ * Documents the type scale from its single source of truth (scripts/type/type-scale.mjs — the same module that feeds
+ * tailwind.config.js, the CI guard and the tests), and VERIFIES it live: every sample reports its computed pixel size
+ * and turns into an error if it is below the 12px floor, at any browser zoom, text-size setting or density.
  */
-export interface ScaleStep {
-  readonly name: string;
-  readonly px: number | 'full';
-  readonly className: string;
-}
-export interface RoleRow {
-  readonly role: string;
-  readonly alias: 'control' | 'inset' | 'chip' | 'surface' | 'overlay' | 'full';
-  readonly className: string;
-  readonly use: string;
-}
 
-// Class names are written out in full on purpose: Tailwind only generates classes it can see in source.
-export const RADIUS_SCALE: readonly ScaleStep[] = [
-  { name: 'sm', px: 4, className: 'rounded-sm' },
-  { name: 'md', px: 6, className: 'rounded-md' },
-  { name: 'lg', px: 8, className: 'rounded-lg' },
-  { name: 'xl', px: 12, className: 'rounded-xl' },
-  { name: '2xl', px: 16, className: 'rounded-2xl' },
-  { name: '3xl', px: 24, className: 'rounded-3xl' },
-  { name: 'full', px: 'full', className: 'rounded-full' },
-];
+/**
+ * Tailwind only generates classes it can see as literals, so the token → class map is explicit (never a class name built from a template string).
+ * A unit test asserts every token in TYPE_SCALE has an entry.
+ */
+export const SAMPLE_CLASS: Record<string, string> = {
+  eyebrow: 'text-eyebrow uppercase',
+  caption: 'text-caption',
+  small: 'text-small',
+  body: 'text-body',
+  lead: 'text-lead',
+  h4: 'text-h4 font-display',
+  h3: 'text-h3 font-display',
+  h2: 'text-h2 font-display',
+  h1: 'text-h1 font-display',
+  display: 'text-display font-display',
+  'display-lg': 'text-display-lg font-display',
+};
 
-export const RADIUS_ROLE_TABLE: readonly RoleRow[] = [
-  { role: 'control', alias: 'control', className: 'rounded-control', use: 'Buttons, inputs, selects, tabs, menu items, tooltips' },
-  { role: 'inset', alias: 'inset', className: 'rounded-inset', use: 'Non-interactive things nested in a surface: callouts, icon tiles, code/table wrappers, thumbnails' },
-  { role: 'chip', alias: 'chip', className: 'rounded-chip', use: 'Rectangular badges, tags, kbd, counters (pills keep rounded-full)' },
-  { role: 'surface', alias: 'surface', className: 'rounded-surface', use: 'Cards, panels, toasts, dropdowns, popovers' },
-  { role: 'overlay', alias: 'overlay', className: 'rounded-overlay', use: 'Modals, bottom sheets, command palette' },
-  { role: 'full', alias: 'full', className: 'rounded-full', use: 'Avatars, status dots, icon buttons that are truly circular, pill chips, progress bars' },
-];
+const FLOOR_PX = toPx(MIN_REM);
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function SampleRow({ name, tick }: { name: string; tick: number }) {
+  const { t } = useTranslation();
+  const ref = useRef<HTMLSpanElement>(null);
+  const [px, setPx] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    if (ref.current) setPx(Math.round(parseFloat(getComputedStyle(ref.current).fontSize) * 100) / 100);
+  }, [tick]);
+  const token = TYPE_SCALE.find((x) => x.name === name);
+  if (!token) return null;
+  const bad = px !== null && px < FLOOR_PX - 0.01;
   return (
-    <section className="space-y-3">
-      <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
-      {children}
-    </section>
+    <tr className="border-t border-border align-baseline">
+      <td className="py-row pr-3 text-small font-semibold"><code>{token.name}</code></td>
+      <td className="pr-3 text-caption"><code className="type-id">{SAMPLE_CLASS[name]?.split(' ')[0]}</code>{token.alias ? <span className="text-text-secondary"> = text-{token.alias}</span> : null}</td>
+      <td className="pr-3 text-caption type-figure">{token.rem}rem / {toPx(token.rem)}px</td>
+      <td className="pr-3 text-caption type-figure">{token.lineHeight}</td>
+      <td className="pr-3 text-caption type-figure">{token.tracking ?? '0'}</td>
+      <td className="pr-3 text-caption type-figure">{token.weight ?? '—'}</td>
+      <td className="pr-3 text-caption text-text-secondary">{token.role}. {token.guidance}</td>
+      <td className="min-w-[10rem] pr-3"><span ref={ref} className={SAMPLE_CLASS[name]}>{t('devDesignSystem.sample', 'Dispatch the nearest technician')}</span></td>
+      <td className={`type-figure text-caption font-semibold ${bad ? 'text-danger' : 'text-success'}`} data-testid={`rendered-${name}`}>
+        {px === null ? '…' : `${px}px`} {bad ? t('devDesignSystem.belowFloor', 'BELOW FLOOR') : '✓'}
+      </td>
+    </tr>
   );
 }
 
-export default function DesignSystemPage() {
+export function DevDesignSystemPage() {
   const { t } = useTranslation();
-  const d = (key: string, defaultValue: string) => t(`designSystem.${key}`, { defaultValue });
+  const [tick, setTick] = useState(0);
+  const [density, setDensityState] = useState<Density>(() => readDensity());
+  const [spacingTest, setSpacingTest] = useState(false);
+  const [scan, setScan] = useState<SmallTextHit[] | null>(null);
+  const mainRef = useRef<HTMLElement>(null);
+
+  const remeasure = useCallback(() => setTick((n) => n + 1), []);
+  useEffect(() => {
+    window.addEventListener('resize', remeasure);
+    return () => window.removeEventListener('resize', remeasure);
+  }, [remeasure]);
+  useEffect(() => {
+    remeasure();
+  }, [density, remeasure]);
+
+  const changeDensity = (d: Density) => {
+    setDensity(d);
+    setDensityState(d);
+  };
+  useEffect(() => () => applyDensity(readDensity()), []);
+
   return (
-    <main className="mx-auto max-w-4xl space-y-10 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold text-text-primary">{d('title', 'Design system — border radius')}</h1>
-        <p className="text-sm text-text-secondary">
-          {d('intro', 'One monotonic scale, five role aliases. New code uses the aliases; the guard rejects raw steps in new files, rounded-2xl/3xl on small elements, arbitrary radii and non-allowlisted rounded-3xl.')}{' '}
-          <code>npm run lint:design</code>
-        </p>
-      </header>
+    <main ref={mainRef} className="mx-auto max-w-6xl px-4 py-8 text-text-primary" aria-labelledby="ds-title">
+      <p className="text-eyebrow text-text-secondary">{t('devDesignSystem.eyebrow', 'Developer tools')}</p>
+      <h1 id="ds-title" className="mt-1 font-display text-h1">{t('devDesignSystem.title', 'Design system — typography')}</h1>
+      <p className="mt-3 max-w-prose text-body text-text-secondary">
+        {t('devDesignSystem.intro', 'One rem-based scale. Nothing is smaller than 12px in any density, zoom or text-size setting. Source of truth: scripts/type/type-scale.mjs. Colours live in the')}{' '}
+        <a className="underline" href="/dev/colors">{t('devDesignSystem.colorLab', 'colour lab')}</a>.
+      </p>
 
-      <Section title={d('scale', 'Scale')}>
-        <ul className="flex flex-wrap gap-4" aria-label={d('scaleLabel', 'Radius scale')}>
-          {RADIUS_SCALE.map((s) => (
-            <li key={s.name} className="flex flex-col items-center gap-2 text-xs text-text-secondary">
-              <span className={`block h-14 w-14 border-2 border-accent bg-bg-tertiary ${s.className}`} />
-              <span>
-                {s.name} · {s.px === 'full' ? 'full' : `${s.px}px`}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section title={d('roles', 'Roles')}>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[40rem] text-start text-sm">
-            <caption className="sr-only">{d('caption', 'Radius role aliases and where to use them')}</caption>
+      <section className="mt-8" aria-labelledby="ds-scale">
+        <h2 id="ds-scale" className="font-display text-h3">{t('devDesignSystem.scale', 'Type scale')}</h2>
+        <p className="mt-1 text-small text-text-secondary">{t('devDesignSystem.scaleHelp', 'Rendered size is read from the browser, live. It changes with browser zoom, the in-app text size and the OS font scale, and turns red below 12px.')}</p>
+        <div className="mt-3 overflow-x-auto rounded-md border border-border bg-bg-secondary p-3">
+          <table className="w-full min-w-[60rem] text-left">
             <thead>
-              <tr className="text-text-secondary">
-                <th scope="col" className="py-2 pe-3 text-start font-semibold">{d('colRole', 'Role')}</th>
-                <th scope="col" className="py-2 pe-3 text-start font-semibold">{d('colClass', 'Class')}</th>
-                <th scope="col" className="py-2 pe-3 text-start font-semibold">{d('colSample', 'Sample')}</th>
-                <th scope="col" className="py-2 text-start font-semibold">{d('colUse', 'Use for')}</th>
+              <tr className="text-caption text-text-secondary">
+                {['Token', 'Class', 'Size', 'Line-height', 'Tracking', 'Weight', 'Role and guidance', 'Sample', 'Rendered'].map((h) => (
+                  <th key={h} scope="col" className="pb-2 pr-3 font-medium">{t(`devDesignSystem.col.${h}`, h)}</th>
+                ))}
               </tr>
             </thead>
-            <tbody>
-              {RADIUS_ROLE_TABLE.map((r) => (
-                <tr key={r.role} className="border-t border-border align-middle">
-                  <th scope="row" className="py-3 pe-3 text-start font-medium text-text-primary">{r.role}</th>
-                  <td className="py-3 pe-3"><code>{r.className}</code></td>
-                  <td className="py-3 pe-3">
-                    <span className={`block h-10 w-24 border border-border bg-bg-tertiary ${r.className}`} />
-                  </td>
-                  <td className="py-3 text-text-secondary">{d(`use.${r.role}`, r.use)}</td>
-                </tr>
-              ))}
-            </tbody>
+            <tbody>{TYPE_SCALE.map((x) => <SampleRow key={x.name} name={x.name} tick={tick} />)}</tbody>
           </table>
         </div>
-      </Section>
+      </section>
 
-      <Section title={d('hierarchy', 'Hierarchy in practice')}>
-        <div className="rounded-surface border border-border bg-bg-secondary p-6 shadow-card">
-          <p className="font-semibold text-text-primary">{d('surface', 'Surface (rounded-surface)')}</p>
-          <div className="mt-3 rounded-inset border border-border bg-bg-tertiary p-3 text-sm text-text-secondary">
-            {d('inset', 'Inset (rounded-inset) — nested content is always tighter than its container.')}
+      <section className="mt-10" aria-labelledby="ds-utils">
+        <h2 id="ds-utils" className="font-display text-h3">{t('devDesignSystem.utilities', 'Figures, identifiers and inline text')}</h2>
+        <ul className="mt-3 space-y-1 text-small">
+          {TYPE_UTILITIES.map((u) => (
+            <li key={u.className}><code className="type-id">{u.className}</code> <span className="text-text-secondary">— {u.role} ({u.css})</span></li>
+          ))}
+        </ul>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-md border border-border bg-bg-secondary p-4">
+            <p className="text-caption text-text-secondary">{t('devDesignSystem.figures', 'Tabular figures line up in columns')}</p>
+            <p className="type-figure text-h3">1,111.11</p>
+            <p className="type-figure text-h3">8,888.88</p>
+            <p className="mt-3 text-small">{t('devDesignSystem.ids', 'Job')} <span className="type-id">JOB-8F2A-91C7</span> · <span className="type-id">+1 (415) 555-0132</span></p>
+            <p className="mt-3 text-small">{t('devDesignSystem.inline', 'Run')} <code className="type-inline rounded bg-bg-tertiary px-1.5 py-0.5">npm run lint:type</code> {t('devDesignSystem.inline2', 'before you push. Inline code follows its parent but never goes below 12px.')}</p>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-control border border-border bg-bg-primary px-3 py-2 text-sm text-text-secondary">{d('control', 'Control')}</span>
-            <span className="rounded-chip bg-bg-tertiary px-2 py-0.5 text-xs font-semibold text-text-secondary">{d('chip', 'Chip')}</span>
-            <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-xs font-semibold text-text-secondary">{d('pill', 'Pill')}</span>
+          <div className="rounded-md border border-border bg-bg-secondary p-4" dir="rtl" lang="fa">
+            <p className="text-caption text-text-secondary">{t('devDesignSystem.rtl', 'RTL: identifiers stay left-to-right and letter-spacing is reset')}</p>
+            <p className="mt-2 text-small tracking-wider">
+              {t('devDesignSystem.rtlText', 'شماره تماس')}: <span className="type-id">+98 21 5555 0132</span>
+            </p>
           </div>
         </div>
-      </Section>
+      </section>
 
-      <Section title={d('rules', 'Rules')}>
-        <ul className="list-disc space-y-1 ps-5 text-sm text-text-secondary">
-          <li>{d('rule1', 'Small elements (buttons, inputs, chips, tiles, tabs) never exceed rounded-lg.')}</li>
-          <li>{d('rule2', 'Nested elements are smaller than their container: surface 12px contains inset/control 8px.')}</li>
-          <li>{d('rule3', 'rounded-full only for avatars, dots, truly circular icon buttons, pills and progress bars.')}</li>
-          <li>{d('rule4', 'rounded-3xl only for allowlisted hero bands. No arbitrary radii. rounded-legacy-md is a one-release alias.')}</li>
-        </ul>
-      </Section>
+      <section className="mt-10" aria-labelledby="ds-density">
+        <h2 id="ds-density" className="font-display text-h3">{t('devDesignSystem.density', 'Density')}</h2>
+        <p className="mt-1 text-small text-text-secondary">{t('devDesignSystem.densityHelp', 'Compact tightens spacing only. Type never changes and targets stay at least 2rem.')}</p>
+        <div className="mt-3 inline-flex gap-2" role="group" aria-label={t('devDesignSystem.density', 'Density')}>
+          {(['comfortable', 'compact'] as const).map((d) => (
+            <button key={d} type="button" aria-pressed={density === d} onClick={() => changeDensity(d)}
+              className={`min-h-target rounded-md border px-3 text-small ${density === d ? 'border-accent bg-accent-subtle' : 'border-border'}`}>
+              {t(`devDesignSystem.density_${d}`, d)}
+            </button>
+          ))}
+        </div>
+        <table className="mt-3 w-full max-w-lg text-left text-small">
+          <tbody>
+            {['Maya Chen', 'Dev Patel', 'Sofia Rossi'].map((n) => (
+              <tr key={n} className="border-t border-border"><td className="py-row">{n}</td><td className="py-row text-caption text-text-secondary">Dispatched 09:41</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="mt-10" aria-labelledby="ds-wcag">
+        <h2 id="ds-wcag" className="font-display text-h3">{t('devDesignSystem.spacing', 'WCAG 1.4.12 text spacing')}</h2>
+        <label className="mt-2 flex items-center gap-2 text-small">
+          <input type="checkbox" checked={spacingTest} onChange={(e) => setSpacingTest(e.target.checked)} />
+          {t('devDesignSystem.spacingToggle', 'Apply line-height 1.5, paragraph spacing 2×, letter-spacing 0.12em, word-spacing 0.16em')}
+        </label>
+        <div data-testid="spacing-sample"
+          className={`mt-3 max-w-md rounded-md border border-border bg-bg-secondary p-4 ${spacingTest ? '[&_*]:!leading-[1.5] [&_*]:!tracking-[0.12em] [&_*]:![word-spacing:0.16em] [&_p]:!mb-[2em]' : ''}`}>
+          <p className="text-small">{t('devDesignSystem.spacingA', 'Technician Maya Chen is en route to 214 Harbor Street and will arrive in about twelve minutes.')}</p>
+          <p className="text-caption text-text-secondary">{t('devDesignSystem.spacingB', 'Status updates every 30 seconds. Nothing here may clip or overlap.')}</p>
+        </div>
+      </section>
+
+      <section className="mt-10" aria-labelledby="ds-scan">
+        <h2 id="ds-scan" className="font-display text-h3">{t('devDesignSystem.scan', 'Scan this page')}</h2>
+        <button type="button" className="mt-2 min-h-target rounded-md border border-border px-3 text-small" onClick={() => setScan(findSmallText(mainRef.current ?? document, FLOOR_PX))}>
+          {t('devDesignSystem.scanButton', 'Find text below 12px')}
+        </button>
+        {scan && (
+          <p role="status" data-testid="scan-result" className={`mt-2 text-small ${scan.length ? 'text-danger' : 'text-success'}`}>
+            {scan.length ? `${scan.length} ${t('devDesignSystem.scanFound', 'element(s) below 12px')}: ${scan.slice(0, 5).map((h) => `${h.selector} ${h.px}px`).join('; ')}` : t('devDesignSystem.scanClean', 'Nothing below 12px on this page.')}
+          </p>
+        )}
+      </section>
     </main>
   );
 }
