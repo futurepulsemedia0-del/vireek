@@ -247,8 +247,9 @@ export function DispatchIntelligencePanel({ jobs, technicians, riskMap, onChange
         </div>
       </div>
 
-      {plan && (
       {ownerId && <CausalDispatchCard ownerId={ownerId} canManage={!!isOwner} />}
+
+      {plan && (
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {[
             { label: 'Unassigned', value: plan.summary.unassigned },
