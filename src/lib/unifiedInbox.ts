@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { sendDmReply } from '@/lib/dmChannels';
 import { normalizeEmail, normalizePhone } from '@/lib/customerContacts';
 
-export type Channel = 'whatsapp' | 'instagram' | 'sms' | 'email' | 'chat' | 'rcs' | 'amb''telegram' | 'messenger';
+export type Channel = 'whatsapp' | 'instagram' | 'sms' | 'email' | 'chat' | 'rcs' | 'amb' | 'telegram' | 'messenger';
 
 /** Delivery state of an outbound RCS / Apple Messages message (rich_messages.status). */
 export type RichStatus = 'queued' | 'deferred' | 'sent' | 'delivered' | 'read' | 'failed' | 'fallback_sent' | 'cancelled' | 'received';
