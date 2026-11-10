@@ -12,15 +12,13 @@ export interface Invoice {
   job_id: string | null;
   quote_id: string | null;
   /** Approval-to-cash: linked customer PO / work order (work_orders.id). */
-work_order_id?: string | null;
+  work_order_id?: string | null;
   invoice_number: string;
   customer_name: string;
   customer_email: string | null;
   customer_phone: string | null;
   line_items: QuoteLineItem[];
   tax_percent: number;
-  promo_discount_cents: number;
-  promo_codes: string[];
   promo_discount_cents: number;
   promo_codes: string[];
   customer_id: string | null;
@@ -80,9 +78,7 @@ export async function createInvoice(input: {
   tax_percent?: number;
   due_date?: string;
   notes?: string;
-  tax_percent?: number;
 } & Partial<import('@/lib/salesTax').TaxDocumentColumns>): Promise<Invoice> {
-}): Promise<Invoice> {
   const { data, error } = await supabase.from('invoices').insert(input).select().single();
   if (error) throw error;
   return data as Invoice;
