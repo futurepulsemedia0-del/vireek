@@ -38,7 +38,6 @@ export const supabase = createClient(
       detectSessionInUrl: true,
       experimental: { passkey: true },
     },
-    global: { fetch: resilientFetch },
   },
 );
 
@@ -129,22 +128,6 @@ export interface Call {
   created_at: string;
 }
 
-export interface Customer {
-  id: string;
-  user_id: string;
-  name: string;
-  phone: string | null;
-  email: string | null;
-  address: string | null;
-  customer_type: 'residential' | 'commercial';
-  lifecycle_stage: 'lead' | 'active' | 'vip' | 'inactive';
-  tags: string[];
-  notes: string | null;
-  source: 'manual' | 'call' | 'lead' | 'job' | 'import';
-  last_contacted_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
 export interface Customer {
   id: string;
   user_id: string;
@@ -283,7 +266,6 @@ export interface EquipmentMaintenanceAlert {
   created_at: string;
 }
 export interface Lead {
-  created_at: string;
   id: string;
   user_id: string;
   call_id: string | null;
@@ -1041,7 +1023,6 @@ export interface IdentityDriftAlert {
   status: 'open' | 'acknowledged' | 'dismissed';
   created_at: string;
 }
-export interface AiInsight {
 export interface CausalScenario {
   id: string;
   user_id: string;
@@ -1087,6 +1068,8 @@ export interface CausalOutcomeTracking {
   actual_impact_pct: number | null;
   created_at: string;
 }
+
+export interface AiInsight {
   id: string;
   user_id: string;
   insight_type: 'pattern' | 'suggestion' | 'alert';
