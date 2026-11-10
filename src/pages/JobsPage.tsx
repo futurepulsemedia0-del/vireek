@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { requestSurvey } from '@/lib/feedback/events';
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { CustomFieldsEditor, CustomFieldsPanel, CustomFieldBadgesAuto, CustomFilterBar } from '@/components/custom-fields/CustomFieldWidgets';
-import { useCustomFieldDefs, useCustomDataSync } from '@/lib/customFieldsApi';import { JobRefrigerantPanel } from '@/components/jobs/JobRefrigerantPanel';
+import { useCustomFieldDefs, useCustomDataSync } from '@/lib/customFieldsApi';
+import { JobRefrigerantPanel } from '@/components/jobs/JobRefrigerantPanel';
 import { JobTradePackPanel } from '@/components/jobs/JobTradePackPanel';
 import { matchesCustomFilters, sanitizeCustomData, validateCustomData, type CustomData, type CustomFilters } from '@/lib/customFields';
 import { ColumnPicker } from '@/components/ColumnPicker';
@@ -591,7 +592,7 @@ function JobDetailPanel({
             </div>
           )}
         </div>
-        <MissionBriefPanel job={job} /
+        <MissionBriefPanel job={job} />
         <PermitCompliancePanel job={job} />
         <JobRefrigerantPanel job={job} />
         <JobTradePackPanel job={job} />
@@ -1309,9 +1310,9 @@ export function JobsPage() {
       }
       if (isQualityGateError(message)) {
         toast(`Can't close this job yet — missing: ${parseQualityGateError(message).join(', ')}.`, 'error');
-      } else {
-             } else if (isEvidenceChainError(message)) {
+      } else if (isEvidenceChainError(message)) {
         toast(`Can't close this job yet — evidence chain incomplete: ${parseEvidenceChainError(message).join(', ')}.`, 'error');
+      } else {
         toast('Could not update job status.', 'error');
       }
     }
