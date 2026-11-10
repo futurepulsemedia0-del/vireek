@@ -148,6 +148,8 @@ export function BusinessConstitutionPage() {
               ))}
             </div>
           )}
+        </div>
+
         <div className="rounded-2xl border border-border bg-bg-secondary p-5">
           <p className="mb-3 text-sm font-semibold text-text-primary">Agent authority matrix</p>
           <div className="space-y-2">
