@@ -140,7 +140,7 @@ export const LIST_PARAMETERS = [
 ] as const;
 
 export const ERROR_RESPONSES: Record<string, string> = {
-  '400': 'Malformed request: id is not a UUID, or before is not an ISO 8601 timestamp.',
+  '400': 'Malformed request: id is not a UUID, before is not an ISO 8601 timestamp, or a filter / fields value is invalid.',
   '401': 'Missing, invalid or revoked API key.',
   '403': "The key is missing the scope this endpoint requires, or the request IP is not on the key's allowlist.",
   '404': 'The requested record does not exist on your account.',
@@ -168,6 +168,7 @@ export const ERROR_CATALOG = [
   { code: 'insufficient_scope', status: 403, cause: 'The key does not have the scope this endpoint requires.', fix: 'Create a key that includes the scope named in the error message (see x-required-scope in the spec).' },
   { code: 'ip_not_allowed', status: 403, cause: "The request came from an address that is not on the key's IP allowlist (or its address could not be determined).", fix: 'Add the address or CIDR range under Settings → API Keys, or clear the allowlist. The error message names the address we saw.' },
   { code: 'invalid_id', status: 400, cause: 'The id in the path is not a UUID.', fix: 'Use the id value returned by the list endpoint.' },
+  { code: 'invalid_filter', status: 400, cause: 'A filter or fields value is malformed or names an unknown field (requires the public_api_v2 entitlement).', fix: 'Check the parameter against the endpoint reference: UUIDs, true/false, 1-64 safe characters, and documented field names only.' },
   { code: 'invalid_before', status: 400, cause: 'The before parameter is not an ISO 8601 timestamp.', fix: 'Pass the next_before value from the previous page, URL-encoded.' },
   { code: 'route_not_found', status: 404, cause: 'The path is not a documented resource route.', fix: 'Check the path against the API reference.' },
   { code: 'record_not_found', status: 404, cause: 'No record with this id exists on your account.', fix: 'Confirm the id and that the record belongs to the account that owns the key.' },
@@ -203,6 +204,83 @@ export function selectColumns(resource: string): string {
   return resourceByName(resource)?.fields.map((f) => f.name).join(',') ?? '';
 }
 
+/* ------------------------------------------------------------------ */
+/*  List filters + sparse fieldsets (public_api_v2 entitlement)         */
+/* ------------------------------------------------------------------ */
+
+export type FilterKind = 'text' | 'uuid' | 'boolean';
+export interface FilterParam { kind: FilterKind; description: string }
+
+const ENTITLEMENT_NOTE = 'Requires the `public_api_v2` entitlement on the account; ignored otherwise. Not applied to test-mode keys.';
+
+/** Every filter is an exact match on the column of the same name. */
+export const FILTER_PARAMS: Record<string, FilterParam> = {
+  status: { kind: 'text', description: 'Exact match on `status`.' },
+  sentiment: { kind: 'text', description: 'Exact match on `sentiment`.' },
+  is_emergency: { kind: 'boolean', description: 'Only emergency (`true`) or non-emergency (`false`) calls.' },
+  customer_id: { kind: 'uuid', description: 'Only records linked to this customer ID.' },
+  call_id: { kind: 'uuid', description: 'Only records linked to this call ID.' },
+  lead_id: { kind: 'uuid', description: 'Only records linked to this lead ID.' },
+  assigned_technician_id: { kind: 'uuid', description: 'Only jobs assigned to this technician ID.' },
+  stage: { kind: 'text', description: 'Exact match on the lead `stage`.' },
+  job_status: { kind: 'text', description: 'Exact match on `job_status`.' },
+  invoice_status: { kind: 'text', description: 'Exact match on `invoice_status`.' },
+};
+
+export const RESOURCE_FILTERS: Record<string, readonly string[]> = {
+  calls: ['status', 'sentiment', 'is_emergency', 'customer_id'],
+  leads: ['stage', 'customer_id', 'call_id'],
+  jobs: ['job_status', 'invoice_status', 'customer_id', 'assigned_technician_id', 'lead_id'],
+};
+
+export const FIELDS_PARAM_DESCRIPTION = `Comma-separated list of fields to return (data minimisation). \`id\` and \`created_at\` are always included. ${ENTITLEMENT_NOTE}`;
+
+const TEXT_FILTER_RE = /^[A-Za-z0-9 _.:-]{1,64}$/;
+const MAX_FIELDS = 40;
+
+export type ListQuery =
+  | { ok: true; filters: { column: string; value: string | boolean }[]; columns: string }
+  | { ok: false; message: string };
+
+/** True when the request uses a filter or `fields` (lets index.ts skip the entitlement lookup otherwise). */
+export function usesListExtensions(resource: string, params: URLSearchParams): boolean {
+  return params.has('fields') || (RESOURCE_FILTERS[resource] ?? []).some((n) => params.has(n));
+}
+
+/** Validates filters + `fields` against the contract. Unknown query parameters are ignored. */
+export function parseListQuery(resource: string, params: URLSearchParams): ListQuery {
+  const filters: { column: string; value: string | boolean }[] = [];
+  for (const name of RESOURCE_FILTERS[resource] ?? []) {
+    const values = params.getAll(name);
+    if (values.length === 0) continue;
+    if (values.length > 1) return { ok: false, message: `Filter ${name} may be given only once` };
+    const raw = values[0];
+    const kind = FILTER_PARAMS[name].kind;
+    if (kind === 'boolean') {
+      if (raw !== 'true' && raw !== 'false') return { ok: false, message: `Invalid ${name}: expected true or false` };
+      filters.push({ column: name, value: raw === 'true' });
+    } else if (kind === 'uuid') {
+      if (!isUuid(raw)) return { ok: false, message: `Invalid ${name}: expected a UUID` };
+      filters.push({ column: name, value: raw });
+    } else {
+      if (!TEXT_FILTER_RE.test(raw)) return { ok: false, message: `Invalid ${name}: 1-64 characters, letters, digits, space and _ . : -` };
+      filters.push({ column: name, value: raw });
+    }
+  }
+
+  let columns = selectColumns(resource);
+  const fieldValues = params.getAll('fields');
+  if (fieldValues.length > 1) return { ok: false, message: 'fields may be given only once' };
+  if (fieldValues.length === 1) {
+    const documented = new Set(resourceByName(resource)?.fields.map((f) => f.name) ?? []);
+    const requested = fieldValues[0].split(',').map((f) => f.trim()).filter(Boolean);
+    if (requested.length === 0 || requested.length > MAX_FIELDS) return { ok: false, message: `fields must list 1-${MAX_FIELDS} field names` };
+    const unknown = requested.find((f) => !documented.has(f));
+    if (unknown !== undefined) return { ok: false, message: `Unknown field "${unknown.slice(0, 40)}" for ${resource}` };
+    columns = [...new Set(['id', 'created_at', ...requested])].join(',');
+  }
+  return { ok: true, filters, columns };
+}
 /** `/calls/:id` → `/calls/{id}` */
 export function toOpenApiPath(path: string): string {
   return path.replace(/:([A-Za-z_]+)/g, '{$1}');
@@ -473,7 +551,12 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
         tags: [resource.tag],
         parameters: op.hasId
           ? [{ $ref: '#/components/parameters/id' }]
-          : [{ $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/before' }],
+          : [
+              { $ref: '#/components/parameters/limit' },
+              { $ref: '#/components/parameters/before' },
+              ...(RESOURCE_FILTERS[resource.name] ?? []).map((n) => ({ $ref: `#/components/parameters/filter_${n}` })),
+              { $ref: '#/components/parameters/fields' },
+            ],
         security: [{ bearerAuth: [op.scope] }],
         'x-required-scope': op.scope,
         'x-codeSamples': buildCodeSamples(url).map(({ lang, label, source }) => ({ lang, label, source })),
@@ -584,6 +667,19 @@ export function buildOpenApiSpec(baseUrl?: string): OpenApiSpec {
       },
       parameters: {
         id: { name: 'id', in: 'path', required: true, description: 'Record ID (UUID).', schema: { type: 'string', format: 'uuid' } },
+        ...Object.fromEntries(
+          Object.entries(FILTER_PARAMS).map(([name, def]) => [
+            `filter_${name}`,
+            {
+              name,
+              in: 'query',
+              required: false,
+              description: `${def.description} ${ENTITLEMENT_NOTE}`,
+              schema: def.kind === 'boolean' ? { type: 'boolean' } : def.kind === 'uuid' ? { type: 'string', format: 'uuid' } : { type: 'string', minLength: 1, maxLength: 64 },
+            },
+          ]),
+        ),
+        fields: { name: 'fields', in: 'query', required: false, description: FIELDS_PARAM_DESCRIPTION, schema: { type: 'string' } },
         limit: {
           name: 'limit',
           in: 'query',
