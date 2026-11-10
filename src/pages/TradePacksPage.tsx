@@ -7,6 +7,8 @@ import { Skeleton } from '@/components/Skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { friendlyTradePackError, installPack, updatePack, useTradePacks } from '@/lib/tradePacksApi';
+import { useSolarModule } from '@/lib/solarApi';
+import { SolarPanel } from '@/components/tradePacks/SolarPanel';
 import { TRADE_PACKS, type TradePack } from '@/lib/tradePacks';
 import { ComplianceLogPanel } from '@/components/tradePacks/ComplianceLogPanel';
 import { PlansPricingPanel } from '@/components/tradePacks/PlansPricingPanel';
@@ -18,6 +20,7 @@ import { Pill } from '@/components/tradePacks/shared';
 type Tab = 'overview' | 'log' | 'products' | 'routes' | 'plans' | 'reports';
 const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'overview', label: 'Overview' },
+  { key: 'solar', label: 'Solar projects' },
   { key: 'log', label: 'Compliance log' },
   { key: 'products', label: 'Products' },
   { key: 'routes', label: 'Routes' },
@@ -70,12 +73,14 @@ export function TradePacksPage() {
   const { isOwner, permissions, teamMember } = useAuth();
   const { toast } = useToast();
   const { ownerId, installs, enabled, loading, error, reload } = useTradePacks();
+  const solarModule = useSolarModule();
+  const visiblePacks = TRADE_PACKS.filter((p) => p.key !== 'solar' || solarModule.active || enabled.has('solar'));
   const [selected, setSelected] = useState<string>(TRADE_PACKS[0].key);
   const [tab, setTab] = useState<Tab>('overview');
   const [busy, setBusy] = useState(false);
 
   const canManage = isOwner || permissions.can_edit_business_profile || teamMember?.role === 'admin';
-  const pack = TRADE_PACKS.find((p) => p.key === selected) ?? TRADE_PACKS[0];
+  visiblePacks.find(...) ?? visiblePacks[0]
   const install = useMemo(() => installs.find((i) => i.pack_key === pack.key), [installs, pack.key]);
   const isOn = enabled.has(pack.key);
 
@@ -124,7 +129,7 @@ export function TradePacksPage() {
         <>
           {error && <p className="text-sm text-danger" role="alert">{error}</p>}
           <div className="grid gap-4 md:grid-cols-2">
-            {TRADE_PACKS.map((p) => {
+            {visiblePacks.map((p) => {
               const on = enabled.has(p.key);
               return (
                 <button
@@ -171,7 +176,7 @@ export function TradePacksPage() {
             {isOn && ownerId && install ? (
               <>
                 <nav className="flex flex-wrap gap-1 border-b border-border" aria-label="Pack sections">
-                  {TABS.filter((t) => t.key !== 'reports' || pack.key === 'pest_control').map((t) => (
+                 {TABS.filter((t) => (t.key !== 'reports' || pack.key === 'pest_control') && (t.key !== 'solar' || pack.key === 'solar') && (t.key !== 'products' || pack.key !== 'solar')).map((t) => (
                     <button
                       key={t.key}
                       type="button"
@@ -184,6 +189,7 @@ export function TradePacksPage() {
                   ))}
                 </nav>
                 {tab === 'overview' && <Overview pack={pack} />}
+                {tab === 'solar' && pack.key === 'solar' && (solarModule.active ? <SolarPanel ownerId={ownerId} canManage={canManage} /> : <p className="text-sm text-text-secondary">The Solar module is not enabled for this account. Your existing records are kept.</p>)}
                 {tab === 'log' && (
                   <div className="space-y-3">
                     <p className="flex items-center gap-2 text-sm text-text-secondary">
