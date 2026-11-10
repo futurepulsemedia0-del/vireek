@@ -195,6 +195,14 @@ export function resourceByName(name: string): ResourceDef | undefined {
   return RESOURCES.find((r) => r.name === name);
 }
 
+/**
+ * Column list for a resource's SELECT: exactly the documented fields (field-level allowlist).
+ * Empty string = unknown resource. index.ts must never select("*").
+ */
+export function selectColumns(resource: string): string {
+  return resourceByName(resource)?.fields.map((f) => f.name).join(',') ?? '';
+}
+
 /** `/calls/:id` → `/calls/{id}` */
 export function toOpenApiPath(path: string): string {
   return path.replace(/:([A-Za-z_]+)/g, '{$1}');
