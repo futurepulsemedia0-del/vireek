@@ -143,7 +143,6 @@ export function TechnicianTrustPassportPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const rows = await fetchTrustPassports(windowDays);
       const [rows, sims] = await Promise.all([
         fetchTrustPassports(windowDays),
         fetchSimulatorSummaries().catch(() => [] as TechnicianSimulatorSummary[]),
