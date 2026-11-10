@@ -116,7 +116,7 @@ export function SupportInboxPage() {
             >
               <p className="text-sm font-medium text-text-primary">
                 {asTicket(c).subject ? `${ticketRef(asTicket(c).ticket_number)} · ${asTicket(c).subject}` : c.visitor_name || c.visitor_email || 'Anonymous visitor'}
-              </p>>
+              </p>
               <p className="mt-0.5 truncate text-xs text-text-secondary">{c.page_path || '—'}</p>
               <p className="mt-0.5 text-[11px] text-text-secondary/70">
                 {c.status === 'open' ? 'Waiting' : 'In progress'} · {new Date(c.last_message_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
