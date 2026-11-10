@@ -145,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {{
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === 'SIGNED_OUT' && !isIntentionalSignOut()) {
         // The session died (expired/revoked refresh token). Keep the last-known state so the
         // page and unsaved work survive; SessionGuard shows the re-auth modal.
