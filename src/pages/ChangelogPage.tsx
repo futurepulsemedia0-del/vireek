@@ -26,7 +26,7 @@ const TYPE_META: Record<EntryType, { label: string; icon: typeof Sparkles; text:
 
 const EMAIL = 'ali@vireek.com';
 
-ffunction SEO() {
+function SEO() {
   useTrustSEO({
     title: "Changelog \u2014 What's New | Vireek",
     description:
@@ -139,7 +139,6 @@ export function ChangelogPage() {
               <Link to="/roadmap" className="font-semibold text-accent hover:text-cta">
                 Vote on the roadmap
               </Link>
-.
               .
             </motion.p>
           </div>
