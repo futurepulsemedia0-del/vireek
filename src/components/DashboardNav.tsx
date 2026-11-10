@@ -59,6 +59,7 @@ import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '@/hooks/useDirection';
 import { useEntitlements } from '@/hooks/useEntitlement';
+import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import { passesModuleGate } from '@/lib/entitlements';
 import { navLabelKey } from '@/lib/navLabel';
 import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
@@ -71,6 +72,8 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
   ownerOnly?: boolean;
+  /** Hidden unless this feature flag is on for the account. Fails closed. */
+  flag?: string;
   /** Hidden unless this module is enabled for the account (see filterItems' 4th argument). */
   hiddenUnless?: 'pest_ops';
   /** Hidden unless the account is entitled to this module. */
@@ -519,6 +522,7 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Compliance Rules', href: '/dashboard/compliance-rules', icon: Scale, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trash', href: '/dashboard/trash', icon: Trash2, requiresPermission: 'can_view_billing' },
   { label: 'API Usage', href: '/dashboard/settings/api-usage', icon: Activity },
+  { label: 'Webhook Deliveries', href: '/dashboard/webhook-deliveries', icon: PlugZap, ownerOnly: true, flag: 'public_api_v2' },
   { label: 'Email Settings', href: '/dashboard/settings/email', icon: Mail, requiresPermission: 'can_edit_business_profile' },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   { label: 'Settings Center', href: '/dashboard/settings/center', icon: SlidersHorizontal },
@@ -536,8 +540,9 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'system', label: 'System', icon: Monitor },
 ];
 const NO_MODULES: ReadonlySet<string> = new Set();
-eexport function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, enabledModules: ReadonlySet<string> = new Set()) {
+export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, isFlagOn?: (key: string) => boolean) {
   return items.filter((item) => {
+    if (item.flag && !(isFlagOn?.(item.flag) ?? false)) return false;
     if (item.hiddenUnless && !enabledModules.has(item.hiddenUnless)) return false;
     if (item.requiresFlag && isFlagOn && !isFlagOn(item.requiresFlag)) return false;
     if (item.requiresModule && !modules.has(item.requiresModule)) return false;
@@ -556,6 +561,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     rememberDashboardPath(location.pathname);
   }, [location.pathname]);
   const { user, isOwner, permissions, signOut } = useAuth();
+  const { isEnabled } = useFeatureFlags();
   const { enabled: partsSourcingOn } = usePartsSourcingEnabled();
   const enabledModules: ReadonlySet<string> = new Set(partsSourcingOn ? ['parts_sourcing'] : []);
   const { isEnabled: isFlagOn } = useFeatureFlags();
@@ -595,7 +601,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const pestOps = usePestOpsAccess();
   const enabledModules: ReadonlySet<string> = new Set(pestOps.enabled ? ['pest_ops'] : []);
   const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, enabledModules);
-  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, enabledModules);
+  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, (k) => isEnabled(k));
     try {
       return localStorage.getItem('vireek.labs') === '1';
     } catch {
