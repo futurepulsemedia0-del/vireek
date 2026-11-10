@@ -117,10 +117,10 @@ Deno.serve(async (req: Request) => {
 
     const model = Deno.env.get("GEMINI_MODEL") || "gemini-2.5-flash";
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: RESPONSE_SCHEMA }, ...imageParts] }],
           generationConfig: { maxOutputTokens: 800, temperature: 0.4, response_mime_type: "application/json" },
