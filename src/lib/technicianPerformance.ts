@@ -247,11 +247,12 @@ export function computeTechnicianPerformance(
       trainingGaps,
     });
 
-    return {
     const aiCoachingNotes = [
       ...baseCoachingNotes.filter((n) => !(n.tip.startsWith('Metrics are healthy') && ratingNotes.length > 0)),
       ...ratingNotes,
     ];
+
+    return {
       technicianId: tech.id,
       technicianName: tech.member_name || tech.member_email || 'Unnamed technician',
       jobsCompleted: techCompleted.length,
