@@ -13,7 +13,7 @@ import { createInvoice, fetchInvoices, getInvoiceLink, isOverdue, markInvoicePai
 import { useBulkTable } from '@/hooks/useBulkTable';
 import { applyRowPatches } from '@/lib/bulk/engine';
 import { PromoCodePanel } from '@/components/promos/PromoCodePanel';
-import { useUndoableActions } from 'REAL_PATH_HERE';
+import { useUndoableActions } from '@/hooks/useUndoableActions';
 
 const STATUS_STYLES: Record<InvoiceStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
