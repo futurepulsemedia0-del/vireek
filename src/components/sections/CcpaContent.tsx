@@ -248,7 +248,6 @@ export function CcpaContent() {
             <SectionHeading id="how-to-exercise" number="8" title="How to Exercise Your Rights" />
             <SectionBody>
               <p>
-              <p>
                 The fastest way is our{' '}
                 <Link to="/data-request" className="font-semibold text-accent hover:underline">
                   data request form
@@ -257,6 +256,8 @@ export function CcpaContent() {
                 with "CCPA Request" in the subject line. We may ask you to verify your identity before processing your
                 request, and we will respond within the timeframes required by law.
               </p>
+            </SectionBody>
+
             <SectionHeading id="contact-us" number="9" title="Contact Us" />
             <SectionBody>
               <p>Questions about your California privacy rights? Email us.</p>
