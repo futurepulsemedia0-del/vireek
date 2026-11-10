@@ -64,17 +64,17 @@ export function PhoneStep({ data, update, onBack, onNext, onSkip, saving }: Step
             Keep {data.forwardingNumber || data.phone || 'the number from step 1'} as your public line and forward calls to Vireek.
           </p>
         </button>
+
         {NEW_NUMBER_PROVISIONING_ENABLED && (
-        <button ...>…</button>
+          <button
+            type="button"
+            onClick={() => update({ phoneChoice: 'new_number' })}
+            className={`rounded-xl border p-4 text-left transition-all ${data.phoneChoice === 'new_number' ? 'border-accent bg-accent/5' : 'border-border bg-bg-primary hover:border-accent/30'}`}
+          >
+            <p className="text-sm font-semibold text-text-primary">Get a dedicated Vireek number</p>
+            <p className="mt-1 text-xs text-text-secondary">Pick a new local number for Sarah to answer directly.</p>
+          </button>
         )}
-        <button
-          type="button"
-          onClick={() => update({ phoneChoice: 'new_number' })}
-          className={`rounded-xl border p-4 text-left transition-all ${data.phoneChoice === 'new_number' ? 'border-accent bg-accent/5' : 'border-border bg-bg-primary hover:border-accent/30'}`}
-        >
-          <p className="text-sm font-semibold text-text-primary">Get a dedicated Vireek number</p>
-          <p className="mt-1 text-xs text-text-secondary">Pick a new local number for Sarah to answer directly.</p>
-        </button>
 
         {NEW_NUMBER_PROVISIONING_ENABLED && data.phoneChoice === 'new_number' && (
           <div className="rounded-xl border border-border bg-bg-primary p-4">
