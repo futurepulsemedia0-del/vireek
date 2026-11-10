@@ -100,9 +100,8 @@
     "cap:android": "npm run cap:sync && cap open android",
     "build:home": "vite build --mode home --outDir dist-home",
     "cap:home": "node scripts/cap-home.mjs",
-    "test:e2e:home": "playwright test e2e/homepage.spec.ts"
     "test:e2e:home": "playwright test e2e/homepage.spec.ts",
-    "doctor": "node scripts/dependency-doctor.mjs --check",
+   "doctor": "node scripts/dependency-doctor.mjs --check",
     "doctor:strict": "node scripts/dependency-doctor.mjs",
     "check:layers": "node scripts/governance/check-layers.mjs --check",
     "debt:report": "node scripts/governance/debt-report.mjs --write",
