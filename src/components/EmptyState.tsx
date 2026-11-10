@@ -92,8 +92,6 @@ export function EmptyState({
           ? t('empty.loadFailed.description')
           : undefined);
 
-  return (
-    <motion.div
   if (compact) {
     return (
       <p role={variant === 'load-failed' ? 'alert' : undefined} className={`py-4 text-center text-sm text-text-secondary ${className}`}>
@@ -107,6 +105,9 @@ export function EmptyState({
       </p>
     );
   }
+
+  return (
+    <motion.div
       role={variant === 'load-failed' ? 'alert' : undefined}
       initial={reduce ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
