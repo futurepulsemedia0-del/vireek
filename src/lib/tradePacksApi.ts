@@ -172,6 +172,7 @@ const KNOWN: Array<[RegExp, string]> = [
   [/trade_product_invalid/, ''],
   [/not_permitted/, 'You do not have permission to manage trade packs.'],
   [/pack_not_installed/, 'This pack is not installed yet.'],
+  [/solar_module_not_available/, 'The Solar module is not enabled for this account.'],
   [/invalid_schema|invalid_field|invalid_form|invalid_payload|unknown_pack/, 'The pack could not be installed (invalid definition).'],
   [/uq_trade_routes_name/, 'A route with that name already exists.'],
   [/uq_trade_products_active_name/, 'A product with that name already exists.'],
