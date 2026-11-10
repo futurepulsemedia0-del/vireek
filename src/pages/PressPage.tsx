@@ -352,7 +352,7 @@ export function PressPage() {
                 <p className="text-sm font-medium text-accent">{FOUNDER_TITLE}</p>
                 <p className="mt-3 text-sm leading-relaxed text-text-secondary">{FOUNDER_BIO}</p>
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-4 sm:justify-start">
-                  
+                  <a
                     href={FOUNDER_PHOTO_URL}
                     download
                     className="focus-ring inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
@@ -361,7 +361,7 @@ export function PressPage() {
                     Download headshot
                   </a>
                   {FOUNDER_LINKEDIN_URL && (
-                    
+                    <a
                       href={FOUNDER_LINKEDIN_URL}
                       target="_blank"
                       rel="noopener noreferrer"
