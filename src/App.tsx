@@ -456,6 +456,8 @@ const WorkflowHealthPage = lazy(() => import('@/pages/WorkflowHealthPage').then(
 const TrashPage = lazy(() => import('@/pages/TrashPage').then((m) => ({ default: m.TrashPage })));
 const DuplicatesPage = lazy(() => import('@/pages/DuplicatesPage').then((m) => ({ default: m.DuplicatesPage })));
 const ComplianceRulesPage = lazy(() => import('@/pages/ComplianceRulesPage').then((m) => ({ default: m.ComplianceRulesPage })));
+const FairSalePage = lazy(() => import('@/pages/FairSalePage').then((m) => ({ default: m.FairSalePage })));
+const FairSalePromisePage = lazy(() => import('@/pages/FairSalePromisePage').then((m) => ({ default: m.FairSalePromisePage })));
 const TechnicianCapacityPage = lazy(() => import('@/pages/TechnicianCapacityPage').then((m) => ({ default: m.TechnicianCapacityPage })));
 const ServiceAreasPage = lazy(() => import('@/pages/ServiceAreasPage').then((m) => ({ default: m.ServiceAreasPage })));
 const CapacityDemandPage = lazy(() => import('@/pages/CapacityDemandPage').then((m) => ({ default: m.CapacityDemandPage })));
@@ -1059,6 +1061,7 @@ function AppRoutes() {
         <Route path="/trust" element={<TrustCenterPage />} />
         <Route path="/insights" element={<InsightsPublicPage />} />
         <Route path="/trust/compliance" element={<ComplianceStatusPage />} />
+        <Route path="/fair-sale-promise" element={<FairSalePromisePage />} />
         <Route path="/trust/security" element={<SecurityPortalPage />} />
         <Route path="/integrations" element={<IntegrationsHubPage />} />
         <Route path="/integrations/:slug" element={<IntegrationDetailPage />} />
@@ -4520,6 +4523,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ComplianceRulesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/fair-sale"
+          element={
+            <ProtectedRoute>
+              <FairSalePage />
             </ProtectedRoute>
           }
         />
