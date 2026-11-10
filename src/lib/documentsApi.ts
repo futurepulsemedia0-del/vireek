@@ -154,7 +154,6 @@ export async function checkMyDocumentExpiries(): Promise<void> {
  */
 export async function getSignedUrl(
   version: Pick<DocumentVersion, 'storage_path' | 'file_name'> & Partial<Pick<DocumentVersion, 'id' | 'document_id'>>,
-  version: Pick<DocumentVersion, 'storage_path' | 'file_name'>,
   mode: 'view' | 'download',
 ): Promise<string> {
   const { data, error } = await supabase.storage
@@ -180,7 +179,7 @@ export async function getSignedUrl(
 
 /** Opens a version without tripping popup blockers (tab is opened synchronously). */
 export async function openVersion(
-  version: Pick<DocumentVersion, 'storage_path' | 'file_name'>,
+  version: Pick<DocumentVersion, 'storage_path' | 'file_name'> & Partial<Pick<DocumentVersion, 'id' | 'document_id'>>,
   mode: 'view' | 'download',
 ): Promise<void> {
   if (mode === 'download') {
