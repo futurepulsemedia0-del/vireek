@@ -697,6 +697,7 @@ const ListingsPage = lazy(() => import('@/pages/ListingsPage').then((m) => ({ de
 const InspectionReportPublicPage = lazy(() => import('@/pages/InspectionReportPublicPage').then((m) => ({ default: m.InspectionReportPublicPage })));
 const EmailSettingsPage = lazy(() => import('@/pages/EmailSettingsPage').then((m) => ({ default: m.EmailSettingsPage })));
 const ApiUsagePage = lazy(() => import('@/pages/ApiUsagePage').then((m) => ({ default: m.ApiUsagePage })));
+const WebhookDeliveriesPage = lazy(() => import('@/pages/WebhookDeliveriesPage').then((m) => ({ default: m.WebhookDeliveriesPage })));
 const OAuthAppsPage = lazy(() => import('@/pages/OAuthAppsPage').then((m) => ({ default: m.OAuthAppsPage })));
 const SmsCompliancePage = lazy(() => import('@/pages/SmsCompliancePage').then((m) => ({ default: m.SmsCompliancePage })));
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
@@ -1659,6 +1660,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ApiUsagePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/webhook-deliveries"
+          element={
+            <ProtectedRoute>
+              <WebhookDeliveriesPage />
             </ProtectedRoute>
           }
         />
