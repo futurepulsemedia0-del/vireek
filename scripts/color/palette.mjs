@@ -4,9 +4,11 @@
 // never silently drift below AA. `npm run tokens:build` turns this file into CSS variables, Tailwind colours,
 // TS/Deno hex constants and the docs table; `npm run test` re-verifies every declared pair.
 //
-// Brand anchors (unchanged from the previous system, so the visual change is near-invisible):
-//   cobalt  #203AD8 (light) / #6C82FF (dark)      copper  #D6582A (graphic) / #FF8A5A (dark)
-// Copper keeps its meaning: LIVE / URGENT only — never decorative, never a generic CTA.
+// "Claude-first" brand system. Every seed below is a published colour of one of three reference systems:
+//   ANTHROPIC (dominant): Slate #141413, Ivory #FAF9F5, Light Gray #E8E6DC, Mid Gray #B0AEA5, Clay #D97757, Sky #6A9BCC
+//   APPLE (second):       system Green #34C759/#30D158, Red #FF383C/#FF4245, Yellow #FFCC00/#FFD600   -> status colours
+//   STRIPE (third):       Blurple #635BFF, Lilac #7E6BFD                                             -> `cta` (live / AI signal)
+// No other hue is allowed anywhere in the product. Clay = brand/primary action; Blurple (cta) = LIVE / AI signal only.
 
 import { oklchToRgb, contrast, solveL, over, toHex, rgbToOklch } from './oklch.mjs';
 
@@ -24,53 +26,53 @@ export const MESH_ALPHA = { accent: 0.14, cta: 0.1 };
 
 // ---------------------------------------------------------------- surfaces & neutrals (OKLCH)
 const SURFACE = {
-  light: { bg1: [0.9913, 0.0029, 84.6], bg2: [1, 0, 0], bg3: [0.9676, 0.0057, 84.6], overlay: [1, 0, 0] },
-  dark: { bg1: [0.145, 0.0067, 270.5], bg2: [0.1784, 0.0084, 274.4], bg3: [0.2102, 0.01, 276.6], overlay: [0.245, 0.0105, 277] },
+  light: { bg1: [0.981775, 0.005392, 95.0986], bg2: [1, 0, 0], bg3: [0.948457, 0.010853, 95.1664], overlay: [1, 0, 0] },
+  dark: { bg1: [0.190839, 0.001983, 106.5859], bg2: [0.225, 0.0032, 106], bg3: [0.26, 0.004, 104], overlay: [0.295, 0.0045, 102] },
 };
-const INK = { light: [0.2059, 0.0059, 285.9], dark: [0.9581, 0.0041, 91.4] }; // text-primary
+const INK = { light: [0.190839, 0.001983, 106.5859], dark: [0.981775, 0.005392, 95.0986] }; // text-primary: Slate / Ivory
 const rgbOf = ([L, C, h]) => oklchToRgb(L, C, h);
 const WHITE = [255, 255, 255];
-const GRAPHITE = rgbOf([0.2059, 0.0059, 285.9]); // 17 17 1A-ish: the "ink" used on bright fills
+const GRAPHITE = rgbOf([0.190839, 0.001983, 106.5859]); // Anthropic Slate #141413: the "ink" used on bright fills
 
 // ---------------------------------------------------------------- semantic families
 // text/fill/graphic seeds are the brand anchors; the solver only moves lightness (never hue) when needed.
 // `on` = text colour used on the family's solid fill, per theme.
 const FAMILIES = {
-  accent: {
-    seed: { light: [0.4562, 0.2377, 267.0], dark: [0.6519, 0.1856, 272.7] },
-    fillSeed: { light: [0.4562, 0.2377, 267.0], dark: [0.6519, 0.1856, 272.7] },
-    on: { light: 'white', dark: 'white' },
-    scale: { anchorStep: 600, anchorL: 0.4562 },
-  },
-  cta: { // copper — live / urgent only
-    seed: { light: [0.6164, 0.1694, 39.2], dark: [0.7531, 0.1554, 42.3] },
-    fillSeed: { light: [0.6164, 0.1694, 39.2], dark: [0.7531, 0.1554, 42.3] },
-    on: { light: 'white', dark: 'ink' },
-    scale: { anchorStep: 500, anchorL: 0.6164 },
-  },
-  success: {
-    seed: { light: [0.5441, 0.1163, 160.2], dark: [0.7449, 0.1408, 159.3] },
-    fillSeed: { light: [0.5441, 0.1163, 160.2], dark: [0.7449, 0.1408, 159.3] },
-    on: { light: 'white', dark: 'ink' },
-    scale: { anchorStep: 600, anchorL: 0.5441 },
-  },
-  danger: {
-    seed: { light: [0.5494, 0.1888, 26.0], dark: [0.6793, 0.1734, 22.9] },
-    fillSeed: { light: [0.5494, 0.1888, 26.0], dark: [0.6793, 0.1734, 22.9] },
-    on: { light: 'white', dark: 'ink' },
-    scale: { anchorStep: 600, anchorL: 0.5494 },
-  },
-  warning: {
-    seed: { light: [0.5454, 0.1185, 62.3], dark: [0.7821, 0.1368, 74.7] },
-    fillSeed: { light: [0.7686, 0.1647, 70.1], dark: [0.7821, 0.1368, 74.7] }, // bright amber + ink text
+  accent: { // Anthropic CLAY #D97757 — brand + primary action
+    seed: { light: [0.67242, 0.13084, 38.7559], dark: [0.67242, 0.13084, 38.7559] },
+    fillSeed: { light: [0.67242, 0.13084, 38.7559], dark: [0.67242, 0.13084, 38.7559] },
     on: { light: 'ink', dark: 'ink' },
-    scale: { anchorStep: 500, anchorL: 0.7686 },
+    scale: { anchorStep: 500, anchorL: 0.67242 },
   },
-  info: { // NEW semantic colour — hue deliberately distinct from cobalt (267) so info != brand
-    seed: { light: [0.5876, 0.1389, 242.0], dark: [0.7535, 0.139, 232.7] },
-    fillSeed: { light: [0.5876, 0.1389, 242.0], dark: [0.7535, 0.139, 232.7] },
+  cta: { // Stripe BLURPLE #635BFF / LILAC #7E6BFD — live / AI signal only
+    seed: { light: [0.57843, 0.234615, 278.2909], dark: [0.622379, 0.208774, 284.4749] },
+    fillSeed: { light: [0.57843, 0.234615, 278.2909], dark: [0.622379, 0.208774, 284.4749] },
     on: { light: 'white', dark: 'ink' },
-    scale: { anchorStep: 600, anchorL: 0.5876 },
+    scale: { anchorStep: 500, anchorL: 0.57843 },
+  },
+  success: { // Apple GREEN #34C759 / #30D158
+    seed: { light: [0.730324, 0.194381, 147.4439], dark: [0.755551, 0.208246, 146.9836] },
+    fillSeed: { light: [0.730324, 0.194381, 147.4439], dark: [0.755551, 0.208246, 146.9836] },
+    on: { light: 'ink', dark: 'ink' },
+    scale: { anchorStep: 500, anchorL: 0.730324 },
+  },
+  danger: { // Apple RED #FF383C / #FF4245
+    seed: { light: [0.653197, 0.232821, 25.7394], dark: [0.662002, 0.224599, 25.1223] },
+    fillSeed: { light: [0.653197, 0.232821, 25.7394], dark: [0.662002, 0.224599, 25.1223] },
+    on: { light: 'white', dark: 'ink' },
+    scale: { anchorStep: 500, anchorL: 0.653197 },
+  },
+  warning: { // Apple YELLOW #FFCC00 / #FFD600
+    seed: { light: [0.865209, 0.176828, 90.3816], dark: [0.884795, 0.181642, 94.8972] },
+    fillSeed: { light: [0.865209, 0.176828, 90.3816], dark: [0.884795, 0.181642, 94.8972] },
+    on: { light: 'ink', dark: 'ink' },
+    scale: { anchorStep: 500, anchorL: 0.865209 },
+  },
+  info: { // Anthropic SKY #6A9BCC
+    seed: { light: [0.674177, 0.09015, 249.2918], dark: [0.674177, 0.09015, 249.2918] },
+    fillSeed: { light: [0.674177, 0.09015, 249.2918], dark: [0.674177, 0.09015, 249.2918] },
+    on: { light: 'ink', dark: 'ink' },
+    scale: { anchorStep: 500, anchorL: 0.674177 },
   },
 };
 
@@ -92,7 +94,7 @@ export function buildScale({ seed, fillSeed, scale }) {
 }
 export const NEUTRAL_SCALE = (() => {
   const out = {};
-  for (const s of STEPS) out[s] = toHex(oklchToRgb(BASE_L[s] + (s === 50 ? 0.015 : 0), 0.006 + 0.006 * (1 - BASE_L[s]), 85));
+  for (const s of STEPS) out[s] = toHex(oklchToRgb(BASE_L[s] + (s === 50 ? 0.015 : 0), 0.006 + 0.006 * (1 - BASE_L[s]), 97));
   return out;
 })();
 
@@ -102,8 +104,8 @@ export const NEUTRAL_SCALE = (() => {
 // Copper hues (≈18–62°) are excluded: copper is reserved for live/urgent. Series 1 is brand cobalt.
 // Colour alone can NEVER carry meaning: charts must also use VIZ_PATTERNS + VIZ_MARKERS + direct labels.
 const VIZ_CAT_OKLCH = {
-  light: [[0.58, 0.16, 270], [0.48, 0.12, 282], [0.34, 0.2, 288], [0.34, 0.16, 336], [0.48, 0.12, 354], [0.58, 0.12, 6], [0.4, 0.08, 96], [0.52, 0.12, 102]],
-  dark: [[0.64, 0.2, 276], [0.76, 0.12, 216], [0.88, 0.12, 198], [0.8, 0.08, 126], [0.88, 0.16, 102], [0.72, 0.16, 84], [0.64, 0.16, 18], [0.62, 0.12, 318]],
+  light: [[0.62, 0.1308, 38.76], [0.4994, 0.2346, 278.29], [0.6223, 0.2623, 254.09], [0.3, 0.0716, 249.29], [0.4174, 0.2554, 322.51], [0.4947, 0.0909, 56.25], [0.3889, 0.002, 106.59], [0.3, 0.0776, 57.23]],
+  dark: [[0.6724, 0.1308, 38.76], [0.5951, 0.2073, 284.47], [0.8257, 0.0837, 249.29], [0.676, 0.1331, 219.96], [0.8089, 0.2272, 90.38], [0.589, 0.0871, 359.65], [0.7838, 0.0129, 96.48], [0.93, 0.1904, 254.09]],
 };
 
 // ---------------------------------------------------------------- the solver
@@ -136,30 +138,24 @@ export function buildTheme(theme) {
 
   // text
   tok['text-primary'] = hc ? (mode === 'light' ? [0, 0, 0] : WHITE) : rgbOf(INK[mode]);
-  const nL = mode === 'light' ? 285.9 : 286;
+  const nL = 98; // Anthropic neutrals are warm
   // brand radial wash worst case (bg-gradient-mesh pools at full strength) must not reduce secondary/muted text
   const POOLS = Object.entries(MESH_ALPHA).map(([f, a]) => [a, f]).map(([a, f]) => {
     const [L, C, h] = FAMILIES[f].fillSeed[mode];
     return over(oklchToRgb(L, C, h), a, tok['bg-primary']);
   });
   const solveNeutral = (seedL, C, target) => oklchToRgb(solveL(seedL, C, nL, [...SF, ...POOLS], target, dir), C, nL);
-  tok['text-secondary'] = solveNeutral(mode === 'light' ? 0.5169 : 0.6891, mode === 'light' ? 0.014 : 0.013, tgt.secondary);
-  tok['text-muted'] = oklchToRgb(solveL(mode === 'light' ? 0.6 : 0.62, 0.012, nL, SF, tgt.muted, dir), 0.012, nL); // never place muted text over .bg-gradient-mesh
+  tok['text-secondary'] = solveNeutral(mode === 'light' ? 0.5 : 0.749863, mode === 'light' ? 0.011 : 0.012863, tgt.secondary);
+  tok['text-muted'] = oklchToRgb(solveL(mode === 'light' ? 0.551 : 0.62, 0.009, nL, SF, tgt.muted, dir), 0.009, nL); // never place muted text over .bg-gradient-mesh
   tok['text-placeholder'] = oklchToRgb(solveL(mode === 'light' ? 0.64 : 0.58, 0.012, nL, SF, tgt.placeholder, dir), 0.012, nL); // informational placeholder: AA on every neutral surface
   tok['graphic-muted'] = oklchToRgb(solveL(mode === 'light' ? 0.68 : 0.52, 0.01, nL, SF, tgt.ui, dir), 0.01, nL); // neutral icon/glyph colour (non-text, >= 3:1, WCAG 1.4.11)
   tok['text-inverse'] = mode === 'light' ? rgbOf(SURFACE.light.bg1) : rgbOf(SURFACE.dark.bg1);
 
-  // borders: tier 1 decorative (exempt), tier 2 control borders >= 3:1 (WCAG 1.4.11)
-  tok['border-default'] = hc ? solveNeutral(mode === 'light' ? 0.6 : 0.5, 0.01, 4.5) : rgbOf(mode === 'light' ? [0.9221, 0.0071, 88.6] : [0.2664, 0.0131, 279]);
-  tok['border-strong'] = oklchToRgb(solveL(mode === 'light' ? 0.7 : 0.5, 0.01, 85, SF, hc ? 4.5 : 3.2, dir), 0.01, 85);
-
-  // always-dark "inverse" panel (marketing dark sections / code blocks) — identical meaning in both themes
-  const inv = rgbOf(mode === 'light' ? INK.light : [0.245, 0.0105, 277]);
+  const inv = rgbOf(mode === 'light' ? INK.light : [0.27, 0.004, 104]);
   tok['surface-inverse'] = inv;
-  tok['on-inverse'] = rgbOf([0.96, 0.004, 90]);
-  tok['on-inverse-muted'] = oklchToRgb(solveL(0.72, 0.012, 286, [inv], hc ? 7 : 5.2, +1), 0.012, 286);
-  tok['border-inverse'] = oklchToRgb(solveL(0.45, 0.01, 286, [inv], 3.2, +1), 0.01, 286);
-
+  tok['on-inverse'] = rgbOf([0.981775, 0.005392, 95.0986]);
+  tok['on-inverse-muted'] = oklchToRgb(solveL(0.749863, 0.012863, 96.4777, [inv], hc ? 7 : 5.2, +1), 0.012863, 96.4777);
+  tok['border-inverse'] = oklchToRgb(solveL(0.45, 0.01, 98, [inv], 3.2, +1), 0.01, 98);
   // families
   const subtleOf = (f) => oklchToRgb(mode === 'light' ? 0.965 : 0.265, mode === 'light' ? 0.03 : 0.045, f.seed[mode][2]);
   for (const [name, f] of Object.entries(FAMILIES)) {
@@ -220,10 +216,10 @@ export function buildTheme(theme) {
   tok['focus-ring'] = tok['accent-text'];
   tok['selection-bg'] = tok['accent-subtle-border'];
   tok['selection-fg'] = tok['text-primary'];
-  tok['disabled-bg'] = oklchToRgb(mode === 'light' ? 0.94 : 0.24, 0.006, 85);
-  tok['disabled-fg'] = oklchToRgb(mode === 'light' ? 0.66 : 0.5, 0.008, 85);
+  tok['disabled-bg'] = oklchToRgb(mode === 'light' ? 0.94 : 0.24, 0.006, 97);
+  tok['disabled-fg'] = oklchToRgb(mode === 'light' ? 0.66 : 0.5, 0.008, 97);
   tok['text-disabled'] = tok['disabled-fg']; // EXEMPT from contrast (WCAG 1.4.3: inactive components) — never use for readable content
-  tok['overlay'] = mode === 'light' ? [9, 10, 13] : [0, 0, 0];
+  tok['overlay'] = mode === 'light' ? [20, 20, 19] : [0, 0, 0]; // light scrim = Slate
   tok['static-white'] = WHITE;
   tok['static-black'] = [0, 0, 0];
 
@@ -242,11 +238,11 @@ export function buildTheme(theme) {
   for (let i = 0; i < 9; i++) {
     const t = i / 8;
     const L = mode === 'light' ? 0.96 - t * 0.6 : 0.3 + t * 0.55;
-    tok[`viz-seq-${i + 1}`] = oklchToRgb(L, 0.2 * Math.sin(Math.PI * (0.15 + 0.75 * t)) + 0.02, 267);
+    tok[`viz-seq-${i + 1}`] = oklchToRgb(L, 0.13 * Math.sin(Math.PI * (0.15 + 0.75 * t)) + 0.015, 249.2918);
   }
   for (let i = 0; i < 9; i++) {
     const d = (i - 4) / 4; // -1 .. +1 ; centre is neutral, ends are saturated and darker (light) / lighter (dark)
-    tok[`viz-div-${i + 1}`] = oklchToRgb(mode === 'light' ? 0.95 - Math.abs(d) * 0.45 : 0.3 + Math.abs(d) * 0.48, 0.15 * Math.abs(d) + 0.005, d < 0 ? 267 : 85);
+    tok[`viz-div-${i + 1}`] = oklchToRgb(mode === 'light' ? 0.95 - Math.abs(d) * 0.45 : 0.3 + Math.abs(d) * 0.48, 0.13 * Math.abs(d) + 0.005, d < 0 ? 249.2918 : 38.7559);
   }
   return { tok, meta, mode, hc };
 }
