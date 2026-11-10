@@ -80,8 +80,8 @@ function NewDebtItemForm({ userId, onSaved }: { userId: string; onSaved: () => v
   };
 
   return (
-    <div className="space-y-3 rounded-2xl border border-border bg-bg-secondary p-4">
-      <input className={inputClass} placeholder="What decision or action has stalled? (e.g. \"Finalize overtime discount policy\")" value={title} onChange={(e) => setTitle(e.target.value)} />
+    <div className="space-y-3 rounded-2xl border border-border bg-bg-secondary p-4">placeholder={'What decision or action has stalled? (e.g. "Finalize overtime discount policy")'}
+      <input className={inputClass}  value={title} onChange={(e) => setTitle(e.target.value)} />
       <textarea className={inputClass} rows={2} placeholder="What's actually blocked because this hasn't been decided? (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
