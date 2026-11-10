@@ -20,11 +20,11 @@ export const staggerContainer: Variants = {
 };
 
 export function sectionHeadingClass() {
-  return 'mt-3 font-display text-3xl font-semibold leading-[1.15] tracking-tight text-text-primary md:text-5xl';
+  return 'mt-3 font-display text-3xl font-medium leading-[1.12] tracking-[-0.022em] text-text-primary md:text-5xl';
 }
 
 export function eyebrowClass() {
-  return 'text-eyebrow font-semibold uppercase tracking-[0.16em] text-accent';
+  return 'text-eyebrow font-mono font-medium uppercase tracking-[0.1em] text-accent';
 }
 
 export function bodyClass() {
