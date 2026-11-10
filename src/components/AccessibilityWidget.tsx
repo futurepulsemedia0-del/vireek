@@ -517,7 +517,8 @@ function PanelContent({ onClose }: { onClose: () => void }) {
         <SettingRow icon={Palette} label="Grayscale" description="Remove all color" checked={settings.grayscale} onChange={(v) => updateSetting('grayscale', v)} />
         <SettingRow icon={Palette} label="Monochrome" description="Black and white mode" checked={settings.monochrome} onChange={(v) => updateSetting('monochrome', v)} />
         <SettingRow icon={Palette} label="High Saturation" description="Boost color intensity" checked={settings.highSaturation} onChange={(v) => updateSetting('highSaturation', v)} />
-        <SettingRow icon={Palette} label="Low Saturation" description="Reduce color intensity" checked={settings.lowSaturation} onChange={(v) => updateSetting('lowSaturation', v)}         <div className="px-3 py-2.5">
+        <SettingRow icon={Palette} label="Low Saturation" description="Reduce color intensity" checked={settings.lowSaturation} onChange={(v) => updateSetting('lowSaturation', v)} />
+        <div className="px-3 py-2.5">
           <label htmlFor="a11y-color-blind" className="block text-sm font-medium text-text-primary">Color-blindness correction</label>
           <select
             id="a11y-color-blind"
@@ -531,7 +532,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
             <option value="tritanopia">Tritanopia (blue-weak)</option>
           </select>
           <p className="mt-1 text-xs text-text-secondary/70">Makes hard-to-tell colors easier to distinguish. It does not restore normal color vision.</p>
-        </div>/>
+        </div>
       </Section>
     </>
   );
