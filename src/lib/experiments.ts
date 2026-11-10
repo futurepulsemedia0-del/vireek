@@ -20,7 +20,6 @@
 
 import { trackEvent } from '@/lib/analytics';
 import { hasConsent } from '@/lib/consent/engine';
-import { hasConsent } from '@/lib/consent/engine';
 
 /**
  * Register every experiment here. Add a new id + variant list to run a
@@ -116,7 +115,6 @@ function pickVariant(experiment: ExperimentConfig, visitorId: string): string {
 function readStoredAssignments(): Record<string, string> {
   if (!hasConsent('analytics')) return {};
   try {
-  try {
     return JSON.parse(localStorage.getItem(ASSIGNMENTS_KEY) || '{}');
   } catch {
     return {};
@@ -125,7 +123,6 @@ function readStoredAssignments(): Record<string, string> {
 
 function writeStoredAssignments(assignments: Record<string, string>) {
   if (!hasConsent('analytics')) return;
-  try {
   try {
     localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments));
   } catch {
