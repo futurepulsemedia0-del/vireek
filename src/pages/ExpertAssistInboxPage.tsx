@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import { fetchOpenRequests, ExpertAssistRequest } from '@/lib/expertAssist';
-import { DashboardLayout } from '@/components/DashboardLayout';
+import { DashboardLayout } from '@/components/DashboardNav';
 
 export function ExpertAssistInboxPage() {
   const [requests, setRequests] = useState<ExpertAssistRequest[]>([]);
