@@ -996,7 +996,7 @@ function AppRoutes() {
         <Route path="/claim/:token" element={<BackfillClaimPage />} />
         <Route path="/track/:token" element={<TrackingPage />} />
         <Route path="/project/:token" element={<ProjectProgressPage />} />
-        <Route path="/lien-waiver/:token" element={<PublicLienWaiverPage />} />ش
+        <Route path="/lien-waiver/:token" element={<PublicLienWaiverPage />} />
         <Route path="/review/:token" element={<ReviewSubmitPage />} />
         <Route path="/s/:token" element={<SurveyResponsePage />} />
         <Route path="/preferences/:token" element={<PreferencesPage />} />
@@ -1780,7 +1780,7 @@ function AppRoutes() {
               <BusinessDecisionEnginePage />
             </ProtectedRoute>
           }
-        />|
+        />
         <Route
           path="/dashboard/chief-of-staff"
           element={
@@ -2615,7 +2615,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-      path="/dashboard/speed-to-lead"  → element: <SpeedToLeadPage />
+        <Route
+          path="/dashboard/speed-to-lead"
+          element={
+            <ProtectedRoute>
+              <SpeedToLeadPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/neighborhood-revenue"
           element={
@@ -3226,6 +3233,7 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+<Route
   path="/dashboard/per-diem"
   element={
     <ProtectedRoute>
@@ -4152,7 +4160,6 @@ function AppRoutes() {
           }
         />
         <Route
-        <Route
           path="/dashboard/home-passport/pilot"
           element={
             <ProtectedRoute>
@@ -4160,6 +4167,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
           path="/dashboard/property-intelligence"
           element={
             <ProtectedRoute>
