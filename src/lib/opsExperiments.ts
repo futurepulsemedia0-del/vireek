@@ -319,6 +319,8 @@ export function collectCells(
 ): Cells {
   const cells: Cells = { treatment: [], control: [], treatmentPre: [], controlPre: [] };
   const ctx: ObserveContext = { reworked: buildReworkedSet(jobs), now, maturityDays: cfg.maturity_days };
+  // 'natural' is analysed from dispatch draws (analyzeNaturalExperiment), never from job cells.
+  if (cfg.design === 'natural') return cells;
 
   if (cfg.design === 'randomized') {
     const arms = new Map<string, Arm>();
@@ -406,18 +408,6 @@ export function estimateEffect(design: DesignKind, cells: Cells, zCrit: number):
   };
 }
 
-/** Sample-ratio-mismatch test on ENROLLED units (not on observed outcomes). */
-export function srmCheck(nTreatment: number, nControl: number, treatmentShare: number): SrmResult {
-  const total = nTreatment + nControl;
-  const share = treatmentShare / 100;
-  const expT = total * share;
-  const expC = total * (1 - share);
-  if (total === 0 || expT === 0 || expC === 0) return { nTreatment, nControl, p: 1, failed: false };
-  const chi2 = (nTreatment - expT) ** 2 / expT + (nControl - expC) ** 2 / expC;
-  const p = twoSidedP(Math.sqrt(chi2));
-  return { nTreatment, nControl, p, failed: total >= 20 && p < SRM_ALPHA };
-}
-
 export interface Baseline {
   n: number;
   mean: number;
@@ -502,8 +492,6 @@ export function analyzeExperiment(
 
   let srm: SrmResult | null = null;
   if (cfg.design === 'randomized') {
-     // 'natural' is analysed from dispatch draws (analyzeNaturalExperiment), never from job cells.
-     if (cfg.design === 'natural') return cells;
     const enrolled = assignments.filter((a) => a.unit_type === 'job');
     srm = srmCheck(
       enrolled.filter((a) => a.arm === 'treatment').length,
@@ -542,13 +530,16 @@ export function analyzeExperiment(
     if (status === 'breached') warnings.push(`Guardrail breached: ${METRICS[gMetric].label} got worse than the agreed tolerance.`);
   }
 
-  let verdict: Verdict;
-  if (srm?.failed) verdict = 'invalid';
-  else if (!estimate || observedPerArm < MIN_CELL_N || sparse) verdict = 'collecting';
-  else if (Math.abs(estimate.z) >= zCritical) verdict = (primary.benefit ?? 0) > 0 ? 'win' : 'loss';
-  else if (informationFraction >= 1) verdict = estimate.ciLow >= -mde && estimate.ciHigh <= mde ? 'no_effect' : 'inconclusive';
-  else verdict = 'collecting';
-
+  const verdict = decideVerdict({
+    srmFailed: Boolean(srm?.failed),
+    estimate,
+    benefit: primary.benefit,
+    observedPerArm,
+    sparse,
+    zCritical,
+    informationFraction,
+    mde,
+  });
   const recommendation = recommend(verdict, guardrail);
   const evidence: EvidenceGrade =
     cfg.design === 'randomized' && informationFraction >= 1 && !sparse ? 'A' : cfg.design === 'randomized' || informationFraction >= 1 ? 'B' : 'C';
