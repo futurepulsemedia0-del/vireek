@@ -12,11 +12,25 @@ import type {
 } from "../types.ts";
 import { AiCoreError } from "../types.ts";
 import { readSseEvents } from "../sse.ts";
+import { createKeyPool, parseKeyEntries, withKeyFailover } from "../keyPool.ts";
+import type { KeyPool } from "../keyPool.ts";
+import { recordKeyEvent } from "../keyHealthStore.ts";
 
 const DEFAULT_MODEL = "gemini-2.5-flash";
 
-function getApiKey(): string | undefined {
-  return Deno.env.get("GEMINI_API_KEY");
+let pool: KeyPool | null = null;
+let poolSignature = "";
+
+/** Ordered, sticky key pool. GEMINI_API_KEY (legacy) is always first; GEMINI_API_KEYS adds more. */
+function getPool(): KeyPool {
+  const legacy = Deno.env.get("GEMINI_API_KEY");
+  const multi = Deno.env.get("GEMINI_API_KEYS");
+  const signature = `${legacy ?? ""}\u0000${multi ?? ""}`;
+  if (!pool || signature !== poolSignature) {
+    pool = createKeyPool("gemini", parseKeyEntries(multi, legacy), { onEvent: recordKeyEvent });
+    poolSignature = signature;
+  }
+  return pool;
 }
 function getModel(): string {
   return Deno.env.get("GEMINI_MODEL") || DEFAULT_MODEL;
@@ -47,21 +61,15 @@ function extractText(data: unknown): string {
   return (candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
 }
 
-export const geminiAdapter: ProviderAdapter = {
-  id: "gemini",
+interface KeyedGemini {
+  chat(req: NormalizedChatRequest, apiKey: string): Promise<NormalizedChatResponse>;
+  chatStream(req: NormalizedChatRequest, onDelta: ChatStreamHandler, apiKey: string): Promise<NormalizedChatResponse>;
+}
 
-  isConfigured(): boolean {
-    return !!getApiKey();
-  },
-
-  async chat(req: NormalizedChatRequest): Promise<NormalizedChatResponse> {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      throw new AiCoreError("NOT_CONFIGURED", "GEMINI_API_KEY is not set.", "gemini");
-    }
-
+const geminiCore: KeyedGemini = {
+  async chat(req: NormalizedChatRequest, apiKey: string): Promise<NormalizedChatResponse> {
     const model = getModel();
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const start = Date.now();
     const controller = new AbortController();
@@ -109,14 +117,10 @@ export const geminiAdapter: ProviderAdapter = {
     return { text, provider: "gemini", model, latencyMs: Date.now() - start, wasFallback: false };
   },
 
-  async chatStream(req: NormalizedChatRequest, onDelta: ChatStreamHandler): Promise<NormalizedChatResponse> {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      throw new AiCoreError("NOT_CONFIGURED", "GEMINI_API_KEY is not set.", "gemini");
-    }
+  async chatStream(req: NormalizedChatRequest, onDelta: ChatStreamHandler, apiKey: string): Promise<NormalizedChatResponse> {
 
     const model = getModel();
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
 
     const start = Date.now();
     const controller = new AbortController();
@@ -128,7 +132,7 @@ export const geminiAdapter: ProviderAdapter = {
       res = await fetch(url, {
         method: "POST",
         signal: controller.signal,
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify(buildRequestBody(req)),
       });
     } catch (err) {
@@ -187,5 +191,23 @@ export const geminiAdapter: ProviderAdapter = {
     }
 
     return { text, provider: "gemini", model, latencyMs: Date.now() - start, wasFallback: false };
+  },
+};
+
+export const geminiAdapter: ProviderAdapter = {
+  id: "gemini",
+
+  isConfigured(): boolean {
+    return getPool().size() > 0;
+  },
+
+  chat(req: NormalizedChatRequest): Promise<NormalizedChatResponse> {
+    return withKeyFailover(getPool(), "gemini", (apiKey) => geminiCore.chat(req, apiKey));
+  },
+
+  // AUTH is returned by the HTTP status before any token is streamed, so failing over to the next
+  // key can never duplicate output already delivered to the caller.
+  chatStream(req: NormalizedChatRequest, onDelta: ChatStreamHandler): Promise<NormalizedChatResponse> {
+    return withKeyFailover(getPool(), "gemini", (apiKey) => geminiCore.chatStream(req, onDelta, apiKey));
   },
 };
