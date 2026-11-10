@@ -16,16 +16,18 @@ import { createDefaultProfile, listOrders, listProfiles, type PortalProfile } fr
 import { useFmcheckT } from '@/i18n/fmcheckNamespace';
 
 const PAGE = 'Work-Order Guard';
-{ id: 'deposits', label: 'Deposits' }, { id: 'fmcheck', label: 'Fix before sending' }, { id: 'rules', label: 'Rules' },
+
+type Tab = 'orders' | 'audit' | 'import' | 'deposits' | 'fmcheck' | 'rules';
+
 const TABS: { id: Tab; label: string }[] = [
   { id: 'orders', label: 'Orders' }, { id: 'audit', label: 'Quarter Audit' }, { id: 'import', label: 'Import' },
-  { id: 'deposits', label: 'Deposits' }, { id: 'rules', label: 'Rules' },
+  { id: 'deposits', label: 'Deposits' }, { id: 'fmcheck', label: 'Fix before sending' }, { id: 'rules', label: 'Rules' },
 ];
 
 export function WorkOrderGuardPage() {
   const { profile, teamMember, isOwner, permissions, loading: authLoading, profileLoading } = useAuth();
   const { toast } = useToast();
-  const { t: tf } = useFmcheckT();
+  useFmcheckT(); // preload the Fix-before-sending locale for FmCheckPanel
   // Everything is keyed by the ACCOUNT OWNER's id (differs from user.id for team members).
   const ownerId = (isOwner ? profile?.id : teamMember?.account_owner_id) ?? null;
   const canAccess = isOwner || permissions.can_view_billing;
