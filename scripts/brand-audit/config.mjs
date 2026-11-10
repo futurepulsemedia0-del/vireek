@@ -65,7 +65,7 @@ export const TOKEN_EXEMPT = [
 ];
 
 /** Fonts allowed as the FIRST family of visible text (lower-cased). Source: tailwind.config.js + index.css. */
-export const ALLOWED_FONTS = ['sora', 'inter', 'ui-sans-serif', 'system-ui', 'ui-monospace', 'sfmono-regular', 'menlo', 'monaco', 'consolas', 'courier new', 'monospace', '-apple-system', 'blinkmacsystemfont', 'segoe ui'];
+export const ALLOWED_FONTS = ['sora', 'source serif 4', 'georgia', 'times new roman', 'inter', 'ui-sans-serif', 'system-ui', 'ui-monospace', 'sfmono-regular', 'menlo', 'monaco', 'consolas', 'courier new', 'monospace', '-apple-system', 'blinkmacsystemfont', 'segoe ui'];
 
 /** Canonical brand naming (see /trademark-policy). */
 export const NAMING = {
