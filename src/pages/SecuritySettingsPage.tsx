@@ -4,7 +4,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { BackButton } from '@/components/ui/BackButton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { DataSaverCard } from '@/components/native/DataSaverCard';).
+import { DataSaverCard } from '@/components/native/DataSaverCard';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
 import { listTrustedDevices, revokeTrustedDevice, TrustedDeviceRow } from '@/lib/deviceTrust';
