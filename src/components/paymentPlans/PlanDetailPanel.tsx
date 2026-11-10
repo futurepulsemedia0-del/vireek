@@ -59,8 +59,10 @@ export function PlanDetailPanel({ plan, ownerId, onClose, onChanged }: { plan: P
   };
 
   const chargeMessage = (outcome?: string, error?: string | null) =>
-    outcome === 'paid' ? 'Payment collected' : outcome === 'requires_action' ? 'The bank needs the customer to confirm — we sent them a link.' : `Charge failed${error ? `: ${error}` : ''}. We notified the customer.`;
-    outcome === 'pending' ? 'Bank debit started — confirmation takes 1–4 business days.' :
+    outcome === 'paid' ? 'Payment collected'
+    : outcome === 'pending' ? 'Bank debit started — confirmation takes 1–4 business days.'
+    : outcome === 'requires_action' ? 'The bank needs the customer to confirm — we sent them a link.'
+    : `Charge failed${error ? `: ${error}` : ''}. We notified the customer.`;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-sm" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
