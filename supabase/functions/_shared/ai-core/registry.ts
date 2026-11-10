@@ -3,7 +3,7 @@
 // Vireek AI Core — Provider Registry. Task -> ordered provider chain.
 // Add/remove/reorder a provider by editing this file only.
 
-import type { ProviderAdapter, ProviderId, RouteEntry, TaskType } from "./types.ts";
+import type { EmbeddingProviderAdapter, ProviderAdapter, ProviderId, RouteEntry, TaskType } from "./types.ts";
 import { applyRouteOverrides } from "../economics/routeOverrides.ts";
 
 import { geminiAdapter } from "./providers/gemini.ts";
@@ -38,6 +38,8 @@ const DEFAULT_CHAIN: RouteEntry[] = [
 // it's excluded here — same 5-provider order otherwise.
 const JSON_CHAIN: RouteEntry[] = DEFAULT_CHAIN.filter((e) => e.provider !== "cloudflare");
 
+export const EMBEDDING_ADAPTER: EmbeddingProviderAdapter = cohereAdapter;
+
 export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   remote_resolution: JSON_CHAIN,
   ask_vireek: JSON_CHAIN,
@@ -71,6 +73,15 @@ export const TASK_ROUTES: Record<TaskType, RouteEntry[]> = {
   business_drift_narrative: JSON_CHAIN,
   review_reply: JSON_CHAIN,
   inbound_auto_reply: JSON_CHAIN,
+  workforce_equilibrium_narrative: DEFAULT_CHAIN,
+  cash_flow_war_room_plan: DEFAULT_CHAIN,
+  bank_transaction_categorization: JSON_CHAIN,
+  promise_extraction: JSON_CHAIN,
+  capacity_demand_narrative: JSON_CHAIN,
+  staffing_forecast_narrative: JSON_CHAIN,
+  trust_bank_intervention: JSON_CHAIN,
+  job_autopsy: JSON_CHAIN,
+  switching_shield_plan: JSON_CHAIN,
 };
 export function getRouteForTask(task: TaskType): RouteEntry[] {
   const base = [...(TASK_ROUTES[task] ?? DEFAULT_CHAIN)].sort((a, b) => a.priority - b.priority);
