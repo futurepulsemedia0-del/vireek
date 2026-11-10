@@ -177,6 +177,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
         {tab === 'billing' && <BillingTab {...tabProps} />}
         {tab === 'payapps' && <PayAppsTab {...tabProps} />}
         {tab === 'changes' && <ChangeOrdersTab {...tabProps} />}
+        {tab === 'lien_waivers' && <LienWaiversTab {...tabProps} />}
         {tab === 'wip' && <WipTab {...tabProps} />}
         {tab === 'jobs' && <JobsTab {...tabProps} />}
         {tab === 'materials' && <MaterialsTab {...tabProps} />}
