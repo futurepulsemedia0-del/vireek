@@ -54,34 +54,3 @@ describe('84.106 DISCREPANCIES (confirmed against rule text)', () => {
     expect(r.repairDeadline.slice(0, 10)).toBe('2026-09-29');
   });
 });
-
-    const r = computeLeakRate({ entries: [add(12, '2026-06-01')], fullChargeLbs: 100, category: 'commercial_refrigeration', asOf: new Date('2026-07-01T00:00:00Z') });
-    expect(r.rollingPct).toBe(12);
-    expect(r.covered).toBe(true);
-  });
-  it('SQL chronic test treats exactly 125 % as chronic (rule: "125 percent or more")', () => {
-    expect(SQL).toMatch(/\(v_added \/ v_charge\) \* 100 <= public\.leak_rule_int\('chronic_pct'\) THEN RETURN/);
-  });
-});
-
-describe('84.106 DISCREPANCIES (confirmed against rule text)', () => {
-  it('D1 (j): TS isChronicLeaker uses ">" but the rule says "125 percent or more" (SQL is correct) -> FIX: ">="', () => {
-    const src = read('./leakRepair.ts');
-    expect(src).toMatch(/pct !== null && pct > CHRONIC_LEAK_PCT/); // documents current (wrong) state; update when fixed
-  });
-  it('D2 (g)(1): SQL cadence is charge-only; rule makes quarterly apply ONLY to commercial refrigeration / IPR >= 500 lb', () => {
-    expect(SQL).toMatch(/CASE WHEN c\.charge_lbs >= public\.leak_rule_int\('quarterly_min_lbs'\) THEN 'quarterly'/);
-  });
-  it.fails('D3 (b)(1): first annualizing calc after 2026-01-01 substitutes 365 days since last addition', () => {
-    const r = computeLeakRate({ entries: [add(15, '2026-06-01')], fullChargeLbs: 100, category: 'commercial_refrigeration', asOf: new Date('2026-06-02T00:00:00Z') });
-    expect(r.annualizedPct).toBe(15);
-  });
-  it.fails('D4 (b)(2): first rolling-average calc after 2026-01-01 counts only additions since 2026-01-01', () => {
-    const r = computeLeakRate({ entries: [add(30, '2025-12-15'), add(5, '2026-02-01')], fullChargeLbs: 100, category: 'commercial_refrigeration', asOf: new Date('2026-03-01T00:00:00Z') });
-    expect(r.rollingPct).toBe(5);
-  });
-  it.fails('D5 (d)/(f): industrial-process-shutdown 120-day window is not modelled', () => {
-    const r = (computeLeakRate as unknown as (i: object) => { repairDeadline: string })({ entries: [add(40, '2026-06-01')], fullChargeLbs: 100, category: 'industrial_process', industrialShutdownRequired: true, asOf: new Date('2026-06-02T00:00:00Z') });
-    expect(r.repairDeadline.slice(0, 10)).toBe('2026-09-29');
-  });
-});
