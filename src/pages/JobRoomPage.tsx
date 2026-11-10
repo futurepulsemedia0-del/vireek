@@ -188,7 +188,7 @@ export function JobRoomPage() {
                     <span className="text-sm font-bold text-text-primary">{formatCents(quoteTotalCents(room.quote))}</span>
                   </div>
                   {room.quote.status === 'sent' && (
-                    
+                    <a
                       href={`${window.location.origin}/quote/${room.quote.quote_token}`}
                       className="focus-ring mt-4 block rounded-lg bg-accent py-2.5 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
                     >
@@ -243,7 +243,7 @@ export function JobRoomPage() {
                   <span className="text-sm font-bold text-text-primary">{formatAmount(room.invoice_amount)}</span>
                 </div>
                 {room.invoice_status === 'sent' && room.payment_link_url && (
-                  
+                  <a
                     href={room.payment_link_url}
                     target="_blank"
                     rel="noopener noreferrer"
