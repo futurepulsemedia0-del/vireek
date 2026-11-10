@@ -1,0 +1,63 @@
+{
+  "$comment": "Documented exceptions to the text-size guard (scripts/type/check-text-sizes.mjs). Every entry needs a reason and, where an invariant exists, a test. Adding an entry requires design review. Allowed kinds: 'em' = parent-relative text-[Nem] (R1, with the R5 floor invariant); 'px' = px font sizes in CSS/inline styles/canvas (R3); 'svg' = literal SVG fontSize (R4). The 12px floor (R2) can NEVER be waived here.",
+  "files": {
+    "src/components/wallboard/WallboardPanels.tsx": {
+      "allow": [
+        "em",
+        "svg"
+      ],
+      "reason": "Dispatch TV wallboard: the whole board is sized in em from ONE root font-size set by src/pages/WallboardPage.tsx so it scales from a 1080p to a 4K wall display.",
+      "invariant": "rootMinPx x smallest em multiplier in this file >= 12px. Verified by scripts/type/wallboard-floor.test.ts (parses both files)."
+    },
+    "src/pages/WallboardPage.tsx": {
+      "allow": [
+        "em"
+      ],
+      "reason": "Owns the wallboard root font-size (style fontSize on the board container); its own headings are em multiples (>=1em) of that root.",
+      "invariant": "Root minimum px (floor-derived, rem-based) x smallest em multiplier >= 12px. Verified by scripts/type/wallboard-floor.test.ts."
+    },
+    "src/components/sketch/SketchCanvas.tsx": {
+      "allow": [
+        "px",
+        "svg"
+      ],
+      "reason": "Floor-plan annotation editor: labels are drawing content positioned in plan coordinates (SVG user units), not UI chrome; their size is tied to the plan scale.",
+      "invariant": "Literal sizes are >= 12 (R2 still enforced). Rendered size can fall below 12px when the plan is zoomed out — see docs/design/TYPE_SCALE.md 'Known exceptions'."
+    },
+    "src/components/brand/LogoConstruction.tsx": {
+      "allow": [
+        "px"
+      ],
+      "reason": "Brand-guidelines specimen: label text is drawn in logo-construction user units inside a large viewBox.",
+      "invariant": "Literal size >= 12 (R2). Rendered size depends on the specimen scale (documentation page only)."
+    },
+    "src/components/documentTemplates/DocumentPreview.tsx": {
+      "allow": [
+        "px"
+      ],
+      "reason": "WYSIWYG preview of a printable document template at fixed px dimensions; rem would change what the document looks like on paper.",
+      "invariant": "Literal size >= 12 (R2)."
+    },
+    "src/components/signatures/SignaturePad.tsx": {
+      "allow": [
+        "px"
+      ],
+      "reason": "Typed-signature preview rendered in a handwriting face at a fixed decorative size (the signature artwork, not UI text).",
+      "invariant": "Literal size >= 12 (R2)."
+    },
+    "src/lib/dvir.ts": {
+      "allow": [
+        "px"
+      ],
+      "reason": "Canvas 2D font for rasterising a typed signature into the DVIR PDF; canvas pixels, not CSS.",
+      "invariant": "Literal size >= 12 (R2)."
+    },
+    "src/pages/TrustBadgeSettingsPage.tsx": {
+      "allow": [
+        "px"
+      ],
+      "reason": "Pixel-exact preview of the embeddable trust badge, which is rendered by third-party sites at fixed pixel dimensions (w x h).",
+      "invariant": "Literal sizes >= 12 (R2). The embed itself is produced elsewhere and is NOT covered by this guard."
+    }
+  }
+}
