@@ -398,7 +398,6 @@ export function CallDetailPage() {
   }, [load]);
 
   // ---------- derived ----------
-  const unsealed = useSealedValue(call?.transcript ?? null);
   const turns = useMemo(() => (call ? parseTranscript(call.transcript, call.duration_seconds, call.caller_name) : []), [call]);
   const sentiment = useMemo(() => buildSentimentTimeline(turns), [turns]);
   const roleFiltered = useMemo(() => turns.filter((t) => speakerFilter === 'all' || t.role === speakerFilter || (speakerFilter === 'agent' && t.role === 'unknown')), [turns, speakerFilter]);
@@ -593,8 +592,8 @@ export function CallDetailPage() {
             icon={MessageSquare}
             action={turns.length > 0 ? <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-xs font-medium text-text-secondary">{turns.length} turns</span> : undefined}
           >
-            {turns.length === 0 ? (
             {call.interpreter_language && call.interpreter_language !== 'en' && <div className="mb-4"><BilingualTranscript callId={call.id} /></div>}
+            {turns.length === 0 ? (
               <p className="text-sm text-text-secondary">{call.is_voicemail ? 'This voicemail has not been transcribed.' : 'This call has no transcript.'}</p>
             ) : (
               <div className="space-y-3">
