@@ -226,8 +226,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
     permission: 'can_manage_team',
   },
   {
-
-    {
     id: 'tool-crib',
     category: 'inventory',
     title: 'Check tools out to technicians',
@@ -244,7 +242,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
     keywords: ['tool', 'tools', 'crib', 'check out', 'check in', 'borrow', 'overdue', 'lost', 'equipment', 'drill'],
     routes: ['/dashboard/tools'],
-  '/dashboard/fixed-assets': 'Fixed Assets',
   },
   {
     id: 'break-compliance',
@@ -264,6 +261,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     keywords: ['break', 'breaks', 'meal', 'rest', 'lunch', 'compliance', 'premium pay', 'violation', 'labor'],
     routes: ['/dashboard/break-compliance'],
   },
+  {
     id: 'team-permissions',
     category: 'account',
     title: 'Team members and permissions',
