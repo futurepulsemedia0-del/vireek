@@ -18,6 +18,8 @@ export const RULE_KINDS = [
   "rescission",
   "required_notice",
   "price_cap",
+  "deposit_limit",
+  "written_contract_threshold",
     "fm_nte_cap",
     "fm_proposal_before_parts",
     "fm_invoice_deadline",
@@ -102,6 +104,16 @@ export interface DocumentFacts {
   cancellationNoticePresent?: boolean;
   /** ids of required notices already included in the document. */
   noticesPresent?: string[];
+  /** Deposit / down payment requested up front, in cents. */
+  depositCents?: number;
+  /** The agreement exists as a signed or otherwise written contract. */
+  isWritten?: boolean;
+  /**
+   * Eligibility codes the CUSTOMER voluntarily declared (e.g. "age_65_plus").
+   * Never inferred from voice, name or demographics — the engine only reads
+   * what the customer chose to tell us.
+   */
+  customerEligibility?: string[];
 }
 
 export interface BusinessLicense {
@@ -166,7 +178,9 @@ export type ActionType =
   | "wait_until"
   | "hold_work"
   | "provide_baseline"
-    | "reduce_price"
+  | "reduce_price"
+  | "reduce_deposit"
+  | "get_written_contract";
     | "fix_before_sending";
 
 export interface RequiredAction {
@@ -204,4 +218,10 @@ export interface EvaluationResult {
   recording: { permitted: "yes" | "after_consent" | "no"; script: string | null } | null;
   /** End-of-day (YYYY-MM-DD) of the customer's right of rescission, if one applies. */
   rescissionDeadline: string | null;
+  /**
+   * Voluntary eligibility questions that would unlock an approved, extended
+   * protection in the customer's state. Offer them as an OPTION; never require
+   * an answer and never guess it.
+   */
+  eligibilityPrompts: Array<{ code: string; jurisdiction: string; ruleKey: string }>;
 }
