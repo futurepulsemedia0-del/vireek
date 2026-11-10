@@ -2,6 +2,7 @@
 
 import { PEST_CONTROL_PACK } from './pestControl';
 import { POOL_SERVICE_PACK } from './poolService';
+import { SOLAR_PACK } from './solar';
 import type { LogTypeDef, PackKey, TradePack } from './types';
 
 export * from './types';
@@ -10,8 +11,12 @@ export { PEST_CONTROL_PACK, PEST_CREDENTIAL, PEST_RESTRICTED_CREDENTIAL, compute
 export { POOL_SERVICE_PACK, CHEM_RANGES, evaluateChemistry, langelierIndex, saturation, chemStatus } from './poolService';
 export type { ChemKey, ChemRange, ChemReadings, ChemStatus, ChemEvaluation, Saturation } from './poolService';
 export * from './poolChemistry';
+export * from './solar';
+export * from './solarPipeline';
+export * from './solarMonitoring';
+export * from './solarFinancing';
 
-export const TRADE_PACKS: TradePack[] = [PEST_CONTROL_PACK, POOL_SERVICE_PACK];
+... POOL_SERVICE_PACK, SOLAR_PACK];
 
 export function getPack(key: string | null | undefined): TradePack | undefined {
   return TRADE_PACKS.find((p) => p.key === key);
