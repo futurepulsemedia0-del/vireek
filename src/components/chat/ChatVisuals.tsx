@@ -104,6 +104,9 @@ export function MessageBubble({
  * the rest of the chat system, so it reads as "the assistant itself is
  * warming up" rather than a generic spinner.
  */
+export function ThinkingBubble() {
+  return (
+    <div className="flex items-end gap-2.5" role="status" aria-label="Thinking">
       <span className="flex h-8 w-8 shrink-0 items-center justify-center">
         <SarahOrb state="thinking" size={32} decorative />
       </span>
