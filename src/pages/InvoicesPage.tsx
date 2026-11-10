@@ -3,7 +3,6 @@ import { Receipt, Loader2, Plus, Send, CheckCircle2, Copy, Trash2, X, Search } f
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { SortSelect, type SortOption } from '@/components/SortSelect';
 import { coerceSort, sortRows, type SortValue, type ViewSort } from '@/lib/viewSort';
-import { Receipt, Loader2, Plus, Send, CheckCircle2, Copy, Trash2, X } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { calculateQuoteTotals, formatCents, type QuoteLineItem } from '@/lib/invoices';
@@ -14,6 +13,7 @@ import { createInvoice, fetchInvoices, getInvoiceLink, isOverdue, markInvoicePai
 import { useBulkTable } from '@/hooks/useBulkTable';
 import { applyRowPatches } from '@/lib/bulk/engine';
 import { PromoCodePanel } from '@/components/promos/PromoCodePanel';
+import { useUndoableActions } from 'REAL_PATH_HERE';
 
 const STATUS_STYLES: Record<InvoiceStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
@@ -69,7 +69,7 @@ function InvoiceForm({ onClose, onCreated }: { onClose: () => void; onCreated: (
         customer_email: customerEmail.trim() || undefined,
         customer_phone: customerPhone.trim() || undefined,
         line_items: cleanItems,
-        tax_percent: taxPercent,
+        tax_percent: tax.mode === 'auto' ? 0 : tax.manualPercent,
         due_date: dueDate || undefined,
         notes: notes.trim() || undefined,
       });
@@ -127,11 +127,9 @@ function InvoiceForm({ onClose, onCreated }: { onClose: () => void; onCreated: (
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <label className="text-xs text-text-secondary">
-          Tax %
-          <input type="number" min={0} step="0.01" value={taxPercent} onChange={(e) => setTaxPercent(Number(e.target.value) || 0)}
-            className="mt-1 w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" />
-        </label>
+        <div className="text-xs text-text-secondary">
+          Tax: {tax.mode === 'auto' ? 'automatic' : `${tax.manualPercent}%`}
+        </div>
         <label className="text-xs text-text-secondary">
           Due date
           <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
@@ -257,14 +255,6 @@ export function InvoicesPage() {
       onRemoved: () => void load(),
       onRestored: () => void load(),
     });
-  };
-    try {
-      await deleteInvoice(id);
-      toast('Invoice deleted.', 'success');
-      await load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : 'Could not delete this invoice.', 'error');
-    }
   };
 
   const copyLink = async (inv: Invoice) => {
