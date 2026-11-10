@@ -187,14 +187,14 @@ const RELATION_LABELS: Record<string, string> = {
   led_to_callback: 'led to callback',
   resulted_in: 'resulted in',
   supplied_by: 'supplied by',
-};
-
-export function relationLabel(relation: string): string {
-  return RELATION_LABELS[relation] ?? relation.replace(/_/g, ' ');
   has_component: 'has component',
   has_hazard: 'has hazard',
   depicts: 'depicts',
   documented: 'documented',
+};
+
+export function relationLabel(relation: string): string {
+  return RELATION_LABELS[relation] ?? relation.replace(/_/g, ' ');
 }
 
 /** Equipment risk formula — mirrors service_graph_insights() in SQL. */
