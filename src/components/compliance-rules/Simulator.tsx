@@ -62,7 +62,7 @@ export function Simulator({ catalog, profile }: { catalog: RuleVersion[]; profil
         <div>
           <label htmlFor="sim-surface" className="mb-1 block text-xs font-medium text-text-secondary">What are you doing?</label>
           <select id="sim-surface" className={selectClass} value={f.surface} onChange={(e) => set('surface', e.target.value as Surface)}>
-            (Object.keys(SURFACE_LABELS) as Surface[]).filter((s) => s !== 'fm_submission').map((s) => <option key={s} value={s}>{SURFACE_LABELS[s].replace(/s$/, '')}</option>)}
+            {(Object.keys(SURFACE_LABELS) as Surface[]).filter((s) => s !== 'fm_submission').map((s) => <option key={s} value={s}>{SURFACE_LABELS[s].replace(/s$/, '')}</option>)}
           </select>
         </div>
         {!isDoc && (
