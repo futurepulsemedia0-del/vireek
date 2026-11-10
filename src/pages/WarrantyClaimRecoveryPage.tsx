@@ -99,7 +99,6 @@ const EMPTY_FORM: ClaimFormState = {
   failure_description: '',
   failure_date: '',
   claim_deadline: '',
-  status: 'eligible',
   claim_deadline: '',
   part_cost: '',
   labor_cost: '',
@@ -354,7 +353,7 @@ export function WarrantyClaimRecoveryPage() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout activeLabel="Warranty Claim Recovery">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <div className="mb-6 flex items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -514,7 +513,7 @@ export function WarrantyClaimRecoveryPage() {
                         </div>
 
                         <div className="flex shrink-0 flex-col items-end gap-2">
-                          <WarrantyClaimActions claim={claim} onChanged={fetchAll}
+                          <WarrantyClaimActions claim={claim} onChanged={fetchAll} />
                           <div className="flex items-center gap-1">
                             <button type="button" onClick={() => { void supabase.rpc('log_claim_packet_export', { p_claim: claim.id }); downloadWarrantyClaimPacketPdf(claim); }} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Download claim packet PDF">
                               <Download size={14} />
