@@ -15,15 +15,15 @@ const LATIN =
 const FILES = [
   ['@fontsource-variable/inter', 'inter-latin-wght-normal.woff2'],
   ['@fontsource-variable/inter', 'inter-latin-ext-wght-normal.woff2'],
-  ['@fontsource-variable/sora', 'sora-latin-wght-normal.woff2'],
-  ['@fontsource-variable/sora', 'sora-latin-ext-wght-normal.woff2'],
+  ['@fontsource-variable/source-serif-4', 'source-serif-4-latin-wght-normal.woff2'],
+  ['@fontsource-variable/source-serif-4', 'source-serif-4-latin-ext-wght-normal.woff2'],
   ['@fontsource/dancing-script', 'dancing-script-latin-400-normal.woff2'],
   ['@fontsource/caveat', 'caveat-latin-400-normal.woff2'],
   ['@fontsource/great-vibes', 'great-vibes-latin-400-normal.woff2'],
 ]
 const LICENSES = [
   ['@fontsource-variable/inter', 'Inter'],
-  ['@fontsource-variable/sora', 'Sora'],
+  ['@fontsource-variable/source-serif-4', 'Source Serif 4'],
   ['@fontsource/dancing-script', 'Dancing Script'],
   ['@fontsource/caveat', 'Caveat'],
   ['@fontsource/great-vibes', 'Great Vibes'],
@@ -31,7 +31,7 @@ const LICENSES = [
 // Metrics are measured on static files at the weight each family is mostly used at.
 const METRIC_SOURCES = [
   ['Inter', '@fontsource/inter/files/inter-latin-400-normal.woff2'],
-  ['Sora', '@fontsource/sora/files/sora-latin-600-normal.woff2'],
+  ['Source Serif 4', '@fontsource/source-serif-4/files/source-serif-4-latin-500-normal.woff2'],
 ]
 
 const fail = (msg) => {
