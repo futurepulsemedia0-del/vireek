@@ -2,7 +2,7 @@
  * Product tours — pure logic (no React, no network). Fully unit-tested in
  * productTours.test.ts. Tour copy below is the English default; every string is
  * looked up via i18n first (keys: tour.<role>.<stepId>.title|body, tour.tip.<id>.*)
- * so translations can be added to locales/*/dashboard.json without code changes.
+ * so translations can be added to the locales dashboard.json files without code changes.
  */
 
 import type { UserPermissions } from '@/contexts/AuthContext';
