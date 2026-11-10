@@ -577,7 +577,7 @@ function JobDetailPanel({
             </div>
           )}
         </div>
-        <MissionBriefPanel job={job} /
+        <MissionBriefPanel job={job} />
         <PermitCompliancePanel job={job} />
         <JobUnknownsPanel job={job} />
         <PermitTransactionPanel job={job} />
@@ -1193,7 +1193,6 @@ const undoable = useUndoableActions();
     },
   });
 
-  const undoable = useUndoableActions();
   const statusTargets: MoveTargetOption[] = BOARD_STAGES.map((s) => ({
     key: s.key, label: s.label, group: 'Status', target: { kind: 'status', status: s.key },
   }));
@@ -1242,9 +1241,9 @@ const undoable = useUndoableActions();
       const message = err instanceof Error ? err.message : '';
       if (isQualityGateError(message)) {
         toast(`Can't close this job yet — missing: ${parseQualityGateError(message).join(', ')}.`, 'error');
-      } else {
-             } else if (isEvidenceChainError(message)) {
+      } else if (isEvidenceChainError(message)) {
         toast(`Can't close this job yet — evidence chain incomplete: ${parseEvidenceChainError(message).join(', ')}.`, 'error');
+      } else {
         toast('Could not update job status.', 'error');
       }
     }
