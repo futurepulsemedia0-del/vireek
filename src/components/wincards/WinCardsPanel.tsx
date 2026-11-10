@@ -254,7 +254,7 @@ function LiveCard({ card, origin, onRevoke, onChanged }: { card: WinCard; origin
               <button type="button" onClick={async () => { const r = await extendWinCard(card.id, 30); if (!r.ok) toast(r.error, 'error'); else { toast('Extended by 30 days from today', 'success'); onChanged(); } }} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs">Extend 30 days</button>
             </div>
           )}
-          {targets && targets.some((t) => t.channels.length) && (
+          {chatTargets && chatTargets.some((t) => t.channels.length) && (
             <div className="flex flex-wrap items-center gap-2">
               <label className="text-xs text-text-secondary">Channel
                 <select value={pick} onChange={(e) => setPick(e.target.value)} className="focus-ring ml-2 rounded-lg border border-border bg-bg-primary px-2 py-1 text-xs">
