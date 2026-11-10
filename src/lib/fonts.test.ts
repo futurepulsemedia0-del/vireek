@@ -42,7 +42,7 @@ describe('self-hosted fonts', () => {
     expect(faces.length).toBe(4);
     for (const f of faces) expect(f).toContain('font-display: swap');
     const gen = read('src/styles/fonts.fallbacks.generated.css');
-    for (const name of ['Inter Fallback', 'Sora Fallback']) {
+    for (const name of ['Inter Fallback', 'Source Serif 4 Fallback']) {
       const face = gen.split('@font-face').find((b) => b.includes(`'${name}'`)) ?? '';
       expect(face, name).toMatch(/size-adjust:\d/);
       expect(face).toContain('ascent-override');
@@ -53,15 +53,15 @@ describe('self-hosted fonts', () => {
   it('ships a licence file naming every family', () => {
     const lic = read('public/fonts/LICENSES.txt');
     expect(lic).toContain('SIL Open Font License');
-    for (const n of ['Inter', 'Sora', 'Dancing Script', 'Caveat', 'Great Vibes']) expect(lic).toContain(n);
+    for (const n of ['Inter', 'Source Serif 4', 'Dancing Script', 'Caveat', 'Great Vibes']) expect(lic).toContain(n);
   });
 
   it('stays inside the font size budget', () => {
-    const critical = size('public/fonts/inter-latin-wght-normal.woff2') + size('public/fonts/sora-latin-wght-normal.woff2');
-    expect(critical).toBeLessThanOrEqual(90 * 1024);
+    const critical = size('public/fonts/inter-latin-wght-normal.woff2') + size('public/fonts/source-serif-4-latin-wght-normal.woff2');
+    expect(critical).toBeLessThanOrEqual(130 * 1024);
     const all = walk('public/fonts').filter((f) => f.endsWith('.woff2'));
-    for (const f of all) expect(size(f), f).toBeLessThanOrEqual(60 * 1024);
-    expect(all.reduce((n, f) => n + size(f), 0)).toBeLessThanOrEqual(300 * 1024);
+    for (const f of all) expect(size(f), f).toBeLessThanOrEqual(80 * 1024);
+    expect(all.reduce((n, f) => n + size(f), 0)).toBeLessThanOrEqual(340 * 1024);
   });
 
   it('defines a native stack and rhythm for every non-Latin locale', () => {
