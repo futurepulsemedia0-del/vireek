@@ -119,7 +119,6 @@ export const JURISDICTION_RULES: readonly JurisdictionRule[] = [
     rules: { meal_min_minutes: 30, meal_deadline_minutes: 300, meal_thresholds: [301], rest_min_minutes: 10, rest_thresholds: [121, 361, 601, 841], premium_minutes: 0 },
   },
   {
-  {
     code: 'NV',
     name: 'Nevada',
     summary: '30-min meal for 8 continuous hours; 10-min paid rest per 4h or major fraction (1 at 3.5h, 2 at 7h, 3 at 11h, 4 at 15h).',
@@ -135,6 +134,7 @@ export const JURISDICTION_RULES: readonly JurisdictionRule[] = [
     ],
     rules: { meal_min_minutes: 30, meal_deadline_minutes: 480, meal_thresholds: [480], rest_min_minutes: 10, rest_thresholds: [210, 420, 660, 900], premium_minutes: 0 },
   },
+  {
     code: 'IL',
     name: 'Illinois',
     summary: '20-min meal for 7.5h of continuous work, started within 5h; another 20 min for each additional 4.5h. No rest-break mandate.',
