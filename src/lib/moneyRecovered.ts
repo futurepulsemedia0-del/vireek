@@ -223,10 +223,7 @@ export async function loadLiveStatement(
     for (const c of (data ?? []) as { id: string; summary: string | null }[]) {
       calls.push({ id: c.id, summary: c.summary, has_recording: hasRecording.get(c.id) === true });
     }
-      calls.push({ id: c.id, summary: c.summary, has_recording: typeof c.recording_url === 'string' && c.recording_url.startsWith('https://') });
-    }
   }
-
   return computeStatement({ events, calls, baseline: await fetchBaseline(), window: w, now, currency });
 }
 
