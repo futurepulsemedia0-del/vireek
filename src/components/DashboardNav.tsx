@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { usePartsSourcingEnabled } from '@/hooks/usePartsSourcingEnabled';
 import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
 import { useFeatureFlags } from '@/hooks/useFeatureFlag';
+import { Bug } from 'lucide-react';
+import { usePestOpsAccess } from '@/hooks/usePestOpsAccess';
 import {
   BarChart3, Ruler, FileUp, LayoutTemplate, Globe, Globe2, BookOpen, BookMarked, ClipboardCheck, Link2, QrCode,
   ScrollText, Home, Phone, LogOut, Menu, X, LayoutDashboard, Calendar, TrendingUp, TrendingDown, Radio, PhoneCall,
@@ -69,6 +71,8 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   requiresPermission?: keyof import('@/contexts/AuthContext').UserPermissions;
   ownerOnly?: boolean;
+  /** Hidden unless this module is enabled for the account (see filterItems' 4th argument). */
+  hiddenUnless?: 'pest_ops';
   /** Hidden unless the account is entitled to this module. */
   requiresModule?: string;
   /** Hidden unless this feature flag is ON for the tenant. */
@@ -281,6 +285,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Wallet Passes', href: '/dashboard/wallet-passes', icon: Wallet },
   { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
   { label: 'Trade Packs', href: '/dashboard/trade-packs', icon: PackageCheck, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Pest Ops', href: '/dashboard/pest-ops', icon: Bug, hiddenUnless: 'pest_ops' },
   { label: 'Commercial', href: '/dashboard/commercial', icon: PackageCheck, requiresPermission: 'can_view_billing', requiresFlag: 'commercial_pack' },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
@@ -531,8 +536,9 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'system', label: 'System', icon: Monitor },
 ];
 const NO_MODULES: ReadonlySet<string> = new Set();
-export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, modules: ReadonlySet<string> = NO_MODULES, isFlagOn?: (flag: string) => boolean) {
+eexport function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, enabledModules: ReadonlySet<string> = new Set()) {
   return items.filter((item) => {
+    if (item.hiddenUnless && !enabledModules.has(item.hiddenUnless)) return false;
     if (item.requiresFlag && isFlagOn && !isFlagOn(item.requiresFlag)) return false;
     if (item.requiresModule && !modules.has(item.requiresModule)) return false;
     if (item.ownerOnly && !isOwner) return false;
@@ -586,10 +592,10 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     return location.pathname.startsWith(href);
   };
 
-  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, enabledModules, isFlagOn);
-  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, enabledModules, isFlagOn);
-  const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
-  const [showLabs, setShowLabs] = useState(() => {
+  const pestOps = usePestOpsAccess();
+  const enabledModules: ReadonlySet<string> = new Set(pestOps.enabled ? ['pest_ops'] : []);
+  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, enabledModules);
+  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, enabledModules);
     try {
       return localStorage.getItem('vireek.labs') === '1';
     } catch {
