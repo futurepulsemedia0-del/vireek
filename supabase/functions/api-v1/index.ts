@@ -30,6 +30,7 @@ import {
   parseBefore,
   parseLimit,
   resolveRoute,
+  selectColumns,
   sandboxResponse,
   type ErrorCode,
 } from "./contract.ts";
@@ -64,6 +65,7 @@ interface LogCtx {
   admin: ReturnType<typeof createClient> | null;
   keyId: string | null;
   userId: string | null;
+  rateLimit: number;
   resource: string | null;
 }
 
@@ -90,7 +92,7 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   const keyHash = await sha256Hex(rawKey);
   const { data: keyRow } = await admin
     .from("api_keys")
-    .select("id, user_id, scopes, revoked_at, mode, ip_allowlist")
+    .select("id, user_id, scopes, revoked_at, mode, ip_allowlist, rate_limit_per_minute")
     .eq("key_hash", keyHash)
     .maybeSingle();
 
@@ -100,6 +102,10 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
 
   ctx.keyId = keyRow.id;
   ctx.userId = keyRow.user_id;
+  ctx.rateLimit =
+    Number.isInteger(keyRow.rate_limit_per_minute) && (keyRow.rate_limit_per_minute as number) > 0
+      ? (keyRow.rate_limit_per_minute as number)
+      : RATE_LIMIT_PER_MINUTE;
   ctx.mode = keyRow.mode === "test" ? "test" : "live";
 
   // ---- IP allowlist (empty = any address; unknown address with a list = denied) ----
@@ -115,7 +121,7 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   // Fail-open: a limiter error must never take the API down.
   const { data: withinLimit } = await admin.rpc("api_v1_rate_limit_ok", {
     p_key_id: keyRow.id,
-    p_limit: RATE_LIMIT_PER_MINUTE,
+   p_limit: ctx.rateLimit,
   });
   if (withinLimit === false) {
     return fail(
@@ -151,7 +157,9 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
     return json(body);
   }
 
-  let query = admin.from(route.table).select("*").eq("user_id", keyRow.user_id);
+  const columns = selectColumns(route.resource);
+  if (!columns) return fail(ctx, "internal_error", "Internal error");
+  let query = admin.from(route.table).select(columns).eq("user_id", keyRow.user_id);
 
   if (route.id !== null) {
     if (!isUuid(route.id)) return fail(ctx, "invalid_id", "Invalid id: expected a UUID");
@@ -186,7 +194,7 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
 // The raw key is never logged; unauthenticated requests have no key to attribute.
 Deno.serve(async (req: Request) => {
   const startedAt = Date.now();
-  const ctx: LogCtx = { requestId: crypto.randomUUID(), mode: "live", admin: null, keyId: null, userId: null, resource: null };
+  const ctx: LogCtx = { requestId: crypto.randomUUID(), mode: "live", admin: null, keyId: null, userId: null, rateLimit: RATE_LIMIT_PER_MINUTE, resource: null };
 
   let res: Response;
   try {
@@ -197,7 +205,7 @@ Deno.serve(async (req: Request) => {
   res.headers.set("X-Request-Id", ctx.requestId);
   res.headers.set(API_VERSION_HEADER, API_VERSION);
   if (ctx.keyId) {
-    res.headers.set("X-RateLimit-Limit", String(RATE_LIMIT_PER_MINUTE));
+    res.headers.set("X-RateLimit-Limit", String(ctx.rateLimit));
     res.headers.set(MODE_HEADER, ctx.mode);
     for (const [name, value] of Object.entries(deprecationHeaders(ctx.resource))) res.headers.set(name, value);
   }
