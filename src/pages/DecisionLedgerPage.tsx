@@ -86,7 +86,7 @@ function NewEntryForm({ userId, onSaved }: { userId: string; onSaved: () => void
 
   return (
     <div className="space-y-3 rounded-2xl border border-border bg-bg-secondary p-4">
-      <input className={inputClass} placeholder="Decision title (e.g. \"Raise emergency-call surcharge 12%\")" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <input className={inputClass} placeholder={'Decision title (e.g. "Raise emergency-call surcharge 12%")'} value={title} onChange={(e) => setTitle(e.target.value)} />
       <textarea className={inputClass} rows={2} placeholder="What is being recommended, exactly?" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} />
       <textarea className={inputClass} rows={2} placeholder={'Supporting evidence, one item per line (e.g. "Avg response time up 18% this month")'} value={evidenceText} onChange={(e) => setEvidenceText(e.target.value)} />
 
