@@ -18,19 +18,19 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: 'Sora';
+  font-family: 'Source Serif 4';
   font-style: normal;
-  font-weight: 100 800;
+  font-weight: 200 900;
   font-display: swap;
-  src: url('/fonts/sora-latin-wght-normal.woff2') format('woff2');
+  src: url('/fonts/source-serif-4-latin-wght-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'Sora';
+  font-family: 'Source Serif 4';
   font-style: normal;
-  font-weight: 100 800;
+  font-weight: 200 900;
   font-display: swap;
-  src: url('/fonts/sora-latin-ext-wght-normal.woff2') format('woff2');
+  src: url('/fonts/source-serif-4-latin-ext-wght-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
@@ -38,7 +38,9 @@
 :root {
   --font-native: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-sans: 'Inter', 'Inter Fallback', var(--font-native);
-  --font-display: 'Sora', 'Sora Fallback', 'Inter', 'Inter Fallback', var(--font-native);
+  --font-display: 'Source Serif 4', 'Source Serif 4 Fallback', Georgia, 'Times New Roman', var(--font-native);
+  --font-serif: var(--font-display);
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 }
 html:lang(ar), html:lang(fa) {
   --font-native: 'Segoe UI', Tahoma, 'Geeza Pro', 'SF Arabic', 'Noto Sans Arabic', 'Noto Naskh Arabic', system-ui, sans-serif;
@@ -59,3 +61,4 @@ html:lang(ja) body, html:lang(zh) body { line-height: 1.75; }
 html:lang(ar) :is(h1, h2, h3, h4), html:lang(fa) :is(h1, h2, h3, h4), html:lang(hi) :is(h1, h2, h3, h4) { line-height: 1.4; }
 html:lang(ja) :is(h1, h2, h3, h4), html:lang(zh) :is(h1, h2, h3, h4) { line-height: 1.45; }
 html:lang(ja) body, html:lang(zh) body { line-break: strict; }
+html:lang(ar), html:lang(fa), html:lang(hi), html:lang(ja), html:lang(zh) { --font-display: var(--font-sans); }
