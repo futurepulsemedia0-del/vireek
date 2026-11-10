@@ -139,7 +139,7 @@ export function VoiceStudioPage() {
                 </button>
               ))}
             </div>
-          </section>
+          </Card>
 
           <section className={card} aria-labelledby="vs-tune">
             <h2 id="vs-tune" className="mb-3 text-sm font-semibold text-text-primary">Tuning — {SCENARIO_LABEL[scenario]}</h2>
