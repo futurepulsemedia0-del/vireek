@@ -22,6 +22,11 @@ import {
   LifeBuoy,
   Rocket,
   Sparkles,
+  Workflow,
+  Building2,
+  SlidersHorizontal,
+  FolderDown,
+  ClipboardCheck,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -298,6 +303,8 @@ export function CommandPalette() {
                 <p className="px-4 py-6 text-center text-sm text-text-secondary">No matches.</p>
               )}
             </div>
+              </>
+            )}
           </motion.div>
         </>
       )}
