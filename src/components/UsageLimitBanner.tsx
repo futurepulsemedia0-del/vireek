@@ -85,6 +85,7 @@ export function UsageLimitBanner() {
   const isTrial = profile.trial_state === 'trialing';
   const noAccess = !isTrial && !profile.stripe_subscription_id && minutesIncluded <= 0 && profile.trial_state !== 'converted';
   const unlimited = minutesIncluded <= 0 && !noAccess;
+  const isTrial = profile.trial_state === 'trialing';
   const limitReached = (!unlimited && minutesUsed >= minutesIncluded) || noAccess;
   if (!limitReached) return null;
 
@@ -136,7 +137,9 @@ export function UsageLimitBanner() {
                   ? `${ASSISTANT_NAME} isn’t answering calls yet`
                   : isTrial
                     ? `Your 60-minute trial allowance is used up`
-                    : `${ASSISTANT_NAME} has paused answering new calls for your business`}
+                : isTrial
+                  ? `Your ${minutesIncluded}-minute trial allowance is used up`
+                  : `${ASSISTANT_NAME} has paused answering new calls for your business`}
             </h3>
             <p className="mt-1 text-sm text-text-secondary">
               {hasOverage
@@ -145,7 +148,9 @@ export function UsageLimitBanner() {
                   ? 'Start your 14-day trial (card required, 60 minutes included) to begin answering calls.'
                   : isTrial
                     ? `You've used all ${minutesIncluded} trial minutes. Your plan unlocks full minutes after the first payment.`
-                    : `You've used all ${minutesIncluded} minutes included in the` ${currentPlan?.name ?? 'Free'} plan this month (${Math.round(minutesUsed)} used). Upgrade to a paid plan to resume 24/7 call answering right away.`}
+                : isTrial
+                  ? `You've used all ${minutesIncluded} trial minutes. Full plan minutes unlock after your first payment.`
+                  : `You've used all ${minutesIncluded} minutes included in the` ${currentPlan?.name ?? 'Free'} plan this month (${Math.round(minutesUsed)} used). Upgrade to a paid plan to resume 24/7 call answering right away.`}
             </p>
           </div>
         </div>
