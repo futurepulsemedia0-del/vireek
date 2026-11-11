@@ -40,6 +40,7 @@ import { SurgeModeBanner } from '@/components/SurgeModeBanner';
 import { ActivePlaybookBanner } from '@/components/playbooks/ActivePlaybookBanner';
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
+import { TrialBanner } from '@/components/TrialBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { WhatsNewButton } from '@/components/whats-new/WhatsNewButton';
 import { ReplayTourMenu } from '@/components/tour/ReplayTourMenu';
@@ -896,6 +897,7 @@ export function DashboardLayout({
                   <SurgeModeBanner />
                   <PaymentFailedBanner />
                   <UsageLimitBanner />
+                  <TrialBanner />
                   <PwaInstallBanner />
                   <SecurityAlertBanner />
                 </div>
