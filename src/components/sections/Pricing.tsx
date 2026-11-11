@@ -80,7 +80,7 @@ export function Pricing() {
           {CORE_PLANS.map((plan, index) => {
             const price = billing === 'annual' ? plan.annual! : plan.monthly!;
             const displayPrice = billing === 'annual' ? Math.round(price / 12) : price;
-            const href = getPlanHref(plan.id, billing);
+            const href = getPlanHref(plan.id, billing, user?.id);
             const external = isExternalLink(plan.id);
 
             return (
