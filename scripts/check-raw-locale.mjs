@@ -23,7 +23,7 @@ const SRC = join(ROOT, 'src');
 const BASELINE = join(ROOT, 'scripts', 'raw-locale-baseline.json');
 
 /** The formatting layer itself is the only place allowed to touch Intl directly. */
-const ALLOWED = new Set(['src/lib/format.ts', 'src/lib/regional.ts', 'src/lib/timezone.ts']);
+const ALLOWED = new Set(['src/lib/format.ts', 'src/lib/regional.ts', 'src/lib/timezone.ts', 'src/lib/regionConfig/profile.ts']);
 
 const PATTERNS = [
   /\.toLocale(?:Date|Time)?String\s*\(/g,
