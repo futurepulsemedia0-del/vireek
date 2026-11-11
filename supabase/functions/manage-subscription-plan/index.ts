@@ -40,6 +40,7 @@ import {
   type PlanChangeKind,
   type PurchasablePlanId,
 } from "../_shared/billing/planCatalog.ts";
+import { minutesIncludedAfterPlanChange, type TrialState } from "../_shared/billing/trialLifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,6 +76,7 @@ interface OwnerProfile {
   subscription_status: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  trial_state: TrialState | null;
 }
 
 interface BillingContext {
@@ -93,7 +95,7 @@ function iso(unixSeconds: number): string {
 }
 
 const OWNER_COLUMNS =
-  "id, email, full_name, plan, subscription_status, stripe_customer_id, stripe_subscription_id";
+  "id, email, full_name, plan, subscription_status, stripe_customer_id, stripe_subscription_id, trial_state";
 
 async function resolveBillingContext(admin: SupabaseClient, userId: string): Promise<BillingContext> {
   const { data: me } = await admin.from("profiles").select("id, email, role").eq("id", userId).maybeSingle();
@@ -500,7 +502,7 @@ Deno.serve(async (req: Request) => {
         );
         const { error: profileError } = await admin
           .from("profiles")
-          .update({ plan: body.planId, minutes_included: minutesForPlan(body.planId) })
+          .update({ plan: body.planId, minutes_included: minutesIncludedAfterPlanChange(ctx.owner.trial_state, body.planId) })
           .eq("id", ctx.owner.id);
         if (profileError) {
           console.error(JSON.stringify({ event: "plan_change_profile_sync_failed", error: profileError.message }));
