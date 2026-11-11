@@ -24,14 +24,27 @@ export function parseAllowance(data: unknown): InboundAllowance {
   return { allowed: true, free: false }; // unknown shape => fail open
 }
 
-export async function checkInboundAllowance(db: FraudDb, userId: string): Promise<InboundAllowance> {
+export interface InboundAllowanceCheck {
+  allowance: InboundAllowance;
+  /** Set when the allowance is the fail-open default because the check itself did not give a usable answer. */
+  failOpen: null | "rpc_error" | "exception" | "unexpected_shape";
+  error?: string;
+}
+
+/** Same decision as checkInboundAllowance(), but tells the caller WHY it failed open so it can be logged. */
+export async function checkInboundAllowanceDetailed(db: FraudDb, userId: string): Promise<InboundAllowanceCheck> {
   try {
     const { data, error } = await db.rpc("fraud_inbound_allowance", { p_user: userId });
-    if (error) return { allowed: true, free: false };
-    return parseAllowance(data);
-  } catch {
-    return { allowed: true, free: false };
+    if (error) return { allowance: { allowed: true, free: false }, failOpen: "rpc_error", error: error.message };
+    const known = !!data && typeof data === "object" && typeof (data as { allowed?: unknown }).allowed === "boolean";
+    return { allowance: parseAllowance(data), failOpen: known ? null : "unexpected_shape" };
+  } catch (e) {
+    return { allowance: { allowed: true, free: false }, failOpen: "exception", error: e instanceof Error ? e.message : String(e) };
   }
+}
+
+export async function checkInboundAllowance(db: FraudDb, userId: string): Promise<InboundAllowance> {
+  return (await checkInboundAllowanceDetailed(db, userId)).allowance;
 }
 
 export type ExhaustedResponse =
