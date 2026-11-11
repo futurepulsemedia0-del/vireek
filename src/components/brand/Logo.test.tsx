@@ -33,8 +33,8 @@ describe('<Logo />', () => {
   it('auto tone uses the theme tokens (no hard-coded theme colors on letters)', () => {
     const { container } = render(<Logo variant="wordmark" />);
     const fills = [...container.querySelectorAll('path')].map((p) => p.getAttribute('fill'));
-    expect(fills[0]).toContain('--accent-primary');
-    expect(fills[1]).toContain('--logo-accent');
+    expect(fills[0]).toContain('--text-primary');
+    expect(fills[1]).toContain('--accent-graphic');
   });
 
   it('mono uses currentColor and white uses #FFFFFF', () => {
