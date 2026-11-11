@@ -107,12 +107,13 @@ function PlanCard({
   billing: BillingCycle;
   index: number;
 }) {
+  const { user } = useAuth();
   const { currency } = useCurrency();
   const Icon = PLAN_ICONS[plan.id];
   const isCustomPrice = plan.monthly === null;
   const price = billing === 'annual' ? plan.annual : plan.monthly;
   const displayPrice = isCustomPrice ? null : billing === 'annual' ? Math.round((price ?? 0) / 12) : price;
-  const href = getPlanHref(plan.id, billing);
+  const href = getPlanHref(plan.id, billing, user?.id);
   const external = isExternalLink(plan.id);
 
   return (
