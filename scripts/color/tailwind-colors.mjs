@@ -25,6 +25,17 @@ function family(name) {
 const fams = Object.fromEntries(FAMILY_NAMES.map((n) => [n, family(n)]));
 const pick = (kind) => Object.fromEntries(FAMILY_NAMES.map((n) => [n, fams[n][kind]]));
 
+// Raw Tailwind palette class names (slate-500, amber-600, blue-700 …) are re-pointed at the Vireek scales, so even legacy
+// markup can only ever render palette colours:  greys -> graphite (warm Anthropic neutrals), red/rose/pink -> danger (Apple red),
+// orange -> accent (Clay), amber/yellow -> warning (Apple yellow), lime/green/emerald/teal -> success (Apple green),
+// cyan/sky/blue -> info (Anthropic Sky), indigo/violet/purple/fuchsia -> cta (Stripe Blurple).
+const scaleOf = (n) => buildScale({ ...FAMILY_DEFS[n] });
+const LEGACY_MAP = { danger: ['red', 'rose', 'pink'], accent: ['orange'], warning: ['amber', 'yellow'], success: ['lime', 'green', 'emerald', 'teal'], info: ['cyan', 'sky', 'blue'], cta: ['indigo', 'violet', 'purple', 'fuchsia'] };
+const legacyPalette = {
+  ...Object.fromEntries(['slate', 'gray', 'zinc', 'neutral', 'stone'].map((n) => [n, NEUTRAL_SCALE])),
+  ...Object.fromEntries(Object.entries(LEGACY_MAP).flatMap(([fam, names]) => names.map((n) => [n, scaleOf(fam)]))),
+};
+
 const neutrals = {
   'bg-primary': v('bg-primary'),
   'bg-secondary': v('bg-secondary'),
@@ -53,7 +64,7 @@ const neutrals = {
   // legacy aliases kept so existing class names keep resolving
   text: { primary: v('text-primary'), secondary: v('text-secondary'), muted: v('text-muted'), inverse: v('text-inverse') },
   ai: v('cta-fill'),
-  // brand gradient: `bg-gradient-to-br from-brand-from to-brand-to text-on-brand` (contrast-solved in both themes)
+  // brand gradient: `bg-gradient-to-br from-brand-from to-brand-to text-on-brand` (contrast-solved in every theme)
   'brand-from': v('brand-from'),
   'brand-to': v('brand-to'),
   'on-brand': v('on-brand'),
@@ -66,7 +77,7 @@ const borderTokens = { DEFAULT: v('border-default'), subtle: v('border-default')
 const graphicUtilities = ['borderColor', 'ringColor', 'outlineColor', 'divideColor', 'fill', 'stroke', 'caretColor', 'accentColor', 'decorationColor'];
 
 export const tailwindTheme = {
-  colors: { ...neutrals, ...pick('bg'), border: borderTokens },
+  colors: { ...legacyPalette, ...neutrals, ...pick('bg'), border: borderTokens },
   textColor: { ...pick('text') },
   ...Object.fromEntries(graphicUtilities.map((u) => [u, { ...pick('graphic'), border: borderTokens, 'focus-ring': v('focus-ring'), 'graphic-muted': v('graphic-muted') }])),
   placeholderColor: { 'text-muted': v('text-muted'), 'text-placeholder': v('text-placeholder') },
