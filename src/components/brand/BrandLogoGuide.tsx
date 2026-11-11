@@ -18,12 +18,10 @@ const MIN_SIZES: { label: string; node: JSX.Element; digital: string; print: str
 ];
 
 const COLOR_SPECS: { name: string; hex: string; rgb: string; use: string }[] = [
-  { name: 'Cobalt (light)', hex: '#203AD8', rgb: '32 58 216', use: 'Letters, tile — on light backgrounds (7.7:1 on #FDFCFA)' },
-  { name: 'Cobalt (dark)', hex: '#6C82FF', rgb: '108 130 255', use: 'Letters — on dark backgrounds (5.9:1 on #090A0D)' },
-  { name: 'Copper — logo dot (light)', hex: '#C14F26', rgb: '193 79 38', use: 'The pulse dot on light backgrounds (4.6:1 on #FDFCFA). Slightly deeper than the UI copper #D6582A (3.9:1) so the mark meets 4.5:1' },
-  { name: 'Copper — logo dot (dark)', hex: '#FF8A5A', rgb: '255 138 90', use: 'The pulse dot on dark backgrounds (8.5:1) and on the app tile (3.4:1, graphic)' },
-  { name: 'Ink', hex: '#17171A', rgb: '23 23 26', use: 'One-color black version (17.5:1)' },
-  { name: 'White', hex: '#FFFFFF', rgb: '255 255 255', use: 'One-color white version, V on the tile' },
+  { name: 'Slate', hex: '#141413', rgb: '20 20 19', use: 'Letters on light backgrounds (17.5:1 on Ivory #FAF9F5); V on the app tile (5.9:1); one-color black version' },
+  { name: 'Ivory', hex: '#FAF9F5', rgb: '250 249 245', use: 'Letters on dark backgrounds (17.5:1 on Slate #141413); pulse dot on the app tile; one-color white version' },
+  { name: 'Clay', hex: '#D97757', rgb: '217 119 87', use: 'The pulse dot on dark backgrounds (5.9:1 on Slate) and the app tile fill. On light backgrounds the in-app dot uses the deeper token #C76747 (3.7:1)' },
+  { name: 'Clay — logo dot (light, artwork files)', hex: '#D97757', rgb: '217 119 87', use: 'Static SVG artwork on Ivory (3.0:1, graphic). A logo is exempt from WCAG 1.4.11; use the in-app component where 3:1 is required' },
 ];
 
 const SWATCH_TEXT = 'text-text-secondary';
@@ -50,7 +48,7 @@ function Example({ ok, caption, children, bg = 'bg-white' }: { ok: boolean; capt
       <div className={`relative flex h-36 items-center justify-center overflow-hidden ${bg}`}>
         {children}
         <span
-          className={`absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-white ${ok ? 'bg-success' : 'bg-danger'}`}
+          className={`absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full ${ok ? 'bg-success text-on-success' : 'bg-danger text-on-danger'}`}
           aria-hidden="true"
         >
           {ok ? <Check size={14} /> : <X size={14} />}
@@ -69,16 +67,16 @@ export function BrandLogoGuide() {
     <div className="mt-12 space-y-16">
       {/* Primary versions — fixed-color files so the panels are correct in either theme */}
       <div className="grid gap-6 sm:grid-cols-2">
-        <Panel className="!bg-[#FDFCFA] text-neutral-500" label="Full color — on light backgrounds">
+        <Panel className="!bg-[#FAF9F5] text-neutral-500" label="Full color — on light backgrounds">
           <img src="/brand/vireek-wordmark-color.svg" alt="Vireek wordmark, full color" width={260} height={64} className="h-16 w-auto" />
         </Panel>
-        <Panel className="!bg-[#090A0D] text-neutral-400" label="Dark-background version">
+        <Panel className="!bg-[#141413] text-neutral-400" label="Dark-background version">
           <img src="/brand/vireek-wordmark-reverse.svg" alt="Vireek wordmark, dark-background version" width={260} height={64} className="h-16 w-auto" />
         </Panel>
-        <Panel className="!bg-[#FDFCFA] text-neutral-500" label="Horizontal lockup">
+        <Panel className="!bg-[#FAF9F5] text-neutral-500" label="Horizontal lockup">
           <img src="/brand/vireek-lockup-horizontal-color.svg" alt="Vireek horizontal lockup" width={260} height={64} className="h-14 w-auto" />
         </Panel>
-        <Panel className="!bg-[#FDFCFA] text-neutral-500" label="Symbol and app tile">
+        <Panel className="!bg-[#FAF9F5] text-neutral-500" label="Symbol and app tile">
           <div className="flex items-center gap-8">
             <img src="/brand/vireek-symbol-color.svg" alt="Vireek symbol" width={52} height={56} className="h-14 w-auto" />
             <img src="/brand/vireek-tile.svg" alt="Vireek app tile" width={56} height={56} className="h-14 w-14" />
@@ -157,8 +155,8 @@ export function BrandLogoGuide() {
           </table>
         </div>
         <p className="mt-4 text-xs leading-relaxed text-text-secondary">
-          The app tile is a fixed-color asset (Cobalt #203AD8, white V, Copper #FF8A5A dot) in both themes,
-          like any app icon. The wordmark switches between the light and dark Cobalt/Copper pairs automatically
+          The app tile is a fixed-color asset (Clay #D97757, Slate V, Ivory dot) in both themes,
+          like any app icon. The wordmark switches between Slate and Ivory letters (with the Clay dot) automatically
           when drawn with the in-app component.
         </p>
       </Card>
@@ -186,7 +184,7 @@ export function BrandLogoGuide() {
           <Example ok caption="Full color on a light surface.">
             <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
           </Example>
-          <Example ok caption="Dark-background version on dark." bg="bg-[#090A0D]">
+          <Example ok caption="Dark-background version on dark." bg="bg-[#141413]">
             <img src="/brand/vireek-wordmark-reverse.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
           </Example>
           <Example ok caption="One-color white on a photo with a dark scrim." bg="bg-gradient-to-br from-slate-700 to-slate-900">
@@ -204,7 +202,7 @@ export function BrandLogoGuide() {
           <Example ok={false} caption="Effects such as shadows and glows.">
             <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" style={{ filter: 'drop-shadow(4px 6px 3px rgba(0,0,0,.45))' }} />
           </Example>
-          <Example ok={false} caption="Low contrast on a busy background." bg="bg-[conic-gradient(at_30%_40%,#3b82f6,#22c55e,#eab308,#ec4899,#3b82f6)]">
+          <Example ok={false} caption="Low contrast on a busy background." bg="bg-[conic-gradient(at_30%_40%,#6A9BCC,#34C759,#FFCC00,#D97757,#6A9BCC)]">
             <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
           </Example>
         </div>
