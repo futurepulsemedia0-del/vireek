@@ -33,6 +33,8 @@
     "tokens:build": "node scripts/color/build-tokens.mjs",
     "codemod:colors": "node scripts/color/codemod-colors.mjs",
     "lint:locale": "node scripts/check-raw-locale.mjs",
+    "lint:regional": "node scripts/check-regional-assumptions.mjs",
+    "test:scripts:regional": "node --test scripts/lib/regionalAssumptions.test.mjs",
     "lint:voice": "node scripts/check-voice.mjs",
     "claims:check": "node scripts/check-claims.mjs",
     "i18n:keys": "node scripts/i18n-missing-keys.mjs",
