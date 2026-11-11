@@ -82,8 +82,10 @@ export function UsageLimitBanner() {
 
   const minutesIncluded = profile.minutes_included ?? 0;
   const minutesUsed = profile.minutes_used_this_month ?? 0;
-  const unlimited = minutesIncluded <= 0;
-  const limitReached = !unlimited && minutesUsed >= minutesIncluded;
+  const isTrial = profile.trial_state === 'trialing';
+  const noAccess = !isTrial && !profile.stripe_subscription_id && minutesIncluded <= 0 && profile.trial_state !== 'converted';
+  const unlimited = minutesIncluded <= 0 && !noAccess;
+  const limitReached = (!unlimited && minutesUsed >= minutesIncluded) || noAccess;
   if (!limitReached) return null;
 
   // Already covered by PaymentFailedBanner's own hard-cutoff message.
@@ -130,12 +132,20 @@ export function UsageLimitBanner() {
             <h3 className="mt-1 text-base font-bold leading-snug text-text-primary sm:text-lg">
               {hasOverage
                 ? `You've used all ${minutesIncluded.toLocaleString()} included minutes this month`
-                : `${ASSISTANT_NAME} has paused answering new calls for your business`}
+                : noAccess
+                  ? `${ASSISTANT_NAME} isn’t answering calls yet`
+                  : isTrial
+                    ? `Your 60-minute trial allowance is used up`
+                    : `${ASSISTANT_NAME} has paused answering new calls for your business`}
             </h3>
             <p className="mt-1 text-sm text-text-secondary">
               {hasOverage
                 ? `Extra usage is billed at $${(overageRate as number).toFixed(2)}/min — about $${overageCost} in overage so far (${overageMinutes} min over). Upgrade to raise your included minutes and lower your rate.`
-                : `You've used all ${minutesIncluded} minutes included in the ${currentPlan?.name ?? 'Free'} plan this month (${Math.round(minutesUsed)} used). Upgrade to a paid plan to resume 24/7 call answering right away.`}
+                : noAccess
+                  ? 'Start your 14-day trial (card required, 60 minutes included) to begin answering calls.'
+                  : isTrial
+                    ? `You've used all ${minutesIncluded} trial minutes. Your plan unlocks full minutes after the first payment.`
+                    : `You've used all ${minutesIncluded} minutes included in the` ${currentPlan?.name ?? 'Free'} plan this month (${Math.round(minutesUsed)} used). Upgrade to a paid plan to resume 24/7 call answering right away.`}
             </p>
           </div>
         </div>
