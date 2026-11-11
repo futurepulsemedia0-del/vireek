@@ -181,10 +181,12 @@ export function buildEnterpriseMailto(): string {
   return `mailto:${SALES_EMAIL}?subject=${subject}&body=${body}`;
 }
 
-export function getPlanHref(planId: PlanId, billing: BillingCycle): string {
+export function getPlanHref(planId: PlanId, billing: BillingCycle, userId?: string | null): string {
   if (planId === 'free') return '/login';
-    if (planId === 'enterprise') return '/enterprise';
-  return STRIPE_CHECKOUT_LINKS[planId]?.[billing] ?? '/login';
+  if (planId === 'enterprise') return '/enterprise';
+  const link = STRIPE_CHECKOUT_LINKS[planId]?.[billing];
+  if (!link) return '/login';
+  return userId ? `${link}?client_reference_id=${encodeURIComponent(userId)}` : link;
 }
 
 /**
