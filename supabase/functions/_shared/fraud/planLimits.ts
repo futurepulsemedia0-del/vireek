@@ -10,6 +10,19 @@
 // Calibrate them against your Twilio / Vapi / ElevenLabs bills (see report: "Decisions for the owner").
 // The loss BOUND is only as good as these numbers; the DB-enforced caps (cost cents) are what make the
 // bound hold even when a single unit cost is mis-estimated.
+//
+// The unit-cost ceilings below are intentionally ABOVE the real blended cost. A measured blended cost of
+// roughly $0.107/min (base case) is an ASSUMPTION-based estimate, NOT an invoice: re-measure it from real
+// Twilio / Vapi / ElevenLabs bills before relying on it. Do not lower the ceilings on the strength of it.
+//
+// dailyCostCents rationale (ASSUMPTION, not an invoice): each paid-plan daily cap is about 5x the average
+// DAILY cost of fully using the plan's included minutes at the 12c/min domestic ceiling. The 5x headroom
+// absorbs bursty-but-legitimate days; anything beyond it is what the cap is meant to stop.
+//
+// maxNumbers is the plan BASE. The entitlements work (an `extra_numbers` column) does not exist in this
+// snapshot (no migration or code references it), so it is NOT wired in. When it lands, the effective limit
+// must be `PLAN_LIMITS[plan].maxNumbers + extra_numbers`. The same applies to `bonus_minutes` and
+// `paid_overage_policy`: the overage-aware scaling of dailyCostCents is deliberately not implemented yet.
 
 import type { CountryTier } from "./countries.ts";
 
@@ -69,8 +82,8 @@ export const PLAN_LIMITS: Readonly<Record<PlanId, PlanLimits>> = {
     outboundRequiresVerification: true,
     dailyOutboundCalls: 10,
     dailySms: 20,
-    dailyCostCents: 200,
-    lifetimeCostCents: 500,
+    dailyCostCents: 400,
+    lifetimeCostCents: 800,
     maxCallSeconds: 300,
     otpSendsPerPeriod: 5,
     maxNumbers: 1,
@@ -80,44 +93,44 @@ export const PLAN_LIMITS: Readonly<Record<PlanId, PlanLimits>> = {
     outboundRequiresVerification: true,
     dailyOutboundCalls: 100,
     dailySms: 200,
-    dailyCostCents: 1500,
+    dailyCostCents: 400,
     lifetimeCostCents: null,
-    maxCallSeconds: 900,
+    maxCallSeconds: 600,
     otpSendsPerPeriod: 20,
-    maxNumbers: 3,
-    allowVoiceClone: true,
+    maxNumbers: 1,
+    allowVoiceClone: false,
   },
   professional: {
     outboundRequiresVerification: true,
     dailyOutboundCalls: 400,
     dailySms: 800,
-    dailyCostCents: 5000,
+    dailyCostCents: 1200,
     lifetimeCostCents: null,
-    maxCallSeconds: 1200,
+    maxCallSeconds: 600,
     otpSendsPerPeriod: 40,
-    maxNumbers: 10,
-    allowVoiceClone: true,
+    maxNumbers: 2,
+    allowVoiceClone: false,
   },
   business: {
     outboundRequiresVerification: true,
     dailyOutboundCalls: 1500,
     dailySms: 3000,
-    dailyCostCents: 15000,
+    dailyCostCents: 3000,
     lifetimeCostCents: null,
-    maxCallSeconds: 1800,
+    maxCallSeconds: 900,
     otpSendsPerPeriod: 100,
-    maxNumbers: 50,
-    allowVoiceClone: true,
+    maxNumbers: 3,
+    allowVoiceClone: false,
   },
   enterprise: {
     outboundRequiresVerification: true,
     dailyOutboundCalls: 5000,
     dailySms: 10000,
-    dailyCostCents: 50000,
+    dailyCostCents: 12000,
     lifetimeCostCents: null,
-    maxCallSeconds: 3600,
+    maxCallSeconds: 900,
     otpSendsPerPeriod: 300,
-    maxNumbers: 200,
+    maxNumbers: 200, // custom: negotiated per contract
     allowVoiceClone: true,
   },
 };
@@ -146,10 +159,15 @@ export interface EffectiveCaps {
 export function effectiveCaps(plan: PlanId, accountAgeDays: number): EffectiveCaps {
   const l = PLAN_LIMITS[plan];
   const f = rampFactor(accountAgeDays, plan);
+  // Ramp floor: a ramped daily cost cap must never be smaller than ONE worst-case domestic call on this plan,
+  // otherwise a legitimate new account could not place a single call for days (with the tightened caps, starter
+  // would be locked out until day 7). The floor is bounded by the plan's own daily cap, so the worst-case loss
+  // bound (which uses ramp factor 1) is unchanged, and the DB-enforced lifetime cap still binds on free.
+  const oneCall = Math.min(l.dailyCostCents, callReservationCents("domestic", l.maxCallSeconds));
   return {
     dailyOutboundCalls: Math.floor(l.dailyOutboundCalls * f),
     dailySms: Math.floor(l.dailySms * f),
-    dailyCostCents: Math.floor(l.dailyCostCents * f),
+    dailyCostCents: Math.max(Math.floor(l.dailyCostCents * f), oneCall),
     lifetimeCostCents: l.lifetimeCostCents,
     maxCallSeconds: l.maxCallSeconds,
   };
