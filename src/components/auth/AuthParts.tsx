@@ -281,7 +281,7 @@ export function AuthSidePanel() {
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-text-secondary">
             Vireek&rsquo;s AI receptionist handles your calls 24/7 — booking jobs, capturing leads,
-            and following up automatically. Start free in under two minutes.
+            and following up automatically. Start your 14-day trial in under two minutes.
           </p>
 
           {/* Trust badges */}
