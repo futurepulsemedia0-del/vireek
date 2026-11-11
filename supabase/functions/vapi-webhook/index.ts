@@ -1,5 +1,7 @@
 import { handleAuditWebhookEvent } from "../_shared/audit/webhookHook.ts";
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
+import { runInboundAllowanceGate } from "../_shared/fraud/inboundGate.ts";
+import type { FraudDb } from "../_shared/fraud/guard.ts";
 import { buildRecordingConsentNotice } from "../_shared/compliance/recordingConsent.ts";
 import { resolveRecordingProfile, renderConsentScript, type ProfileLanguage } from "../_shared/compliance/recordingProfiles.ts";
 import { buildVoicePersonaContext, resolveTrade } from "../_shared/voice-brand/persona.ts";
@@ -731,6 +733,51 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   }
 
   const callerNumber = message.call?.customer?.number ?? null;
+  // Free-plan inbound minute allowance. Default mode is SHADOW (never alters the call; logs would_block in the
+  // background). Fail-open on any error/timeout. On-call / escalation numbers and VIP customers are never blocked.
+  // Runs only once the owner is known and the call can still be redirected (here, before the AI connects).
+  {
+    const gate = await runInboundAllowanceGate(
+      admin as unknown as FraudDb,
+      {
+        userId: tenant.userId,
+        requestId,
+        callId: message.call?.id ?? null,
+        callerNumber,
+        forwardingNumber: tenant.forwardingNumber,
+        priorityNumbers: [
+          ...(tenant.onCallSchedule ?? []).map((e) => e.phone),
+          ...(tenant.escalationRules ?? []).map((r) => r.target),
+        ],
+        source: "vapi-webhook",
+      },
+      {
+        enforcementMode: async () => {
+          const { data } = await admin.from("fraud_settings").select("enforcement_mode").eq("id", true).maybeSingle();
+          return (data as { enforcement_mode?: string } | null)?.enforcement_mode ?? null;
+        },
+        isVipCaller: async () => {
+          if (!callerNumber) return false;
+          const { data } = await admin
+            .from("customers")
+            .select("id")
+            .eq("user_id", tenant.userId)
+            .eq("phone", callerNumber)
+            .or("lifecycle_stage.eq.vip,tags.cs.{VIP}")
+            .limit(1);
+          return Array.isArray(data) && data.length > 0;
+        },
+        plan: async () => {
+          const { data } = await admin.from("profiles").select("plan").eq("id", tenant.userId).maybeSingle();
+          return (data as { plan?: string } | null)?.plan ?? null;
+        },
+      },
+    );
+    logEvent("assistant_request_inbound_gate", requestId, { user_id: tenant.userId, reason: gate.reason, mode: gate.mode, latency_ms: gate.latencyMs });
+    if (gate.action === "respond") {
+      return jsonResponse(gate.response);
+    }
+  }
   try {
     const { level } = await effectiveLevel(admin, tenant.userId);
     const ladderRoute = level > 0 ? ladderResponse(level, await loadLadderRouting(admin, tenant.userId)) : null;
