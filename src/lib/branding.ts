@@ -83,8 +83,8 @@ export const LIMITS = {
 } as const;
 
 export const DEFAULT_FORM: BrandForm = {
-  primary_color: '#2563EB',
-  accent_color: '#0EA5E9',
+  primary_color: '#A94C2D',
+  accent_color: '#6A9BCC',
   email_sender_name: '',
   email_reply_to: '',
   email_footer: '',
@@ -97,12 +97,12 @@ export const DEFAULT_FORM: BrandForm = {
 };
 
 export const COLOR_PRESETS: { name: string; primary: string; accent: string }[] = [
-  { name: 'Ocean', primary: '#2563EB', accent: '#0EA5E9' },
-  { name: 'Forest', primary: '#15803D', accent: '#65A30D' },
-  { name: 'Ember', primary: '#C2410C', accent: '#F59E0B' },
-  { name: 'Violet', primary: '#6D28D9', accent: '#DB2777' },
-  { name: 'Slate', primary: '#334155', accent: '#0F766E' },
-  { name: 'Crimson', primary: '#B91C1C', accent: '#1D4ED8' },
+  { name: 'Clay', primary: '#A94C2D', accent: '#6A9BCC' },
+  { name: 'Sky', primary: '#3C6B9A', accent: '#D97757' },
+  { name: 'Green', primary: '#00782B', accent: '#34C759' },
+  { name: 'Blurple', primary: '#594DF1', accent: '#D97757' },
+  { name: 'Graphite', primary: '#44423D', accent: '#D97757' },
+  { name: 'Red', primary: '#D2001E', accent: '#FFCC00' },
 ];
 
 // ============================================================
@@ -150,8 +150,8 @@ export function contrastRatio(a: string, b: string): number {
 }
 
 /** Black or white — whichever reads better on `background`. */
-export function readableTextColor(background: string): '#FFFFFF' | '#0F172A' {
-  return contrastRatio(background, '#FFFFFF') >= contrastRatio(background, '#0F172A') ? '#FFFFFF' : '#0F172A';
+export function readableTextColor(background: string): '#FFFFFF' | '#141413' {
+  return contrastRatio(background, '#FFFFFF') >= contrastRatio(background, '#141413') ? '#FFFFFF' : '#141413';
 }
 
 export type ContrastGrade = 'AAA' | 'AA' | 'AA-large' | 'fail';
@@ -212,8 +212,8 @@ export interface FormErrors {
 
 export function validateForm(form: BrandForm): FormErrors {
   const errors: FormErrors = {};
-  if (!isHexColor(form.primary_color)) errors.primary_color = 'Use a 6-digit hex color, e.g. #2563EB.';
-  if (!isHexColor(form.accent_color)) errors.accent_color = 'Use a 6-digit hex color, e.g. #0EA5E9.';
+  if (!isHexColor(form.primary_color)) errors.primary_color = 'Use a 6-digit hex color, e.g. #A94C2D.';
+  if (!isHexColor(form.accent_color)) errors.accent_color = 'Use a 6-digit hex color, e.g. #6A9BCC.';
   const name = validateSenderName(form.email_sender_name);
   if (name) errors.email_sender_name = name;
   const reply = validateEmail(form.email_reply_to);
