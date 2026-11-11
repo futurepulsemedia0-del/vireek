@@ -50,6 +50,8 @@ jobs:
       - name: Localization gates (raw Intl ratchet, voice, translation keys)
         run: |
           npm run lint:locale
+          npm run lint:regional
+          npm run test:scripts:regional
           npm run lint:voice
           npm run lint:tells
           npm run i18n:keys
