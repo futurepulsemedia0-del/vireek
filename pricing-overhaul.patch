@@ -1,0 +1,1500 @@
+diff -ruN '--exclude=node_modules' a/docs/pricing-overhaul-release-checklist.md b/docs/pricing-overhaul-release-checklist.md
+--- a/docs/pricing-overhaul-release-checklist.md	1970-01-01 00:00:00.000000000 +0000
++++ b/docs/pricing-overhaul-release-checklist.md	2026-11-11 06:29:08.966457393 +0000
+@@ -0,0 +1,91 @@
++# Pricing overhaul — release checklist
++
++Status of this document: written against the repository snapshot `vireek-main.zip` (no `.git`, no `node_modules`).
++Nothing here was executed against Stripe, Supabase or production. Items marked **UNVERIFIED** are assumptions.
++
++## 0. What the overhaul is (single source of truth)
++
++`supabase/functions/_shared/billing/pricingCatalog.ts` is the only place prices and allowances are defined.
++Everything else derives from it (`planCatalog.ts`, `fraud/planLimits.ts`, `value-scoreboard/engine.ts`, `src/lib/pricing.ts`),
++and `npm run pricing:check` + `src/lib/pricingDrift.test.ts` fail if a copy drifts.
++
++| Plan | Monthly | Annual | Minutes | Overage | Seats | Locations |
++| --- | --- | --- | --- | --- | --- | --- |
++| Trial (14 days, card required) | – | – | 60 | – | – | – |
++| Starter | $99 | $990 | 200 | $0.25/min | 2 | 1 |
++| Professional | $249 | $2,490 | 600 | $0.25/min | 5 | 1 |
++| Business | $549 | $5,490 | 1,500 | $0.25/min | 15 | 3 |
++| Enterprise | from $1,799 | custom | 6,000 committed | $0.20/min | unlimited | unlimited |
++
++Legacy (grandfathered, never sold again): Free 50 min, Starter $79/400, Professional $199/1,500, Business $399/4,000.
++
++## 1. BLOCKERS before any customer-visible deploy
++
++1. **Stripe Payment Links are still the OLD ones.** `STRIPE_CHECKOUT_LINKS` in `src/lib/pricing.ts` points to old-price links.
++   A fail-safe (`CHECKOUT_LINKS_MATCH_CURRENT_PRICES = false`) routes paid CTAs to `/login` until step 3 below is done.
++2. **Trial/card signup flow is NOT built.** The signup page still creates accounts without a card. Marketing copy now says
++   "card required"; deploy it only together with the Stripe trial flow (see rollout order).
++3. **Trial state machine, rollover, overage ledger and top-ups are NOT implemented** in this snapshot (no code, no migration,
++   no tests; `STRIPE_PRICE_TOPUP_100` appears nowhere). Do not claim them in release notes.
++
++## 2. Manual Stripe steps (dashboard, test mode first)
++
++1. Create Products/Prices (monthly + yearly): Starter 9900 / 99000, Professional 24900 / 249000, Business 54900 / 549000 (USD cents).
++2. Keep the OLD prices active (existing subscribers stay on them). Do NOT archive them.
++3. Create new Payment Links for each plan + cycle; on each: `trial_period_days = 14`, collect a payment method at checkout
++   (`payment_method_collection = always`), set metadata `plan_id` = `starter|professional|business`. Paste the URLs into
++   `STRIPE_CHECKOUT_LINKS`, then set `CHECKOUT_LINKS_MATCH_CURRENT_PRICES = true` in the same commit.
++4. Top-up price (100 minutes): create the one-time price and keep its id for `STRIPE_PRICE_TOPUP_100` (**no code reads it yet**).
++5. Tax: decide Stripe Tax on/off, tax behaviour (`exclusive`/`inclusive`) for each new price and the registrations you hold. **UNVERIFIED — owner decision.**
++6. Webhook endpoint must still deliver `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_*`.
++
++## 3. Environment variables (names only; set in Supabase secrets, never commit values)
++
++- `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PROFESSIONAL`, `STRIPE_PRICE_BUSINESS` → point to the NEW monthly price ids.
++- `STRIPE_PRICE_STARTER_LEGACY`, `STRIPE_PRICE_PROFESSIONAL_LEGACY`, `STRIPE_PRICE_BUSINESS_LEGACY` → the OLD price ids
++  (set these BEFORE repointing the three above, so old subscriptions keep resolving as legacy).
++- `STRIPE_PRICE_TOPUP_100` → reserved; not consumed by any code yet.
++- Existing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, site URL vars (unchanged).
++
++## 4. Rollout order
++
++1. Deploy backend only: `pricingCatalog.ts`, `planCatalog.ts`, `stripe-webhook`, `manage-subscription-plan` (no customer-visible change; fixes the grandfathering hazard).
++2. Set the `*_LEGACY` secrets, then repoint `STRIPE_PRICE_*` to the new prices.
++3. Create Payment Links (step 2.3), update `STRIPE_CHECKOUT_LINKS`, flip `CHECKOUT_LINKS_MATCH_CURRENT_PRICES`.
++4. Build and ship the card-collecting trial signup (not in this change), then deploy the website copy (pricing page, FAQ, blog, `llms-full.txt`, JSON-LD).
++5. Run `npm run knowledge:build` (needs esbuild + network) and commit the regenerated knowledge/eval artifacts; refresh non-English locales.
++6. Owner decisions on legal text (Terms §plans/§trial, Refund Policy §5, SLA) and the signup/onboarding copy.
++
++## 5. Rollback
++
++- Backend: redeploy the previous `stripe-webhook` / `planCatalog.ts`; note the previous webhook file did not parse (duplicate `catch`), so roll back to the FIXED webhook with the old numbers rather than the original file.
++- Pricing: set `CHECKOUT_LINKS_MATCH_CURRENT_PRICES = false` (instantly stops selling via Payment Links) and revert the copy commit.
++- Stripe: do not delete prices; deactivate the new Payment Links. Existing legacy subscriptions are untouched throughout.
++- No database migration was added, so there is nothing to roll back in Postgres.
++
++## 6. Verification map
++
++| Check | Evidence |
++| --- | --- |
++| All price/allowance copies agree | `npm run pricing:check` (drift + stale-claim scan) and `src/lib/pricingDrift.test.ts` |
++| Old Starter keeps stored 400 min | `planCatalog.test.ts` › grandfathering (no write on same-plan / legacy-price events) |
++| Emergency never restricted by cost guardrail | `costGuardrail.test.ts` (new) |
++| Fraud guard emergency path | existing code in `fraud/guard.ts`; **no unit test exists** (needs DB harness) |
++| Full lint / typecheck / vitest / e2e | **NOT RUN** (no `node_modules`, no network in the authoring environment) |
++
++## 7. UNVERIFIED rates and assumptions
++
++Cost-rate ceilings in `fraud/planLimits.ts` (pessimistic estimates, never reconciled with invoices):
++`CALL_CENTS_PER_MIN` (domestic 12 / standard 30 / extended 60 / high_cost 300), `SMS_CENTS` (2 / 8 / 15 / 50),
++`NUMBER_RENTAL_CENTS_PER_MONTH = 115`, `VOICE_CLONE_CENTS = 500`, `DISPUTE_FEE_CENTS = 1500`,
++and `DEFAULT_VOICE_COST_PER_MIN = 0.12` in `src/lib/staffUsage.ts`. Calibrate against Twilio / Vapi / ElevenLabs / Stripe bills.
++Margin sanity (using those unverified ceilings): 25¢ overage vs 12¢ domestic voice ceiling; Enterprise 20¢ vs 12¢; a fully used 60-min trial costs up to ~$7.20.
++
++Assumptions made while implementing (change `pricingCatalog.ts` if wrong):
++- Annual price = 10 × monthly (the site's existing "2 months free" convention).
++- Seats and locations unchanged (2/5/15/unlimited seats; 1/1/3/unlimited locations). Numbers, SMS caps, retention unchanged (`PLAN_LIMITS` untouched).
++- Trial minutes (60) apply to every plan; trial is a billing state, not a plan id.
++- The retired `free` plan id stays valid in types/limits for existing accounts.
++- Enterprise: $1,799 is a "from" price, 6,000 committed minutes, $0.20 overage.
++- Partner commissions (`supabase/migrations/20261203000000_partner_portal.sql`) still compute MRR from the OLD prices (7900/19900/39900): **needs a decision** (use Stripe amount or a pricing-version marker).
++- UI/staff screens show the new overage rate for grandfathered accounts; Stripe billing governs real charges. A `profiles.pricing_version` marker would fix the display mismatch. **Needs a decision.**
+diff -ruN '--exclude=node_modules' a/e2e/homepage.spec.ts b/e2e/homepage.spec.ts
+--- a/e2e/homepage.spec.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/e2e/homepage.spec.ts	2026-11-11 06:26:13.895148421 +0000
+@@ -38,10 +38,10 @@
+     const annual = pricing.getByRole('button', { name: 'Annual' });
+     await monthly.click();
+     await expect(monthly).toHaveAttribute('aria-pressed', 'true');
+-    await expect(pricing).toContainText('$79');
++    await expect(pricing).toContainText('$99');
+     await annual.click();
+     await expect(annual).toHaveAttribute('aria-pressed', 'true');
+-    await expect(pricing).toContainText('Billed $790 a year');
++    await expect(pricing).toContainText('Billed $990 a year');
+   });
+ 
+   test('demo falls back to a transcript when the microphone is unsupported', async ({ page }) => {
+diff -ruN '--exclude=node_modules' a/index.html b/index.html
+--- a/index.html	2026-11-10 15:33:26.000000000 +0000
++++ b/index.html	2026-11-11 06:26:13.894824579 +0000
+@@ -73,9 +73,9 @@
+       "description": "AI receptionist for home service businesses. Instant call answering, appointment booking, lead capture, and CRM sync — 24/7.",
+       "offers": {
+         "@type": "Offer",
+-        "price": "0",
++        "price": "99",
+         "priceCurrency": "USD",
+-        "description": "Free plan available"
++        "description": "Plans from $99/month with a 14-day trial (card required)"
+       }
+     }
+     </script>
+diff -ruN '--exclude=node_modules' a/package.json b/package.json
+--- a/package.json	2026-11-10 15:33:26.000000000 +0000
++++ b/package.json	2026-11-11 06:26:52.867547145 +0000
+@@ -35,6 +35,7 @@
+     "lint:locale": "node scripts/check-raw-locale.mjs",
+     "lint:voice": "node scripts/check-voice.mjs",
+     "claims:check": "node scripts/check-claims.mjs",
++    "pricing:check": "node --experimental-strip-types --no-warnings scripts/check-pricing-drift.mjs",
+     "i18n:keys": "node scripts/i18n-missing-keys.mjs",
+     "i18n:coverage": "node scripts/i18n-coverage.mjs",
+     "i18n:coverage:release": "node scripts/i18n-coverage.mjs --strict",
+diff -ruN '--exclude=node_modules' a/public/llms-full.txt b/public/llms-full.txt
+--- a/public/llms-full.txt	2026-11-10 15:33:26.000000000 +0000
++++ b/public/llms-full.txt	2026-11-11 06:26:13.894502470 +0000
+@@ -7,11 +7,12 @@
+ 
+ | Plan | Monthly | Annual | Included minutes | Overage | Seats | Locations |
+ | --- | --- | --- | --- | --- | --- | --- |
+-| Free | $0 | $0 | 50 min | none | 1 seat | 1 location |
+-| Starter | $79 | $790 | 400 min | $0.20/min after | 2 seats | 1 location |
+-| Professional | $199 | $1990 | 1,500 min | $0.15/min after | 5 seats | 1 location |
+-| Business | $399 | $3990 | 4,000 min | $0.12/min after | 15 seats | Up to 3 locations |
+-| Enterprise | custom | custom | Unlimited | SLA-backed, no metering | Unlimited seats | Unlimited locations |
++| Starter | $99 | $990 | 200 min | $0.25/min after | 2 seats | 1 location |
++| Professional | $249 | $2490 | 600 min | $0.25/min after | 5 seats | 1 location |
++| Business | $549 | $5490 | 1,500 min | $0.25/min after | 15 seats | Up to 3 locations |
++| Enterprise | from $1,799 | custom | 6,000 min committed | $0.20/min after | Unlimited seats | Unlimited locations |
++
++Every plan starts with a 14-day trial (card required, 60 minutes included).
+ 
+ ## What Vireek does not claim
+ - No SOC 2 report: Vireek has not completed a SOC 2 audit.
+diff -ruN '--exclude=node_modules' a/scripts/check-pricing-drift.mjs b/scripts/check-pricing-drift.mjs
+--- a/scripts/check-pricing-drift.mjs	1970-01-01 00:00:00.000000000 +0000
++++ b/scripts/check-pricing-drift.mjs	2026-11-11 06:27:14.050319976 +0000
+@@ -0,0 +1,114 @@
++#!/usr/bin/env node
++// scripts/check-pricing-drift.mjs
++//
++//   npm run pricing:check
++//
++// 1. Imports every module that carries a price / allowance and runs collectPricingDrift()
++//    (needs Node >= 22.6: it strips TypeScript types natively; no install, no network).
++// 2. Greps customer-facing sources for stale pre-overhaul claims (STALE_CLAIM_PATTERNS).
++//    Hits are only allowed in ALLOWLIST below, each with a reason. Anything else fails the run.
++//
++// Exit code 1 on any drift or un-allowlisted stale claim.
++
++import { register } from 'node:module';
++import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
++import path from 'node:path';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++
++const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
++
++// src/ files import siblings without a ".ts" extension (Vite style); Node needs it. Tiny resolver hook.
++register(
++  'data:text/javascript,' +
++    encodeURIComponent(`
++import { existsSync } from 'node:fs';
++import { fileURLToPath } from 'node:url';
++export async function resolve(spec, ctx, next) {
++  if ((spec.startsWith('.') || spec.startsWith('/')) && !/\\.[a-z]+$/i.test(spec) && ctx.parentURL) {
++    const base = new URL(spec, ctx.parentURL);
++    for (const ext of ['.ts', '/index.ts']) {
++      const u = new URL(base.href + ext);
++      if (existsSync(fileURLToPath(u))) return next(u.href, ctx);
++    }
++  }
++  return next(spec, ctx);
++}`),
++  pathToFileURL(ROOT + '/'),
++);
++
++const imp = (rel) => import(pathToFileURL(path.join(ROOT, rel)).href);
++const problems = [];
++
++// ---------- 1. drift ----------
++const [{ collectPricingDrift, STALE_CLAIM_PATTERNS }, planCatalog, planLimits, scoreboard, pricing] = await Promise.all([
++  imp('supabase/functions/_shared/billing/pricingInvariants.ts'),
++  imp('supabase/functions/_shared/billing/planCatalog.ts'),
++  imp('supabase/functions/_shared/fraud/planLimits.ts'),
++  imp('supabase/functions/_shared/value-scoreboard/engine.ts'),
++  imp('src/lib/pricing.ts'),
++]);
++const drift = collectPricingDrift({
++  purchasable: planCatalog.PURCHASABLE_PLANS,
++  freeMinutes: planCatalog.FREE_MINUTES_INCLUDED,
++  trialMinutes: planCatalog.TRIAL_MINUTES,
++  fraudFreeMinutes: planLimits.FREE_MINUTES,
++  planPriceCents: planLimits.PLAN_PRICE_CENTS,
++  scoreboardMonthlyCents: scoreboard.PLAN_MONTHLY_CENTS,
++  displayPlans: pricing.PRICING_PLANS,
++});
++for (const d of drift) problems.push(`DRIFT  ${d}`);
++console.log(drift.length === 0 ? 'drift check: PASSED (all copies agree with pricingCatalog.ts)' : `drift check: FAILED (${drift.length})`);
++
++// ---------- 2. stale customer-facing claims ----------
++const SCAN = ['src', 'public', 'supabase/functions/_shared/ai-core', 'e2e', 'index.html', 'knowledge', 'eval'];
++const SKIP_DIR = new Set(['node_modules', '.git', 'dist', 'android', 'ios']);
++const EXT = /\.(ts|tsx|mjs|md|txt|html|json)$/;
++/** path (prefix) -> why a stale-looking string is allowed to stay. "DECISION" = needs the owner. */
++const ALLOWLIST = [
++  [/\.test\.(ts|tsx)$/, 'tests that format arbitrary invoice/membership amounts, not plan prices'],
++  [/^src\/lib\/(conversationIntel|homeCapitalUnderwriting|lifetimeServicePlan|propertyIntelligence|directMail)/, 'unrelated data ($199/yr upsell fixtures, year 1990)'],
++  [/^src\/components\/directmail\//, 'unrelated sample offer copy'],
++  [/^eval\/vertical-ai\//, 'unrelated job-price eval fixtures (drain cleaning quote), not plan prices'],
++  [/^src\/components\/sections\/(TermsContent|RefundPolicyContent|SlaContent)\.tsx$/, 'DECISION: legal text; changing a contract needs owner/lawyer sign-off and a notice to existing customers'],
++  [/^src\/pages\/(SignupPage|OnboardingGuidePage)\.tsx$/, 'DECISION: describes the signup flow, which still creates accounts without a card until the Stripe trial flow ships'],
++  [/^src\/lib\/locations\.ts$/, 'DECISION: SEO template copy mentioning a trial; review wording'],
++  [/^(knowledge\/(site-chunks|coverage)\.generated|eval\/site-assistant\.generated|supabase\/functions\/_shared\/ai-core\/coreFacts\.generated)/, 'GENERATED: regenerate with `npm run knowledge:build` (needs esbuild + network)'],
++  [/^src\/locales\/(?!en\/)/, 'NON-ENGLISH locales: translations still carry the old trial wording; refresh via the i18n pipeline (`npm run i18n:freshness`)'],
++];
++
++function* walk(p) {
++  const abs = path.join(ROOT, p);
++  if (!existsSync(abs)) return;
++  const st = statSync(abs);
++  if (st.isFile()) { yield p; return; }
++  for (const name of readdirSync(abs)) {
++    if (SKIP_DIR.has(name)) continue;
++    yield* walk(path.join(p, name));
++  }
++}
++
++let allowed = 0;
++const allowedBy = new Map();
++for (const root of SCAN) {
++  for (const rel of walk(root)) {
++    if (!EXT.test(rel) || /package-lock|translation-state/.test(rel)) continue;
++    const text = readFileSync(path.join(ROOT, rel), 'utf8');
++    const lines = text.split('\n');
++    lines.forEach((line, idx) => {
++      for (const { re, why } of STALE_CLAIM_PATTERNS) {
++        if (!re.test(line)) continue;
++        const rule = ALLOWLIST.find(([pat]) => pat.test(rel));
++        if (rule) { allowed++; allowedBy.set(rel, (allowedBy.get(rel) ?? 0) + 1); continue; }
++        problems.push(`STALE  ${rel}:${idx + 1}  [${why}]  ${line.trim().slice(0, 110)}`);
++      }
++    });
++  }
++}
++console.log(`stale-claim scan: ${problems.filter((p) => p.startsWith('STALE')).length} un-allowlisted hit(s), ${allowed} allowlisted`);
++
++if (process.argv.includes('--verbose')) for (const [f, n] of [...allowedBy].sort()) console.log(`  allowlisted ${n}x  ${f}`);
++if (problems.length) {
++  console.error('\n' + problems.join('\n'));
++  process.exit(1);
++}
++console.log('pricing:check PASSED');
+diff -ruN '--exclude=node_modules' a/src/components/auth/AuthParts.tsx b/src/components/auth/AuthParts.tsx
+--- a/src/components/auth/AuthParts.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/components/auth/AuthParts.tsx	2026-11-11 06:25:36.613936220 +0000
+@@ -281,7 +281,7 @@
+           </h2>
+           <p className="mt-4 text-sm leading-relaxed text-text-secondary">
+             Vireek&rsquo;s AI receptionist handles your calls 24/7 — booking jobs, capturing leads,
+-            and following up automatically. Start free in under two minutes.
++            and following up automatically. Start your 14-day trial in under two minutes.
+           </p>
+ 
+           {/* Trust badges */}
+@@ -289,7 +289,7 @@
+             {[
+               { icon: 'shield', label: 'Tenant data isolation' },
+               { icon: 'lock', label: 'Encrypted at rest' },
+-              { icon: 'check', label: 'No card required' },
++              { icon: 'check', label: 'Cancel anytime' },
+             ].map((badge) => (
+               <div key={badge.label} className="flex items-center gap-2 text-xs font-medium text-text-secondary/70">
+                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/10 text-accent">
+diff -ruN '--exclude=node_modules' a/src/components/sections/BeforeAfter.tsx b/src/components/sections/BeforeAfter.tsx
+--- a/src/components/sections/BeforeAfter.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/components/sections/BeforeAfter.tsx	2026-11-11 06:25:41.537213116 +0000
+@@ -2,6 +2,7 @@
+ import { CheckCircle, XCircle } from 'lucide-react';
+ import { Card } from '@/components/ui/Card';
+ import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
++import { PRICE_LABELS } from '@/lib/pricing';
+ 
+ const BEFORE = [
+   'Voicemail',
+@@ -14,7 +15,7 @@
+ const AFTER = [
+   '24/7 AI Answer',
+   'Instant emergency flagging',
+-  '$199/month AI',
++  `${PRICE_LABELS.professional}/month AI`,
+   'Auto CRM entry',
+   'Jobs booked while you sleep',
+ ];
+diff -ruN '--exclude=node_modules' a/src/components/sections/FAQ.tsx b/src/components/sections/FAQ.tsx
+--- a/src/components/sections/FAQ.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/components/sections/FAQ.tsx	2026-11-11 06:25:41.536592223 +0000
+@@ -2,6 +2,7 @@
+ import { AnimatePresence, motion } from 'framer-motion';
+ import { ChevronDown } from 'lucide-react';
+ import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
++import { PRICE_LABELS } from '@/lib/pricing';
+ 
+ const FAQS = [
+   {
+@@ -30,7 +31,7 @@
+   },
+   {
+     q: 'How much does it cost?',
+-    a: 'Starter is $79/month and includes 400 minutes. Professional is $199/month and includes 1,500 minutes. You can start a 14-day free trial with no credit card required.',
++    a: `Starter is ${PRICE_LABELS.starter}/month and includes ${PRICE_LABELS.starterMinutes}. Professional is ${PRICE_LABELS.professional}/month and includes ${PRICE_LABELS.professionalMinutes}. You can start a 14-day trial with ${PRICE_LABELS.trialMinutes} included (card required, cancel anytime).`,
+   },
+ ];
+ 
+diff -ruN '--exclude=node_modules' a/src/components/sections/Hero.tsx b/src/components/sections/Hero.tsx
+--- a/src/components/sections/Hero.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/components/sections/Hero.tsx	2026-11-11 06:25:36.614119600 +0000
+@@ -296,7 +296,7 @@
+             transition={{ duration: 0.5, delay: 0.25, ease: EASE }}
+             className="mt-4 text-sm text-text-secondary/80"
+           >
+-            14-day free trial · No credit card required · Cancel anytime
++            14-day free trial · Card required · Cancel anytime
+           </motion.p>
+ 
+           <motion.div
+diff -ruN '--exclude=node_modules' a/src/components/sections/Pricing.tsx b/src/components/sections/Pricing.tsx
+--- a/src/components/sections/Pricing.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/components/sections/Pricing.tsx	2026-11-11 06:25:51.553837029 +0000
+@@ -32,7 +32,7 @@
+         >
+           <span className="inline-flex items-center gap-2 rounded-full border border-cta/40 bg-cta/10 px-4 py-1.5 text-sm font-semibold text-cta">
+             <ShieldCheck size={16} />
+-            {'Start Your 14-Day Free Trial \u2014 No Credit Card Required'}
++            {'Start Your 14-Day Trial \u2014 Card Required, Cancel Anytime'}
+           </span>
+           <p className={`${eyebrowClass()} mt-8`}>Pricing</p>
+           <h2 className={sectionHeadingClass()}>Simple Pricing. No Surprises.</h2>
+@@ -194,7 +194,7 @@
+           <ShieldCheck size={15} className="shrink-0 text-accent" />
+           <p className="text-xs font-medium leading-relaxed text-text-secondary/70">
+             No contracts, no hidden fees, cancel anytime. Need more minutes, seats, or locations?
+-            Compare Free, Starter, Professional, Business and Enterprise on the full pricing page.
++            Compare Starter, Professional, Business and Enterprise on the full pricing page.
+           </p>
+         </motion.div>
+       </div>
+diff -ruN '--exclude=node_modules' a/src/components/sections/PricingTeaser.tsx b/src/components/sections/PricingTeaser.tsx
+--- a/src/components/sections/PricingTeaser.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/components/sections/PricingTeaser.tsx	2026-11-11 06:25:51.553410456 +0000
+@@ -7,7 +7,7 @@
+ import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+ import { PRICING_PLANS } from '@/lib/pricing';
+ 
+-const TEASER_PLAN_IDS = ['free', 'starter', 'professional', 'business'] as const;
++const TEASER_PLAN_IDS = ['starter', 'professional', 'business'] as const;
+ const TEASER_PLANS = TEASER_PLAN_IDS
+   .map((id) => PRICING_PLANS.find((p) => p.id === id))
+   .filter((p): p is NonNullable<typeof p> => p !== undefined);
+@@ -26,7 +26,7 @@
+         >
+           <span className="inline-flex items-center gap-2 rounded-full border border-cta/40 bg-cta/10 px-3 py-1.5 text-xs font-semibold text-cta sm:px-4">
+             <ShieldCheck size={14} className="sm:size-4" />
+-            {'14-Day Free Trial — No Credit Card Required'}
++            {'14-Day Trial — Card Required, Cancel Anytime'}
+           </span>
+           <p className={`${eyebrowClass()} mt-6 sm:mt-8`}>{'Pricing'}</p>
+           <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'Every Plan Is a Full-Time Receptionist.'}</h2>
+@@ -74,9 +74,7 @@
+               )}
+               <h3 className="text-base font-semibold text-text-primary">{plan.name}</h3>
+               <div className="mt-3 flex items-baseline gap-1">
+-                {plan.monthly === 0 ? (
+-                  <span className="text-3xl font-bold tracking-tight text-text-primary">Free</span>
+-                ) : plan.monthly === null ? (
++                {plan.monthly === null ? (
+                   <span className="text-3xl font-bold tracking-tight text-text-primary">Custom</span>
+                 ) : (
+                   <>
+@@ -86,11 +84,9 @@
+                 )}
+               </div>
+               <p className="mt-1 text-xs font-medium text-text-secondary/70">
+-                {plan.monthly === 0
+-                  ? 'No card required'
+-                  : plan.monthly === null
+-                    ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
+-                    : `or ${formatPrice(plan.annual!, currency)}/yr`}
++                {plan.monthly === null
++                  ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
++                  : `or ${formatPrice(plan.annual!, currency)}/yr`}
+               </p>
+               <p className="mt-3 text-xs font-medium text-accent">{plan.minutes} included</p>
+               <ul className="mt-4 flex flex-1 flex-col gap-2">
+@@ -132,9 +128,7 @@
+               )}
+               <h3 className="text-base font-semibold text-text-primary">{plan.name}</h3>
+               <div className="mt-3 flex items-baseline gap-1">
+-                {plan.monthly === 0 ? (
+-                  <span className="text-3xl font-bold tracking-tight text-text-primary">Free</span>
+-                ) : plan.monthly === null ? (
++                {plan.monthly === null ? (
+                   <span className="text-3xl font-bold tracking-tight text-text-primary">Custom</span>
+                 ) : (
+                   <>
+@@ -144,11 +138,9 @@
+                 )}
+               </div>
+               <p className="mt-1 text-xs font-medium text-text-secondary/70">
+-                {plan.monthly === 0
+-                  ? 'No card required'
+-                  : plan.monthly === null
+-                    ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
+-                    : `or ${formatPrice(plan.annual!, currency)}/yr`}
++                {plan.monthly === null
++                  ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
++                  : `or ${formatPrice(plan.annual!, currency)}/yr`}
+               </p>
+               <p className="mt-3 text-xs font-medium text-accent">{plan.minutes} included</p>
+               <ul className="mt-4 flex flex-1 flex-col gap-2">
+diff -ruN '--exclude=node_modules' a/src/lib/blog.ts b/src/lib/blog.ts
+--- a/src/lib/blog.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/src/lib/blog.ts	2026-11-11 06:26:13.893672772 +0000
+@@ -131,16 +131,15 @@
+       },
+       {
+         type: 'p',
+-        text: 'Vireek\u2019s published plans are a useful reference point here because the pricing is public rather than quoted case by case: a Free tier with 50 minutes to try it, Starter at $79/month for 400 minutes, Professional at $199/month for 1,500 minutes (the plan most solo and small-crew contractors land on), Business at $399/month for 4,000 minutes across up to 3 locations, and custom Enterprise pricing starting around $999/month for unlimited minutes and locations. Every plan answers every call, 24/7 \u2014 the coverage gap that costs the most with a single in-house hire or a capped answering-service plan simply doesn\u2019t exist.',
++        text: 'Vireek\u2019s published plans are a useful reference point here because the pricing is public rather than quoted case by case: a 14-day trial to try it, Starter at $99/month for 200 minutes, Professional at $249/month for 600 minutes (the plan most solo and small-crew contractors land on), Business at $549/month for 1,500 minutes across up to 3 locations, and custom Enterprise pricing starting around $1,799/month for 6,000 committed minutes and unlimited locations. Every plan answers every call, 24/7 \u2014 the coverage gap that costs the most with a single in-house hire or a capped answering-service plan simply doesn\u2019t exist.',
+       },
+       {
+         type: 'list',
+         items: [
+-          'Free \u2014 $0/month, 50 minutes, 1 seat, 1 location. For proving the value before spending anything.',
+-          'Starter \u2014 $79/month, 400 minutes, 2 seats. Smart booking, SMS confirmations, 1 CRM integration.',
+-          'Professional \u2014 $199/month, 1,500 minutes, 5 seats. Emergency detection, live dispatch, full CRM sync.',
+-          'Business \u2014 $399/month, 4,000 minutes, up to 3 locations. Custom voice and script per location.',
+-          'Enterprise \u2014 from $999/month, unlimited minutes and locations. Custom-trained voice, dedicated account manager.',
++          'Starter \u2014 $99/month, 200 minutes, 2 seats. Smart booking, SMS confirmations, 1 CRM integration.',
++          'Professional \u2014 $249/month, 600 minutes, 5 seats. Emergency detection, live dispatch, full CRM sync.',
++          'Business \u2014 $549/month, 1,500 minutes, up to 3 locations. Custom voice and script per location.',
++          'Enterprise \u2014 from $1,799/month, 6,000 committed minutes, unlimited locations. Custom-trained voice, dedicated account manager.',
+         ],
+       },
+       {
+diff -ruN '--exclude=node_modules' a/src/lib/brandFacts.ts b/src/lib/brandFacts.ts
+--- a/src/lib/brandFacts.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/src/lib/brandFacts.ts	2026-11-11 06:25:36.614288722 +0000
+@@ -159,7 +159,7 @@
+     sourceUrl: "https://vireek.com/pricing",
+     title: "Signing up and getting Sarah live",
+     content:
+-      "A new customer signs up (the Free plan needs no credit card), connects or forwards their business phone number, and describes their services, service area, and escalation/emergency rules -- then the AI receptionist goes live with no hardware install required. Paid plans (Starter and above) start with a 14-day trial with no commitment. Optional white-glove onboarding, where a Vireek team member configures everything for the customer, is available on Professional and above.",
++      "A new customer starts a 14-day trial (card required, 60 minutes included), connects or forwards their business phone number, and describes their services, service area, and escalation/emergency rules -- then the AI receptionist goes live with no hardware install required. Every plan starts with the 14-day trial and can be cancelled before the trial ends. Optional white-glove onboarding, where a Vireek team member configures everything for the customer, is available on Professional and above.",
+   },
+ 
+   // ---------------------------------------------------------------
+diff -ruN '--exclude=node_modules' a/src/lib/homeContent.ts b/src/lib/homeContent.ts
+--- a/src/lib/homeContent.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/src/lib/homeContent.ts	2026-11-11 06:25:36.612828733 +0000
+@@ -1,3 +1,4 @@
++import { PRICE_LABELS } from './pricing';
+ /**
+  * Single source of truth for homepage copy that carries a factual claim.
+  * Every claim here is either (a) verifiable in this repo — cited in the comment — or
+@@ -7,10 +8,14 @@
+ 
+ export const SITE_URL = 'https://vireek.com';
+ 
+-/** Trial terms. VERIFIED: SignupPage says "no credit card required"; RefundPolicy §5 says no payment is collected during a free trial. */
++/**
++ * Trial terms (pricing overhaul): 14 days, card required, capped at PRICE_LABELS.trialMinutes.
++ * RELEASE DEPENDENCY: deploy this copy only together with the Stripe trial/card configuration
++ * (docs/pricing-overhaul-release-checklist.md). RefundPolicy §5 and Terms still describe the OLD no-card trial (owner decision).
++ */
+ export const TRIAL = {
+   days: 14,
+-  short: '14-day free trial · No credit card · Cancel anytime',
++  short: '14-day free trial · Card required · Cancel anytime',
+ } as const;
+ 
+ /**
+@@ -22,7 +27,7 @@
+ export const HERO_PROOF = [
+   { label: 'Answers', value: '24/7', detail: 'Nights, weekends and holidays' },
+   { label: 'Setup', value: `~${SETUP_MINUTES} min`, detail: 'Forward your number, add your services' },
+-  { label: 'Trial', value: `${TRIAL.days} days`, detail: 'No credit card, no contract' },
++  { label: 'Trial', value: `${TRIAL.days} days`, detail: 'Card required, cancel anytime' },
+ ] as const;
+ 
+ export const HERO_HEADLINES = {
+@@ -110,6 +115,6 @@
+   },
+   {
+     q: 'How much does it cost?',
+-    a: 'Plans start at $79 a month with a 14-day free trial that needs no credit card. There is also a Free plan with 50 minutes. Prices are shown above and on the pricing page.',
++    a: `Plans start at ${PRICE_LABELS.starter} a month. Every plan begins with a 14-day trial (card required, ${PRICE_LABELS.trialMinutes} included). Prices are shown above and on the pricing page.`,
+   },
+ ];
+diff -ruN '--exclude=node_modules' a/src/lib/pricing.test.ts b/src/lib/pricing.test.ts
+--- a/src/lib/pricing.test.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/src/lib/pricing.test.ts	2026-11-11 06:28:35.203006306 +0000
+@@ -1,5 +1,5 @@
+ import { describe, it, expect } from 'vitest';
+-import { getPlanHref, isExternalLink, buildEnterpriseMailto, STRIPE_CHECKOUT_LINKS, PRICING_PLANS } from './pricing';
++import { getPlanHref, isExternalLink, buildEnterpriseMailto, STRIPE_CHECKOUT_LINKS, PRICING_PLANS, CHECKOUT_LINKS_MATCH_CURRENT_PRICES } from './pricing';
+ 
+ describe('getPlanHref', () => {
+   it('sends the free plan to login, not Stripe', () => {
+@@ -10,9 +10,19 @@
+     expect(getPlanHref('enterprise', 'annual')).toBe('/enterprise');
+   });
+ 
+-  it('returns the correct Stripe Payment Link for a paid plan + cycle', () => {
+-    expect(getPlanHref('professional', 'monthly')).toBe(STRIPE_CHECKOUT_LINKS.professional!.monthly);
+-    expect(getPlanHref('professional', 'annual')).toBe(STRIPE_CHECKOUT_LINKS.professional!.annual);
++  it('returns the correct Stripe Payment Link for a paid plan + cycle once the links match the current prices', () => {
++    const want = CHECKOUT_LINKS_MATCH_CURRENT_PRICES;
++    expect(getPlanHref('professional', 'monthly')).toBe(want ? STRIPE_CHECKOUT_LINKS.professional!.monthly : '/login');
++    expect(getPlanHref('professional', 'annual')).toBe(want ? STRIPE_CHECKOUT_LINKS.professional!.annual : '/login');
++  });
++
++  it('never sends a paid plan to a Payment Link while the links are unverified for the current prices (fail-safe)', () => {
++    if (!CHECKOUT_LINKS_MATCH_CURRENT_PRICES) {
++      for (const id of ['starter', 'professional', 'business'] as const) {
++        expect(getPlanHref(id, 'monthly')).toBe('/login');
++        expect(getPlanHref(id, 'annual')).toBe('/login');
++      }
++    }
+   });
+ });
+ 
+@@ -45,6 +55,10 @@
+     }
+   });
+ 
++  it('the retired Free plan is no longer sold', () => {
++    expect(PRICING_PLANS.some((p) => p.id === 'free')).toBe(false);
++  });
++
+   it('exactly one plan is marked recommended', () => {
+     expect(PRICING_PLANS.filter((p) => p.recommended).length).toBe(1);
+   });
+diff -ruN '--exclude=node_modules' a/src/lib/pricing.ts b/src/lib/pricing.ts
+--- a/src/lib/pricing.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/src/lib/pricing.ts	2026-11-11 06:28:44.056334394 +0000
+@@ -1,3 +1,11 @@
++import {
++  TRIAL,
++  formatUsdFromCents,
++  formatMinutes,
++  formatOverage,
++  getCatalogPlan,
++} from '../../supabase/functions/_shared/billing/pricingCatalog';
++
+ export type BillingCycle = 'monthly' | 'annual';
+ 
+ export type PlanId = 'free' | 'starter' | 'professional' | 'business' | 'enterprise';
+@@ -24,47 +32,52 @@
+   features: string[];
+ }
+ 
++/** Catalog lookup that fails loudly at module load if a plan is missing (never silently shows a stale number). */
++function cp(id: 'starter' | 'professional' | 'business' | 'enterprise') {
++  const plan = getCatalogPlan(id);
++  if (!plan) throw new Error(`pricingCatalog is missing plan: ${id}`);
++  return plan;
++}
++const dollars = (cents: number): number => cents / 100;
++
++/** Pre-formatted labels for marketing copy, derived from the catalog so prose can never drift from the real prices. */
++export const PRICE_LABELS = {
++  starter: formatUsdFromCents(cp('starter').monthlyCents),
++  professional: formatUsdFromCents(cp('professional').monthlyCents),
++  business: formatUsdFromCents(cp('business').monthlyCents),
++  enterpriseFrom: formatUsdFromCents(cp('enterprise').monthlyCents),
++  starterMinutes: formatMinutes(cp('starter').minutesIncluded).replace(' min', ' minutes'),
++  professionalMinutes: formatMinutes(cp('professional').minutesIncluded).replace(' min', ' minutes'),
++  trialMinutes: `${TRIAL.minutes} minutes`,
++} as const;
++const seatsLabel = (n: number | null): string => (n === null ? 'Unlimited seats' : `${n} seats`);
++const locationsLabel = (n: number | null): string =>
++  n === null ? 'Unlimited locations' : n === 1 ? '1 location' : `Up to ${n} locations`;
++
+ /**
+- * Single source of truth for every plan shown on the site (homepage teaser + /pricing page).
+- * Keep this in sync with the live Stripe products in STRIPE_CHECKOUT_LINKS below.
++ * Display layer for every plan shown on the site (homepage teaser + /pricing page).
++ * Prices, minutes, overage, seats and locations are DERIVED from
++ * supabase/functions/_shared/billing/pricingCatalog.ts (the single source of truth); only copy
++ * (taglines, features, CTAs) lives here. Keep STRIPE_CHECKOUT_LINKS below in sync with live Stripe prices.
+  */
+ export const PRICING_PLANS: PricingPlan[] = [
+   {
+-    id: 'free',
+-    name: 'Free',
+-    tagline: 'Prove the value before you spend a dollar.',
+-    monthly: 0,
+-    annual: 0,
+-    minutes: '50 min',
+-    overage: null,
+-    seats: '1 seat',
+-    locations: '1 location',
+-    core: false,
+-    ctaLabel: 'Start free',
+-    ctaHint: 'No card required',
+-    features: [
+-      '24/7 AI call answering',
+-      'Voicemail-to-text',
+-      'Missed-call text-back',
+-      'Email call summaries',
+-      'Community support',
+-    ],
+-  },
+-  {
+     id: 'starter',
+     name: 'Starter',
+     tagline: 'Everything a solo operator needs to stop missing work.',
+-    monthly: 79,
+-    annual: 790,
+-    minutes: '400 min',
+-    overage: '$0.20/min after',
+-    seats: '2 seats',
+-    locations: '1 location',
++    monthly: dollars(cp('starter').monthlyCents),
++    annual: dollars(cp('starter').annualCents!),
++    minutes: formatMinutes(cp('starter').minutesIncluded),
++    overage: formatOverage(cp('starter').overageCentsPerMin),
++    seats: seatsLabel(cp('starter').seats),
++    locations: locationsLabel(cp('starter').locations),
+     core: true,
+-    ctaLabel: 'Start 14-day trial',
+-    ctaHint: 'No commitment',
++    ctaLabel: `Start ${TRIAL.days}-day trial`,
++    ctaHint: `Card required \u00b7 ${TRIAL.days}-day trial`,
+     features: [
+-      'Everything in Free',
++      '24/7 AI call answering',
++      'Voicemail-to-text and missed-call text-back',
++      'Email call summaries',
+       'Smart calendar booking',
+       'SMS appointment confirmations',
+       '1 CRM integration',
+@@ -76,16 +89,16 @@
+     id: 'professional',
+     name: 'Professional',
+     tagline: 'Replaces a full-time receptionist — with emergency coverage built in.',
+-    monthly: 199,
+-    annual: 1990,
+-    minutes: '1,500 min',
+-    overage: '$0.15/min after',
+-    seats: '5 seats',
+-    locations: '1 location',
++    monthly: dollars(cp('professional').monthlyCents),
++    annual: dollars(cp('professional').annualCents!),
++    minutes: formatMinutes(cp('professional').minutesIncluded),
++    overage: formatOverage(cp('professional').overageCentsPerMin),
++    seats: seatsLabel(cp('professional').seats),
++    locations: locationsLabel(cp('professional').locations),
+     core: true,
+     recommended: true,
+-    ctaLabel: 'Start 14-day trial',
+-    ctaHint: 'No commitment',
++    ctaLabel: `Start ${TRIAL.days}-day trial`,
++    ctaHint: `Card required \u00b7 ${TRIAL.days}-day trial`,
+     features: [
+       'Everything in Starter',
+       'Emergency detection & live dispatch',
+@@ -101,15 +114,15 @@
+     id: 'business',
+     name: 'Business',
+     tagline: 'One dashboard for every location, with the data to prove ROI.',
+-    monthly: 399,
+-    annual: 3990,
+-    minutes: '4,000 min',
+-    overage: '$0.12/min after',
+-    seats: '15 seats',
+-    locations: 'Up to 3 locations',
++    monthly: dollars(cp('business').monthlyCents),
++    annual: dollars(cp('business').annualCents!),
++    minutes: formatMinutes(cp('business').minutesIncluded),
++    overage: formatOverage(cp('business').overageCentsPerMin),
++    seats: seatsLabel(cp('business').seats),
++    locations: locationsLabel(cp('business').locations),
+     core: false,
+-    ctaLabel: 'Start 14-day trial',
+-    ctaHint: 'No commitment',
++    ctaLabel: `Start ${TRIAL.days}-day trial`,
++    ctaHint: `Card required \u00b7 ${TRIAL.days}-day trial`,
+     features: [
+       'Everything in Professional',
+       'Up to 3 business locations',
+@@ -125,11 +138,11 @@
+     tagline: 'For multi-location operators who need one system, contractually guaranteed.',
+     monthly: null,
+     annual: null,
+-    startingAt: 999,
+-    minutes: 'Unlimited',
+-    overage: 'SLA-backed, no metering',
+-    seats: 'Unlimited seats',
+-    locations: 'Unlimited locations',
++    startingAt: dollars(cp('enterprise').monthlyCents),
++    minutes: `${formatMinutes(cp('enterprise').minutesIncluded)} committed`,
++    overage: formatOverage(cp('enterprise').overageCentsPerMin),
++    seats: seatsLabel(cp('enterprise').seats),
++    locations: locationsLabel(cp('enterprise').locations),
+     core: false,
+     ctaLabel: 'Talk to sales',
+     ctaHint: 'Response within 1 business day',
+@@ -181,9 +194,20 @@
+   return `mailto:${SALES_EMAIL}?subject=${subject}&body=${body}`;
+ }
+ 
++/**
++ * FAIL-SAFE for the pricing overhaul. The Payment Links above were created for the OLD (pre-overhaul)
++ * prices. Until the new Stripe Payment Links (see pricingCatalog.ts; 14-day trial, card collected)
++ * are pasted in, a paid-plan CTA would sell a plan at a price different from the one displayed.
++ * While this is false, paid-plan CTAs route to /login (in-app signup) instead of Stripe.
++ * Flip to true ONLY in the same change that replaces every URL in STRIPE_CHECKOUT_LINKS
++ * (docs/pricing-overhaul-release-checklist.md, step 3).
++ */
++export const CHECKOUT_LINKS_MATCH_CURRENT_PRICES = false;
++
+ export function getPlanHref(planId: PlanId, billing: BillingCycle): string {
+   if (planId === 'free') return '/login';
+-    if (planId === 'enterprise') return '/enterprise';
++  if (planId === 'enterprise') return '/enterprise';
++  if (!CHECKOUT_LINKS_MATCH_CURRENT_PRICES) return '/login';
+   return STRIPE_CHECKOUT_LINKS[planId]?.[billing] ?? '/login';
+ }
+ 
+@@ -195,7 +219,7 @@
+   return planId !== 'free' && planId !== 'enterprise';
+ }
+ 
+-/** Parses "$0.20/min after" -> 0.2. Returns null for non-metered plans (e.g. Enterprise/Free). */
++/** Parses "$0.25/min after" -> 0.25. Returns null when the plan has no metered overage string. */
+ export function parseOverageRate(overage: string | null): number | null {
+   if (!overage) return null;
+   const match = overage.match(/\$([\d.]+)\/min/);
+diff -ruN '--exclude=node_modules' a/src/lib/pricingDrift.test.ts b/src/lib/pricingDrift.test.ts
+--- a/src/lib/pricingDrift.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/pricingDrift.test.ts	2026-11-11 06:25:06.026672619 +0000
+@@ -0,0 +1,34 @@
++import { describe, it, expect } from 'vitest';
++import { collectPricingDrift } from '../../supabase/functions/_shared/billing/pricingInvariants';
++import { PURCHASABLE_PLANS, FREE_MINUTES_INCLUDED, TRIAL_MINUTES } from '../../supabase/functions/_shared/billing/planCatalog';
++import { FREE_MINUTES, PLAN_PRICE_CENTS } from '../../supabase/functions/_shared/fraud/planLimits';
++import { PLAN_MONTHLY_CENTS } from '../../supabase/functions/_shared/value-scoreboard/engine';
++import { PRICING_PLANS } from './pricing';
++
++describe('pricing single source of truth', () => {
++  it('has no drift between pricingCatalog and every copy of a price / allowance', () => {
++    const drift = collectPricingDrift({
++      purchasable: PURCHASABLE_PLANS,
++      freeMinutes: FREE_MINUTES_INCLUDED,
++      trialMinutes: TRIAL_MINUTES,
++      fraudFreeMinutes: FREE_MINUTES,
++      planPriceCents: PLAN_PRICE_CENTS,
++      scoreboardMonthlyCents: PLAN_MONTHLY_CENTS,
++      displayPlans: PRICING_PLANS,
++    });
++    expect(drift).toEqual([]);
++  });
++
++  it('detects a drifted copy (the detector itself works)', () => {
++    const drift = collectPricingDrift({
++      purchasable: PURCHASABLE_PLANS.map((p) => (p.id === 'starter' ? { ...p, minutesIncluded: 400 } : p)),
++      freeMinutes: FREE_MINUTES_INCLUDED,
++      trialMinutes: TRIAL_MINUTES,
++      fraudFreeMinutes: FREE_MINUTES,
++      planPriceCents: { ...PLAN_PRICE_CENTS, starter: 7900 },
++      scoreboardMonthlyCents: PLAN_MONTHLY_CENTS,
++      displayPlans: PRICING_PLANS,
++    });
++    expect(drift.length).toBeGreaterThanOrEqual(2);
++  });
++});
+diff -ruN '--exclude=node_modules' a/src/lib/staffUsage.ts b/src/lib/staffUsage.ts
+--- a/src/lib/staffUsage.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/src/lib/staffUsage.ts	2026-11-11 06:26:52.841149682 +0000
+@@ -6,6 +6,7 @@
+  * $/minute assumption, revenue is the plan's list price (prorated) plus metered overage.
+  */
+ import { PRICING_PLANS, parseOverageRate, type PlanId } from './pricing';
++import { LEGACY_PLANS } from '../../supabase/functions/_shared/billing/pricingCatalog';
+ 
+ export interface TenantUsageRow {
+   account_id: string;
+@@ -75,6 +76,10 @@
+ }
+ 
+ export function planEconomics(planId: string | null | undefined): PlanEconomics {
++  // The Free plan is retired from sale but legacy accounts still carry it: keep their economics instead of 'unknown'.
++  if (planId === 'free') {
++    return { id: 'free', name: 'Free (legacy)', monthlyPrice: 0, includedMinutes: LEGACY_PLANS.free.minutesIncluded, overageRate: null };
++  }
+   const plan = PRICING_PLANS.find((p) => p.id === planId);
+   if (!plan) return { id: 'unknown', name: planId ? String(planId) : 'Unknown', monthlyPrice: null, includedMinutes: 0, overageRate: null };
+   const m = plan.minutes.replace(/,/g, '').match(/(\d+)/);
+diff -ruN '--exclude=node_modules' a/src/locales/en/common.json b/src/locales/en/common.json
+--- a/src/locales/en/common.json	2026-11-10 15:33:26.000000000 +0000
++++ b/src/locales/en/common.json	2026-11-11 06:27:14.042866622 +0000
+@@ -19,11 +19,11 @@
+     "headline": "Stop Losing Jobs to Voicemail",
+     "subhead": "Every call Sarah answers is a customer who",
+     "guaranteeLive": "Live in 15 minutes",
+-    "guaranteeNoCard": "No credit card required",
++    "guaranteeNoCard": "Cancel anytime during the trial",
+     "guaranteeCancel": "Cancel anytime",
+     "getStarted": "Get started",
+     "startTrial": "Start Your Free Trial",
+-    "trialTerms": "14 days · no card required · cancel anytime",
++    "trialTerms": "14 days · card required · cancel anytime",
+     "createAccount": "Create your account",
+     "hearFirst": "Hear it first",
+     "callNow": "Call Sarah Right Now",
+diff -ruN '--exclude=node_modules' a/src/pages/AIReceptionistVsHumanPage.tsx b/src/pages/AIReceptionistVsHumanPage.tsx
+--- a/src/pages/AIReceptionistVsHumanPage.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/pages/AIReceptionistVsHumanPage.tsx	2026-11-11 06:25:41.537891421 +0000
+@@ -21,6 +21,7 @@
+ import { CookieConsent } from '@/components/CookieConsent';
+ import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
+ import { useSEO } from '@/lib/seo';
++import { PRICE_LABELS } from '@/lib/pricing';
+ 
+ /* ================================================================== */
+ /*  DATA                                                                */
+@@ -470,7 +471,7 @@
+                   <ul className="mt-6 space-y-3 text-sm leading-relaxed text-text-secondary">
+                     <li className="flex items-start gap-2.5">
+                       <Wallet size={15} className="mt-0.5 shrink-0 text-accent" />
+-                      Flat monthly plans starting at $79/month — no payroll tax, no benefits
++                      {`Flat monthly plans starting at ${PRICE_LABELS.starter}/month — no payroll tax, no benefits`}
+                     </li>
+                     <li className="flex items-start gap-2.5">
+                       <Clock3 size={15} className="mt-0.5 shrink-0 text-accent" />
+diff -ruN '--exclude=node_modules' a/src/pages/ContactPage.tsx b/src/pages/ContactPage.tsx
+--- a/src/pages/ContactPage.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/pages/ContactPage.tsx	2026-11-11 06:25:57.743598671 +0000
+@@ -44,7 +44,7 @@
+   },
+   {
+     q: 'Can I try Vireek before committing?',
+-    a: 'Yes. You can start a 14-day free trial with no credit card required. See how Sarah handles your calls before choosing a plan.',
++    a: 'Yes. Every plan starts with a 14-day trial (card required, cancel anytime). See how Sarah handles your calls before choosing a plan.',
+   },
+   {
+     q: 'What types of businesses does Vireek support?',
+@@ -355,7 +355,7 @@
+                 <div className="rounded-2xl border border-border bg-bg-secondary p-8 shadow-card dark:shadow-card-dark">
+                   <h3 className="text-lg font-semibold text-text-primary">Not Sure Yet?</h3>
+                   <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+-                    Start a 14-day free trial and hear how Sarah handles your calls — no credit card required.
++                    Start a 14-day trial and hear how Sarah handles your calls — card required, cancel anytime.
+                   </p>
+                   <Link to="/login" className="mt-5 inline-block">
+                     <Button variant="primary" size="md" className="gap-2">
+diff -ruN '--exclude=node_modules' a/src/pages/HomePage.tsx b/src/pages/HomePage.tsx
+--- a/src/pages/HomePage.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/pages/HomePage.tsx	2026-11-11 06:25:57.743190250 +0000
+@@ -49,7 +49,7 @@
+   useSEO({
+     title: 'Vireek: AI Receptionist for Plumbing, HVAC, Electrical & Roofing Contractors',
+     description:
+-      'Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, no credit card.',
++      'Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day trial, card required, cancel anytime.',
+     canonical: `${SITE_URL}/`,
+     jsonLd,
+   });
+diff -ruN '--exclude=node_modules' a/src/pages/PricingPage.tsx b/src/pages/PricingPage.tsx
+--- a/src/pages/PricingPage.tsx	2026-11-10 15:33:26.000000000 +0000
++++ b/src/pages/PricingPage.tsx	2026-11-11 06:25:51.554205223 +0000
+@@ -279,7 +279,7 @@
+   useSEO({
+     title: 'Pricing \u2014 Simple, Transparent Plans | Vireek',
+     description:
+-      "Compare Vireek's Free, Starter, Professional, Business, and Enterprise plans, including included minutes and transparent overage rates.",
++      "Compare Vireek's Starter, Professional, Business, and Enterprise plans, including included minutes and transparent overage rates.",
+     canonical: 'https://vireek.com/pricing',
+     jsonLd: {
+       '@context': 'https://schema.org',
+@@ -320,7 +320,7 @@
+             >
+               <span className="inline-flex items-center gap-2 rounded-full border border-cta/40 bg-cta/10 px-4 py-1.5 text-sm font-semibold text-cta">
+                 <ShieldCheck size={16} />
+-                {'Start Your 14-Day Free Trial \u2014 No Credit Card Required'}
++                {'Start Your 14-Day Trial \u2014 Card Required, Cancel Anytime'}
+               </span>
+               <p className={`${eyebrowClass()} mt-8`}>Pricing</p>
+               <h1 className="mt-3 text-balance text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl lg:text-6xl">
+@@ -400,7 +400,7 @@
+             >
+               {[
+                 { icon: ShieldCheck, label: 'No contracts, cancel anytime' },
+-                { icon: Clock, label: '14-day free trial on every paid plan' },
++                { icon: Clock, label: '14-day trial on every plan (card required)' },
+                 { icon: Check, label: 'No hidden fees' },
+               ].map(({ icon: TrustIcon, label }) => (
+                 <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary/70">
+@@ -589,7 +589,7 @@
+                 Stop losing jobs to voicemail
+               </h2>
+               <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg text-pretty">
+-                Start your 14-day free trial today — no credit card required.
++                Start your 14-day trial today — card required, cancel anytime.
+               </p>
+               <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                 <Link to="/login">
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/ai-core/knowledge.ts b/supabase/functions/_shared/ai-core/knowledge.ts
+--- a/supabase/functions/_shared/ai-core/knowledge.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/supabase/functions/_shared/ai-core/knowledge.ts	2026-11-11 06:26:13.894160510 +0000
+@@ -42,12 +42,11 @@
+   {
+     topic: "pricing",
+     facts:
+-      "Five plans, billed monthly or annually (annual = 10 months' price): " +
+-      "Free — $0/mo, 50 min included, 1 seat, 1 location: 24/7 AI call answering, voicemail-to-text, missed-call text-back, email call summaries, community support. " +
+-      "Starter — $79/mo, 400 min ($0.20/min overage), 2 seats, 1 location: everything in Free plus smart calendar booking, SMS appointment confirmations, 1 CRM integration, 7-day call transcript history, standard 24h support. " +
+-      "Professional (most popular) — $199/mo, 1,500 min ($0.15/min overage), 5 seats, 1 location: everything in Starter plus emergency detection & live dispatch, warm transfer to on-call staff, ServiceTitan/Housecall Pro/Jobber sync, unlimited call recording history, custom after-hours routing, automated review requests, priority 4h support. " +
+-      "Business — $399/mo, 4,000 min ($0.12/min overage), 15 seats, up to 3 locations: everything in Professional plus custom voice & script per location, advanced call-outcome analytics, role-based team access, dedicated Slack support. " +
+-      "Enterprise — starts at $999/mo, unlimited minutes/seats/locations, SLA-backed (no metering): everything in Business plus a custom-trained voice model, full API & webhook access, a dedicated account manager, audit logs & advanced access controls, written SLA — sales-assisted, no self-serve checkout. " +
++      "Four plans, billed monthly or annually (annual = 10 months' price). Every plan starts with a 14-day trial (card required, 60 minutes included): " +
++      "Starter — $99/mo, 200 min ($0.25/min overage), 2 seats, 1 location: 24/7 AI call answering, voicemail-to-text, missed-call text-back, email call summaries, smart calendar booking, SMS appointment confirmations, 1 CRM integration, 7-day call transcript history, standard 24h support. " +
++      "Professional (most popular) — $249/mo, 600 min ($0.25/min overage), 5 seats, 1 location: everything in Starter plus emergency detection & live dispatch, warm transfer to on-call staff, ServiceTitan/Housecall Pro/Jobber sync, unlimited call recording history, custom after-hours routing, automated review requests, priority 4h support. " +
++      "Business — $549/mo, 1,500 min ($0.25/min overage), 15 seats, up to 3 locations: everything in Professional plus custom voice & script per location, advanced call-outcome analytics, role-based team access, dedicated Slack support. " +
++      "Enterprise — starts at $1,799/mo, 6,000 committed min ($0.20/min overage), unlimited seats/locations, SLA-backed: everything in Business plus a custom-trained voice model, full API & webhook access, a dedicated account manager, audit logs & advanced access controls, written SLA — sales-assisted, no self-serve checkout. " +
+       "No setup fee on any plan (optional white-glove onboarding on Professional+). Plans can be upgraded or downgraded anytime, prorated, effective next billing cycle. A minute = total talk time per call rounded to the nearest minute; hold time and voicemail transcription are never billed.",
+   },
+   {
+@@ -65,7 +64,7 @@
+   {
+     topic: "onboarding",
+     facts:
+-      "New customers sign up (Free plan needs no card), connect or forward their business phone number, describe their services/service area/escalation rules, and the AI receptionist goes live — no hardware install required. Optional white-glove onboarding (a Vireek team member configures everything) is available on Professional and above. Paid plans start with a 14-day trial, no commitment.",
++      "New customers start a 14-day trial (card required, 60 minutes included), connect or forward their business phone number, describe their services/service area/escalation rules, and the AI receptionist goes live — no hardware install required. Optional white-glove onboarding (a Vireek team member configures everything) is available on Professional and above. Every plan starts with the 14-day trial and can be cancelled before it ends.",
+   },
+   {
+     topic: "policies",
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/billing/costGuardrail.test.ts b/supabase/functions/_shared/billing/costGuardrail.test.ts
+--- a/supabase/functions/_shared/billing/costGuardrail.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/billing/costGuardrail.test.ts	2026-11-11 06:27:40.113105498 +0000
+@@ -0,0 +1,30 @@
++import { describe, it, expect } from 'vitest';
++import { evaluateGuardrail, effectiveMaxCallSeconds } from './costGuardrail';
++
++const limits = { softCostUsd: 10, hardCostUsd: 20, maxCallSeconds: 600 };
++
++describe('evaluateGuardrail: emergency calls are never restricted', () => {
++  it('does not restrict an emergency even past the hard cost limit and 100% of included minutes', () => {
++    const r = evaluateGuardrail({ usedMinutes: 700, includedMinutes: 600, monthCostUsd: 999, limits, isEmergency: true });
++    expect(r.level).toBe('hard'); // the account IS over the limit...
++    expect(r.action).toBe('none'); // ...but an emergency is still served
++    expect(r.reasons).toContain('emergency_never_restricted');
++  });
++
++  it('restricts NON-emergency work once the hard limit is hit (control case)', () => {
++    const r = evaluateGuardrail({ usedMinutes: 10, includedMinutes: 600, monthCostUsd: 25, limits, isEmergency: false });
++    expect(r.action).toBe('restrict_non_emergency');
++  });
++
++  it('a minute-allowance stop alone never restricts anything (overage is billed, not blocked)', () => {
++    const r = evaluateGuardrail({ usedMinutes: 650, includedMinutes: 600, monthCostUsd: 1, limits, isEmergency: false });
++    expect(r.minutesAlert).toBe(100);
++    expect(r.action).toBe('alert_owner');
++  });
++
++  it('never caps the duration of an emergency call', () => {
++    expect(effectiveMaxCallSeconds(limits, true)).toBeNull();
++    expect(effectiveMaxCallSeconds(limits, false)).toBe(600);
++    expect(effectiveMaxCallSeconds(null, false)).toBeNull();
++  });
++});
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/billing/planCatalog.test.ts b/supabase/functions/_shared/billing/planCatalog.test.ts
+--- a/supabase/functions/_shared/billing/planCatalog.test.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/supabase/functions/_shared/billing/planCatalog.test.ts	2026-11-11 06:25:06.013998528 +0000
+@@ -3,14 +3,20 @@
+   classifyPlanChange,
+   isPurchasablePlan,
+   minutesForPlan,
++  minutesToWriteOnSubscriptionUpdate,
+   planIdFromPriceId,
+   planRank,
++  resolvePlanFromPriceId,
++  TRIAL_MINUTES,
+ } from './planCatalog';
+ 
+ const env: Record<string, string> = {
+   STRIPE_PRICE_STARTER: 'price_s',
+   STRIPE_PRICE_PROFESSIONAL: 'price_p',
+   STRIPE_PRICE_BUSINESS: 'price_b',
++  STRIPE_PRICE_STARTER_LEGACY: 'price_s_old',
++  STRIPE_PRICE_PROFESSIONAL_LEGACY: 'price_p_old',
++  STRIPE_PRICE_BUSINESS_LEGACY: 'price_b_old',
+ };
+ const readEnv = (key: string) => env[key];
+ 
+@@ -46,14 +52,43 @@
+ 
+   it('maps a Stripe price id back to its plan', () => {
+     expect(planIdFromPriceId('price_p', readEnv)).toBe('professional');
++    expect(planIdFromPriceId('price_p_old', readEnv)).toBe('professional'); // grandfathered price still classifies
+     expect(planIdFromPriceId('price_unknown', readEnv)).toBeNull();
+     expect(planIdFromPriceId(null, readEnv)).toBeNull();
+   });
+ 
+   it('returns included minutes per plan', () => {
+-    expect(minutesForPlan('starter')).toBe(400);
+-    expect(minutesForPlan('business')).toBe(4000);
+-    expect(minutesForPlan('free')).toBe(50);
+-    expect(minutesForPlan('enterprise')).toBeNull();
++    expect(minutesForPlan('starter')).toBe(200);
++    expect(minutesForPlan('professional')).toBe(600);
++    expect(minutesForPlan('business')).toBe(1500);
++    expect(minutesForPlan('free')).toBe(50); // legacy-only: existing free accounts keep it
++    expect(minutesForPlan('enterprise')).toBeNull(); // quoted, set by sales
++  });
++
++  it('caps the trial at 60 minutes', () => {
++    expect(TRIAL_MINUTES).toBe(60);
++  });
++});
++
++describe('grandfathering', () => {
++  it('recognises legacy price ids and flags them legacy', () => {
++    expect(resolvePlanFromPriceId('price_s_old', readEnv)).toEqual({ planId: 'starter', legacy: true });
++    expect(resolvePlanFromPriceId('price_s', readEnv)).toEqual({ planId: 'starter', legacy: false });
++    expect(resolvePlanFromPriceId('price_unknown', readEnv)).toBeNull();
++  });
++
++  it('never rewrites minutes for a legacy subscription event', () => {
++    expect(minutesToWriteOnSubscriptionUpdate('starter', { planId: 'starter', legacy: true })).toBeUndefined();
++    expect(minutesToWriteOnSubscriptionUpdate('free', { planId: 'starter', legacy: true })).toBeUndefined();
++  });
++
++  it('keeps the stored allowance of an OLD Starter (400 min) on renewal/metadata events (same plan)', () => {
++    // plan unchanged => undefined => the webhook leaves profiles.minutes_included (e.g. 400) untouched
++    expect(minutesToWriteOnSubscriptionUpdate('starter', { planId: 'starter', legacy: false })).toBeUndefined();
++  });
++
++  it('writes the new allowance only when the plan actually changes', () => {
++    expect(minutesToWriteOnSubscriptionUpdate('starter', { planId: 'professional', legacy: false })).toBe(600);
++    expect(minutesToWriteOnSubscriptionUpdate(null, { planId: 'business', legacy: false })).toBe(1500);
+   });
+ });
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/billing/planCatalog.ts b/supabase/functions/_shared/billing/planCatalog.ts
+--- a/supabase/functions/_shared/billing/planCatalog.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/supabase/functions/_shared/billing/planCatalog.ts	2026-11-11 06:25:06.013686351 +0000
+@@ -5,7 +5,11 @@
+ // Pure functions only (no Deno globals, no I/O) so the same file is unit-tested
+ // by Vitest and imported by edge functions.
+ //
+-// Keep `minutesIncluded` in sync with src/lib/pricing.ts (PRICING_PLANS).
++// Allowances are DERIVED from ./pricingCatalog.ts (the single source of truth); nothing here
++// hard-codes a price or a minute count. `collectPricingDrift()` in ./pricingInvariants.ts fails CI
++// if any other copy (planLimits, scoreboard, src/lib/pricing.ts, ...) diverges.
++
++import { CATALOG_PLANS, LEGACY_PLANS, TRIAL } from "./pricingCatalog.ts";
+ 
+ export type PurchasablePlanId = "starter" | "professional" | "business";
+ export type KnownPlanId = "free" | PurchasablePlanId | "enterprise";
+@@ -14,18 +18,33 @@
+ export interface PlanDef {
+   id: PurchasablePlanId;
+   rank: number;
+-  /** Name of the Supabase secret holding this plan's Stripe price id. */
++  /** Name of the Supabase secret holding this plan's CURRENT Stripe price id. */
+   priceEnv: string;
++  /** Optional secret holding the LEGACY (pre-overhaul) price id, so grandfathered subscriptions keep their allowance. */
++  legacyPriceEnv: string;
+   minutesIncluded: number;
+ }
+ 
+-export const FREE_MINUTES_INCLUDED = 50;
++/** LEGACY: the retired Free plan. Existing free accounts keep this allowance; it is no longer sold. */
++export const FREE_MINUTES_INCLUDED = LEGACY_PLANS.free.minutesIncluded;
++
++/** Minutes available during the 14-day card-required trial (applies to every purchasable plan). */
++export const TRIAL_MINUTES = TRIAL.minutes;
+ 
+-export const PURCHASABLE_PLANS: readonly PlanDef[] = [
+-  { id: "starter", rank: 1, priceEnv: "STRIPE_PRICE_STARTER", minutesIncluded: 400 },
+-  { id: "professional", rank: 2, priceEnv: "STRIPE_PRICE_PROFESSIONAL", minutesIncluded: 1500 },
+-  { id: "business", rank: 3, priceEnv: "STRIPE_PRICE_BUSINESS", minutesIncluded: 4000 },
+-];
++const ENV_BY_PLAN: Record<PurchasablePlanId, { priceEnv: string; legacyPriceEnv: string }> = {
++  starter: { priceEnv: "STRIPE_PRICE_STARTER", legacyPriceEnv: "STRIPE_PRICE_STARTER_LEGACY" },
++  professional: { priceEnv: "STRIPE_PRICE_PROFESSIONAL", legacyPriceEnv: "STRIPE_PRICE_PROFESSIONAL_LEGACY" },
++  business: { priceEnv: "STRIPE_PRICE_BUSINESS", legacyPriceEnv: "STRIPE_PRICE_BUSINESS_LEGACY" },
++};
++
++export const PURCHASABLE_PLANS: readonly PlanDef[] = CATALOG_PLANS.filter(
++  (p): p is typeof p & { id: PurchasablePlanId } => p.id !== "enterprise",
++).map((p) => ({
++  id: p.id,
++  rank: p.rank,
++  ...ENV_BY_PLAN[p.id],
++  minutesIncluded: p.minutesIncluded,
++}));
+ 
+ const RANKS: Record<KnownPlanId, number> = {
+   free: 0,
+@@ -65,13 +84,53 @@
+   priceId: string | null | undefined,
+   readEnv: (key: string) => string | undefined,
+ ): PurchasablePlanId | null {
++  // Current AND legacy (grandfathered) price ids both map to their plan, so plan-change logic
++  // still classifies an old subscription correctly. Use resolvePlanFromPriceId() when the legacy flag matters.
++  return resolvePlanFromPriceId(priceId, readEnv)?.planId ?? null;
++}
++
++export interface ResolvedPlan {
++  planId: PurchasablePlanId;
++  /** True when the subscription is on a pre-overhaul (grandfathered) Stripe price. */
++  legacy: boolean;
++}
++
++/**
++ * Like planIdFromPriceId, but also recognises the LEGACY price ids so a grandfathered subscription
++ * is never treated as a new-pricing subscription. Current price ids win if both are (mis)configured equal.
++ */
++export function resolvePlanFromPriceId(
++  priceId: string | null | undefined,
++  readEnv: (key: string) => string | undefined,
++): ResolvedPlan | null {
+   if (!priceId) return null;
+   for (const plan of PURCHASABLE_PLANS) {
+-    if (readEnv(plan.priceEnv) === priceId) return plan.id;
++    if (readEnv(plan.priceEnv) === priceId) return { planId: plan.id, legacy: false };
++  }
++  for (const plan of PURCHASABLE_PLANS) {
++    const legacyId = readEnv(plan.legacyPriceEnv);
++    if (legacyId && legacyId === priceId) return { planId: plan.id, legacy: true };
+   }
+   return null;
+ }
+ 
++/**
++ * GRANDFATHERING GUARD for `customer.subscription.updated`.
++ *
++ * Stripe fires that event for renewals, card updates, metadata edits, trial -> active, etc. - not only plan
++ * changes. Writing minutes_included on every event would silently rewrite an existing customer's stored
++ * allowance to the new catalog numbers. Returns the new minutes_included to write, or undefined to leave
++ * the stored value untouched. It only returns a value when the PLAN ITSELF changes (and never for legacy prices).
++ */
++export function minutesToWriteOnSubscriptionUpdate(
++  currentPlanId: string | null | undefined,
++  next: ResolvedPlan,
++): number | undefined {
++  if (next.legacy) return undefined;
++  if (currentPlanId === next.planId) return undefined;
++  return minutesForPlan(next.planId) ?? undefined;
++}
++
+ export function classifyPlanChange(
+   currentPlanId: string | null | undefined,
+   targetPlanId: PurchasablePlanId,
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/billing/pricingCatalog.ts b/supabase/functions/_shared/billing/pricingCatalog.ts
+--- a/supabase/functions/_shared/billing/pricingCatalog.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/billing/pricingCatalog.ts	2026-11-11 06:27:02.567014769 +0000
+@@ -0,0 +1,83 @@
++// supabase/functions/_shared/billing/pricingCatalog.ts
++//
++// SINGLE SOURCE OF TRUTH for plan prices, included minutes, overage rates, seats,
++// locations and trial rules. Pure data + pure functions: no imports, no Deno globals,
++// no I/O, so edge functions, the React app (src/lib/pricing.ts) and Vitest all share it.
++//
++// Everything else that mentions a price or an allowance must DERIVE from this file
++// (planCatalog.ts, fraud/planLimits.ts, value-scoreboard/engine.ts, src/lib/pricing.ts)
++// or be covered by `collectPricingDrift()` in ./pricingInvariants.ts, which CI runs via
++// `npm run pricing:check` and the Vitest suite.
++//
++// Money is integer USD cents. Never store prices as floats.
++
++export type CatalogPlanId = "starter" | "professional" | "business" | "enterprise";
++/** `free` is LEGACY-ONLY: it is no longer sold, but existing accounts may still carry it. */
++export type LegacyOnlyPlanId = "free";
++export type AnyPlanId = CatalogPlanId | LegacyOnlyPlanId;
++
++export interface CatalogPlan {
++  id: CatalogPlanId;
++  rank: number;
++  /** Monthly list price, cents. Enterprise: the "from" price (custom quote). */
++  monthlyCents: number;
++  /** Annual list price, cents (10 x monthly = two months free). null for enterprise (custom). */
++  annualCents: number | null;
++  /** True when monthlyCents is only a starting point and the real price is quoted. */
++  quoted: boolean;
++  /** Minutes included per billing month. Enterprise: committed minutes. */
++  minutesIncluded: number;
++  /** Per-minute overage once minutesIncluded is exhausted, cents. */
++  overageCentsPerMin: number;
++  /** null = unlimited. */
++  seats: number | null;
++  locations: number | null;
++}
++
++/** 14-day card-required trial that is capped at TRIAL_MINUTES. */
++export const TRIAL = {
++  days: 14,
++  minutes: 60,
++  cardRequired: true,
++} as const;
++
++export const CATALOG_PLANS: readonly CatalogPlan[] = [
++  { id: "starter", rank: 1, monthlyCents: 9900, annualCents: 99000, quoted: false, minutesIncluded: 200, overageCentsPerMin: 25, seats: 2, locations: 1 },
++  { id: "professional", rank: 2, monthlyCents: 24900, annualCents: 249000, quoted: false, minutesIncluded: 600, overageCentsPerMin: 25, seats: 5, locations: 1 },
++  { id: "business", rank: 3, monthlyCents: 54900, annualCents: 549000, quoted: false, minutesIncluded: 1500, overageCentsPerMin: 25, seats: 15, locations: 3 },
++  { id: "enterprise", rank: 4, monthlyCents: 179900, annualCents: null, quoted: true, minutesIncluded: 6000, overageCentsPerMin: 20, seats: null, locations: null },
++];
++
++/**
++ * LEGACY (grandfathered) allowances. Accounts created before the pricing overhaul keep the
++ * allowance stored in profiles.minutes_included; these figures exist ONLY so code that has to
++ * recognise a legacy subscription (old Stripe price ids) never "upgrades" it to the new numbers.
++ * Do not use them for anything customer-facing or for new sales.
++ */
++export const LEGACY_PLANS: Readonly<Record<AnyPlanId, { monthlyCents: number; minutesIncluded: number; overageCentsPerMin: number | null }>> = {
++  free: { monthlyCents: 0, minutesIncluded: 50, overageCentsPerMin: null },
++  starter: { monthlyCents: 7900, minutesIncluded: 400, overageCentsPerMin: 20 },
++  professional: { monthlyCents: 19900, minutesIncluded: 1500, overageCentsPerMin: 15 },
++  business: { monthlyCents: 39900, minutesIncluded: 4000, overageCentsPerMin: 12 },
++  enterprise: { monthlyCents: 99900, minutesIncluded: 0, overageCentsPerMin: null },
++};
++
++export function getCatalogPlan(id: string | null | undefined): CatalogPlan | null {
++  return CATALOG_PLANS.find((p) => p.id === id) ?? null;
++}
++
++export function formatUsdFromCents(cents: number): string {
++  const whole = Math.trunc(cents / 100);
++  const rem = Math.abs(cents % 100);
++  const grouped = String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
++  return rem === 0 ? `$${grouped}` : `$${grouped}.${String(rem).padStart(2, "0")}`;
++}
++
++export function formatMinutes(n: number): string {
++  return `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} min`;
++}
++
++/** 25 -> "$0.25/min after" */
++export function formatOverage(centsPerMin: number): string {
++  return `$${(centsPerMin / 100).toFixed(2)}/min after`;
++}
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/billing/pricingInvariants.ts b/supabase/functions/_shared/billing/pricingInvariants.ts
+--- a/supabase/functions/_shared/billing/pricingInvariants.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/billing/pricingInvariants.ts	2026-11-11 06:25:06.017447519 +0000
+@@ -0,0 +1,106 @@
++// supabase/functions/_shared/billing/pricingInvariants.ts
++//
++// DRIFT DETECTOR. Pure (no I/O): takes the values every module exposes and returns a list of
++// human-readable problems. An empty array means every copy of a price / allowance agrees with
++// ./pricingCatalog.ts. Used by:
++//   - src/lib/pricingDrift.test.ts   (Vitest: fails if any copy drifts)
++//   - scripts/check-pricing-drift.mjs (CI / local: also greps for stale customer-facing strings)
++
++import { CATALOG_PLANS, LEGACY_PLANS, TRIAL, formatMinutes, formatOverage } from "./pricingCatalog.ts";
++
++export interface DriftInputs {
++  /** planCatalog.ts PURCHASABLE_PLANS */
++  purchasable: ReadonlyArray<{ id: string; minutesIncluded: number }>;
++  /** planCatalog.ts FREE_MINUTES_INCLUDED, TRIAL_MINUTES */
++  freeMinutes: number;
++  trialMinutes: number;
++  /** fraud/planLimits.ts */
++  fraudFreeMinutes: number;
++  planPriceCents: Readonly<Record<string, number>>;
++  /** value-scoreboard/engine.ts */
++  scoreboardMonthlyCents: Readonly<Record<string, number>>;
++  /** src/lib/pricing.ts PRICING_PLANS (display strings) */
++  displayPlans: ReadonlyArray<{
++    id: string;
++    monthly: number | null;
++    annual: number | null;
++    startingAt?: number;
++    minutes: string;
++    overage: string | null;
++  }>;
++}
++
++export function collectPricingDrift(i: DriftInputs): string[] {
++  const out: string[] = [];
++  const eq = (label: string, got: unknown, want: unknown) => {
++    if (got !== want) out.push(`${label}: got ${String(got)}, catalog says ${String(want)}`);
++  };
++
++  // catalog self-consistency
++  const ids = new Set<string>();
++  for (const p of CATALOG_PLANS) {
++    if (ids.has(p.id)) out.push(`catalog: duplicate plan ${p.id}`);
++    ids.add(p.id);
++    if (!Number.isInteger(p.monthlyCents) || p.monthlyCents <= 0) out.push(`catalog: ${p.id} monthlyCents must be a positive integer`);
++    if (!Number.isInteger(p.minutesIncluded) || p.minutesIncluded <= 0) out.push(`catalog: ${p.id} minutesIncluded must be a positive integer`);
++    if (!Number.isInteger(p.overageCentsPerMin) || p.overageCentsPerMin <= 0) out.push(`catalog: ${p.id} overageCentsPerMin must be a positive integer`);
++    if (p.annualCents !== null && p.annualCents !== p.monthlyCents * 10) out.push(`catalog: ${p.id} annual must be 10 x monthly`);
++  }
++  const ranks = CATALOG_PLANS.map((p) => p.rank);
++  if (ranks.some((r, idx) => idx > 0 && r <= ranks[idx - 1]!)) out.push("catalog: ranks must be strictly ascending");
++  const mins = CATALOG_PLANS.map((p) => p.minutesIncluded);
++  if (mins.some((m, idx) => idx > 0 && m <= mins[idx - 1]!)) out.push("catalog: minutes must increase with plan rank");
++  if (TRIAL.minutes >= (CATALOG_PLANS[0]?.minutesIncluded ?? 0) * 1) {
++    // Trial (60) must be below the cheapest plan's allowance so a trial can never out-give a paid plan.
++    out.push("catalog: trial minutes must be below the smallest plan allowance");
++  }
++
++  // planCatalog.ts
++  for (const p of CATALOG_PLANS.filter((c) => c.id !== "enterprise")) {
++    const found = i.purchasable.find((x) => x.id === p.id);
++    if (!found) out.push(`planCatalog: missing purchasable plan ${p.id}`);
++    else eq(`planCatalog ${p.id} minutesIncluded`, found.minutesIncluded, p.minutesIncluded);
++  }
++  if (i.purchasable.some((x) => x.id === "enterprise")) out.push("planCatalog: enterprise must not be self-serve purchasable");
++  eq("planCatalog FREE_MINUTES_INCLUDED (legacy)", i.freeMinutes, LEGACY_PLANS.free.minutesIncluded);
++  eq("planCatalog TRIAL_MINUTES", i.trialMinutes, TRIAL.minutes);
++
++  // fraud/planLimits.ts
++  eq("planLimits FREE_MINUTES (legacy)", i.fraudFreeMinutes, LEGACY_PLANS.free.minutesIncluded);
++  for (const p of CATALOG_PLANS.filter((c) => c.id !== "enterprise")) {
++    eq(`planLimits PLAN_PRICE_CENTS.${p.id}`, i.planPriceCents[p.id], p.monthlyCents);
++    eq(`scoreboard PLAN_MONTHLY_CENTS.${p.id}`, i.scoreboardMonthlyCents[p.id], p.monthlyCents);
++  }
++
++  // src/lib/pricing.ts display layer
++  for (const p of CATALOG_PLANS) {
++    const d = i.displayPlans.find((x) => x.id === p.id);
++    if (!d) {
++      out.push(`pricing.ts: missing display plan ${p.id}`);
++      continue;
++    }
++    if (p.quoted) {
++      eq(`pricing.ts ${p.id} startingAt`, d.startingAt, p.monthlyCents / 100);
++      eq(`pricing.ts ${p.id} minutes`, d.minutes, `${formatMinutes(p.minutesIncluded)} committed`);
++    } else {
++      eq(`pricing.ts ${p.id} monthly`, d.monthly, p.monthlyCents / 100);
++      eq(`pricing.ts ${p.id} annual`, d.annual, p.annualCents! / 100);
++      eq(`pricing.ts ${p.id} minutes`, d.minutes, formatMinutes(p.minutesIncluded));
++    }
++    eq(`pricing.ts ${p.id} overage`, d.overage, formatOverage(p.overageCentsPerMin));
++  }
++  if (i.displayPlans.some((x) => x.id === "free")) out.push("pricing.ts: the Free plan must not be a sold plan any more");
++  return out;
++}
++
++/** Customer-facing strings that must never reappear (stale pre-overhaul claims). Used by the CI script. */
++export const STALE_CLAIM_PATTERNS: ReadonlyArray<{ re: RegExp; why: string }> = [
++  { re: /\$79\b(?!\.\d)/, why: "old Starter price" },
++  { re: /\$199\b(?!\.\d)/, why: "old Professional price" },
++  { re: /\$399\b(?!\.\d)/, why: "old Business price" },
++  { re: /\$999\b/, why: "old Enterprise starting price" },
++  { re: /\b400 min(ute)?s?\b/i, why: "old Starter allowance" },
++  { re: /\b4,000 min(ute)?s?\b/i, why: "old Business allowance" },
++  { re: /no metering/i, why: "enterprise is now metered (committed minutes + overage)" },
++  { re: /no credit card (required|needed)|no card required/i, why: "trial now requires a card" },
++];
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/fraud/planLimits.ts b/supabase/functions/_shared/fraud/planLimits.ts
+--- a/supabase/functions/_shared/fraud/planLimits.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/supabase/functions/_shared/fraud/planLimits.ts	2026-11-11 06:27:02.565837240 +0000
+@@ -12,6 +12,7 @@
+ // bound hold even when a single unit cost is mis-estimated.
+ 
+ import type { CountryTier } from "./countries.ts";
++import { CATALOG_PLANS } from "../billing/pricingCatalog.ts";
+ 
+ export type PlanId = "free" | "starter" | "professional" | "business" | "enterprise";
+ export type Purpose = "marketing" | "service" | "emergency" | "otp";
+@@ -37,12 +38,15 @@
+ export const NUMBER_RENTAL_CENTS_PER_MONTH = 115;
+ 
+ /**
+- * Stolen-card / chargeback exposure. List prices mirror PRICING_PLANS in src/lib/pricing.ts (a test asserts they
+- * match). The dispute fee is an ASSUMPTION (Stripe's standard card-dispute fee): confirm against your Stripe account.
++ * Stolen-card / chargeback exposure. List prices are DERIVED from billing/pricingCatalog.ts (the single source of truth). The dispute fee is an ASSUMPTION (Stripe's standard card-dispute fee): confirm against your Stripe account.
+  * Enterprise is custom-priced, so only the fee is modelled for it.
+  */
+ export const PLAN_PRICE_CENTS: Readonly<Record<PlanId, number>> = {
+-  free: 0, starter: 7900, professional: 19900, business: 39900, enterprise: 0,
++  free: 0,
++  starter: CATALOG_PLANS.find((p) => p.id === "starter")!.monthlyCents,
++  professional: CATALOG_PLANS.find((p) => p.id === "professional")!.monthlyCents,
++  business: CATALOG_PLANS.find((p) => p.id === "business")!.monthlyCents,
++  enterprise: 0, // custom-priced: only the dispute fee is modelled
+ };
+ export const DISPUTE_FEE_CENTS = 1500;
+ export const VOICE_CLONE_CENTS = 500;
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/value-scoreboard/engine.test.ts b/supabase/functions/_shared/value-scoreboard/engine.test.ts
+--- a/supabase/functions/_shared/value-scoreboard/engine.test.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/supabase/functions/_shared/value-scoreboard/engine.test.ts	2026-11-11 06:24:12.899131928 +0000
+@@ -214,7 +214,7 @@
+   it('handles free / unknown plans honestly', () => {
+     expect(board([], { subscription: { cents: 0, currency: 'USD' } }).cost.reason).toBe('free_plan');
+     expect(board([]).cost.reason).toBe('no_plan');
+-    expect(planMonthlyCents('Professional')).toBe(19900);
++    expect(planMonthlyCents('Professional')).toBe(24900);
+     expect(planMonthlyCents('enterprise')).toBeNull();
+   });
+   it('caps stored events by amount and flags truncation', () => {
+diff -ruN '--exclude=node_modules' a/supabase/functions/_shared/value-scoreboard/engine.ts b/supabase/functions/_shared/value-scoreboard/engine.ts
+--- a/supabase/functions/_shared/value-scoreboard/engine.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/supabase/functions/_shared/value-scoreboard/engine.ts	2026-11-11 06:24:12.898675645 +0000
+@@ -16,6 +16,7 @@
+ 
+ import { isValidTimeZone, zonedMidnightUtc } from "../executive-report/period.ts";
+ import { formatMoney } from "../money-recovered/engine.ts";
++import { CATALOG_PLANS } from "../billing/pricingCatalog.ts";
+ 
+ export { isValidTimeZone, formatMoney };
+ 
+@@ -73,8 +74,13 @@
+ 
+ // ---------------------------------------------------------------- plans / assumptions
+ 
+-/** Mirrors PRICING_PLANS in src/lib/pricing.ts (monthly list price, USD cents). A unit test keeps them in sync. */
+-export const PLAN_MONTHLY_CENTS: Record<string, number> = { free: 0, starter: 7900, professional: 19900, business: 39900 };
++/** Monthly list price, USD cents, DERIVED from billing/pricingCatalog.ts (the single source of truth). */
++export const PLAN_MONTHLY_CENTS: Record<string, number> = {
++  free: 0,
++  starter: CATALOG_PLANS.find((p) => p.id === "starter")!.monthlyCents,
++  professional: CATALOG_PLANS.find((p) => p.id === "professional")!.monthlyCents,
++  business: CATALOG_PLANS.find((p) => p.id === "business")!.monthlyCents,
++};
+ 
+ export function planMonthlyCents(plan: string | null | undefined): number | null {
+   if (!plan) return null;
+diff -ruN '--exclude=node_modules' a/supabase/functions/stripe-webhook/index.ts b/supabase/functions/stripe-webhook/index.ts
+--- a/supabase/functions/stripe-webhook/index.ts	2026-11-10 15:33:26.000000000 +0000
++++ b/supabase/functions/stripe-webhook/index.ts	2026-11-11 06:24:41.077020110 +0000
+@@ -40,7 +40,7 @@
+ import Stripe from "npm:stripe@17.4.0";
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
+-import { minutesForPlan, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
++import { minutesForPlan, minutesToWriteOnSubscriptionUpdate, resolvePlanFromPriceId } from "../_shared/billing/planCatalog.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -345,14 +345,28 @@
+         const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
+         // The price on the subscription is the source of truth: it also covers
+         // scheduled downgrades, which flip the price (not the metadata) at renewal.
+-        const planId =
+-          planIdFromPriceId(subscription.items.data[0]?.price.id, (key) => Deno.env.get(key)) ??
+-          (subscription.metadata?.plan_id as string | undefined);
++        const resolved = resolvePlanFromPriceId(subscription.items.data[0]?.price.id, (key) => Deno.env.get(key));
++        const metaPlan = subscription.metadata?.plan_id as string | undefined;
++        const planId = resolved?.planId ?? metaPlan;
+         if (!customerId || !planId) break;
+ 
+-                await admin
++        // GRANDFATHERING: this event also fires on renewals, card updates and metadata edits, so it must
++        // not rewrite profiles.minutes_included unless the plan itself changed (and never for legacy prices).
++        const { data: current, error: currentErr } = await admin
+           .from("profiles")
+-          .update({ plan: planId, minutes_included: minutesForPlan(planId) ?? undefined })
++          .select("plan")
++          .eq("stripe_customer_id", customerId)
++          .maybeSingle();
++        if (currentErr) throw currentErr; // 500 => Stripe retries (billing event is re-claimed)
++        const nextMinutes = resolved
++          ? minutesToWriteOnSubscriptionUpdate(current?.plan, resolved)
++          : current?.plan === planId
++            ? undefined
++            : (minutesForPlan(planId) ?? undefined);
++
++        await admin
++          .from("profiles")
++          .update({ plan: planId, ...(nextMinutes !== undefined ? { minutes_included: nextMinutes } : {}) })
+           .eq("stripe_customer_id", customerId);
+         break;
+       }
+@@ -361,7 +375,6 @@
+         break;
+     }
+   } catch (err) {
+-   } catch (err) {
+     console.error(`Error handling Stripe event ${event.type} (${event.id}):`, err);
+     await admin.rpc("complete_billing_event", {
+       p_event_id: event.id,
