@@ -12,7 +12,7 @@ import {
  *   variant  wordmark | symbol | lockup (tile + wordmark) | stacked | tile
  *   size     rendered HEIGHT in px (width follows the artwork's aspect ratio,
  *            both attributes are set so the logo never causes layout shift)
- *   tone     auto  → indigo letters + orange accent, follows --accent-* tokens
+ *   tone     auto  → Slate/Ivory letters + Clay pulse dot, follows the --text-primary / --accent-graphic tokens
  *                    (light/dark theme switch is automatic, no PNG pairs)
  *            mono  → everything currentColor (tile is knocked out)
  *            white → #fff
@@ -37,13 +37,13 @@ export interface LogoProps {
 const DEFAULT_SIZE: Record<LogoVariant, number> = { wordmark: 28, symbol: 32, lockup: 40, stacked: 96, tile: 40 };
 
 // Tiles are fixed-colour brand assets (like an app icon) and do not follow the theme.
-const TILE_FILL: Record<string, string> = { tile: '#203AD8', tv: '#FFFFFF', td: '#FF8A5A' };
+const TILE_FILL: Record<string, string> = { tile: '#D97757', tv: '#141413', td: '#FAF9F5' }; // Clay tile, Slate V, Ivory dot
 
 function fillFor(role: LogoRole, tone: LogoTone): string {
   if (tone === 'mono') return 'currentColor';
   if (tone === 'white') return '#FFFFFF';
-  if (role === 'ink') return 'rgb(var(--accent-primary, 32 58 216))';
-  if (role === 'acc') return 'rgb(var(--logo-accent, 193 79 38))';
+  if (role === 'ink') return 'rgb(var(--text-primary, 20 20 19))';
+  if (role === 'acc') return 'rgb(var(--accent-graphic, 199 103 71))';
   return TILE_FILL[role];
 }
 
