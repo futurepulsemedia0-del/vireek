@@ -44,6 +44,10 @@ import { PRICING_PLANS, SALES_EMAIL } from '@/lib/pricing';
 
 const ENTERPRISE_PLAN = PRICING_PLANS.find((plan) => plan.id === 'enterprise')!;
 
+   /** Single source for the Enterprise commercial terms shown on this page. Keep in sync with src/lib/enterpriseQuote.ts defaults. */
+   const ENTERPRISE_COPY =
+     'Custom seats, locations and numbers; annual contract; onboarding from $2,500; 6,000+ committed minutes';
+
 type BestTime = 'Morning 8-12' | 'Afternoon 12-5' | 'Evening 5-8' | '';
 
 interface EnterpriseFormData {
@@ -83,8 +87,8 @@ const LICENSING_TERMS = [
   },
   {
     icon: Users,
-    title: 'Unlimited seats',
-    body: 'Add every dispatcher, technician, and manager across your organization at no per-seat cost. Role-based access controls decide who sees what.',
+       title: 'Custom seats',
+       body: 'Seats are sized to your organization and written into your contract, so every dispatcher, technician, and manager can have access. Role-based access controls decide who sees what.',
   },
   {
     icon: ShieldCheck,
@@ -144,7 +148,7 @@ function SEO() {
   useSEO({
     title: 'Vireek Enterprise — Licensing, Security & Multi-Location Rollouts',
     description:
-      'Vireek Enterprise: per-location licensing, unlimited seats, a written SLA, and dedicated onboarding for multi-location operators. Request access or book a live walkthrough.',
+   'Vireek Enterprise: custom seats, locations and numbers, an annual contract, a written SLA, and dedicated onboarding from $2,500 for multi-location operators. Request access or book a live walkthrough.'
     canonical: 'https://vireek.com/enterprise',
   });
   return null;
@@ -250,7 +254,7 @@ export function EnterprisePage() {
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-text-secondary sm:text-xl">
                 Built for multi-location operators who need one system across every branch —
-                unlimited seats, a custom-trained voice, and licensing terms your procurement
+                custom seats, a custom-trained voice, and licensing terms your procurement
                 team can actually sign off on.
               </p>
               <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -270,6 +274,9 @@ export function EnterprisePage() {
                 <ShieldCheck size={13} className="shrink-0" />
                 Starting from ${ENTERPRISE_PLAN.startingAt}/mo &middot; response within 1 business day
               </p>
+                 <p className="mt-2 text-sm font-medium text-text-secondary">
+                   {ENTERPRISE_COPY}
+                 </p>
             </motion.div>
           </div>
         </section>
@@ -323,8 +330,7 @@ export function EnterprisePage() {
                   {ENTERPRISE_PLAN.tagline}
                 </h2>
                 <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-                  {ENTERPRISE_PLAN.minutes} minutes, {ENTERPRISE_PLAN.seats.toLowerCase()}, and{' '}
-                  {ENTERPRISE_PLAN.locations.toLowerCase()} — {ENTERPRISE_PLAN.overage?.toLowerCase()}.
+                  {ENTERPRISE_COPY}.
                 </p>
                 <Link
                   to="/pricing"
