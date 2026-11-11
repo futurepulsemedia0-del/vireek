@@ -68,6 +68,8 @@ export interface Profile {
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   subscription_status: 'active' | 'past_due' | 'suspended';
+  trial_state?: 'none' | 'trialing' | 'ended' | 'converted';
+  trial_ends_at?: string | null;
   dunning_stage: number;
   payment_failed_at: string | null;
   payment_grace_period_ends_at: string | null;
