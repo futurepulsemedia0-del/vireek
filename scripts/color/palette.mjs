@@ -5,9 +5,11 @@
 // TS/Deno hex constants and the docs table; `npm run test` re-verifies every declared pair.
 //
 // "Claude-first" brand system. Every seed below is a published colour of one of three reference systems:
-//   ANTHROPIC (dominant): Slate #141413, Ivory #FAF9F5, Light Gray #E8E6DC, Mid Gray #B0AEA5, Clay #D97757, Sky #6A9BCC
-//   APPLE (second):       system Green #34C759/#30D158, Red #FF383C/#FF4245, Yellow #FFCC00/#FFD600   -> status colours
-//   STRIPE (third):       Blurple #635BFF, Lilac #7E6BFD                                             -> `cta` (live / AI signal)
+//   ANTHROPIC (dominant): Slate #141413, Ivory #FAF9F5, Light Gray #E8E6DC, Mid Gray #B0AEA5, Clay #D97757, Sky #6A9BCC,
+//                         Sage #788C5D (+ extracted surface #F0EEE6)       -> neutrals, brand accent (Clay), info (Sky), data-viz
+//   APPLE (second):       system Green #34C759/#30D158, Red #FF383C/#FF4245, Yellow #FFCC00/#FFD600 (+ teal/pink/brown in charts)
+//                         -> status colours (success / danger / warning)
+//   STRIPE (third):       Blurple #635BFF, Lilac #7E6BFD                         -> the "live / AI signal" family (`cta`)
 // No other hue is allowed anywhere in the product. Clay = brand/primary action; Blurple (cta) = LIVE / AI signal only.
 
 import { oklchToRgb, contrast, solveL, over, toHex, rgbToOklch } from './oklch.mjs';
@@ -26,8 +28,8 @@ export const MESH_ALPHA = { accent: 0.14, cta: 0.1 };
 
 // ---------------------------------------------------------------- surfaces & neutrals (OKLCH)
 const SURFACE = {
-  light: { bg1: [0.981775, 0.005392, 95.0986], bg2: [1, 0, 0], bg3: [0.948457, 0.010853, 95.1664], overlay: [1, 0, 0] },
-  dark: { bg1: [0.190839, 0.001983, 106.5859], bg2: [0.225, 0.0032, 106], bg3: [0.26, 0.004, 104], overlay: [0.295, 0.0045, 102] },
+  light: { bg1: [0.981775, 0.005392, 95.0986], bg2: [1, 0, 0], bg3: [0.948457, 0.010853, 95.1664], overlay: [1, 0, 0] }, // Ivory #FAF9F5 / white / #F0EEE6
+  dark: { bg1: [0.190839, 0.001983, 106.5859], bg2: [0.225, 0.0032, 106], bg3: [0.26, 0.004, 104], overlay: [0.295, 0.0045, 102] }, // Slate #141413 + warm steps
 };
 const INK = { light: [0.190839, 0.001983, 106.5859], dark: [0.981775, 0.005392, 95.0986] }; // text-primary: Slate / Ivory
 const rgbOf = ([L, C, h]) => oklchToRgb(L, C, h);
@@ -41,28 +43,28 @@ const FAMILIES = {
   accent: { // Anthropic CLAY #D97757 — brand + primary action
     seed: { light: [0.67242, 0.13084, 38.7559], dark: [0.67242, 0.13084, 38.7559] },
     fillSeed: { light: [0.67242, 0.13084, 38.7559], dark: [0.67242, 0.13084, 38.7559] },
-    on: { light: 'ink', dark: 'ink' },
+    on: { light: 'ink', dark: 'ink' }, // Slate on Clay = 5.9:1 (the report's measured pairing) -> the fill stays EXACTLY #D97757
     scale: { anchorStep: 500, anchorL: 0.67242 },
   },
-  cta: { // Stripe BLURPLE #635BFF / LILAC #7E6BFD — live / AI signal only
+  cta: { // Stripe BLURPLE #635BFF (light) / LILAC #7E6BFD (dark) — live / AI signal only
     seed: { light: [0.57843, 0.234615, 278.2909], dark: [0.622379, 0.208774, 284.4749] },
     fillSeed: { light: [0.57843, 0.234615, 278.2909], dark: [0.622379, 0.208774, 284.4749] },
     on: { light: 'white', dark: 'ink' },
     scale: { anchorStep: 500, anchorL: 0.57843 },
   },
-  success: { // Apple GREEN #34C759 / #30D158
+  success: { // Apple system GREEN #34C759 / #30D158
     seed: { light: [0.730324, 0.194381, 147.4439], dark: [0.755551, 0.208246, 146.9836] },
     fillSeed: { light: [0.730324, 0.194381, 147.4439], dark: [0.755551, 0.208246, 146.9836] },
     on: { light: 'ink', dark: 'ink' },
     scale: { anchorStep: 500, anchorL: 0.730324 },
   },
-  danger: { // Apple RED #FF383C / #FF4245
+  danger: { // Apple system RED #FF383C / #FF4245
     seed: { light: [0.653197, 0.232821, 25.7394], dark: [0.662002, 0.224599, 25.1223] },
     fillSeed: { light: [0.653197, 0.232821, 25.7394], dark: [0.662002, 0.224599, 25.1223] },
-    on: { light: 'white', dark: 'ink' },
+    on: { light: 'white', dark: 'white' }, // white-on-red = the expected destructive look; fill is deepened to pass 4.8:1 AND to separate from Clay for deuteranopes (dE 0.023 -> 0.089)
     scale: { anchorStep: 500, anchorL: 0.653197 },
   },
-  warning: { // Apple YELLOW #FFCC00 / #FFD600
+  warning: { // Apple system YELLOW #FFCC00 / #FFD600 (text is solved darker into a gold; the fill stays the exact yellow)
     seed: { light: [0.865209, 0.176828, 90.3816], dark: [0.884795, 0.181642, 94.8972] },
     fillSeed: { light: [0.865209, 0.176828, 90.3816], dark: [0.884795, 0.181642, 94.8972] },
     on: { light: 'ink', dark: 'ink' },
@@ -99,13 +101,14 @@ export const NEUTRAL_SCALE = (() => {
 })();
 
 // ---------------------------------------------------------------- data-viz
-// 8 categorical colours found by maximin search (OKLab ΔE under normal + protan + deutan + tritan vision, >=3.3:1 on
-// every surface). Result: min pairwise ΔE 0.102 (light) / 0.111 (dark) — see docs/design/COLOR_TOKENS.md.
-// Copper hues (≈18–62°) are excluded: copper is reserved for live/urgent. Series 1 is brand cobalt.
-// Colour alone can NEVER carry meaning: charts must also use VIZ_PATTERNS + VIZ_MARKERS + direct labels.
+// 8 categorical colours: hue + chroma are inherited from published colours of the three reference brands (Anthropic Clay /
+// Sky / Kraft / Fig / Mid Gray, Apple Blue / Purple / Cyan / Yellow / Brown, Stripe Blurple / Lilac / Navy-range); lightness was
+// then optimised by maximin search (OKLab ΔE under normal + protan + deutan + tritan vision, >=3:1 on every surface).
+// Constraints: chroma <= 0.17 and no near-black / near-white series (aesthetic evenness). Result: min pairwise ΔE 0.093 (light) / 0.094 (dark); gate is 0.09.
+// Series 1 is always brand Clay. Colour alone can NEVER carry meaning: charts must also use VIZ_PATTERNS + VIZ_MARKERS + direct labels.
 const VIZ_CAT_OKLCH = {
-  light: [[0.62, 0.1308, 38.76], [0.4994, 0.2346, 278.29], [0.6223, 0.2623, 254.09], [0.3, 0.0716, 249.29], [0.4174, 0.2554, 322.51], [0.4947, 0.0909, 56.25], [0.3889, 0.002, 106.59], [0.3, 0.0776, 57.23]],
-  dark: [[0.6724, 0.1308, 38.76], [0.5951, 0.2073, 284.47], [0.8257, 0.0837, 249.29], [0.676, 0.1331, 219.96], [0.8089, 0.2272, 90.38], [0.589, 0.0871, 359.65], [0.7838, 0.0129, 96.48], [0.93, 0.1904, 254.09]],
+  light: [[0.62, 0.1308, 38.76], [0.4748, 0.17, 284.47], [0.5258, 0.1294, 359.65], [0.5512, 0.098, 249.29], [0.4509, 0.1403, 90.38], [0.3852, 0.17, 322.51], [0.627, 0.17, 254.09], [0.38, 0.002, 106.59]],
+  dark: [[0.6724, 0.1308, 38.76], [0.7011, 0.0971, 249.29], [0.6189, 0.17, 284.47], [0.88, 0.17, 147.44], [0.6, 0.0746, 359.65], [0.784, 0.1356, 55.72], [0.8513, 0.17, 278.29], [0.7386, 0.0129, 96.48]],
 };
 
 // ---------------------------------------------------------------- the solver
@@ -138,7 +141,7 @@ export function buildTheme(theme) {
 
   // text
   tok['text-primary'] = hc ? (mode === 'light' ? [0, 0, 0] : WHITE) : rgbOf(INK[mode]);
-  const nL = 98; // Anthropic neutrals are warm
+  const nL = 98; // Anthropic neutrals are warm (hue ~96-107)
   // brand radial wash worst case (bg-gradient-mesh pools at full strength) must not reduce secondary/muted text
   const POOLS = Object.entries(MESH_ALPHA).map(([f, a]) => [a, f]).map(([a, f]) => {
     const [L, C, h] = FAMILIES[f].fillSeed[mode];
@@ -151,11 +154,17 @@ export function buildTheme(theme) {
   tok['graphic-muted'] = oklchToRgb(solveL(mode === 'light' ? 0.68 : 0.52, 0.01, nL, SF, tgt.ui, dir), 0.01, nL); // neutral icon/glyph colour (non-text, >= 3:1, WCAG 1.4.11)
   tok['text-inverse'] = mode === 'light' ? rgbOf(SURFACE.light.bg1) : rgbOf(SURFACE.dark.bg1);
 
+  // borders: tier 1 decorative (exempt), tier 2 control borders >= 3:1 (WCAG 1.4.11)
+  tok['border-default'] = hc ? solveNeutral(mode === 'light' ? 0.6 : 0.5, 0.01, 4.5) : rgbOf(mode === 'light' ? [0.923736, 0.013538, 97.4518] : [0.3, 0.004, 100]);
+  tok['border-strong'] = oklchToRgb(solveL(mode === 'light' ? 0.7 : 0.5, 0.01, 97, SF, hc ? 4.5 : 3.2, dir), 0.01, 97);
+
+  // always-dark "inverse" panel (marketing dark sections / code blocks) — identical meaning in both themes
   const inv = rgbOf(mode === 'light' ? INK.light : [0.27, 0.004, 104]);
   tok['surface-inverse'] = inv;
   tok['on-inverse'] = rgbOf([0.981775, 0.005392, 95.0986]);
   tok['on-inverse-muted'] = oklchToRgb(solveL(0.749863, 0.012863, 96.4777, [inv], hc ? 7 : 5.2, +1), 0.012863, 96.4777);
   tok['border-inverse'] = oklchToRgb(solveL(0.45, 0.01, 98, [inv], 3.2, +1), 0.01, 98);
+
   // families
   const subtleOf = (f) => oklchToRgb(mode === 'light' ? 0.965 : 0.265, mode === 'light' ? 0.03 : 0.045, f.seed[mode][2]);
   for (const [name, f] of Object.entries(FAMILIES)) {
@@ -191,14 +200,17 @@ export function buildTheme(theme) {
     }
   }
 
-    // brand gradient (cobalt → copper). ONE on-colour has to clear BOTH ends, and in dark mode the light copper fill
-  // (cta-fill, graphite text) can never share a text colour with cobalt — so the copper END is solved darker until white passes.
-  // sRGB interpolation of two colours that each clear the target is never lighter than the lighter end (luminance is convex).
+  // brand gradient (Clay -> Blurple). ONE on-colour must clear BOTH ends:
+  //   light themes: white text on both ends, each end deepened (hue kept) until white passes 4.8:1 (7:1 in HC);
+  //   dark themes : Slate text on both ends, each end kept at its exact brand colour (Clay / Lilac) or lightened until Slate passes.
+  // (White on exact Clay is only 3.1:1, so the light gradient cannot use the plain accent fill.)
   {
-    const [cL, cC, ch] = FAMILIES.cta.fillSeed[mode];
-    tok['brand-from'] = tok['accent-fill'];
-    tok['brand-to'] = oklchToRgb(solveL(cL, cC, ch, [WHITE], tgt.on, -1), cC, ch);
-    tok['on-brand'] = WHITE;
+    const onInk = mode === 'dark';
+    const onRgb = onInk ? (hc ? [0, 0, 0] : GRAPHITE) : WHITE;
+    const end = (fam) => { const [L, C, h] = FAMILIES[fam].fillSeed[mode]; return oklchToRgb(solveL(L, C, h, [onRgb], tgt.on, onInk ? +1 : -1), C, h); };
+    tok['brand-from'] = end('accent');
+    tok['brand-to'] = end('cta');
+    tok['on-brand'] = onRgb;
   }
 
   // legacy aliases (kept so every existing `rgb(var(--accent-primary))` keeps working)
@@ -288,7 +300,7 @@ export function declaredPairs(theme) {
   }
   add('on-brand', 'brand-from', hc ? 7 : 4.5, 'text on brand gradient (start)');
   add('on-brand', 'brand-to', hc ? 7 : 4.5, 'text on brand gradient (end)');
-  // High-contrast: a white-7:1 fill is necessarily dark, so its edge vs a black page can't also reach 3:1 — the label (7:1) carries identification, as for every other *-fill.
+  // High-contrast: a 7:1 fill is necessarily dark (light) / light (dark), so its edge vs the page can't also reach 3:1 — the label (7:1) carries identification, as for every other *-fill.
   if (!hc) for (const s of surfaces) { add('brand-from', s, 3, 'brand gradient start vs page (1.4.11)'); add('brand-to', s, 3, 'brand gradient end vs page (1.4.11)'); }
   // translucent / composited surfaces
   const ink = tok['text-primary'], sec = tok['text-secondary'];
