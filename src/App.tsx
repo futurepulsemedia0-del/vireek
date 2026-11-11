@@ -288,6 +288,7 @@ const RenewMembershipPage = lazy(() => import('@/pages/RenewMembershipPage').the
 const GiftCardsPage = lazy(() => import('@/pages/GiftCardsPage').then((m) => ({ default: m.GiftCardsPage })));
 const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m) => ({ default: m.RecurringJobsPage })));
 const TradePacksPage = lazy(() => import('@/pages/TradePacksPage').then((m) => ({ default: m.TradePacksPage })));
+const LandscapingPage = lazy(() => import('@/pages/LandscapingPage').then((m) => ({ default: m.LandscapingPage })));
 const CommercialPackPage = lazy(() => import('@/pages/CommercialPackPage').then((m) => ({ default: m.CommercialPackPage })));
 const PacksPage = lazy(() => import('@/pages/PacksPage').then((m) => ({ default: m.PacksPage })));
 const PestOpsPage = lazy(() => import('@/pages/PestOpsPage').then((m) => ({ default: m.PestOpsPage })));
@@ -3587,6 +3588,14 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+   <Route
+     path="/dashboard/landscaping"
+     element={
+       <ProtectedRoute>
+         <LandscapingPage />
+       </ProtectedRoute>
+     }
+   />
 <Route
   path="/dashboard/pest-ops"
   element={
