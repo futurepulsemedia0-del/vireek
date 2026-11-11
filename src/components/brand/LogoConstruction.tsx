@@ -11,8 +11,8 @@ export function LogoConstruction({ mode }: { mode: 'grid' | 'clearspace' }) {
   const x = (baseline - cap) / 2; // clear space unit = half the height of the V
   const pad = mode === 'clearspace' ? x : 60;
   const vb = mode === 'grid' ? `-60 -60 ${s.w + 60 + 760} ${s.h + 120}` : `${-pad} ${-pad} ${s.w + pad * 2} ${s.h + pad * 2}`;
-  const line = { stroke: 'rgb(var(--logo-accent, 193 79 38))', strokeWidth: 5, strokeDasharray: '14 10', opacity: 0.9 } as const;
-  const label = { fontSize: 96, fill: 'rgb(var(--text-secondary, 103 103 112))', fontFamily: 'Inter, system-ui, sans-serif' } as const;
+  const line = { stroke: 'rgb(var(--accent-graphic, 199 103 71))', strokeWidth: 5, strokeDasharray: '14 10', opacity: 0.9 } as const;
+  const label = { fontSize: 96, fill: 'rgb(var(--text-secondary, 93 91 85))', fontFamily: 'Inter, system-ui, sans-serif' } as const;
   return (
     <svg viewBox={vb} className="h-auto w-full" aria-hidden="true">
       {mode === 'clearspace' && (
@@ -50,7 +50,7 @@ export function LogoConstruction({ mode }: { mode: 'grid' | 'clearspace' }) {
         </>
       )}
       {s.layers.map(([role, d], i) => (
-        <path key={i} d={d} fill={role === 'ink' ? 'rgb(var(--accent-primary, 32 58 216))' : 'rgb(var(--logo-accent, 193 79 38))'} />
+        <path key={i} d={d} fill={role === 'ink' ? 'rgb(var(--text-primary, 20 20 19))' : 'rgb(var(--accent-graphic, 199 103 71))'} />
       ))}
     </svg>
   );
