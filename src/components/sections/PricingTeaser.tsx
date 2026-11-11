@@ -26,7 +26,7 @@ export function PricingTeaser() {
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-cta/40 bg-cta/10 px-3 py-1.5 text-xs font-semibold text-cta sm:px-4">
             <ShieldCheck size={14} className="sm:size-4" />
-            {'14-Day Free Trial — No Credit Card Required'}
+            {'14-Day Free Trial — Card Required, Cancel Anytime'}
           </span>
           <p className={`${eyebrowClass()} mt-6 sm:mt-8`}>{'Pricing'}</p>
           <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'Every Plan Is a Full-Time Receptionist.'}</h2>
