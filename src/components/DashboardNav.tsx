@@ -6,6 +6,8 @@ import { Breadcrumbs } from '@/components/nav/Breadcrumbs';
 import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import { Bug } from 'lucide-react';
 import { usePestOpsAccess } from '@/hooks/usePestOpsAccess';
+import { Leaf } from 'lucide-react';
+import { useLandscapingAccess } from '@/lib/landscapingApi';
 import {
   BarChart3, Ruler, FileUp, LayoutTemplate, Globe, Globe2, BookOpen, BookMarked, ClipboardCheck, Link2, QrCode,
   ScrollText, Home, Phone, LogOut, Menu, X, LayoutDashboard, Calendar, TrendingUp, TrendingDown, Radio, PhoneCall,
@@ -80,6 +82,7 @@ interface NavItem {
   requiresModule?: string;
   /** Hidden unless this feature flag is ON for the tenant. */
   requiresFlag?: string;
+  gate?: 'landscaping';
 }
 
 // Primary, daily-use items stay immediately visible at the top level —
@@ -288,6 +291,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Wallet Passes', href: '/dashboard/wallet-passes', icon: Wallet },
   { label: 'Recurring Jobs', href: '/dashboard/recurring-jobs', icon: Repeat, requiresPermission: 'can_view_billing' },
   { label: 'Trade Packs', href: '/dashboard/trade-packs', icon: PackageCheck, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Landscaping', href: '/dashboard/landscaping', icon: Leaf, requiresPermission: 'can_view_all_jobs', gate: 'landscaping' },
   { label: 'Pest Ops', href: '/dashboard/pest-ops', icon: Bug, hiddenUnless: 'pest_ops' },
   { label: 'Commercial', href: '/dashboard/commercial', icon: PackageCheck, requiresPermission: 'can_view_billing', requiresFlag: 'commercial_pack' },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
