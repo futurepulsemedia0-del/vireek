@@ -41,6 +41,7 @@ import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
 import { minutesForPlan, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
+import { buildTrialEndingEmail } from "../_shared/billing/trialEmail.ts";
 import {
   applyCheckoutSession,
   applyInvoicePaid,
@@ -287,7 +288,28 @@ Deno.serve(async (req: Request) => {
         await admin.from("profiles").update(computeRecoveryUpdate()).eq("stripe_customer_id", customerId);
         break;
       }
-
+      case "customer.subscription.trial_will_end": {
+        const sub = event.data.object as Stripe.Subscription;
+        const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+        if (!customerId) break;
+        const { data: p } = await admin
+          .from("profiles")
+          .select("id, email, full_name, plan, trial_state, trial_ends_at, minutes_used_this_month")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
+        if (!p || p.trial_state !== "trialing" || !p.email) break;
+        const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
+        const mail = buildTrialEndingEmail({
+          greetingName: p.full_name?.split(" ")[0] || "there",
+          planName: p.plan ? p.plan.charAt(0).toUpperCase() + p.plan.slice(1) : "Vireek",
+          trialEndsAt: p.trial_ends_at ?? (sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : ""),
+          minutesUsed: Number(p.minutes_used_this_month) || 0,
+          manageUrl: `${siteUrl}/dashboard/billing`,
+        });
+        // خطای ایمیل نباید retry بسازد (ایمیل تکراری نفرست).
+        try { await sendEmail({ to: p.email, ...mail }); } catch (mailErr) { console.error("trial-ending email failed (not retried):", mailErr); }
+        break;
+      }
       case "customer.subscription.deleted": {
         // Stripe exhausted its own retry schedule and canceled the
         // subscription, or the customer canceled directly. Either way,
