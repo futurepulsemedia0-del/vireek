@@ -41,7 +41,13 @@ import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
 import { minutesForPlan, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
-
+import {
+  applyCheckoutSession,
+  applyInvoicePaid,
+  applySubscription,
+  type StripeClientLike,
+  type StripeSubscriptionLike,
+} from "../_shared/billing/trialWebhook.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -265,7 +271,12 @@ Deno.serve(async (req: Request) => {
         break;
       }
 
+      case "invoice.paid": {
+        await applyInvoicePaid(admin, event.data.object as unknown as Parameters<typeof applyInvoicePaid>[1], event.created);
+        break;
+      }
       case "invoice.payment_succeeded": {
+        await applyInvoicePaid(admin, event.data.object as unknown as Parameters<typeof applyInvoicePaid>[1], event.created);
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
         if (!customerId) break;
@@ -282,6 +293,7 @@ Deno.serve(async (req: Request) => {
         // subscription, or the customer canceled directly. Either way,
         // suspend immediately rather than waiting for our own grace period.
         const subscription = event.data.object as Stripe.Subscription;
+        if ((await applySubscription(admin, stripe as unknown as StripeClientLike, subscription as unknown as StripeSubscriptionLike, { eventType: "deleted", eventCreated: event.created }, (k) => Deno.env.get(k))).handled) break;
         const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
         if (!customerId) break;
 
@@ -294,6 +306,10 @@ Deno.serve(async (req: Request) => {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.mode !== "subscription" || !session.subscription) break;
+        {
+          const r = await applyCheckoutSession(admin, stripe as unknown as StripeClientLike, session as unknown as Parameters<typeof applyCheckoutSession>[2], event.created, (k) => Deno.env.get(k));
+          if (r.handled) break;
+        }
         const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
         const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
         const planId = session.metadata?.plan_id as string | undefined;
@@ -338,10 +354,15 @@ Deno.serve(async (req: Request) => {
         break;
       }
 
+      case "customer.subscription.created":
       case "customer.subscription.updated": {
         // اگه کاربر پلن رو از داخل Stripe Billing Portal عوض کنه، این کیس
         // profiles.plan رو هم‌سو نگه می‌داره.
         const subscription = event.data.object as Stripe.Subscription;
+        {
+          const r = await applySubscription(admin, stripe as unknown as StripeClientLike, subscription as unknown as StripeSubscriptionLike, { eventType: event.type === "customer.subscription.created" ? "created" : "updated", eventCreated: event.created }, (k) => Deno.env.get(k));
+          if (r.handled || event.type === "customer.subscription.created") break;
+        }
         const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
         // The price on the subscription is the source of truth: it also covers
         // scheduled downgrades, which flip the price (not the metadata) at renewal.
