@@ -10,7 +10,7 @@ export const SITE_URL = 'https://vireek.com';
 /** Trial terms. VERIFIED: SignupPage says "no credit card required"; RefundPolicy §5 says no payment is collected during a free trial. */
 export const TRIAL = {
   days: 14,
-  short: '14-day free trial · No credit card · Cancel anytime',
+  short: '14-day free trial · Card required · Cancel anytime',
 } as const;
 
 /**
@@ -22,7 +22,7 @@ export const SETUP_MINUTES = 15;
 export const HERO_PROOF = [
   { label: 'Answers', value: '24/7', detail: 'Nights, weekends and holidays' },
   { label: 'Setup', value: `~${SETUP_MINUTES} min`, detail: 'Forward your number, add your services' },
-  { label: 'Trial', value: `${TRIAL.days} days`, detail: 'No credit card, no contract' },
+  { label: 'Trial', value: `${TRIAL.days} days`, detail: 'Card required, no contract' },
 ] as const;
 
 export const HERO_HEADLINES = {
@@ -110,6 +110,6 @@ export const HOME_FAQS: FaqItem[] = [
   },
   {
     q: 'How much does it cost?',
-    a: 'Plans start at $79 a month with a 14-day free trial that needs no credit card. There is also a Free plan with 50 minutes. Prices are shown above and on the pricing page.',
-  },
+   a: 'Plans start at $79 a month with a 14-day free trial (card required, 60 minutes included). Prices are shown above and on the pricing page.',
+ },
 ];
