@@ -1,0 +1,153 @@
+--- /tmp/orig/vireek-main/src/pages/EnterprisePage.tsx	2026-11-10 15:33:26.000000000 +0000
++++ vireek-main/src/pages/EnterprisePage.tsx	2026-11-11 06:14:23.912500609 +0000
+@@ -44,6 +44,10 @@
+ 
+ const ENTERPRISE_PLAN = PRICING_PLANS.find((plan) => plan.id === 'enterprise')!;
+ 
++/** Single source for the Enterprise commercial terms shown on this page. Keep in sync with src/lib/enterpriseQuote.ts defaults. */
++const ENTERPRISE_COPY =
++  'Custom seats, locations and numbers; annual contract; onboarding from $2,500; 6,000+ committed minutes';
++
+ type BestTime = 'Morning 8-12' | 'Afternoon 12-5' | 'Evening 5-8' | '';
+ 
+ interface EnterpriseFormData {
+@@ -83,8 +87,8 @@
+   },
+   {
+     icon: Users,
+-    title: 'Unlimited seats',
+-    body: 'Add every dispatcher, technician, and manager across your organization at no per-seat cost. Role-based access controls decide who sees what.',
++    title: 'Custom seats',
++    body: 'Seats are sized to your organization and written into your contract, so every dispatcher, technician, and manager can have access. Role-based access controls decide who sees what.',
+   },
+   {
+     icon: ShieldCheck,
+@@ -144,7 +148,7 @@
+   useSEO({
+     title: 'Vireek Enterprise — Licensing, Security & Multi-Location Rollouts',
+     description:
+-      'Vireek Enterprise: per-location licensing, unlimited seats, a written SLA, and dedicated onboarding for multi-location operators. Request access or book a live walkthrough.',
++      'Vireek Enterprise: custom seats, locations and numbers, an annual contract, a written SLA, and dedicated onboarding from $2,500 for multi-location operators. Request access or book a live walkthrough.',
+     canonical: 'https://vireek.com/enterprise',
+   });
+   return null;
+@@ -250,7 +254,7 @@
+               </h1>
+               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-text-secondary sm:text-xl">
+                 Built for multi-location operators who need one system across every branch —
+-                unlimited seats, a custom-trained voice, and licensing terms your procurement
++                custom seats, a custom-trained voice, and licensing terms your procurement
+                 team can actually sign off on.
+               </p>
+               <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
+@@ -270,6 +274,9 @@
+                 <ShieldCheck size={13} className="shrink-0" />
+                 Starting from ${ENTERPRISE_PLAN.startingAt}/mo &middot; response within 1 business day
+               </p>
++              <p className="mt-2 text-sm font-medium text-text-secondary">
++                {ENTERPRISE_COPY}
++              </p>
+             </motion.div>
+           </div>
+         </section>
+@@ -323,8 +330,7 @@
+                   {ENTERPRISE_PLAN.tagline}
+                 </h2>
+                 <p className="mt-4 text-sm leading-relaxed text-text-secondary">
+-                  {ENTERPRISE_PLAN.minutes} minutes, {ENTERPRISE_PLAN.seats.toLowerCase()}, and{' '}
+-                  {ENTERPRISE_PLAN.locations.toLowerCase()} — {ENTERPRISE_PLAN.overage?.toLowerCase()}.
++                  {ENTERPRISE_COPY}.
+                 </p>
+                 <Link
+                   to="/pricing"
+--- /tmp/orig/vireek-main/src/lib/pricing.ts	2026-11-10 15:33:26.000000000 +0000
++++ vireek-main/src/lib/pricing.ts	2026-11-11 06:14:08.609150487 +0000
+@@ -125,11 +125,13 @@
+     tagline: 'For multi-location operators who need one system, contractually guaranteed.',
+     monthly: null,
+     annual: null,
+-    startingAt: 999,
+-    minutes: 'Unlimited',
+-    overage: 'SLA-backed, no metering',
+-    seats: 'Unlimited seats',
+-    locations: 'Unlimited locations',
++    startingAt: 1799,
++    // Digit-free on purpose: parsePlanMinutes()/parseOverageRate() must keep returning null for Enterprise,
++    // otherwise usage banners and plan-change maths would treat these display strings as numeric allowances.
++    minutes: 'Custom committed',
++    overage: 'Overage per your contract',
++    seats: 'Custom seats',
++    locations: 'Custom locations',
+     core: false,
+     ctaLabel: 'Talk to sales',
+     ctaHint: 'Response within 1 business day',
+--- /tmp/orig/vireek-main/src/lib/blog.ts	2026-11-10 15:33:26.000000000 +0000
++++ vireek-main/src/lib/blog.ts	2026-11-11 06:16:35.813378096 +0000
+@@ -131,7 +131,7 @@
+       },
+       {
+         type: 'p',
+-        text: 'Vireek\u2019s published plans are a useful reference point here because the pricing is public rather than quoted case by case: a Free tier with 50 minutes to try it, Starter at $79/month for 400 minutes, Professional at $199/month for 1,500 minutes (the plan most solo and small-crew contractors land on), Business at $399/month for 4,000 minutes across up to 3 locations, and custom Enterprise pricing starting around $999/month for unlimited minutes and locations. Every plan answers every call, 24/7 \u2014 the coverage gap that costs the most with a single in-house hire or a capped answering-service plan simply doesn\u2019t exist.',
++        text: 'Vireek\u2019s published plans are a useful reference point here because the pricing is public rather than quoted case by case: a Free tier with 50 minutes to try it, Starter at $79/month for 400 minutes, Professional at $199/month for 1,500 minutes (the plan most solo and small-crew contractors land on), Business at $399/month for 4,000 minutes across up to 3 locations, and custom Enterprise pricing starting from $1,799/month on an annual contract, with committed minutes and custom locations. Every plan answers every call, 24/7 \u2014 the coverage gap that costs the most with a single in-house hire or a capped answering-service plan simply doesn\u2019t exist.',
+       },
+       {
+         type: 'list',
+@@ -140,7 +140,7 @@
+           'Starter \u2014 $79/month, 400 minutes, 2 seats. Smart booking, SMS confirmations, 1 CRM integration.',
+           'Professional \u2014 $199/month, 1,500 minutes, 5 seats. Emergency detection, live dispatch, full CRM sync.',
+           'Business \u2014 $399/month, 4,000 minutes, up to 3 locations. Custom voice and script per location.',
+-          'Enterprise \u2014 from $999/month, unlimited minutes and locations. Custom-trained voice, dedicated account manager.',
++          'Enterprise \u2014 from $1,799/month, annual contract, committed minutes and custom locations. Custom-trained voice, dedicated account manager.',
+         ],
+       },
+       {
+--- /tmp/orig/vireek-main/src/components/staff/margins/PlanningPanel.tsx	2026-11-10 15:33:26.000000000 +0000
++++ vireek-main/src/components/staff/margins/PlanningPanel.tsx	2026-11-11 06:16:35.813645871 +0000
+@@ -1,9 +1,10 @@
+ import { useMemo, useState } from 'react';
+ import { formatMinutes, formatPct, formatUsd } from '@/lib/staffUsage';
+-import { enterpriseQuote, projectPlan, rateSensitivity, breakEvenMinutes, type PlanTerms } from '@/lib/marginModel';
++import { projectPlan, rateSensitivity, breakEvenMinutes, type PlanTerms } from '@/lib/marginModel';
+ import { monthlyMinutesSamples, planAdvice, type PlanStat, type TenantMargin } from '@/lib/marginDashboard';
+ import { planEconomics } from '@/lib/staffUsage';
+ import { Field, INPUT, Section, TableWrap, TD, TDR, TH, THR } from './shared';
++import { EnterpriseQuoteCalculator } from './EnterpriseQuoteCalculator';
+ 
+ const CHANGES = [-20, -10, 0, 10, 25, 50];
+ const numOrNull = (s: string): number | null => (s.trim() === '' || !Number.isFinite(Number(s)) ? null : Number(s));
+@@ -34,16 +35,6 @@
+   const be = ready ? breakEvenMinutes(terms, cpmV, fixedV) : null;
+   const sens = useMemo(() => (ready ? rateSensitivity(terms, samples, cpmV, CHANGES, fixedV) : []), [ready, terms, samples, cpmV, fixedV]);
+ 
+-  const [qMin, setQMin] = useState('10000');
+-  const [qFixed, setQFixed] = useState('0');
+-  const [qTarget, setQTarget] = useState('60');
+-  const quote = useMemo(() => {
+-    const m = numOrNull(qMin); const f = numOrNull(qFixed); const t = numOrNull(qTarget);
+-    if (m === null || f === null || t === null || cpmV === null) return { error: 'Fill in minutes, fixed cost, target margin and a cost per minute above.' as const };
+-    try { return { value: enterpriseQuote({ minutesPerMonth: m, costPerMinuteUsd: cpmV, fixedCostUsd: f, targetMarginPct: t }) }; }
+-    catch (e) { return { error: e instanceof Error ? e.message : 'Invalid input' }; }
+-  }, [qMin, qFixed, qTarget, cpmV]);
+-
+   return (
+     <div className="space-y-6">
+       <p className="rounded-xl border border-border bg-bg-secondary p-3 text-sm text-text-secondary">Everything here is an <strong>estimate</strong> built from your inputs and this window&apos;s usage. It recommends; it never changes prices.</p>
+@@ -72,17 +63,7 @@
+             </TableWrap>
+           </div>)}
+       </Section>
+-      <Section title="Enterprise quote (cost-to-serve and price floor)">
+-        <div className="grid gap-3 sm:grid-cols-3">
+-          <Field label="Minutes / month"><input inputMode="numeric" value={qMin} onChange={(e) => setQMin(e.target.value)} className={INPUT} /></Field>
+-          <Field label="Fixed cost / month (USD)"><input inputMode="decimal" value={qFixed} onChange={(e) => setQFixed(e.target.value)} className={INPUT} /></Field>
+-          <Field label="Target gross margin %"><input inputMode="decimal" value={qTarget} onChange={(e) => setQTarget(e.target.value)} className={INPUT} /></Field>
+-        </div>
+-        <div className="mt-4" role="status" aria-live="polite">
+-          {'error' in quote ? <p className="text-sm text-text-secondary">{quote.error}</p> : (
+-            <p className="text-sm text-text-primary">Estimated cost to serve <strong>{formatUsd(quote.value.costToServeUsd)}</strong> / month. Suggested price floor <strong>{formatUsd(quote.value.priceFloorUsd)}</strong> / month{quote.value.floorPerMinuteUsd !== null ? ` (${formatUsd(quote.value.floorPerMinuteUsd)} per minute)` : ''}. Uses the provider cost per minute above; excludes SMS, storage and support.</p>)}
+-        </div>
+-      </Section>
++      <EnterpriseQuoteCalculator measuredCostPerMinute={defaultCpm} />
+     </div>
+   );
+ }
