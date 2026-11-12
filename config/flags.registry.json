@@ -1,6 +1,13 @@
 {
   "flags": [
     {
+      "key": "cs_auto_tasks",
+      "kind": "ops",
+      "owner": "customer-success",
+      "created": "2026-11-12",
+      "cleanup": "Permanent internal ops switch for staff CS follow-up tasks; if retired, remove CsTasksPanel, the sync effect in AtRiskAccountsPanel, csTasks*.ts, the staff_*_cs_task(s) functions, staff_cs_tasks and the flag row."
+    },
+    {
       "key": "public_api_v2",
       "kind": "release",
       "owner": "api-platform",
