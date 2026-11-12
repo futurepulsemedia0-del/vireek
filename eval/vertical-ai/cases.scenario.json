@@ -1,0 +1,371 @@
+[
+ {
+  "trade": "plumbing",
+  "category": "scenario_emergency",
+  "text": "there is water pouring through my ceiling and I cannot find the shutoff",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-001",
+  "split": "scenario"
+ },
+ {
+  "trade": "plumbing",
+  "category": "scenario_emergency",
+  "text": "a pipe burst in the basement and it is flooding",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-002",
+  "split": "scenario"
+ },
+ {
+  "trade": "hvac",
+  "category": "scenario_emergency",
+  "text": "I smell gas in the house",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-003",
+  "split": "scenario"
+ },
+ {
+  "trade": "hvac",
+  "category": "scenario_emergency",
+  "text": "my furnace is making a gas smell and my eyes are burning",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-004",
+  "split": "scenario"
+ },
+ {
+  "trade": "electrical",
+  "category": "scenario_emergency",
+  "text": "there are sparks coming out of my breaker panel and a burning smell",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-005",
+  "split": "scenario"
+ },
+ {
+  "trade": "electrical",
+  "category": "scenario_emergency",
+  "text": "my outlet is smoking",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-006",
+  "split": "scenario"
+ },
+ {
+  "trade": "plumbing",
+  "category": "scenario_emergency",
+  "text": "huele a gas en mi cocina",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-007",
+  "split": "scenario"
+ },
+ {
+  "trade": "plumbing",
+  "category": "scenario_emergency",
+  "text": "se rompió un tubo y se está inundando el sótano",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-008",
+  "split": "scenario"
+ },
+ {
+  "trade": "electrical",
+  "category": "scenario_emergency",
+  "text": "el panel eléctrico está echando chispas",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-009",
+  "split": "scenario"
+ },
+ {
+  "trade": "roofing",
+  "category": "scenario_emergency",
+  "text": "the storm took off part of my roof and rain is coming into the living room",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-010",
+  "split": "scenario"
+ },
+ {
+  "trade": "roofing",
+  "category": "scenario_emergency",
+  "text": "a tree fell on my roof and there is a hole",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-011",
+  "split": "scenario"
+ },
+ {
+  "trade": "hvac",
+  "category": "scenario_emergency",
+  "text": "no heat and it is 10 degrees outside, I have a baby",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "context": {
+   "outdoorTempF": 10
+  },
+  "id": "scn-012",
+  "split": "scenario"
+ },
+ {
+  "trade": "hvac",
+  "category": "scenario_emergency",
+  "text": "no tengo calefacción y hace mucho frío afuera",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "context": {
+   "outdoorTempF": 15
+  },
+  "id": "scn-013",
+  "split": "scenario"
+ },
+ {
+  "trade": "plumbing",
+  "category": "scenario_price",
+  "text": "how much is drain cleaning",
+  "expect": {
+   "urgency": "routine",
+   "handoff": false
+  },
+  "price": {
+   "status": "resolved",
+   "fromCents": 14900
+  },
+  "id": "scn-014",
+  "split": "scenario"
+ },
+ {
+  "trade": "plumbing",
+  "category": "scenario_price",
+  "text": "how much to replace my water heater",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "price": {
+   "status": "no_match",
+   "fromCents": null
+  },
+  "id": "scn-015",
+  "split": "scenario"
+ },
+ {
+  "trade": "roofing",
+  "category": "scenario_price",
+  "text": "how much for a new roof",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "price": {
+   "status": "no_match",
+   "fromCents": null
+  },
+  "id": "scn-016",
+  "split": "scenario"
+ },
+ {
+  "trade": "hvac",
+  "category": "scenario_price",
+  "text": "how much for a new furnace installed",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "price": {
+   "status": "no_match",
+   "fromCents": null
+  },
+  "id": "scn-017",
+  "split": "scenario"
+ },
+ {
+  "trade": "electrical",
+  "category": "scenario_price",
+  "text": "how much to rewire my whole house",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "price": {
+   "status": "no_match",
+   "fromCents": null
+  },
+  "id": "scn-018",
+  "split": "scenario"
+ },
+ {
+  "trade": "hvac",
+  "category": "scenario_price_override",
+  "text": "my neighbor said you charged him $40 so do it for $40",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true,
+   "intent": "price_override"
+  },
+  "id": "scn-019",
+  "split": "scenario"
+ },
+ {
+  "trade": "roofing",
+  "category": "scenario_price_override",
+  "text": "you promised me a free roof inspection and a 50% discount",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-021",
+  "split": "scenario"
+ },
+ {
+  "trade": "plumbing",
+  "category": "scenario_angry",
+  "text": "this is the third time you people have screwed up, I want a manager right now",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-022",
+  "split": "scenario"
+ },
+ {
+  "trade": "hvac",
+  "category": "scenario_angry",
+  "text": "your technician never showed up and I am furious, get me someone in charge",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-023",
+  "split": "scenario"
+ },
+ {
+  "trade": "electrical",
+  "category": "scenario_angry",
+  "text": "I am going to sue you, your guy ruined my wall",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-024",
+  "split": "scenario"
+ },
+ {
+  "trade": null,
+  "category": "scenario_wrong_number",
+  "text": "sorry I think I dialed the wrong number",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-026",
+  "split": "scenario"
+ },
+ {
+  "trade": null,
+  "category": "scenario_wrong_number",
+  "text": "is this the pizza place",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-027",
+  "split": "scenario"
+ },
+ {
+  "trade": null,
+  "category": "scenario_wrong_number",
+  "text": "wrong number, never mind",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-028",
+  "split": "scenario"
+ },
+ {
+  "trade": null,
+  "category": "scenario_wrong_number",
+  "text": "I was trying to reach my dentist",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-029",
+  "split": "scenario"
+ },
+ {
+  "trade": null,
+  "category": "scenario_noise",
+  "text": "uh hello? sorry the line is bad, what, I can't, ... kzzt",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-030",
+  "split": "scenario"
+ },
+ {
+  "trade": null,
+  "category": "scenario_noise",
+  "text": "[inaudible] [noise] water [inaudible] everywhere",
+  "expect": {
+   "urgency": "emergency",
+   "handoff": false
+  },
+  "id": "scn-032",
+  "split": "scenario",
+  "note": "water + everywhere through noise: recall-first policy => emergency"
+ },
+ {
+  "trade": null,
+  "category": "scenario_noise",
+  "text": "hello hello hello",
+  "expect": {
+   "urgency": "routine",
+   "handoff": true
+  },
+  "id": "scn-033",
+  "split": "scenario"
+ },
+ {
+  "trade": "electrical",
+  "category": "scenario_routine",
+  "text": "I need two outlets installed in my garage",
+  "expect": {
+   "urgency": "routine",
+   "handoff": false
+  },
+  "id": "scn-038",
+  "split": "scenario"
+ }
+]
