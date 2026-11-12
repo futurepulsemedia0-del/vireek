@@ -18,6 +18,8 @@ export interface CostRate {
   source: string;
   effectiveFrom: string; // YYYY-MM-DD
   effectiveTo: string | null; // exclusive
+  /** official | secondary_source | unverified | assumption; null/undefined = entered by a human (no badge). */
+  status?: string | null;
 }
 
 export interface CostLine { component: CostComponent; amountUsd: number; basis: CostBasis }
