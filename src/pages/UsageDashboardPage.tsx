@@ -4,8 +4,20 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Zap, TrendingUp, Clock, Gauge, TriangleAlert as AlertTriangle, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/DashboardNav';
-import { PRICING_PLANS, parseOverageRate } from '@/lib/pricing';
 import { supabase, Call } from '@/lib/supabase';
+import { parseOverageRate } from '@/lib/pricing';
+import { PlanLimitsCard } from '@/components/usage/PlanLimitsCard';
+import { UpgradeSuggestionNotice } from '@/components/usage/UpgradeSuggestionNotice';
+import { useAccountResourceCounts } from '@/hooks/useAccountResourceCounts';
+import {
+  findPlan,
+  formatPeriodRange,
+  getBillingPeriod,
+  getLimitPolicy,
+  getUsageSnapshot,
+  parseLimit,
+  suggestUpgrade,
+} from '@/lib/usageLimits';
 
 // ============================================================
 // HELPERS
@@ -232,7 +244,7 @@ export function UsageDashboardPage() {
 
   const [calls, setCalls] = useState<Call[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-
+  const accountCounts = useAccountResourceCounts(profile?.id ?? null);
   const loadData = useCallback(async () => {
     if (!user) return;
     setDataLoading(true);
@@ -264,17 +276,32 @@ export function UsageDashboardPage() {
   const daysElapsed = now.getDate();
   const daysRemaining = totalDaysInMonth - daysElapsed;
 
-  const minutesUsed = profile?.minutes_used_this_month ?? 0;
-  const minutesIncluded = profile?.minutes_included ?? 0;
-  const unlimited = minutesIncluded <= 0;
-  const pctUsed = unlimited ? 0 : (minutesUsed / minutesIncluded) * 100;
-  const minutesRemaining = unlimited ? null : Math.max(0, minutesIncluded - minutesUsed);
+  const usageSnap = getUsageSnapshot({
+    minutesUsed: profile?.minutes_used_this_month,
+    minutesIncluded: profile?.minutes_included,
+    bonusMinutes: profile?.bonus_minutes,
+  });
+  const minutesUsed = usageSnap.used;
+  // Total allowance = plan minutes + bonus minutes (equals the plan minutes when there is no bonus).
+  const minutesIncluded = usageSnap.capacity;
+  const unlimited = usageSnap.unlimited;
+  const pctUsed = usageSnap.pct;
+  const minutesRemaining = usageSnap.remaining;
 
   const dailyAverage = daysElapsed > 0 ? minutesUsed / daysElapsed : 0;
   const projectedTotal = Math.round(dailyAverage * totalDaysInMonth);
   const projectedOverageMinutes = unlimited ? 0 : Math.max(0, projectedTotal - minutesIncluded);
 
-  const currentPlan = PRICING_PLANS.find((p) => p.id === profile?.plan);
+  const currentPlan = findPlan(profile?.plan);
+  const period = getBillingPeriod(now);
+  const policy = getLimitPolicy(currentPlan, usageSnap);
+  const suggestion = suggestUpgrade({
+    planId: profile?.plan,
+    minutesUsed: profile?.minutes_used_this_month,
+    minutesIncluded: profile?.minutes_included,
+    bonusMinutes: profile?.bonus_minutes,
+    now,
+  });
   const overageRate = parseOverageRate(currentPlan?.overage ?? null);
   const projectedOverageCost =
     overageRate !== null && projectedOverageMinutes > 0 ? (projectedOverageMinutes * overageRate).toFixed(2) : null;
@@ -382,6 +409,22 @@ export function UsageDashboardPage() {
             />
           </div>
 
+          <UpgradeSuggestionNotice suggestion={suggestion} onAction={() => navigate('/dashboard/billing/plans')} className="mb-5" />
+
+          <PlanLimitsCard
+            planName={currentPlan?.name ?? 'Free'}
+            snap={usageSnap}
+            policy={policy}
+            rate={overageRate}
+            periodLabel={formatPeriodRange(period.start, period.end)}
+            daysLeft={period.daysLeft}
+            projectedOverageMinutes={projectedOverageMinutes}
+            seatsLimit={currentPlan ? parseLimit(currentPlan.seats) : null}
+            seatsUsed={accountCounts.seatsUsed}
+            locationsLimit={currentPlan ? parseLimit(currentPlan.locations) : null}
+            numbersActive={accountCounts.numbersActive}
+            countsLoading={accountCounts.status === 'loading'}
+          />
           <div className="grid gap-5 lg:grid-cols-2">
             <ChartCard title="Plan usage this period" insight={currentPlan ? `${currentPlan.name} — ${currentPlan.minutes}` : undefined}>
               <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-8">
@@ -392,13 +435,16 @@ export function UsageDashboardPage() {
                     <span className="font-medium text-text-primary">{Math.round(minutesUsed)} min</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-text-secondary">Included</span>
-                    <span className="font-medium text-text-primary">{unlimited ? 'Unlimited' : `${minutesIncluded} min`}</span>
-                  </div>
                   <div className="flex justify-between">
-                    <span className="text-text-secondary">Remaining</span>
-                    <span className="font-medium text-text-primary">{unlimited ? 'Unlimited' : `${minutesRemaining} min`}</span>
+                    <span className="text-text-secondary">Included</span>
+                    <span className="font-medium text-text-primary">{unlimited ? 'Unlimited' : `${Math.round(usageSnap.included)} min`}</span>
                   </div>
+                  {usageSnap.bonus > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-text-secondary">Bonus</span>
+                      <span className="font-medium text-text-primary">+{Math.round(usageSnap.bonus)} min</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </ChartCard>
