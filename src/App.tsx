@@ -433,6 +433,7 @@ const NegativeKnowledgeStorePage = lazy(() => import('@/pages/NegativeKnowledgeS
 const KnowledgeCapturePage = lazy(() => import('@/pages/KnowledgeCapturePage').then((m) => ({ default: m.KnowledgeCapturePage })));
 const FailureAtlasPage = lazy(() => import('@/pages/FailureAtlasPage').then((m) => ({ default: m.FailureAtlasPage })));
 const FeedbackAnalyticsPage = lazy(() => import('@/pages/FeedbackAnalyticsPage').then((m) => ({ default: m.FeedbackAnalyticsPage })));
+const WeeklyScorecardPage = lazy(() => import('@/pages/WeeklyScorecardPage').then((m) => ({ default: m.WeeklyScorecardPage })));
 const ImportsPage = lazy(() => import('@/pages/ImportsPage').then((m) => ({ default: m.ImportsPage })));
 const PhonePaymentsPage = lazy(() => import('@/pages/PhonePaymentsPage').then((m) => ({ default: m.PhonePaymentsPage })));
 const HiddenTechnicianPage = lazy(() => import('@/pages/HiddenTechnicianPage').then((m) => ({ default: m.HiddenTechnicianPage })));
@@ -2351,7 +2352,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-              <Route
+         <Route
           path="/dashboard/feedback-analytics"
           element={
             <ProtectedRoute>
