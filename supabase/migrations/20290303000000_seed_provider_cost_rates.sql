@@ -26,6 +26,7 @@
     DELETE FROM public.provider_cost_rates WHERE created_by IS NULL AND source LIKE 'seed 2026-11-09:%';
     DELETE FROM public.plan_cost_limits WHERE plan IN ('free','starter','professional','business') AND updated_by IS NULL;
     (the nullable status/notes columns are harmless and may stay)
+-- rollback: delete the seed rows (created_by IS NULL AND source LIKE 'seed 2026-11-09:%'); the nullable status/notes columns may stay.
 */
 
 ALTER TABLE public.provider_cost_rates
