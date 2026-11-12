@@ -19,12 +19,12 @@ export interface PlanDef {
   minutesIncluded: number;
 }
 
-export const FREE_MINUTES_INCLUDED = 50;
+export const FREE_MINUTES_INCLUDED = 60;
 
 export const PURCHASABLE_PLANS: readonly PlanDef[] = [
-  { id: "starter", rank: 1, priceEnv: "STRIPE_PRICE_STARTER", minutesIncluded: 400 },
-  { id: "professional", rank: 2, priceEnv: "STRIPE_PRICE_PROFESSIONAL", minutesIncluded: 1500 },
-  { id: "business", rank: 3, priceEnv: "STRIPE_PRICE_BUSINESS", minutesIncluded: 4000 },
+  { id: "starter", rank: 1, priceEnv: "STRIPE_PRICE_STARTER", minutesIncluded: 200 },
+  { id: "professional", rank: 2, priceEnv: "STRIPE_PRICE_PROFESSIONAL", minutesIncluded: 600 },
+  { id: "business", rank: 3, priceEnv: "STRIPE_PRICE_BUSINESS", minutesIncluded: 1500 },
 ];
 
 const RANKS: Record<KnownPlanId, number> = {
