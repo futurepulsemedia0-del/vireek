@@ -14,6 +14,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { twilioApi } from "../_shared/pbx/twilio.ts";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+import { requirePlanFeature } from "../_shared/billing/requirePlanFeature.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { callbackUrl, normalizeE164 } from "../_shared/call-bridge/logic.ts";
 
@@ -75,6 +76,11 @@ Deno.serve(async (req: Request) => {
       return json({ blocked: "dnc" }, 200);
     }
 
+        const planDenied = await requirePlanFeature(admin, attempt.account_owner_id, "outboundCalling", cors);
+    if (planDenied) {
+      await authClient.rpc("dialer_defer_contact", { p_contact_id: contact.id, p_until: new Date(Date.now() + 24 * 3600 * 1000).toISOString() });
+      return planDenied;
+    }
     const gate = await gateOutbound(admin, attempt.account_owner_id, {
       channel: "call", to: contact.phone_e164, purpose: "marketing", source: "dialer-call",
     });
