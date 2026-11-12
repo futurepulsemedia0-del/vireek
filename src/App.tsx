@@ -1,5 +1,6 @@
 import { CustomDomainGate } from '@/components/CustomDomainGate';
 import { PlanFeatureGate } from '@/components/PlanFeatureGate';
+import { PlanFeatureGate } from '@/components/PlanFeatureGate';
 import { PdfBrandSync } from '@/components/PdfBrandSync';
 import { GrowthAttributionSync } from '@/components/GrowthAttributionSync';
 import { Suspense, lazy } from 'react';
@@ -3033,7 +3034,9 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PlanFeatureGate feature="dispatchBoard">
+              <PlanFeatureGate feature="dispatchBoard">
                 <DispatchBoardPage />
+              </PlanFeatureGate>
               </PlanFeatureGate>
             </ProtectedRoute>
           }
