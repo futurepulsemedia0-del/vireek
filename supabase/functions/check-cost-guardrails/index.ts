@@ -68,18 +68,7 @@ Deno.serve(async (req: Request) => {
 
         if (res.level !== "ok") staffFlags.push({ account_id: p.id, plan: p.plan ?? null, level: res.level, action: res.action });
 
-        if (res.minutesAlert) {
-          const title = `Included minutes ${res.minutesAlert}% (${monthKey})`;
-          const { data: existing } = await admin.from("ai_insights").select("id").eq("user_id", p.id).eq("title", title).limit(1);
-          if (existing && existing.length > 0) continue;
-          const { error: insErr } = await admin.from("ai_insights").insert({
-            user_id: p.id,
-            insight_type: "alert",
-            title,
-            description: `You've used ${Math.round(res.minutesPct ?? 0)}% of your included minutes this month (${p.minutes_used_this_month} of ${p.minutes_included}). Consider upgrading to avoid overage charges.`,
-          });
-          if (insErr) { alertFailures++; console.error("[cost-guardrails] alert insert failed:", insErr.message); } else alertsCreated++;
-        }
+        // Owner minutes alerts (80/100%) now live in check-usage-alert (usage_alert_events ledger, email/SMS/push).
       }
       if (page.length < PAGE) break;
     }
