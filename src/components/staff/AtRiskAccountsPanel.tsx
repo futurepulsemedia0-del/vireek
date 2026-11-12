@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -7,6 +7,9 @@ import { Skeleton } from '@/components/Skeleton';
 import { HealthBadge } from '@/components/staff/HealthBadge';
 import { RiskBadge } from '@/components/staff/RiskBadge';
 import { getStaffSuccessOverview } from '@/lib/successToolsApi';
+import { CsTasksPanel } from '@/components/staff/CsTasksPanel';
+import { syncCsTasks } from '@/lib/csTasksApi';
+import { buildCsTaskCandidates } from '@/lib/csTasks';
 import {
   RISK_LABELS,
   averageAdoption,
@@ -76,6 +79,18 @@ export function AtRiskAccountsPanel({ accounts, onOpen }: AtRiskAccountsPanelPro
     () => rows.filter((r) => (filter === 'all' ? true : filter === 'attention' ? r.risk.level === 'high' || r.risk.level === 'medium' : r.risk.level === filter)),
     [rows, filter],
   );
+  const [tasksVersion, setTasksVersion] = useState(0);
+  const labels = useMemo(() => Object.fromEntries(rows.map((r) => [r.id, r.label])), [rows]);
+  const candidates = useMemo(() => buildCsTaskCandidates(rows), [rows]);
+  const syncKey = useMemo(() => candidates.map((c) => `${c.account_id}:${c.risk_level}`).join('|'), [candidates]);
+  const candidatesRef = useRef(candidates);
+  candidatesRef.current = candidates;
+  useEffect(() => {
+    if (!syncKey) return;
+    let alive = true;
+    void syncCsTasks(candidatesRef.current).then(() => { if (alive) setTasksVersion((v) => v + 1); });
+    return () => { alive = false; };
+  }, [syncKey]);
 
   if (loading && !data) {
     return (
@@ -107,7 +122,7 @@ export function AtRiskAccountsPanel({ accounts, onOpen }: AtRiskAccountsPanelPro
           {unmeasured} tracked feature{unmeasured === 1 ? ' is' : 's are'} not measurable on this database and {unmeasured === 1 ? 'is' : 'are'} left out of every adoption score.
         </p>
       )}
-
+      <CsTasksPanel labels={labels} version={tasksVersion} onOpen={onOpen} />
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by risk">
         {FILTERS.map(([id, label]) => (
           <button
