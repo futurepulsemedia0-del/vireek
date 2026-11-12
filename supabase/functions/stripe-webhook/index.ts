@@ -41,6 +41,12 @@ import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
 import { minutesForPlan, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
+import {
+  chargeRefundToClawbackArgs,
+  disputeToClawbackArgs,
+  disputeToReinstatementArgs,
+  invoiceToEarnArgs,
+} from "../_shared/partner-commission/stripeMapping.ts";
 import { buildTrialEndingEmail } from "../_shared/billing/trialEmail.ts";
 import {
   applyCheckoutSession,
@@ -286,6 +292,12 @@ Deno.serve(async (req: Request) => {
         // regardless of what stage it was at. Also lifts a suspension that
         // enforce-payment-suspension may have already applied.
         await admin.from("profiles").update(computeRecoveryUpdate()).eq("stripe_customer_id", customerId);
+        const earnArgs = invoiceToEarnArgs(invoice as unknown as Parameters<typeof invoiceToEarnArgs>[0]);
+        if (earnArgs) {
+          const { error: commissionError } = await admin.rpc("record_partner_commission_for_invoice", earnArgs);
+          // Idempotent RPC: throwing makes Stripe retry the whole event safely.
+          if (commissionError) throw new Error(`partner commission earn failed: ${commissionError.message}`);
+        }
         break;
       }
       case "customer.subscription.trial_will_end": {
@@ -397,6 +409,35 @@ Deno.serve(async (req: Request) => {
           .from("profiles")
           .update({ plan: planId, minutes_included: minutesForPlan(planId) ?? undefined })
           .eq("stripe_customer_id", customerId);
+        break;
+      }
+      case "charge.refunded": {
+        const args = chargeRefundToClawbackArgs(event.id, event.data.object as unknown as Parameters<typeof chargeRefundToClawbackArgs>[1]);
+        if (!args) break;
+        const { error: clawbackError } = await admin.rpc("record_partner_commission_clawback", args);
+        if (clawbackError) throw new Error(`partner commission clawback failed: ${clawbackError.message}`);
+        break;
+      }
+      case "charge.dispute.created":
+      case "charge.dispute.closed": {
+        const dispute = event.data.object as Stripe.Dispute;
+        // A lost dispute is already clawed back at creation; only "won" needs action when it closes.
+        if (event.type === "charge.dispute.closed" && dispute.status !== "won") break;
+        const chargeId = typeof dispute.charge === "string" ? dispute.charge : dispute.charge?.id;
+        if (!chargeId) break;
+        const charge = (await stripe.charges.retrieve(chargeId)) as unknown as Parameters<typeof disputeToClawbackArgs>[2];
+        const disputeLike = dispute as unknown as Parameters<typeof disputeToClawbackArgs>[1];
+        if (event.type === "charge.dispute.created") {
+          const args = disputeToClawbackArgs(event.id, disputeLike, charge);
+          if (!args) break;
+          const { error: e1 } = await admin.rpc("record_partner_commission_clawback", args);
+          if (e1) throw new Error(`partner commission dispute clawback failed: ${e1.message}`);
+        } else {
+          const args = disputeToReinstatementArgs(event.id, disputeLike, charge);
+          if (!args) break;
+          const { error: e2 } = await admin.rpc("record_partner_commission_reinstatement", args);
+          if (e2) throw new Error(`partner commission reinstatement failed: ${e2.message}`);
+        }
         break;
       }
       default:
