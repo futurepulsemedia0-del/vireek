@@ -16,9 +16,7 @@ projects: [
   { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /cross-browser\.spec\.ts/ },
   { name: 'mobile-chrome', use: { ...devices['Pixel 7'] }, testMatch: /cross-browser\.spec\.ts/ },
   { name: 'mobile-safari', use: { ...devices['iPhone 14'] }, testMatch: /cross-browser\.spec\.ts/ },
-],: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-  ],
+],
   webServer: {
     command: 'npm run build && npm run preview -- --port 4173',
     port: 4173,
