@@ -28,6 +28,10 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Flag lifecycle (stale / unowned flags)
+      - name: Accessibility ACR evidence (rules only; gaps are reported, not failed)
+        run: |
+          npm run test:scripts:acr
+          npm run a11y:acr
         run: npm run lint:flags
       - name: Colour tokens (ratchet) + generated tokens up to date
         run: |
