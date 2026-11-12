@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { usePlanLimitPrompt } from '@/hooks/usePlanLimitPrompt';
 import { DashboardLayout } from '@/components/DashboardNav';
 import {
   PhoneNumber,
@@ -737,6 +738,7 @@ export function PhoneNumbersPage() {
   const navigate = useNavigate();
   const { isOwner, permissions } = useAuth();
   const { toast } = useToast();
+  const planLimit = usePlanLimitPrompt();
 
   const canAccess = isOwner || permissions.can_manage_numbers;
 
@@ -792,7 +794,8 @@ export function PhoneNumbersPage() {
       toast('Number added.', 'success');
       setShowAddModal(false);
       loadNumbers();
-    } catch {
+    } catch (err) {
+      if (planLimit.handle(err)) return;
       toast('Could not add that number. Try again.', 'error');
     } finally {
       setSubmitting(false);
@@ -806,9 +809,9 @@ export function PhoneNumbersPage() {
       toast("Port request submitted. We'll notify you once it completes.", 'success');
       setShowAddModal(false);
       loadNumbers();
-    } catch {
+    } catch (err) {
+      if (planLimit.handle(err)) return;
       toast('Could not submit the port request. Try again.', 'error');
-    } finally {
       setSubmitting(false);
     }
   };
@@ -1010,7 +1013,8 @@ export function PhoneNumbersPage() {
           </AnimatePresence>
         )}
       </div>
-
+      {planLimit.dialog}
+      
       {showAddModal && (
         <AddNumberModal onClose={() => setShowAddModal(false)} onPurchase={handlePurchase} onPort={handlePort} submitting={submitting} />
       )}
