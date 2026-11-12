@@ -30,6 +30,7 @@
 
 import Stripe from "npm:stripe@17.4.0";
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { checkoutTaxParams, isAutomaticTaxEnabled, priceTaxVerdict, schedulePhaseTax, subscriptionHasAutomaticTax } from "../_shared/billing/stripeTax.ts";
 import {
   classifyPlanChange,
   getPlanDef,
@@ -437,6 +438,14 @@ Deno.serve(async (req: Request) => {
         customerId = customer.id;
         await admin.from("profiles").update({ stripe_customer_id: customerId }).eq("id", ctx.owner.id);
       }
+            // Stripe Tax is opt-in (STRIPE_AUTOMATIC_TAX=true). Plans are priced tax-exclusive.
+      const taxEnabled = isAutomaticTaxEnabled(Deno.env.get("STRIPE_AUTOMATIC_TAX"));
+      if (taxEnabled) {
+        const price = await stripe.prices.retrieve(priceId);
+        const verdict = priceTaxVerdict(price.tax_behavior);
+        if (verdict === "inclusive") throw new HttpError(500, "This plan's price is not configured correctly yet. Please contact support.", "PRICE_TAX_INCLUSIVE");
+        if (verdict === "unspecified") console.warn(JSON.stringify({ event: "price_tax_behavior_unspecified", price_id: priceId }));
+      }
       const metadata = { supabase_user_id: ctx.owner.id, plan_id: body.planId };
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
@@ -445,6 +454,7 @@ Deno.serve(async (req: Request) => {
         success_url: `${siteUrl}/dashboard/billing/plans?checkout=success`,
         cancel_url: `${siteUrl}/dashboard/billing/plans?checkout=cancelled`,
         allow_promotion_codes: true,
+        ...checkoutTaxParams(taxEnabled, { hasCustomer: true }),
         metadata,
         subscription_data: { metadata },
       });
@@ -534,11 +544,13 @@ Deno.serve(async (req: Request) => {
             end_date: phase0.end_date,
             discounts: carryDiscounts(phase0),
             metadata: { plan_id: currentPlan },
+            ...schedulePhaseTax(subscriptionHasAutomaticTax(sub)),
           },
           {
             items: [{ price: targetPriceId, quantity }],
             iterations: 1,
             metadata: { plan_id: body.planId },
+            ...schedulePhaseTax(subscriptionHasAutomaticTax(sub)),
           },
         ],
       });
