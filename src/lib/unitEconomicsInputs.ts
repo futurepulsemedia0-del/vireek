@@ -2,10 +2,10 @@
 
 export const RATE_COMPONENTS = [
   'carrier_inbound', 'carrier_outbound', 'carrier_unclassified', 'asr', 'llm', 'tts', 'voice_platform',
-  'sms_segment', 'recording_storage', 'transcription', 'embeddings', 'vision', 'provider_other', 'provider_total_unbroken',
+  'sms_segment', 'recording_storage', 'transcription', 'embeddings', 'vision', 'provider_other', 'provider_total_unbroken', 'phone_number', 'platform_fixed',
 ] as const;
 export const RATE_UNITS = [
-  'per_minute', 'per_1m_input_tokens', 'per_1m_output_tokens', 'per_segment', 'per_1k_characters', 'per_gb_month', 'per_image', 'per_event',
+  'per_minute', 'per_1m_input_tokens', 'per_1m_output_tokens', 'per_segment', 'per_1k_characters', 'per_gb_month', 'per_image', 'per_event', 'per_month',
 ] as const;
 
 export type Validation<T> = { ok: true; value: T } | { ok: false; errors: string[] };
