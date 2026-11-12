@@ -28,10 +28,10 @@ export const isRateNotVerified = (status: string | null | undefined): boolean =>
 
 type Pick = { state: 'ok'; rate: CostRate } | { state: 'missing' } | { state: 'ambiguous' };
 
-/** Exactly one provider with a per_minute rate in effect = priced; none = missing; several = ambiguous. */
-function pickPerMinute(rates: CostRate[], component: CostComponent, onDate: string): Pick {
-  const providers = [...new Set(rates.filter((r) => r.component === component && r.unit === 'per_minute').map((r) => r.provider))];
-  const inEffect = providers.map((p) => resolveRate(rates, component, p, 'per_minute', onDate)).filter((r): r is CostRate => r !== null);
+/** Exactly one provider with a rate in effect = priced; none = missing; several = ambiguous. */
+function pickRate(rates: CostRate[], component: CostComponent, unit: string, onDate: string): Pick {
+  const providers = [...new Set(rates.filter((r) => r.component === component && r.unit === unit).map((r) => r.provider))];
+  const inEffect = providers.map((p) => resolveRate(rates, component, p, unit, onDate)).filter((r): r is CostRate => r !== null);
   if (inEffect.length === 0) return { state: 'missing' };
   if (inEffect.length > 1) return { state: 'ambiguous' };
   return { state: 'ok', rate: inEffect[0] };
@@ -52,7 +52,7 @@ export function estimateVoiceCost(rates: CostRate[], args: { minutes: number; di
   if (!Number.isFinite(minutes) || minutes < 0) throw new RangeError('minutes must be a finite number >= 0');
   const out: VoiceCostEstimate = { lines: [], totalUsd: 0, costPerMinuteUsd: 0, missing: [], ambiguous: [], unverified: [] };
   for (const component of voiceComponents(direction)) {
-    const p = pickPerMinute(rates, component, onDate);
+    const p = pickRate(rates, component, 'per_minute', onDate);
     if (p.state === 'missing') { out.missing.push(component); continue; }
     if (p.state === 'ambiguous') { out.ambiguous.push(component); continue; }
     out.lines.push({ component, amountUsd: minutes * p.rate.rateUsd, basis: 'estimated' });
@@ -64,13 +64,19 @@ export function estimateVoiceCost(rates: CostRate[], args: { minutes: number; di
   return out;
 }
 
+/** Whole-platform fixed monthly cost (component platform_fixed, per_month). null = no/ambiguous rate (never $0). Not part of any plan's margin. */
+export function platformFixedMonthlyUsd(rates: CostRate[], onDate: string): { usd: number | null; unverified: boolean } {
+  const p = pickRate(rates, 'platform_fixed', 'per_month', onDate);
+  return p.state === 'ok' ? { usd: p.rate.rateUsd, unverified: isRateNotVerified(p.rate.status) } : { usd: null, unverified: false };
+}
+
 export interface PlanInput { id: string; name: string; monthlyPrice: number | null; includedMinutes: number }
 
 export type PlanMarginStatus = 'ok' | 'below_floor' | 'unpriced' | 'not_applicable';
 
 export interface PlanListMargin {
   plan: string; planName: string; priceUsd: number | null; includedMinutes: number | null;
-  costAtFullUseUsd: number | null; marginUsd: number | null; marginPct: number | null;
+  costAtFullUseUsd: number | null; fixedCostUsd: number | null; marginUsd: number | null; marginPct: number | null;
   status: PlanMarginStatus; unverified: CostComponent[]; missing: CostComponent[]; rateNotVerified: boolean;
 }
 
@@ -83,30 +89,35 @@ export function defaultPlanInputs(): PlanInput[] {
 
 /**
  * Gross margin when a customer uses 100% of the included minutes: revenue = list price, cost = included minutes x the
- * per-minute voice cost from the rate table (+ `smsAllowanceCostUsd`, 0 because no SMS allowance exists in the catalog).
+ * per-minute voice cost from the rate table (+ `smsAllowanceCostUsd`, 0 because no SMS allowance exists in the catalog)
+ * (+ `phoneNumbersPerTenant` x the phone_number monthly rate; 0 numbers by default = not included).
  * Strictly below GROSS_MARGIN_FLOOR_PCT (or negative) = 'below_floor'. Free / custom plans are 'not_applicable'.
  */
 export function buildPlanListMargins(
   rates: CostRate[], onDate: string,
-  opts: { plans?: PlanInput[]; direction?: CallDirection; smsAllowanceCostUsd?: number; floorPct?: number } = {},
+  opts: { plans?: PlanInput[]; direction?: CallDirection; smsAllowanceCostUsd?: number; floorPct?: number; phoneNumbersPerTenant?: number } = {},
 ): PlanListMargin[] {
-  const { plans = defaultPlanInputs(), direction = 'inbound', smsAllowanceCostUsd = 0, floorPct = GROSS_MARGIN_FLOOR_PCT } = opts;
+  const { plans = defaultPlanInputs(), direction = 'inbound', smsAllowanceCostUsd = 0, floorPct = GROSS_MARGIN_FLOOR_PCT, phoneNumbersPerTenant = 0 } = opts;
   return plans.map((p) => {
     const hasTerms = p.monthlyPrice !== null && p.monthlyPrice > 0 && Number.isFinite(p.includedMinutes) && p.includedMinutes > 0;
     const base = { plan: p.id, planName: p.name, priceUsd: p.monthlyPrice, includedMinutes: Number.isFinite(p.includedMinutes) ? p.includedMinutes : null };
     if (!hasTerms) {
-      return { ...base, costAtFullUseUsd: null, marginUsd: null, marginPct: null, status: 'not_applicable' as const, unverified: [], missing: [], rateNotVerified: false };
+      return { ...base, costAtFullUseUsd: null, fixedCostUsd: null, marginUsd: null, marginPct: null, status: 'not_applicable' as const, unverified: [], missing: [], rateNotVerified: false };
     }
     const est = estimateVoiceCost(rates, { minutes: p.includedMinutes, direction }, onDate);
-    if (est.totalUsd === null) {
-      return { ...base, costAtFullUseUsd: null, marginUsd: null, marginPct: null, status: 'unpriced' as const, unverified: est.unverified, missing: [...est.missing, ...est.ambiguous], rateNotVerified: est.unverified.length > 0 };
+    const phone = phoneNumbersPerTenant > 0 ? pickRate(rates, 'phone_number', 'per_month', onDate) : null;
+    const unverified = [...est.unverified, ...(phone?.state === 'ok' && isRateNotVerified(phone.rate.status) ? (['phone_number'] as CostComponent[]) : [])];
+    const missing = [...est.missing, ...est.ambiguous, ...(phone && phone.state !== 'ok' ? (['phone_number'] as CostComponent[]) : [])];
+    if (est.totalUsd === null || missing.length > 0) {
+      return { ...base, costAtFullUseUsd: null, fixedCostUsd: null, marginUsd: null, marginPct: null, status: 'unpriced' as const, unverified, missing, rateNotVerified: unverified.length > 0 };
     }
-    const cost = est.totalUsd + smsAllowanceCostUsd;
+    const fixed = phone?.state === 'ok' ? phone.rate.rateUsd * phoneNumbersPerTenant : 0;
+    const cost = est.totalUsd + smsAllowanceCostUsd + fixed;
     const g = grossMargin(p.monthlyPrice as number, cost);
     const below = g.marginPct !== null && g.marginPct + 1e-9 < floorPct;
     return {
-      ...base, costAtFullUseUsd: cost, marginUsd: g.marginUsd, marginPct: g.marginPct, status: below ? ('below_floor' as const) : ('ok' as const),
-      unverified: est.unverified, missing: [], rateNotVerified: est.unverified.length > 0,
+      ...base, costAtFullUseUsd: cost, fixedCostUsd: fixed, marginUsd: g.marginUsd, marginPct: g.marginPct, status: below ? ('below_floor' as const) : ('ok' as const),
+      unverified, missing: [], rateNotVerified: unverified.length > 0,
     };
   });
 }
