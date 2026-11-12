@@ -8,6 +8,7 @@ import { reconcile } from '@/lib/marginModel';
 import { RATE_COMPONENTS, RATE_UNITS, validateInvoiceInput, validateLimitInput, validateRateInput } from '@/lib/unitEconomicsInputs';
 import { deleteLimit, endRate, fetchUnitEconomics, insertRate, listAudit, listLimits, listRates, upsertInvoice, upsertLimit, type AuditRow, type LimitRow, type RateRow } from '@/lib/unitEconomicsApi';
 import { ErrorList, Field, INPUT, Section, TableWrap, TD, TDR, TH, THR } from './shared';
+import { RateStatusBadge } from './RateStatusBadge';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const prevMonth = () => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); return d.toISOString().slice(0, 7); };
@@ -81,12 +82,12 @@ export function InputsPanel({ onChanged }: { onChanged: () => void }) {
 
   return (
     <div className="space-y-6">
-      <Section title="Provider rates (you enter them; none are assumed)">
+      <Section title="Provider rates (seeded and staff-entered; check each badge)">
         <TableWrap caption="Provider cost rates">
           <thead><tr><th scope="col" className={TH}>Component</th><th scope="col" className={TH}>Provider</th><th scope="col" className={TH}>Unit</th><th scope="col" className={THR}>Rate (USD)</th><th scope="col" className={TH}>Source</th><th scope="col" className={TH}>Effective</th><th scope="col" className={TH}><span className="sr-only">Actions</span></th></tr></thead>
           <tbody>{rates.length === 0 ? <tr><td colSpan={7} className={`${TD} text-text-secondary`}>No rates yet. Estimates that need a rate stay “unpriced”.</td></tr> : rates.map((r) => (
             <tr key={r.id} className="border-t border-border"><td className={TD}>{r.component}</td><td className={TD}>{r.provider}</td><td className={TD}>{r.unit}</td><td className={TDR}>{r.rateUsd}</td>
-              <td className={TD}>{r.sourceUrl ? <a href={r.sourceUrl} target="_blank" rel="noopener noreferrer" className="focus-ring text-accent underline">{r.source}</a> : r.source}</td>
+              <td className={TD}>{r.sourceUrl ? <a href={r.sourceUrl} target="_blank" rel="noopener noreferrer" className="focus-ring text-accent underline">{r.source}</a> : r.source}<RateStatusBadge status={r.status} /></td>
               <td className={TD}>{r.effectiveFrom} → {r.effectiveTo ?? 'open'}</td>
               <td className={TD}>{r.effectiveTo === null && <Button variant="ghost" size="xs" onClick={() => void stopRate(r.id)}>End today</Button>}</td></tr>))}</tbody>
         </TableWrap>
