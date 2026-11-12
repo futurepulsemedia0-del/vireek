@@ -6,7 +6,7 @@
 export type CostComponent =
   | 'carrier_inbound' | 'carrier_outbound' | 'carrier_unclassified' | 'asr' | 'llm' | 'tts'
   | 'voice_platform' | 'sms_segment' | 'recording_storage' | 'transcription' | 'embeddings'
-  | 'vision' | 'provider_other' | 'provider_total_unbroken';
+| 'vision' | 'provider_other' | 'provider_total_unbroken' | 'phone_number' | 'platform_fixed';
 
 export type CostBasis = 'estimated' | 'provider_reported' | 'invoiced';
 
