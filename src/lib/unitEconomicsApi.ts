@@ -56,6 +56,7 @@ export async function listRates(): Promise<RateRow[]> {
   return (data ?? []).map((r: Record<string, unknown>) => ({
     id: String(r.id), component: r.component as CostComponent, provider: String(r.provider), unit: String(r.unit), rateUsd: Number(r.rate_usd),
     source: String(r.source), sourceUrl: (r.source_url as string | null) ?? null, effectiveFrom: String(r.effective_from), effectiveTo: (r.effective_to as string | null) ?? null,
+    status: (r.status as string | null | undefined) ?? null,
   }));
 }
 
