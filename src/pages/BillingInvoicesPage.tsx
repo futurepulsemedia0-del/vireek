@@ -21,6 +21,7 @@ import { SkeletonStatGrid, SkeletonTable } from '@/components/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { supabase } from '@/lib/supabase';
+import { InvoiceTaxDetails } from '@/components/billing/InvoiceTaxDetails';
 import {
   INVOICE_STATUS_META,
   TONE_CLASSES,
@@ -389,6 +390,7 @@ export function BillingInvoicesPage() {
                         <td className="whitespace-nowrap px-5 py-3.5 text-text-secondary">{formatInvoiceDate(invoice.createdAt)}</td>
                         <td className="whitespace-nowrap px-5 py-3.5 font-semibold text-text-primary">
                           {formatInvoiceAmount(invoice.total, invoice.currency)}
+                          <InvoiceTaxDetails invoice={invoice} />
                         </td>
                         <td className="px-5 py-3.5"><StatusBadge status={invoice.status} /></td>
                         <td className="px-5 py-3.5"><InvoiceActions invoice={invoice} /></td>
@@ -410,6 +412,7 @@ export function BillingInvoicesPage() {
                       <StatusBadge status={invoice.status} />
                     </div>
                     <p className="mt-3 text-lg font-bold text-text-primary">{formatInvoiceAmount(invoice.total, invoice.currency)}</p>
+                    <InvoiceTaxDetails invoice={invoice} />
                     {invoicePeriodLabel(invoice) && <p className="mt-0.5 text-xs text-text-secondary">{invoicePeriodLabel(invoice)}</p>}
                     <div className="mt-3"><InvoiceActions invoice={invoice} /></div>
                   </li>
