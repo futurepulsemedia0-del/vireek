@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
+  AFFILIATE_HOLD_DAYS,
   AFFILIATE_MAX_COMMISSION_PCT,
   AFFILIATE_MAX_MONTHS,
   AFFILIATE_MIN_PAYOUT_CENTS,
@@ -31,6 +32,11 @@ describe('limits stay in sync with the SQL migration', () => {
     expect(sqlValue('affiliate_min_payout_cents')).toBe(AFFILIATE_MIN_PAYOUT_CENTS);
     expect(sqlValue('affiliate_override_min_reason_chars')).toBe(AFFILIATE_OVERRIDE_MIN_REASON_CHARS);
     expect(sqlValue('affiliate_months_sanity_ceiling')).toBe(AFFILIATE_MONTHS_SANITY_CEILING);
+  });
+  it('hold period matches the ledger migration', () => {
+    const ledgerSql = readFileSync(resolve(process.cwd(), 'supabase/migrations/20290303000100_affiliate_commission_ledger.sql'), 'utf8');
+    const m = /FUNCTION public\.affiliate_hold_days\(\)[\s\S]*?SELECT (\d+)/.exec(ledgerSql);
+    expect(m ? Number(m[1]) : null).toBe(AFFILIATE_HOLD_DAYS);
   });
   it('proposed defaults are the agreed values', () => {
     expect([AFFILIATE_MAX_COMMISSION_PCT, AFFILIATE_MAX_MONTHS, AFFILIATE_MIN_PAYOUT_CENTS]).toEqual([20, 12, 5000]);
