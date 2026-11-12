@@ -129,7 +129,7 @@ Deno.serve(async (req: Request) => {
 
     const wantCards = cursor === null; // cards only travel with the first page
     const [invoicePage, customer, paymentMethods] = await Promise.all([
-      stripe.invoices.list({ customer: customerId, limit: PAGE_SIZE, ...(cursor ? { starting_after: cursor } : {}) }),
+      stripe.invoices.list({ customer: customerId, limit: PAGE_SIZE, expand: ["data.total_tax_amounts.tax_rate"], ...(cursor ? { starting_after: cursor } : {}) }),
       wantCards ? stripe.customers.retrieve(customerId) : Promise.resolve(null),
       wantCards ? stripe.paymentMethods.list({ customer: customerId, type: "card", limit: 10 }) : Promise.resolve(null),
     ]);
