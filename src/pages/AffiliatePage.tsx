@@ -32,7 +32,7 @@ const HOW_IT_WORKS = [
 ];
 
 const WHY_ITEMS = [
-  { icon: Repeat, title: 'Recurring, not one-time', body: 'Commission is tied to the subscription, not a single payout — so a referral you make once can keep paying you for as long as that business stays on Vireek.' },
+  { icon: Repeat, title: 'Recurring, not one-time', body: 'Commission is tied to the subscription, not a single payout — so a referral you make once can keep earning for the commission term confirmed when you apply.' },
   { icon: Clock, title: 'Real tracking window', body: "Your link stores attribution for long enough that you still get credit even if the person doesn't sign up the same day." },
   { icon: Gift, title: 'Free to join', body: 'There is no fee, no minimum follower count, and no purchase required to become an affiliate.' },
   { icon: ShieldCheck, title: 'Clear terms, confirmed upfront', body: 'Exact commission rate and payout terms are confirmed with you when you apply — no surprises after the fact.' },
