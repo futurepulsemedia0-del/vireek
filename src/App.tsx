@@ -146,6 +146,7 @@ const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartn
 const StaffCustomersPage = lazy(() => import('@/pages/admin/StaffCustomersPage').then((m) => ({ default: m.StaffCustomersPage })));
 const StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
 const StaffMarginsPage = lazy(() => import('@/pages/admin/StaffMarginsPage').then((m) => ({ default: m.StaffMarginsPage })));
+const StaffPartnerCommissionsPage = lazy(() => import('@/pages/admin/StaffPartnerCommissionsPage').then((m) => ({ default: m.StaffPartnerCommissionsPage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
 const EntitlementsAdminPage = lazy(() => import('@/pages/admin/EntitlementsAdminPage').then((m) => ({ default: m.EntitlementsAdminPage })));
 const ReleaseSafetyAdminPage = lazy(() => import('@/pages/admin/ReleaseSafetyAdminPage').then((m) => ({ default: m.ReleaseSafetyAdminPage })));
@@ -791,6 +792,7 @@ function AppRoutes() {
         <Route path="/ambassador" element={<AmbassadorPage />} />
         <Route path="/staff/packs" element={<StaffRoute><StaffPacksPage /></StaffRoute>} />
         <Route path="/staff/web-vitals" element={<StaffRoute><StaffWebVitalsPage /></StaffRoute>} />
+        <Route path="/staff/partner-commissions" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffPartnerCommissionsPage /></Suspense></StaffRoute>} />
         <Route
           path="/staff/support-inbox"
           element={
