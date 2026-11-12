@@ -123,8 +123,12 @@ function checkEmptyStateStandard(filePath) {
 
 walk(SRC, (file) => {
   // The primitives are allowed to contain their own reference recipe.
-  if (file.endsWith(join('ui', 'Button.tsx')) || file.endsWith(join('ui', 'Card.tsx')) || file.endsWith(join('ui', 'Input.tsx'))) {
-   file.endsWith(join('components', 'Skeleton.tsx')) || 
+   if (
+    file.endsWith(join('ui', 'Button.tsx')) ||
+    file.endsWith(join('ui', 'Card.tsx')) ||
+    file.endsWith(join('ui', 'Input.tsx')) ||
+    file.endsWith(join('components', 'Skeleton.tsx'))
+  ) {
     return;
   }
   scanLines(file, RULE_INPUT, 'no-local-input-class');
