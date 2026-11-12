@@ -71,6 +71,15 @@ const RULES: Rule[] = [
   { id: "sewage_backup", flag: "sewage_backup", severity: "emergency", re: re("\\b(?:sewage|raw sewage|sewer backup|sewer back up|sewer backing up|sewer overflow|sewage backing up|sewage overflow)\\b|\\b(?:main line|main drain|all (?:the )?drains|every drain|all drains|multiple drains) (?:is |are )?(?:backing up|backed up|overflowing)\\b") },
   // ---- caller-declared -------------------------------------------------------------------------------------------
   { id: "caller_declared", flag: "caller_declared_emergency", severity: "emergency", re: re("\\b(?:emergency|emergencia|life threatening|life-threatening|911)\\b"), guard: re("\\b(?:fee|fees|charge|charges|charged|rate|rates|cost|costs|price|prices|pricing|how much|extra|surcharge|premium|diagnostic|per hour|hourly|do you offer|do you do|do you have|hours|call out|callout)\\b") },
+  // ---- Spanish life-safety phrasings (accent-folded) --------------------------------------------------------------
+  { id: "es_pipe_burst", flag: "active_flooding", severity: "emergency", re: near("tubo|tubos|tuberia|tuberias|cano|canos|caneria|llave de agua", "rompio|rompieron|revento|reventaron|exploto|rota|roto|reventado", 4) },
+  { id: "es_flooding", flag: "active_flooding", severity: "emergency", re: re("\\b(?:se esta inundando|se inundo|esta inundado|esta inundada|inundando|agua por todas partes|agua saliendo)\\b") },
+  { id: "es_sparks", flag: "sparking_or_burning", severity: "emergency", re: re("\\b(?:chispa|chispas|chispeando|echando chispas|sale humo|olor a quemado|huele a quemado|se quemo)\\b") },
+  { id: "es_gas", flag: "gas_odor", severity: "emergency", re: near("gas", "huele|olor|fuga|escape", 4) },
+  // ---- Roofing: open roof / storm damage -----------------------------------------------------------------------------
+  { id: "roof_open", flag: null, severity: "emergency", re: near("roof|roofing|ceiling|attic", "hole|collapsed|caved in|caving in|blown off|ripped off|torn off|tore off|took off|taken off|peeled off|came off|flew off", 6) },
+  { id: "rain_coming_in", flag: null, severity: "emergency", re: near("rain|raining|rainwater|storm water", "coming in|coming into|coming through|pouring in|pouring into|pouring through|getting in|getting into|leaking into", 5) },
+  { id: "tree_on_house", flag: null, severity: "emergency", re: re("\\b(?:tree|trees|branch|limb)\\b(?: \\S+){0,4} (?:fell|fallen|crashed|landed|came through|went through|through)\\b(?: \\S+){0,4} (?:roof|house|ceiling|attic|home)\\b") },
   // ---- urgent-only -----------------------------------------------------------------------------------------------
   { id: "urgent_words", flag: null, severity: "urgent", re: re("\\b(?:urgent|urgente|asap|right away|immediately|as soon as possible|tonight|cant wait|today)\\b") },
   { id: "water_heater_leak", flag: null, severity: "urgent", re: near("water heater|hot water tank|tank", "leaking|leak|leaks|dripping|pooling", 5) },
@@ -90,7 +99,7 @@ function negatedBefore(text: string, idx: number): boolean {
   return NEGATION_BEFORE.test(text.slice(Math.max(0, idx - 32), idx));
 }
 
-const COLD_WORDS = /\b(?:freezing|below freezing|below zero|sub ?zero|snow|snowing|snowstorm|blizzard|ice storm|cold snap|polar vortex|frost|frosty|bitter cold|extremely cold|very cold outside)\b|(?:^|\s)(?:-\d{1,2}|minus \d{1,2}|negative \d{1,2}|(?:[0-9]|[12][0-9]|3[0-2])) ?(?:degrees|f|fahrenheit)\b/;
+const COLD_WORDS = /\b(?:mucho frio|hace frio|muy frio|frio afuera|helando|freezing|below freezing|below zero|sub ?zero|snow|snowing|snowstorm|blizzard|ice storm|cold snap|polar vortex|frost|frosty|bitter cold|extremely cold|very cold outside)\b|(?:^|\s)(?:-\d{1,2}|minus \d{1,2}|negative \d{1,2}|(?:[0-9]|[12][0-9]|3[0-2])) ?(?:degrees|f|fahrenheit)\b/;
 const HOT_WORDS = /\b(?:heat ?wave|extreme heat|triple digits|scorching|sweltering|boiling hot outside|(?:9[5-9]|1[0-2]\d) degrees?)\b/;
 const INDOOR_COLD = /\b(?:house|home|inside|indoors|indoor|room|apartment|bedroom|baby|infant|newborn|kids?|children|grandma|grandpa|mother|father) (?:is |are |its |getting |gets |feels )?(?:freezing|very cold|extremely cold|getting cold|so cold|really cold|cold|\d{2} degrees)\b/;
 const INDOOR_HOT = /\b(?:house|home|inside|indoors|indoor|room|apartment|bedroom) (?:is |its |getting |gets |feels )?(?:boiling|very hot|extremely hot|getting hot|so hot|really hot|sweltering|9\d degrees|10\d degrees)\b/;
@@ -101,9 +110,15 @@ export interface UrgencyInput {
   outdoorTempF?: number | null;
 }
 
+/** normalizeText() keeps accented letters, but the Spanish rules below are written unaccented ("rompio", "inundacion").
+ *  Fold diacritics for matching only, otherwise real transcripts ("se rompió", "calefacción") never match. */
+function foldAccents(t: string): string {
+  return t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 export function classifyUrgency(input: UrgencyInput): UrgencyVerdict {
   const raw = input.text ?? "";
-  const text = normalizeText(raw);
+  const text = foldAccents(normalizeText(raw));
   const flags = new Set<SafetyFlag>();
   const suppressed = new Set<SafetyFlag>();
   const rules: string[] = [];
@@ -133,7 +148,8 @@ export function classifyUrgency(input: UrgencyInput): UrgencyVerdict {
     }
 
     // ---- composite rules (need two independent facts) ------------------------------------------------------------
-    const heatOut = near(HEAT, BROKEN, 4).test(text) || /\b(?:no heat|no heating|without heat|heat (?:is )?on but (?:nothing|no)|not getting (?:any )?heat|no warm air|no hot air|only cold air)\b/.test(text);
+    const esNoHeat = /\b(?:sin calefaccion|no tengo calefaccion|no hay calefaccion|calefaccion no funciona|no funciona la calefaccion|no funciona el calefactor|no tengo calor|sin calor)\b/.test(text);
+    const heatOut = esNoHeat || near(HEAT, BROKEN, 4).test(text) || /\b(?:no heat|no heating|without heat|heat (?:is )?on but (?:nothing|no)|not getting (?:any )?heat|no warm air|no hot air|only cold air)\b/.test(text);
     if (!flags.has("active_flooding") && /\b(?:cant|cannot|unable to|couldnt|wont|not able to) (?:\S+ ){0,2}(?:turn|shut|stop) (?:it|them|this|that|the flow) off\b/.test(text) && /\b(?:water|leak|leaking|pipe|pouring|spraying|dripping|gushing|valve)\b/.test(text)) {
       emergency = true; flags.add("active_flooding"); rules.push("cant_turn_it_off");
     }
