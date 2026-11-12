@@ -60,6 +60,22 @@
       "created": "2026-11-10",
       "expires": "2027-04-30",
       "cleanup": "Remove useFeatureFlag('regional_config') in useRegionAccess and the flag row once regional config is generally available"
+    },
+    {
+      "key": "analytics_layer",
+      "kind": "release",
+      "owner": "platform-oncall",
+      "created": "2026-11-12",
+      "expires": "2027-05-01",
+      "cleanup": "Remove useFeatureFlag('analytics_layer') in BusinessKpisPage and delete the flag row (the rollback block of 20290301000000_analytics_layer.sql already deletes it)"
+    },
+    {
+      "key": "home_passport_pilot",
+      "kind": "release",
+      "owner": "platform-oncall",
+      "created": "2026-11-12",
+      "expires": "2027-05-01",
+      "cleanup": "Remove PILOT_FLAG_KEY usage in src/lib/homePassportPilot.ts, the gate in HomePassportPilotPage, the requiresFlag option on the Home Passport Pilot entry in DashboardNav, and delete the flag row"
     }
   ]
 }
