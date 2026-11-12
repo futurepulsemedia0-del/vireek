@@ -26,7 +26,7 @@ interface SecurityFeature {
 const SECURITY_FEATURES: SecurityFeature[] = [
   {
     icon: Lock,
-    title: 'End-to-End Encryption',
+    title: 'Encryption in transit and at rest',
     body: 'Every call and message is encrypted in transit and at rest. Customer data never sits exposed.',
   },
   {
