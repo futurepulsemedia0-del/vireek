@@ -9,6 +9,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import Stripe from "npm:stripe@17.4.0";
+import { checkoutTaxParams, isAutomaticTaxEnabled, priceTaxVerdict } from "../_shared/billing/stripeTax.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -76,14 +77,18 @@ Deno.serve(async (req: Request) => {
     if (!meteredId || (t.model === "hybrid" && t.base_fee_cents > 0 && !baseId)) return json({ error: "Billing is not configured." }, 503);
     try {
       const metered = await stripe.prices.retrieve(meteredId);
+      const taxEnabled = isAutomaticTaxEnabled(Deno.env.get("STRIPE_AUTOMATIC_TAX"));
+      const taxBehaviors: Array<string | null | undefined> = [metered.tax_behavior];
       if (metered.recurring?.usage_type !== "metered" || metered.unit_amount !== 1 || metered.currency !== t.currency.toLowerCase()) return json({ error: "Billing price mismatch." }, 409);
       const items: Array<{ price: string; quantity?: number }> = [];
       if (t.model === "hybrid" && t.base_fee_cents > 0) {
         const base = await stripe.prices.retrieve(baseId!);
+        taxBehaviors.push(base.tax_behavior);
         if (base.unit_amount !== t.base_fee_cents || base.currency !== t.currency.toLowerCase() || base.recurring?.interval !== "month") return json({ error: "Billing price mismatch." }, 409);
         items.push({ price: baseId!, quantity: 1 });
       }
       items.push({ price: meteredId });
+      if (taxEnabled && taxBehaviors.some((b) => priceTaxVerdict(b) === "inclusive")) return json({ error: "Billing price mismatch." }, 409);
       const meta = { results_plan: "1", supabase_user_id: p.id };
 
       if (p.stripe_subscription_id) {
@@ -102,7 +107,7 @@ Deno.serve(async (req: Request) => {
         mode: "subscription", line_items: items, customer: p.stripe_customer_id ?? undefined, customer_email: p.stripe_customer_id ? undefined : p.email ?? undefined,
         client_reference_id: p.id, metadata: meta,
         subscription_data: { metadata: meta, ...(t.trial_days > 0 ? { trial_period_days: t.trial_days } : {}) },
-        automatic_tax: { enabled: Deno.env.get("STRIPE_AUTOMATIC_TAX") === "true" },
+        ...checkoutTaxParams(taxEnabled, { hasCustomer: Boolean(p.stripe_customer_id), explicitDisabled: true }),
         success_url: `${siteUrl()}/dashboard/results-plan?checkout=success`, cancel_url: `${siteUrl()}/dashboard/results-plan?checkout=cancelled`,
       });
       return json({ ok: true, url: session.url });
