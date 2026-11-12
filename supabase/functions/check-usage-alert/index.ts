@@ -1,72 +1,37 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { createSweepPorts } from "../_shared/usage-alerts/ports.ts";
+import { runUsageAlertSweep } from "../_shared/usage-alerts/sweep.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
-};
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+}
 
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+// Cron-only entry point (no browser CORS). Fail-closed: requires `Authorization: Bearer <service-role key>`.
+// USAGE_ALERT_MODE=live sends alerts; anything else (default) is SHADOW mode: it only reports what it would send.
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 200, headers: corsHeaders });
-  }
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const presented = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+  if (!serviceKey || !timingSafeEqual(presented, serviceKey)) return json({ error: "Unauthorized" }, 401);
+
+  const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", serviceKey, { auth: { persistSession: false } });
+  const mode = Deno.env.get("USAGE_ALERT_MODE") === "live" ? "live" : "shadow";
+  const siteUrl = (Deno.env.get("SITE_URL") ?? "https://app.vireek.com").replace(/\/$/, "");
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false },
-    });
-
-    // Find all profiles where usage >= 80% of included minutes
-    const { data: profiles, error } = await supabase
-      .from("profiles")
-      .select("id, minutes_used_this_month, minutes_included")
-      .gte("minutes_used_this_month", 0);
-
-    if (error) throw error;
-
-    let alertsCreated = 0;
-
-    for (const profile of profiles ?? []) {
-      const pct = profile.minutes_included > 0
-        ? (profile.minutes_used_this_month / profile.minutes_included) * 100
-        : 0;
-
-      if (pct < 80) continue;
-
-      // Check if an active alert already exists
-      const { data: existing } = await supabase
-        .from("ai_insights")
-        .select("id")
-        .eq("user_id", profile.id)
-        .ilike("title", "%included minutes%")
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      if (existing && existing.length > 0) continue;
-
-      const isCritical = pct >= 90;
-      await supabase.from("ai_insights").insert({
-        user_id: profile.id,
-        insight_type: "alert",
-        title: isCritical
-          ? "Minutes usage near plan limit"
-          : "Minutes usage approaching plan limit",
-        description: `You've used ${Math.round(pct)}% of your included minutes this month (${profile.minutes_used_this_month} of ${profile.minutes_included}). Consider upgrading to avoid overage charges.`,
-      });
-      alertsCreated++;
-    }
-
-    return new Response(
-      JSON.stringify({ alertsCreated, checked: profiles?.length ?? 0 }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    const summary = await runUsageAlertSweep(createSweepPorts(admin), { now: new Date(), siteUrl, mode });
+    console.log(JSON.stringify({ event: "usage_alert_sweep", ...summary }));
+    return json(mode === "shadow" ? { ...summary, note: "shadow mode: nothing was sent. Set USAGE_ALERT_MODE=live to send." } : summary);
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    console.error(JSON.stringify({ event: "usage_alert_sweep_failed", error: err instanceof Error ? err.message.replace(/[^\w:. -]/g, "").slice(0, 120) : "error" }));
+    return json({ error: "Sweep failed" }, 500);
   }
 });
