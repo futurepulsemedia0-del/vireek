@@ -74,7 +74,7 @@ export interface ValueReview {
 // ---------------------------------------------------------------- plans / assumptions
 
 /** Mirrors PRICING_PLANS in src/lib/pricing.ts (monthly list price, USD cents). A unit test keeps them in sync. */
-export const PLAN_MONTHLY_CENTS: Record<string, number> = { free: 0, starter: 7900, professional: 19900, business: 39900 };
+export const PLAN_MONTHLY_CENTS: Record<string, number> = { free: 0, starter: 9900, professional: 24900, business: 54900 };
 
 export function planMonthlyCents(plan: string | null | undefined): number | null {
   if (!plan) return null;
