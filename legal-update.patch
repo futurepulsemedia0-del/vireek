@@ -1,0 +1,1368 @@
+--- a/src/components/sections/AcceptableUseContent.tsx
++++ b/src/components/sections/AcceptableUseContent.tsx
+@@ -164,7 +164,7 @@
+               <h1 className="mt-3 text-4xl font-bold leading-[1.15] tracking-tight text-text-primary md:text-5xl">
+                 Acceptable Use Policy
+               </h1>
+-              <p className="mt-4 text-sm text-text-secondary">Last updated: September 12, 2026</p>
++              <p className="mt-4 text-sm text-text-secondary">Last updated: November 11, 2026</p>
+             </motion.div>
+ 
+             <SectionHeading id="introduction" number="1" title="Introduction" />
+@@ -202,6 +202,12 @@
+                       <li>• Attempt to gain unauthorized access to our systems, other accounts, or interfere with the service's normal operation</li>
+                       <li>• Reverse engineer, scrape, or resell access to the platform without our written authorization</li>
+                       <li>• Upload or transmit malware, viruses, or other harmful code</li>
++                      {/* LEGAL-REVIEW-REQUIRED */}
++                      <li>• Commit or facilitate toll fraud, including routing calls or transfers to premium-rate or other numbers to generate revenue or traffic</li>
++                      {/* LEGAL-REVIEW-REQUIRED */}
++                      <li>• Engage in SMS pumping or other artificial inflation of call or message traffic</li>
++                      {/* LEGAL-REVIEW-REQUIRED */}
++                      <li>• Place unsolicited calls or send unsolicited messages, or try to get around the limits and caps we apply to your account</li>
+                     </ul>
+                   </div>
+                 </CalloutCard>
+@@ -216,6 +222,12 @@
+                 <li>• Will honor opt-out requests (such as replies of "STOP") promptly</li>
+                 <li>• Will not use the platform to impersonate emergency services or government agencies</li>
+                 <li>• Are responsible for complying with Do-Not-Call, TCPA, and any local telemarketing/consent laws that apply to your business</li>
++                {/* LEGAL-REVIEW-REQUIRED */}
++                <li>• Are responsible for obtaining and keeping proof of consent for the messages you send, and for the accuracy of your A2P 10DLC registration data</li>
++                {/* LEGAL-REVIEW-REQUIRED */}
++                <li>• Will not send marketing messages without the required consent</li>
++                {/* LEGAL-REVIEW-REQUIRED */}
++                <li>• Are responsible for lawful call recording and AI-disclosure notices in your jurisdiction; Vireek plays the disclosure according to your account settings</li>
+               </ul>
+             </SectionBody>
+ 
+@@ -245,6 +257,13 @@
+                 accounts found to be in violation. Where practical, we will attempt to notify you
+                 and give you an opportunity to correct the issue first.
+               </p>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <p>
++                To prevent abuse and fraud, Vireek applies caps such as maximum call length, daily
++                spend, and outbound call and message volume. We may throttle, restrict, or suspend
++                use that we reasonably suspect is abusive, including toll fraud, SMS pumping, and
++                unsolicited calling or messaging.
++              </p>
+             </SectionBody>
+ 
+             <SectionHeading id="reporting-violations" number="8" title="Reporting a Violation" />
+--- a/src/components/sections/SecurityPrivacy.tsx
++++ b/src/components/sections/SecurityPrivacy.tsx
+@@ -42,7 +42,7 @@
+   {
+     icon: Server,
+     title: 'Enterprise Infrastructure',
+-    body: 'Hosted on enterprise-grade cloud infrastructure, targeting 99.9% monthly uptime under our published SLA.',
++    body: 'Hosted on enterprise-grade cloud infrastructure. Enterprise customers can get a contractual uptime commitment in their order form.',
+   },
+   {
+     icon: KeyRound,
+@@ -59,7 +59,7 @@
+ const TRUST_BADGES = [
+   { label: 'Tenant isolation', value: 'Row-level security' },
+   { label: 'GDPR', value: 'Aligned' },
+-  { label: 'Uptime SLA', value: '99.9% Target' },
++  { label: 'Uptime SLA', value: 'Enterprise order form' },
+   { label: 'Data Ownership', value: 'Yours' },
+ ];
+ 
+--- a/src/components/sections/Pricing.tsx
++++ b/src/components/sections/Pricing.tsx
+@@ -32,7 +32,7 @@
+         >
+           <span className="inline-flex items-center gap-2 rounded-full border border-cta/40 bg-cta/10 px-4 py-1.5 text-sm font-semibold text-cta">
+             <ShieldCheck size={16} />
+-            {'Start Your 14-Day Free Trial \u2014 No Credit Card Required'}
++            {'Start Your 14-Day Free Trial \u2014 Card Required'}
+           </span>
+           <p className={`${eyebrowClass()} mt-8`}>Pricing</p>
+           <h2 className={sectionHeadingClass()}>Simple Pricing. No Surprises.</h2>
+--- a/src/components/sections/RefundPolicyContent.tsx
++++ b/src/components/sections/RefundPolicyContent.tsx
+@@ -164,7 +164,7 @@
+               <h1 className="mt-3 text-4xl font-bold leading-[1.15] tracking-tight text-text-primary md:text-5xl">
+                 Refund & Cancellation Policy
+               </h1>
+-              <p className="mt-4 text-sm text-text-secondary">Last updated: September 12, 2026</p>
++              <p className="mt-4 text-sm text-text-secondary">Last updated: November 11, 2026</p>
+             </motion.div>
+ 
+             <SectionHeading id="introduction" number="1" title="Introduction" />
+@@ -186,6 +186,17 @@
+                 <li>• Paid plans are billed in advance, either monthly or annually depending on the billing cycle you select.</li>
+                 <li>• Subscriptions renew automatically at the end of each billing period unless canceled beforehand.</li>
+                 <li>• Usage beyond your plan's included minutes is billed at the overage rate listed on your plan.</li>
++                {/* LEGAL-REVIEW-REQUIRED */}
++                <li>
++                  • Included minutes are a monthly allowance that does not roll over, and minutes are
++                  metered per call rounded up to the next whole minute. See Section 5 of our{' '}
++                  <Link to="/terms#included-minutes-and-overage" className="font-semibold text-accent hover:underline">
++                    Terms of Service
++                  </Link>
++                  .
++                </li>
++                {/* LEGAL-REVIEW-REQUIRED */}
++                <li>• Prices are exclusive of taxes unless stated otherwise.</li>
+               </ul>
+             </SectionBody>
+ 
+@@ -199,6 +210,11 @@
+                 again afterward.
+               </p>
+               <p>There are no long-term contracts and no early-termination fees.</p>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <p>
++                To avoid being charged for a renewal, cancel before your renewal date. To avoid being
++                charged when a free trial converts to a paid plan, cancel before the trial ends.
++              </p>
+             </SectionBody>
+ 
+             <div className="mt-10">
+@@ -228,10 +244,21 @@
+ 
+             <SectionHeading id="free-trial" number="5" title="Free Trial & Onboarding Period" />
+             <SectionBody>
++              {/* LEGAL-REVIEW-REQUIRED */}
+               <p>
+-                If you start on a free plan or a free trial, you are not charged until you actively
+-                choose to upgrade to a paid plan. Because no payment is collected during a free
+-                trial, there is nothing to refund for that period.
++                The Free plan does not require a card and is not charged, so there is nothing to
++                refund for it.
++              </p>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <p>
++                A free trial requires a payment card and converts to the plan you selected unless you
++                cancel before the trial ends. If you cancel before it ends, you are not charged. If
++                the trial converts, the first charge is a billed subscription fee and is handled under
++                Section 4 like any other charge. See Section 7 of our{' '}
++                <Link to="/terms#free-trial-terms" className="font-semibold text-accent hover:underline">
++                  Terms of Service
++                </Link>{' '}
++                for trial terms.
+               </p>
+             </SectionBody>
+ 
+--- /dev/null
++++ b/src/components/sections/legalCopy.test.tsx
+@@ -0,0 +1,132 @@
++import { beforeAll, describe, expect, it, vi } from 'vitest';
++import { render } from '@testing-library/react';
++import { MemoryRouter } from 'react-router-dom';
++import type { ReactElement } from 'react';
++import { TermsContent } from '@/components/sections/TermsContent';
++import { RefundPolicyContent } from '@/components/sections/RefundPolicyContent';
++import { SlaContent } from '@/components/sections/SlaContent';
++import { AcceptableUseContent } from '@/components/sections/AcceptableUseContent';
++import { PRICING_PLANS } from '@/lib/pricing';
++import termsSource from './TermsContent.tsx?raw';
++import refundSource from './RefundPolicyContent.tsx?raw';
++import slaSource from './SlaContent.tsx?raw';
++import aupSource from './AcceptableUseContent.tsx?raw';
++
++// Guards the billing / limits / trial / SLA wording. Every new clause block must stay
++// marked for lawyer review, and the pages must not drift away from lib/pricing.ts.
++const MARKER = '{/* LEGAL-REVIEW-REQUIRED */}';
++const count = (src: string) => src.split(MARKER).length - 1;
++
++function pageText(ui: ReactElement): string {
++  const { container } = render(<MemoryRouter>{ui}</MemoryRouter>);
++  return (container.textContent ?? '').replace(/\s+/g, ' ');
++}
++
++beforeAll(() => {
++  // jsdom has no IntersectionObserver (used by framer-motion whileInView and the TOC).
++  vi.stubGlobal(
++    'IntersectionObserver',
++    class {
++      observe() {}
++      unobserve() {}
++      disconnect() {}
++      takeRecords() { return []; }
++    },
++  );
++});
++
++describe('TermsContent', () => {
++  it('states included-minutes, metering, top-up and overage rules', () => {
++    const text = pageText(<TermsContent />);
++    expect(text).toMatch(/do not roll over/i);
++    expect(text).toMatch(/rounded up to the next whole minute/i);
++    expect(text).toMatch(/Top-up minutes .* remain available until used/i);
++    expect(text).toMatch(/overage is enabled for your account/i);
++    expect(text).toMatch(/voice answering may pause/i);
++  });
++
++  it('states the trial terms: 14 days, card required, 60 minutes total, converts, one per account', () => {
++    const text = pageText(<TermsContent />);
++    expect(text).toMatch(/14 days/);
++    expect(text).toMatch(/60 minutes in total/);
++    expect(text).toMatch(/payment card is required/i);
++    expect(text).toMatch(/converts to the plan you selected/i);
++    expect(text).toMatch(/one trial per account/i);
++    expect(text).not.toMatch(/does not require a credit card/i);
++  });
++
++  it('shows every plan from lib/pricing.ts with its price and overage rate', () => {
++    const text = pageText(<TermsContent />);
++    for (const p of PRICING_PLANS) {
++      expect(text).toContain(p.name);
++      if (p.monthly) expect(text).toContain(`$${p.monthly}/month`);
++      if (p.annual) expect(text).toContain(`$${p.annual}/year`);
++      if (p.id !== 'enterprise' && p.overage) expect(text).toContain(p.overage);
++    }
++  });
++
++  it('covers fair use, SLA scope, taxes, price-change notice and the liability placeholder', () => {
++    const text = pageText(<TermsContent />);
++    expect(text).toMatch(/toll fraud, SMS pumping/i);
++    expect(text).toMatch(/Other plans have no SLA/i);
++    expect(text).toMatch(/exclusive of taxes/i);
++    expect(text).toMatch(/at least 30 days/i);
++    expect(text).toMatch(/WORDING TO BE FINALIZED BY COUNSEL/);
++  });
++
++  it('keeps the section ids that other pages link to', () => {
++    const { container } = render(<MemoryRouter><TermsContent /></MemoryRouter>);
++    for (const id of ['subscription-plans-and-billing', 'included-minutes-and-overage', 'free-trial-terms', 'ai-service-disclaimer', 'limitation-of-liability', 'termination']) {
++      expect(container.querySelector(`#${id}`), id).not.toBeNull();
++    }
++  });
++
++  it('keeps new clause blocks marked for legal review', () => {
++    expect(count(termsSource)).toBeGreaterThanOrEqual(14);
++    expect(termsSource).toContain('[LAWYER TO CONFIRM]');
++  });
++});
++
++describe('RefundPolicyContent', () => {
++  it('reconciles the trial section with a card-required trial and leaves refund terms in place', () => {
++    const text = pageText(<RefundPolicyContent />);
++    expect(text).toMatch(/cancel before the trial ends/i);
++    expect(text).not.toMatch(/no payment is collected during a free trial/i);
++    // Refund terms must not change in this edit.
++    expect(text).toMatch(/non-refundable/i);
++    expect(text).toMatch(/first 7 days of your first paid subscription/i);
++    expect(text).toMatch(/within 2 business days/i);
++  });
++
++  it('keeps new clause blocks marked for legal review', () => {
++    expect(count(refundSource)).toBeGreaterThanOrEqual(5);
++  });
++});
++
++describe('SlaContent', () => {
++  it('limits numeric uptime commitments to Enterprise order forms', () => {
++    const text = pageText(<SlaContent />);
++    expect(text).toMatch(/only in Enterprise order forms/i);
++    expect(text).toMatch(/not covered by an SLA/i);
++    expect(text).not.toMatch(/99\.\d%/);
++  });
++
++  it('keeps new clause blocks marked for legal review', () => {
++    expect(count(slaSource)).toBeGreaterThanOrEqual(3);
++  });
++});
++
++describe('AcceptableUseContent', () => {
++  it('prohibits toll fraud and SMS pumping and explains caps and throttling', () => {
++    const text = pageText(<AcceptableUseContent />);
++    expect(text).toMatch(/toll fraud/i);
++    expect(text).toMatch(/SMS pumping/i);
++    expect(text).toMatch(/caps such as maximum call length, daily spend/i);
++    expect(text).toMatch(/throttle, restrict, or suspend/i);
++    expect(text).toMatch(/A2P 10DLC/);
++  });
++
++  it('keeps new clause blocks marked for legal review', () => {
++    expect(count(aupSource)).toBeGreaterThanOrEqual(7);
++  });
++});
+--- a/src/components/sections/MsaContent.tsx
++++ b/src/components/sections/MsaContent.tsx
+@@ -329,11 +329,11 @@
+             <SectionHeading id="service-levels" number="7" title="Service Levels and Support" />
+             <SectionBody>
+               <p>
+-                Our uptime commitment and service-credit remedy are described in the{' '}
++                A numeric uptime commitment and service-credit remedy are available only to Enterprise Customers under an Order Form, as described in the{' '}
+                 <Link to="/sla" className={LINK_CLASS}>
+                   Service Level Agreement
+                 </Link>
+-                . Enterprise Customers may negotiate a custom commitment in their Order Form.
++                . Other plans have no SLA.
+                 Service credits, where available, are Customer's sole and exclusive remedy for
+                 Service unavailability.
+               </p>
+--- a/src/components/sections/TrustBar.tsx
++++ b/src/components/sections/TrustBar.tsx
+@@ -4,7 +4,7 @@
+ const TRUST_ITEMS = [
+   { icon: ShieldCheck, label: 'Row-Level Security' },
+   { icon: Lock, label: 'Encrypted in Transit & at Rest' },
+-  { icon: Server, label: '99.9% Uptime SLA' },
++  { icon: Server, label: 'Enterprise SLA Available' },
+   { icon: Clock, label: '24/7 Availability' },
+   { icon: Globe, label: 'Audit Log' },
+   { icon: Headphones, label: 'Human Support' },
+--- a/src/components/sections/SlaContent.tsx
++++ b/src/components/sections/SlaContent.tsx
+@@ -164,16 +164,19 @@
+               <h1 className="mt-3 text-4xl font-bold leading-[1.15] tracking-tight text-text-primary md:text-5xl">
+                 Service Level Agreement
+               </h1>
+-              <p className="mt-4 text-sm text-text-secondary">Last updated: September 12, 2026</p>
++              <p className="mt-4 text-sm text-text-secondary">Last updated: November 11, 2026</p>
+             </motion.div>
+ 
+             <SectionHeading id="introduction" number="1" title="Introduction & Scope" />
+             <SectionBody>
++              {/* LEGAL-REVIEW-REQUIRED */}
+               <p>
+-                This Service Level Agreement ("SLA") describes the uptime commitment Vireek makes
+-                to customers on paid subscription plans for the core Vireek platform (call
+-                answering, dashboard access, and the customer-facing API). It does not apply to
+-                customers on a free plan or during a free trial.
++                This Service Level Agreement ("SLA") applies only to Enterprise customers whose
++                signed order form includes a numeric uptime commitment for the core Vireek platform
++                (call answering, dashboard access, and the customer-facing API). Customers on any
++                other plan, including the Free plan, free trials, Starter, Professional, and
++                Business, are not covered by an SLA, and no uptime percentage or service credit
++                applies to them.
+               </p>
+             </SectionBody>
+ 
+@@ -182,14 +185,15 @@
+               <div className="mt-5">
+                 <CalloutCard icon={Activity}>
+                   <div className="space-y-4 text-base leading-relaxed text-text-secondary">
++                    {/* LEGAL-REVIEW-REQUIRED */}
+                     <p>
+-                      Vireek targets a{' '}
+-                      <strong className="text-text-primary">99.9% monthly uptime</strong> for the
+-                      core platform on all paid plans. Enterprise customers may negotiate a custom
+-                      uptime commitment and credit schedule as part of a signed order form.
++                      Numeric uptime commitments are made{' '}
++                      <strong className="text-text-primary">only in Enterprise order forms</strong>,
++                      together with any credit schedule. Other plans have no SLA; we operate the
++                      service with reasonable efforts and publish current status on our status page.
+                     </p>
+                     <p>
+-                      Monthly uptime percentage is calculated as: (total minutes in the calendar
++                      Where an order form states a monthly uptime percentage, it is calculated as: (total minutes in the calendar
+                       month &minus; minutes of Downtime) &divide; total minutes in the calendar
+                       month &times; 100.
+                     </p>
+@@ -222,15 +226,14 @@
+ 
+             <SectionHeading id="service-credits" number="5" title="Service Credits" />
+             <SectionBody>
+-              <p>If actual monthly uptime falls below the commitment in Section 2, eligible customers receive a credit toward a future invoice:</p>
+-              <ul className="ml-1 space-y-1.5">
+-                <li>• Below 99.9% but at or above 99.0% &mdash; 10% of that month's subscription fee</li>
+-                <li>• Below 99.0% but at or above 95.0% &mdash; 25% of that month's subscription fee</li>
+-                <li>• Below 95.0% &mdash; 50% of that month's subscription fee</li>
+-              </ul>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <p>
++                If an Enterprise order form includes an uptime commitment and actual monthly uptime
++                falls below it, the customer is eligible for the service credit set out in that order
++                form. Customers on other plans are not eligible for service credits.
++              </p>
+               <p>
+-                Service credits are the sole and exclusive remedy for a failure to meet the uptime
+-                commitment in this SLA, and cannot be exchanged for a cash refund.
++                Service credits are the sole and exclusive remedy for a failure to meet an uptime commitment in an Enterprise order form, and cannot be exchanged for a cash refund.
+               </p>
+             </SectionBody>
+ 
+--- a/src/components/sections/FAQ.tsx
++++ b/src/components/sections/FAQ.tsx
+@@ -30,7 +30,7 @@
+   },
+   {
+     q: 'How much does it cost?',
+-    a: 'Starter is $79/month and includes 400 minutes. Professional is $199/month and includes 1,500 minutes. You can start a 14-day free trial with no credit card required.',
++    a: 'Starter is $79/month and includes 400 minutes. Professional is $199/month and includes 1,500 minutes. You can start a 14-day free trial (card required, 60 minutes included, cancel before it ends to avoid being charged). The Free plan needs no card.',
+   },
+ ];
+ 
+--- a/src/components/sections/TermsContent.tsx
++++ b/src/components/sections/TermsContent.tsx
+@@ -2,8 +2,8 @@
+ import { motion } from 'framer-motion';
+ import { ChevronDown, TriangleAlert as AlertTriangle, Scale, Mail } from 'lucide-react';
+ import { Link } from 'react-router-dom';
+-import { Link } from 'react-router-dom';
+ import { EASE, viewport } from '@/lib/motion';
++import { PRICING_PLANS, type PricingPlan } from '@/lib/pricing';
+ 
+ const CONTACT_EMAIL = 'ali@vireek.com';
+ 
+@@ -18,17 +18,19 @@
+   { id: 'description-of-service', number: '2', title: 'Description of Service' },
+   { id: 'account-registration', number: '3', title: 'Account Registration' },
+   { id: 'subscription-plans-and-billing', number: '4', title: 'Subscription Plans and Billing' },
+-  { id: 'free-trial-terms', number: '5', title: 'Free Trial Terms' },
+-  { id: 'customer-responsibilities', number: '6', title: 'Customer Responsibilities' },
+-  { id: 'ai-service-disclaimer', number: '7', title: 'AI Service Disclaimer' },
+-  { id: 'intellectual-property', number: '8', title: 'Intellectual Property' },
+-  { id: 'data-and-privacy', number: '9', title: 'Data and Privacy' },
+-  { id: 'termination', number: '10', title: 'Termination' },
+-  { id: 'limitation-of-liability', number: '11', title: 'Limitation of Liability' },
+-  { id: 'indemnification', number: '12', title: 'Indemnification' },
+-  { id: 'governing-law', number: '13', title: 'Governing Law' },
+-  { id: 'changes-to-terms', number: '14', title: 'Changes to These Terms' },
+-  { id: 'contact', number: '15', title: 'Contact' },
++  { id: 'included-minutes-and-overage', number: '5', title: 'Included Minutes, Metering and Overage' },
++  { id: 'plan-limits-and-fair-use', number: '6', title: 'Plan Limits and Fair Use' },
++  { id: 'free-trial-terms', number: '7', title: 'Free Trial Terms' },
++  { id: 'customer-responsibilities', number: '8', title: 'Customer Responsibilities' },
++  { id: 'ai-service-disclaimer', number: '9', title: 'AI Service Disclaimer' },
++  { id: 'intellectual-property', number: '10', title: 'Intellectual Property' },
++  { id: 'data-and-privacy', number: '11', title: 'Data and Privacy' },
++  { id: 'termination', number: '12', title: 'Termination' },
++  { id: 'limitation-of-liability', number: '13', title: 'Limitation of Liability' },
++  { id: 'indemnification', number: '14', title: 'Indemnification' },
++  { id: 'governing-law', number: '15', title: 'Governing Law' },
++  { id: 'changes-to-terms', number: '16', title: 'Changes to These Terms' },
++  { id: 'contact', number: '17', title: 'Contact' },
+ ];
+ 
+ function CalloutCard({
+@@ -79,6 +81,54 @@
+   );
+ }
+ 
++function planPriceLabels(p: PricingPlan): { monthly: string; annual: string } {
++  if (p.id === 'enterprise') return { monthly: 'Per order form', annual: 'Per order form' };
++  if (p.monthly === 0) return { monthly: '$0', annual: '$0' };
++  return {
++    monthly: p.monthly == null ? '\u2014' : `$${p.monthly}/month`,
++    annual: p.annual == null ? '\u2014' : `$${p.annual}/year`,
++  };
++}
++
++/** Plan table generated from the same PRICING_PLANS data as /pricing, so Terms and pricing cannot drift apart. */
++function PlanTable() {
++  return (
++    <div className="overflow-x-auto rounded-xl border border-border bg-bg-secondary">
++      <table className="w-full min-w-[44rem] text-left text-sm">
++        <caption className="sr-only">Vireek subscription plans, prices, included minutes and limits</caption>
++        <thead>
++          <tr className="border-b border-border text-text-primary">
++            <th scope="col" className="px-4 py-3 font-semibold">Plan</th>
++            <th scope="col" className="px-4 py-3 font-semibold">Monthly billing</th>
++            <th scope="col" className="px-4 py-3 font-semibold">Annual billing</th>
++            <th scope="col" className="px-4 py-3 font-semibold">Included minutes (per month)</th>
++            <th scope="col" className="px-4 py-3 font-semibold">Overage</th>
++            <th scope="col" className="px-4 py-3 font-semibold">Seats</th>
++            <th scope="col" className="px-4 py-3 font-semibold">Locations</th>
++          </tr>
++        </thead>
++        <tbody>
++          {PRICING_PLANS.map((p) => {
++            const price = planPriceLabels(p);
++            const custom = p.id === 'enterprise';
++            return (
++              <tr key={p.id} className="border-b border-border last:border-b-0 align-top">
++                <th scope="row" className="px-4 py-3 font-semibold text-text-primary">{p.name}</th>
++                <td className="px-4 py-3">{price.monthly}</td>
++                <td className="px-4 py-3">{price.annual}</td>
++                <td className="px-4 py-3">{custom ? 'Per order form' : p.minutes}</td>
++                <td className="px-4 py-3">{custom ? 'Per order form' : p.overage ?? 'None \u2014 voice answering may pause at the limit'}</td>
++                <td className="px-4 py-3">{custom ? 'Per order form' : p.seats}</td>
++                <td className="px-4 py-3">{custom ? 'Per order form' : p.locations}</td>
++              </tr>
++            );
++          })}
++        </tbody>
++      </table>
++    </div>
++  );
++}
++
+ function SectionBody({ children }: { children: React.ReactNode }) {
+   return <div className="mt-4 space-y-4 text-base leading-relaxed text-text-secondary">{children}</div>;
+ }
+@@ -180,7 +230,7 @@
+               <h1 className="mt-3 text-4xl font-bold leading-[1.15] tracking-tight text-text-primary md:text-5xl">
+                 Terms of Service
+               </h1>
+-              <p className="mt-4 text-sm text-text-secondary">Last updated: August 20, 2026</p>
++              <p className="mt-4 text-sm text-text-secondary">Last updated: November 11, 2026</p>
+             </motion.div>
+ 
+             {/* Intro paragraph */}
+@@ -256,66 +306,191 @@
+               title="Subscription Plans and Billing"
+             />
+             <SectionBody>
+-              <p>Vireek offers the following subscription plans:</p>
+-
+-              <div className="space-y-4">
+-                <div className="rounded-xl border border-border bg-bg-secondary p-5">
+-                  <h3 className="text-lg font-semibold text-text-primary">Starter</h3>
+-                  <ul className="mt-2 ml-1 space-y-1.5">
+-                    <li>• $0/month</li>
+-                    <li>• Includes 50 minutes</li>
+-                    <li>• Includes a 14-day trial period</li>
+-                  </ul>
+-                </div>
+-                <div className="rounded-xl border-2 border-accent/40 bg-accent/[0.04] p-5">
+-                  <h3 className="text-lg font-semibold text-text-primary">Professional</h3>
+-                  <ul className="mt-2 ml-1 space-y-1.5">
+-                    <li>• $199/month</li>
+-                    <li>• Includes 1,500 minutes</li>
+-                    <li>• Additional usage is billed at $0.15/minute</li>
+-                  </ul>
+-                </div>
+-              </div>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <p>
++                Vireek offers the plans below. The table is generated from the same plan data shown on
++                our{' '}
++                <Link to="/pricing" className="font-semibold text-accent hover:underline">
++                  Pricing page
++                </Link>
++                . Enterprise plans are provided under a signed order form, and the order form controls
++                for the matters it covers.
++              </p>
++              <PlanTable />
+ 
+               <h3 className="pt-2 text-lg font-semibold text-text-primary">Billing terms</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
+               <ul className="ml-1 space-y-1.5">
+-                <li>• Billing occurs monthly in advance.</li>
+-                <li>• Subscriptions automatically renew unless canceled.</li>
++                <li>
++                  • Paid plans are billed in advance, monthly or annually depending on the billing
++                  cycle you select.
++                </li>
++                <li>• Subscriptions automatically renew at the end of each billing period unless canceled.</li>
+                 <li>
+                   • Customers may cancel anytime, effective at the end of the current billing period.
++                  You keep access to paid features until that date.
+                 </li>
+                 <li>• There are no long-term contracts.</li>
+-                                <li>
+-                  • No refunds are provided for partial months except where required by law. See
+-                  our{' '}
++                <li>
++                  • Refunds are governed by our{' '}
+                   <Link to="/refund-policy" className="font-semibold text-accent hover:underline">
+-                    Refund & Cancellation Policy
+-                  </Link>{' '}
+-                  for full details.
++                    Refund &amp; Cancellation Policy
++                  </Link>
++                  . No refunds are provided for partial months except as described in that policy or
++                  where required by law.
++                </li>
++                <li>
++                  • Prices are exclusive of taxes (such as sales, use, VAT, or GST) unless stated
++                  otherwise. You are responsible for applicable taxes, and we may add them to your
++                  invoice where required.
++                </li>
++                <li>
++                  • We may change prices by giving at least 30{/* [LAWYER TO CONFIRM] */} days&rsquo;
++                  notice by email to the email address on your account. If you do not accept a price
++                  change, you may cancel before it takes effect as described above.
+                 </li>
+-                <li>• Pricing may change with 30 days notice to active subscribers.</li>
+               </ul>
+             </SectionBody>
+ 
+             {/* Section 5 */}
+-            <SectionHeading id="free-trial-terms" number="5" title="Free Trial Terms" />
++            <SectionHeading
++              id="included-minutes-and-overage"
++              number="5"
++              title="Included Minutes, Metering and Overage"
++            />
+             <SectionBody>
+-              <ul className="ml-1 space-y-2">
++              <h3 className="text-lg font-semibold text-text-primary">Included minutes</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-1.5">
+                 <li>
+-                  • The Starter plan or any available free trial{' '}
+-                  <strong className="text-text-primary">does not require a credit card</strong> to
+-                  begin.
++                  • The minutes included in your plan are a monthly allowance. They apply to each
++                  billing period (each month of your subscription, including on annual billing).
+                 </li>
+                 <li>
+-                  • Vireek may limit{' '}
+-                  <strong className="text-text-primary">one free trial per business</strong> to
+-                  prevent abuse of trial offerings.
++                  • Included minutes <strong className="text-text-primary">do not roll over</strong>.
++                  Unused included minutes expire at the end of the period.
++                </li>
++              </ul>
++
++              <h3 className="pt-2 text-lg font-semibold text-text-primary">How minutes are metered</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-1.5">
++                <li>
++                  • Minutes are metered per call. Each call&rsquo;s duration is{' '}
++                  <strong className="text-text-primary">rounded up to the next whole minute</strong>.
++                </li>
++              </ul>
++
++              <h3 className="pt-2 text-lg font-semibold text-text-primary">Top-up minutes</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-1.5">
++                <li>
++                  • Top-up minutes you purchase do not expire at the end of a billing period. They
++                  remain available until used, for as long as your subscription is active.
++                </li>
++              </ul>
++
++              <h3 className="pt-2 text-lg font-semibold text-text-primary">Overage and reaching your limit</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-1.5">
++                <li>
++                  • If you keep using the service after your included minutes are used and overage is
++                  enabled for your account, the extra minutes are billed at the per-minute rate
++                  published for your plan, on your next invoice.
++                </li>
++                <li>
++                  • If overage is not enabled for your account (or your plan has no overage rate),
++                  voice answering may pause when you reach your limit.
++                </li>
++                <li>
++                  • Vireek does not guarantee that emergency calls will continue to be answered after
++                  your limit is reached.
+                 </li>
+               </ul>
+             </SectionBody>
+ 
+             {/* Section 6 */}
+-            <SectionHeading id="customer-responsibilities" number="6" title="Customer Responsibilities" />
++            <SectionHeading id="plan-limits-and-fair-use" number="6" title="Plan Limits and Fair Use" />
++            <SectionBody>
++              <h3 className="text-lg font-semibold text-text-primary">Plan limits</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-1.5">
++                <li>
++                  • Each plan has limits on seats, locations, phone numbers, concurrent calls, SMS
++                  messages, and data retention periods, as published on the{' '}
++                  <Link to="/pricing" className="font-semibold text-accent hover:underline">
++                    Pricing page
++                  </Link>{' '}
++                  or in your plan description. For example, Starter includes 7-day call transcript
++                  history as published.
++                </li>
++                <li>• Extras beyond your plan&rsquo;s limits are available at the prices we publish for them.</li>
++                <li>• Enterprise limits are set out in your order form.</li>
++              </ul>
++
++              <h3 className="pt-2 text-lg font-semibold text-text-primary">Fair use and abuse prevention</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-1.5">
++                <li>
++                  • To prevent abuse and fraud, Vireek applies caps such as maximum call length, daily
++                  spend, and outbound call and message volume.
++                </li>
++                <li>
++                  • Vireek may throttle, restrict, or suspend use that we reasonably suspect is
++                  abusive, including toll fraud, SMS pumping, and unsolicited calling or messaging. See
++                  our{' '}
++                  <Link to="/acceptable-use-policy" className="font-semibold text-accent hover:underline">
++                    Acceptable Use Policy
++                  </Link>
++                  .
++                </li>
++              </ul>
++
++              <h3 className="pt-2 text-lg font-semibold text-text-primary">Service levels</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-1.5">
++                <li>
++                  • A numeric uptime commitment applies only if it is stated in a signed Enterprise
++                  order form. Other plans have no SLA. See our{' '}
++                  <Link to="/sla" className="font-semibold text-accent hover:underline">
++                    Service Level Agreement
++                  </Link>
++                  .
++                </li>
++              </ul>
++            </SectionBody>
++
++            {/* Section 7 */}
++            <SectionHeading id="free-trial-terms" number="7" title="Free Trial Terms" />
++            <SectionBody>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-2">
++                <li>
++                  • A free trial lasts <strong className="text-text-primary">14 days</strong> and
++                  includes <strong className="text-text-primary">60 minutes in total</strong> for the
++                  whole trial. Trial minutes are metered as described in Section 5.
++                </li>
++                <li>
++                  • A payment card is <strong className="text-text-primary">required</strong> to start
++                  a trial.
++                </li>
++                <li>
++                  • Unless you cancel before the trial ends, the trial converts to the plan you
++                  selected and we charge your card for that plan.
++                </li>
++                <li>
++                  • There is <strong className="text-text-primary">one trial per account</strong>.
++                  Vireek may decline a trial where we reasonably suspect abuse of trial offers.
++                </li>
++                <li>
++                  • The Free plan is not a trial. It does not require a card and has the limits shown in
++                  Section 4.
++                </li>
++              </ul>
++            </SectionBody>
++
++            {/* Section 8 */}
++            <SectionHeading id="customer-responsibilities" number="8" title="Customer Responsibilities" />
+             <SectionBody>
+               <p>Customers are responsible for:</p>
+               <ul className="ml-1 space-y-2">
+@@ -349,11 +524,48 @@
+                   purposes.
+                 </li>
+               </ul>
+-            </SectionBody>
++                          <h3 className="pt-2 text-lg font-semibold text-text-primary">
++                Call recording and AI disclosure
++              </h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-2">
++                <li>
++                  • You are responsible for giving callers any notices and obtaining any consents that
++                  the laws of your jurisdiction (and your callers&rsquo; jurisdictions) require for call
++                  recording, transcription, and the use of an AI voice assistant.
++                </li>
++                <li>
++                  • Vireek plays the AI disclosure and any recording notice or consent prompt according
++                  to the settings in your account. You are responsible for reviewing and maintaining
++                  those settings.
++                </li>
++              </ul>
+ 
+-            {/* Section 7 — Callout */}
++              <h3 className="pt-2 text-lg font-semibold text-text-primary">Text messaging (SMS)</h3>
++              {/* LEGAL-REVIEW-REQUIRED */}
++              <ul className="ml-1 space-y-2">
++                <li>
++                  • You are responsible for obtaining and keeping proof of recipients&rsquo; consent
++                  before using Vireek to text them.
++                </li>
++                <li>
++                  • You are responsible for the accuracy and upkeep of the brand and campaign
++                  information used for A2P 10DLC registration.
++                </li>
++                <li>
++                  • Carrier and registration fees may be passed through to you.
++                </li>
++                <li>
++                  • You must not send marketing messages without the required consent, and you must
++                  honor opt-out requests (such as STOP). Vireek processes opt-out replies it receives
++                  through the platform.
++                </li>
++              </ul>
++                        </SectionBody>
++
++            {/* Section 9 — Callout */}
+             <div className="mt-10">
+-              <SectionHeading id="ai-service-disclaimer" number="7" title="AI Service Disclaimer" />
++              <SectionHeading id="ai-service-disclaimer" number="9" title="AI Service Disclaimer" />
+               <div className="mt-5">
+                 <CalloutCard icon={AlertTriangle}>
+                   <div className="space-y-4 text-base leading-relaxed text-text-secondary">
+@@ -369,6 +581,14 @@
+                       maintain reasonable oversight, including reviewing call summaries when
+                       appropriate.
+                     </p>
++                    {/* LEGAL-REVIEW-REQUIRED */}
++                    <p>
++                      AI answering can misclassify a call, miss an emergency, or fail to answer. You
++                      must keep a fallback way for callers to reach you (for example, a live phone line or
++                      an on-call number), and you should not rely on Vireek as your only means of
++                      receiving urgent calls. Vireek is not an emergency service and is not a substitute
++                      for contacting emergency services.
++                    </p>
+                     <div className="rounded-xl border border-accent/30 bg-accent/[0.06] px-4 py-3">
+                       <p>
+                         <strong className="text-text-primary">Limitation of AI liability:</strong> To
+@@ -376,24 +596,37 @@
+                         business, missed emergencies, or damages caused by AI limitations or errors.
+                       </p>
+                     </div>
++                    {/* LEGAL-REVIEW-REQUIRED */}
++                    <div className="rounded-xl border border-dashed border-border bg-bg-tertiary px-5 py-4">
++                      <p className="text-base leading-relaxed text-text-primary">
++                        <span className="rounded-md bg-accent/15 px-2 py-0.5 font-semibold text-accent">
++                          [LIMITATION OF LIABILITY &mdash; WORDING TO BE FINALIZED BY COUNSEL]
++                        </span>
++                      </p>
++                      <p className="mt-2 text-sm text-text-secondary">
++                        Placeholder &mdash; the limitation of liability for AI and emergency-related
++                        failures is to be finalized by counsel. The existing text above is retained
++                        until then.
++                      </p>
++                    </div>
+                   </div>
+                 </CalloutCard>
+               </div>
+             </div>
+ 
+-            {/* Section 8 */}
+-            <SectionHeading id="intellectual-property" number="8" title="Intellectual Property" />
++            {/* Section 10 */}
++            <SectionHeading id="intellectual-property" number="10" title="Intellectual Property" />
+             <SectionBody>
+               <ul className="ml-1 space-y-2">
+-                <li>
+-                <li>
+-                  • If you believe content on Vireek infringes your copyright, see our{' '}
++<li>
++• If you believe content on Vireek infringes your copyright, see our{' '}
+                   <Link to="/dmca" className="font-semibold text-accent hover:underline">
+                     DMCA &amp; Copyright Complaints
+                   </Link>{' '}
+                   page.
+-                </li>
+-                  • Vireek owns all rights to its{' '}
++</li>
++<li>
++• Vireek owns all rights to its{' '}
+                   <strong className="text-text-primary">software, brand, AI technology, and platform</strong>.
+                   Customers receive a limited, revocable license to use the service during their
+                   subscription.
+@@ -409,8 +642,8 @@
+               </ul>
+             </SectionBody>
+ 
+-            {/* Section 9 */}
+-            <SectionHeading id="data-and-privacy" number="9" title="Data and Privacy" />
++            {/* Section 11 */}
++            <SectionHeading id="data-and-privacy" number="11" title="Data and Privacy" />
+             <SectionBody>
+               <p>
+                 Customer and caller information is handled according to the Vireek Privacy Policy.
+@@ -427,8 +660,8 @@
+               </p>
+             </SectionBody>
+ 
+-            {/* Section 10 */}
+-            <SectionHeading id="termination" number="10" title="Termination" />
++            {/* Section 12 */}
++            <SectionHeading id="termination" number="12" title="Termination" />
+             <SectionBody>
+               <ul className="ml-1 space-y-2">
+                 <li>
+@@ -450,9 +683,9 @@
+               </ul>
+             </SectionBody>
+ 
+-            {/* Section 11 — Callout */}
++            {/* Section 13 — Callout */}
+             <div className="mt-10">
+-              <SectionHeading id="limitation-of-liability" number="11" title="Limitation of Liability" />
++              <SectionHeading id="limitation-of-liability" number="13" title="Limitation of Liability" />
+               <div className="mt-5">
+                 <CalloutCard icon={Scale}>
+                   <div className="space-y-4 text-base leading-relaxed text-text-secondary">
+@@ -480,8 +713,8 @@
+               </div>
+             </div>
+ 
+-            {/* Section 12 */}
+-            <SectionHeading id="indemnification" number="12" title="Indemnification" />
++            {/* Section 14 */}
++            <SectionHeading id="indemnification" number="14" title="Indemnification" />
+             <SectionBody>
+               <p>
+                 Customers agree to protect and indemnify Vireek from claims, damages, and expenses
+@@ -496,8 +729,8 @@
+               </ul>
+             </SectionBody>
+ 
+-            {/* Section 13 */}
+-            <SectionHeading id="governing-law" number="13" title="Governing Law" />
++            {/* Section 15 */}
++            <SectionHeading id="governing-law" number="15" title="Governing Law" />
+             <SectionBody>
+               <div className="rounded-xl border border-dashed border-border bg-bg-tertiary px-5 py-4">
+                 <p className="text-base leading-relaxed text-text-primary">
+@@ -514,8 +747,8 @@
+               </div>
+             </SectionBody>
+ 
+-            {/* Section 14 */}
+-            <SectionHeading id="changes-to-terms" number="14" title="Changes to These Terms" />
++            {/* Section 16 */}
++            <SectionHeading id="changes-to-terms" number="16" title="Changes to These Terms" />
+             <SectionBody>
+               <ul className="ml-1 space-y-1.5">
+                 <li>
+@@ -529,8 +762,8 @@
+               </ul>
+             </SectionBody>
+ 
+-            {/* Section 15 */}
+-            <SectionHeading id="contact" number="15" title="Contact" />
++            {/* Section 17 */}
++            <SectionHeading id="contact" number="17" title="Contact" />
+             <SectionBody>
+               <p>Questions about these terms? Email us and we'll get back to you.</p>
+               <div className="mt-2 flex items-center gap-3">
+--- a/src/components/sections/PricingTeaser.tsx
++++ b/src/components/sections/PricingTeaser.tsx
+@@ -26,7 +26,7 @@
+         >
+           <span className="inline-flex items-center gap-2 rounded-full border border-cta/40 bg-cta/10 px-3 py-1.5 text-xs font-semibold text-cta sm:px-4">
+             <ShieldCheck size={14} className="sm:size-4" />
+-            {'14-Day Free Trial — No Credit Card Required'}
++            {'14-Day Free Trial — Card Required'}
+           </span>
+           <p className={`${eyebrowClass()} mt-6 sm:mt-8`}>{'Pricing'}</p>
+           <h2 className={`${sectionHeadingClass()} text-2xl sm:text-3xl md:text-5xl`}>{'Every Plan Is a Full-Time Receptionist.'}</h2>
+--- a/src/components/sections/Hero.tsx
++++ b/src/components/sections/Hero.tsx
+@@ -296,7 +296,7 @@
+             transition={{ duration: 0.5, delay: 0.25, ease: EASE }}
+             className="mt-4 text-sm text-text-secondary/80"
+           >
+-            14-day free trial · No credit card required · Cancel anytime
++            Free plan needs no card · 14-day trial on paid plans (card required)
+           </motion.p>
+ 
+           <motion.div
+--- a/src/locales/de/common.json
++++ b/src/locales/de/common.json
+@@ -51,13 +51,13 @@
+     "subhead": "Jeder Anruf, den Sarah entgegennimmt, ist ein Kunde, der eine echte Stimme statt eines Signaltons erreicht hat.",
+     "getStarted": "Loslegen",
+     "startTrial": "Kostenlose Testphase starten",
+-    "trialTerms": "14 Tage · keine Karte nötig · jederzeit kündbar",
++    "trialTerms": "Free-Tarif ohne Karte · 14 Tage Test bei bezahlten Tarifen (Karte erforderlich)",
+     "createAccount": "Konto erstellen",
+     "hearFirst": "Erst reinhören",
+     "callNow": "Jetzt bei Sarah anrufen",
+     "callSubtitle": "Ein echtes Live-Gespräch — keine Anmeldung nötig",
+     "guaranteeLive": "In 15 Minuten startklar",
+-    "guaranteeNoCard": "Keine Kreditkarte nötig",
++    "guaranteeNoCard": "Free-Tarif: keine Kreditkarte nötig",
+     "guaranteeCancel": "Jederzeit kündbar"
+   }
+ }
+--- a/src/locales/en/common.json
++++ b/src/locales/en/common.json
+@@ -19,11 +19,11 @@
+     "headline": "Stop Losing Jobs to Voicemail",
+     "subhead": "Every call Sarah answers is a customer who",
+     "guaranteeLive": "Live in 15 minutes",
+-    "guaranteeNoCard": "No credit card required",
++    "guaranteeNoCard": "Free plan: no credit card required",
+     "guaranteeCancel": "Cancel anytime",
+     "getStarted": "Get started",
+     "startTrial": "Start Your Free Trial",
+-    "trialTerms": "14 days · no card required · cancel anytime",
++    "trialTerms": "Free plan needs no card · 14-day trial on paid plans (card required)",
+     "createAccount": "Create your account",
+     "hearFirst": "Hear it first",
+     "callNow": "Call Sarah Right Now",
+--- a/src/locales/fa/common.json
++++ b/src/locales/fa/common.json
+@@ -51,13 +51,13 @@
+     "subhead": "هر تماسی که سارا جواب می‌ده، یعنی مشتری‌ای که به‌جای بوق، یک صدای واقعی شنیده.",
+     "getStarted": "شروع کنید",
+     "startTrial": "دوره‌ی رایگان رو شروع کنید",
+-    "trialTerms": "۱۴ روز · بدون نیاز به کارت · هر زمان لغو کنید",
++    "trialTerms": "پلن رایگان بدون کارت · ترایل ۱۴ روزه در پلن‌های پولی (کارت لازم است)",
+     "createAccount": "ساخت حساب",
+     "hearFirst": "اول خودتون بشنوید",
+     "callNow": "همین الان با سارا تماس بگیرید",
+     "callSubtitle": "یک تماس واقعی و زنده — بدون نیاز به ثبت‌نام",
+     "guaranteeLive": "راه‌اندازی در ۱۵ دقیقه",
+-    "guaranteeNoCard": "بدون نیاز به کارت اعتباری",
++    "guaranteeNoCard": "پلن رایگان بدون نیاز به کارت اعتباری",
+     "guaranteeCancel": "هر زمان لغو کنید"
+   }
+ }
+--- a/src/locales/ja/common.json
++++ b/src/locales/ja/common.json
+@@ -45,13 +45,13 @@
+     "subhead": "サラが応答する一件一件が、ビープ音ではなく本物の声に出会えたお客様です。",
+     "getStarted": "今すぐ始める",
+     "startTrial": "無料トライアルを開始",
+-    "trialTerms": "14日間 · カード不要 · いつでも解約可能",
++    "trialTerms": "無料プランはカード不要 · 有料プランは14日間トライアル（カード登録が必要）",
+     "createAccount": "アカウント作成",
+     "hearFirst": "まず聞いてみる",
+     "callNow": "今すぐサラに電話する",
+     "callSubtitle": "登録不要のリアルタイム通話です",
+     "guaranteeLive": "15分で稼働開始",
+-    "guaranteeNoCard": "クレジットカード不要",
++    "guaranteeNoCard": "無料プランはクレジットカード不要",
+     "guaranteeCancel": "いつでも解約可能"
+   }
+ }
+--- a/src/locales/es/common.json
++++ b/src/locales/es/common.json
+@@ -51,13 +51,13 @@
+     "subhead": "Cada llamada que Sarah responde es un cliente que encontró una voz real, no un pitido.",
+     "getStarted": "Empezar",
+     "startTrial": "Inicia tu prueba gratuita",
+-    "trialTerms": "14 días · sin tarjeta · cancela cuando quieras",
++    "trialTerms": "Plan gratuito sin tarjeta · 14 días de prueba en planes de pago (tarjeta requerida)",
+     "createAccount": "Crear cuenta",
+     "hearFirst": "Escúchalo primero",
+     "callNow": "Llama a Sarah ahora mismo",
+     "callSubtitle": "Una llamada real en vivo — sin registro",
+     "guaranteeLive": "Activo en 15 minutos",
+-    "guaranteeNoCard": "Sin tarjeta de crédito",
++    "guaranteeNoCard": "Plan gratuito sin tarjeta de crédito",
+     "guaranteeCancel": "Cancela cuando quieras"
+   }
+ }
+--- a/src/locales/fr/common.json
++++ b/src/locales/fr/common.json
+@@ -51,13 +51,13 @@
+     "subhead": "Chaque appel pris par Sarah, c'est un client qui a eu une vraie voix, pas un bip.",
+     "getStarted": "Commencer",
+     "startTrial": "Démarrez votre essai gratuit",
+-    "trialTerms": "14 jours · sans carte · annulation à tout moment",
++    "trialTerms": "Offre gratuite sans carte · 14 jours d'essai sur les offres payantes (carte requise)",
+     "createAccount": "Créer un compte",
+     "hearFirst": "Écoutez d'abord",
+     "callNow": "Appelez Sarah maintenant",
+     "callSubtitle": "Un vrai appel en direct — sans inscription",
+     "guaranteeLive": "Actif en 15 minutes",
+-    "guaranteeNoCard": "Sans carte bancaire",
++    "guaranteeNoCard": "Offre gratuite sans carte bancaire",
+     "guaranteeCancel": "Annulation à tout moment"
+   }
+ }
+--- a/src/locales/hi/common.json
++++ b/src/locales/hi/common.json
+@@ -45,13 +45,13 @@
+     "subhead": "हर वह कॉल जिसे Sarah जवाब देती है, वह ग्राहक बीप की जगह एक असली आवाज़ तक पहुँचता है।",
+     "getStarted": "शुरू करें",
+     "startTrial": "अपना फ्री ट्रायल शुरू करें",
+-    "trialTerms": "14 दिन · कार्ड की ज़रूरत नहीं · कभी भी रद्द करें",
++    "trialTerms": "फ़्री प्लान में कार्ड नहीं · पेड प्लान पर 14 दिन का ट्रायल (कार्ड ज़रूरी)",
+     "createAccount": "खाता बनाएं",
+     "hearFirst": "पहले सुनें",
+     "callNow": "अभी Sarah को कॉल करें",
+     "callSubtitle": "एक असली, लाइव कॉल — साइनअप की ज़रूरत नहीं",
+     "guaranteeLive": "15 मिनट में शुरू",
+-    "guaranteeNoCard": "क्रेडिट कार्ड की ज़रूरत नहीं",
++    "guaranteeNoCard": "फ़्री प्लान में क्रेडिट कार्ड की ज़रूरत नहीं",
+     "guaranteeCancel": "कभी भी रद्द करें"
+   }
+ }
+--- a/src/locales/zh/common.json
++++ b/src/locales/zh/common.json
+@@ -45,13 +45,13 @@
+     "subhead": "Sarah 接听的每一通电话，都是一位听到真人声音而非提示音的客户。",
+     "getStarted": "立即开始",
+     "startTrial": "开始免费试用",
+-    "trialTerms": "14 天 · 无需信用卡 · 随时取消",
++    "trialTerms": "免费套餐无需银行卡 · 付费套餐 14 天试用（需要银行卡）",
+     "createAccount": "创建账户",
+     "hearFirst": "先听听看",
+     "callNow": "现在就给 Sarah 打电话",
+     "callSubtitle": "真实的实时通话 — 无需注册",
+     "guaranteeLive": "15 分钟内上线",
+-    "guaranteeNoCard": "无需信用卡",
++    "guaranteeNoCard": "免费套餐无需信用卡",
+     "guaranteeCancel": "随时取消"
+   }
+ }
+--- a/src/locales/ar/common.json
++++ b/src/locales/ar/common.json
+@@ -45,13 +45,13 @@
+     "subhead": "كل مكالمة تردّ عليها سارة تعني عميلًا وصل إلى صوت حقيقي بدلًا من صافرة.",
+     "getStarted": "ابدأ الآن",
+     "startTrial": "ابدأ تجربتك المجانية",
+-    "trialTerms": "14 يومًا · دون بطاقة · إلغاء في أي وقت",
++    "trialTerms": "الخطة المجانية دون بطاقة · تجربة 14 يومًا للخطط المدفوعة (البطاقة مطلوبة)",
+     "createAccount": "إنشاء حساب",
+     "hearFirst": "استمع أولًا",
+     "callNow": "اتصل بسارة الآن",
+     "callSubtitle": "مكالمة مباشرة وحقيقية — دون تسجيل",
+     "guaranteeLive": "جاهز خلال 15 دقيقة",
+-    "guaranteeNoCard": "دون بطاقة ائتمان",
++    "guaranteeNoCard": "الخطة المجانية دون بطاقة ائتمان",
+     "guaranteeCancel": "إلغاء في أي وقت"
+   }
+ }
+--- a/src/lib/homeContent.ts
++++ b/src/lib/homeContent.ts
+@@ -7,10 +7,10 @@
+ 
+ export const SITE_URL = 'https://vireek.com';
+ 
+-/** Trial terms. VERIFIED: SignupPage says "no credit card required"; RefundPolicy §5 says no payment is collected during a free trial. */
++/** Trial terms. Must match Terms §7 and Refund Policy §5: 14 days, card required, 60 minutes total, converts to the selected plan unless cancelled. The Free plan (no trial) needs no card. */
+ export const TRIAL = {
+   days: 14,
+-  short: '14-day free trial · No credit card · Cancel anytime',
++  short: 'Free plan needs no card · 14-day trial on paid plans (card required)',
+ } as const;
+ 
+ /**
+@@ -22,7 +22,7 @@
+ export const HERO_PROOF = [
+   { label: 'Answers', value: '24/7', detail: 'Nights, weekends and holidays' },
+   { label: 'Setup', value: `~${SETUP_MINUTES} min`, detail: 'Forward your number, add your services' },
+-  { label: 'Trial', value: `${TRIAL.days} days`, detail: 'No credit card, no contract' },
++  { label: 'Trial', value: `${TRIAL.days} days`, detail: 'On paid plans, card required' },
+ ] as const;
+ 
+ export const HERO_HEADLINES = {
+@@ -110,6 +110,6 @@
+   },
+   {
+     q: 'How much does it cost?',
+-    a: 'Plans start at $79 a month with a 14-day free trial that needs no credit card. There is also a Free plan with 50 minutes. Prices are shown above and on the pricing page.',
++    a: 'Plans start at $79 a month with a 14-day free trial (a card is required and the trial includes 60 minutes; you are charged only if you do not cancel before it ends). There is also a Free plan with 50 minutes that needs no card. Prices are shown above and on the pricing page.',
+   },
+ ];
+--- a/src/lib/securityWhitepaper.ts
++++ b/src/lib/securityWhitepaper.ts
+@@ -239,7 +239,7 @@
+           'Sub-processor list: every third party that touches customer data.',
+           'Data Processing Agreement: the standard DPA for enterprise procurement.',
+           'System status: live uptime and incident history.',
+-          'Service Level Agreement: the uptime commitment and service credits.',
++          'Service Level Agreement: uptime commitments and service credits apply only under Enterprise order forms.',
+         ],
+       },
+     ],
+--- /dev/null
++++ b/src/lib/trialClaims.test.ts
+@@ -0,0 +1,40 @@
++import { describe, expect, it } from 'vitest';
++import { TRIAL } from '@/lib/homeContent';
++import { getClaim } from '@/lib/trust/claims';
++import en from '@/locales/en/common.json';
++import ar from '@/locales/ar/common.json';
++import de from '@/locales/de/common.json';
++import es from '@/locales/es/common.json';
++import fa from '@/locales/fa/common.json';
++import fr from '@/locales/fr/common.json';
++import hi from '@/locales/hi/common.json';
++import ja from '@/locales/ja/common.json';
++import zh from '@/locales/zh/common.json';
++
++// Marketing must not contradict Terms section 7: the trial needs a card; only the Free plan is card-free.
++describe('trial and SLA marketing claims match the legal pages', () => {
++  it('home trial copy says a card is required and no longer promises "no credit card"', () => {
++    expect(TRIAL.short).toMatch(/card required/i);
++    expect(TRIAL.short).not.toMatch(/no credit card/i);
++  });
++
++  it('every locale carries a rewritten trial and no-card string', () => {
++    const locales = { en, ar, de, es, fa, fr, hi, ja, zh } as Record<string, { finalCta: Record<string, string> }>;
++    for (const [code, loc] of Object.entries(locales)) {
++      expect(loc.finalCta.trialTerms, code).toBeTruthy();
++      expect(loc.finalCta.guaranteeNoCard, code).toBeTruthy();
++      if (code !== 'en') {
++        expect(loc.finalCta.trialTerms, code).not.toBe(en.finalCta.trialTerms);
++        expect(loc.finalCta.guaranteeNoCard, code).not.toBe(en.finalCta.guaranteeNoCard);
++      }
++    }
++    expect(en.finalCta.trialTerms).toMatch(/card required/i);
++    expect(en.finalCta.guaranteeNoCard).toMatch(/free plan/i);
++  });
++
++  it('the public SLA claim is limited to Enterprise order forms', () => {
++    const claim = getClaim('sla.uptime-commitment');
++    expect(claim.statement).toMatch(/Enterprise order forms/);
++    expect(claim.statement).not.toMatch(/99\.\d%/);
++  });
++});
+--- a/src/lib/trust/claims.ts
++++ b/src/lib/trust/claims.ts
+@@ -121,11 +121,11 @@
+   {
+     id: 'sla.uptime-commitment',
+     category: 'sla',
+-    statement: 'The Service Level Agreement commits to 99.9% monthly uptime, with service credits when it is missed.',
++    statement: 'A numeric uptime commitment, with service credits, is offered only in Enterprise order forms. Other plans have no SLA.',
+     status: 'verified',
+     kind: 'commitment',
+     evidence: { label: 'Service Level Agreement', href: '/sla' },
+-    reviewedOn: '2026-11-01',
++    reviewedOn: '2026-11-12',
+     owner: 'ali',
+   },
+   {
+--- a/src/pages/PricingPage.tsx
++++ b/src/pages/PricingPage.tsx
+@@ -320,7 +320,7 @@
+             >
+               <span className="inline-flex items-center gap-2 rounded-full border border-cta/40 bg-cta/10 px-4 py-1.5 text-sm font-semibold text-cta">
+                 <ShieldCheck size={16} />
+-                {'Start Your 14-Day Free Trial \u2014 No Credit Card Required'}
++                {'Start Your 14-Day Free Trial \u2014 Card Required'}
+               </span>
+               <p className={`${eyebrowClass()} mt-8`}>Pricing</p>
+               <h1 className="mt-3 text-balance text-4xl font-extrabold tracking-tight text-text-primary sm:text-5xl lg:text-6xl">
+@@ -589,7 +589,7 @@
+                 Stop losing jobs to voicemail
+               </h2>
+               <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg text-pretty">
+-                Start your 14-day free trial today — no credit card required.
++                Start a 14-day trial on a paid plan (card required; cancel before it ends and you are not charged), or begin on the Free plan with no card.
+               </p>
+               <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                 <Link to="/login">
+--- a/src/pages/ContactPage.tsx
++++ b/src/pages/ContactPage.tsx
+@@ -44,7 +44,7 @@
+   },
+   {
+     q: 'Can I try Vireek before committing?',
+-    a: 'Yes. You can start a 14-day free trial with no credit card required. See how Sarah handles your calls before choosing a plan.',
++    a: 'Yes. The Free plan needs no card, and paid plans start with a 14-day trial (card required; cancel before it ends and you are not charged). See how Sarah handles your calls before choosing a plan.',
+   },
+   {
+     q: 'What types of businesses does Vireek support?',
+@@ -355,7 +355,7 @@
+                 <div className="rounded-2xl border border-border bg-bg-secondary p-8 shadow-card dark:shadow-card-dark">
+                   <h3 className="text-lg font-semibold text-text-primary">Not Sure Yet?</h3>
+                   <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+-                    Start a 14-day free trial and hear how Sarah handles your calls — no credit card required.
++                    Create a free account and hear how Sarah handles your calls. No card needed.
+                   </p>
+                   <Link to="/login" className="mt-5 inline-block">
+                     <Button variant="primary" size="md" className="gap-2">
+--- a/src/pages/SignupPage.tsx
++++ b/src/pages/SignupPage.tsx
+@@ -340,7 +340,7 @@
+       <div className="mb-8">
+         <h1 className="text-2xl font-bold tracking-tight text-text-primary">Create your account</h1>
+         <p className="mt-1.5 text-sm text-text-secondary">
+-          Start your free trial — no credit card required. Set up in under two minutes.
++          Create your account in under two minutes. No card is needed to sign up; paid-plan trials (14 days, card required) start when you choose a plan.
+         </p>
+       </div>
+ 
+--- a/docs/i18n/translation-state.json
++++ b/docs/i18n/translation-state.json
+@@ -15,11 +15,11 @@
+     "common:finalCta.headline": "9e0d1dbf",
+     "common:finalCta.subhead": "bf6fc561",
+     "common:finalCta.guaranteeLive": "aa795c27",
+-    "common:finalCta.guaranteeNoCard": "bbe55349",
++    "common:finalCta.guaranteeNoCard": "274dfb65",
+     "common:finalCta.guaranteeCancel": "ceec8a13",
+     "common:finalCta.getStarted": "90e40d50",
+     "common:finalCta.startTrial": "102a4365",
+-    "common:finalCta.trialTerms": "ed0473d8",
++    "common:finalCta.trialTerms": "4e0d2a41",
+     "common:finalCta.createAccount": "4046b581",
+     "common:finalCta.hearFirst": "be61e0a8",
+     "common:finalCta.callNow": "12f5f4d5",
+@@ -621,11 +621,11 @@
+     "common:finalCta.headline": "9e0d1dbf",
+     "common:finalCta.subhead": "bf6fc561",
+     "common:finalCta.guaranteeLive": "aa795c27",
+-    "common:finalCta.guaranteeNoCard": "bbe55349",
++    "common:finalCta.guaranteeNoCard": "274dfb65",
+     "common:finalCta.guaranteeCancel": "ceec8a13",
+     "common:finalCta.getStarted": "90e40d50",
+     "common:finalCta.startTrial": "102a4365",
+-    "common:finalCta.trialTerms": "ed0473d8",
++    "common:finalCta.trialTerms": "4e0d2a41",
+     "common:finalCta.createAccount": "4046b581",
+     "common:finalCta.hearFirst": "be61e0a8",
+     "common:finalCta.callNow": "12f5f4d5",
+@@ -984,11 +984,11 @@
+     "common:finalCta.headline": "9e0d1dbf",
+     "common:finalCta.subhead": "bf6fc561",
+     "common:finalCta.guaranteeLive": "aa795c27",
+-    "common:finalCta.guaranteeNoCard": "bbe55349",
++    "common:finalCta.guaranteeNoCard": "274dfb65",
+     "common:finalCta.guaranteeCancel": "ceec8a13",
+     "common:finalCta.getStarted": "90e40d50",
+     "common:finalCta.startTrial": "102a4365",
+-    "common:finalCta.trialTerms": "ed0473d8",
++    "common:finalCta.trialTerms": "4e0d2a41",
+     "common:finalCta.createAccount": "4046b581",
+     "common:finalCta.hearFirst": "be61e0a8",
+     "common:finalCta.callNow": "12f5f4d5",
+@@ -1347,11 +1347,11 @@
+     "common:finalCta.headline": "9e0d1dbf",
+     "common:finalCta.subhead": "bf6fc561",
+     "common:finalCta.guaranteeLive": "aa795c27",
+-    "common:finalCta.guaranteeNoCard": "bbe55349",
++    "common:finalCta.guaranteeNoCard": "274dfb65",
+     "common:finalCta.guaranteeCancel": "ceec8a13",
+     "common:finalCta.getStarted": "90e40d50",
+     "common:finalCta.startTrial": "102a4365",
+-    "common:finalCta.trialTerms": "ed0473d8",
++    "common:finalCta.trialTerms": "4e0d2a41",
+     "common:finalCta.createAccount": "4046b581",
+     "common:finalCta.hearFirst": "be61e0a8",
+     "common:finalCta.callNow": "12f5f4d5",
+@@ -1894,11 +1894,11 @@
+     "common:finalCta.headline": "9e0d1dbf",
+     "common:finalCta.subhead": "bf6fc561",
+     "common:finalCta.guaranteeLive": "aa795c27",
+-    "common:finalCta.guaranteeNoCard": "bbe55349",
++    "common:finalCta.guaranteeNoCard": "274dfb65",
+     "common:finalCta.guaranteeCancel": "ceec8a13",
+     "common:finalCta.getStarted": "90e40d50",
+     "common:finalCta.startTrial": "102a4365",
+-    "common:finalCta.trialTerms": "ed0473d8",
++    "common:finalCta.trialTerms": "4e0d2a41",
+     "common:finalCta.createAccount": "4046b581",
+     "common:finalCta.hearFirst": "be61e0a8",
+     "common:finalCta.callNow": "12f5f4d5",
+@@ -3124,11 +3124,11 @@
+     "common:finalCta.headline": "9e0d1dbf",
+     "common:finalCta.subhead": "bf6fc561",
+     "common:finalCta.guaranteeLive": "aa795c27",
+-    "common:finalCta.guaranteeNoCard": "bbe55349",
++    "common:finalCta.guaranteeNoCard": "274dfb65",
+     "common:finalCta.guaranteeCancel": "ceec8a13",
+     "common:finalCta.getStarted": "90e40d50",
+     "common:finalCta.startTrial": "102a4365",
+-    "common:finalCta.trialTerms": "ed0473d8",
++    "common:finalCta.trialTerms": "4e0d2a41",
+     "common:finalCta.createAccount": "4046b581",
+     "common:finalCta.hearFirst": "be61e0a8",
+     "common:finalCta.callNow": "12f5f4d5",
+@@ -3487,11 +3487,11 @@
+     "common:finalCta.headline": "9e0d1dbf",
+     "common:finalCta.subhead": "bf6fc561",
+     "common:finalCta.guaranteeLive": "aa795c27",
+-    "common:finalCta.guaranteeNoCard": "bbe55349",
++    "common:finalCta.guaranteeNoCard": "274dfb65",
+     "common:finalCta.guaranteeCancel": "ceec8a13",
+     "common:finalCta.getStarted": "90e40d50",
+     "common:finalCta.startTrial": "102a4365",
+-    "common:finalCta.trialTerms": "ed0473d8",
++    "common:finalCta.trialTerms": "4e0d2a41",
+     "common:finalCta.createAccount": "4046b581",
+     "common:finalCta.hearFirst": "be61e0a8",
+     "common:finalCta.callNow": "12f5f4d5",
+@@ -3850,11 +3850,11 @@
+     "common:finalCta.headline": "9e0d1dbf",
+     "common:finalCta.subhead": "bf6fc561",
+     "common:finalCta.guaranteeLive": "aa795c27",
+-    "common:finalCta.guaranteeNoCard": "bbe55349",
++    "common:finalCta.guaranteeNoCard": "274dfb65",
+     "common:finalCta.guaranteeCancel": "ceec8a13",
+     "common:finalCta.getStarted": "90e40d50",
+     "common:finalCta.startTrial": "102a4365",
+-    "common:finalCta.trialTerms": "ed0473d8",
++    "common:finalCta.trialTerms": "4e0d2a41",
+     "common:finalCta.createAccount": "4046b581",
+     "common:finalCta.hearFirst": "be61e0a8",
+     "common:finalCta.callNow": "12f5f4d5",
