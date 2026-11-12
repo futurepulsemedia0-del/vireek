@@ -19,6 +19,9 @@ export interface Partner {
   status: PartnerStatus;
   referral_code: string;
   commission_rate: number;
+  commission_months: number;
+  commission_override_active: boolean;
+  commission_override_approved: boolean;
   payout_method: string | null;
   payout_details: string | null;
   applied_at: string;
