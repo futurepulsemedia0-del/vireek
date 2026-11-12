@@ -21,6 +21,17 @@ export interface StripeInvoiceLike {
   period_end?: number | null;
   next_payment_attempt?: number | null;
   attempt_count?: number | null;
+  total_excluding_tax?: number | null;
+  tax?: number | null;
+  customer_tax_exempt?: string | null;
+  customer_tax_ids?: Array<{ type?: string | null; value?: string | null }> | null;
+  /** `tax_rate` is an id unless the request expanded `data.total_tax_amounts.tax_rate`. */
+  total_tax_amounts?: Array<{
+    amount?: number | null;
+    inclusive?: boolean | null;
+    taxability_reason?: string | null;
+    tax_rate?: string | { display_name?: string | null; percentage?: number | null; jurisdiction?: string | null } | null;
+  }> | null;
   lines?: {
     data?: Array<{ description?: string | null; period?: { start?: number | null; end?: number | null } | null }>;
   } | null;
@@ -42,8 +53,30 @@ export interface InvoiceDto {
   hostedUrl: string | null;
   attemptCount: number;
   nextPaymentAttemptAt: string | null;
+  /** Total before tax; null when Stripe did not report it. */
+  totalExcludingTax: number | null;
+  taxTotal: number;
+  taxLines: InvoiceTaxLineDto[];
+  /** True when Stripe applied reverse charge (business customer accounts for the tax). */
+  reverseCharge: boolean;
+  customerTaxIds: InvoiceTaxIdDto[];
+}
+export interface InvoiceTaxLineDto {
+  /** Stripe's own label (for example "VAT"); null when the rate was not expanded. */
+  label: string | null;
+  /** Rate as reported by Stripe; never computed or hardcoded here. */
+  percentage: number | null;
+  jurisdiction: string | null;
+  amount: number;
+  inclusive: boolean;
+  taxabilityReason: string | null;
 }
 
+export interface InvoiceTaxIdDto {
+  /** Stripe tax-ID type such as "eu_vat". */
+  type: string;
+  value: string;
+}
 export interface StripePaymentMethodLike {
   id: string;
   card?: {
@@ -81,12 +114,44 @@ function isoFromUnix(seconds: number | null | undefined): string | null {
   if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds <= 0) return null;
   return new Date(seconds * 1000).toISOString();
 }
+const cleanText = (value: unknown, max: number): string | null =>
+  typeof value === "string" && value.trim() ? value.trim().slice(0, max) : null;
 
+function normalizeTaxLines(inv: StripeInvoiceLike): InvoiceTaxLineDto[] {
+  const raw = Array.isArray(inv.total_tax_amounts) ? inv.total_tax_amounts : [];
+  const lines: InvoiceTaxLineDto[] = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry.amount !== "number" || !Number.isFinite(entry.amount)) continue;
+    const rate = entry.tax_rate && typeof entry.tax_rate === "object" ? entry.tax_rate : null;
+    lines.push({
+      label: cleanText(rate?.display_name, 40),
+      percentage: typeof rate?.percentage === "number" && Number.isFinite(rate.percentage) ? rate.percentage : null,
+      jurisdiction: cleanText(rate?.jurisdiction, 60),
+      amount: entry.amount,
+      inclusive: entry.inclusive === true,
+      taxabilityReason: cleanText(entry.taxability_reason, 40),
+    });
+  }
+  return lines;
+}
+
+function normalizeTaxIds(inv: StripeInvoiceLike): InvoiceTaxIdDto[] {
+  const raw = Array.isArray(inv.customer_tax_ids) ? inv.customer_tax_ids : [];
+  const ids: InvoiceTaxIdDto[] = [];
+  for (const entry of raw) {
+    const type = cleanText(entry?.type, 32);
+    const value = cleanText(entry?.value, 64);
+    if (type && value) ids.push({ type, value });
+    if (ids.length >= 5) break;
+  }
+  return ids;
+}
 /** Returns null for drafts and unknown statuses — those are not customer-facing. */
 export function normalizeInvoice(inv: StripeInvoiceLike): InvoiceDto | null {
   if (!inv.status || !VISIBLE_STATUSES.has(inv.status)) return null;
   const line = inv.lines?.data?.[0];
   const rawDescription = line?.description?.trim() ?? "";
+  const taxLines = normalizeTaxLines(inv);
   return {
     id: inv.id,
     number: inv.number ?? null,
@@ -103,6 +168,11 @@ export function normalizeInvoice(inv: StripeInvoiceLike): InvoiceDto | null {
     hostedUrl: httpsUrlOrNull(inv.hosted_invoice_url),
     attemptCount: inv.attempt_count ?? 0,
     nextPaymentAttemptAt: isoFromUnix(inv.next_payment_attempt),
+    totalExcludingTax: typeof inv.total_excluding_tax === "number" ? inv.total_excluding_tax : null,
+    taxTotal: taxLines.length > 0 ? taxLines.reduce((sum, l) => sum + l.amount, 0) : (typeof inv.tax === "number" ? inv.tax : 0),
+    taxLines,
+    reverseCharge: inv.customer_tax_exempt === "reverse" || taxLines.some((l) => l.taxabilityReason === "reverse_charge"),
+    customerTaxIds: normalizeTaxIds(inv),
   };
 }
 
