@@ -52,6 +52,8 @@ export interface Profile {
   plan: PlanId;
   minutes_used_this_month: number;
   minutes_included: number;
+  /** Optional: extra minutes granted on top of the plan (promos, goodwill). Undefined/null = none. */
+  bonus_minutes?: number | null;
   status: 'active' | 'suspended' | 'canceled';
   role: 'owner' | 'admin' | 'member';
   onboarding_completed: boolean;
