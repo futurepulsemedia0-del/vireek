@@ -15,7 +15,7 @@ export interface ValueEmailInput { companyName: string; board: Scoreboard; siteU
 
 export function costLine(b: Scoreboard): string {
   const c = b.cost;
-  if (c.reason === "free_plan") return "You are on the free plan, so there is no subscription cost to compare against.";
+  if (c.reason === "free_plan") return "You are on the free Trial, so there is no subscription cost to compare against.";
   if (c.reason === "currency_mismatch") return "Your plan is billed in a different currency, so we do not compare it with your results.";
   if (c.reason === "no_plan" || c.subscriptionCents === null) return "Add your monthly subscription cost in Results settings to see value versus cost.";
   const cur = b.currency;
