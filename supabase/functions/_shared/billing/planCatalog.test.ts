@@ -51,9 +51,9 @@ describe('plan catalog helpers', () => {
   });
 
   it('returns included minutes per plan', () => {
-    expect(minutesForPlan('starter')).toBe(400);
-    expect(minutesForPlan('business')).toBe(4000);
-    expect(minutesForPlan('free')).toBe(50);
+    expect(minutesForPlan('starter')).toBe(200);
+    expect(minutesForPlan('business')).toBe(1500);
+    expect(minutesForPlan('free')).toBe(60);
     expect(minutesForPlan('enterprise')).toBeNull();
   });
 });
