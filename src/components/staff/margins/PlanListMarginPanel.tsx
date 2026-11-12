@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { GROSS_MARGIN_FLOOR_PCT, buildPlanListMargins, type PlanMarginStatus } from '@/lib/planMargins';
+import { GROSS_MARGIN_FLOOR_PCT, buildPlanListMargins, platformFixedMonthlyUsd, type PlanMarginStatus } from '@/lib/planMargins';
 import { formatPct, formatUsd } from '@/lib/staffUsage';
 import type { CostRate } from '@/lib/unitEconomics';
 import { RateStatusBadge } from './RateStatusBadge';
@@ -13,7 +13,9 @@ const STATUS: Record<PlanMarginStatus, { label: string; cls: string }> = {
 };
 
 export function PlanListMarginPanel({ rates }: { rates: CostRate[] }) {
-  const rows = useMemo(() => buildPlanListMargins(rates, new Date().toISOString().slice(0, 10)), [rates]);
+  const today = new Date().toISOString().slice(0, 10);
+  const rows = useMemo(() => buildPlanListMargins(rates, today, { phoneNumbersPerTenant: 1 }), [rates, today]);
+  const platform = useMemo(() => platformFixedMonthlyUsd(rates, today), [rates, today]);
   const flagged = rows.filter((r) => r.status === 'below_floor');
   return (
     <div className="mb-6">
@@ -39,7 +41,7 @@ export function PlanListMarginPanel({ rates }: { rates: CostRate[] }) {
               <td className={TD}>{r.status === 'unpriced' ? `missing: ${r.missing.join(', ')}` : r.rateNotVerified ? <><RateStatusBadge status="unverified" /> <span className="text-xs text-text-secondary">{r.unverified.join(', ')}</span></> : r.status === 'not_applicable' ? '—' : 'Verified'}</td>
             </tr>))}</tbody>
         </TableWrap>
-        <p className="mt-3 text-xs text-text-secondary">Estimate: list price vs. rate-table cost per minute (platform + carrier + speech-to-text + LLM + text-to-speech). No SMS allowance is defined in the pricing catalog, so none is included. Replace unverified rates with real invoices.</p>
+<p className="mt-3 text-xs text-text-secondary">Estimate: list price vs. rate-table cost per minute (platform + carrier + speech-to-text + LLM + text-to-speech) plus one phone number per organisation (assumption). No SMS allowance is defined in the pricing catalog, so none is included. {platform.usd === null ? 'Platform fixed cost: no rate set.' : `Platform overhead (not in these margins): ${formatUsd(platform.usd)}/month${platform.unverified ? ' (not verified)' : ''}.`} Replace unverified rates with real invoices.</p>
       </Section>
     </div>
   );
