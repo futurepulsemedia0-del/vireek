@@ -1,9 +1,9 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { TriangleAlert as AlertTriangle, ArrowRight, Gauge, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { PRICING_PLANS, parseOverageRate } from '@/lib/pricing';
+import { getBannerContent, getLimitPolicy, getUsageSnapshot, findPlan, overageRateFor } from '@/lib/usageLimits';
 
 // ============================================================
 // UsageLimitBanner
@@ -61,45 +61,59 @@ function persistDismissed(userId: string, month: string) {
 export function UsageLimitBanner() {
   const { user, profile, profileLoading } = useAuth();
   const navigate = useNavigate();
-  const [dismissed, setDismissed] = useState(false);
+  // Bumped after a dismissal so the localStorage read below re-runs (no effect => no first-paint flash).
+  const [dismissTick, setDismissTick] = useState(0);
 
   const currentMonth = useMemo(() => monthKey(new Date()), []);
 
-  useEffect(() => {
-    if (!user) return;
-    setDismissed(readDismissed(user.id, currentMonth));
-  }, [user, currentMonth]);
+  const snap = useMemo(
+    () =>
+      getUsageSnapshot({
+        minutesUsed: profile?.minutes_used_this_month,
+        minutesIncluded: profile?.minutes_included,
+        bonusMinutes: profile?.bonus_minutes,
+      }),
+    [profile?.minutes_used_this_month, profile?.minutes_included, profile?.bonus_minutes],
+  );
+
+  // Dismissal is scoped to user + month + level, so reaching 100% resurfaces a banner dismissed at 80%.
+  const dismissKey = `${currentMonth}:${snap.level}`;
+  const dismissed = useMemo(
+    () => (user ? readDismissed(user.id, dismissKey) : false),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dismissTick intentionally re-triggers the read
+    [user, dismissKey, dismissTick],
+  );
 
   const dismiss = useCallback(() => {
     if (!user) return;
-    persistDismissed(user.id, currentMonth);
-    setDismissed(true);
-  }, [user, currentMonth]);
+    persistDismissed(user.id, dismissKey);
+    setDismissTick((t) => t + 1);
+  }, [user, dismissKey]);
 
   const handleUpgrade = useCallback(() => navigate(UPGRADE_ROUTE), [navigate]);
 
   if (profileLoading || !profile) return null;
-
-  const minutesIncluded = profile.minutes_included ?? 0;
-  const minutesUsed = profile.minutes_used_this_month ?? 0;
-  const isTrial = profile.trial_state === 'trialing';
-  const noAccess = !isTrial && !profile.stripe_subscription_id && minutesIncluded <= 0 && profile.trial_state !== 'converted';
-  const unlimited = minutesIncluded <= 0 && !noAccess;
-  const isTrial = profile.trial_state === 'trialing';
-  const limitReached = (!unlimited && minutesUsed >= minutesIncluded) || noAccess;
-  if (!limitReached) return null;
+  if (snap.level === 'ok') return null;
 
   // Already covered by PaymentFailedBanner's own hard-cutoff message.
   if (profile.subscription_status === 'suspended') return null;
 
-  const currentPlan = PRICING_PLANS.find((p) => p.id === profile.plan);
-  const overageRate = parseOverageRate(currentPlan?.overage ?? null);
-  const hasOverage = overageRate !== null;
-  const overageMinutes = Math.max(0, Math.round(minutesUsed - minutesIncluded));
-  const overageCost = hasOverage ? (overageMinutes * (overageRate as number)).toFixed(2) : null;
+  const plan = findPlan(profile.plan);
+  const policy = getLimitPolicy(plan, snap);
+  const content = getBannerContent({
+    snap,
+    policy,
+    rate: overageRateFor(plan),
+    planName: plan?.name ?? 'Free',
+    assistantName: ASSISTANT_NAME,
+  });
+  if (!content) return null;
+  if (content.dismissible && dismissed) return null;
 
-  if (hasOverage && dismissed) return null;
+  const warn = content.tone === 'warning';
+  const isLimit = snap.level === 'limit';
 
+  // NOTE: no "Buy 100 minutes" top-up button — no top-up function exists in this codebase yet.
   return (
     <AnimatePresence>
       <motion.div
@@ -107,51 +121,28 @@ export function UsageLimitBanner() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -12, scale: 0.98, transition: { duration: 0.2 } }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        role="alert"
+        role={isLimit ? 'alert' : 'status'}
         aria-live="polite"
+        data-usage-level={snap.level}
         className={`relative mb-6 flex flex-col gap-4 overflow-hidden rounded-2xl border p-5 shadow-card dark:shadow-card-dark sm:flex-row sm:items-center sm:justify-between sm:p-6 ${
-          hasOverage ? 'border-warning-500/30 bg-warning-500/10' : 'border-danger/30 bg-danger/10'
+          warn ? 'border-warning-500/30 bg-warning-500/10' : 'border-danger/30 bg-danger/10'
         }`}
       >
-        <div className="flex items-start gap-4">
+        <div className="flex min-w-0 items-start gap-4">
           <span
             className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white ${
-              hasOverage ? 'bg-warning-500' : 'bg-danger'
+              warn ? 'bg-warning-500' : 'bg-danger'
             }`}
           >
-            {hasOverage ? <Gauge size={22} strokeWidth={2.25} /> : <AlertTriangle size={22} strokeWidth={2.25} />}
+            {warn ? <Gauge size={22} strokeWidth={2.25} aria-hidden="true" /> : <AlertTriangle size={22} strokeWidth={2.25} aria-hidden="true" />}
           </span>
 
           <div className="min-w-0">
-            <p
-              className={`text-xs font-semibold uppercase tracking-wider ${
-                hasOverage ? 'text-warning-500' : 'text-danger'
-              }`}
-            >
-              Usage limit reached
+            <p className={`text-xs font-semibold uppercase tracking-wider ${warn ? 'text-warning-500' : 'text-danger'}`}>
+              {content.eyebrow}
             </p>
-            <h3 className="mt-1 text-base font-bold leading-snug text-text-primary sm:text-lg">
-              {hasOverage
-                ? `You've used all ${minutesIncluded.toLocaleString()} included minutes this month`
-                : noAccess
-                  ? `${ASSISTANT_NAME} isn’t answering calls yet`
-                  : isTrial
-                    ? `Your 60-minute trial allowance is used up`
-                : isTrial
-                  ? `Your ${minutesIncluded}-minute trial allowance is used up`
-                  : `${ASSISTANT_NAME} has paused answering new calls for your business`}
-            </h3>
-            <p className="mt-1 text-sm text-text-secondary">
-              {hasOverage
-                ? `Extra usage is billed at $${(overageRate as number).toFixed(2)}/min — about $${overageCost} in overage so far (${overageMinutes} min over). Upgrade to raise your included minutes and lower your rate.`
-                : noAccess
-                  ? 'Start your 14-day trial (card required, 60 minutes included) to begin answering calls.'
-                  : isTrial
-                    ? `You've used all ${minutesIncluded} trial minutes. Your plan unlocks full minutes after the first payment.`
-                : isTrial
-                  ? `You've used all ${minutesIncluded} trial minutes. Full plan minutes unlock after your first payment.`
-                  : `You've used all ${minutesIncluded} minutes included in the` ${currentPlan?.name ?? 'Free'} plan this month (${Math.round(minutesUsed)} used). Upgrade to a paid plan to resume 24/7 call answering right away.`}
-            </p>
+            <h3 className="mt-1 text-base font-bold leading-snug text-text-primary sm:text-lg">{content.title}</h3>
+            <p className="mt-1 text-sm text-text-secondary">{content.body}</p>
           </div>
         </div>
 
@@ -160,21 +151,21 @@ export function UsageLimitBanner() {
             type="button"
             onClick={handleUpgrade}
             className={`focus-ring flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95 ${
-              hasOverage ? 'bg-cta' : 'bg-danger'
+              warn ? 'bg-cta' : 'bg-danger'
             }`}
           >
-            Upgrade Plan
+            Upgrade
             <ArrowRight size={15} aria-hidden="true" />
           </button>
 
-          {hasOverage && (
+          {content.dismissible && (
             <button
               type="button"
               onClick={dismiss}
               aria-label="Dismiss usage limit banner"
               className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-secondary/70 transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary"
             >
-              <X size={16} />
+              <X size={16} aria-hidden="true" />
             </button>
           )}
         </div>
