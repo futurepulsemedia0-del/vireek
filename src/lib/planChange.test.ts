@@ -30,9 +30,11 @@ describe('classifyPlanChange', () => {
 
 describe('plan parsing', () => {
   it('parses included minutes and overage from the pricing source of truth', () => {
-    expect(parsePlanMinutes(plan('professional').minutes)).toBe(1500);
-    expect(parsePlanMinutes(plan('enterprise').minutes)).toBeNull();
-    expect(parseOverageRate(plan('starter').overage)).toBe(0.2);
+    expect(parsePlanMinutes(plan('professional').minutes)).toBe(600);
+    expect(parsePlanMinutes(plan('enterprise').minutes)).toBe(6000);
+    expect(parsePlanMinutes('Custom')).toBeNull();
+    expect(parseOverageRate(plan('starter').overage)).toBe(0.25);
+    expect(parseOverageRate(plan('enterprise').overage)).toBe(0.2);
     expect(parseOverageRate(null)).toBeNull();
   });
 
@@ -61,13 +63,13 @@ describe('computeUsageImpact', () => {
   it('flags a downgrade that would put already-used minutes into overage', () => {
     const impact = computeUsageImpact(1000, plan('starter'));
     expect(impact.exceedsTarget).toBe(true);
-    expect(impact.overageMinutes).toBe(600);
-    expect(impact.estimatedOverageUsd).toBe(120);
+    expect(impact.overageMinutes).toBe(800);
+    expect(impact.estimatedOverageUsd).toBe(200);
   });
 
   it('reports no impact when usage fits, or the target is unmetered', () => {
     expect(computeUsageImpact(100, plan('starter')).exceedsTarget).toBe(false);
-    expect(computeUsageImpact(99999, plan('enterprise')).exceedsTarget).toBe(false);
+    expect(computeUsageImpact(99999, { ...plan('enterprise'), minutes: 'Custom' }).exceedsTarget).toBe(false);
   });
 });
 
