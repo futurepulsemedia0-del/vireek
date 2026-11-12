@@ -20,8 +20,27 @@ export interface SubscriptionInvoice {
   hostedUrl: string | null;
   attemptCount: number;
   nextPaymentAttemptAt: string | null;
+  /** Tax fields are optional so an older deployed billing-invoices function still type-checks. */
+  totalExcludingTax?: number | null;
+  taxTotal?: number;
+  taxLines?: SubscriptionInvoiceTaxLine[];
+  reverseCharge?: boolean;
+  customerTaxIds?: SubscriptionInvoiceTaxId[];
 }
 
+export interface SubscriptionInvoiceTaxLine {
+  label: string | null;
+  percentage: number | null;
+  jurisdiction: string | null;
+  amount: number;
+  inclusive: boolean;
+  taxabilityReason: string | null;
+}
+
+export interface SubscriptionInvoiceTaxId {
+  type: string;
+  value: string;
+}
 export interface SavedCard {
   id: string;
   brand: string;
@@ -144,4 +163,56 @@ export function cardExpiryState(card: Pick<SavedCard, 'expMonth' | 'expYear'>, n
   const monthsLeft = card.expYear * 12 + (card.expMonth - 1) - (now.getUTCFullYear() * 12 + now.getUTCMonth());
   if (monthsLeft < 0) return 'expired';
   return monthsLeft <= 1 ? 'expiring' : 'valid';
+}
+
+/** "eu_vat" -> "EU VAT", "us_ein" -> "US EIN". Unknown types still read sensibly. */
+export function formatTaxIdType(type: string): string {
+  return type
+    .split('_')
+    .filter(Boolean)
+    .map((part) => (part.length <= 3 ? part.toUpperCase() : part.charAt(0).toUpperCase() + part.slice(1)))
+    .join(' ');
+}
+
+export interface InvoiceTaxView {
+  hasDetails: boolean;
+  /** Total before tax, when Stripe reported it. */
+  subtotalMinor: number | null;
+  lines: Array<{ key: string; label: string; amountMinor: number }>;
+  reverseCharge: boolean;
+  taxIds: Array<{ key: string; label: string; value: string }>;
+}
+
+function taxLineLabel(line: SubscriptionInvoiceTaxLine): string {
+  const name = line.label ?? 'Tax';
+  if (line.percentage === null) return name;
+  const pct = new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(line.percentage);
+  return `${name} (${pct}%)`;
+}
+
+/**
+ * What the invoice list shows about tax. Everything comes from Stripe's own
+ * invoice data: this function never computes, assumes or hardcodes a rate.
+ * Invoices with no tax information (for example, issued before Stripe Tax was
+ * switched on) return hasDetails: false so nothing extra is rendered.
+ */
+export function invoiceTaxView(invoice: SubscriptionInvoice): InvoiceTaxView {
+  const lines = (invoice.taxLines ?? []).map((line, index) => ({
+    key: `${index}-${line.label ?? 'tax'}-${line.jurisdiction ?? ''}`,
+    label: taxLineLabel(line),
+    amountMinor: line.amount,
+  }));
+  const reverseCharge = invoice.reverseCharge === true;
+  const taxIds = (invoice.customerTaxIds ?? []).map((id, index) => ({
+    key: `${index}-${id.type}`,
+    label: formatTaxIdType(id.type),
+    value: id.value,
+  }));
+  return {
+    hasDetails: lines.length > 0 || reverseCharge || taxIds.length > 0,
+    subtotalMinor: typeof invoice.totalExcludingTax === 'number' ? invoice.totalExcludingTax : null,
+    lines,
+    reverseCharge,
+    taxIds,
+  };
 }
