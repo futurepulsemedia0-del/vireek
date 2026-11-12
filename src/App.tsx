@@ -11,7 +11,6 @@ import { SupplierRoute } from '@/components/SupplierRoute';
 import { RouteTitle } from '@/components/brand/RouteTitle';
 import { TechnicianRoute } from '@/components/TechnicianRoute';
 import { PartnerRoute } from '@/components/PartnerRoute';
-import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { AriaLiveRegion } from '@/lib/a11y/announcer';
 import { HomeTargetGate } from '@/pages/home/HomeTargetGate';
 import { RouteProgressSignal } from '@/components/nav/RouteProgress';
@@ -4962,10 +4961,14 @@ function AppRoutes() {
 
 function App() {
   return (
-    <CustomDomainGate>
-      <PdfBrandSync />
-      <AppRoutes />
-    </CustomDomainGate>
+    <>
+      {/* WCAG 4.1.3: the one global live region that announce() (toasts, loading buttons, dashboard grid) writes into. */}
+      <AriaLiveRegion />
+      <CustomDomainGate>
+        <PdfBrandSync />
+        <AppRoutes />
+      </CustomDomainGate>
+    </>
   );
 }
 export default App;
