@@ -20,6 +20,15 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useFocusTrap, useEscapeToClose } from '@/lib/a11y/focusTrap';
 import { COMPARE_ROWS, COMPARE_VALUES, PRICING_PLANS, type PlanId, type PricingPlan } from '@/lib/pricing';
+import { UpgradeSuggestionNotice } from '@/components/usage/UpgradeSuggestionNotice';
+import {
+  EXTRA_COMPARE_ROWS,
+  extraCompareValue,
+  getUsageSnapshot,
+  planCardNote,
+  suggestUpgrade,
+  type ExtraCompareKey,
+} from '@/lib/usageLimits';
 import {
   changeActionLabel,
   classifyPlanChange,
@@ -59,7 +68,11 @@ function priceParts(plan: PricingPlan, live: LivePrice | undefined): { amount: s
   return { amount: `$${plan.monthly ?? 0}`, suffix: '/mo' };
 }
 
-function compareValue(plan: PricingPlan, key: (typeof COMPARE_ROWS)[number]['key']): string | boolean {
+// Shared rows from pricing.ts plus the trial / annual-savings rows that are specific to this page.
+const TABLE_ROWS = [...COMPARE_ROWS, ...EXTRA_COMPARE_ROWS];
+
+function compareValue(plan: PricingPlan, key: (typeof COMPARE_ROWS)[number]['key'] | ExtraCompareKey): string | boolean {
+  if (key === 'trial' || key === 'annual') return extraCompareValue(plan, key);
   if (key === 'minutes') return plan.minutes;
   if (key === 'overage') return plan.overage ?? '—';
   if (key === 'seats') return plan.seats;
@@ -145,6 +158,7 @@ function PlanCard({ plan, live, isCurrent, scheduledAt, kind, blockReason, onSel
       <p className="mt-1 text-xs text-text-secondary">
         {plan.minutes} included · {plan.seats} · {plan.locations}
       </p>
+      <p className="mt-1 min-h-[2rem] text-xs text-text-secondary">{planCardNote(plan)}</p>
       <ul className="mt-4 flex-1 space-y-2">
         {plan.features.slice(0, 6).map((feature) => (
           <li key={feature} className="flex items-start gap-2 text-xs text-text-secondary">
@@ -393,7 +407,7 @@ function ComparisonTable({ currentPlanId }: { currentPlanId: PlanId }) {
           </tr>
         </thead>
         <tbody>
-          {COMPARE_ROWS.map((row) => (
+         {TABLE_ROWS.map((row) => (
             <tr key={row.key} className="border-b border-border/50 last:border-0">
               <th scope="row" className="sticky left-0 bg-bg-secondary px-4 py-3 text-left font-medium text-text-secondary">
                 {row.label}
@@ -491,8 +505,20 @@ export function BillingPlansPage() {
           : null;
 
   const minutesUsed = profile?.minutes_used_this_month ?? 0;
-  const minutesIncluded = profile?.minutes_included ?? 0;
+  const minutesIncluded = getUsageSnapshot({
+    minutesUsed,
+    minutesIncluded: profile?.minutes_included,
+    bonusMinutes: profile?.bonus_minutes,
+  }).capacity;
   const usagePercent = minutesIncluded > 0 ? Math.min(100, (minutesUsed / minutesIncluded) * 100) : 0;
+
+  const suggestion = suggestUpgrade({
+    planId: currentPlanId,
+    minutesUsed: profile?.minutes_used_this_month,
+    minutesIncluded: profile?.minutes_included,
+    bonusMinutes: profile?.bonus_minutes,
+  });
+  const suggestedPlan = PRICING_PLANS.find((p) => p.id === suggestion.targetPlanId);
 
   const handleApplied = (message: string) => {
     setTarget(null);
@@ -654,7 +680,9 @@ export function BillingPlansPage() {
           {blockReason && !paymentIssue && !state.cancelAtPeriodEnd && (
             <p className="text-xs text-text-secondary">{blockReason}</p>
           )}
-
+          {suggestedPlan && isSelfServePlan(suggestedPlan.id) && blockReason === null && (
+            <UpgradeSuggestionNotice suggestion={suggestion} onAction={() => setTarget(suggestedPlan)} />
+          )}
           <section aria-labelledby="plans-heading">
             <h2 id="plans-heading" className="sr-only">
               Available plans
