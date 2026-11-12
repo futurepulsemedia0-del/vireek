@@ -29,7 +29,7 @@ import type { CountryTier } from "./countries.ts";
 export type PlanId = "free" | "starter" | "professional" | "business" | "enterprise";
 export type Purpose = "marketing" | "service" | "emergency" | "otp";
 
-export const FREE_MINUTES = 50;
+export const FREE_MINUTES = 60;
 
 /** Blended telephony + STT/TTS + voice-platform ceiling, cents per call minute, by destination tier. */
 export const CALL_CENTS_PER_MIN: Readonly<Record<CountryTier, number>> = {
@@ -55,7 +55,7 @@ export const NUMBER_RENTAL_CENTS_PER_MONTH = 115;
  * Enterprise is custom-priced, so only the fee is modelled for it.
  */
 export const PLAN_PRICE_CENTS: Readonly<Record<PlanId, number>> = {
-  free: 0, starter: 7900, professional: 19900, business: 39900, enterprise: 0,
+  free: 0, starter: 9900, professional: 24900, business: 54900, enterprise: 0,
 };
 export const DISPUTE_FEE_CENTS = 1500;
 export const VOICE_CLONE_CENTS = 500;
