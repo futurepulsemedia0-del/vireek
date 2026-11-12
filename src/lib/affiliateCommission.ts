@@ -17,6 +17,8 @@ export const AFFILIATE_MAX_COMMISSION_PCT = 20;
 export const AFFILIATE_MAX_MONTHS = 12;
 /** Proposed default, unvalidated: minimum approved balance (USD cents) before a payout may be marked paid. */
 export const AFFILIATE_MIN_PAYOUT_CENTS = 5000;
+/** Proposed default, unvalidated: days an earned commission is held (refund/chargeback window) before it can be paid out. */
+export const AFFILIATE_HOLD_DAYS = 30;
 
 /** Minimum length of the audit-logged reason a staff override needs (mirrors affiliate_override_min_reason_chars()). */
 export const AFFILIATE_OVERRIDE_MIN_REASON_CHARS = 10;
