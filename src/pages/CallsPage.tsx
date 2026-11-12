@@ -185,6 +185,7 @@ function AudioPlayer({ url }: { url: string }) {
 // CALL DETAIL PANEL
 // ============================================================
 import { CallSatisfactionWidget } from '@/components/CallSatisfactionWidget';
+import { WrongCallButton } from '@/components/WrongCallButton';
 import { CustomerMemoryPanel } from '@/components/CustomerMemoryPanel';
 function CallDetailPanel({
   call,
@@ -384,6 +385,7 @@ function CallDetailPanel({
         )}
         {/* AI interaction satisfaction (NPS/CSAT) */}
         <CallSatisfactionWidget callId={call.id} userId={call.user_id} />
+        <WrongCallButton callId={call.id} />
         <button
           type="button"
           onClick={() => navigate(`/dashboard/calls/${call.id}`)}
