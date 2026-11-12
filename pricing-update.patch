@@ -1,0 +1,1597 @@
+diff --git a/docs/security/FRAUD_ABUSE_PREVENTION.md b/docs/security/FRAUD_ABUSE_PREVENTION.md
+index 8587347..18871b5 100644
+--- a/docs/security/FRAUD_ABUSE_PREVENTION.md
++++ b/docs/security/FRAUD_ABUSE_PREVENTION.md
+@@ -22,15 +22,15 @@ Generated from `maxLossPerSignupCents()`; tests prove no sequence of allowed act
+ 
+ | Plan | Unverified | Verified | outbound/SMS/clone (cap) | refunded price + dispute fee |
+ |---|---|---|---|---|
+-| free | $7.55 | $12.55 | $5.00 | $0.00 |
+-| starter | $145.45 | $595.45 | $450.00 | $94.00 |
+-| professional | $321.50 | $1821.50 | $1500.00 | $214.00 |
+-| business | $711.50 | $5211.50 | $4500.00 | $414.00 |
++| free | $8.75 | $13.75 | $5.00 | $0.00 |
++| starter | $165.45 | $615.45 | $450.00 | $114.00 |
++| professional | $371.50 | $1871.50 | $1500.00 | $264.00 |
++| business | $861.50 | $5361.50 | $4500.00 | $564.00 |
+ | enterprise | $965.00 | $15965.00 | $15000.00 | $15.00 |
+ 
+ Assumptions (edit in `planLimits.ts`, calibrate against invoices): domestic call 12c/min (the existing `DEFAULT_VOICE_COST_PER_MIN`),
+ standard-international 30c/min, SMS 2c (domestic) / 8c (standard), number rental 115c/month, dispute fee $15.
+-The free figure includes 50 included inbound AI minutes at 12c, now enforced by the inbound hard stop (`free_minutes_mode`:
++The free figure includes 60 included inbound AI minutes at 12c, now enforced by the inbound hard stop (`free_minutes_mode`:
+ `monthly` = current product behaviour, `lifetime` = strict). Reservations are worst case and are refunded on call completion.
+ 
+ ## 3. Operations
+diff --git a/e2e/homepage.spec.ts b/e2e/homepage.spec.ts
+index 83c5633..a9032fe 100644
+--- a/e2e/homepage.spec.ts
++++ b/e2e/homepage.spec.ts
+@@ -38,10 +38,10 @@ test.describe('homepage', () => {
+     const annual = pricing.getByRole('button', { name: 'Annual' });
+     await monthly.click();
+     await expect(monthly).toHaveAttribute('aria-pressed', 'true');
+-    await expect(pricing).toContainText('$79');
++    await expect(pricing).toContainText('$99');
+     await annual.click();
+     await expect(annual).toHaveAttribute('aria-pressed', 'true');
+-    await expect(pricing).toContainText('Billed $790 a year');
++    await expect(pricing).toContainText('Billed $990 a year');
+   });
+ 
+   test('demo falls back to a transcript when the microphone is unsupported', async ({ page }) => {
+diff --git a/eval/site-assistant.generated.json b/eval/site-assistant.generated.json
+index cd81810..f466be9 100644
+--- a/eval/site-assistant.generated.json
++++ b/eval/site-assistant.generated.json
+@@ -13,19 +13,19 @@
+       "kind": "answer",
+       "id": "plan-free-price",
+       "category": "pricing",
+-      "q": "How much does the Free plan cost per month?"
++      "q": "How much does the Trial plan cost per month?"
+     },
+     {
+       "mustInclude": [
+         [
+-          "50"
++          "60"
+         ]
+       ],
+       "mustNotInclude": [],
+       "kind": "answer",
+       "id": "plan-free-minutes",
+       "category": "plan-limits",
+-      "q": "How many minutes are included in Free?"
++      "q": "How many minutes are included in Trial?"
+     },
+     {
+       "mustInclude": [
+@@ -37,7 +37,7 @@
+       "kind": "answer",
+       "id": "plan-free-seats",
+       "category": "plan-limits",
+-      "q": "How many team seats come with the Free plan?"
++      "q": "How many team seats come with the Trial plan?"
+     },
+     {
+       "mustInclude": [
+@@ -49,12 +49,12 @@
+       "kind": "answer",
+       "id": "plan-free-locations",
+       "category": "plan-limits",
+-      "q": "How many locations can I run on Free?"
++      "q": "How many locations can I run on Trial?"
+     },
+     {
+       "mustInclude": [
+         [
+-          "79"
++          "99"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -66,7 +66,7 @@
+     {
+       "mustInclude": [
+         [
+-          "400"
++          "200"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -102,8 +102,8 @@
+     {
+       "mustInclude": [
+         [
+-          "0.2",
+-          "0.20"
++          "0.25",
++          "0.25"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -115,8 +115,8 @@
+     {
+       "mustInclude": [
+         [
+-          "790",
+-          "790"
++          "990",
++          "990"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -128,7 +128,7 @@
+     {
+       "mustInclude": [
+         [
+-          "199"
++          "249"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -140,7 +140,7 @@
+     {
+       "mustInclude": [
+         [
+-          "1,500"
++          "600"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -176,8 +176,8 @@
+     {
+       "mustInclude": [
+         [
+-          "0.15",
+-          "0.15"
++          "0.25",
++          "0.25"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -189,8 +189,8 @@
+     {
+       "mustInclude": [
+         [
+-          "1990",
+-          "1,990"
++          "2490",
++          "2,490"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -202,7 +202,7 @@
+     {
+       "mustInclude": [
+         [
+-          "399"
++          "549"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -214,7 +214,7 @@
+     {
+       "mustInclude": [
+         [
+-          "4,000"
++          "1,500"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -250,8 +250,8 @@
+     {
+       "mustInclude": [
+         [
+-          "0.12",
+-          "0.12"
++          "0.25",
++          "0.25"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -263,8 +263,8 @@
+     {
+       "mustInclude": [
+         [
+-          "3990",
+-          "3,990"
++          "5490",
++          "5,490"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -276,8 +276,8 @@
+     {
+       "mustInclude": [
+         [
+-          "999",
+-          "$999"
++          "1799",
++          "$1,799"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -289,7 +289,7 @@
+     {
+       "mustInclude": [
+         [
+-          "unlimited"
++          "6,000"
+         ]
+       ],
+       "mustNotInclude": [],
+@@ -322,6 +322,19 @@
+       "category": "plan-limits",
+       "q": "How many locations can I run on Enterprise?"
+     },
++    {
++      "mustInclude": [
++        [
++          "0.2",
++          "0.20"
++        ]
++      ],
++      "mustNotInclude": [],
++      "kind": "answer",
++      "id": "plan-enterprise-overage",
++      "category": "pricing",
++      "q": "What is the overage rate on the Enterprise plan?"
++    },
+     {
+       "mustInclude": [
+         [
+@@ -529,6 +542,18 @@
+       "category": "integrations",
+       "q": "Does Vireek integrate with QuickBooks?"
+     },
++    {
++      "mustInclude": [
++        [
++          "netsuite"
++        ]
++      ],
++      "mustNotInclude": [],
++      "kind": "answer",
++      "id": "integration-netsuite",
++      "category": "integrations",
++      "q": "Does Vireek integrate with NetSuite?"
++    },
+     {
+       "mustInclude": [
+         [
+diff --git a/knowledge/coverage.generated.md b/knowledge/coverage.generated.md
+index 36739be..f09fb9f 100644
+--- a/knowledge/coverage.generated.md
++++ b/knowledge/coverage.generated.md
+@@ -2,9 +2,9 @@
+ 
+ > Generated by `npm run knowledge:build`. "Covered" means at least one knowledge chunk cites that URL.
+ 
+-- Chunks: **364** (owner-verified markdown docs: 1)
+-- Public static routes in src/App.tsx: **107** — covered: **24** (22.4%), not covered: **83**
+-- Dashboard routes (/dashboard/*): **421** — covered by owner-verified docs in `knowledge/`: **1** (names only exist in code; descriptions need owner-verified docs)
++- Chunks: **368** (owner-verified markdown docs: 1)
++- Public static routes in src/App.tsx: **122** — covered: **24** (19.7%), not covered: **98**
++- Dashboard routes (/dashboard/*): **473** — covered by owner-verified docs in `knowledge/`: **1** (names only exist in code; descriptions need owner-verified docs)
+ 
+ ## Chunks by topic
+ - about: 4
+@@ -17,8 +17,8 @@
+ - help: 33
+ - help_center: 1
+ - industry: 36
+-- integration: 32
+-- legal: 33
++- integration: 34
++- legal: 35
+ - limits: 1
+ - pricing: 11
+ - product: 1
+@@ -35,8 +35,10 @@
+ - /accessibility/conformance
+ - /accounting/fixed-assets
+ - /affiliate
++- /agent-readiness
+ - /ai-receptionist-vs-human-receptionist
+ - /ambassador
++- /audit
+ - /badge
+ - /beta
+ - /blog
+@@ -53,22 +55,34 @@
+ - /data-request
+ - /data-room
+ - /demo
++- /dev/colors
++- /dev/design-system
++- /dev/emails
++- /dev/interpreter
++- /dev/loading
+ - /developers/api-reference
+ - /developers/changelog
++- /developers/quickstarts
+ - /dmca
+ - /docs
+ - /enterprise
+ - /events
++- /fair-sale-promise
+ - /glossary
++- /how-we-verify
++- /impressum
+ - /industries
+ - /insights
+ - /integrations
+ - /leadership
++- /legal/company
+ - /locations
+ - /manifesto
+ - /marketing/canvassing
+ - /marketplace
+ - /msa
++- /newsletter/confirm
++- /newsletter/unsubscribe
+ - /onboarding-guide
+ - /open-voice-benchmark
+ - /partner-portal
+@@ -94,6 +108,7 @@
+ - /signup
+ - /sitemap
+ - /solutions
++- /state-of-home-service-calls
+ - /status
+ - /subprocessors
+ - /supplier-portal
+diff --git a/knowledge/site-chunks.generated.json b/knowledge/site-chunks.generated.json
+index 57f1bef..1fd3e14 100644
+--- a/knowledge/site-chunks.generated.json
++++ b/knowledge/site-chunks.generated.json
+@@ -3224,6 +3224,28 @@
+       "lang": "en",
+       "tokenEstimate": 219
+     },
++    {
++      "chunkKey": "integration:netsuite-faq-is-this-verified-against-a-live-account:1",
++      "topic": "integration",
++      "title": "NetSuite: Is this verified against a live account?",
++      "content": "Q: Is this verified against a live account?\nA: Not yet. It follows the NetSuite REST documentation and is covered by mock tests. Use a sandbox account first.",
++      "url": "/integrations/netsuite",
++      "plans": [],
++      "status": "live",
++      "lang": "en",
++      "tokenEstimate": 40
++    },
++    {
++      "chunkKey": "integration:netsuite:1",
++      "topic": "integration",
++      "title": "NetSuite integration",
++      "content": "NetSuite (Accounting) — Connect NetSuite with token-based authentication and keep customers, items, invoices and payments in sync. This integration has not been verified against a live NetSuite account yet, so try it in a sandbox first. STATUS: live. What it does: Customers, invoices and payments sync both ways with conflict rules you control. Every record Vireek creates in NetSuite carries an external ID, so nothing is duplicated. Field mapping and defaults are configurable before the first sync. How to connect: 1. Create a token in NetSuite — Create an integration record and an access token for a dedicated role. 2. Paste the four values — Open Vireek → NetSuite and verify the connection. 3. Review the mapping, then sync — Choose directions and defaults, then run the first sync.",
++      "url": "/integrations/netsuite",
++      "plans": [],
++      "status": "live",
++      "lang": "en",
++      "tokenEstimate": 198
++    },
+     {
+       "chunkKey": "integration:quickbooks-faq-does-this-replace-my-bookkeeper:1",
+       "topic": "integration",
+@@ -3546,35 +3568,46 @@
+     {
+       "chunkKey": "legal:cookie-policy:1",
+       "topic": "legal",
+-      "title": "Cookie Policy (authoritative text: /cookies) (1/3)",
+-      "content": "Manage anytime. # Table of Contents. Manage cookie preferences Jump to section. Manage cookie preferences Legal Cookie Policy Last updated: September 6, 2026 This Cookie Policy explains how Vireek (“we,” “us,” or “our”) uses cookies and similar technologies on our website and dashboard, what each category is for, and how you can control them. It should be read together with our Privacy Policy. Introduction When you visit vireek. com or sign in to your Vireek dashboard, we and select service providers may store and access small pieces of data on your device — commonly known as cookies — to make the site work, remember your preferences, and, where you allow it, understand how the product is used. We ask for your consent before setting anything beyond strictly necessary cookies, and you can change your choice at any time from the “Manage cookie preferences” control on this page or the “Cookie Preferences” link in the site footer. What Are Cookies and Similar Technologies Cookies are small text files placed on your device by a website you visit. We also use closely related browser storage technologies — such as localStorage — that serve a similar purpose: remembering information between visits or between pages of the same visit. Depending on who sets them and how long they last, cookies and similar technologies fall into a few groups: First-partySet directly by vireek. com. Third-partySet by a service we use to provide part of the site (see Section 9). SessionDeleted automatically when you close your browser. PersistentRemain on your device for a set period, or until you delete them. How We Use Cookies We group cookies and similar technologies into five categories. Essential cookies are always active because the site cannot function without them; every other category is off until you turn it on. Category Default Purpose Essential Cookies These cookies and equivalent browser storage are required for the site and dashboard to work, and cannot be switched off.",
++      "title": "Cookie Policy (authoritative text: /cookies) (1/4)",
++      "content": "Manage anytime. # Table of Contents. Manage cookie preferences Jump to section. Manage cookie preferences Legal Cookie Policy Last updated: October 31, 2026 This Cookie Policy explains how Vireek (“we,” “us,” or “our”) uses cookies and similar technologies on our website and dashboard, what each category is for, and how you can control them. It should be read together with our Privacy Policy. Introduction When you visit vireek. com or sign in to your Vireek dashboard, we and select service providers may store and access small pieces of data on your device — commonly known as cookies — to make the site work, remember your preferences, and, where you allow it, understand how the product is used. We ask for your consent before setting anything beyond strictly necessary cookies, and you can change your choice at any time from the “Manage cookie preferences” control on this page or the “Cookie Preferences” link in the site footer. What Are Cookies and Similar Technologies Cookies are small text files placed on your device by a website you visit. We also use closely related browser storage technologies — such as localStorage — that serve a similar purpose: remembering information between visits or between pages of the same visit. Depending on who sets them and how long they last, cookies and similar technologies fall into a few groups: First-partySet directly by vireek. com. Third-partySet by a service we use to provide part of the site (see Section 7). SessionDeleted automatically when you close your browser. PersistentRemain on your device for a set period, or until you delete them. How We Use Cookies We group cookies and similar technologies into three categories. Essential cookies are always active because the site cannot function without them; the other two are off until you turn them on. Category Default Purpose Essential Cookies These cookies and equivalent browser storage are required for the site and dashboard to work, and cannot be switched off:",
+       "url": "/cookies",
+       "plans": [],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 497
++      "tokenEstimate": 496
+     },
+     {
+       "chunkKey": "legal:cookie-policy:2",
+       "topic": "legal",
+-      "title": "Cookie Policy (authoritative text: /cookies) (2/3)",
+-      "content": "Default Purpose Essential Cookies These cookies and equivalent browser storage are required for the site and dashboard to work, and cannot be switched off. They include: •Keeping you signed in to your Vireek dashboard between page loads. •Protecting the site against fraud and abuse, and enforcing security policies. •Remembering your cookie consent choices themselves, so we don't ask you repeatedly. •Core interface preferences, such as light or dark theme. Because these are necessary for the service to operate, no consent toggle is offered for this category. Analytics Cookies If enabled, analytics cookies help us understand which pages are used, how visitors move through the site, and where the product experience could be improved. Data is used in aggregate and is not used to identify you personally. This category stays off until you explicitly turn it on. Personalization Cookies If enabled, personalization cookies let us remember choices you've made — such as displayed content or interface settings — so future visits feel tailored to you rather than starting from scratch. Marketing Cookies If enabled, marketing cookies help us measure the performance of our campaigns and show you more relevant communication about Vireek. We do not sell the information collected through these cookies. AI Improvement Data If enabled, this category allows us to use certain interaction data to improve the AI experiences within Vireek's product, while continuing to respect the other privacy choices you've made. This is distinct from call-recording and AI-processing disclosures for Sarah, the AI receptionist, which are covered in our Privacy Policy. Third-Party Cookies Some functionality on our site is provided by trusted third parties (for example, authentication and infrastructure providers), which may set their own cookies necessary to deliver that functionality. Where a non-essential third-party technology is used, it is only activated after you opt in through the categories above.",
++      "title": "Cookie Policy (authoritative text: /cookies) (2/4)",
++      "content": "Default Purpose Essential Cookies These cookies and equivalent browser storage are required for the site and dashboard to work, and cannot be switched off: •Your sign-in session (set by our authentication provider, Supabase). • Your cookie choice, stored as vireek-consent-v3 (see Section 9). • Interface settings you choose yourself: theme (vireek-theme) and language ( vireek-a11y-lang). •Security and anti-abuse protections. Analytics Off until you turn it on. When enabled, we load Google Analytics 4 (Google LLC, United States) to count page views and understand how the site and product are used: pages visited, referrer, browser and device type, approximate location, and a random visitor ID. It is not used for advertising: we keep Google's advertising signals disabled and all Consent Mode v2 advertising storage permissions denied. • Cookies: _ga and _ga_* (up to 2 years). How long Google keeps reports is set in our Google Analytics account. • Browser storage: vireek-visitor-id and vireek-experiment-assignments, which keep your A/B test variant stable. Without analytics consent, test variants are chosen for the current visit only and nothing is stored. No Google script is requested before you opt in. If you withdraw, events stop immediately, the _ga cookies and the storage above are deleted, and no reload is needed. Marketing Measurement Off until you turn it on. When enabled, on campaign landing pages we remember the campaign details of the link you arrived on (such as utm_source) and a random visitor ID, so we can measure which campaigns lead to sign-ups. This data goes to Vireek's own database (hosted by Supabase). We use no advertising networks, no advertising pixels and build no advertising profiles, and we do not sell or share this data with advertisers. • Browser storage: vk_lp_vid (until you withdraw or clear it) and vk_lp_attr:* (30 days).",
+       "url": "/cookies",
+       "plans": [],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 500
++      "tokenEstimate": 470
+     },
+     {
+       "chunkKey": "legal:cookie-policy:3",
+       "topic": "legal",
+-      "title": "Cookie Policy (authoritative text: /cookies) (3/3)",
+-      "content": "to deliver that functionality. Where a non-essential third-party technology is used, it is only activated after you opt in through the categories above. We do not control third-party cookies directly — please refer to the relevant provider's own policy for details on how they handle data. How Long Cookies Last Session-based cookies and storage are cleared automatically when you close your browser. Persistent cookies and stored preferences — such as your consent choices or theme setting — remain on your device until they expire or you clear them, whichever comes first. You can clear stored data at any time from your browser settings. Managing Your Cookie Preferences You have full control over non-essential cookies at any time: • Use the “Manage cookie preferences” button on this page, or the “Cookie Preferences” link in the footer of any page, to open the Privacy Center and toggle each category individually. • Use your browser's own settings to block or delete cookies. Note that blocking essential cookies may prevent parts of the dashboard, such as staying signed in, from working correctly. Update your choices anytime — nothing beyond essential cookies runs until you say so. Open Privacy Center Do Not Track Signals Some browsers offer a “Do Not Track” setting. There is currently no common industry standard for how sites should respond to that signal, so our site does not respond to it directly — instead, use the cookie category toggles described above, which give you more precise control. Changes to This Policy We may update this Cookie Policy from time to time to reflect changes in the technologies we use or for legal or regulatory reasons. We will update the “Last updated” date above when we do, and material changes will be reflected in the consent banner the next time you visit. Contact Us If you have questions about this Cookie Policy or how we use cookies, contact us at: ali@vireek. com",
++      "title": "Cookie Policy (authoritative text: /cookies) (3/4)",
++      "content": "profiles, and we do not sell or share this data with advertisers. • Browser storage: vk_lp_vid (until you withdraw or clear it) and vk_lp_attr:* (30 days). Without this consent, campaign details and the visitor ID are held in memory for the current visit only and are not stored on your device. Third-Party Cookies The only optional third-party technology that sets cookies is Google Analytics (Section 5), and only after you opt in. Authentication and infrastructure providers may set strictly necessary cookies to deliver the service. We do not control third-party cookies directly; please refer to the provider's own policy. How Long Cookies Last •Sign-in session: until you sign out or it expires. •Cookie choice: we ask again after 12 months, or sooner if this policy materially changes. •Theme and language: until you clear your browser storage. •Analytics and marketing items: as listed in Sections 5 and 6, or until you withdraw consent. Managing Your Cookie Preferences You can change your choice at any time, and withdrawing is as easy as granting: • Use the “Manage cookie preferences” button on this page, or the “Cookie Preferences” link in the site footer, to open the cookie settings. • Use your browser's own settings to block or delete cookies. Blocking essential cookies may stop parts of the dashboard, such as staying signed in, from working. Record of your choice. To prove that consent was given or withdrawn, we store a record containing the date and time, the policy version, your choices, whether a Global Privacy Control or Do Not Track signal was present, and a random ID. It contains no name, email address, IP address or browser details. If you are signed in, it is linked to your account ID. These records are kept for as long as we need them to demonstrate compliance. Update your choices anytime. Nothing optional runs until you say so. Open cookie settings Global Privacy Control and Do Not Track",
+       "url": "/cookies",
+       "plans": [],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 481
++      "tokenEstimate": 483
++    },
++    {
++      "chunkKey": "legal:cookie-policy:4",
++      "topic": "legal",
++      "title": "Cookie Policy (authoritative text: /cookies) (4/4)",
++      "content": "to demonstrate compliance. Update your choices anytime. Nothing optional runs until you say so. Open cookie settings Global Privacy Control and Do Not Track We treat a Global Privacy Control (GPC) or Do Not Track signal from your browser as an opt-out of marketing measurement: that category stays off and cannot be switched on while the signal is present. These signals never switch anything on. Analytics remains your choice. We do not sell personal information or share it for cross-context behavioral advertising. Changes to This Policy We may update this Cookie Policy from time to time to reflect changes in the technologies we use or for legal or regulatory reasons. We will update the “Last updated” date above when we do, and material changes will be reflected in the consent banner the next time you visit. Contact Us If you have questions about this Cookie Policy or how we use cookies, contact us at: ali@vireek. com",
++      "url": "/cookies",
++      "plans": [],
++      "status": "live",
++      "lang": "en",
++      "tokenEstimate": 232
+     },
+     {
+       "chunkKey": "legal:data-processing-addendum-dpa:1",
+@@ -3634,19 +3667,19 @@
+     {
+       "chunkKey": "legal:privacy-policy:1",
+       "topic": "legal",
+-      "title": "Privacy Policy (authoritative text: /privacy) (1/3)",
+-      "content": "Important Disclosure. # Table of Contents. Jump to section. Legal Privacy Policy Last updated: August 20, 2026 Vireek is an AI voice receptionist service for home service businesses — including HVAC, plumbing, roofing, electrical, and restoration companies. Vireek's AI receptionist “Sarah” answers business calls, records and processes conversations, qualifies leads, helps schedule appointments, and sends SMS confirmations. Introduction Vireek (“we,” “us,” or “our”) provides an AI voice receptionist service for home service businesses. This Privacy Policy explains how we collect, use, and protect information when you interact with our service. This policy applies to two groups of people: (a)Business customers who sign up for Vireek and use Sarah to answer their incoming calls. (b)End callers and homeowners who call a business using Vireek's AI receptionist “Sarah. ” Information We Collect From business customers • Full name • Email address • Company name • Phone number • Best time to call • Billing information when subscribing to a paid plan From end callers • Call audio recordings • AI-generated call transcripts • Caller phone number • Information provided during the call, such as name, address, and service request details needed to book or dispatch a job Automatically collected • Website usage data • Pages visited • Browser type • General location information from IP address through analytics tools Call Recording and AI Processing Disclosure Calls handled by Sarah are recorded and processed by AI technologies, including speech-to-text and natural language understanding, to answer, qualify, route, and assist with customer calls. Vireek uses third-party AI voice infrastructure and telephony providers to operate the service. Call audio and transcripts may be processed by these providers under their own privacy and security obligations. Vireek maintains appropriate safeguards for protecting this information.",
++      "title": "Privacy Policy (authoritative text: /privacy) (1/4)",
++      "content": "Important Disclosure. # Table of Contents. Jump to section. Legal Privacy Policy Last updated: October 31, 2026 Vireek is an AI voice receptionist service for home service businesses — including HVAC, plumbing, roofing, electrical, and restoration companies. Vireek's AI receptionist “Sarah” answers business calls, records and processes conversations, qualifies leads, helps schedule appointments, and sends SMS confirmations. Introduction Vireek (“we,” “us,” or “our”) provides an AI voice receptionist service for home service businesses. This Privacy Policy explains how we collect, use, and protect information when you interact with our service. This policy applies to two groups of people: (a)Business customers who sign up for Vireek and use Sarah to answer their incoming calls. (b)End callers and homeowners who call a business using Vireek's AI receptionist “Sarah. ” Information We Collect From business customers • Full name • Email address • Company name • Phone number • Best time to call • Billing information when subscribing to a paid plan From end callers • Call audio recordings • AI-generated call transcripts • Caller phone number • Information provided during the call, such as name, address, and service request details needed to book or dispatch a job Automatically collected • Website usage data • Pages visited • Browser type • General location information from IP address through analytics tools (only if you accept analytics cookies; see our Cookie Policy) • A record of your cookie choice: date, policy version, your choices, whether a Global Privacy Control or Do Not Track signal was present, and a random ID (no name, email or IP address; linked to your account ID if you are signed in) Call Recording and AI Processing Disclosure Calls handled by Sarah are recorded and processed by AI technologies, including speech-to-text and natural language understanding, to answer, qualify, route, and assist with customer calls.",
+       "url": "/privacy",
+       "plans": [],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 485
++      "tokenEstimate": 489
+     },
+     {
+       "chunkKey": "legal:privacy-policy:2",
+       "topic": "legal",
+-      "title": "Privacy Policy (authoritative text: /privacy) (2/3)",
+-      "content": "may be processed by these providers under their own privacy and security obligations. Vireek maintains appropriate safeguards for protecting this information. Where required by applicable state laws, callers are notified that calls may be recorded and handled by an automated AI system. Business customer responsibility: Vireek's business customers are responsible for complying with applicable call recording consent laws in their operating locations, including two-party consent states such as California. How We Use Information We use the information we collect for the following purposes: • Providing and improving the Vireek service • Answering, routing, and booking appointments • Sending SMS confirmations • Customer support • Billing • Legal compliance • Improving AI call handling quality — only through aggregated and anonymized data SMS / Text Messaging Consent Vireek sends SMS confirmations related only to service appointments on behalf of business customers. • Message and data rates may apply. • Recipients can reply STOP at any time to opt out of SMS messages. • SMS opt-in information is never shared with third parties for marketing purposes. • Full program terms: SMS Terms & Conditions How We Share Information We may share information with the following categories of recipients: • AI voice and telephony infrastructure providers • Hosting providers • Payment processors • CRM and calendar integrations • The business customer that Sarah is answering calls for — because caller information must be shared with the relevant contractor to provide the requested service • Legal or compliance authorities when required • Business transfer situations such as acquisition or merger Vireek never sells personal data to third parties for advertising purposes. Data Retention • Call recordings and transcripts are retained for 12 months to support quality review, troubleshooting, and dispute resolution. • After this period, information is deleted or anonymized.",
++      "title": "Privacy Policy (authoritative text: /privacy) (2/4)",
++      "content": "and processed by AI technologies, including speech-to-text and natural language understanding, to answer, qualify, route, and assist with customer calls. Vireek uses third-party AI voice infrastructure and telephony providers to operate the service. Call audio and transcripts may be processed by these providers under their own privacy and security obligations. Vireek maintains appropriate safeguards for protecting this information. Where required by applicable state laws, callers are notified that calls may be recorded and handled by an automated AI system. Business customer responsibility: Vireek's business customers are responsible for complying with applicable call recording consent laws in their operating locations, including two-party consent states such as California. How We Use Information We use the information we collect for the following purposes: • Providing and improving the Vireek service • Answering, routing, and booking appointments • Sending SMS confirmations • Customer support • Billing • Legal compliance • Improving AI call handling quality — only through aggregated and anonymized data SMS / Text Messaging Consent Vireek sends SMS confirmations related only to service appointments on behalf of business customers. • Message and data rates may apply. • Recipients can reply STOP at any time to opt out of SMS messages. • SMS opt-in information is never shared with third parties for marketing purposes. • Full program terms: SMS Terms & Conditions How We Share Information We may share information with the following categories of recipients: • AI voice and telephony infrastructure providers • Hosting providers • Payment processors • CRM and calendar integrations • The business customer that Sarah is answering calls for — because caller information must be shared with the relevant contractor to provide the requested service • Legal or compliance authorities when required • Business transfer situations such as acquisition or merger",
+       "url": "/privacy",
+       "plans": [],
+       "status": "live",
+@@ -3656,13 +3689,24 @@
+     {
+       "chunkKey": "legal:privacy-policy:3",
+       "topic": "legal",
+-      "title": "Privacy Policy (authoritative text: /privacy) (3/3)",
+-      "content": "are retained for 12 months to support quality review, troubleshooting, and dispute resolution. • After this period, information is deleted or anonymized. • Business account information is retained during the subscription period and for a reasonable period after cancellation for legal and business purposes. Your Rights and Choices You have the following rights regarding your personal information: • Requests to access, correct, or delete personal information • California residents have additional rights under the CCPA/CPRA — see our California Privacy Rights page for full details • Vireek does not sell personal data — so there is nothing to opt out of in that regard • SMS recipients can opt out by replying STOP You can submit privacy requests by emailing ali@vireek. com. Data Security Vireek uses reasonable technical and organizational security measures to protect your information. Data is protected using encryption in transit and access controls. However, no internet-based system can guarantee 100% security. We continuously work to improve our safeguards, but we cannot guarantee absolute security of your information. Children's Privacy Vireek is not directed toward children under 16. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will take steps to delete it. Changes to This Policy We may update this Privacy Policy from time to time. The updated date will always appear at the top of this page. Material changes will be communicated to business customers by email. Contact Us Questions about this policy? Email us and we'll get back to you. ali@vireek. com Related Terms of Service California Privacy Rights",
++      "title": "Privacy Policy (authoritative text: /privacy) (3/4)",
++      "content": "contractor to provide the requested service • Legal or compliance authorities when required • Business transfer situations such as acquisition or merger Vireek never sells personal data to third parties for advertising purposes. Data Retention • Call recordings and transcripts are retained for 12 months to support quality review, troubleshooting, and dispute resolution. • After this period, information is deleted or anonymized. • Business account information is retained during the subscription period and for a reasonable period after cancellation for legal and business purposes. Your Rights and Choices You have the following rights regarding your personal information: • Requests to access, correct, or delete personal information • California residents have additional rights under the CCPA/CPRA — see our California Privacy Rights page for full details • Vireek does not sell personal data — so there is nothing to opt out of in that regard • SMS recipients can opt out by replying STOP You can submit privacy requests by emailing ali@vireek. com. Data Security Vireek uses reasonable technical and organizational security measures to protect your information. Data is protected using encryption in transit and access controls. However, no internet-based system can guarantee 100% security. We continuously work to improve our safeguards, but we cannot guarantee absolute security of your information. Children's Privacy Vireek is not directed toward children under 16. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will take steps to delete it. Changes to This Policy We may update this Privacy Policy from time to time. The updated date will always appear at the top of this page. Material changes will be communicated to business customers by email. Contact Us Questions about this policy? Email us and we'll get back to you. ali@vireek. com Related",
+       "url": "/privacy",
+       "plans": [],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 434
++      "tokenEstimate": 493
++    },
++    {
++      "chunkKey": "legal:privacy-policy:4",
++      "topic": "legal",
++      "title": "Privacy Policy (authoritative text: /privacy) (4/4)",
++      "content": "will be communicated to business customers by email. Contact Us Questions about this policy? Email us and we'll get back to you. ali@vireek. com Related Terms of Service California Privacy Rights",
++      "url": "/privacy",
++      "plans": [],
++      "status": "live",
++      "lang": "en",
++      "tokenEstimate": 49
+     },
+     {
+       "chunkKey": "legal:refund-cancellation-policy:1",
+@@ -3833,7 +3877,7 @@
+       "chunkKey": "pricing:business:1",
+       "topic": "pricing",
+       "title": "Business plan",
+-      "content": "Business: $399/mo or $3,990/yr billed annually. Includes 4,000 min, overage: $0.12/min after, 15 seats, Up to 3 locations. One dashboard for every location, with the data to prove ROI. Features: Everything in Professional; Up to 3 business locations; Custom voice & script per location; Advanced call-outcome analytics; Role-based team access; Dedicated Slack channel support. Call to action: Start 14-day trial (No commitment).",
++      "content": "Business: $549/mo or $5,490/yr billed annually. Includes 1,500 min, overage: $0.25/min after, 15 seats, Up to 3 locations. One dashboard for every location, with the data to prove ROI. Features: Everything in Professional; Up to 3 business locations; Custom voice & script per location; Advanced call-outcome analytics; Role-based team access; Dedicated Slack channel support. Call to action: Start 14-day trial (No commitment).",
+       "url": "/pricing",
+       "plans": [
+         "business"
+@@ -3846,25 +3890,25 @@
+       "chunkKey": "pricing:compare-matrix:1",
+       "topic": "pricing",
+       "title": "Plan comparison (all plans side by side)",
+-      "content": "Minutes included: Free 50 min; Starter 400 min; Professional 1,500 min; Business 4,000 min; Enterprise Unlimited. Overage: Free none; Starter $0.20/min after; Professional $0.15/min after; Business $0.12/min after; Enterprise SLA-backed, no metering. Team seats: Free 1 seat; Starter 2 seats; Professional 5 seats; Business 15 seats; Enterprise Unlimited seats. Locations: Free 1 location; Starter 1 location; Professional 1 location; Business Up to 3 locations; Enterprise Unlimited locations. Emergency dispatch: Free no; Starter no; Professional yes; Business yes; Enterprise yes. CRM integrations: Free no; Starter 1 integration; Professional 3 native; Business 3 native; Enterprise Unlimited + API. Call recording: Free no; Starter no; Professional yes; Business yes; Enterprise yes. Advanced analytics: Free no; Starter no; Professional Standard; Business Advanced; Enterprise Advanced. API access: Free no; Starter no; Professional no; Business no; Enterprise yes.",
++      "content": "Minutes included: Trial 60 min; Starter 200 min; Professional 600 min; Business 1,500 min; Enterprise 6,000 min committed. Overage: Trial none; Starter $0.25/min after; Professional $0.25/min after; Business $0.25/min after; Enterprise $0.20/min after committed minutes. Team seats: Trial 1 seat; Starter 2 seats; Professional 5 seats; Business 15 seats; Enterprise Custom seats. Locations: Trial 1 location; Starter 1 location; Professional 1 location; Business Up to 3 locations; Enterprise Custom locations. Emergency dispatch: Trial no; Starter no; Professional yes; Business yes; Enterprise yes. CRM integrations: Trial no; Starter 1 integration; Professional 3 native; Business 3 native; Enterprise Unlimited + API. Call recording: Trial no; Starter no; Professional yes; Business yes; Enterprise yes. Advanced analytics: Trial no; Starter no; Professional Standard; Business Advanced; Enterprise Advanced. API access: Trial no; Starter no; Professional no; Business no; Enterprise yes.",
+       "url": "/pricing",
+       "plans": [],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 243
++      "tokenEstimate": 248
+     },
+     {
+       "chunkKey": "pricing:enterprise:1",
+       "topic": "pricing",
+       "title": "Enterprise plan",
+-      "content": "Enterprise: starting at $999/mo (custom pricing, sales-assisted). Includes Unlimited, overage: SLA-backed, no metering, Unlimited seats, Unlimited locations. For multi-location operators who need one system, contractually guaranteed. Features: Everything in Business; Custom-trained voice model; Full API & webhook access; Dedicated account manager; Audit logs & advanced access controls; Written SLA & onboarding support. Call to action: Talk to sales (Response within 1 business day).",
++      "content": "Enterprise: starting at $1,799/mo (custom pricing, sales-assisted). Includes 6,000 min committed, overage: $0.20/min after committed minutes, Custom seats, Custom locations. For multi-location operators who need one system, contractually guaranteed. Features: Everything in Business; Custom-trained voice model; Full API & webhook access; Dedicated account manager; Audit logs & advanced access controls; Written SLA & onboarding support. Call to action: Talk to sales (Response within 1 business day).",
+       "url": "/pricing",
+       "plans": [
+         "enterprise"
+       ],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 122
++      "tokenEstimate": 126
+     },
+     {
+       "chunkKey": "pricing:faq-can-i-change-plans-later:1",
+@@ -3924,34 +3968,34 @@
+     {
+       "chunkKey": "pricing:free:1",
+       "topic": "pricing",
+-      "title": "Free plan",
+-      "content": "Free: $0/mo. Includes 50 min, 1 seat, 1 location. Prove the value before you spend a dollar. Features: 24/7 AI call answering; Voicemail-to-text; Missed-call text-back; Email call summaries; Community support. Call to action: Start free (No card required).",
++      "title": "Trial plan",
++      "content": "Trial: $0/mo. Includes 60 min, 1 seat, 1 location. Prove the value before you spend a dollar. Features: 24/7 AI call answering; Voicemail-to-text; Missed-call text-back; Email call summaries; Community support. Call to action: Start 14-day trial (Card required. Cancel anytime before day 14).",
+       "url": "/pricing",
+       "plans": [
+         "free"
+       ],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 64
++      "tokenEstimate": 73
+     },
+     {
+       "chunkKey": "pricing:professional:1",
+       "topic": "pricing",
+       "title": "Professional plan",
+-      "content": "Professional: $199/mo or $1,990/yr billed annually. Includes 1,500 min, overage: $0.15/min after, 5 seats, 1 location. Replaces a full-time receptionist — with emergency coverage built in. Features: Everything in Starter; Emergency detection & live dispatch; Warm transfer to on-call staff; ServiceTitan, Housecall Pro, Jobber sync; Full call recording, unlimited history; Custom after-hours routing; Automated review requests; Priority support (4h). Call to action: Start 14-day trial (No commitment).",
++      "content": "Professional: $249/mo or $2,490/yr billed annually. Includes 600 min, overage: $0.25/min after, 5 seats, 1 location. Replaces a full-time receptionist — with emergency coverage built in. Features: Everything in Starter; Emergency detection & live dispatch; Warm transfer to on-call staff; ServiceTitan, Housecall Pro, Jobber sync; Full call recording, unlimited history; Custom after-hours routing; Automated review requests; Priority support (4h). Call to action: Start 14-day trial (No commitment).",
+       "url": "/pricing",
+       "plans": [
+         "professional"
+       ],
+       "status": "live",
+       "lang": "en",
+-      "tokenEstimate": 126
++      "tokenEstimate": 125
+     },
+     {
+       "chunkKey": "pricing:starter:1",
+       "topic": "pricing",
+       "title": "Starter plan",
+-      "content": "Starter: $79/mo or $790/yr billed annually. Includes 400 min, overage: $0.20/min after, 2 seats, 1 location. Everything a solo operator needs to stop missing work. Features: Everything in Free; Smart calendar booking; SMS appointment confirmations; 1 CRM integration; 7-day call transcript history; Standard support (24h). Call to action: Start 14-day trial (No commitment).",
++      "content": "Starter: $99/mo or $990/yr billed annually. Includes 200 min, overage: $0.25/min after, 2 seats, 1 location. Everything a solo operator needs to stop missing work. Features: Everything in Trial; Smart calendar booking; SMS appointment confirmations; 1 CRM integration; 7-day call transcript history; Standard support (24h). Call to action: Start 14-day trial (No commitment).",
+       "url": "/pricing",
+       "plans": [
+         "starter"
+diff --git a/public/llms-full.txt b/public/llms-full.txt
+index 0664381..eea3b94 100644
+--- a/public/llms-full.txt
++++ b/public/llms-full.txt
+@@ -7,11 +7,11 @@ Source of truth: https://vireek.com/pricing. Prices below were copied from the s
+ 
+ | Plan | Monthly | Annual | Included minutes | Overage | Seats | Locations |
+ | --- | --- | --- | --- | --- | --- | --- |
+-| Free | $0 | $0 | 50 min | none | 1 seat | 1 location |
+-| Starter | $79 | $790 | 400 min | $0.20/min after | 2 seats | 1 location |
+-| Professional | $199 | $1990 | 1,500 min | $0.15/min after | 5 seats | 1 location |
+-| Business | $399 | $3990 | 4,000 min | $0.12/min after | 15 seats | Up to 3 locations |
+-| Enterprise | custom | custom | Unlimited | SLA-backed, no metering | Unlimited seats | Unlimited locations |
++| Trial | $0 | $0 | 60 min | none | 1 seat | 1 location |
++| Starter | $99 | $990 | 200 min | $0.25/min after | 2 seats | 1 location |
++| Professional | $249 | $2490 | 600 min | $0.25/min after | 5 seats | 1 location |
++| Business | $549 | $5490 | 1,500 min | $0.25/min after | 15 seats | Up to 3 locations |
++| Enterprise | custom | custom | 6,000 min committed | $0.20/min after committed minutes | Custom seats | Custom locations |
+ 
+ ## What Vireek does not claim
+ - No SOC 2 report: Vireek has not completed a SOC 2 audit.
+diff --git a/src/components/sections/BeforeAfter.tsx b/src/components/sections/BeforeAfter.tsx
+index b7c6cd1..1bcb15f 100644
+--- a/src/components/sections/BeforeAfter.tsx
++++ b/src/components/sections/BeforeAfter.tsx
+@@ -14,7 +14,7 @@ const BEFORE = [
+ const AFTER = [
+   '24/7 AI Answer',
+   'Instant emergency flagging',
+-  '$199/month AI',
++  '$249/month AI',
+   'Auto CRM entry',
+   'Jobs booked while you sleep',
+ ];
+diff --git a/src/components/sections/FAQ.tsx b/src/components/sections/FAQ.tsx
+index 48e21ae..8c62185 100644
+--- a/src/components/sections/FAQ.tsx
++++ b/src/components/sections/FAQ.tsx
+@@ -30,7 +30,7 @@ const FAQS = [
+   },
+   {
+     q: 'How much does it cost?',
+-    a: 'Starter is $79/month and includes 400 minutes. Professional is $199/month and includes 1,500 minutes. You can start a 14-day free trial with no credit card required.',
++    a: 'Starter is $99/month and includes 200 minutes. Professional is $249/month and includes 600 minutes. You can start a 14-day trial; a card is required and you can cancel anytime before day 14.',
+   },
+ ];
+ 
+diff --git a/src/components/sections/PricingTeaser.tsx b/src/components/sections/PricingTeaser.tsx
+index 5d09e58..4fdeb41 100644
+--- a/src/components/sections/PricingTeaser.tsx
++++ b/src/components/sections/PricingTeaser.tsx
+@@ -87,7 +87,7 @@ export function PricingTeaser() {
+               </div>
+               <p className="mt-1 text-xs font-medium text-text-secondary/70">
+                 {plan.monthly === 0
+-                  ? 'No card required'
++                  ? plan.ctaHint
+                   : plan.monthly === null
+                     ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
+                     : `or ${formatPrice(plan.annual!, currency)}/yr`}
+@@ -145,7 +145,7 @@ export function PricingTeaser() {
+               </div>
+               <p className="mt-1 text-xs font-medium text-text-secondary/70">
+                 {plan.monthly === 0
+-                  ? 'No card required'
++                  ? plan.ctaHint
+                   : plan.monthly === null
+                     ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
+                     : `or ${formatPrice(plan.annual!, currency)}/yr`}
+diff --git a/src/lib/homeContent.ts b/src/lib/homeContent.ts
+index 00f67c4..32bb42a 100644
+--- a/src/lib/homeContent.ts
++++ b/src/lib/homeContent.ts
+@@ -110,6 +110,6 @@ export const HOME_FAQS: FaqItem[] = [
+   },
+   {
+     q: 'How much does it cost?',
+-    a: 'Plans start at $79 a month with a 14-day free trial that needs no credit card. There is also a Free plan with 50 minutes. Prices are shown above and on the pricing page.',
++    a: 'Plans start at $99 a month. The 14-day Trial includes 60 minutes; a card is required and you can cancel anytime before day 14. Prices are shown above and on the pricing page.',
+   },
+ ];
+diff --git a/src/lib/marginDashboard.test.ts b/src/lib/marginDashboard.test.ts
+index 158775f..a5e68bc 100644
+--- a/src/lib/marginDashboard.test.ts
++++ b/src/lib/marginDashboard.test.ts
+@@ -37,7 +37,7 @@ describe('buildTenantMargins', () => {
+     expect(m.voiceBasis).toBe('provider_reported');
+     expect(m.voiceEstimatedUsd).toBe(0);
+     expect(m.totalCostUsd).toBe(12);
+-    expect(m.revenueUsd).toBe(79);
++    expect(m.revenueUsd).toBe(99);
+   });
+   it('prices only the uncovered share with the fallback and labels it mixed', () => {
+     const [m] = buildTenantMargins([row({ voice_seconds: 6000, voice_calls: 10, calls_with_cost: 5, reported_voice_cost_usd: 5 })], { fallbackVoiceCpm: 0.1, days: 30 });
+@@ -59,7 +59,7 @@ describe('buildTenantMargins', () => {
+   });
+   it('adds overage revenue beyond prorated included minutes', () => {
+     const [m] = buildTenantMargins([row({ voice_seconds: 500 * 60, voice_calls: 1, calls_with_cost: 1 })], { fallbackVoiceCpm: null, days: 30 });
+-    expect(m.revenueUsd).toBeCloseTo(79 + 100 * 0.2);
++    expect(m.revenueUsd).toBeCloseTo(99 + 300 * 0.25);
+   });
+ });
+ 
+@@ -75,7 +75,7 @@ describe('aggregates', () => {
+     expect(stats.find((s) => s.plan === 'starter')?.tenants).toBe(2);
+     expect(stats.find((s) => s.plan === 'starter')?.lossTenants).toBe(1);
+     const sum = summarizeMargins(ms);
+-    expect(sum.revenueUsd).toBe(158);
++    expect(sum.revenueUsd).toBe(198);
+     expect(sum.totalCostUsd).toBeCloseTo(6 + 200 + 1 + 3);
+     expect(negativeMarginOrgs(ms).map((m) => m.accountId)).toEqual(['2']);
+   });
+diff --git a/src/lib/planChange.test.ts b/src/lib/planChange.test.ts
+index 91b87b1..2298a48 100644
+--- a/src/lib/planChange.test.ts
++++ b/src/lib/planChange.test.ts
+@@ -30,9 +30,13 @@ describe('classifyPlanChange', () => {
+ 
+ describe('plan parsing', () => {
+   it('parses included minutes and overage from the pricing source of truth', () => {
+-    expect(parsePlanMinutes(plan('professional').minutes)).toBe(1500);
+-    expect(parsePlanMinutes(plan('enterprise').minutes)).toBeNull();
+-    expect(parseOverageRate(plan('starter').overage)).toBe(0.2);
++    expect(parsePlanMinutes(plan('professional').minutes)).toBe(600);
++    expect(parsePlanMinutes(plan('business').minutes)).toBe(1500);
++    // Enterprise now has a numeric committed allowance instead of "Unlimited".
++    expect(parsePlanMinutes(plan('enterprise').minutes)).toBe(6000);
++    expect(parseOverageRate(plan('starter').overage)).toBe(0.25);
++    expect(parseOverageRate(plan('enterprise').overage)).toBe(0.2);
++    expect(parseOverageRate(plan('free').overage)).toBeNull();
+     expect(parseOverageRate(null)).toBeNull();
+   });
+ 
+@@ -61,13 +65,15 @@ describe('computeUsageImpact', () => {
+   it('flags a downgrade that would put already-used minutes into overage', () => {
+     const impact = computeUsageImpact(1000, plan('starter'));
+     expect(impact.exceedsTarget).toBe(true);
+-    expect(impact.overageMinutes).toBe(600);
+-    expect(impact.estimatedOverageUsd).toBe(120);
++    expect(impact.overageMinutes).toBe(800);
++    expect(impact.estimatedOverageUsd).toBe(200);
+   });
+ 
+-  it('reports no impact when usage fits, or the target is unmetered', () => {
++  it('reports no impact when usage fits, or the target has no minute allowance', () => {
+     expect(computeUsageImpact(100, plan('starter')).exceedsTarget).toBe(false);
+-    expect(computeUsageImpact(99999, plan('enterprise')).exceedsTarget).toBe(false);
++    expect(computeUsageImpact(6000, plan('enterprise')).exceedsTarget).toBe(false);
++    expect(computeUsageImpact(6100, plan('enterprise'))).toEqual({ exceedsTarget: true, overageMinutes: 100, estimatedOverageUsd: 20 });
++    expect(computeUsageImpact(99999, plan('free')).estimatedOverageUsd).toBeNull();
+   });
+ });
+ 
+diff --git a/src/lib/planChange.ts b/src/lib/planChange.ts
+index f87c20f..51eadc0 100644
+--- a/src/lib/planChange.ts
++++ b/src/lib/planChange.ts
+@@ -85,7 +85,7 @@ export function classifyPlanChange(
+   return planRank(target) > planRank(current) ? 'upgrade' : 'downgrade';
+ }
+ 
+-/** "1,500 min" -> 1500. Returns null for "Unlimited" or anything unparseable. */
++/** "1,500 min" -> 1500, "6,000 min committed" -> 6000. Returns null for anything without a number. */
+ export function parsePlanMinutes(minutes: string): number | null {
+   const match = minutes.replace(/,/g, '').match(/(\d+)/);
+   return match ? parseInt(match[1], 10) : null;
+diff --git a/src/lib/planConstants.agreement.test.ts b/src/lib/planConstants.agreement.test.ts
+new file mode 100644
+index 0000000..0dfb327
+--- /dev/null
++++ b/src/lib/planConstants.agreement.test.ts
+@@ -0,0 +1,65 @@
++import { describe, expect, it } from 'vitest';
++import { PRICING_PLANS, parseOverageRate } from '@/lib/pricing';
++import { parsePlanMinutes } from '@/lib/planChange';
++import {
++  ENTERPRISE_OVERAGE_CENTS,
++  FREE_MINUTES_INCLUDED,
++  PURCHASABLE_PLANS,
++  minutesForPlan,
++} from '../../supabase/functions/_shared/billing/planCatalog';
++import { FREE_MINUTES, PLAN_PRICE_CENTS } from '../../supabase/functions/_shared/fraud/planLimits';
++import { PLAN_MONTHLY_CENTS } from '../../supabase/functions/_shared/value-scoreboard/engine';
++
++/**
++ * pricing.ts (UI), planCatalog.ts (billing edge functions), planLimits.ts (fraud model) and the
++ * value-scoreboard engine each hold a copy of the plan numbers. This file fails if they drift.
++ */
++const plan = (id: string) => PRICING_PLANS.find((p) => p.id === id)!;
++
++describe('plan constants agree across pricing.ts, planCatalog.ts and planLimits.ts', () => {
++  it('Trial minutes: pricing.ts = planCatalog.FREE_MINUTES_INCLUDED = planLimits.FREE_MINUTES = 60', () => {
++    expect(parsePlanMinutes(plan('free').minutes)).toBe(60);
++    expect(FREE_MINUTES_INCLUDED).toBe(60);
++    expect(FREE_MINUTES).toBe(FREE_MINUTES_INCLUDED);
++    expect(minutesForPlan('free')).toBe(FREE_MINUTES_INCLUDED);
++  });
++
++  it.each(['starter', 'professional', 'business'] as const)('%s: price, minutes and overage match everywhere', (id) => {
++    const ui = plan(id);
++    const def = PURCHASABLE_PLANS.find((p) => p.id === id)!;
++    expect(PLAN_PRICE_CENTS[id]).toBe(ui.monthly! * 100);
++    expect(PLAN_MONTHLY_CENTS[id]).toBe(ui.monthly! * 100);
++    expect(def.monthlyPriceCents).toBe(ui.monthly! * 100);
++    expect(def.minutesIncluded).toBe(parsePlanMinutes(ui.minutes));
++    expect(minutesForPlan(id)).toBe(def.minutesIncluded);
++    expect(def.overageCentsPerMinute).toBe(Math.round(parseOverageRate(ui.overage)! * 100));
++  });
++
++  it('Trial and Enterprise list prices are 0 / unpriced in the server models', () => {
++    expect(PLAN_PRICE_CENTS.free).toBe(0);
++    expect(PLAN_PRICE_CENTS.enterprise).toBe(0);
++    expect(PLAN_MONTHLY_CENTS.free).toBe(0);
++    expect(plan('free').monthly).toBe(0);
++    expect(plan('enterprise').monthly).toBeNull();
++  });
++
++  it('Enterprise overage: pricing.ts string = ENTERPRISE_OVERAGE_CENTS (20c)', () => {
++    expect(ENTERPRISE_OVERAGE_CENTS).toBe(20);
++    expect(Math.round(parseOverageRate(plan('enterprise').overage)! * 100)).toBe(ENTERPRISE_OVERAGE_CENTS);
++  });
++
++  it('annual price is exactly 10 x monthly for every priced plan', () => {
++    for (const p of PRICING_PLANS) {
++      if (p.monthly === null) continue;
++      expect(p.annual).toBe(p.monthly * 10);
++    }
++  });
++
++  it('the planCatalog minutes are strictly increasing with rank, and prices too', () => {
++    const sorted = [...PURCHASABLE_PLANS].sort((a, b) => a.rank - b.rank);
++    for (let i = 1; i < sorted.length; i++) {
++      expect(sorted[i].minutesIncluded).toBeGreaterThan(sorted[i - 1].minutesIncluded);
++      expect(PLAN_PRICE_CENTS[sorted[i].id]).toBeGreaterThan(PLAN_PRICE_CENTS[sorted[i - 1].id]);
++    }
++  });
++});
+diff --git a/src/lib/pricing.test.ts b/src/lib/pricing.test.ts
+index 5dbccb4..37979d3 100644
+--- a/src/lib/pricing.test.ts
++++ b/src/lib/pricing.test.ts
+@@ -1,5 +1,13 @@
+ import { describe, it, expect } from 'vitest';
+-import { getPlanHref, isExternalLink, buildEnterpriseMailto, STRIPE_CHECKOUT_LINKS, PRICING_PLANS } from './pricing';
++import {
++  getPlanHref,
++  isExternalLink,
++  buildEnterpriseMailto,
++  parseOverageRate,
++  STRIPE_CHECKOUT_LINKS,
++  PRICING_PLANS,
++  PRICING_ADDONS,
++} from './pricing';
+ 
+ describe('getPlanHref', () => {
+   it('sends the free plan to login, not Stripe', () => {
+@@ -49,3 +57,77 @@ describe('PRICING_PLANS data integrity', () => {
+     expect(PRICING_PLANS.filter((p) => p.recommended).length).toBe(1);
+   });
+ });
++
++describe('PRICING_PLANS new price table', () => {
++  const byId = (id: string) => PRICING_PLANS.find((p) => p.id === id)!;
++
++  it('keeps the internal ids and order (free is displayed as Trial)', () => {
++    expect(PRICING_PLANS.map((p) => p.id)).toEqual(['free', 'starter', 'professional', 'business', 'enterprise']);
++    expect(byId('free').name).toBe('Trial');
++  });
++
++  it('Trial: $0, 60 min, no overage, card-required trial CTA', () => {
++    expect(byId('free')).toMatchObject({
++      monthly: 0, annual: 0, minutes: '60 min', overage: null, seats: '1 seat', locations: '1 location',
++      ctaLabel: 'Start 14-day trial', ctaHint: 'Card required. Cancel anytime before day 14',
++    });
++  });
++
++  it('paid plans: monthly, annual (= 10 x monthly), minutes, overage, seats, locations', () => {
++    expect(byId('starter')).toMatchObject({ monthly: 99, annual: 990, minutes: '200 min', overage: '$0.25/min after', seats: '2 seats', locations: '1 location' });
++    expect(byId('professional')).toMatchObject({ monthly: 249, annual: 2490, minutes: '600 min', overage: '$0.25/min after', seats: '5 seats', locations: '1 location', recommended: true });
++    expect(byId('business')).toMatchObject({ monthly: 549, annual: 5490, minutes: '1,500 min', overage: '$0.25/min after', seats: '15 seats', locations: 'Up to 3 locations' });
++    for (const id of ['starter', 'professional', 'business']) {
++      expect(byId(id).annual).toBe(byId(id).monthly! * 10);
++    }
++  });
++
++  it('enterprise: custom price from $1,799, 6,000 committed min, $0.20 overage, no "Unlimited" wording', () => {
++    const e = byId('enterprise');
++    expect(e).toMatchObject({ monthly: null, annual: null, startingAt: 1799, minutes: '6,000 min committed', overage: '$0.20/min after committed minutes' });
++    expect(parseOverageRate(e.overage)).toBe(0.2);
++    expect(`${e.minutes} ${e.overage} ${e.seats} ${e.locations}`).not.toContain('Unlimited');
++    expect(e.seats).toContain('Custom');
++    expect(e.locations).toContain('Custom');
++  });
++
++  it('no plan still references a plan name that no longer exists', () => {
++    const allFeatures = PRICING_PLANS.flatMap((p) => p.features).join('|');
++    expect(allFeatures).not.toContain('Everything in Free');
++  });
++
++  it('did not touch the live Stripe payment links', () => {
++    expect(Object.keys(STRIPE_CHECKOUT_LINKS).sort()).toEqual(['business', 'professional', 'starter']);
++    expect(STRIPE_CHECKOUT_LINKS.starter!.monthly).toBe('https://buy.stripe.com/fZu4gyfNI4CFbda3YI5wI01');
++  });
++});
++
++describe('PRICING_ADDONS (US cents)', () => {
++  it('has the agreed add-on prices', () => {
++    expect(PRICING_ADDONS).toEqual({
++      extraUser: { starter: 2500, professional: 2500, business: 2000 },
++      extraLocation: 7900,
++      extraPhoneNumber: 500,
++      topUp100Minutes: 2900,
++      smsOveragePerSegment: 3,
++      enterpriseOnboardingFrom: 250000,
++      proOnboardingSuggested: 49900,
++    });
++  });
++
++  it('every amount is a positive integer number of cents', () => {
++    const amounts = [
++      ...Object.values(PRICING_ADDONS.extraUser),
++      PRICING_ADDONS.extraLocation,
++      PRICING_ADDONS.extraPhoneNumber,
++      PRICING_ADDONS.topUp100Minutes,
++      PRICING_ADDONS.smsOveragePerSegment,
++      PRICING_ADDONS.enterpriseOnboardingFrom,
++      PRICING_ADDONS.proOnboardingSuggested,
++    ];
++    for (const a of amounts) {
++      expect(Number.isInteger(a)).toBe(true);
++      expect(a).toBeGreaterThan(0);
++    }
++  });
++});
+diff --git a/src/lib/pricing.ts b/src/lib/pricing.ts
+index 662dbf4..deb87b8 100644
+--- a/src/lib/pricing.ts
++++ b/src/lib/pricing.ts
+@@ -31,17 +31,17 @@ export interface PricingPlan {
+ export const PRICING_PLANS: PricingPlan[] = [
+   {
+     id: 'free',
+-    name: 'Free',
++    name: 'Trial',
+     tagline: 'Prove the value before you spend a dollar.',
+     monthly: 0,
+     annual: 0,
+-    minutes: '50 min',
++    minutes: '60 min',
+     overage: null,
+     seats: '1 seat',
+     locations: '1 location',
+     core: false,
+-    ctaLabel: 'Start free',
+-    ctaHint: 'No card required',
++    ctaLabel: 'Start 14-day trial',
++    ctaHint: 'Card required. Cancel anytime before day 14',
+     features: [
+       '24/7 AI call answering',
+       'Voicemail-to-text',
+@@ -54,17 +54,17 @@ export const PRICING_PLANS: PricingPlan[] = [
+     id: 'starter',
+     name: 'Starter',
+     tagline: 'Everything a solo operator needs to stop missing work.',
+-    monthly: 79,
+-    annual: 790,
+-    minutes: '400 min',
+-    overage: '$0.20/min after',
++    monthly: 99,
++    annual: 990,
++    minutes: '200 min',
++    overage: '$0.25/min after',
+     seats: '2 seats',
+     locations: '1 location',
+     core: true,
+     ctaLabel: 'Start 14-day trial',
+     ctaHint: 'No commitment',
+     features: [
+-      'Everything in Free',
++      'Everything in Trial',
+       'Smart calendar booking',
+       'SMS appointment confirmations',
+       '1 CRM integration',
+@@ -76,10 +76,10 @@ export const PRICING_PLANS: PricingPlan[] = [
+     id: 'professional',
+     name: 'Professional',
+     tagline: 'Replaces a full-time receptionist — with emergency coverage built in.',
+-    monthly: 199,
+-    annual: 1990,
+-    minutes: '1,500 min',
+-    overage: '$0.15/min after',
++    monthly: 249,
++    annual: 2490,
++    minutes: '600 min',
++    overage: '$0.25/min after',
+     seats: '5 seats',
+     locations: '1 location',
+     core: true,
+@@ -101,10 +101,10 @@ export const PRICING_PLANS: PricingPlan[] = [
+     id: 'business',
+     name: 'Business',
+     tagline: 'One dashboard for every location, with the data to prove ROI.',
+-    monthly: 399,
+-    annual: 3990,
+-    minutes: '4,000 min',
+-    overage: '$0.12/min after',
++    monthly: 549,
++    annual: 5490,
++    minutes: '1,500 min',
++    overage: '$0.25/min after',
+     seats: '15 seats',
+     locations: 'Up to 3 locations',
+     core: false,
+@@ -125,11 +125,11 @@ export const PRICING_PLANS: PricingPlan[] = [
+     tagline: 'For multi-location operators who need one system, contractually guaranteed.',
+     monthly: null,
+     annual: null,
+-    startingAt: 999,
+-    minutes: 'Unlimited',
+-    overage: 'SLA-backed, no metering',
+-    seats: 'Unlimited seats',
+-    locations: 'Unlimited locations',
++    startingAt: 1799,
++    minutes: '6,000 min committed',
++    overage: '$0.20/min after committed minutes',
++    seats: 'Custom seats',
++    locations: 'Custom locations',
+     core: false,
+     ctaLabel: 'Talk to sales',
+     ctaHint: 'Response within 1 business day',
+@@ -144,6 +144,28 @@ export const PRICING_PLANS: PricingPlan[] = [
+   },
+ ];
+ 
++/**
++ * Add-on and one-off prices, in US CENTS (integers) so they can be used for billing math
++ * without floating-point drift. Display-only today: nothing here creates a Stripe product,
++ * price id or checkout link — those must be created separately in Stripe.
++ */
++export const PRICING_ADDONS = {
++  /** Extra team seat, per month, by plan. Enterprise seats are custom-quoted. */
++  extraUser: { starter: 2500, professional: 2500, business: 2000 },
++  /** Extra business location, per month. */
++  extraLocation: 7900,
++  /** Extra phone number, per month. */
++  extraPhoneNumber: 500,
++  /** One-off top-up pack of 100 minutes. */
++  topUp100Minutes: 2900,
++  /** SMS overage, per segment. */
++  smsOveragePerSegment: 3,
++  /** Enterprise onboarding is quoted from this price. */
++  enterpriseOnboardingFrom: 250000,
++  /** suggested, unvalidated */
++  proOnboardingSuggested: 49900,
++} as const;
++
+ /**
+  * Live Stripe Payment Links. Free has no checkout (goes to signup) and Enterprise
+  * is sales-assisted (goes to contact), so only these three plans need links.
+@@ -195,7 +217,7 @@ export function isExternalLink(planId: PlanId): boolean {
+   return planId !== 'free' && planId !== 'enterprise';
+ }
+ 
+-/** Parses "$0.20/min after" -> 0.2. Returns null for non-metered plans (e.g. Enterprise/Free). */
++/** Parses "$0.25/min after" -> 0.25 and "$0.20/min after committed minutes" -> 0.2. Returns null when there is no overage (Trial). */
+ export function parseOverageRate(overage: string | null): number | null {
+   if (!overage) return null;
+   const match = overage.match(/\$([\d.]+)\/min/);
+diff --git a/src/lib/staffUsage.test.ts b/src/lib/staffUsage.test.ts
+index 52c9a1a..da729c1 100644
+--- a/src/lib/staffUsage.test.ts
++++ b/src/lib/staffUsage.test.ts
+@@ -25,11 +25,12 @@ function row(over: Partial<TenantUsageRow> = {}): TenantUsageRow {
+ 
+ describe('planEconomics', () => {
+   it('reads price, included minutes (with thousands separators) and overage from the pricing source of truth', () => {
+-    expect(planEconomics('starter')).toMatchObject({ monthlyPrice: 79, includedMinutes: 400, overageRate: 0.2 });
+-    expect(planEconomics('professional')).toMatchObject({ monthlyPrice: 199, includedMinutes: 1500, overageRate: 0.15 });
++    expect(planEconomics('starter')).toMatchObject({ monthlyPrice: 99, includedMinutes: 200, overageRate: 0.25 });
++    expect(planEconomics('professional')).toMatchObject({ monthlyPrice: 249, includedMinutes: 600, overageRate: 0.25 });
++    expect(planEconomics('business')).toMatchObject({ monthlyPrice: 549, includedMinutes: 1500, overageRate: 0.25 });
+   });
+-  it('treats enterprise as unpriced/unlimited and unknown plans safely', () => {
+-    expect(planEconomics('enterprise')).toMatchObject({ monthlyPrice: null, includedMinutes: Infinity, overageRate: null });
++  it('treats enterprise as unpriced (custom contract, 6,000 committed min, $0.20 overage) and unknown plans safely', () => {
++    expect(planEconomics('enterprise')).toMatchObject({ monthlyPrice: null, includedMinutes: 6000, overageRate: 0.2 });
+     expect(planEconomics('mystery')).toMatchObject({ id: 'unknown', monthlyPrice: null, name: 'mystery' });
+     expect(planEconomics(null).name).toBe('Unknown');
+   });
+@@ -51,23 +52,23 @@ describe('periodWindow', () => {
+ });
+ 
+ describe('computeTenantEconomics', () => {
+-  it('healthy: list price minus AI + voice cost', () => {
+-    const e = computeTenantEconomics(row(), 0.12, 30); // 300 min -> $36 voice, +$2 AI
++  it('healthy: list price plus overage minus AI + voice cost', () => {
++    const e = computeTenantEconomics(row(), 0.12, 30); // 300 min -> $36 voice, +$2 AI; 100 min over the 200 included
+     expect(e.voiceCostUsd).toBeCloseTo(36, 6);
+     expect(e.totalCostUsd).toBeCloseTo(38, 6);
+-    expect(e.revenueUsd).toBe(79);
+-    expect(e.marginUsd).toBeCloseTo(41, 6);
+-    expect(e.marginPct).toBeCloseTo(51.9, 1);
++    expect(e.revenueUsd).toBeCloseTo(99 + 100 * 0.25, 6);
++    expect(e.marginUsd).toBeCloseTo(124 - 38, 6);
++    expect(e.marginPct).toBeCloseTo(69.4, 1);
+     expect(e.health).toBe('healthy');
+   });
+   it('adds metered overage revenue beyond the included minutes', () => {
+     const e = computeTenantEconomics(row({ voice_seconds: 500 * 60, ai_cost_usd: 5 }), 0.12, 30);
+-    expect(e.revenueUsd).toBeCloseTo(79 + 100 * 0.2, 6);
+-    expect(e.marginUsd).toBeCloseTo(99 - 65, 6);
++    expect(e.revenueUsd).toBeCloseTo(99 + 300 * 0.25, 6);
++    expect(e.marginUsd).toBeCloseTo(174 - 65, 6);
+   });
+   it('flags thin (<30%) and loss-making tenants', () => {
+-    expect(computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 60 }), 0.12, 30).health).toBe('thin');
+-    const loss = computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 100 }), 0.12, 30);
++    expect(computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 75 }), 0.12, 30).health).toBe('thin');
++    const loss = computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 120 }), 0.12, 30);
+     expect(loss.health).toBe('loss');
+     expect(loss.marginUsd).toBeCloseTo(-21, 6);
+   });
+@@ -81,7 +82,7 @@ describe('computeTenantEconomics', () => {
+   });
+   it('prorates the subscription and included minutes for partial periods', () => {
+     const e = computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 0 }), 0.12, 15);
+-    expect(e.revenueUsd).toBeCloseTo(39.5, 6);
++    expect(e.revenueUsd).toBeCloseTo(49.5, 6);
+   });
+ });
+ 
+@@ -94,10 +95,10 @@ describe('computeTotals', () => {
+     ];
+     const t = computeTotals(rows, 1.5);
+     expect(t.tenants).toBe(3);
+-    expect(t.revenueUsd).toBe(158);
++    expect(t.revenueUsd).toBe(223);
+     expect(t.lossMakers).toBe(1);
+     expect(t.unpricedTenants).toBe(1);
+-    expect(t.marginUsd).toBeCloseTo(158 - 38 - 100, 6);
++    expect(t.marginUsd).toBeCloseTo(223 - 38 - 100, 6);
+     expect(t.aiCostUsd).toBeCloseTo(2 + 100 + 500, 6);
+     expect(t.unattributedCostUsd).toBe(1.5);
+   });
+diff --git a/src/lib/tenantRoi.test.ts b/src/lib/tenantRoi.test.ts
+index 400b1bb..a556590 100644
+--- a/src/lib/tenantRoi.test.ts
++++ b/src/lib/tenantRoi.test.ts
+@@ -8,7 +8,7 @@ describe('tenant ROI inputs', () => {
+     expect(computeRoi([], planCostCents('free', 90)).status).toBe('not_enough_data');
+   });
+   it('paid plan cost scales with the window and is an integer', () => {
+-    const c = planCostCents('starter', 90); expect(Number.isInteger(c)).toBe(true); expect(c).toBe(Math.round(79 * 100 * 3));
++    const c = planCostCents('starter', 90); expect(Number.isInteger(c)).toBe(true); expect(c).toBe(Math.round(99 * 100 * 3));
+   });
+   it('parses rows, tags the attribution rule, ignores malformed rows', () => {
+     const p = parseRoiInputs({ outcomes_total: 7, rows: [{ id: 'a', action_slug: 'send_invoice_reminder', action_at: '2026-01-01T00:00:00Z', outcome_at: '2026-01-02T00:00:00Z', value_cents: 5000, confidence: 0.9 }, { nope: 1 }] });
+diff --git a/src/lib/valueScoreboard.test.ts b/src/lib/valueScoreboard.test.ts
+index aab1bcc..aa6ba3b 100644
+--- a/src/lib/valueScoreboard.test.ts
++++ b/src/lib/valueScoreboard.test.ts
+@@ -45,7 +45,7 @@ describe('subscription cost', () => {
+     expect(subscriptionFor({ plan: 'starter', currency: 'EUR', subscriptionOverrideCents: 9000 })).toEqual({ cents: 9000, currency: 'EUR' });
+   });
+   it('falls back to the USD list price and returns null for custom plans', () => {
+-    expect(subscriptionFor({ plan: 'professional', currency: 'USD', subscriptionOverrideCents: null })).toEqual({ cents: 19900, currency: 'USD' });
++    expect(subscriptionFor({ plan: 'professional', currency: 'USD', subscriptionOverrideCents: null })).toEqual({ cents: 24900, currency: 'USD' });
+     expect(subscriptionFor({ plan: 'enterprise', currency: 'USD', subscriptionOverrideCents: null })).toBeNull();
+   });
+ });
+diff --git a/src/pages/AIReceptionistVsHumanPage.tsx b/src/pages/AIReceptionistVsHumanPage.tsx
+index a17f85d..7c77d9e 100644
+--- a/src/pages/AIReceptionistVsHumanPage.tsx
++++ b/src/pages/AIReceptionistVsHumanPage.tsx
+@@ -470,7 +470,7 @@ export function AIReceptionistVsHumanPage() {
+                   <ul className="mt-6 space-y-3 text-sm leading-relaxed text-text-secondary">
+                     <li className="flex items-start gap-2.5">
+                       <Wallet size={15} className="mt-0.5 shrink-0 text-accent" />
+-                      Flat monthly plans starting at $79/month — no payroll tax, no benefits
++                      Flat monthly plans starting at $99/month — no payroll tax, no benefits
+                     </li>
+                     <li className="flex items-start gap-2.5">
+                       <Clock3 size={15} className="mt-0.5 shrink-0 text-accent" />
+diff --git a/src/pages/BillingPlansPage.tsx b/src/pages/BillingPlansPage.tsx
+index a0f3158..5e7c96e 100644
+--- a/src/pages/BillingPlansPage.tsx
++++ b/src/pages/BillingPlansPage.tsx
+@@ -52,7 +52,7 @@ function errorMessage(err: unknown, fallback: string): string {
+ }
+ 
+ function priceParts(plan: PricingPlan, live: LivePrice | undefined): { amount: string; suffix: string } {
+-  if (plan.id === 'enterprise') return { amount: `From $${plan.startingAt ?? 999}`, suffix: '/mo' };
++  if (plan.id === 'enterprise') return { amount: `From $${plan.startingAt ?? 1799}`, suffix: '/mo' };
+   if (live) {
+     return { amount: formatMinor(live.amountMinor, live.currency).replace(/[.,]00$/, ''), suffix: `/${live.interval}` };
+   }
+diff --git a/src/pages/DashboardPage.tsx b/src/pages/DashboardPage.tsx
+index e4bfa06..984b170 100644
+--- a/src/pages/DashboardPage.tsx
++++ b/src/pages/DashboardPage.tsx
+@@ -566,7 +566,7 @@ export function DashboardPage() {
+ 
+     // Plan usage is a billing-cycle gauge, not a period KPI, so it has no delta.
+     const minutesUsed = profile?.minutes_used_this_month ?? 0;
+-    const minutesIncluded = profile?.minutes_included ?? 50;
++    const minutesIncluded = profile?.minutes_included ?? 60;
+     const minutesRemaining = Math.max(0, minutesIncluded - minutesUsed);
+     const usagePercent = minutesIncluded > 0 ? Math.min(100, (minutesUsed / minutesIncluded) * 100) : 0;
+ 
+diff --git a/supabase/functions/_shared/ai-core/coreFacts.generated.ts b/supabase/functions/_shared/ai-core/coreFacts.generated.ts
+index c29fa36..16e8df1 100644
+--- a/supabase/functions/_shared/ai-core/coreFacts.generated.ts
++++ b/supabase/functions/_shared/ai-core/coreFacts.generated.ts
+@@ -2,8 +2,8 @@
+ // Source of truth: src/lib/pricing.ts, industries.ts, integrations.ts, brandFacts.ts, supportHours.ts
+ // Regenerate with: npm run knowledge:build
+ 
+-export const CORE_FACTS = "ABOUT: Vireek is an AI voice receptionist built specifically for home-service businesses (HVAC, plumbing, roofing, electrical, restoration, locksmith). Its receptionist persona is named \"Sarah.\" Sarah answers every call 24/7, captures lead details, books appointments, and flags emergencies so a missed call never becomes a lost job.\nSIZE/STAGE: Vireek is an early-stage, founder-led company. It explicitly does NOT claim to have thousands of customers or a large team -- its own \"Radical Transparency\" value states there are no fake testimonials, invented customer counts, or hidden pricing claims. The AI must never invent or imply a specific customer count, team size, funding amount, or \"trusted by X companies\" claim that isn't stated here. If asked how big Vireek is or how many customers it has, say plainly that Vireek is a small, early-stage, founder-led company and that exact figures aren't published -- don't guess a number.\nPLANS (source: pricing page):\nFree: $0/mo. Includes 50 min, 1 seat, 1 location.\nStarter: $79/mo or $790/yr billed annually. Includes 400 min, overage: $0.20/min after, 2 seats, 1 location.\nProfessional: $199/mo or $1,990/yr billed annually. Includes 1,500 min, overage: $0.15/min after, 5 seats, 1 location.\nBusiness: $399/mo or $3,990/yr billed annually. Includes 4,000 min, overage: $0.12/min after, 15 seats, Up to 3 locations.\nEnterprise: starting at $999/mo (custom pricing, sales-assisted). Includes Unlimited, overage: SLA-backed, no metering, Unlimited seats, Unlimited locations.\nTRADES (13): HVAC, Plumbing, Roofing, Electrical, Restoration, Locksmith, Pest Control, Lawn Care & Landscaping, Cleaning Services, Pool Service, Appliance Repair, Solar, Painting.\nINTEGRATIONS live: QuickBooks, Google Calendar, Stripe, Zapier, HubSpot, Salesforce, Slack, Microsoft 365 / Outlook, Twilio, Jobber, ServiceTitan.\nCERTIFICATIONS: IMPORTANT GUARDRAIL: Vireek's public Security page is deliberately written as factual statements about how the platform is built (encryption in transit/at rest, RLS-based account isolation, role-based access) rather than claiming a compliance certification the company does not hold. As of the last content update, Vireek does not claim SOC 2, HIPAA, PCI-DSS, or ISO 27001 certification. The AI must NEVER tell a customer or prospect that Vireek is \"SOC 2 compliant,\" \"HIPAA compliant,\" or holds any other specific certification unless this file is updated to say so explicitly. If asked about a specific certification, say that Vireek does not currently publish that certification and suggest contacting ali@vireek.com or booking a demo to discuss specific compliance requirements before signing up.\nEMERGENCIES: Vireek can identify urgent/emergency language, collect key details, and flag time-sensitive calls for immediate follow-up or dispatch, based on rules the business configures. IMPORTANT: Vireek is NOT a replacement for emergency services (911/fire/police/ambulance). It helps a home-service business avoid missing an urgent customer call -- it does not handle life-safety emergency dispatch itself. Never tell a caller or user that Vireek replaces calling emergency services.\nSUPPORT HOURS: human team Mon–Fri, 9am–6pm ET (America/New_York); AI 24/7.\nCONTACT: Contact form: vireek.com/contact. Direct email: ali@vireek.com (usually a same-day reply). Social: Facebook (facebook.com/profile.php?id=61591755299005), Instagram @vireek.ai, TikTok @ai_vireek, Reddit, and LinkedIn (linkedin.com/in/ali-moradi-741346339). The phone number +1 (650) 910-6703 connects to Sarah, the live AI voice demo, so a prospect can hear the product answer a call themselves -- it is NOT a human support line. Paying customers get support through their plan: standard 24-hour response on Starter, priority 4-hour on Professional, a dedicated Slack channel on Business, and a named account manager with an SLA on Enterprise.\nKEY PAGES: /pricing, /platform, /features, /industries, /integrations, /compare, /security, /responsible-ai, /sla, /status, /help, /faq, /demo, /signup, /contact.";
++export const CORE_FACTS = "ABOUT: Vireek is an AI voice receptionist built specifically for home-service businesses (HVAC, plumbing, roofing, electrical, restoration, locksmith). Its receptionist persona is named \"Sarah.\" Sarah answers every call 24/7, captures lead details, books appointments, and flags emergencies so a missed call never becomes a lost job.\nSIZE/STAGE: Vireek is an early-stage, founder-led company. It explicitly does NOT claim to have thousands of customers or a large team -- its own \"Radical Transparency\" value states there are no fake testimonials, invented customer counts, or hidden pricing claims. The AI must never invent or imply a specific customer count, team size, funding amount, or \"trusted by X companies\" claim that isn't stated here. If asked how big Vireek is or how many customers it has, say plainly that Vireek is a small, early-stage, founder-led company and that exact figures aren't published -- don't guess a number.\nPLANS (source: pricing page):\nTrial: $0/mo. Includes 60 min, 1 seat, 1 location.\nStarter: $99/mo or $990/yr billed annually. Includes 200 min, overage: $0.25/min after, 2 seats, 1 location.\nProfessional: $249/mo or $2,490/yr billed annually. Includes 600 min, overage: $0.25/min after, 5 seats, 1 location.\nBusiness: $549/mo or $5,490/yr billed annually. Includes 1,500 min, overage: $0.25/min after, 15 seats, Up to 3 locations.\nEnterprise: starting at $1,799/mo (custom pricing, sales-assisted). Includes 6,000 min committed, overage: $0.20/min after committed minutes, Custom seats, Custom locations.\nTRADES (13): HVAC, Plumbing, Roofing, Electrical, Restoration, Locksmith, Pest Control, Lawn Care & Landscaping, Cleaning Services, Pool Service, Appliance Repair, Solar, Painting.\nINTEGRATIONS live: QuickBooks, NetSuite, Google Calendar, Stripe, Zapier, HubSpot, Salesforce, Slack, Microsoft 365 / Outlook, Twilio, Jobber, ServiceTitan.\nCERTIFICATIONS: IMPORTANT GUARDRAIL: Vireek's public Security page is deliberately written as factual statements about how the platform is built (encryption in transit/at rest, RLS-based account isolation, role-based access) rather than claiming a compliance certification the company does not hold. As of the last content update, Vireek does not claim SOC 2, HIPAA, PCI-DSS, or ISO 27001 certification. The AI must NEVER tell a customer or prospect that Vireek is \"SOC 2 compliant,\" \"HIPAA compliant,\" or holds any other specific certification unless this file is updated to say so explicitly. If asked about a specific certification, say that Vireek does not currently publish that certification and suggest contacting ali@vireek.com or booking a demo to discuss specific compliance requirements before signing up.\nEMERGENCIES: Vireek can identify urgent/emergency language, collect key details, and flag time-sensitive calls for immediate follow-up or dispatch, based on rules the business configures. IMPORTANT: Vireek is NOT a replacement for emergency services (911/fire/police/ambulance). It helps a home-service business avoid missing an urgent customer call -- it does not handle life-safety emergency dispatch itself. Never tell a caller or user that Vireek replaces calling emergency services.\nSUPPORT HOURS: human team Mon–Fri, 9am–6pm ET (America/New_York); AI 24/7.\nCONTACT: Contact form: vireek.com/contact. Direct email: ali@vireek.com (usually a same-day reply). Social: Facebook (facebook.com/profile.php?id=61591755299005), Instagram @vireek.ai, TikTok @ai_vireek, Reddit, and LinkedIn (linkedin.com/in/ali-moradi-741346339). The phone number +1 (650) 910-6703 connects to Sarah, the live AI voice demo, so a prospect can hear the product answer a call themselves -- it is NOT a human support line. Paying customers get support through their plan: standard 24-hour response on Starter, priority 4-hour on Professional, a dedicated Slack channel on Business, and a named account manager with an SLA on Enterprise.\nKEY PAGES: /pricing, /platform, /features, /industries, /integrations, /compare, /security, /responsible-ai, /sla, /status, /help, /faq, /demo, /signup, /contact.";
+ 
+-export const PRICING_FACTS = "Vireek has 5 plans (annual billing is shown per year on /pricing): Free: $0/mo. Includes 50 min, 1 seat, 1 location. Starter: $79/mo or $790/yr billed annually. Includes 400 min, overage: $0.20/min after, 2 seats, 1 location. Professional: $199/mo or $1,990/yr billed annually. Includes 1,500 min, overage: $0.15/min after, 5 seats, 1 location. Business: $399/mo or $3,990/yr billed annually. Includes 4,000 min, overage: $0.12/min after, 15 seats, Up to 3 locations. Enterprise: starting at $999/mo (custom pricing, sales-assisted). Includes Unlimited, overage: SLA-backed, no metering, Unlimited seats, Unlimited locations. What happens if I go over my included minutes? You're billed the per-minute overage rate shown on your plan — visible up front, never hidden. There are no surprise fees or automatic upgrades. Can I change plans later? Yes. Upgrade or downgrade at any time from your billing settings. Changes take effect on your next billing cycle, and we prorate the difference. Is there a setup fee? No plan requires a setup fee. An optional white-glove onboarding is available on Professional and above if you'd rather we configure everything for you. What counts as one minute? Total talk time per call, rounded to the nearest minute. Hold time and voicemail transcription are not billed. How is my data secured? All calls are encrypted in transit and at rest. Enterprise plans include audit logging and role-based access controls — ask our team for our current compliance documentation.";
++export const PRICING_FACTS = "Vireek has 5 plans (annual billing is shown per year on /pricing): Trial: $0/mo. Includes 60 min, 1 seat, 1 location. Starter: $99/mo or $990/yr billed annually. Includes 200 min, overage: $0.25/min after, 2 seats, 1 location. Professional: $249/mo or $2,490/yr billed annually. Includes 600 min, overage: $0.25/min after, 5 seats, 1 location. Business: $549/mo or $5,490/yr billed annually. Includes 1,500 min, overage: $0.25/min after, 15 seats, Up to 3 locations. Enterprise: starting at $1,799/mo (custom pricing, sales-assisted). Includes 6,000 min committed, overage: $0.20/min after committed minutes, Custom seats, Custom locations. What happens if I go over my included minutes? You're billed the per-minute overage rate shown on your plan — visible up front, never hidden. There are no surprise fees or automatic upgrades. Can I change plans later? Yes. Upgrade or downgrade at any time from your billing settings. Changes take effect on your next billing cycle, and we prorate the difference. Is there a setup fee? No plan requires a setup fee. An optional white-glove onboarding is available on Professional and above if you'd rather we configure everything for you. What counts as one minute? Total talk time per call, rounded to the nearest minute. Hold time and voicemail transcription are not billed. How is my data secured? All calls are encrypted in transit and at rest. Enterprise plans include audit logging and role-based access controls — ask our team for our current compliance documentation.";
+ 
+ export const INDUSTRIES_FACTS = "Vireek has dedicated pages and call handling for 13 home-service trades: HVAC (Never lose a no-heat or no-cool call to voicemail again.) Plumbing (Burst pipes don’t wait for business hours. Neither should your receptionist.) Roofing (Storm season floods your phone lines. Vireek never gets overwhelmed.) Electrical (From flickering lights to a dead panel, every call gets answered.) Restoration (Water and fire damage calls are always urgent. Vireek treats them that way.) Locksmith (Lockouts and emergencies don't wait. Your receptionist shouldn't either.) Pest Control (Infestation calls come in scared and urgent. Sarah never leaves them on hold.) Lawn Care & Landscaping (Spring rush fills your voicemail. Sarah keeps every call moving instead.) Cleaning Services (New-client calls and reschedules never stop. Sarah handles both without missing a beat.) Pool Service (Green pools and broken equipment cannot wait for a callback. Neither should you make them.) Appliance Repair (A dead fridge or washer is urgent to the customer. Sarah treats it that way.) Solar (Every missed call is a missed install lead. Sarah answers every one.) Painting (Estimate requests pile up fast. Sarah captures every one, day or night.) What counts as an emergency is configured per business, not hardcoded.";
+diff --git a/supabase/functions/_shared/ai-core/knowledge.ts b/supabase/functions/_shared/ai-core/knowledge.ts
+index 3fc6f9d..04bf89c 100644
+--- a/supabase/functions/_shared/ai-core/knowledge.ts
++++ b/supabase/functions/_shared/ai-core/knowledge.ts
+@@ -5,13 +5,16 @@
+ // for real RAG later without touching any caller — everyone goes through
+ // the functions below, never the KNOWLEDGE_BASE array directly.
+ //
+-// SOURCE OF TRUTH WARNING: this is a hand-kept mirror of
+-// src/lib/pricing.ts and src/lib/industries.ts (not a live import —
++// SOURCE OF TRUTH WARNING: the pricing facts are GENERATED from src/lib/pricing.ts
++// (run `node scripts/knowledge-build.mjs`); the industries facts below are still a
++// hand-kept mirror of src/lib/industries.ts (not a live import —
+ // those files pull in React/lucide-react, which can't run in the Deno
+ // edge runtime). If you change a plan price, a feature list, or add an
+ // industry in src/lib/, update the matching facts below in the same PR,
+ // or the AI will start giving customers stale answers.
+ 
++import { PRICING_FACTS } from "./coreFacts.generated.ts";
++
+ export type KnowledgeTopic =
+   | "company"
+   | "product"
+@@ -41,14 +44,7 @@ const KNOWLEDGE_BASE: KnowledgeEntry[] = [
+   },
+   {
+     topic: "pricing",
+-    facts:
+-      "Five plans, billed monthly or annually (annual = 10 months' price): " +
+-      "Free — $0/mo, 50 min included, 1 seat, 1 location: 24/7 AI call answering, voicemail-to-text, missed-call text-back, email call summaries, community support. " +
+-      "Starter — $79/mo, 400 min ($0.20/min overage), 2 seats, 1 location: everything in Free plus smart calendar booking, SMS appointment confirmations, 1 CRM integration, 7-day call transcript history, standard 24h support. " +
+-      "Professional (most popular) — $199/mo, 1,500 min ($0.15/min overage), 5 seats, 1 location: everything in Starter plus emergency detection & live dispatch, warm transfer to on-call staff, ServiceTitan/Housecall Pro/Jobber sync, unlimited call recording history, custom after-hours routing, automated review requests, priority 4h support. " +
+-      "Business — $399/mo, 4,000 min ($0.12/min overage), 15 seats, up to 3 locations: everything in Professional plus custom voice & script per location, advanced call-outcome analytics, role-based team access, dedicated Slack support. " +
+-      "Enterprise — starts at $999/mo, unlimited minutes/seats/locations, SLA-backed (no metering): everything in Business plus a custom-trained voice model, full API & webhook access, a dedicated account manager, audit logs & advanced access controls, written SLA — sales-assisted, no self-serve checkout. " +
+-      "No setup fee on any plan (optional white-glove onboarding on Professional+). Plans can be upgraded or downgraded anytime, prorated, effective next billing cycle. A minute = total talk time per call rounded to the nearest minute; hold time and voicemail transcription are never billed.",
++    facts: PRICING_FACTS,
+   },
+   {
+     topic: "industries",
+diff --git a/supabase/functions/_shared/billing/billingFunctionsSyntax.test.ts b/supabase/functions/_shared/billing/billingFunctionsSyntax.test.ts
+new file mode 100644
+index 0000000..2bd3c37
+--- /dev/null
++++ b/supabase/functions/_shared/billing/billingFunctionsSyntax.test.ts
+@@ -0,0 +1,37 @@
++import { readFileSync } from 'node:fs';
++import { describe, expect, it } from 'vitest';
++import ts from 'typescript';
++
++/**
++ * Regression guard: these edge functions are deployed without a type-check step, and a stray token (a duplicated
++ * `} catch (err) {` once shipped in stripe-webhook) makes the whole function fail to deploy and every Stripe event 5xx.
++ * transpileModule reports syntactic diagnostics only, so this needs no Deno or npm: specifier resolution.
++ */
++const FILES = [
++  'supabase/functions/stripe-webhook/index.ts',
++  'supabase/functions/manage-subscription-plan/index.ts',
++  'supabase/functions/_shared/billing/planCatalog.ts',
++  'supabase/functions/_shared/fraud/planLimits.ts',
++];
++
++describe('billing edge functions are syntactically valid TypeScript', () => {
++  it.each(FILES)('%s', (file) => {
++    const out = ts.transpileModule(readFileSync(file, 'utf8'), {
++      fileName: file,
++      reportDiagnostics: true,
++      compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
++    });
++    const messages = (out.diagnostics ?? []).map((d) => ts.flattenDiagnosticMessageText(d.messageText, '\n'));
++    expect(messages).toEqual([]);
++  });
++});
++
++describe('stripe-webhook grandfathering', () => {
++  const src = readFileSync('supabase/functions/stripe-webhook/index.ts', 'utf8');
++  const updatedCase = src.slice(src.indexOf('case "customer.subscription.updated"'));
++
++  it('syncs minutes only through minutesToSyncOnPlanSync on subscription.updated', () => {
++    expect(updatedCase).toContain('minutesToSyncOnPlanSync(');
++    expect(updatedCase.slice(0, updatedCase.indexOf('default:'))).not.toContain('minutes_included: minutesForPlan(');
++  });
++});
+diff --git a/supabase/functions/_shared/billing/planCatalog.test.ts b/supabase/functions/_shared/billing/planCatalog.test.ts
+index 9d6454e..a663ab5 100644
+--- a/supabase/functions/_shared/billing/planCatalog.test.ts
++++ b/supabase/functions/_shared/billing/planCatalog.test.ts
+@@ -1,6 +1,11 @@
+ import { describe, it, expect } from 'vitest';
+ import {
++  ENTERPRISE_OVERAGE_CENTS,
++  FREE_MINUTES_INCLUDED,
++  PURCHASABLE_PLANS,
+   classifyPlanChange,
++  detectPriceDrift,
++  minutesToSyncOnPlanSync,
+   isPurchasablePlan,
+   minutesForPlan,
+   planIdFromPriceId,
+@@ -51,9 +56,71 @@ describe('plan catalog helpers', () => {
+   });
+ 
+   it('returns included minutes per plan', () => {
+-    expect(minutesForPlan('starter')).toBe(400);
+-    expect(minutesForPlan('business')).toBe(4000);
+-    expect(minutesForPlan('free')).toBe(50);
++    expect(minutesForPlan('starter')).toBe(200);
++    expect(minutesForPlan('professional')).toBe(600);
++    expect(minutesForPlan('business')).toBe(1500);
++    expect(minutesForPlan('free')).toBe(60);
+     expect(minutesForPlan('enterprise')).toBeNull();
+   });
++
++  it('exposes the new overage rates (cents/min)', () => {
++    expect(PURCHASABLE_PLANS.map((p) => [p.id, p.overageCentsPerMinute])).toEqual([
++      ['starter', 25],
++      ['professional', 25],
++      ['business', 25],
++    ]);
++    expect(ENTERPRISE_OVERAGE_CENTS).toBe(20);
++    expect(FREE_MINUTES_INCLUDED).toBe(60);
++  });
++});
++
++describe('minutesToSyncOnPlanSync (grandfathering)', () => {
++  it('never overwrites an existing customer\'s allowance on a routine event for the same plan', () => {
++    // Starter customer grandfathered at 400 min: renewal / retry / metadata edit must leave it alone.
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'starter', currentMinutes: 400, targetPlan: 'starter' })).toBeUndefined();
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'business', currentMinutes: 4000, targetPlan: 'business' })).toBeUndefined();
++  });
++
++  it('keeps deliberately custom values (0 = unlimited, Results-Plan fair-use) on the same plan', () => {
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'professional', currentMinutes: 0, targetPlan: 'professional' })).toBeUndefined();
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'starter', currentMinutes: 1500, targetPlan: 'starter' })).toBeUndefined();
++  });
++
++  it('applies the catalog allowance when the plan really changes (upgrade, scheduled downgrade, portal change)', () => {
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'starter', currentMinutes: 400, targetPlan: 'professional' })).toBe(600);
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'business', currentMinutes: 4000, targetPlan: 'starter' })).toBe(200);
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'free', currentMinutes: 50, targetPlan: 'business' })).toBe(1500);
++    expect(minutesToSyncOnPlanSync({ currentPlan: null, currentMinutes: null, targetPlan: 'starter' })).toBe(200);
++  });
++
++  it('heals a missing (NULL) allowance on the same plan', () => {
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'starter', currentMinutes: null, targetPlan: 'starter' })).toBe(200);
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'starter', currentMinutes: undefined, targetPlan: 'starter' })).toBe(200);
++  });
++
++  it('never writes for enterprise or unknown plans', () => {
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'business', currentMinutes: 1500, targetPlan: 'enterprise' })).toBeUndefined();
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'starter', currentMinutes: 200, targetPlan: 'legacy-gold' })).toBeUndefined();
++    expect(minutesToSyncOnPlanSync({ currentPlan: 'starter', currentMinutes: 200, targetPlan: null })).toBeUndefined();
++  });
++});
++
++describe('detectPriceDrift (site price vs live Stripe price)', () => {
++  const live = (amountMinor: number, currency = 'usd', interval = 'month') => ({ amountMinor, currency, interval });
++
++  it('is silent when Stripe matches the catalog', () => {
++    expect(detectPriceDrift('starter', live(9900))).toBeNull();
++    expect(detectPriceDrift('professional', live(24900, 'USD'))).toBeNull();
++    expect(detectPriceDrift('business', live(54900))).toBeNull();
++  });
++
++  it('flags the old prices that are still live in Stripe', () => {
++    expect(detectPriceDrift('starter', live(7900))).toEqual({ planId: 'starter', expectedMinor: 9900, actualMinor: 7900 });
++    expect(detectPriceDrift('business', live(39900))).toMatchObject({ expectedMinor: 54900, actualMinor: 39900 });
++  });
++
++  it('ignores prices it cannot compare (other currency or interval)', () => {
++    expect(detectPriceDrift('starter', live(7900, 'eur'))).toBeNull();
++    expect(detectPriceDrift('starter', live(79000, 'usd', 'year'))).toBeNull();
++  });
+ });
+diff --git a/supabase/functions/_shared/billing/planCatalog.ts b/supabase/functions/_shared/billing/planCatalog.ts
+index 6c3c751..1ccba09 100644
+--- a/supabase/functions/_shared/billing/planCatalog.ts
++++ b/supabase/functions/_shared/billing/planCatalog.ts
+@@ -5,7 +5,9 @@
+ // Pure functions only (no Deno globals, no I/O) so the same file is unit-tested
+ // by Vitest and imported by edge functions.
+ //
+-// Keep `minutesIncluded` in sync with src/lib/pricing.ts (PRICING_PLANS).
++// Keep `minutesIncluded` and `overageCentsPerMinute` in sync with src/lib/pricing.ts (PRICING_PLANS)
++// and FREE_MINUTES_INCLUDED with FREE_MINUTES in ../fraud/planLimits.ts. A Vitest test
++// (src/lib/planConstants.agreement.test.ts) fails if they drift apart.
+ 
+ export type PurchasablePlanId = "starter" | "professional" | "business";
+ export type KnownPlanId = "free" | PurchasablePlanId | "enterprise";
+@@ -17,14 +19,21 @@ export interface PlanDef {
+   /** Name of the Supabase secret holding this plan's Stripe price id. */
+   priceEnv: string;
+   minutesIncluded: number;
++  /** Overage price in US cents per minute once `minutesIncluded` is used up. */
++  overageCentsPerMinute: number;
++  /** Monthly list price in US cents. Used only to detect drift against the live Stripe price. */
++  monthlyPriceCents: number;
+ }
+ 
+-export const FREE_MINUTES_INCLUDED = 50;
++export const FREE_MINUTES_INCLUDED = 60;
++
++/** Enterprise overage (cents/min) after its committed minutes. Enterprise is sales-assisted, so it has no PlanDef. */
++export const ENTERPRISE_OVERAGE_CENTS = 20;
+ 
+ export const PURCHASABLE_PLANS: readonly PlanDef[] = [
+-  { id: "starter", rank: 1, priceEnv: "STRIPE_PRICE_STARTER", minutesIncluded: 400 },
+-  { id: "professional", rank: 2, priceEnv: "STRIPE_PRICE_PROFESSIONAL", minutesIncluded: 1500 },
+-  { id: "business", rank: 3, priceEnv: "STRIPE_PRICE_BUSINESS", minutesIncluded: 4000 },
++  { id: "starter", rank: 1, priceEnv: "STRIPE_PRICE_STARTER", minutesIncluded: 200, overageCentsPerMinute: 25, monthlyPriceCents: 9900 },
++  { id: "professional", rank: 2, priceEnv: "STRIPE_PRICE_PROFESSIONAL", minutesIncluded: 600, overageCentsPerMinute: 25, monthlyPriceCents: 24900 },
++  { id: "business", rank: 3, priceEnv: "STRIPE_PRICE_BUSINESS", minutesIncluded: 1500, overageCentsPerMinute: 25, monthlyPriceCents: 54900 },
+ ];
+ 
+ const RANKS: Record<KnownPlanId, number> = {
+@@ -57,6 +66,45 @@ export function minutesForPlan(id: string | null | undefined): number | null {
+   return def ? def.minutesIncluded : null;
+ }
+ 
++/**
++ * Which `profiles.minutes_included` value a Stripe-driven profile sync may write; `undefined` = leave the column alone.
++ *
++ * Grandfathering: an existing customer keeps the allowance they already have. The catalog allowance is written only when
++ *  - the plan actually changes (the customer chose new terms: upgrade, scheduled downgrade, portal change), or
++ *  - the column is missing (NULL), to heal a broken row.
++ * A routine `customer.subscription.updated` (renewal, payment retry, metadata edit) on an unchanged plan must NOT overwrite
++ * it, and neither must a deliberately custom value such as 0 (unlimited) or a Results-Plan fair-use allowance.
++ */
++export function minutesToSyncOnPlanSync(input: {
++  currentPlan: string | null | undefined;
++  currentMinutes: number | null | undefined;
++  targetPlan: string | null | undefined;
++}): number | undefined {
++  const catalogMinutes = minutesForPlan(input.targetPlan);
++  if (catalogMinutes === null) return undefined; // enterprise / unknown: never overwritten by the sync
++  if (input.currentPlan !== input.targetPlan) return catalogMinutes;
++  return input.currentMinutes === null || input.currentMinutes === undefined ? catalogMinutes : undefined;
++}
++
++export interface PriceDrift {
++  planId: PurchasablePlanId;
++  expectedMinor: number;
++  actualMinor: number;
++}
++
++/**
++ * Compares a live Stripe price with the catalog list price. Only USD/month prices are comparable (list prices are USD
++ * monthly); anything else returns null. A non-null result means the site shows one price and Stripe charges another.
++ */
++export function detectPriceDrift(
++  planId: PurchasablePlanId,
++  live: { amountMinor: number; currency: string; interval: string },
++): PriceDrift | null {
++  if (live.currency.toLowerCase() !== "usd" || live.interval !== "month") return null;
++  const expectedMinor = getPlanDef(planId).monthlyPriceCents;
++  return live.amountMinor === expectedMinor ? null : { planId, expectedMinor, actualMinor: live.amountMinor };
++}
++
+ /**
+  * Maps a Stripe price id back to a plan id using the configured secrets.
+  * `readEnv` is injected so this stays testable (pass `Deno.env.get` in edge functions).
+diff --git a/supabase/functions/_shared/fraud/planLimits.ts b/supabase/functions/_shared/fraud/planLimits.ts
+index b22ee4d..4b6d9f8 100644
+--- a/supabase/functions/_shared/fraud/planLimits.ts
++++ b/supabase/functions/_shared/fraud/planLimits.ts
+@@ -4,7 +4,7 @@
+ // calculation. Pure functions (no Deno globals, no I/O) so Vitest and edge functions share them.
+ //
+ // Keep FREE_MINUTES in sync with FREE_MINUTES_INCLUDED in ../billing/planCatalog.ts
+-// (a test asserts they match).
++// (src/lib/planConstants.agreement.test.ts asserts they match).
+ //
+ // COST MODEL = ASSUMPTIONS. The unit costs below are deliberately pessimistic ceilings, not invoices.
+ // Calibrate them against your Twilio / Vapi / ElevenLabs bills (see report: "Decisions for the owner").
+@@ -16,7 +16,7 @@ import type { CountryTier } from "./countries.ts";
+ export type PlanId = "free" | "starter" | "professional" | "business" | "enterprise";
+ export type Purpose = "marketing" | "service" | "emergency" | "otp";
+ 
+-export const FREE_MINUTES = 50;
++export const FREE_MINUTES = 60;
+ 
+ /** Blended telephony + STT/TTS + voice-platform ceiling, cents per call minute, by destination tier. */
+ export const CALL_CENTS_PER_MIN: Readonly<Record<CountryTier, number>> = {
+@@ -37,12 +37,12 @@ export const SMS_CENTS: Readonly<Record<CountryTier, number>> = {
+ export const NUMBER_RENTAL_CENTS_PER_MONTH = 115;
+ 
+ /**
+- * Stolen-card / chargeback exposure. List prices mirror PRICING_PLANS in src/lib/pricing.ts (a test asserts they
+- * match). The dispute fee is an ASSUMPTION (Stripe's standard card-dispute fee): confirm against your Stripe account.
++ * Stolen-card / chargeback exposure. List prices mirror PRICING_PLANS in src/lib/pricing.ts (src/lib/planConstants.agreement.test.ts
++ * asserts they match). The dispute fee is an ASSUMPTION (Stripe's standard card-dispute fee): confirm against your Stripe account.
+  * Enterprise is custom-priced, so only the fee is modelled for it.
+  */
+ export const PLAN_PRICE_CENTS: Readonly<Record<PlanId, number>> = {
+-  free: 0, starter: 7900, professional: 19900, business: 39900, enterprise: 0,
++  free: 0, starter: 9900, professional: 24900, business: 54900, enterprise: 0,
+ };
+ export const DISPUTE_FEE_CENTS = 1500;
+ export const VOICE_CLONE_CENTS = 500;
+diff --git a/supabase/functions/_shared/value-scoreboard/engine.ts b/supabase/functions/_shared/value-scoreboard/engine.ts
+index a9039d7..56b4d93 100644
+--- a/supabase/functions/_shared/value-scoreboard/engine.ts
++++ b/supabase/functions/_shared/value-scoreboard/engine.ts
+@@ -74,7 +74,7 @@ export interface ValueReview {
+ // ---------------------------------------------------------------- plans / assumptions
+ 
+ /** Mirrors PRICING_PLANS in src/lib/pricing.ts (monthly list price, USD cents). A unit test keeps them in sync. */
+-export const PLAN_MONTHLY_CENTS: Record<string, number> = { free: 0, starter: 7900, professional: 19900, business: 39900 };
++export const PLAN_MONTHLY_CENTS: Record<string, number> = { free: 0, starter: 9900, professional: 24900, business: 54900 };
+ 
+ export function planMonthlyCents(plan: string | null | undefined): number | null {
+   if (!plan) return null;
+diff --git a/supabase/functions/manage-subscription-plan/index.ts b/supabase/functions/manage-subscription-plan/index.ts
+index 8f5c4ce..4c03d8c 100644
+--- a/supabase/functions/manage-subscription-plan/index.ts
++++ b/supabase/functions/manage-subscription-plan/index.ts
+@@ -32,6 +32,7 @@ import Stripe from "npm:stripe@17.4.0";
+ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import {
+   classifyPlanChange,
++  detectPriceDrift,
+   getPlanDef,
+   isPurchasablePlan,
+   minutesForPlan,
+@@ -392,6 +393,13 @@ Deno.serve(async (req: Request) => {
+           }
+         }),
+       );
++      // Loud signal if the site's list price and the live Stripe price disagree (response contract unchanged).
++      for (const [drifted, live] of priceEntries) {
++        const drift = live ? detectPriceDrift(drifted, live) : null;
++        if (drift) {
++          console.warn(JSON.stringify({ event: "plan_price_drift", plan: drift.planId, expected_minor: drift.expectedMinor, actual_minor: drift.actualMinor }));
++        }
++      }
+       const prices = Object.fromEntries(priceEntries.filter(([, v]) => v !== null));
+       const scheduled = sub ? await scheduledChangeOf(stripe, sub) : null;
+       const item = sub?.items.data[0];
+diff --git a/supabase/functions/stripe-webhook/index.ts b/supabase/functions/stripe-webhook/index.ts
+index 3997b7a..62be855 100644
+--- a/supabase/functions/stripe-webhook/index.ts
++++ b/supabase/functions/stripe-webhook/index.ts
+@@ -40,7 +40,7 @@
+ import Stripe from "npm:stripe@17.4.0";
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
+-import { minutesForPlan, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
++import { minutesForPlan, minutesToSyncOnPlanSync, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -350,10 +350,25 @@ Deno.serve(async (req: Request) => {
+           (subscription.metadata?.plan_id as string | undefined);
+         if (!customerId || !planId) break;
+ 
+-                await admin
++        // Grandfathering: this event also fires on renewals, payment retries and metadata edits, so the included
++        // minutes may only be (re)written when the plan really changed (see minutesToSyncOnPlanSync).
++        const { data: current, error: currentError } = await admin
+           .from("profiles")
+-          .update({ plan: planId, minutes_included: minutesForPlan(planId) ?? undefined })
++          .select("plan, minutes_included")
++          .eq("stripe_customer_id", customerId)
++          .maybeSingle();
++        if (currentError) throw new Error(`profile lookup failed: ${currentError.message}`); // => 500, Stripe retries
++        if (!current) break;
++        const syncedMinutes = minutesToSyncOnPlanSync({
++          currentPlan: current.plan,
++          currentMinutes: current.minutes_included,
++          targetPlan: planId,
++        });
++        const { error: syncError } = await admin
++          .from("profiles")
++          .update(syncedMinutes === undefined ? { plan: planId } : { plan: planId, minutes_included: syncedMinutes })
+           .eq("stripe_customer_id", customerId);
++        if (syncError) throw new Error(`profile plan sync failed: ${syncError.message}`);
+         break;
+       }
+       default:
+@@ -361,7 +376,6 @@ Deno.serve(async (req: Request) => {
+         break;
+     }
+   } catch (err) {
+-   } catch (err) {
+     console.error(`Error handling Stripe event ${event.type} (${event.id}):`, err);
+     await admin.rpc("complete_billing_event", {
+       p_event_id: event.id,
+diff --git a/supabase/migrations/20290303000000_trial_minutes_default.sql b/supabase/migrations/20290303000000_trial_minutes_default.sql
+new file mode 100644
+index 0000000..b3e87d4
+--- /dev/null
++++ b/supabase/migrations/20290303000000_trial_minutes_default.sql
+@@ -0,0 +1,14 @@
++-- New Trial accounts include 60 minutes (was 50).
++--
++-- SAFE / METADATA-ONLY: SET DEFAULT affects only profiles inserted AFTER this migration (handle_new_user() inserts
++-- (id, email) and relies on the column default). It does NOT rewrite any existing row, so every existing customer keeps
++-- the minutes_included they already have (grandfathered).
++--
++-- Keep in sync with FREE_MINUTES_INCLUDED (supabase/functions/_shared/billing/planCatalog.ts), FREE_MINUTES
++-- (supabase/functions/_shared/fraud/planLimits.ts) and the Trial plan in src/lib/pricing.ts.
++--
++-- Rollback (also only affects future rows):
++--   ALTER TABLE public.profiles ALTER COLUMN minutes_included SET DEFAULT 50;
++
++ALTER TABLE public.profiles
++  ALTER COLUMN minutes_included SET DEFAULT 60;
