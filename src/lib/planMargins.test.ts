@@ -2,24 +2,26 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import type { CostComponent, CostRate } from './unitEconomics';
-import { GROSS_MARGIN_FLOOR_PCT, buildPlanListMargins, defaultPlanInputs, estimateVoiceCost, isRateNotVerified, rateBadge } from './planMargins';
+import { GROSS_MARGIN_FLOOR_PCT, buildPlanListMargins, defaultPlanInputs, estimateVoiceCost, isRateNotVerified, platformFixedMonthlyUsd, rateBadge } from './planMargins';
 import { priceAiRow } from './aiRepricing';
 import { priceUsageEvents } from './marginDashboard';
 import { PRICING_PLANS } from './pricing';
 
 const SQL = readFileSync(join(process.cwd(), 'supabase/migrations/20290303000000_seed_provider_cost_rates.sql'), 'utf8');
+const SQL2 = readFileSync(join(process.cwd(), 'supabase/migrations/20290303000100_fixed_monthly_cost_rates.sql'), 'utf8');
 const TODAY = '2026-11-11';
 
 /** Reads the seed rows straight from the migration, so these tests break if the SQL and the expectations drift apart. */
-function seedRates(): CostRate[] {
-  const date = /DATE '(\d{4}-\d{2}-\d{2})'/.exec(SQL)?.[1] ?? '';
+function parseSeed(sql: string): CostRate[] {
+  const date = /DATE '(\d{4}-\d{2}-\d{2})'/.exec(sql)?.[1] ?? '';
   const re = /^\s*\('([a-z_]+)', '([a-z0-9_-]+)', '([a-z0-9_]+)', ([0-9.]+), '([a-z_]+)', '([^']*)'/gm;
   const out: CostRate[] = [];
-  for (const m of SQL.matchAll(re)) {
+  for (const m of sql.matchAll(re)) {
     out.push({ component: m[1] as CostComponent, provider: m[2], unit: m[3], rateUsd: parseFloat(m[4]), status: m[5], source: m[6], effectiveFrom: date, effectiveTo: null });
   }
   return out;
 }
+const seedRates = (): CostRate[] => [...parseSeed(SQL), ...parseSeed(SQL2)];
 const rate = (component: CostComponent, rateUsd: number, status: string | null = null, provider = 'p'): CostRate =>
   ({ component, provider, unit: 'per_minute', rateUsd, source: 'fixture', effectiveFrom: '2026-01-01', effectiveTo: null, status });
 const flat = (platform: number, status: string | null = null): CostRate[] => [
@@ -27,7 +29,7 @@ const flat = (platform: number, status: string | null = null): CostRate[] => [
 ];
 
 describe('seed migration', () => {
-  const rows = seedRates();
+  const rows = parseSeed(SQL);
   it('seeds exactly the 9 verified/assumed rates with the agreed values and statuses', () => {
     const got = rows.map((r) => `${r.component}|${r.provider}|${r.unit}|${r.rateUsd}|${r.status}`).sort();
     expect(got).toEqual([
@@ -54,7 +56,38 @@ describe('seed migration', () => {
     expect(SQL).toMatch(/NOT EXISTS \(SELECT 1 FROM public\.plan_cost_limits\)/);
   });
 });
-
+describe('fixed monthly cost migration', () => {
+  it('seeds the phone number and the platform fixed cost, and widens the CHECKs', () => {
+    expect(parseSeed(SQL2).map((r) => `${r.component}|${r.provider}|${r.unit}|${r.rateUsd}|${r.status}`).sort()).toEqual([
+      'phone_number|twilio|per_month|1.15|official',
+      'platform_fixed|supabase|per_month|25|secondary_source',
+    ]);
+    expect(SQL2).toMatch(/'phone_number','platform_fixed'\)\)/);
+    expect(SQL2).toMatch(/'per_event','per_month'\)\)/);
+    expect(SQL2).toMatch(/WHERE NOT EXISTS/);
+    expect(SQL2).toMatch(/DO NOTHING/);
+  });
+  it('uses the phone number rate per tenant and platform cost as overhead only', () => {
+    const p = [{ id: 'starter', name: 'Starter', monthlyPrice: 79, includedMinutes: 400 }];
+    const none = buildPlanListMargins(seedRates(), TODAY, { plans: p })[0];
+    expect(none.fixedCostUsd).toBe(0);
+    expect(none.status).toBe('ok');
+    const one = buildPlanListMargins(seedRates(), TODAY, { plans: p, phoneNumbersPerTenant: 1 })[0];
+    expect(one.fixedCostUsd).toBeCloseTo(1.15, 6);
+    expect(one.costAtFullUseUsd).toBeCloseTo(44.11, 6);
+    expect(one.marginPct).toBeCloseTo(44.16, 1);
+    expect(one.status).toBe('below_floor'); // 45.6% -> 44.2% once the number is counted
+    expect(platformFixedMonthlyUsd(seedRates(), TODAY)).toEqual({ usd: 25, unverified: true });
+    expect(platformFixedMonthlyUsd([], TODAY)).toEqual({ usd: null, unverified: false });
+  });
+  it('a missing phone number rate makes the plan unpriced when numbers are counted', () => {
+    const p = [{ id: 'x', name: 'X', monthlyPrice: 100, includedMinutes: 10 }];
+    const r = buildPlanListMargins(flat(0.1), TODAY, { plans: p, phoneNumbersPerTenant: 1 })[0];
+    expect(r.status).toBe('unpriced');
+    expect(r.missing).toEqual(['phone_number']);
+    expect(r.marginPct).toBeNull();
+  });
+});
 describe('sample call with the seeded rates', () => {
   const rates = seedRates();
   it('produces non-zero cost components (inbound, 3 min)', () => {
