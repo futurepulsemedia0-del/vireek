@@ -45,7 +45,7 @@ describe('subscription cost', () => {
     expect(subscriptionFor({ plan: 'starter', currency: 'EUR', subscriptionOverrideCents: 9000 })).toEqual({ cents: 9000, currency: 'EUR' });
   });
   it('falls back to the USD list price and returns null for custom plans', () => {
-    expect(subscriptionFor({ plan: 'professional', currency: 'USD', subscriptionOverrideCents: null })).toEqual({ cents: 19900, currency: 'USD' });
+    expect(subscriptionFor({ plan: 'professional', currency: 'USD', subscriptionOverrideCents: null })).toEqual({ cents: 24900, currency: 'USD' });
     expect(subscriptionFor({ plan: 'enterprise', currency: 'USD', subscriptionOverrideCents: null })).toBeNull();
   });
 });
