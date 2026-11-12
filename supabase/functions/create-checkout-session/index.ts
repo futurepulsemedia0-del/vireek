@@ -13,6 +13,7 @@
 
 import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { checkoutTaxParams, isAutomaticTaxEnabled, priceTaxVerdict } from "../_shared/billing/stripeTax.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -82,6 +83,17 @@ Deno.serve(async (req: Request) => {
       await admin.from("profiles").update({ plan: planId }).eq("id", userData.user.id);
       return jsonResponse({ switched: true });
     }
+    // Stripe Tax is opt-in (STRIPE_AUTOMATIC_TAX=true). Plans are priced tax-exclusive.
+    const taxEnabled = isAutomaticTaxEnabled(Deno.env.get("STRIPE_AUTOMATIC_TAX"));
+    if (taxEnabled) {
+      const price = await stripe.prices.retrieve(priceId);
+      const verdict = priceTaxVerdict(price.tax_behavior);
+      if (verdict === "inclusive") {
+        console.error(JSON.stringify({ event: "price_tax_inclusive_blocked", price_id: priceId }));
+        return jsonResponse({ error: "This plan's price is not configured correctly yet. Please contact support." }, 500);
+      }
+      if (verdict === "unspecified") console.warn(JSON.stringify({ event: "price_tax_behavior_unspecified", price_id: priceId }));
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -90,6 +102,7 @@ Deno.serve(async (req: Request) => {
       success_url: `${siteUrl}/dashboard/billing?checkout=success`,
       cancel_url: `${siteUrl}/dashboard/billing?checkout=cancelled`,
       allow_promotion_codes: true,
+      ...checkoutTaxParams(taxEnabled, { hasCustomer: true }),
       metadata: { supabase_user_id: userData.user.id, plan_id: planId },
       subscription_data: { metadata: { supabase_user_id: userData.user.id, plan_id: planId } },
     });
