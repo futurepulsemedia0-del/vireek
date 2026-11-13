@@ -17,4 +17,4 @@ npm install --no-save --legacy-peer-deps --ignore-scripts \
   @capgo/background-geolocation @capgo/capacitor-nfc
 
 npm run tokens:build
-PRERENDER_OPTIONAL=1 npm run build
+NODE_OPTIONS=--max-old-space-size=6144 PRERENDER_OPTIONAL=1 npm run build
