@@ -169,7 +169,6 @@ export function validateRuleParams(kind: RuleKind, params: unknown): string[] {
       if (!str(p.noticeId) || !/^[a-z0-9_-]{2,60}$/.test(String(p.noticeId))) errs.push("noticeId must match [a-z0-9_-]{2,60}");
       if (!str(p.text)) errs.push("text is required");
       break;
-    case "price_cap": {
     case "deposit_limit": {
       const pct = p.maxPercent;
       const abs = p.maxAmountCents;
@@ -187,6 +186,7 @@ export function validateRuleParams(kind: RuleKind, params: unknown): string[] {
       if (m === null || m < 0) errs.push("minAmountCents must be an integer >= 0");
       break;
     }
+    case "price_cap": {
       if (p.condition !== "emergency_declared") errs.push("condition must be emergency_declared");
       const pct = p.maxIncreasePercent;
       if (typeof pct !== "number" || !(pct > 0 && pct <= 100)) errs.push("maxIncreasePercent must be a number > 0 and <= 100");
