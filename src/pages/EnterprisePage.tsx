@@ -148,7 +148,7 @@ function SEO() {
   useSEO({
     title: 'Vireek Enterprise — Licensing, Security & Multi-Location Rollouts',
     description:
-   'Vireek Enterprise: custom seats, locations and numbers, an annual contract, a written SLA, and dedicated onboarding from $2,500 for multi-location operators. Request access or book a live walkthrough.'
+   'Vireek Enterprise: custom seats, locations and numbers, an annual contract, a written SLA, and dedicated onboarding from $2,500 for multi-location operators. Request access or book a live walkthrough.',
     canonical: 'https://vireek.com/enterprise',
   });
   return null;
