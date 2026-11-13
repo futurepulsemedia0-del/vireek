@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { Skeleton, SkeletonCardList, SkeletonStatGrid } from '@/components/Skeleton';
 import { LiveMapCanvas } from '@/components/livemap/LiveMapCanvas';
-import type maplibregl from 'maplibre-gl';
+import type * as maplibregl from 'maplibre-gl';
 import { GeofenceMapLayer } from '@/components/livemap/GeofenceMapLayer';
 import { GeofencePanel } from '@/components/livemap/GeofencePanel';
 import { useGeofences } from '@/lib/useGeofences';
