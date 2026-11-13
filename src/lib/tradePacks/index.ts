@@ -20,7 +20,7 @@ export * from './solarPipeline';
 export * from './solarMonitoring';
 export * from './solarFinancing';
 
-... POOL_SERVICE_PACK, SOLAR_PACK];
+export const TRADE_PACKS: TradePack[] = [PEST_CONTROL_PACK, POOL_SERVICE_PACK, SOLAR_PACK];
 
 export function getPack(key: string | null | undefined): TradePack | undefined {
   return TRADE_PACKS.find((p) => p.key === key);
