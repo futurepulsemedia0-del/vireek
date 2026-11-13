@@ -82,3 +82,28 @@ describe('analyzeNatural', () => {
     expect(analyzeNatural({ ...args, records: simulate(3000, 0).map((r) => ({ ...r, drawn_technician_id: 'a' })) }).verdict).toBe('invalid');
   });
 });
+
+import { summarizeDraws, validateSettings } from './naturalRandomization';
+
+describe('summarizeDraws / validateSettings', () => {
+  const drawn = (job: string) => ({
+    job_id: job, created_at: '2026-01-01T00:00:00Z',
+    explanation: { randomization: { applied: true, reason: 'drawn', tie_set: [{ technician_id: 'a', score: 1 }, { technician_id: 'b', score: 1 }], drawn_technician_id: 'a', executed_as_drawn: true } },
+  });
+  it('counts drawn and skipped decisions', () => {
+    const s = summarizeDraws([
+      drawn('1'), drawn('2'),
+      { job_id: '3', created_at: '', explanation: { randomization: { applied: false, reason: 'vip_job' } } },
+      { job_id: '4', created_at: '', explanation: {} },
+    ]);
+    expect(s.total).toBe(3);
+    expect(s.applied).toBe(2);
+    expect(s.skipped.vip_job).toBe(1);
+    expect(s.balance.rows.length).toBe(2);
+  });
+  it('validates bounds', () => {
+    expect(validateSettings({ epsilon: 0.5, top_k: 2, max_eta_delta_minutes: 10 })).toEqual([]);
+    expect(validateSettings({ epsilon: 11, top_k: 1, max_eta_delta_minutes: 121 })).toEqual(['epsilon', 'topK', 'eta']);
+    expect(validateSettings({ epsilon: NaN, top_k: 2.5, max_eta_delta_minutes: -1 })).toEqual(['epsilon', 'topK', 'eta']);
+  });
+});
