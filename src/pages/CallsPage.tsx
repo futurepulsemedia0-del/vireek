@@ -32,7 +32,6 @@ import { useSensitiveCall } from '@/lib/privacy/useSensitiveCall';
 import { searchCallsText } from '@/lib/privacy/accessLog';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { TagEditor } from '@/components/TagEditor';
-import { SavedViewsBar } from '@/components/SavedViewsBar';
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { exportToCsv } from '@/lib/csvExport';
 
