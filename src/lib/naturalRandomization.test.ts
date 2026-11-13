@@ -83,7 +83,8 @@ describe('analyzeNatural', () => {
   });
 });
 
-import { summarizeDraws, validateSettings } from './naturalRandomization';
+import { analyzeNaturalExperiment, projectedDaysToPower, summarizeDraws, validateSettings, type DecisionRow } from './naturalRandomization';
+import type { Assignment, ExpJob, ExperimentConfig } from './opsExperiments';
 
 describe('summarizeDraws / validateSettings', () => {
   const drawn = (job: string) => ({
@@ -105,5 +106,87 @@ describe('summarizeDraws / validateSettings', () => {
     expect(validateSettings({ epsilon: 0.5, top_k: 2, max_eta_delta_minutes: 10 })).toEqual([]);
     expect(validateSettings({ epsilon: 11, top_k: 1, max_eta_delta_minutes: 121 })).toEqual(['epsilon', 'topK', 'eta']);
     expect(validateSettings({ epsilon: NaN, top_k: 2.5, max_eta_delta_minutes: -1 })).toEqual(['epsilon', 'topK', 'eta']);
+  });
+});
+
+describe('analyzeNaturalExperiment / projectedDaysToPower', () => {
+  const START = '2026-01-01T00:00:00Z';
+  const NOW = new Date('2026-02-15T00:00:00Z');
+  const cfg: ExperimentConfig = {
+    id: 'x', design: 'natural', primary_metric: 'ftf_rate', guardrail_metric: null, guardrail_tolerance: null,
+    min_detectable_effect: 10, alpha: 0.05, duration_days: 28, treatment_share: 50, service_types: [], maturity_days: 0,
+    status: 'running', started_at: START, concluded_at: null,
+  };
+  const groups: Assignment[] = [
+    { unit_type: 'technician', unit_id: 'a', arm: 'treatment' },
+    { unit_type: 'technician', unit_id: 'b', arm: 'control' },
+  ];
+  const baseline = { n: 400, mean: 0.8, sd: 0.4 };
+
+  // Deterministic LCG so the test never flakes.
+  function rng(seed: number) { let x = seed; return () => ((x = (x * 1664525 + 1013904223) % 4294967296) / 4294967296); }
+
+  function scenario(n: number, ties: string[] = ['a', 'b']) {
+    const rand = rng(7);
+    const decisions: DecisionRow[] = [];
+    const jobs: ExpJob[] = [];
+    for (let i = 0; i < n; i++) {
+      const drawn = i % 2 === 0 ? ties[0] : ties[1];
+      const good = rand() < (drawn === 'a' ? 0.92 : 0.7); // treatment technicians fix first time more often
+      const id = `j${i}`;
+      const base = { service_type: 'ac', job_status: 'completed', scheduled_datetime: '2026-01-10T00:00:00Z', created_at: '2026-01-05T00:00:00Z', completed_at: '2026-01-10T00:00:00Z', invoice_amount: 100, sla_response_hours: null };
+      jobs.push({ ...base, id, assigned_technician_id: drawn, is_rework: false, rework_of_job_id: null });
+      if (!good) jobs.push({ ...base, id: `r${i}`, assigned_technician_id: drawn, is_rework: true, rework_of_job_id: id });
+      decisions.push({
+        job_id: id, created_at: '2026-01-10T00:00:00Z',
+        explanation: { randomization: { applied: true, reason: 'drawn', tie_set: ties.map((t) => ({ technician_id: t, score: 1 })), drawn_technician_id: drawn, executed_as_drawn: true } },
+      });
+    }
+    return { decisions, jobs };
+  }
+
+  it('finds a clear win and reports progress fields', () => {
+    const { decisions, jobs } = scenario(600);
+    const a = analyzeNaturalExperiment(cfg, decisions, jobs, groups, baseline, NOW);
+    expect(a.randomizedJobs).toBe(600);
+    expect(a.informativeJobs).toBe(600);
+    expect(a.complianceRate).toBe(1);
+    expect(a.primary.estimate).not.toBeNull();
+    expect((a.primary.estimate?.effect ?? 0) > 0.1).toBe(true);
+    expect(a.verdict).toBe('win');
+    expect(a.recommendation).toBe('adopt');
+    expect(a.evidence).toBe('B');
+    expect(a.balance.failed).toBe(false);
+  });
+
+  it('keeps collecting while there is too little data', () => {
+    const { decisions, jobs } = scenario(10);
+    const a = analyzeNaturalExperiment(cfg, decisions, jobs, groups, baseline, NOW);
+    expect(a.verdict).toBe('collecting');
+    expect(a.recommendation).toBe('continue');
+  });
+
+  it('ignores draws from before the start and counts one draw per job', () => {
+    const { decisions, jobs } = scenario(40);
+    const early = { ...decisions[0], job_id: 'old', created_at: '2025-12-01T00:00:00Z' };
+    const dup = { ...decisions[1], created_at: '2026-01-11T00:00:00Z' };
+    const a = analyzeNaturalExperiment(cfg, [early, ...decisions, dup], jobs, groups, baseline, NOW);
+    expect(a.randomizedJobs).toBe(40);
+  });
+
+  it('warns when no draw ever had both groups tied', () => {
+    const { decisions, jobs } = scenario(40, ['b', 'c']);
+    const a = analyzeNaturalExperiment(cfg, decisions, jobs, groups, baseline, NOW);
+    expect(a.informativeJobs).toBe(0);
+    expect(a.warnings.some((w) => w.includes('both a treatment and a control'))).toBe(true);
+    expect(a.verdict).toBe('collecting');
+  });
+
+  it('projects days to the planned sample size', () => {
+    expect(projectedDaysToPower({ plannedPerArm: 200, observedPerArm: 50 }, 5)).toBe(15);
+    expect(projectedDaysToPower({ plannedPerArm: 200, observedPerArm: 250 }, 5)).toBe(0);
+    expect(projectedDaysToPower({ plannedPerArm: null, observedPerArm: 50 }, 5)).toBeNull();
+    expect(projectedDaysToPower({ plannedPerArm: 200, observedPerArm: 0 }, 5)).toBeNull();
+    expect(projectedDaysToPower({ plannedPerArm: 200, observedPerArm: 50 }, 0)).toBeNull();
   });
 });
