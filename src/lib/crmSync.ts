@@ -28,9 +28,11 @@ import {
   defaultSettings,
   validateSettings,
   type Canon,
+  type ConflictRule,
   type CrmEntity,
   type CrmProvider,
   type CrmSettings,
+  type SyncDirection,
   type SyncStats,
 } from '../../supabase/functions/_shared/crm/engine';
 
@@ -49,7 +51,7 @@ export {
   defaultSettings,
   validateSettings,
 };
-export type { CrmEntity, CrmProvider, CrmSettings, SyncStats };
+export type { ConflictRule, CrmEntity, CrmProvider, CrmSettings, SyncDirection, SyncStats };
 
 export type ConnectionStatus = 'connected' | 'error' | 'disconnected';
 export type RunStatus = 'running' | 'success' | 'partial' | 'failed';
