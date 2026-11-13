@@ -1,6 +1,5 @@
 import { useId } from 'react';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
-import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import { motion } from 'framer-motion';
 import {
   Building2,
