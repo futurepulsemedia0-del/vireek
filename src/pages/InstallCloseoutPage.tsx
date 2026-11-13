@@ -16,7 +16,7 @@ import {
   DEFAULT_SETTINGS, ESTIMATE_DISCLAIMER, RULES_DISCLAIMER, fetchCloseoutCases, fetchCloseoutPrograms, fetchCloseoutSettings,
   fetchCloseoutSteps, fetchJobsWithoutCase, fetchRecentEvents, formatCents, moneyAtRisk, openCloseoutCase, riskCounts, todayIso,
   type CloseoutCase, type CloseoutEvent, type CloseoutProgram, type CloseoutSettings, type CloseoutStep, type CloseoutEvidence,
-} from '@/lib/installCloseout';
+} from '@/lib/installCloseoutCase';
 import { supabase } from '@/lib/supabase';
 
 type Tab = 'board' | 'rules' | 'summary' | 'audit';
