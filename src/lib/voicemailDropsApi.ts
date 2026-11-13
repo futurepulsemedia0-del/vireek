@@ -164,6 +164,7 @@ export type UpdateVoicemailDropPatch = Partial<
     transcript: string | null;
     campaign_types: DropCampaignType[];
     uses_ai_voice: boolean;
+    status: VoicemailDropStatus;
   }
 >;
 
@@ -188,7 +189,23 @@ export function setVoicemailDropStatus(
   id: string,
   status: VoicemailDropStatus,
 ): Promise<VoicemailDrop> {
-  return updateVoicemailDrop(accountOwnerId, id, {}).catch(() => {
-    throw new Error('unreachable');
-  }) as never;
+  return updateVoicemailDrop(accountOwnerId, id, { status });
+}
+
+/** Deletes the row first, then the audio file. A leftover file is harmless; a leftover row pointing at a missing file is not. */
+export async function deleteVoicemailDrop(accountOwnerId: string, drop: VoicemailDrop): Promise<void> {
+  const { error } = await supabase
+    .from('voicemail_drops')
+    .delete()
+    .eq('id', drop.id)
+    .eq('account_owner_id', accountOwnerId);
+  if (error) throw toError(error, 'Could not delete this voicemail drop.');
+  await supabase.storage.from(BUCKET).remove([drop.storage_path]);
+}
+
+/** Short-lived signed URL for playback (the page refreshes it every 4 minutes). */
+export async function getVoicemailDropAudioUrl(storagePath: string): Promise<string> {
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(storagePath, 300);
+  if (error || !data?.signedUrl) throw new Error('Could not load the audio.');
+  return data.signedUrl;
 }
