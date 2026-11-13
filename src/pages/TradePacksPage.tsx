@@ -80,7 +80,7 @@ export function TradePacksPage() {
   const [busy, setBusy] = useState(false);
 
   const canManage = isOwner || permissions.can_edit_business_profile || teamMember?.role === 'admin';
-  visiblePacks.find(...) ?? visiblePacks[0]
+  const pack = visiblePacks.find((p) => p.key === selected) ?? visiblePacks[0];
   const install = useMemo(() => installs.find((i) => i.pack_key === pack.key), [installs, pack.key]);
   const isOn = enabled.has(pack.key);
 
