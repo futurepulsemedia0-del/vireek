@@ -94,6 +94,18 @@ export async function readCallSensitive(callId: string): Promise<SensitiveCall |
   return { recordingUrl: str(row.recording_url), transcript: str(row.transcript) };
 }
 
+/**
+ * Server-side call search over name / phone / summary / transcript. Every token must match.
+ * Returns call ids only (no content); the database logs the match as one aggregated read.
+ */
+export async function searchCallsText(tokens: string[]): Promise<string[]> {
+  const clean = tokens.map((t) => t.trim()).filter((t) => t.length > 0).slice(0, 8);
+  if (clean.length === 0) return [];
+  const { data, error } = await supabase.rpc('search_calls_text', { p_tokens: clean });
+  if (error) throw classifyAccessError(error);
+  return Array.isArray(data) ? data.filter((id): id is string => typeof id === 'string') : [];
+}
+
 export async function fetchAccessHistory(targetTable: string, targetId: string, before?: string): Promise<AccessHistoryRow[]> {
   const { data, error } = await supabase.rpc('list_sensitive_access_history', {
     p_target_table: targetTable, p_target_id: targetId, p_limit: 50, p_before: before ?? null,
