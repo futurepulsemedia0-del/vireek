@@ -9,7 +9,7 @@ import {
   ANCHOR_LABELS, CLOSEOUT_STEP_KEYS, EVIDENCE_KINDS, EVIDENCE_LABELS, RULES_DISCLAIMER, STEP_LABELS,
   programFreshness, safeHttpUrl, saveCloseoutProgram, saveCloseoutSettings, verifyCloseoutProgram,
   type CloseoutAnchor, type CloseoutProgram, type CloseoutSettings, type CloseoutStepKey, type EvidenceKind,
-} from '@/lib/installCloseout';
+} from '@/lib/installCloseoutCase';
 
 const field = 'focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
 
