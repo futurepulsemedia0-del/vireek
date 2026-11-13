@@ -15,7 +15,7 @@ import {
   friendlyVideoError,
   validateStartForm,
   type VideoClipRow,
-  type VideoSessionRow,
+  type VideoSessionRow as VideoSessionData,
 } from '@/lib/videoSession';
 import { createVideoSession, fetchClips, fetchJobVideoSessions } from '@/lib/videoSessionApi';
 
@@ -24,7 +24,7 @@ export function JobVideoSessionPanel({ jobId, ownerId, canEdit }: { jobId: strin
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isOwner, permissions } = useAuth();
-  const [sessions, setSessions] = useState<VideoSessionRow[]>([]);
+  const [sessions, setSessions] = useState<VideoSessionData[]>([]);
   const [clips, setClips] = useState<VideoClipRow[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [formOpen, setFormOpen] = useState(false);
