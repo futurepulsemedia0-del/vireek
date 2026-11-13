@@ -2,9 +2,6 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import {
-  MAX_COMMENT_LENGTH, readStoredVote, storeVote, submitHelpFeedback, type HelpVote,
-} from '@/lib/helpFeedback';
-import {
   MAX_COMMENT_LENGTH, getVisitorId, readStoredVote, storeVote, submitHelpFeedback, type HelpVote,
 } from '@/lib/helpFeedback';
 import { HELP_REASONS, setHelpFeedbackReason, type HelpReason } from '@/lib/feedback/api';
