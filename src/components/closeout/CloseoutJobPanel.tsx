@@ -6,7 +6,7 @@ import { useToast } from '@/contexts/ToastContext';
 import {
   STEP_LABELS, STATUS_LABELS, deadlineRisk, fetchCloseoutSettings, fetchJobCloseout, openCloseoutCase,
   preApprovalBlockers, todayIso, DEFAULT_SETTINGS, type CloseoutCase, type CloseoutSettings, type CloseoutStep,
-} from '@/lib/installCloseout';
+} from '@/lib/installCloseoutCase';
 import { RiskBadge, deadlineText } from '@/components/closeout/CloseoutBoard';
 
 /** Compact closeout summary for a job. Renders nothing for technicians (office/owner only). */
