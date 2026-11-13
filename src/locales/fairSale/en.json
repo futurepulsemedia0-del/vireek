@@ -1,0 +1,50 @@
+{
+  "dash": {
+    "title": "Fair Sale Protocol",
+    "intro": "Configure how your team presents prices and options so customers are never rushed or pressured.",
+    "legalNote": "This tool supports good sales practice. It is not legal advice; check local consumer-protection rules.",
+    "noAccess": "No access",
+    "noAccessHint": "You need compliance permissions to manage the Fair Sale Protocol.",
+    "loadFailed": "Could not load settings",
+    "tabsLabel": "Fair sale sections",
+    "errors": { "generic": "Something went wrong. Please try again." },
+    "tabs": {
+      "settings": "Settings",
+      "review": "Review",
+      "log": "Log",
+      "governance": "Governance"
+    }
+  },
+  "public": {
+    "title": "Our Fair Sale Promise",
+    "metaDescription": "How we promise to treat every customer fairly: no rushing, clear prices and your right to change your mind.",
+    "lead": "We want you to feel informed and in control at every step of your service visit.",
+    "promisesTitle": "Our promises to you",
+    "items": {
+      "never_rush": "We will never rush you into a decision.",
+      "take_time": "You can take the time you need to think it over.",
+      "summary": "We give you a clear summary of the work and options.",
+      "price_check": "We explain the price before any work begins.",
+      "trusted": "You may consult someone you trust before you decide.",
+      "manager": "You can ask to speak with a manager at any time.",
+      "payment": "We explain payment terms clearly and in advance.",
+      "callback": "You can ask us to call you back later.",
+      "no_guess": "We will not guess or pressure; we only recommend what is needed.",
+      "emergency": "In an emergency, we make the situation safe first and discuss the rest afterwards."
+    },
+    "rights": "You can decline any recommendation without penalty and withdraw your consent at any time.",
+    "notice": {
+      "title": "Notice",
+      "body": "This promise describes our standards of conduct and does not replace your statutory rights."
+    },
+    "revoke": {
+      "title": "Revoke a recorded agreement",
+      "body": "If you gave consent through a link and want to withdraw it, enter your revocation code below.",
+      "label": "Revocation code",
+      "button": "Revoke",
+      "done": "Your consent has been revoked.",
+      "error": "We could not revoke this code. Please check it and try again."
+    },
+    "footnote": "Questions? Contact the company that serviced you."
+  }
+}
