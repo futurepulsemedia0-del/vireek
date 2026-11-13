@@ -99,7 +99,6 @@ const EMPTY_FORM: ClaimFormState = {
   failure_description: '',
   failure_date: '',
   claim_deadline: '',
-  claim_deadline: '',
   part_cost: '',
   labor_cost: '',
   rma_number: '',
