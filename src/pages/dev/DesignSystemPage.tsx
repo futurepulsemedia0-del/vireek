@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TYPE_SCALE, TYPE_UTILITIES, toPx, MIN_REM } from '../../scripts/type/type-scale.mjs';
+import { TYPE_SCALE, TYPE_UTILITIES, toPx, MIN_REM } from '../../../scripts/type/type-scale.mjs';
 import { applyDensity, readDensity, setDensity, type Density } from '@/lib/density';
 import { findSmallText, type SmallTextHit } from '@/lib/typeAudit';
 
