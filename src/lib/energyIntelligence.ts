@@ -6,7 +6,9 @@ import {
   type EnergyAnomaly,
   type EnergyReport,
   type EquipmentEnergyRow,
+  type ForecastScenario,
   type Fuel,
+  type FuelSummary,
   type Opportunity,
   type OpportunityMeasure,
 } from '../../supabase/functions/_shared/energy-intelligence/engine';
@@ -29,7 +31,9 @@ export type {
   EnergyAnomaly,
   EnergyReport,
   EquipmentEnergyRow,
+  ForecastScenario,
   Fuel,
+  FuelSummary,
   Opportunity,
   OpportunityMeasure,
 };
