@@ -40,7 +40,6 @@ const KIND_STROKE: Record<NodeKind, string> = {
   lookup: 'stroke-accent-500', reason: 'stroke-accent-500', decision: 'stroke-warning-500', action: 'stroke-success-500',
 approval: 'stroke-warning-500', verify: 'stroke-accent-500', wait: 'stroke-border',
   parallel: 'stroke-accent-500', join: 'stroke-accent-500', foreach: 'stroke-accent-500',
-  parallel: 'stroke-accent-500', join: 'stroke-accent-500', foreach: 'stroke-accent-500',
 };
 
 const btn = 'focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-tertiary disabled:opacity-50';
