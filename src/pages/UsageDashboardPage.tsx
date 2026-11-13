@@ -435,7 +435,6 @@ export function UsageDashboardPage() {
                     <span className="font-medium text-text-primary">{Math.round(minutesUsed)} min</span>
                   </div>
                   <div className="flex justify-between">
-                  <div className="flex justify-between">
                     <span className="text-text-secondary">Included</span>
                     <span className="font-medium text-text-primary">{unlimited ? 'Unlimited' : `${Math.round(usageSnap.included)} min`}</span>
                   </div>
