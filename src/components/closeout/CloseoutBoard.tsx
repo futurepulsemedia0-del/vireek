@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/EmptyState';
 import {
   CLOSEOUT_STEP_KEYS, STEP_LABELS, STATUS_LABELS, RISK_LABELS, deadlineRisk, daysLeft, missingEvidence,
   type CloseoutSettings, type CloseoutStep, type RiskLevel, type CloseoutEvidence,
-} from '@/lib/installCloseout';
+} from '@/lib/installCloseoutCase';
 
 export type RiskFilter = 'all' | 'overdue' | 'critical' | 'at_risk' | 'blocked';
 
