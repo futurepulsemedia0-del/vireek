@@ -39,7 +39,6 @@ export const STATUS_TRANSITIONS: Record<JobStatus, readonly JobStatus[]> = {
   completed: [],
   cancelled: [],
   no_show: [],
-  no_show: [],
 };
 
 // ------------------------------------------------------------
