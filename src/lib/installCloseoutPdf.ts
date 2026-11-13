@@ -9,7 +9,7 @@ import {
   EVIDENCE_LABELS, RULES_DISCLAIMER, STATUS_LABELS, STEP_LABELS, ELIGIBILITY_LABELS, PRE_APPROVAL_LABELS,
   missingEvidence, safeHttpUrl,
   type CloseoutProgram, type CloseoutStep, type CloseoutEvidence,
-} from '@/lib/installCloseout';
+} from '@/lib/installCloseoutCase';
 
 const ACCENT: [number, number, number] = [32, 58, 216];
 const INK: [number, number, number] = [23, 23, 23];
