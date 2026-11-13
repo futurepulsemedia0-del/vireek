@@ -10,5 +10,9 @@
     "html_handling": "none",
     "not_found_handling": "none"
   },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  "routes": [
+    { "pattern": "vireek.com", "custom_domain": true },
+    { "pattern": "www.vireek.com", "custom_domain": true }
+  ]
 }
