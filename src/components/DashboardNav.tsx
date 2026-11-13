@@ -62,7 +62,6 @@ import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '@/hooks/useDirection';
 import { useEntitlements } from '@/hooks/useEntitlement';
-import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import { passesModuleGate } from '@/lib/entitlements';
 import { navLabelKey } from '@/lib/navLabel';
 import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
@@ -546,13 +545,25 @@ const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: 
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'system', label: 'System', icon: Monitor },
 ];
+type NavGates = Partial<Record<'landscaping', boolean>>;
 const NO_MODULES: ReadonlySet<string> = new Set();
-export function filterItems(items: NavItem[], isOwner: boolean, permissions: import('@/contexts/AuthContext').UserPermissions, isFlagOn?: (key: string) => boolean) {
+export function filterItems(
+  items: NavItem[],
+  isOwner: boolean,
+  permissions: import('@/contexts/AuthContext').UserPermissions,
+  gatesOrHasModule?: NavGates | ((id: string) => boolean),
+  isFlagOn?: (key: string) => boolean,
+  enabledModules: ReadonlySet<string> = NO_MODULES,
+  hasModuleArg?: (id: string) => boolean,
+) {
+  const gates: NavGates = typeof gatesOrHasModule === 'object' && gatesOrHasModule ? gatesOrHasModule : {};
+  const hasModule = hasModuleArg ?? (typeof gatesOrHasModule === 'function' ? gatesOrHasModule : undefined);
   return items.filter((item) => {
+    if (item.gate && !gates[item.gate]) return false;
     if (item.flag && !(isFlagOn?.(item.flag) ?? false)) return false;
     if (item.hiddenUnless && !enabledModules.has(item.hiddenUnless)) return false;
     if (item.requiresFlag && isFlagOn && !isFlagOn(item.requiresFlag)) return false;
-    if (item.requiresModule && !modules.has(item.requiresModule)) return false;
+    if (!passesModuleGate(item.requiresModule, hasModule)) return false;
     if (item.ownerOnly && !isOwner) return false;
     if (!item.requiresPermission) return true;
     if (isOwner) return true;
@@ -568,9 +579,13 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     rememberDashboardPath(location.pathname);
   }, [location.pathname]);
   const { user, isOwner, permissions, signOut } = useAuth();
-  const { isEnabled } = useFeatureFlags();
   const { enabled: partsSourcingOn } = usePartsSourcingEnabled();
-  const enabledModules: ReadonlySet<string> = new Set(partsSourcingOn ? ['parts_sourcing'] : []);
+  const pestOps = usePestOpsAccess();
+  const landscaping = useLandscapingAccess();
+  const enabledModules: ReadonlySet<string> = new Set([
+    ...(partsSourcingOn ? ['parts_sourcing'] : []),
+    ...(pestOps.enabled ? ['pest_ops'] : []),
+  ]);
   const { isEnabled: isFlagOn } = useFeatureFlags();
   const { toast } = useToast();
   const { preference, setThemePreference } = useTheme();
@@ -605,10 +620,11 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     return location.pathname.startsWith(href);
   };
 
-  const pestOps = usePestOpsAccess();
-  const enabledModules: ReadonlySet<string> = new Set(pestOps.enabled ? ['pest_ops'] : []);
-  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, enabledModules);
-  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, (k) => isEnabled(k));
+  const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
+  const gates = { landscaping: landscaping.allowed };
+  const visiblePrimary = filterItems(PRIMARY_ITEMS, isOwner, permissions, gates, isFlagOn, enabledModules, hasModule);
+  const visibleAccount = filterItems(ACCOUNT_ITEMS, isOwner, permissions, gates, isFlagOn, enabledModules, hasModule);
+  const [showLabs, setShowLabs] = useState<boolean>(() => {
     try {
       return localStorage.getItem('vireek.labs') === '1';
     } catch {
