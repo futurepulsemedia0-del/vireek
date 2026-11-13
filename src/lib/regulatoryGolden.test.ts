@@ -4,7 +4,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 vi.mock('@/lib/supabase', () => ({ supabase: {} }));
-import { computeLeakRate, LEAK_REPAIR_DEADLINE_DAYS, LEAK_THRESHOLD_PCT, LEAK_RULE_MIN_CHARGE_LBS, RECORD_RETENTION_YEARS } from './refrigerantCompliance';
+import {
+  ALD_MAX_CALIBRATION_AGE_DAYS, ANNUAL_INSPECTION_COUNT, CHRONIC_LEAK_PCT, computeLeakRate, FOLLOWUP_JOB_LEAD_DAYS,
+  LEAK_COVERED_GWP_EXCLUSIVE_MIN, LEAK_DUE_SOON_DAYS, LEAK_FOLLOWUP_TEST_DAYS, LEAK_REPAIR_DEADLINE_DAYS,
+  LEAK_RETROFIT_COMPLETE_YEARS, LEAK_RETROFIT_PLAN_DAYS, LEAK_RULE_MIN_CHARGE_LBS, LEAK_THRESHOLD_PCT,
+  QUARTERLY_INSPECTION_COUNT, QUARTERLY_INSPECTION_MIN_LBS, RECORD_RETENTION_YEARS, TYPE_I_MAX_CHARGE_LBS,
+} from './refrigerantCompliance';
 
 const read = (p: string) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const SQL = read('../../supabase/migrations/20280101000000_refrigerant_leak_repair_loop.sql');
@@ -52,5 +57,28 @@ describe('84.106 DISCREPANCIES (confirmed against rule text)', () => {
   it.fails('D5 (d)/(f): industrial-process-shutdown 120-day window is not modelled', () => {
     const r = (computeLeakRate as unknown as (i: object) => { repairDeadline: string })({ entries: [add(40, '2026-06-01')], fullChargeLbs: 100, category: 'industrial_process', industrialShutdownRequired: true, asOf: new Date('2026-06-02T00:00:00Z') });
     expect(r.repairDeadline.slice(0, 10)).toBe('2026-09-29');
+  });
+});
+
+describe('TS constants mirror SQL leak_rules() (single source of truth)', () => {
+  it('every rule key has the same value in SQL and in refrigerantCompliance.ts', () => {
+    const pairs: Array<[string, number]> = [
+      ['min_charge_lbs', LEAK_RULE_MIN_CHARGE_LBS],
+      ['gwp_exclusive_min', LEAK_COVERED_GWP_EXCLUSIVE_MIN],
+      ['repair_days', LEAK_REPAIR_DEADLINE_DAYS],
+      ['followup_test_days', LEAK_FOLLOWUP_TEST_DAYS],
+      ['retrofit_plan_days', LEAK_RETROFIT_PLAN_DAYS],
+      ['retrofit_complete_years', LEAK_RETROFIT_COMPLETE_YEARS],
+      ['chronic_pct', CHRONIC_LEAK_PCT],
+      ['quarterly_min_lbs', QUARTERLY_INSPECTION_MIN_LBS],
+      ['quarterly_count', QUARTERLY_INSPECTION_COUNT],
+      ['annual_count', ANNUAL_INSPECTION_COUNT],
+      ['ald_max_age_days', ALD_MAX_CALIBRATION_AGE_DAYS],
+      ['retention_years', RECORD_RETENTION_YEARS],
+      ['followup_job_lead_days', FOLLOWUP_JOB_LEAD_DAYS],
+      ['due_soon_days', LEAK_DUE_SOON_DAYS],
+      ['type_i_max_lbs', TYPE_I_MAX_CHARGE_LBS],
+    ];
+    for (const [key, value] of pairs) expect([key, rule(key)]).toEqual([key, value]);
   });
 });
