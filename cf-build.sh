@@ -5,7 +5,7 @@ npm install --legacy-peer-deps
 
 npm install --no-save --legacy-peer-deps --ignore-scripts \
   zod@3 @hookform/resolvers@3 react-hook-form yaml maplibre-gl web-vitals \
-  libphonenumber-js @dnd-kit/core @google/model-viewer \
+  libphonenumber-js @dnd-kit/core @google/model-viewer three@0.160.0 \
   @stripe/stripe-js @stripe/react-stripe-js @sentry/capacitor \
   @capacitor/core @capacitor/app @capacitor/camera @capacitor/filesystem \
   @capacitor/geolocation @capacitor/haptics @capacitor/network @capacitor/share \
