@@ -150,7 +150,6 @@ export const JOB_STATUS_LABELS: Record<PortalJob['job_status'], string> = {
   in_progress: 'In progress',
   cancelled: 'Cancelled',
   completed: 'Completed',
-  no_show: 'No-show',
   cancelled: 'Cancelled',
   ...WORKFLOW_PORTAL_LABELS,
 };
