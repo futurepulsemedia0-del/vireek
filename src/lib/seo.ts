@@ -93,7 +93,7 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
       upsertMeta('meta[property="og:type"]', 'property', 'og:type', type),
       upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonical),
       upsertMeta('meta[property="og:site_name"]', 'property', 'og:site_name', SITE_NAME),
-      upsertMeta('meta[property="og:image"]', 'property', 'og:image', DEFAULT_OG_IMAGE),
+      upsertMeta('meta[property="og:image"]', 'property', 'og:image', ogImage),
       upsertMeta('meta[property="og:image:width"]', 'property', 'og:image:width', '1200'),
       upsertMeta('meta[property="og:image:height"]', 'property', 'og:image:height', '630'),
       upsertMeta('meta[property="og:image:alt"]', 'property', 'og:image:alt', title),
@@ -101,7 +101,7 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
       upsertMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image'),
       upsertMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title),
       upsertMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description),
-      upsertMeta('meta[name="twitter:image"]', 'name', 'twitter:image', DEFAULT_OG_IMAGE),
+      upsertMeta('meta[name="twitter:image"]', 'name', 'twitter:image', ogImage),
     ];
 
     // og:locale:alternate needs one <meta> tag PER other language, so it
@@ -116,15 +116,6 @@ export function useSEO({ title, description, canonical, type = 'website', jsonLd
         document.head.appendChild(el);
         return el;
       });
-
-    const hreflangEls = [...LANGUAGES.map((l) => l.code), 'x-default'].map((code) => {
-      const el = document.createElement('link');
-      el.setAttribute('rel', 'alternate');
-      el.setAttribute('hreflang', code);
-      el.setAttribute('href', canonical);
-      document.head.appendChild(el);
-      return el;
-    });
 
     const jsonLdEls = (jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []).map((schema) => {
     // hreflang is intentionally NOT emitted: language switching is client-side on one URL, so it gives no SEO benefit.
