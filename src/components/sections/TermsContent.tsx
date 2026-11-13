@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, TriangleAlert as AlertTriangle, Scale, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 import { EASE, viewport } from '@/lib/motion';
 
 const CONTACT_EMAIL = 'ali@vireek.com';
