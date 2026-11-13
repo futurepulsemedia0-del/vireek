@@ -100,3 +100,63 @@ export function writeLocal(userId: string, tableKey: string, value: Stamped, kv:
     /* quota/private mode — server copy still applies */
   }
 }
+
+// ---------------------------------------------------------------------------
+// Column resolution + density + paging helpers (pure)
+// ---------------------------------------------------------------------------
+
+export interface ColumnDef {
+  key: string;
+  label: string;
+  /** Required columns can never be hidden (e.g. the row's name). */
+  required?: boolean;
+  defaultWidth?: number;
+}
+
+export interface ResolvedColumns {
+  /** Every column, in the user's order (unknown saved keys dropped, new columns appended). */
+  ordered: ColumnDef[];
+  /** Only the visible ones, same order. */
+  visible: ColumnDef[];
+}
+
+export function resolveColumns(columns: readonly ColumnDef[], prefs: Pick<TablePrefs, 'columnOrder' | 'hiddenColumns'>): ResolvedColumns {
+  const byKey = new Map(columns.map((c) => [c.key, c]));
+  const ordered: ColumnDef[] = [];
+  for (const key of prefs.columnOrder) {
+    const c = byKey.get(key);
+    if (c && !ordered.includes(c)) ordered.push(c);
+  }
+  for (const c of columns) if (!ordered.includes(c)) ordered.push(c);
+  const hidden = new Set(prefs.hiddenColumns);
+  return { ordered, visible: ordered.filter((c) => c.required || !hidden.has(c.key)) };
+}
+
+/** Move `key` one step; the result is the full new order. */
+export function moveColumn(order: readonly string[], key: string, dir: -1 | 1): string[] {
+  const i = order.indexOf(key);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= order.length) return [...order];
+  const next = [...order];
+  [next[i], next[j]] = [next[j]!, next[i]!];
+  return next;
+}
+
+/** Hidden list that makes exactly `visibleKeys` visible (required columns stay visible). */
+export function hiddenFromVisible(columns: readonly ColumnDef[], visibleKeys: readonly string[]): string[] {
+  const keep = new Set(visibleKeys);
+  return columns.filter((c) => !c.required && !keep.has(c.key)).map((c) => c.key);
+}
+
+export const DENSITY_CELL: Record<Density, string> = {
+  compact: 'px-3 py-1.5',
+  comfortable: 'px-4 py-3',
+  spacious: 'px-5 py-4',
+};
+
+export const pageCount = (total: number, pageSize: number): number => Math.max(1, Math.ceil(total / Math.max(1, pageSize)));
+export const clampPage = (page: number, total: number, pageSize: number): number => Math.min(Math.max(1, page), pageCount(total, pageSize));
+export const sliceForPage = <T,>(rows: readonly T[], page: number, pageSize: number): T[] => {
+  const p = clampPage(page, rows.length, pageSize);
+  return rows.slice((p - 1) * pageSize, p * pageSize);
+};
