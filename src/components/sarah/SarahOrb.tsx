@@ -33,19 +33,6 @@ export interface SarahOrbProps {
   style?: CSSProperties;
 }
 
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return;
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const on = () => setReduced(mq.matches);
-    on();
-    mq.addEventListener?.('change', on);
-    return () => mq.removeEventListener?.('change', on);
-  }, []);
-  return reduced;
-}
-
 const CENTRES: Record<3 | 5, number[]> = { 5: [8.5, 12.25, 16, 19.75, 23.5], 3: [11.5, 16, 20.5] };
 
 /**
