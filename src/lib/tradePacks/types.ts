@@ -12,7 +12,7 @@
 import type { IntervalUnit } from '@/lib/recurringJobs';
 import type { FormField } from '@/lib/offline/formSchema';
 
-export type PackKey = 'pest_control' | 'pool_service' | 'solar';
+export type PackKey = 'pest_control' | 'pool_service' | 'solar' | 'landscaping';
 
 /* ------------------------------------------------------------------ */
 /* Units + product kinds (mirrored by CHECK constraints in the DB)      */
