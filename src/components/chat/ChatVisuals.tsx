@@ -124,6 +124,8 @@ export function ThinkingBubble() {
   );
 }
 
+export const TypingIndicator = ThinkingBubble;
+
 /** Pill-shaped starter-prompt chip — a suggestion, not a form field. */
 export function StarterPromptChip({ label, onClick }: { label: string; onClick: () => void }) {
   return (
