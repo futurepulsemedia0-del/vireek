@@ -174,3 +174,58 @@ export function analyzeNatural(opts: {
   }
   return { ...base, verdict: 'inconclusive', messageKey: 'dispatch.natural.inconclusive', messageParams: { lowPp: contrast.ciLow * 100, highPp: contrast.ciHigh * 100, have: Math.min(contrast.nTreatment, contrast.nControl), need }, contrast };
 }
+
+// ---------------------------------------------------------------------------------------------
+// Owner-page helpers (settings validation + 30-day draw overview). PURE.
+// ---------------------------------------------------------------------------------------------
+
+/** A dispatch_decisions row that carries explanation.randomization (see fetchRandomizedDecisions). */
+export interface DecisionRow {
+  job_id: string;
+  created_at: string;
+  explanation: unknown;
+}
+
+export type SkipKey = 'vip_job' | 'excluded_service' | 'fewer_than_two_tied' | 'eta_unknown' | 'eta_delta_exceeded';
+const SKIP_REASONS: readonly SkipKey[] = ['vip_job', 'excluded_service', 'fewer_than_two_tied', 'eta_unknown', 'eta_delta_exceeded'];
+
+export interface DrawSummary {
+  /** Decisions that went through the randomization check. */
+  total: number;
+  /** Of those, how many were actually drawn. */
+  applied: number;
+  /** Why the rest were not drawn. */
+  skipped: Record<SkipKey, number>;
+  /** Fairness / workload check over the applied draws. */
+  balance: SrmNatural;
+}
+
+export function summarizeDraws(decisions: DecisionRow[]): DrawSummary {
+  const skipped: Record<SkipKey, number> = { vip_job: 0, excluded_service: 0, fewer_than_two_tied: 0, eta_unknown: 0, eta_delta_exceeded: 0 };
+  const records: NaturalRecord[] = [];
+  let total = 0;
+  for (const d of decisions) {
+    const rz = (d.explanation as { randomization?: Record<string, unknown> } | null)?.randomization;
+    if (!rz || typeof rz !== 'object') continue;
+    total += 1;
+    const rec = recordFromExplanation(d.job_id, d.explanation, null);
+    if (rec) {
+      records.push(rec);
+    } else if (typeof rz.reason === 'string' && (SKIP_REASONS as readonly string[]).includes(rz.reason)) {
+      skipped[rz.reason as SkipKey] += 1;
+    }
+  }
+  return { total, applied: records.length, skipped, balance: srmNatural(records) };
+}
+
+/**
+ * Validates the owner's draft settings (same bounds as the database CHECKs and the server's normalizeSettings).
+ * Returns i18n error keys (`errors.<key>`); an empty array means valid.
+ */
+export function validateSettings(s: { epsilon: number; top_k: number; max_eta_delta_minutes: number }): Array<'epsilon' | 'topK' | 'eta'> {
+  const problems: Array<'epsilon' | 'topK' | 'eta'> = [];
+  if (!Number.isFinite(s.epsilon) || s.epsilon < 0 || s.epsilon > 10) problems.push('epsilon');
+  if (!Number.isInteger(s.top_k) || s.top_k < 2 || s.top_k > 5) problems.push('topK');
+  if (!Number.isInteger(s.max_eta_delta_minutes) || s.max_eta_delta_minutes < 0 || s.max_eta_delta_minutes > 120) problems.push('eta');
+  return problems;
+}
