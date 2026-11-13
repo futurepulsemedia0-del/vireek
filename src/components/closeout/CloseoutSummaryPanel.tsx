@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { EmptyState } from '@/components/EmptyState';
 import { SkeletonStatGrid } from '@/components/Skeleton';
-import { ESTIMATE_DISCLAIMER, STEP_LABELS, fetchMonthlySummary, formatCents, type MonthlySummary } from '@/lib/installCloseout';
+import { ESTIMATE_DISCLAIMER, STEP_LABELS, fetchMonthlySummary, formatCents, type MonthlySummary } from '@/lib/installCloseoutCase';
 
 export function CloseoutSummaryPanel({ today }: { today: string }) {
   const [month, setMonth] = useState(today.slice(0, 7));
