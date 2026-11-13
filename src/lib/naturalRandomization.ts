@@ -5,7 +5,35 @@
 // Estimand: effect of being sent a "treatment-group" technician instead of a "control-group" technician,
 // among near-tied jobs ONLY (local effect), intention-to-treat on the DRAWN technician.
 
-import { MIN_CELL_N, requiredPerArm, twoSidedP, type Alpha } from './opsExperiments';
+import {
+  MIN_BINARY_EVENTS,
+  MIN_CELL_N,
+  METRICS,
+  Z_TWO_SIDED,
+  benefitOf,
+  buildReworkedSet,
+  decideVerdict,
+  fromDisplay,
+  matchesService,
+  observe,
+  recommend,
+  requiredPerArm,
+  twoSidedP,
+  type Alpha,
+  type Analysis,
+  type Assignment,
+  type Baseline,
+  type EvidenceGrade,
+  type Estimate,
+  type ExpJob,
+  type ExperimentConfig,
+  type GuardrailResult,
+  type GuardrailStatus,
+  type MetricKey,
+  type MetricResult,
+  type ObserveContext,
+  type SrmResult,
+} from './opsExperiments';
 
 export interface TieMember { technician_id: string; score: number }
 export interface NaturalRecord {
@@ -129,7 +157,7 @@ function lnGamma(z: number): number {
 
 export type NaturalVerdict = 'collecting' | 'invalid' | 'inconclusive' | 'treatment_better' | 'control_better' | 'no_difference';
 
-export interface NaturalAnalysis {
+export interface NaturalContrastAnalysis {
   verdict: NaturalVerdict;
   /** i18n key + params for the UI; the UI owns the wording. */
   messageKey: string;
@@ -149,7 +177,7 @@ export function analyzeNatural(opts: {
   mde: number;
   higherIsBetter?: boolean;
   alpha?: Alpha;
-}): NaturalAnalysis {
+}): NaturalContrastAnalysis {
   const alpha = opts.alpha ?? 0.05;
   const z = alpha === 0.01 ? 2.5758293035489 : alpha === 0.1 ? 1.6448536269514722 : 1.959963984540054;
   const srm = srmNatural(opts.records);
@@ -228,4 +256,168 @@ export function validateSettings(s: { epsilon: number; top_k: number; max_eta_de
   if (!Number.isInteger(s.top_k) || s.top_k < 2 || s.top_k > 5) problems.push('topK');
   if (!Number.isInteger(s.max_eta_delta_minutes) || s.max_eta_delta_minutes < 0 || s.max_eta_delta_minutes > 120) problems.push('eta');
   return problems;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Experiment-level analysis for design = 'natural' (used by ExperimentDetail / NaturalProgressCard). PURE.
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Same shape as the analysis of every other design (so ResultPanel, buildSnapshot and the conclude flow work
+ * unchanged) plus what the near-tie progress card needs.
+ */
+export interface NaturalAnalysis extends Analysis {
+  /** Fairness / workload check of the lottery itself. */
+  balance: SrmNatural;
+  /** Near-tie draws made during the experiment (one per job). */
+  randomizedJobs: number;
+  /** Draws whose tie set contained BOTH a treatment and a control technician (only these identify the effect). */
+  informativeJobs: number;
+  /** Share of draws that dispatch actually executed (0–1). */
+  complianceRate: number;
+}
+
+type Arm = 'treatment' | 'control';
+
+const isInformative = (r: NaturalRecord, groups: Record<string, Arm>): boolean =>
+  r.tie_set.some((t) => groups[t.technician_id] === 'treatment') && r.tie_set.some((t) => groups[t.technician_id] === 'control');
+
+function toEstimate(c: ContrastResult): Estimate {
+  return {
+    effect: c.effect, se: c.se, z: c.z, p: c.p, ciLow: c.ciLow, ciHigh: c.ciHigh,
+    treatmentMean: c.treatmentMean, controlMean: c.controlMean,
+    counterfactual: c.controlMean,
+    relativePct: Math.abs(c.controlMean) > 1e-9 ? (c.effect / Math.abs(c.controlMean)) * 100 : null,
+    nTreatment: c.nTreatment, nControl: c.nControl,
+  };
+}
+
+/**
+ * Analyses a running near-tie experiment from dispatch draws.
+ *  - Scope: auto decisions logged since the experiment started (and before it concluded), restricted to the
+ *    experiment's service types; one draw per job (the latest decision for that job).
+ *  - Groups: the experiment's technician assignments (unit_type 'technician').
+ *  - Estimate: Hájek inverse-probability-weighted difference (see ipwContrast), a LOCAL effect among near-tied jobs.
+ *  - Verdict / recommendation reuse the shared rules (decideVerdict, recommend) so every design is judged alike.
+ */
+export function analyzeNaturalExperiment(
+  cfg: ExperimentConfig,
+  decisions: DecisionRow[],
+  jobs: ExpJob[],
+  assignments: Assignment[],
+  baseline: Baseline | null,
+  now: Date = new Date(),
+): NaturalAnalysis {
+  const warnings: string[] = [];
+  const zFinal = Z_TWO_SIDED[cfg.alpha];
+  const metric = cfg.primary_metric;
+  const mde = fromDisplay(metric, cfg.min_detectable_effect);
+
+  const groups: Record<string, Arm> = {};
+  for (const a of assignments) if (a.unit_type === 'technician') groups[a.unit_id] = a.arm;
+
+  const startMs = cfg.started_at ? Date.parse(cfg.started_at) : NaN;
+  const endMs = cfg.concluded_at ? Date.parse(cfg.concluded_at) : now.getTime();
+  const jobById = new Map(jobs.map((j) => [j.id, j]));
+  const ctx: ObserveContext = { reworked: buildReworkedSet(jobs), now, maturityDays: cfg.maturity_days };
+
+  // One draw per job: if a job was auto-assigned more than once, the latest decision is the one that stuck.
+  const latest = new Map<string, DecisionRow>();
+  for (const d of decisions) {
+    const t = Date.parse(d.created_at);
+    if (!Number.isFinite(startMs) || !Number.isFinite(t) || t < startMs || t > endMs) continue;
+    if (cfg.service_types.length > 0) {
+      const job = jobById.get(d.job_id);
+      if (!job || !matchesService(job, cfg.service_types)) continue;
+    }
+    const prev = latest.get(d.job_id);
+    if (!prev || t >= Date.parse(prev.created_at)) latest.set(d.job_id, d);
+  }
+
+  const recordsFor = (m: MetricKey): NaturalRecord[] => {
+    const out: NaturalRecord[] = [];
+    for (const d of latest.values()) {
+      const job = jobById.get(d.job_id);
+      const rec = recordFromExplanation(d.job_id, d.explanation, job ? observe(m, job, ctx) : null);
+      if (rec) out.push(rec);
+    }
+    return out;
+  };
+
+  const records = recordsFor(metric);
+  const balance = srmNatural(records);
+  const informativeJobs = records.filter((r) => isInformative(r, groups)).length;
+  const complianceRate = records.length ? records.filter((r) => r.executed_as_drawn).length / records.length : 0;
+
+  // Sample-size planning and sequential boundary, exactly as for the other designs.
+  const probe = ipwContrast(records, groups, zFinal);
+  const observedPerArm = probe ? Math.min(probe.nTreatment, probe.nControl) : 0;
+  const plannedPerArm = requiredPerArm(metric, cfg.design, baseline, mde, cfg.alpha);
+  const informationFraction = plannedPerArm ? Math.min(1, observedPerArm / plannedPerArm) : 1;
+  const zCritical = zFinal / Math.sqrt(Math.max(informationFraction, 0.05));
+  const contrast = ipwContrast(records, groups, zCritical);
+  const estimate = contrast ? toEstimate(contrast) : null;
+  const primary: MetricResult = { metric, estimate, benefit: benefitOf(metric, estimate) };
+
+  const drawnTreatment = records.filter((r) => groups[r.drawn_technician_id] === 'treatment').length;
+  const drawnControl = records.filter((r) => groups[r.drawn_technician_id] === 'control').length;
+  const srm: SrmResult = { nTreatment: drawnTreatment, nControl: drawnControl, p: balance.p, failed: balance.failed };
+  if (balance.failed) warnings.push('The near-tie lottery is not behaving like a fair draw (some technicians got far more or fewer jobs than expected). Results cannot be trusted until this is explained.');
+  if (records.length > 0 && informativeJobs === 0) warnings.push('No drawn job had both a treatment and a control technician tied. Put technicians from both groups in the same service areas so they can be tied.');
+  if (records.length >= MIN_CELL_N && complianceRate < 0.8) warnings.push('Dispatchers overrode many of the draws, so the measured effect is diluted (it is the effect of the draw, not of the technician actually sent).');
+
+  let sparse = false;
+  if (METRICS[metric].kind === 'binary' && observedPerArm >= MIN_CELL_N) {
+    const ones = { treatment: 0, control: 0 };
+    const zeros = { treatment: 0, control: 0 };
+    for (const r of records) {
+      if (r.outcome === null || !isInformative(r, groups)) continue;
+      const arm = groups[r.drawn_technician_id];
+      if (!arm) continue;
+      if (r.outcome >= 0.5) ones[arm] += 1; else zeros[arm] += 1;
+    }
+    sparse = (['treatment', 'control'] as const).some((a) => ones[a] < MIN_BINARY_EVENTS || zeros[a] < MIN_BINARY_EVENTS);
+    if (sparse) warnings.push('Too few events in at least one group for a reliable estimate. Collect more outcomes.');
+  }
+
+  let guardrail: GuardrailResult | null = null;
+  if (cfg.guardrail_metric && cfg.guardrail_tolerance !== null) {
+    const gMetric = cfg.guardrail_metric;
+    const gc = ipwContrast(recordsFor(gMetric), groups, zFinal);
+    const gEst = gc && Math.min(gc.nTreatment, gc.nControl) >= MIN_CELL_N ? toEstimate(gc) : null;
+    const tolerance = fromDisplay(gMetric, cfg.guardrail_tolerance);
+    let status: GuardrailStatus = 'unknown';
+    if (gEst) {
+      const harm = METRICS[gMetric].higherIsBetter ? -gEst.effect : gEst.effect;
+      if (harm - zFinal * gEst.se > tolerance) status = 'breached';
+      else if (harm + zFinal * gEst.se <= tolerance) status = 'ok';
+      else status = 'watch';
+    }
+    guardrail = { metric: gMetric, estimate: gEst, benefit: benefitOf(gMetric, gEst), status, tolerance };
+    if (status === 'breached') warnings.push(`Guardrail breached: ${METRICS[gMetric].label} got worse than the agreed tolerance.`);
+  }
+
+  const verdict = decideVerdict({ srmFailed: balance.failed, estimate, benefit: primary.benefit, observedPerArm, sparse, zCritical, informationFraction, mde });
+  const recommendation = recommend(verdict, guardrail);
+  // Never grade "A": that is reserved for fully randomized designs; a near-tie lottery gives a local effect.
+  const evidence: EvidenceGrade = informationFraction >= 1 && !sparse ? 'B' : 'C';
+
+  return {
+    verdict, recommendation, evidence, primary, guardrail, srm,
+    plannedPerArm, observedPerArm, informationFraction, zCritical, warnings,
+    computedAt: now.toISOString(),
+    balance, randomizedJobs: records.length, informativeJobs, complianceRate,
+  };
+}
+
+/**
+ * Rough days until the experiment reaches its planned sample size, extrapolating the pace so far.
+ * null when it cannot be estimated yet (no plan, nothing observed, or no time elapsed).
+ */
+export function projectedDaysToPower(a: Pick<Analysis, 'plannedPerArm' | 'observedPerArm'>, elapsedDays: number): number | null {
+  if (a.plannedPerArm === null || !(a.plannedPerArm > 0)) return null;
+  if (a.observedPerArm >= a.plannedPerArm) return 0;
+  if (!(a.observedPerArm > 0) || !(elapsedDays > 0)) return null;
+  const perDay = a.observedPerArm / elapsedDays;
+  return Math.ceil((a.plannedPerArm - a.observedPerArm) / perDay);
 }
