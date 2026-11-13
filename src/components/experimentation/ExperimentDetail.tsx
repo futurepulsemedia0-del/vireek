@@ -40,6 +40,9 @@ const DECISION_LABELS: Record<Decision, string> = {
   reject: 'Stop - keep the current approach',
 };
 
+/** Stable default so the analysis memo is not recomputed on every render when no draws are passed. */
+const NO_DECISIONS: DecisionRow[] = [];
+
 interface Props {
   experiment: ExperimentRow;
   jobs: ExpJob[];
@@ -57,7 +60,7 @@ interface Props {
   onDeleteDraft: () => void;
 }
 
-export function ExperimentDetail({ experiment: e, jobs, assignments, decisions = [], randomizationEnabled = null, canManage, busy, onStart, onEnroll, onConclude, onArchive, onDeleteDraft }: Props) {
+export function ExperimentDetail({ experiment: e, jobs, assignments, decisions = NO_DECISIONS, randomizationEnabled = null, canManage, busy, onStart, onEnroll, onConclude, onArchive, onDeleteDraft }: Props) {
   const [decision, setDecision] = useState<Decision | ''>('');
   const [learning, setLearning] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -69,7 +72,7 @@ export function ExperimentDetail({ experiment: e, jobs, assignments, decisions =
     const baseline = historicalBaseline(e.primary_metric, jobs, e.service_types, e.maturity_days, at);
    if (e.design === 'natural') return analyzeNaturalExperiment(e, decisions, jobs, assignments, baseline, at);
        return analyzeExperiment(e, jobs, assignments, baseline, at);
-  }, [e, jobs, assignments]);
+  }, [e, jobs, assignments, decisions]);
 
   const enrolledJobIds = useMemo(() => new Set(assignments.filter((a) => a.unit_type === 'job').map((a) => a.unit_id)), [assignments]);
   const candidates = useMemo(() => enrollmentCandidates(e, jobs, enrolledJobIds), [e, jobs, enrolledJobIds]);
