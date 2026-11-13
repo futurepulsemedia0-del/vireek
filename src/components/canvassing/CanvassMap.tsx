@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { computeBounds, doorsToGeoJSON, hasPoint, NEW_DOOR_COLOR, OUTCOMES, STATUS_ORDER, type Door, type DoorStatus } from '@/lib/canvassing';
 
