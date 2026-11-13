@@ -134,8 +134,9 @@ const newest = (dates) => dates.filter(Boolean).sort().at(-1);
 
 /** Every indexable URL: [{ path, kind, lastmod? }]. lastmod only where a real date exists. */
 export async function collectRoutes() {
-  const [blog, industries, competitors, integrations, switchGuides] = await Promise.all(
-    ['blog', 'industries', 'competitors', 'integrations', 'switchGuides'].map((n) =>
+  const blog = loadBlog({ root: ROOT });
+  const [industries, competitors, integrations, switchGuides] = await Promise.all(
+    ['industries', 'competitors', 'integrations', 'switchGuides'].map((n) =>
       loadTsModule(`src/lib/${n}.ts`),
     ),
   );
@@ -159,13 +160,13 @@ export async function collectRoutes() {
     if (entries.has(p)) throw new Error(`[seo] duplicate route: ${p}`);
     entries.set(p, { path: p, kind, ...(lastmod ? { lastmod } : {}) });
   };
-  newest(blog.posts.map((p) => toIsoDate(p.updatedAt)))
+  const newestPost = newest(blog.posts.map((p) => toIsoDate(p.updatedAt)));
 
   for (const p of STATIC_PUBLIC_PATHS) {
+  if (isEndorsementEnabled(ROOT)) add('/legal/company', 'static');
     add(p, 'static', p === '/blog' ? newestPost : p === '/changelog' ? changelogDate : undefined);
   }
   const dynamic = (items, base, kind, lastmodOf) => {
-    if (isEndorsementEnabled(ROOT)) add('/legal/company', 'static');
     for (const item of items) {
       if (typeof item.slug !== 'string' || !SLUG_RE.test(item.slug)) {
         throw new Error(`[seo] invalid slug "${item.slug}" under ${base}`);
