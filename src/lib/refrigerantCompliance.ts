@@ -72,25 +72,31 @@ export const LEAK_REPAIR_DEADLINE_DAYS = 30;
 export const RECORD_RETENTION_YEARS = 3;
 /** Type I certification covers only small appliances up to this charge. */
 export const TYPE_I_MAX_CHARGE_LBS = 5;
-/** Refrigerants with GWP above this are covered (GWP > 53). */
+
+/*
+ * Leak-repair rules (40 CFR 84.106). SQL is the single source of truth: public.leak_rules() in
+ * supabase/migrations/20280101000000_refrigerant_leak_repair_loop.sql. These constants MIRROR it and
+ * src/lib/regulatoryGolden.test.ts fails if they drift. Not legal advice; re-verify on ecfr.gov.
+ */
+/** Covered refrigerants have a 100-yr GWP strictly greater than this. */
 export const LEAK_COVERED_GWP_EXCLUSIVE_MIN = 53;
-/** Days allowed for the follow-up verification test. */
+/** Days allowed for the follow-up (verification) test after a repair. */
 export const LEAK_FOLLOWUP_TEST_DAYS = 10;
-/** Days to draft the retrofit / retire plan. */
+/** Days after a failed verification by which the retrofit / retirement plan is due. */
 export const LEAK_RETROFIT_PLAN_DAYS = 30;
-/** Years allowed to finish the retrofit / retirement. */
+/** Years allowed to complete a retrofit / retirement after the plan trigger. */
 export const LEAK_RETROFIT_COMPLETE_YEARS = 1;
-/** Chronic leaker: % of full charge added in a calendar year. */
+/** A leak rate at or above this % of full charge in a calendar year makes the appliance a chronic leaker. */
 export const CHRONIC_LEAK_PCT = 125;
-/** Appliances at or above this charge need quarterly follow-up inspections. */
+/** Appliances holding at least this many pounds get quarterly follow-up inspections; smaller ones annual. */
 export const QUARTERLY_INSPECTION_MIN_LBS = 500;
 export const QUARTERLY_INSPECTION_COUNT = 4;
 export const ANNUAL_INSPECTION_COUNT = 1;
-/** The leak detector (ALD) calibration must be at most this old. */
+/** An automatic leak detection (ALD) system's calibration must be no older than this many days. */
 export const ALD_MAX_CALIBRATION_AGE_DAYS = 365;
-/** Create the follow-up inspection job this many days early. */
+/** Create the follow-up inspection job this many days before it is due. */
 export const FOLLOWUP_JOB_LEAD_DAYS = 30;
-/** A case is "due soon" within this many days. */
+/** A case is "due soon" when its next action is within this many days. */
 export const LEAK_DUE_SOON_DAYS = 7;
 
 const LBS_PER_METRIC_TON = 2204.62;
@@ -131,15 +137,15 @@ export function normalizeRefrigerant(input: string): string {
   return hit ?? raw;
 }
 
-/** Covered by the leak rules: charge >= 15 lb and GWP > 53 (unknown refrigerant counts as covered). */
-export function isRegulatedAppliance(
-  chargeLbs: number | null | undefined,
-  refrigerant?: string | null,
-): boolean {
-  if (typeof chargeLbs !== 'number' || !Number.isFinite(chargeLbs)) return false;
-  if (chargeLbs < LEAK_RULE_MIN_CHARGE_LBS) return false;
-  if (!refrigerant) return true;
-  const info = REFRIGERANTS[normalizeRefrigerant(refrigerant)];
+/**
+ * Is this appliance subject to the leak-repair rules? Mirrors SQL public.is_regulated_appliance():
+ * full charge >= 15 lb AND refrigerant GWP > 53. An unknown or missing refrigerant counts as covered
+ * (conservative); a missing / non-finite charge does not.
+ */
+export function isRegulatedAppliance(chargeLbs: number | null | undefined, refrigerantType: string | null | undefined): boolean {
+  if (typeof chargeLbs !== 'number' || !Number.isFinite(chargeLbs) || chargeLbs < LEAK_RULE_MIN_CHARGE_LBS) return false;
+  if (!refrigerantType || !refrigerantType.trim()) return true;
+  const info = REFRIGERANTS[normalizeRefrigerant(refrigerantType)];
   return info ? info.gwp > LEAK_COVERED_GWP_EXCLUSIVE_MIN : true;
 }
 
