@@ -163,9 +163,9 @@ export async function collectRoutes() {
   const newestPost = newest(blog.posts.map((p) => toIsoDate(p.updatedAt)));
 
   for (const p of STATIC_PUBLIC_PATHS) {
-  if (isEndorsementEnabled(ROOT)) add('/legal/company', 'static');
     add(p, 'static', p === '/blog' ? newestPost : p === '/changelog' ? changelogDate : undefined);
   }
+  if (isEndorsementEnabled(ROOT)) add('/legal/company', 'static');
   const dynamic = (items, base, kind, lastmodOf) => {
     for (const item of items) {
       if (typeof item.slug !== 'string' || !SLUG_RE.test(item.slug)) {
