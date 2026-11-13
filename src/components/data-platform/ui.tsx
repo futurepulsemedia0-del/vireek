@@ -1,4 +1,3 @@
-import { Lock } from 'lucide-react';
 import { Check, Copy, Lock } from 'lucide-react';
 
 export const SELECT =
