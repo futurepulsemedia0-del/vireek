@@ -1,242 +1,228 @@
-// @vitest-environment node
-import { describe, expect, it } from 'vitest';
+// src/components/integrations/MicrosoftCalendarPanel.tsx
+//
+// Per-calendar status list shown inside the "Microsoft 365 / Outlook" card on the Integrations page.
+// Lists every active connection (office first, then technicians) with its health, and lets the person
+// sync now, reconnect (after revoked/expired access) or disconnect. Connecting the *office* calendar
+// stays on the card's own Connect button (see IntegrationsPage.handleOAuthConnect).
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Loader as Loader2, RefreshCw, TriangleAlert as AlertTriangle } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useToast } from '@/contexts/ToastContext';
 import {
-  buildAuthorizeUrl, buildEventPayload, canManageCalendars, classifyGraphFailure, classifyJob, clampDuration,
-  createTransactionId, hashPayload, jobWindow, mapOAuthError, needsRebaseline, normalizeTenant, parseGraphDateTime,
-  parseRemoteEvent, planInboundChanges, planPushActions, signMsState, tokenNeedsRefresh, toBusyBlock, toGraphDateTime,
-  verifyMsState, type InboundMapEntry, type SyncJob,
-} from '../../../supabase/functions/_shared/microsoft-calendar/engine';
-import {
-  describeConnection, formatRelativeSync, oauthReasonMessage, sortConnections,
+  connectionTitle,
+  describeConnection,
+  sortConnections,
+  type ConnectionTone,
+  type MicrosoftCalendarConnection,
 } from '@/lib/microsoftCalendar';
+import {
+  disconnectMicrosoftCalendar,
+  listMicrosoftCalendarConnections,
+  startMicrosoftCalendarConnect,
+  syncMicrosoftCalendarNow,
+  type MicrosoftSyncResult,
+} from '@/lib/microsoftCalendarApi';
 
-const USER = '11111111-2222-3333-4444-555555555555';
-const TECH = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
-const NOW = new Date('2027-03-01T12:00:00.000Z');
+interface MicrosoftCalendarPanelProps {
+  /** Bump to force a reload (e.g. after the OAuth redirect or a disconnect from the card). */
+  refreshKey?: number;
+  /** Called after this panel changes something, so the parent can reload its own integration rows. */
+  onChanged?: () => void | Promise<void>;
+}
 
-const job = (o: Partial<SyncJob> = {}): SyncJob => ({
-  id: 'job-1', customer_name: 'Ana Silva', customer_phone: '+1 555 0100', service_type: 'AC repair', address: '12 Oak St',
-  scheduled_datetime: '2027-03-02T15:00:00.000Z', duration_minutes: 90, assigned_technician_id: TECH, job_status: 'scheduled', dispatch_note: null, ...o,
-});
+const TONE_CLASS: Record<ConnectionTone, string> = {
+  ok: 'bg-success-500/10 text-success-500',
+  warn: 'bg-warning-500/10 text-warning-500',
+  error: 'bg-danger/10 text-danger',
+};
 
-describe('OAuth state', () => {
-  it('round-trips user and scope', async () => {
-    const s = await signMsState(USER, 'technician', 'secret', 1000);
-    expect(await verifyMsState(s, 'secret', 2000)).toEqual({ userId: USER, scope: 'technician' });
-  });
-  it('rejects tampering, wrong secret, expiry, future timestamps and bad scope', async () => {
-    const s = await signMsState(USER, 'office', 'secret', 1000);
-    expect(await verifyMsState(s.replace('.office.', '.technician.'), 'secret', 2000)).toBeNull();
-    expect(await verifyMsState(s, 'other', 2000)).toBeNull();
-    expect(await verifyMsState(s, 'secret', 1000 + 11 * 60 * 1000)).toBeNull();
-    expect(await verifyMsState(s, 'secret', 1000 - 5 * 60 * 1000)).toBeNull();
-    expect(await verifyMsState('garbage', 'secret')).toBeNull();
-    expect(await verifyMsState(s, '')).toBeNull();
-  });
-  it('refuses to sign without a secret', async () => {
-    await expect(signMsState(USER, 'office', '')).rejects.toThrow();
-  });
-});
+const buttonClass =
+  'focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50';
 
-describe('tenant + authorize URL', () => {
-  it('accepts known tenants and falls back to common for unsafe values', () => {
-    expect(normalizeTenant('Organizations')).toBe('organizations');
-    expect(normalizeTenant('contoso.onmicrosoft.com')).toBe('contoso.onmicrosoft.com');
-    expect(normalizeTenant('72f988bf-86f1-41af-91ab-2d7cd011db47')).toBe('72f988bf-86f1-41af-91ab-2d7cd011db47');
-    expect(normalizeTenant('../evil?x=1')).toBe('common');
-    expect(normalizeTenant(undefined)).toBe('common');
-  });
-  it('requests offline access and calendar scopes only (no mail)', () => {
-    const u = new URL(buildAuthorizeUrl({ clientId: 'cid', tenant: 'common', redirectUri: 'https://x/cb', state: 's' }));
-    expect(u.origin + u.pathname).toBe('https://login.microsoftonline.com/common/oauth2/v2.0/authorize');
-    expect(u.searchParams.get('scope')).toBe('offline_access User.Read Calendars.ReadWrite');
-    expect(u.searchParams.get('prompt')).toBe('select_account');
-    expect(u.searchParams.get('state')).toBe('s');
-  });
-  it('maps provider errors to safe codes', () => {
-    expect(mapOAuthError('access_denied', 'user cancelled')).toBe('access_denied');
-    expect(mapOAuthError('access_denied', 'AADSTS65001: consent')).toBe('admin_consent_required');
-    expect(mapOAuthError('interaction_required')).toBe('admin_consent_required');
-    expect(mapOAuthError('server_error')).toBe('provider_error');
-  });
-});
+function summarizeSync(results: MicrosoftSyncResult[]): { message: string; type: 'success' | 'error' | 'info' } {
+  if (results.length === 0) return { message: 'Nothing to sync yet.', type: 'info' };
+  if (results.some((r) => r.status === 'needs_reconnect')) {
+    return { message: 'Microsoft access expired. Reconnect this calendar to resume syncing.', type: 'error' };
+  }
+  if (results.every((r) => r.status === 'busy')) {
+    return { message: 'A sync is already running. Try again in a moment.', type: 'info' };
+  }
+  if (results.some((r) => r.status === 'error')) {
+    return { message: 'Sync hit an error. Vireek will retry automatically.', type: 'error' };
+  }
+  const sum = (k: 'created' | 'updated' | 'deleted' | 'reschedules') => results.reduce((n, r) => n + (r[k] ?? 0), 0);
+  const parts: string[] = [];
+  if (sum('created')) parts.push(`${sum('created')} added`);
+  if (sum('updated')) parts.push(`${sum('updated')} updated`);
+  if (sum('deleted')) parts.push(`${sum('deleted')} removed`);
+  if (sum('reschedules')) parts.push(`${sum('reschedules')} rescheduled from Outlook`);
+  const partial = results.some((r) => r.status === 'partial');
+  const base = parts.length ? `Calendar synced: ${parts.join(', ')}.` : 'Calendar is up to date.';
+  return { message: partial ? `${base} Some items will be retried.` : base, type: 'success' };
+}
 
-describe('date handling', () => {
-  it('parses UTC Graph timestamps incl. 7-digit fractions and rejects other zones', () => {
-    expect(parseGraphDateTime({ dateTime: '2027-03-02T15:00:00.0000000', timeZone: 'UTC' })?.toISOString()).toBe('2027-03-02T15:00:00.000Z');
-    expect(parseGraphDateTime({ dateTime: '2027-03-02T15:00:00', timeZone: 'utc' })?.toISOString()).toBe('2027-03-02T15:00:00.000Z');
-    expect(parseGraphDateTime({ dateTime: '2027-03-02T15:00:00', timeZone: 'Pacific Standard Time' })).toBeNull();
-    expect(parseGraphDateTime({ dateTime: 'nope', timeZone: 'UTC' })).toBeNull();
-    expect(parseGraphDateTime(null)).toBeNull();
-  });
-  it('formats for Graph without a trailing Z', () => {
-    expect(toGraphDateTime(new Date('2027-03-02T15:00:00Z'))).toBe('2027-03-02T15:00:00.000');
-  });
-  it('decides when to rebaseline the delta window', () => {
-    expect(needsRebaseline({ deltaLink: null, windowEnd: null }, NOW)).toBe(true);
-    expect(needsRebaseline({ deltaLink: 'x', windowEnd: '2027-03-10T00:00:00Z' }, NOW)).toBe(true);
-    expect(needsRebaseline({ deltaLink: 'x', windowEnd: '2027-06-01T00:00:00Z' }, NOW)).toBe(false);
-  });
-  it('detects tokens that need refreshing', () => {
-    expect(tokenNeedsRefresh(null)).toBe(true);
-    expect(tokenNeedsRefresh(new Date(NOW.getTime() + 30_000).toISOString(), NOW.getTime())).toBe(true);
-    expect(tokenNeedsRefresh(new Date(NOW.getTime() + 600_000).toISOString(), NOW.getTime())).toBe(false);
-  });
-});
+export function MicrosoftCalendarPanel({ refreshKey = 0, onChanged }: MicrosoftCalendarPanelProps) {
+  const { toast } = useToast();
+  const [connections, setConnections] = useState<MicrosoftCalendarConnection[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [pendingDisconnect, setPendingDisconnect] = useState<MicrosoftCalendarConnection | null>(null);
+  const requestSeq = useRef(0);
 
-describe('jobs -> events', () => {
-  it('clamps durations and defaults to 60', () => {
-    expect(clampDuration(null)).toBe(60);
-    expect(clampDuration(5)).toBe(15);
-    expect(clampDuration(99999)).toBe(720);
-    expect(jobWindow(job({ duration_minutes: 90 }))?.end.toISOString()).toBe('2027-03-02T16:30:00.000Z');
-    expect(jobWindow(job({ scheduled_datetime: null }))).toBeNull();
-  });
-  it('classifies jobs per connection', () => {
-    const tech = { scope: 'technician' as const, teamMemberId: TECH };
-    const office = { scope: 'office' as const, teamMemberId: null };
-    expect(classifyJob(job(), tech, NOW)).toBe('sync');
-    expect(classifyJob(job(), office, NOW)).toBe('sync');
-    expect(classifyJob(job({ assigned_technician_id: 'other' }), tech, NOW)).toBe('remove');
-    expect(classifyJob(job({ assigned_technician_id: null }), office, NOW)).toBe('sync');
-    expect(classifyJob(job({ job_status: 'cancelled' }), office, NOW)).toBe('remove');
-    expect(classifyJob(job({ job_status: 'no_show' }), office, NOW)).toBe('remove');
-    expect(classifyJob(job({ scheduled_datetime: null }), office, NOW)).toBe('remove');
-    expect(classifyJob(null, office, NOW)).toBe('remove');
-    expect(classifyJob(job({ scheduled_datetime: '2027-01-01T10:00:00Z', job_status: 'completed' }), office, NOW)).toBe('ignore');
-  });
-  it('builds a tagged busy event with a deterministic hash', async () => {
-    const p = buildEventPayload(job(), 'https://vireek.com/')!;
-    expect(p.subject).toBe('AC repair — Ana Silva');
-    expect(p.showAs).toBe('busy');
-    expect(p.categories).toEqual(['Vireek']);
-    expect(p.start).toEqual({ dateTime: '2027-03-02T15:00:00.000', timeZone: 'UTC' });
-    expect(p.body.content).toContain('https://vireek.com/dashboard/jobs');
-    const h1 = await hashPayload(p);
-    expect(await hashPayload(buildEventPayload(job(), 'https://vireek.com/')!)).toBe(h1);
-    expect(await hashPayload(buildEventPayload(job({ scheduled_datetime: '2027-03-02T16:00:00Z' }), 'https://vireek.com')!)).not.toBe(h1);
-    expect(buildEventPayload(job({ scheduled_datetime: null }), 'x')).toBeNull();
-    expect(createTransactionId('j', 'c')).toBe('vireek-j-c');
-  });
-});
+  const load = useCallback(async () => {
+    const seq = ++requestSeq.current;
+    try {
+      const list = await listMicrosoftCalendarConnections();
+      if (seq !== requestSeq.current) return; // a newer load superseded this one
+      setConnections(sortConnections(list));
+      setLoadError(null);
+    } catch (err) {
+      if (seq !== requestSeq.current) return;
+      setLoadError(err instanceof Error ? err.message : 'Could not load Microsoft 365 calendars.');
+    }
+  }, []);
 
-describe('push planning', () => {
-  const payload = buildEventPayload(job(), 'https://vireek.com')!;
-  const d = (jobId: string, hash: string) => ({ jobId, hash, payload });
-  it('creates, updates, skips unchanged and deletes removed jobs', () => {
-    const actions = planPushActions({
-      desired: [d('new', 'h'), d('chg', 'h2'), d('same', 'h')],
-      removeJobIds: ['gone', 'never-mapped'],
-      mapped: [
-        { jobId: 'chg', msEventId: 'e1', hash: 'h', status: 'synced' },
-        { jobId: 'same', msEventId: 'e2', hash: 'h', status: 'synced' },
-        { jobId: 'gone', msEventId: 'e3', hash: 'h', status: 'synced' },
-      ],
-    });
-    expect(actions.map((a) => `${a.kind}:${a.jobId}`)).toEqual(['update:chg', 'create:new', 'delete:gone']);
-  });
-  it('respects a deletion made in Outlook until the job changes', () => {
-    const mapped = [{ jobId: 'j', msEventId: 'e', hash: 'h', status: 'remote_deleted' as const }];
-    expect(planPushActions({ desired: [d('j', 'h')], removeJobIds: [], mapped })).toEqual([]);
-    expect(planPushActions({ desired: [d('j', 'h2')], removeJobIds: [], mapped }).map((a) => a.kind)).toEqual(['create']);
-    expect(planPushActions({ desired: [], removeJobIds: ['j'], mapped }).map((a) => a.kind)).toEqual(['forget']);
-  });
-  it('forces an update when Vireek must overwrite Outlook, and honors the limit', () => {
-    const mapped = [{ jobId: 'j', msEventId: 'e', hash: 'h', status: 'synced' as const }];
-    expect(planPushActions({ desired: [d('j', 'h')], removeJobIds: [], mapped, forceUpdate: new Set(['j']) }).map((a) => a.kind)).toEqual(['update']);
-    expect(planPushActions({ desired: [d('a', 'h'), d('b', 'h'), d('c', 'h')], removeJobIds: [], mapped: [], limit: 2 })).toHaveLength(2);
-  });
-});
+  useEffect(() => {
+    void load();
+  }, [load, refreshKey]);
 
-describe('inbound (Outlook -> Vireek)', () => {
-  const raw = (o: Record<string, unknown> = {}) => ({
-    id: 'ev1', isCancelled: false, isAllDay: false, showAs: 'busy', categories: [],
-    start: { dateTime: '2027-03-02T15:00:00.0000000', timeZone: 'UTC' }, end: { dateTime: '2027-03-02T16:30:00.0000000', timeZone: 'UTC' },
-    lastModifiedDateTime: '2027-03-01T10:00:00Z', ...o,
-  });
-  it('parses removed, invalid and normal events', () => {
-    expect(parseRemoteEvent({ id: 'x', '@removed': { reason: 'deleted' } })?.removed).toBe(true);
-    expect(parseRemoteEvent(raw())?.start?.toISOString()).toBe('2027-03-02T15:00:00.000Z');
-    expect(parseRemoteEvent({ id: 'x', start: { dateTime: 'bad', timeZone: 'UTC' } })).toBeNull();
-    expect(parseRemoteEvent(null)).toBeNull();
-  });
-  it('turns external events into busy blocks but never Vireek events', () => {
-    const ev = parseRemoteEvent(raw())!;
-    expect(toBusyBlock(ev, new Set())).toMatchObject({ msEventId: 'ev1', blocking: true, startsAt: '2027-03-02T15:00:00.000Z' });
-    expect(toBusyBlock(ev, new Set(['ev1']))).toBeNull();
-    expect(toBusyBlock(parseRemoteEvent(raw({ categories: ['Vireek'] }))!, new Set())).toBeNull();
-    expect(toBusyBlock(parseRemoteEvent(raw({ isCancelled: true }))!, new Set())).toBeNull();
-    expect(toBusyBlock(parseRemoteEvent(raw({ showAs: 'free' }))!, new Set())?.blocking).toBe(false);
-    expect(toBusyBlock(parseRemoteEvent(raw({ showAs: 'oof' }))!, new Set())?.blocking).toBe(true);
-    expect(toBusyBlock(parseRemoteEvent(raw({ showAs: 'workingElsewhere' }))!, new Set())?.blocking).toBe(false);
-  });
-  const entry = (o: Partial<InboundMapEntry> = {}): InboundMapEntry => ({ jobId: 'job-1', status: 'synced', lastPushedAt: new Date('2027-03-01T09:00:00Z'), ...o });
-  const run = (rawEvent: Record<string, unknown>, e = entry(), j = job()) =>
-    planInboundChanges([parseRemoteEvent(rawEvent)!], new Map([['ev1', e]]), new Map([[j.id, j]]));
+  const notifyParent = useCallback(async () => {
+    try {
+      await onChanged?.();
+    } catch {
+      /* the parent reports its own load errors */
+    }
+  }, [onChanged]);
 
-  it('ignores echoes of our own push (times match)', () => {
-    expect(run(raw())).toEqual({ changes: [], forceUpdateJobIds: new Set() });
-  });
-  it('reschedules the job when the user moved the event after our last push', () => {
-    const r = run(raw({ start: { dateTime: '2027-03-03T10:00:00', timeZone: 'UTC' }, end: { dateTime: '2027-03-03T11:00:00', timeZone: 'UTC' } }));
-    expect(r.changes).toEqual([{ kind: 'reschedule', jobId: 'job-1', newStart: '2027-03-03T10:00:00.000Z', durationMinutes: 60, expectedStart: '2027-03-02T15:00:00.000Z' }]);
-  });
-  it('makes Vireek win when the event is stale, all-day, or the job is no longer scheduled', () => {
-    const moved = { start: { dateTime: '2027-03-03T10:00:00', timeZone: 'UTC' }, end: { dateTime: '2027-03-03T11:00:00', timeZone: 'UTC' } };
-    expect(run(raw({ ...moved, lastModifiedDateTime: '2027-03-01T08:00:00Z' })).forceUpdateJobIds.has('job-1')).toBe(true);
-    expect(run(raw({ ...moved, isAllDay: true })).forceUpdateJobIds.has('job-1')).toBe(true);
-    expect(run(raw(moved), entry(), job({ job_status: 'in_progress' })).forceUpdateJobIds.has('job-1')).toBe(true);
-  });
-  it('never cancels a job when its event is deleted; it only unlinks', () => {
-    expect(run({ id: 'ev1', '@removed': { reason: 'deleted' } }).changes).toEqual([{ kind: 'remote_deleted', jobId: 'job-1' }]);
-    expect(run({ id: 'ev1', '@removed': {} }, entry({ status: 'remote_deleted' })).changes).toEqual([]);
-  });
-});
+  const handleSync = async (c: MicrosoftCalendarConnection) => {
+    if (busyId) return;
+    setBusyId(c.id);
+    try {
+      const { message, type } = summarizeSync(await syncMicrosoftCalendarNow(c.id));
+      toast(message, type);
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not sync Microsoft 365.', 'error');
+    } finally {
+      setBusyId(null);
+      await load();
+      await notifyParent();
+    }
+  };
 
-describe('failures and roles', () => {
-  it('classifies Graph failures', () => {
-    expect(classifyGraphFailure(400, 'invalid_grant')).toMatchObject({ errorCode: 'token_revoked', recoverable: false });
-    expect(classifyGraphFailure(401)).toMatchObject({ errorCode: 'provider_auth_failed', recoverable: false });
-    expect(classifyGraphFailure(403)).toMatchObject({ errorCode: 'scope_missing', recoverable: false });
-    expect(classifyGraphFailure(410)).toMatchObject({ recoverable: true, resetDelta: true });
-    expect(classifyGraphFailure(429)).toMatchObject({ errorCode: 'rate_limited', recoverable: true });
-    expect(classifyGraphFailure(503)).toMatchObject({ errorCode: 'provider_unreachable', recoverable: true });
-    expect(classifyGraphFailure(0).recoverable).toBe(true);
-  });
-  it('lets only owners/admins/team managers manage the office calendar', () => {
-    expect(canManageCalendars({ role: 'owner' })).toBe(true);
-    expect(canManageCalendars({ role: 'admin' })).toBe(true);
-    expect(canManageCalendars({ role: 'technician', permissions: { can_manage_team: true } })).toBe(true);
-    expect(canManageCalendars({ role: 'technician', permissions: { can_manage_team: false } })).toBe(false);
-    expect(canManageCalendars({ role: 'member' })).toBe(false);
-  });
-});
+  const handleReconnect = async (c: MicrosoftCalendarConnection) => {
+    if (busyId) return;
+    setBusyId(c.id);
+    try {
+      await startMicrosoftCalendarConnect(c.scope); // navigates away on success
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not connect Microsoft 365.', 'error');
+      setBusyId(null);
+    }
+  };
 
-describe('client helpers', () => {
-  const base = { status: 'connected' as const, last_synced_at: '2027-03-01T11:58:00Z', last_error_code: null, consecutive_failures: 0 };
-  it('formats relative sync times', () => {
-    expect(formatRelativeSync(null, NOW)).toBe('Not synced yet');
-    expect(formatRelativeSync('2027-03-01T11:59:50Z', NOW)).toBe('Synced just now');
-    expect(formatRelativeSync('2027-03-01T11:58:00Z', NOW)).toBe('Synced 2 min ago');
-    expect(formatRelativeSync('2027-03-01T08:00:00Z', NOW)).toBe('Synced 4 h ago');
-    expect(formatRelativeSync('2027-02-26T12:00:00Z', NOW)).toBe('Synced 3 d ago');
-  });
-  it('describes connection health', () => {
-    expect(describeConnection(base, NOW)).toMatchObject({ tone: 'ok', label: 'Connected', detail: 'Synced 2 min ago' });
-    expect(describeConnection({ ...base, consecutive_failures: 2 }, NOW)).toMatchObject({ tone: 'warn', label: 'Retrying' });
-    expect(describeConnection({ ...base, status: 'error', last_error_code: 'token_revoked' }, NOW)).toMatchObject({ tone: 'error', label: 'Needs reconnect' });
-    expect(describeConnection({ ...base, status: 'disconnected' }, NOW).tone).toBe('warn');
-  });
-  it('maps OAuth reasons to friendly copy and sorts office first', () => {
-    expect(oauthReasonMessage('admin_consent_required')).toContain('administrator');
-    expect(oauthReasonMessage('weird')).toContain('try again');
-    expect(oauthReasonMessage(null)).toContain('try again');
-    const sorted = sortConnections([
-      { scope: 'technician' as const, team_member: { member_name: 'Zed', member_email: null } },
-      { scope: 'technician' as const, team_member: { member_name: 'Amy', member_email: null } },
-      { scope: 'office' as const, team_member: null },
-    ]);
-    expect(sorted.map((c) => c.scope)).toEqual(['office', 'technician', 'technician']);
-    expect(sorted[1].team_member?.member_name).toBe('Amy');
-  });
-});
+  const handleConfirmDisconnect = async () => {
+    const target = pendingDisconnect;
+    if (!target || busyId) return;
+    setBusyId(target.id);
+    try {
+      await disconnectMicrosoftCalendar(target.id, false);
+      toast(`${connectionTitle(target)} disconnected. Existing Outlook events were left in place.`, 'info');
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not disconnect Microsoft 365. Please try again.', 'error');
+    } finally {
+      setBusyId(null);
+      setPendingDisconnect(null);
+      await load();
+      await notifyParent();
+    }
+  };
+
+  if (loadError) {
+    return (
+      <div className="mt-4 flex items-start gap-3 rounded-xl border border-danger/30 bg-danger/10 p-3" role="alert">
+        <AlertTriangle size={16} className="mt-0.5 shrink-0 text-danger" aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-text-primary">{loadError}</p>
+          <button type="button" onClick={() => void load()} className={`${buttonClass} mt-2`}>
+            <RefreshCw size={12} aria-hidden="true" /> Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (connections === null) {
+    return (
+      <div className="mt-4 flex items-center gap-2 text-xs text-text-secondary" role="status">
+        <Loader2 size={14} className="animate-spin" aria-hidden="true" /> Loading calendars…
+      </div>
+    );
+  }
+
+  if (connections.length === 0) return null;
+
+  return (
+    <div className="mt-4 space-y-2" aria-label="Connected Microsoft 365 calendars">
+      {connections.map((c) => {
+        const info = describeConnection(c);
+        const busy = busyId === c.id;
+        return (
+          <div key={c.id} className="rounded-xl border border-border bg-bg-primary p-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-text-primary">{connectionTitle(c)}</p>
+                {c.ms_email && <p className="truncate text-xs text-text-secondary">{c.ms_email}</p>}
+              </div>
+              <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium ${TONE_CLASS[info.tone]}`}>
+                {info.label}
+              </span>
+            </div>
+            <p className="mt-1.5 text-xs text-text-secondary">{info.detail}</p>
+            {info.tone !== 'ok' && c.last_error_message && (
+              <p className="mt-1 break-words text-xs text-text-secondary">{c.last_error_message}</p>
+            )}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {c.status === 'error' ? (
+                <button type="button" onClick={() => void handleReconnect(c)} disabled={busyId !== null} className={buttonClass}>
+                  {busy ? <Loader2 size={12} className="animate-spin" aria-hidden="true" /> : null}
+                  Reconnect
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => void handleSync(c)}
+                  disabled={busyId !== null}
+                  aria-label={`Sync ${connectionTitle(c)} now`}
+                  className={buttonClass}
+                >
+                  {busy ? <Loader2 size={12} className="animate-spin" aria-hidden="true" /> : <RefreshCw size={12} aria-hidden="true" />}
+                  Sync now
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setPendingDisconnect(c)}
+                disabled={busyId !== null}
+                aria-label={`Disconnect ${connectionTitle(c)}`}
+                className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Disconnect
+              </button>
+            </div>
+          </div>
+        );
+      })}
+
+      <ConfirmDialog
+        open={pendingDisconnect !== null}
+        title={pendingDisconnect ? `Disconnect ${connectionTitle(pendingDisconnect)}?` : 'Disconnect calendar?'}
+        description="Vireek will stop syncing jobs with this Microsoft 365 calendar right away. You can reconnect at any time."
+        confirmLabel="Yes, disconnect"
+        consequences={['Stop syncing jobs to Outlook', 'Stop blocking time for Outlook events', 'Existing Outlook events stay in place']}
+        onConfirm={handleConfirmDisconnect}
+        onCancel={() => setPendingDisconnect(null)}
+      />
+    </div>
+  );
+}
