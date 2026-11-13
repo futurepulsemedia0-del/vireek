@@ -72,6 +72,26 @@ export const LEAK_REPAIR_DEADLINE_DAYS = 30;
 export const RECORD_RETENTION_YEARS = 3;
 /** Type I certification covers only small appliances up to this charge. */
 export const TYPE_I_MAX_CHARGE_LBS = 5;
+/** Refrigerants with GWP above this are covered (GWP > 53). */
+export const LEAK_COVERED_GWP_EXCLUSIVE_MIN = 53;
+/** Days allowed for the follow-up verification test. */
+export const LEAK_FOLLOWUP_TEST_DAYS = 10;
+/** Days to draft the retrofit / retire plan. */
+export const LEAK_RETROFIT_PLAN_DAYS = 30;
+/** Years allowed to finish the retrofit / retirement. */
+export const LEAK_RETROFIT_COMPLETE_YEARS = 1;
+/** Chronic leaker: % of full charge added in a calendar year. */
+export const CHRONIC_LEAK_PCT = 125;
+/** Appliances at or above this charge need quarterly follow-up inspections. */
+export const QUARTERLY_INSPECTION_MIN_LBS = 500;
+export const QUARTERLY_INSPECTION_COUNT = 4;
+export const ANNUAL_INSPECTION_COUNT = 1;
+/** The leak detector (ALD) calibration must be at most this old. */
+export const ALD_MAX_CALIBRATION_AGE_DAYS = 365;
+/** Create the follow-up inspection job this many days early. */
+export const FOLLOWUP_JOB_LEAD_DAYS = 30;
+/** A case is "due soon" within this many days. */
+export const LEAK_DUE_SOON_DAYS = 7;
 
 const LBS_PER_METRIC_TON = 2204.62;
 const MS_PER_DAY = 86_400_000;
@@ -109,6 +129,18 @@ export function normalizeRefrigerant(input: string): string {
   const key = raw.toUpperCase().replace(/[\s_-]/g, '');
   const hit = REFRIGERANT_CODES.find((c) => c.toUpperCase().replace(/-/g, '') === key);
   return hit ?? raw;
+}
+
+/** Covered by the leak rules: charge >= 15 lb and GWP > 53 (unknown refrigerant counts as covered). */
+export function isRegulatedAppliance(
+  chargeLbs: number | null | undefined,
+  refrigerant?: string | null,
+): boolean {
+  if (typeof chargeLbs !== 'number' || !Number.isFinite(chargeLbs)) return false;
+  if (chargeLbs < LEAK_RULE_MIN_CHARGE_LBS) return false;
+  if (!refrigerant) return true;
+  const info = REFRIGERANTS[normalizeRefrigerant(refrigerant)];
+  return info ? info.gwp > LEAK_COVERED_GWP_EXCLUSIVE_MIN : true;
 }
 
 /** True for service types that can involve refrigerant. */
