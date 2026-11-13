@@ -180,7 +180,7 @@ export type ActionType =
   | "provide_baseline"
   | "reduce_price"
   | "reduce_deposit"
-  | "get_written_contract";
+  | "get_written_contract"
     | "fix_before_sending";
 
 export interface RequiredAction {
