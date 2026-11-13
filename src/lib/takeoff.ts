@@ -104,6 +104,12 @@ export function projectInfo(p: TakeoffProject): ProjectInfo {
   };
 }
 
+/** Cents → "$1,234.56" (two decimals: unit prices like $1.25 must not be rounded). */
+export function formatCents(cents: number | null | undefined): string {
+  const value = typeof cents === 'number' && Number.isFinite(cents) ? cents / 100 : 0;
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+}
+
 function errMsg(e: unknown, fallback: string): string {
   return e instanceof Error && e.message ? e.message : fallback;
 }
