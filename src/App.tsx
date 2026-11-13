@@ -3033,7 +3033,6 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PlanFeatureGate feature="dispatchBoard">
-              <PlanFeatureGate feature="dispatchBoard">
                 <DispatchBoardPage />
               </PlanFeatureGate>
             </ProtectedRoute>
