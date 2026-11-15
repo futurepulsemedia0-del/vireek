@@ -299,7 +299,7 @@ function ScheduleDrawer({
 
 export function CalendarPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, isOwner, permissions, teamMember } = useAuth();
+  const { user, profile, isOwner, permissions, teamMember } = useAuth();
   const { toast } = useToast();
 
   const [allJobs, setAllJobs] = useState<Job[]>([]);
