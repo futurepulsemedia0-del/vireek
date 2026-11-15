@@ -48,13 +48,12 @@ export function HomePage() {
     [],
   );
 
-  useSEO({
-    title: 'Vireek: AI Receptionist for Plumbing, HVAC, Electrical & Roofing Contractors',
-    description:
-    description: `Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, ${TRIAL_CARD_PHRASE}.`,
-    canonical: `${SITE_URL}/`,
-    jsonLd,
-  });
+useSEO({
+  title: 'Vireek: AI Receptionist for Plumbing, HVAC, Electrical & Roofing Contractors',
+  description: `Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, ${TRIAL_CARD_PHRASE}.`,
+  canonical: `${SITE_URL}/`,
+  jsonLd,
+});
   useScrollDepthTracking();
 
   return (
