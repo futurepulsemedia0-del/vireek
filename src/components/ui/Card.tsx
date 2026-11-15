@@ -15,7 +15,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className = '', children, interactive = true, selected, error = false, padding = 'lg', onClick, onKeyDown, role, tabIndex, ...props }, ref) => {
+  ({ className = '', children, interactive, selected, error = false, padding = 'lg', onClick, onKeyDown, role, tabIndex, ...props }, ref) => {
     const clickable = !!onClick;
     const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
       onKeyDown?.(e);
@@ -33,7 +33,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         data-selected={selected || undefined}
         onClick={onClick}
         onKeyDown={clickable ? handleKeyDown : onKeyDown}
-        className={`${clickable ? 'focus-ring cursor-pointer' : ''} rounded-2xl ${PADDING[padding]} shadow-card ${motionClass} dark:bg-bg-secondary/95 dark:shadow-card-dark ${surfaceClass('card', { interactive, error })} ${className}`}
+        className={`${clickable ? 'focus-ring cursor-pointer' : ''} rounded-surface ${PADDING[padding]} ${motionClass} dark:bg-bg-secondary/95 ${surfaceClass('card', { interactive: interactive ?? clickable, error })} ${className}`}
         {...props}
       >
         {children}
