@@ -48,4 +48,12 @@ export const INTEGRATION_EVIDENCE: Readonly<Record<string, readonly string[]>> =
     'supabase/functions/stripe-connect-onboarding/index.ts',
     'supabase/functions/stripe-webhook/index.ts',
   ],
+  xero: [
+    'supabase/functions/xero-oauth-start/index.ts',
+    'supabase/functions/xero-sync-run/index.ts',
+  ],
+  whatsapp: [
+    'supabase/functions/whatsapp-connect/index.ts',
+    'supabase/functions/whatsapp-webhook/index.ts',
+  ],
 };
