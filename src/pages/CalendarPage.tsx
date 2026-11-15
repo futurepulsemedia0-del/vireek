@@ -342,11 +342,6 @@ export function CalendarPage() {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   // ------------------------------------------------------------
   // Drag & drop board (resolve → validate → optimistic commit with Undo)
