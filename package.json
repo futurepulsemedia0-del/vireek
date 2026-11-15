@@ -23,6 +23,7 @@
     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
     "a11y:targets": "node scripts/a11y/audit-targets.mjs",
     "a11y:targets:check": "node scripts/a11y/audit-targets.mjs --check",
+    "a11y:names:codemod": "node scripts/a11y/codemod-names.mjs",
     "a11y:icons:codemod": "node scripts/a11y/codemod-icons.mjs --targets",
     "test:e2e:targets": "playwright test e2e/a11y/touch-targets.spec.ts --project=chromium",
     "lint:tells": "node scripts/design/ai-tells.mjs --check",
