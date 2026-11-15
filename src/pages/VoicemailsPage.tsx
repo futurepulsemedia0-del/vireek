@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SealedAudio } from '@/components/trust-pack/SealedContent';
 import {
   Voicemail,
   Play,
