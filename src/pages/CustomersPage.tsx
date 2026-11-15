@@ -379,11 +379,6 @@ export function CustomersPage() {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   useKeyboardShortcut({ key: '/', handler: () => searchRef.current?.focus() });
 
