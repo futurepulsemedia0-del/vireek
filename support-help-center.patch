@@ -1,0 +1,988 @@
+diff --git a/src/components/help/HelpArticleList.tsx b/src/components/help/HelpArticleList.tsx
+new file mode 100644
+index 0000000..a5ed3eb
+--- /dev/null
++++ b/src/components/help/HelpArticleList.tsx
+@@ -0,0 +1,55 @@
++import { FileText } from 'lucide-react';
++import { Link } from 'react-router-dom';
++
++export interface HelpArticleListItem {
++  slug: string;
++  title: string;
++  /** Small label above the title — used in search results to show the category. */
++  eyebrow?: string;
++  /** One-line summary under the title — used in search results. */
++  excerpt?: string;
++}
++
++/**
++ * A list of help articles where every row is a real link to /help/:slug, with a document icon on the
++ * trailing edge. Use it only for article *links* — an expandable (accordion) question should keep a
++ * chevron instead, because a document icon promises navigation to another page.
++ */
++export function HelpArticleList({
++  items,
++  label,
++  className = '',
++}: {
++  items: HelpArticleListItem[];
++  /** Accessible name for the list. */
++  label: string;
++  className?: string;
++}) {
++  return (
++    <ul
++      aria-label={label}
++      className={`divide-y divide-border rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark ${className}`}
++    >
++      {items.map((item) => (
++        <li key={item.slug} className="first:rounded-t-2xl last:rounded-b-2xl">
++          <Link
++            to={`/help/${item.slug}`}
++            className="focus-ring group flex min-h-11 items-center justify-between gap-4 rounded-[inherit] px-4 py-3.5 transition-colors hover:bg-bg-tertiary focus-visible:relative focus-visible:z-10 sm:px-5"
++          >
++            <span className="min-w-0">
++              {item.eyebrow && <span className="block text-xs font-semibold text-accent">{item.eyebrow}</span>}
++              <span className="block text-base font-semibold leading-6 text-text-primary">{item.title}</span>
++              {item.excerpt && (
++                <span className="mt-0.5 line-clamp-2 block text-sm leading-6 text-text-secondary">{item.excerpt}</span>
++              )}
++            </span>
++            <FileText
++              aria-hidden="true"
++              className="icon-md shrink-0 text-text-secondary transition-colors group-hover:text-accent"
++            />
++          </Link>
++        </li>
++      ))}
++    </ul>
++  );
++}
+diff --git a/src/lib/helpArticles.ts b/src/lib/helpArticles.ts
+index 4ce3d63..e378b66 100644
+--- a/src/lib/helpArticles.ts
++++ b/src/lib/helpArticles.ts
+@@ -7,6 +7,8 @@ export interface HelpArticleRecord {
+   excerpt: string;
+   categoryId: string;
+   categoryName: string;
++  /** ISO date (YYYY-MM-DD) when the author set one; otherwise undefined. */
++  updated?: string;
+ }
+ 
+ const MAX_SLUG_LENGTH = 80;
+@@ -60,9 +62,11 @@ export function buildHelpArticles(categories: HelpCategory[]): HelpArticleRecord
+         slug,
+         title: art.q.trim(),
+         body: art.a.trim(),
+-        excerpt: makeExcerpt(art.a),
++        // First paragraph only, so list markers never leak into meta descriptions or search results.
++        excerpt: makeExcerpt(art.a.split(/\n{2,}/)[0]),
+         categoryId: cat.id,
+         categoryName: cat.name,
++        ...(art.updated && /^\d{4}-\d{2}-\d{2}$/.test(art.updated) ? { updated: art.updated } : {}),
+       });
+     }
+   }
+diff --git a/src/lib/helpBody.test.ts b/src/lib/helpBody.test.ts
+new file mode 100644
+index 0000000..b77557a
+--- /dev/null
++++ b/src/lib/helpBody.test.ts
+@@ -0,0 +1,34 @@
++import { describe, expect, it } from 'vitest';
++import { parseHelpBody } from '@/lib/helpBody';
++import { HELP_ARTICLES } from '@/lib/helpArticles';
++
++describe('parseHelpBody', () => {
++  it('splits paragraphs on blank lines and collapses single line breaks', () => {
++    expect(parseHelpBody('One\nstill one.\n\nTwo.')).toEqual([
++      { type: 'p', text: 'One still one.' },
++      { type: 'p', text: 'Two.' },
++    ]);
++  });
++
++  it('parses bullet and numbered lists', () => {
++    expect(parseHelpBody('- a\n- b\n\n1. first\n2) second')).toEqual([
++      { type: 'ul', items: ['a', 'b'] },
++      { type: 'ol', items: ['first', 'second'] },
++    ]);
++  });
++
++  it('keeps mixed chunks as plain paragraphs instead of guessing', () => {
++    expect(parseHelpBody('Intro line\n- not a list')).toEqual([{ type: 'p', text: 'Intro line - not a list' }]);
++  });
++
++  it('normalises CRLF and ignores empty input', () => {
++    expect(parseHelpBody('A\r\n\r\nB')).toHaveLength(2);
++    expect(parseHelpBody('   \n\n  ')).toEqual([]);
++  });
++
++  it('never reinterprets any existing article as a list', () => {
++    for (const article of HELP_ARTICLES) {
++      expect(parseHelpBody(article.body).every((block) => block.type === 'p')).toBe(true);
++    }
++  });
++});
+diff --git a/src/lib/helpBody.ts b/src/lib/helpBody.ts
+new file mode 100644
+index 0000000..a275e57
+--- /dev/null
++++ b/src/lib/helpBody.ts
+@@ -0,0 +1,35 @@
++/**
++ * Turns a help article body (plain text) into render-ready blocks, so authors can write real
++ * structure without HTML and without any `dangerouslySetInnerHTML`:
++ *
++ *   - blank line            → new paragraph
++ *   - lines starting "- "   → bullet list   (also "* " or "• ")
++ *   - lines starting "1. "  → numbered list (also "1) ")
++ *
++ * A chunk becomes a list only when EVERY line in it is a list item; otherwise it stays a paragraph,
++ * so existing prose is never reinterpreted. Single line breaks inside a paragraph collapse to a space.
++ */
++export type HelpBodyBlock =
++  | { type: 'p'; text: string }
++  | { type: 'ul'; items: string[] }
++  | { type: 'ol'; items: string[] };
++
++const BULLET = /^\s*[-*•]\s+(\S.*)$/;
++const ORDERED = /^\s*\d{1,2}[.)]\s+(\S.*)$/;
++
++export function parseHelpBody(body: string): HelpBodyBlock[] {
++  const blocks: HelpBodyBlock[] = [];
++  for (const chunk of body.replace(/\r\n?/g, '\n').split(/\n{2,}/)) {
++    const lines = chunk.split('\n').filter((line) => line.trim() !== '');
++    if (lines.length === 0) continue;
++
++    if (lines.every((line) => BULLET.test(line))) {
++      blocks.push({ type: 'ul', items: lines.map((line) => (BULLET.exec(line) as RegExpExecArray)[1].trim()) });
++    } else if (lines.every((line) => ORDERED.test(line))) {
++      blocks.push({ type: 'ol', items: lines.map((line) => (ORDERED.exec(line) as RegExpExecArray)[1].trim()) });
++    } else {
++      blocks.push({ type: 'p', text: lines.map((line) => line.trim()).join(' ') });
++    }
++  }
++  return blocks;
++}
+diff --git a/src/lib/helpContent.ts b/src/lib/helpContent.ts
+index b5fe8f9..a97bef0 100644
+--- a/src/lib/helpContent.ts
++++ b/src/lib/helpContent.ts
+@@ -16,6 +16,8 @@ export interface HelpArticle {
+   a: string;
+   /** Optional stable URL slug. Set it once an article is live so editing the question never changes its URL. */
+   slug?: string;
++  /** Optional ISO date (YYYY-MM-DD) of the last content review. Shown on the article only when set — never invent one. */
++  updated?: string;
+ }
+ 
+ export interface HelpCategory {
+@@ -43,7 +45,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
+       },
+       {
+         q: 'How long does setup take?',
+-        a: 'Most businesses are live within about 15 minutes: create an account, complete the Business Profile (services, hours, FAQs, escalation contact), forward your calls, and place a test call to confirm the greeting sounds right.',
++        a: 'Most businesses are live within about 15 minutes.\n\n1. Create your account.\n2. Complete the Business Profile: services, hours, FAQs, and escalation contact.\n3. Forward your calls.\n4. Place a test call to confirm the greeting sounds right.',
+       },
+       {
+         q: 'Can I test Sarah before going live?',
+@@ -107,7 +109,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
+     articles: [
+       {
+         q: 'How do I invite a team member?',
+-        a: 'Go to Dashboard → Team and send an invite by email. The invite includes a secure sign-up link, and you can resend it if it expires before they accept.',
++        a: 'Invite a teammate by email from Dashboard → Team.\n\n1. Go to Dashboard → Team.\n2. Send an invite by email. It includes a secure sign-up link.\n3. If the invite expires before they accept, resend it.',
+       },
+       {
+         q: 'Can I limit what a team member sees?',
+@@ -159,7 +161,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
+       },
+       {
+         q: 'An integration shows as disconnected. What should I do?',
+-        a: 'Reconnect it from Dashboard → Integrations — this usually resolves an expired authorization. If it reconnects and then drops again, contact support so we can check the connection logs on our side.',
++        a: 'Reconnecting usually resolves an expired authorization.\n\n1. Go to Dashboard → Integrations.\n2. Reconnect the integration.\n3. If it reconnects and then drops again, contact support so we can check the connection logs on our side.',
+       },
+     ],
+   },
+@@ -215,7 +217,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
+     articles: [
+       {
+         q: 'Calls aren\u2019t reaching Sarah.',
+-        a: 'Double-check the call-forwarding number configured with your phone carrier matches the number shown in Dashboard → Business Profile exactly, including country code. Most issues come from a forwarding rule pointing at the wrong number or being scoped to \u201cbusy only\u201d instead of \u201cno answer.\u201d',
++        a: 'Most issues come from a forwarding rule pointing at the wrong number or being scoped to \u201cbusy only\u201d instead of \u201cno answer.\u201d\n\n1. Open Dashboard → Business Profile and note the number shown there, including country code.\n2. Check the call-forwarding number configured with your phone carrier.\n3. Confirm the two match exactly.\n4. Confirm the forwarding rule is scoped to \u201cno answer,\u201d not \u201cbusy only.\u201d',
+       },
+       {
+         q: 'A caller says Sarah didn\u2019t understand them.',
+@@ -223,11 +225,11 @@ export const HELP_CATEGORIES: HelpCategory[] = [
+       },
+       {
+         q: 'I don\u2019t see a booked appointment on my calendar.',
+-        a: 'Confirm the integration is still connected at Dashboard → Integrations, then check Dashboard → Calendar directly, since a booking always lands there first regardless of external sync status.',
++        a: 'A booking always lands in Dashboard → Calendar first, regardless of external sync status.\n\n1. Confirm the integration is still connected at Dashboard → Integrations.\n2. Check Dashboard → Calendar directly.',
+       },
+       {
+         q: 'I\u2019m not receiving email or SMS alerts.',
+-        a: 'Check Dashboard → Settings → Notification Preferences to confirm the relevant toggle is on, and check your spam folder for the sending address. If alerts still don\u2019t arrive, contact support.',
++        a: 'Work through these checks in order.\n\n1. Open Dashboard → Settings → Notification Preferences and confirm the relevant toggle is on.\n2. Check your spam folder for the sending address.\n3. If alerts still don\u2019t arrive, contact support.',
+       },
+     ],
+   },
+diff --git a/src/pages/HelpArticlePage.tsx b/src/pages/HelpArticlePage.tsx
+index a3dd1ec..f378dd8 100644
+--- a/src/pages/HelpArticlePage.tsx
++++ b/src/pages/HelpArticlePage.tsx
+@@ -7,7 +7,9 @@ import { CookieConsent } from '@/components/CookieConsent';
+ import { BackButton } from '@/components/ui/BackButton';
+ import { HelpSearch } from '@/components/HelpSearch';
+ import { HelpFeedback } from '@/components/HelpFeedback';
++import { HelpArticleList } from '@/components/help/HelpArticleList';
+ import { useSEO } from '@/lib/seo';
++import { parseHelpBody } from '@/lib/helpBody';
+ import { HELP_CATEGORIES } from '@/lib/helpContent';
+ import {
+   HELP_ARTICLES, getHelpArticle, getHelpCategory, getRelatedHelpArticles, type HelpArticleRecord,
+@@ -115,12 +117,19 @@ function ArticleNotFound() {
+   );
+ }
+ 
++function formatUpdated(iso: string): string {
++  const d = new Date(`${iso}T00:00:00Z`);
++  return Number.isNaN(d.getTime())
++    ? iso
++    : d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
++}
++
+ function ArticleView({ article }: { article: HelpArticleRecord }) {
+   const category = getHelpCategory(article.categoryId);
+   const CategoryIcon = category?.icon ?? BookOpen;
+   const related = useMemo(() => getRelatedHelpArticles(article, 3), [article]);
+   const siblings = useMemo(() => HELP_ARTICLES.filter((a) => a.categoryId === article.categoryId), [article.categoryId]);
+-  const paragraphs = article.body.split(/\n{2,}/);
++  const blocks = useMemo(() => parseHelpBody(article.body), [article.body]);
+ 
+   return (
+     <>
+@@ -159,10 +168,28 @@ function ArticleView({ article }: { article: HelpArticleRecord }) {
+                 <h1 className="mt-5 text-balance text-3xl font-extrabold leading-tight tracking-tight text-text-primary sm:text-4xl">
+                   {article.title}
+                 </h1>
++                {article.updated && (
++                  <p className="mt-3 text-sm text-text-secondary">
++                    Last updated <time dateTime={article.updated}>{formatUpdated(article.updated)}</time>
++                  </p>
++                )}
+                 <div className="mt-6 space-y-5 text-base leading-8 text-text-secondary sm:text-lg">
+-                  {paragraphs.map((p, i) => (
+-                    <p key={i}>{p}</p>
+-                  ))}
++                  {blocks.map((block, i) => {
++                    if (block.type === 'p') return <p key={i}>{block.text}</p>;
++                    const Tag = block.type === 'ol' ? 'ol' : 'ul';
++                    return (
++                      <Tag
++                        key={i}
++                        className={`ms-6 space-y-2 ${block.type === 'ol' ? 'list-decimal' : 'list-disc'} marker:text-accent`}
++                      >
++                        {block.items.map((item, j) => (
++                          <li key={j} className="ps-1">
++                            {item}
++                          </li>
++                        ))}
++                      </Tag>
++                    );
++                  })}
+                 </div>
+               </article>
+ 
+@@ -175,19 +202,11 @@ function ArticleView({ article }: { article: HelpArticleRecord }) {
+                   <h2 id="related-title" className="text-xl font-bold tracking-tight text-text-primary">
+                     Related articles
+                   </h2>
+-                  <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+-                    {related.map((r) => (
+-                      <li key={r.slug}>
+-                        <Link
+-                          to={`/help/${r.slug}`}
+-                          className="focus-ring flex h-full min-h-11 flex-col rounded-2xl border border-border bg-bg-secondary p-4 transition-colors hover:border-accent/40"
+-                        >
+-                          <span className="text-xs font-semibold text-accent">{r.categoryName}</span>
+-                          <span className="mt-1 text-base font-semibold text-text-primary">{r.title}</span>
+-                        </Link>
+-                      </li>
+-                    ))}
+-                  </ul>
++                  <HelpArticleList
++                    className="mt-4"
++                    label="Related articles"
++                    items={related.map((r) => ({ slug: r.slug, title: r.title, eyebrow: r.categoryName }))}
++                  />
+                 </section>
+               )}
+             </div>
+diff --git a/src/pages/HelpCenterPage.test.tsx b/src/pages/HelpCenterPage.test.tsx
+new file mode 100644
+index 0000000..c5c46fd
+--- /dev/null
++++ b/src/pages/HelpCenterPage.test.tsx
+@@ -0,0 +1,164 @@
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
++import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
++import { MemoryRouter, Route, Routes } from 'react-router-dom';
++
++const { logMissMock } = vi.hoisted(() => ({ logMissMock: vi.fn() }));
++vi.mock('@/lib/feedback/api', () => ({ logHelpSearchMiss: logMissMock }));
++vi.mock('@/contexts/AccessibilityContext', () => ({ useAccessibility: () => ({ language: 'en' }) }));
++vi.mock('@/components/Header', () => ({ Header: () => null }));
++vi.mock('@/components/Footer', () => ({ Footer: () => null }));
++vi.mock('@/components/CookieConsent', () => ({ CookieConsent: () => null }));
++
++import { HelpCenterPage } from '@/pages/HelpCenterPage';
++import { HELP_ARTICLES } from '@/lib/helpArticles';
++import { HELP_CATEGORIES } from '@/lib/helpContent';
++
++function renderAt(path = '/help') {
++  return render(
++    <MemoryRouter initialEntries={[path]}>
++      <Routes>
++        <Route path="/help" element={<HelpCenterPage />} />
++        <Route path="/help/:slug" element={<p>Article page</p>} />
++        <Route path="/contact" element={<p>Contact page</p>} />
++      </Routes>
++    </MemoryRouter>,
++  );
++}
++
++const scrollToMock = vi.fn();
++
++beforeEach(() => {
++  logMissMock.mockReset();
++  logMissMock.mockResolvedValue(undefined);
++  scrollToMock.mockReset();
++  Object.defineProperty(window, 'scrollTo', { value: scrollToMock, writable: true, configurable: true });
++  // jsdom has no IntersectionObserver; framer-motion's whileInView and the scroll-spy both feature-detect it.
++  vi.stubGlobal(
++    'IntersectionObserver',
++    class {
++      observe() {}
++      unobserve() {}
++      disconnect() {}
++      takeRecords() {
++        return [];
++      }
++    },
++  );
++  document.head.querySelectorAll('script[type="application/ld+json"]').forEach((el) => el.remove());
++});
++
++afterEach(() => {
++  vi.useRealTimers();
++  vi.unstubAllGlobals();
++});
++
++describe('HelpCenterPage', () => {
++  it('lists every article as a link to its own page, not as an accordion', () => {
++    renderAt();
++    for (const category of HELP_CATEGORIES) {
++      const list = screen.getByRole('list', { name: `${category.name} articles` });
++      const expected = HELP_ARTICLES.filter((a) => a.categoryId === category.id);
++      const links = within(list).getAllByRole('link');
++      expect(links).toHaveLength(expected.length);
++      expected.forEach((article, i) => {
++        expect(links[i]).toHaveAttribute('href', `/help/${article.slug}`);
++        expect(links[i]).toHaveTextContent(article.title);
++      });
++    }
++    // No article row is an expandable control any more.
++    expect(document.querySelectorAll('[aria-expanded]').length).toBe(0);
++  });
++
++  it('shows a decorative document icon on every article row', () => {
++    renderAt();
++    const rows = screen.getAllByRole('link').filter((a) => a.getAttribute('href')?.startsWith('/help/'));
++    expect(rows).toHaveLength(HELP_ARTICLES.length);
++    for (const row of rows) {
++      const icon = row.querySelector('svg');
++      expect(icon).not.toBeNull();
++      expect(icon).toHaveAttribute('aria-hidden', 'true');
++    }
++  });
++
++  it('shows the article count per category', () => {
++    renderAt();
++    const first = HELP_CATEGORIES[0];
++    const count = HELP_ARTICLES.filter((a) => a.categoryId === first.id).length;
++    expect(screen.getAllByText(`${count} article${count === 1 ? '' : 's'}`).length).toBeGreaterThan(0);
++  });
++
++  it('filters with the shared ranked search and shows the category on each result', () => {
++    renderAt();
++    fireEvent.change(screen.getByRole('textbox', { name: /search the help center/i }), { target: { value: 'invite' } });
++    const list = screen.getByRole('list', { name: 'Search results' });
++    const links = within(list).getAllByRole('link');
++    expect(links.length).toBeGreaterThan(0);
++    expect(links[0]).toHaveTextContent(/invite a team member/i);
++    expect(links[0]).toHaveTextContent(/Team & Permissions/);
++    expect(screen.getByRole('status')).toHaveTextContent(/matching "invite"/);
++  });
++
++  it('does not filter on a single character', () => {
++    renderAt();
++    fireEvent.change(screen.getByRole('textbox', { name: /search the help center/i }), { target: { value: 'a' } });
++    expect(screen.queryByRole('list', { name: 'Search results' })).toBeNull();
++    expect(screen.getAllByRole('list').length).toBeGreaterThanOrEqual(HELP_CATEGORIES.length);
++  });
++
++  it('shows an empty state and records the miss once, after a pause', async () => {
++    vi.useFakeTimers();
++    renderAt();
++    fireEvent.change(screen.getByRole('textbox', { name: /search the help center/i }), { target: { value: 'zzzxqv' } });
++    expect(screen.getByText('No matching articles')).toBeInTheDocument();
++    expect(logMissMock).not.toHaveBeenCalled();
++    await act(async () => {
++      vi.advanceTimersByTime(1600);
++    });
++    expect(logMissMock).toHaveBeenCalledTimes(1);
++    expect(logMissMock).toHaveBeenCalledWith('zzzxqv');
++  });
++
++  it('does not log a miss when the query has results', async () => {
++    vi.useFakeTimers();
++    renderAt();
++    fireEvent.change(screen.getByRole('textbox', { name: /search the help center/i }), { target: { value: 'billing' } });
++    await act(async () => {
++      vi.advanceTimersByTime(2000);
++    });
++    expect(logMissMock).not.toHaveBeenCalled();
++  });
++
++  it('scrolls to a category when opened with a #hash deep link', async () => {
++    renderAt('/help#billing');
++    await waitFor(() => expect(scrollToMock).toHaveBeenCalled());
++  });
++
++  it('ignores an unknown or malformed #hash', async () => {
++    renderAt('/help#not-a-category');
++    renderAt('/help#%E0%A4%A');
++    await act(async () => {
++      await new Promise((resolve) => setTimeout(resolve, 50));
++    });
++    expect(scrollToMock).not.toHaveBeenCalled();
++  });
++
++  it('jumps to a category from the sidebar', () => {
++    renderAt();
++    const nav = screen.getByRole('navigation', { name: 'Help Center categories' });
++    fireEvent.click(within(nav).getByRole('button', { name: new RegExp(HELP_CATEGORIES[2].name) }));
++    expect(scrollToMock).toHaveBeenCalledTimes(1);
++  });
++
++  it('emits CollectionPage + BreadcrumbList JSON-LD and no FAQPage on the hub', () => {
++    renderAt();
++    const schemas = Array.from(document.querySelectorAll('script[type="application/ld+json"]')).map((s) =>
++      JSON.parse(s.textContent ?? '{}'),
++    );
++    const types = schemas.map((s) => s['@type']);
++    expect(types).toEqual(expect.arrayContaining(['CollectionPage', 'BreadcrumbList']));
++    expect(types).not.toContain('FAQPage');
++    const collection = schemas.find((s) => s['@type'] === 'CollectionPage');
++    expect(collection.mainEntity.numberOfItems).toBe(HELP_ARTICLES.length);
++    expect(collection.mainEntity.itemListElement[0].url).toBe(`https://vireek.com/help/${HELP_ARTICLES[0].slug}`);
++  });
++});
+diff --git a/src/pages/HelpCenterPage.tsx b/src/pages/HelpCenterPage.tsx
+index 775302e..dc9b8c5 100644
+--- a/src/pages/HelpCenterPage.tsx
++++ b/src/pages/HelpCenterPage.tsx
+@@ -1,9 +1,8 @@
+ import { logHelpSearchMiss } from '@/lib/feedback/api';
+ import { useEffect, useMemo, useState } from 'react';
+-import { AnimatePresence, motion } from 'framer-motion';
++import { motion } from 'framer-motion';
+ import {
+   Search,
+-  ChevronDown,
+   ArrowRight,
+   Mail,
+   Phone,
+@@ -13,18 +12,19 @@ import {
+   BookOpen,
+   Sparkles,
+ } from 'lucide-react';
+-import { Link } from 'react-router-dom';
++import { Link, useLocation } from 'react-router-dom';
+ import { Header } from '@/components/Header';
+ import { Footer } from '@/components/Footer';
+ import { Button } from '@/components/ui/Button';
+ import { CookieConsent } from '@/components/CookieConsent';
+ import { BackButton } from '@/components/ui/BackButton';
++import { HelpArticleList } from '@/components/help/HelpArticleList';
+ import { EASE, viewport } from '@/lib/motion';
+ import { useSEO } from '@/lib/seo';
+ import { SARAH_PHONE } from '@/lib/site';
+ import { INDUSTRIES } from '@/lib/industries';
+ import { HELP_CATEGORIES } from '@/lib/helpContent';
+-import { getHelpArticleSlug } from '@/lib/helpArticles';
++import { HELP_ARTICLES, searchHelpArticles, type HelpArticleRecord } from '@/lib/helpArticles';
+ 
+ /* ------------------------------------------------------------------ */
+ /*  Content — categories & articles live in @/lib/helpContent          */
+@@ -44,170 +44,173 @@ const QUICK_LINKS = [
+ /*  SEO + structured data                                              */
+ /* ------------------------------------------------------------------ */
+ 
++const SITE = 'https://vireek.com';
++
++/**
++ * The hub only lists article titles, so it is described as a CollectionPage + ItemList. FAQPage markup
++ * lives on each article page (/help/:slug), where the full answer is visible — FAQ structured data must
++ * match visible content, and the hub no longer shows answers.
++ */
+ function buildHelpSchema() {
+-  const faqSchema = {
++  const collectionSchema = {
+     '@context': 'https://schema.org',
+-    '@type': 'FAQPage',
+-    mainEntity: HELP_CATEGORIES.flatMap((category) =>
+-      category.articles.map((article) => ({
+-        '@type': 'Question',
+-        name: article.q,
+-        acceptedAnswer: {
+-          '@type': 'Answer',
+-          text: article.a,
+-        },
+-      }))
+-    ),
++    '@type': 'CollectionPage',
++    name: 'Vireek Help Center',
++    url: `${SITE}/help`,
++    mainEntity: {
++      '@type': 'ItemList',
++      numberOfItems: HELP_ARTICLES.length,
++      itemListElement: HELP_ARTICLES.map((article, index) => ({
++        '@type': 'ListItem',
++        position: index + 1,
++        name: article.title,
++        url: `${SITE}/help/${article.slug}`,
++      })),
++    },
+   };
+ 
+   const breadcrumbSchema = {
+     '@context': 'https://schema.org',
+     '@type': 'BreadcrumbList',
+     itemListElement: [
+-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vireek.com/' },
+-      { '@type': 'ListItem', position: 2, name: 'Help Center', item: 'https://vireek.com/help' },
++      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
++      { '@type': 'ListItem', position: 2, name: 'Help Center', item: `${SITE}/help` },
+     ],
+   };
+ 
+-  return [faqSchema, breadcrumbSchema];
++  return [collectionSchema, breadcrumbSchema];
+ }
+ 
++/** Built once so useSEO's effect does not re-inject the JSON-LD on every render. */
++const HELP_SCHEMA = buildHelpSchema();
++
+ function SEO() {
+   useSEO({
+     title: 'Help Center — Vireek Docs & Support',
+     description:
+       'Find answers about Vireek setup, call handling, billing, integrations, notifications, security, and troubleshooting — or reach our support team directly.',
+-    canonical: 'https://vireek.com/help',
++    canonical: `${SITE}/help`,
++    jsonLd: HELP_SCHEMA,
+   });
+-
+-  useEffect(() => {
+-    const scripts = buildHelpSchema().map((schema) => {
+-      const script = document.createElement('script');
+-      script.type = 'application/ld+json';
+-      script.text = JSON.stringify(schema);
+-      document.head.appendChild(script);
+-      return script;
+-    });
+-    return () => {
+-      scripts.forEach((script) => script.remove());
+-    };
+-  }, []);
+-
+   return null;
+ }
+ 
+ /* ------------------------------------------------------------------ */
+-/*  Article accordion item                                             */
++/*  Scrolling helpers                                                  */
+ /* ------------------------------------------------------------------ */
+ 
+-function HelpArticleItem({
+-  question,
+-  answer,
+-  href,
+-  id,
+-  isOpen,
+-  onToggle,
+-}: {
+-  question: string;
+-  answer: string;
+-  href?: string;
+-  id: string;
+-  isOpen: boolean;
+-  onToggle: () => void;
+-}) {
+-  const panelId = `${id}-panel`;
+-  const buttonId = `${id}-button`;
++/** Clears the fixed header (pt-24 on <main>) plus a little breathing room. */
++const SCROLL_OFFSET = 104;
+ 
+-  return (
+-    <div className="rounded-2xl border border-border bg-bg-secondary/90 shadow-card transition-colors dark:shadow-card-dark">
+-      <h3>
+-        <button
+-          id={buttonId}
+-          type="button"
+-          aria-expanded={isOpen}
+-          aria-controls={panelId}
+-          onClick={onToggle}
+-          className="focus-ring flex w-full items-center justify-between gap-5 rounded-2xl px-5 py-5 text-left sm:px-6"
+-        >
+-          <span className="text-base font-semibold leading-7 text-text-primary sm:text-lg">{question}</span>
+-          <span
+-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+-              isOpen ? 'border-accent/30 bg-accent/10 text-accent' : 'border-border bg-bg-tertiary text-text-secondary'
+-            }`}
+-          >
+-            <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+-          </span>
+-        </button>
+-      </h3>
+-      <AnimatePresence initial={false}>
+-        {isOpen && (
+-          <motion.div
+-            id={panelId}
+-            role="region"
+-            aria-labelledby={buttonId}
+-            initial={{ height: 0, opacity: 0 }}
+-            animate={{ height: 'auto', opacity: 1 }}
+-            exit={{ height: 0, opacity: 0 }}
+-            transition={{ duration: 0.24, ease: EASE }}
+-            className="overflow-hidden"
+-          >
+-            <p className="px-5 pb-3 text-base leading-8 text-text-secondary sm:px-6">{answer}</p>
+-            {href && (
+-              <Link
+-                to={href}
+-                className="focus-ring mx-5 mb-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent hover:underline sm:mx-6"
+-              >
+-                Open full article <ArrowRight className="h-4 w-4" />
+-              </Link>
+-            )}
+-          </motion.div>
+-        )}
+-      </AnimatePresence>
+-    </div>
+-  );
++const prefersReducedMotion = () =>
++  typeof window !== 'undefined' &&
++  typeof window.matchMedia === 'function' &&
++  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++
++function scrollToId(id: string): boolean {
++  const el = document.getElementById(id);
++  if (!el) return false;
++  window.scrollTo({
++    top: el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET,
++    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
++  });
++  return true;
+ }
+ 
++const CATEGORY_IDS = new Set(HELP_CATEGORIES.map((category) => category.id));
++
++const countLabel = (n: number) => `${n} article${n === 1 ? '' : 's'}`;
++
+ /* ------------------------------------------------------------------ */
+ /*  Main page                                                           */
+ /* ------------------------------------------------------------------ */
+ 
+ export function HelpCenterPage() {
++  const { hash } = useLocation();
+   const [query, setQuery] = useState('');
+-  const [openItem, setOpenItem] = useState<string | null>(null);
+   const [activeCategory, setActiveCategory] = useState<string>(HELP_CATEGORIES[0].id);
++  const [pendingScroll, setPendingScroll] = useState<string | null>(null);
+ 
+-  const normalizedQuery = query.trim().toLowerCase();
+-
+-  const filteredCategories = useMemo(() => {
+-    if (!normalizedQuery) return HELP_CATEGORIES;
+-
+-    return HELP_CATEGORIES.map((category) => ({
+-      ...category,
+-      articles: category.articles.filter(
+-        (article) =>
+-          article.q.toLowerCase().includes(normalizedQuery) ||
+-          article.a.toLowerCase().includes(normalizedQuery) ||
+-          category.name.toLowerCase().includes(normalizedQuery)
+-      ),
+-    })).filter((category) => category.articles.length > 0);
+-  }, [normalizedQuery]);
+-
+-  const totalResults = useMemo(
+-    () => filteredCategories.reduce((sum, category) => sum + category.articles.length, 0),
+-    [filteredCategories]
++  const trimmedQuery = query.trim();
++  const normalizedQuery = trimmedQuery.toLowerCase();
++  const isSearching = trimmedQuery.length >= 2;
++
++  // Same ranking as the type-ahead search on article pages, so both always agree.
++  const searchResults = useMemo(
++    () => (isSearching ? searchHelpArticles(trimmedQuery, HELP_ARTICLES.length) : []),
++    [isSearching, trimmedQuery]
+   );
+-    useEffect(() => {
+-    if (normalizedQuery.length < 3 || totalResults > 0) return;
++  const totalResults = searchResults.length;
++
++  const articlesByCategory = useMemo(() => {
++    const map = new Map<string, HelpArticleRecord[]>();
++    for (const article of HELP_ARTICLES) {
++      const list = map.get(article.categoryId);
++      if (list) list.push(article);
++      else map.set(article.categoryId, [article]);
++    }
++    return map;
++  }, []);
++
++  useEffect(() => {
++    if (!isSearching || normalizedQuery.length < 3 || totalResults > 0) return;
+     const t = window.setTimeout(() => void logHelpSearchMiss(normalizedQuery).catch(() => undefined), 1500);
+     return () => window.clearTimeout(t);
+-  }, [normalizedQuery, totalResults]);
++  }, [isSearching, normalizedQuery, totalResults]);
+ 
+-  const scrollToCategory = (id: string) => {
++  // Deep links such as /help#billing (used by breadcrumbs on article pages). Only known category ids are honoured.
++  useEffect(() => {
++    let id = hash.slice(1);
++    try {
++      id = decodeURIComponent(id);
++    } catch {
++      return;
++    }
++    if (!CATEGORY_IDS.has(id)) return;
+     setActiveCategory(id);
+-    const el = document.getElementById(id);
+-    if (el) {
+-      const top = el.getBoundingClientRect().top + window.scrollY - 104;
+-      window.scrollTo({ top, behavior: 'smooth' });
++    const frame = window.requestAnimationFrame(() => {
++      scrollToId(id);
++    });
++    return () => window.cancelAnimationFrame(frame);
++  }, [hash]);
++
++  // A category clicked while search results are showing: clear the search first, then scroll once the sections exist.
++  useEffect(() => {
++    if (!pendingScroll || isSearching) return;
++    const frame = window.requestAnimationFrame(() => {
++      scrollToId(pendingScroll);
++      setPendingScroll(null);
++    });
++    return () => window.cancelAnimationFrame(frame);
++  }, [pendingScroll, isSearching]);
++
++  // Highlight the category currently under the header while scrolling.
++  useEffect(() => {
++    if (isSearching || typeof IntersectionObserver === 'undefined') return;
++    const sections = HELP_CATEGORIES.map((category) => document.getElementById(category.id)).filter(
++      (el): el is HTMLElement => el !== null
++    );
++    if (sections.length === 0) return;
++    const observer = new IntersectionObserver(
++      (entries) => {
++        const visible = entries
++          .filter((entry) => entry.isIntersecting)
++          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
++        if (visible[0]) setActiveCategory(visible[0].target.id);
++      },
++      { rootMargin: '-120px 0px -60% 0px' }
++    );
++    sections.forEach((section) => observer.observe(section));
++    return () => observer.disconnect();
++  }, [isSearching]);
++
++  const goToCategory = (id: string) => {
++    setActiveCategory(id);
++    if (isSearching) {
++      setQuery('');
++      setPendingScroll(id);
++    } else {
++      scrollToId(id);
+     }
+   };
+ 
+@@ -250,11 +253,11 @@ export function HelpCenterPage() {
+                       className="w-full bg-transparent py-4 pl-3 pr-5 text-base text-text-primary placeholder:text-text-secondary/50 focus:outline-none"
+                     />
+                   </div>
+-                  {normalizedQuery && (
++                  {isSearching && (
+                     <p className="mt-3 text-sm text-text-secondary" role="status">
+                       {totalResults > 0
+-                        ? `${totalResults} article${totalResults === 1 ? '' : 's'} matching "${query.trim()}"`
+-                        : `No articles matching "${query.trim()}" — try a different term or contact support below.`}
++                        ? `${countLabel(totalResults)} matching "${trimmedQuery}"`
++                        : `No articles matching "${trimmedQuery}" — try a different term or contact support below.`}
+                     </p>
+                   )}
+                 </div>
+@@ -287,12 +290,13 @@ export function HelpCenterPage() {
+                 <nav className="mt-6 flex flex-col gap-1.5" aria-label="Help Center categories">
+                   {HELP_CATEGORIES.map((category) => {
+                     const Icon = category.icon;
+-                    const isActive = activeCategory === category.id && !normalizedQuery;
++                    const isActive = activeCategory === category.id && !isSearching;
+                     return (
+                       <button
+                         key={category.id}
+                         type="button"
+-                        onClick={() => scrollToCategory(category.id)}
++                        onClick={() => goToCategory(category.id)}
++                        aria-current={isActive ? 'true' : undefined}
+                         className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+                           isActive
+                             ? 'bg-accent/10 text-accent'
+@@ -301,6 +305,9 @@ export function HelpCenterPage() {
+                       >
+                         <Icon className="h-4 w-4 shrink-0" />
+                         {category.name}
++                        <span className="ms-auto text-xs font-normal tabular-nums text-text-secondary">
++                          {articlesByCategory.get(category.id)?.length ?? 0}
++                        </span>
+                       </button>
+                     );
+                   })}
+@@ -322,60 +329,66 @@ export function HelpCenterPage() {
+             </aside>
+ 
+             <div className="space-y-10">
+-              {filteredCategories.length === 0 && (
+-                <div className="rounded-3xl border border-border bg-bg-secondary p-10 text-center shadow-card dark:shadow-card-dark">
+-                  <p className="text-lg font-semibold text-text-primary">No matching articles</p>
+-                  <p className="mt-2 text-text-secondary">
+-                    Try a shorter search term, or{' '}
+-                    <Link to="/contact" className="text-accent hover:underline">
+-                      contact support
+-                    </Link>{' '}
+-                    directly.
+-                  </p>
+-                </div>
+-              )}
+-
+-              {filteredCategories.map((category, categoryIndex) => {
+-                const Icon = category.icon;
+-                return (
+-                  <motion.section
+-                    key={category.id}
+-                    id={category.id}
+-                    initial={{ opacity: 0, y: 18 }}
+-                    whileInView={{ opacity: 1, y: 0 }}
+-                    viewport={viewport}
+-                    transition={{ duration: 0.45, ease: EASE, delay: Math.min(categoryIndex * 0.06, 0.24) }}
+-                    className="scroll-mt-28"
+-                  >
+-                    <div className="mb-5 flex items-start gap-4">
+-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
+-                        <Icon className="h-5 w-5" />
+-                      </div>
+-                      <div>
+-                        <h2 className="text-2xl font-bold tracking-tight text-text-primary">{category.name}</h2>
+-                        <p className="mt-1 text-base leading-7 text-text-secondary">{category.description}</p>
++              {isSearching ? (
++                totalResults === 0 ? (
++                  <div className="rounded-3xl border border-border bg-bg-secondary p-10 text-center shadow-card dark:shadow-card-dark">
++                    <p className="text-lg font-semibold text-text-primary">No matching articles</p>
++                    <p className="mt-2 text-text-secondary">
++                      Try a shorter search term, or{' '}
++                      <Link to="/contact" className="text-accent hover:underline">
++                        contact support
++                      </Link>{' '}
++                      directly.
++                    </p>
++                  </div>
++                ) : (
++                  <section aria-labelledby="help-search-results">
++                    <h2 id="help-search-results" className="sr-only">
++                      Search results
++                    </h2>
++                    <HelpArticleList
++                      label="Search results"
++                      items={searchResults.map((article) => ({
++                        slug: article.slug,
++                        title: article.title,
++                        eyebrow: article.categoryName,
++                        excerpt: article.excerpt,
++                      }))}
++                    />
++                  </section>
++                )
++              ) : (
++                HELP_CATEGORIES.map((category, categoryIndex) => {
++                  const Icon = category.icon;
++                  const items = articlesByCategory.get(category.id) ?? [];
++                  return (
++                    <motion.section
++                      key={category.id}
++                      id={category.id}
++                      initial={{ opacity: 0, y: 18 }}
++                      whileInView={{ opacity: 1, y: 0 }}
++                      viewport={viewport}
++                      transition={{ duration: 0.45, ease: EASE, delay: Math.min(categoryIndex * 0.06, 0.24) }}
++                      className="scroll-mt-28"
++                    >
++                      <div className="mb-5 flex items-start gap-4">
++                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
++                          <Icon className="h-5 w-5" />
++                        </div>
++                        <div>
++                          <h2 className="text-2xl font-bold tracking-tight text-text-primary">{category.name}</h2>
++                          <p className="mt-1 text-base leading-7 text-text-secondary">{category.description}</p>
++                          <p className="mt-1 text-sm font-medium text-text-secondary">{countLabel(items.length)}</p>
++                        </div>
+                       </div>
+-                    </div>
+-                    <div className="space-y-4">
+-                      {category.articles.map((article, articleIndex) => {
+-                        const id = `${category.id}-${articleIndex}`;
+-                        const slug = getHelpArticleSlug(article);
+-                        return (
+-                          <HelpArticleItem
+-                            key={article.q}
+-                            id={id}
+-                            question={article.q}
+-                            answer={article.a}
+-                            href={slug ? `/help/${slug}` : undefined}
+-                            isOpen={openItem === id}
+-                            onToggle={() => setOpenItem(openItem === id ? null : id)}
+-                          />
+-                        );
+-                      })}
+-                    </div>
+-                  </motion.section>
+-                );
+-              })}
++                      <HelpArticleList
++                        label={`${category.name} articles`}
++                        items={items.map((article) => ({ slug: article.slug, title: article.title }))}
++                      />
++                    </motion.section>
++                  );
++                })
++              )}
+             </div>
+           </div>
+         </section>
