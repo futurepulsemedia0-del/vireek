@@ -38,10 +38,10 @@ test.describe('homepage', () => {
     const annual = pricing.getByRole('button', { name: 'Annual' });
     await monthly.click();
     await expect(monthly).toHaveAttribute('aria-pressed', 'true');
-    await expect(pricing).toContainText('$79');
+    await expect(pricing).toContainText('$99');
     await annual.click();
     await expect(annual).toHaveAttribute('aria-pressed', 'true');
-    await expect(pricing).toContainText('Billed $790 a year');
+    await expect(pricing).toContainText('Billed $990 a year');
   });
 
   test('demo falls back to a transcript when the microphone is unsupported', async ({ page }) => {
