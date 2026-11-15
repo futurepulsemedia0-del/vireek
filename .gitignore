@@ -50,3 +50,5 @@ reports/mutation/
 
 # Storybook static build
 storybook-static/
+# Generated board packs contain financial data; never commit
+reports/board-pack/
