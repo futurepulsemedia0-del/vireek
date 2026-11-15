@@ -42,7 +42,7 @@ const MfaChallengePage = lazy(() => import('@/pages/MfaChallengePage').then((m) 
 const SignupPage = lazy(() => import('@/pages/SignupPage').then((m) => ({ default: m.SignupPage })));
 const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })));
 const OnboardingWizard = lazy(() => import('@/pages/onboarding/OnboardingWizard').then((m) => ({ default: m.OnboardingWizard })));
-const SarahLearnPage = lazy(() => import('@/pages/onboarding/sarah/SarahLearnPage').then((m) => ({ default: m.SarahLearnPage })));
+const SarahKnowledgePage = lazy(() => import('@/pages/SarahKnowledgePage').then((m) => ({ default: m.SarahKnowledgePage })));
 const OnboardingConciergePage = lazy(() => import('@/pages/OnboardingConciergePage').then((m) => ({ default: m.OnboardingConciergePage })));
 const OnboardingGuidePage = lazy(() => import('@/pages/OnboardingGuidePage').then((m) => ({ default: m.OnboardingGuidePage })));
 const AcademyPage = lazy(() => import('@/pages/AcademyPage').then((m) => ({ default: m.AcademyPage })));
@@ -782,7 +782,8 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/mfa" element={<MfaChallengePage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/onboarding" element={<SarahLearnPage />} />
+        <Route path="/onboarding" element={<Navigate to="/dashboard/sarah" replace />} />
+        <Route path="/dashboard/sarah" element={<ProtectedRoute><SarahKnowledgePage /></ProtectedRoute>} />
         <Route path="/onboarding/manual" element={<OnboardingWizard />} />
         <Route path="/onboarding/concierge" element={<OnboardingConciergePage />} />
         <Route path="/onboarding/classic" element={<OnboardingPage />} />
