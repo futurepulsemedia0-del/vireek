@@ -25,11 +25,12 @@ function row(over: Partial<TenantUsageRow> = {}): TenantUsageRow {
 
 describe('planEconomics', () => {
   it('reads price, included minutes (with thousands separators) and overage from the pricing source of truth', () => {
-    expect(planEconomics('starter')).toMatchObject({ monthlyPrice: 79, includedMinutes: 400, overageRate: 0.2 });
-    expect(planEconomics('professional')).toMatchObject({ monthlyPrice: 199, includedMinutes: 1500, overageRate: 0.15 });
+    expect(planEconomics('starter')).toMatchObject({ monthlyPrice: 99, includedMinutes: 200, overageRate: 0.25 });
+    expect(planEconomics('professional')).toMatchObject({ monthlyPrice: 249, includedMinutes: 600, overageRate: 0.25 });
+    expect(planEconomics('business')).toMatchObject({ monthlyPrice: 549, includedMinutes: 1500, overageRate: 0.25 });
   });
-  it('treats enterprise as unpriced/unlimited and unknown plans safely', () => {
-    expect(planEconomics('enterprise')).toMatchObject({ monthlyPrice: null, includedMinutes: Infinity, overageRate: null });
+  it('treats enterprise as unpriced (custom contract, 6,000 committed min, $0.20 overage) and unknown plans safely', () => {
+    expect(planEconomics('enterprise')).toMatchObject({ monthlyPrice: null, includedMinutes: 6000, overageRate: 0.2 });
     expect(planEconomics('mystery')).toMatchObject({ id: 'unknown', monthlyPrice: null, name: 'mystery' });
     expect(planEconomics(null).name).toBe('Unknown');
   });
@@ -51,23 +52,23 @@ describe('periodWindow', () => {
 });
 
 describe('computeTenantEconomics', () => {
-  it('healthy: list price minus AI + voice cost', () => {
-    const e = computeTenantEconomics(row(), 0.12, 30); // 300 min -> $36 voice, +$2 AI
+  it('healthy: list price plus overage minus AI + voice cost', () => {
+    const e = computeTenantEconomics(row(), 0.12, 30); // 300 min -> $36 voice, +$2 AI; 100 min over the 200 included
     expect(e.voiceCostUsd).toBeCloseTo(36, 6);
     expect(e.totalCostUsd).toBeCloseTo(38, 6);
-    expect(e.revenueUsd).toBe(79);
-    expect(e.marginUsd).toBeCloseTo(41, 6);
-    expect(e.marginPct).toBeCloseTo(51.9, 1);
+    expect(e.revenueUsd).toBeCloseTo(99 + 100 * 0.25, 6);
+    expect(e.marginUsd).toBeCloseTo(124 - 38, 6);
+    expect(e.marginPct).toBeCloseTo(69.4, 1);
     expect(e.health).toBe('healthy');
   });
   it('adds metered overage revenue beyond the included minutes', () => {
     const e = computeTenantEconomics(row({ voice_seconds: 500 * 60, ai_cost_usd: 5 }), 0.12, 30);
-    expect(e.revenueUsd).toBeCloseTo(79 + 100 * 0.2, 6);
-    expect(e.marginUsd).toBeCloseTo(99 - 65, 6);
+    expect(e.revenueUsd).toBeCloseTo(99 + 300 * 0.25, 6);
+    expect(e.marginUsd).toBeCloseTo(174 - 65, 6);
   });
   it('flags thin (<30%) and loss-making tenants', () => {
-    expect(computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 60 }), 0.12, 30).health).toBe('thin');
-    const loss = computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 100 }), 0.12, 30);
+    expect(computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 75 }), 0.12, 30).health).toBe('thin');
+    const loss = computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 120 }), 0.12, 30);
     expect(loss.health).toBe('loss');
     expect(loss.marginUsd).toBeCloseTo(-21, 6);
   });
@@ -81,7 +82,7 @@ describe('computeTenantEconomics', () => {
   });
   it('prorates the subscription and included minutes for partial periods', () => {
     const e = computeTenantEconomics(row({ voice_seconds: 0, ai_cost_usd: 0 }), 0.12, 15);
-    expect(e.revenueUsd).toBeCloseTo(39.5, 6);
+    expect(e.revenueUsd).toBeCloseTo(49.5, 6);
   });
 });
 
@@ -94,10 +95,10 @@ describe('computeTotals', () => {
     ];
     const t = computeTotals(rows, 1.5);
     expect(t.tenants).toBe(3);
-    expect(t.revenueUsd).toBe(158);
+    expect(t.revenueUsd).toBe(223);
     expect(t.lossMakers).toBe(1);
     expect(t.unpricedTenants).toBe(1);
-    expect(t.marginUsd).toBeCloseTo(158 - 38 - 100, 6);
+    expect(t.marginUsd).toBeCloseTo(223 - 38 - 100, 6);
     expect(t.aiCostUsd).toBeCloseTo(2 + 100 + 500, 6);
     expect(t.unattributedCostUsd).toBe(1.5);
   });
