@@ -5,12 +5,26 @@
  * Strings live here (not inline) so they can be moved to i18n resources in one pass.
  */
 
+import { PRICING_PLANS } from '@/lib/pricing';
+
 export const SITE_URL = 'https://vireek.com';
 
-/** Trial terms. VERIFIED: SignupPage says "no credit card required"; RefundPolicy §5 says no payment is collected during a free trial. */
+
+/**
+ * THE one switch for the trial's card policy. Every homepage string below derives from it.
+ * false = what ships today (Signup, Pricing, Terms, RefundPolicy say no card is collected).
+ * Flip to true ONLY together with the Stripe trial flow (docs/billing/card-required-trial.md),
+ * Terms/Refund copy and Signup/Pricing, in the same release.
+ */
+export const TRIAL_REQUIRES_CARD = false;
+export const TRIAL_CARD_PHRASE = TRIAL_REQUIRES_CARD ? 'card required' : 'no credit card';
+
+export const TRIAL_MINUTES = Number.parseInt(PRICING_PLANS.find((p) => p.id === 'free')?.minutes ?? '', 10);
+const STARTER_MONTHLY = PRICING_PLANS.find((p) => p.id === 'starter')?.monthly;
+
 export const TRIAL = {
   days: 14,
-  short: '14-day free trial · Card required · Cancel anytime',
+  short: `14-day free trial · ${TRIAL_REQUIRES_CARD ? 'Card required' : 'No credit card required'} · Cancel anytime`,
 } as const;
 
 /**
@@ -22,7 +36,7 @@ export const SETUP_MINUTES = 15;
 export const HERO_PROOF = [
   { label: 'Answers', value: '24/7', detail: 'Nights, weekends and holidays' },
   { label: 'Setup', value: `~${SETUP_MINUTES} min`, detail: 'Forward your number, add your services' },
-  { label: 'Trial', value: `${TRIAL.days} days`, detail: 'Card required, no contract' },
+  { label: 'Trial', value: `${TRIAL.days} days`, detail: TRIAL_REQUIRES_CARD ? 'Card required, no contract' : 'No card, no contract' },
 ] as const;
 
 export const HERO_HEADLINES = {
@@ -64,7 +78,11 @@ export const PRODUCT_SHOTS: Record<'answer' | 'dispatch' | 'recover', RealAsset 
   recover: null,
 };
 /** Real recorded demo call (mp3/m4a). While null, no audio player is rendered. */
-export const SARAH_SAMPLE_AUDIO: { src: string; durationLabel: string } | null = null;
+export const SARAH_SAMPLE_AUDIO: {
+  src: string;
+  durationLabel: string;
+  transcript?: readonly { who: 'Sarah' | 'Caller'; text: string }[];
+} | null = null;
 
 /** Real founding-customer offer. While null, the section states plainly that the program has no fixed offer yet. */
 export const FOUNDING_OFFER: { title: string; terms: string } | null = null;
@@ -110,6 +128,6 @@ export const HOME_FAQS: FaqItem[] = [
   },
   {
     q: 'How much does it cost?',
-   a: 'Plans start at $79 a month with a 14-day free trial (card required, 60 minutes included). Prices are shown above and on the pricing page.',
+    a: `Plans start at $${STARTER_MONTHLY} a month, with a 14-day free trial (${TRIAL_CARD_PHRASE}, ${TRIAL_MINUTES} voice minutes included). Prices are shown above and on the pricing page.`,
  },
 ];
