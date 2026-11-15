@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { AlertTriangle, Flame, Zap, Droplet, HelpCircle, Camera, Mic, Loader2, CheckCircle2, PhoneCall } from 'lucide-react';
 import { Header } from '@/components/Header';
+import { SkeletonForm } from '@/components/Skeleton';
 import { Footer } from '@/components/Footer';
 import { fetchPortalBundle, type PortalBundle } from '@/lib/customerPortal';
 import {
