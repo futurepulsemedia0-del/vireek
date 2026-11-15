@@ -151,7 +151,7 @@ function NoAccess() {
 
 export function BillingPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, isOwner, permissions } = useAuth();
+  const { user, profile, isOwner, permissions } = useAuth();
   const { toast } = useToast();
 
   const [jobs, setJobs] = useState<Job[]>([]);
