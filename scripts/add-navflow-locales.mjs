@@ -86,7 +86,7 @@ const STRINGS = {
     "Security",
     "System status",
     "Sign in",
-    "Start free",
+    "Start free trial",
     "Dashboard",
     "Technician app",
     "Staff",
