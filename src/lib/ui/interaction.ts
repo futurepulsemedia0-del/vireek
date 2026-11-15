@@ -121,16 +121,16 @@ export const SURFACES: Record<SurfaceKind, SurfaceRecipe> = {
     active: 'active:text-text-primary',
     selected: 'data-[selected=true]:border-accent data-[selected=true]:text-text-primary',
     error: 'text-danger',
-  },
-  card: {
-    rest: 'border border-border/80 bg-bg-secondary',
-    hover: '',
-    active: '',hover:border-accent/25
-    selected: 'data-[selected=true]:border-accent data-[selected=true]:bg-accent/5',
-    error: 'border-danger',
-  },
-};
 
+},
+card: {
+  rest: 'border border-border/80 bg-bg-secondary',
+  hover: 'border-accent/25',
+  active: '',
+  selected: 'data-[selected=true]:border-accent data-[selected=true]:bg-accent/5',
+  error: 'border-danger',
+},
+};
 export interface SurfaceOptions {
   /** Adds the hover + active recipes (false for static, non-interactive surfaces). */
   interactive?: boolean;
