@@ -66,6 +66,9 @@ import { passesModuleGate } from '@/lib/entitlements';
 import { navLabelKey } from '@/lib/navLabel';
 import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
+import { Icon } from '@/components/ui/Icon';
+import { IconButton } from '@/components/ui/IconButton';
+import { isNavItemActive } from '@/lib/navActive';
 import { PwaInstallBanner } from '@/components/mobile/PwaInstallBanner';
 
 interface NavItem {
@@ -572,6 +575,7 @@ export function filterItems(
   });
 }
 export const ALL_NAV_ITEMS = [...PRIMARY_ITEMS, ...ACCOUNT_ITEMS];
+const ALL_NAV_HREFS: readonly string[] = [...PRIMARY_ITEMS, ...ACCOUNT_ITEMS].map((item) => item.href);
 export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const { has: hasModule } = useEntitlements();
   const navigate = useNavigate();
@@ -611,15 +615,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     'help.shortcuts': () => setShortcutsHelpOpen(true),
   });
 
-  const isActive = (href: string) => {
-    if (href === '/dashboard') return location.pathname === '/dashboard';
-    if (href === '/dashboard/settings') {
-      return location.pathname === href || location.pathname === '/dashboard/settings/account';
-    }
-    if (href === '/dashboard/inventory') return location.pathname === '/dashboard/inventory';
-    if (href === '/dashboard/marketing') return location.pathname === '/dashboard/marketing';
-    return location.pathname.startsWith(href);
-  };
+  const isActive = (href: string) => isNavItemActive(location.pathname, href, ALL_NAV_HREFS);
 
   const audience = audienceFor(isOwner, permissions.can_view_all_jobs);
   const gates = { landscaping: landscaping.allowed };
@@ -661,13 +657,14 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         key={item.href}
         to={item.href}
         onClick={() => setDrawerOpen(false)}
+        aria-current={active ? 'page' : undefined}
         className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
           active
-            ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/15'
+            ? 'bg-accent/10 text-accent ring-1 ring-accent/15'
             : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
         }`}
       >
-        <item.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
+        <Icon icon={item.icon} size="md" className={active ? 'text-accent' : 'text-text-secondary'} />
         {label(plainLabel(item.href, item.label))}
         {item.href === '/dashboard/team-chat' && <ChatNavBadge />}
       </Link>
@@ -694,7 +691,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
                   <span className="ml-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">Beta</span>
                 )}
               </span>
-              <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+              <ChevronDown size={16} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
               <div className="flex flex-col gap-1 pt-1">
@@ -747,7 +744,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
                       }`}
                     >
                       <span className="flex items-center gap-3">
-                        <option.icon size={18} className={active ? 'text-accent' : 'text-text-secondary'} />
+                        <Icon icon={option.icon} size="md" className={active ? 'text-accent' : 'text-text-secondary'} />
                         {label(option.label)}
                       </span>
                       {active && <Check size={16} className="text-accent" />}
@@ -792,7 +789,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             onClick={handleSignOut}
             className="focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
           >
-            <LogOut size={18} />
+            <Icon icon={LogOut} size="md" />
             {t('nav.signOut')}
           </button>
         </div>
@@ -812,15 +809,14 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             <FeedbackButton />
             <WhatsNewButton />
             <NotificationBell />
-            <button
-              type="button"
+                        <IconButton
+              label={t('nav.openMenu')}
+              icon={Menu}
+              variant="secondary"
+              size="sm"
               onClick={() => setDrawerOpen(true)}
               data-tour="menu-button"
-              aria-label={t('nav.openMenu')}
-              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-primary"
-            >
-              <Menu size={18} />
-            </button>
+            />
           </div>
         </div>
       </header>
@@ -851,14 +847,13 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
                   </span>
                   <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
                 </div>
-                <button
-                  type="button"
+                <IconButton
+                  label={t('nav.closeMenu')}
+                  icon={X}
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setDrawerOpen(false)}
-                  aria-label={t('nav.closeMenu')}
-                  className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border text-text-secondary hover:text-text-primary"
-                >
-                  <X size={18} />
-                </button>
+                />
               </div>
               <div className="flex-1 overflow-y-auto px-3 py-4">
                 {navContent}
