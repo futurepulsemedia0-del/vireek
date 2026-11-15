@@ -3,7 +3,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Hero } from '@/components/home/Hero';
-import { IntegrationsStrip } from '@/components/home/IntegrationsStrip';
+import { IntegrationsMarquee } from '@/components/sections/IntegrationsMarquee';
 import { StickyMobileCta } from '@/components/home/StickyMobileCta';
 import { useSEO } from '@/lib/seo';
 import { useScrollDepthTracking } from '@/lib/homeAnalytics';
@@ -62,7 +62,7 @@ export function HomePage() {
       <Header />
       <main id="main">
         <Hero />
-        <IntegrationsStrip />
+        <IntegrationsMarquee />
         <Slot minHeight={760}><LiveDemo /></Slot>
         {SARAH_SAMPLE_AUDIO && <Slot minHeight={0}><SampleCall /></Slot>}
         <Slot minHeight={640}><CostOfMissedCalls /></Slot>
