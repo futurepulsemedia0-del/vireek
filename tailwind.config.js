@@ -37,6 +37,7 @@ export default {
         'copy-lg': ['1.125rem', { lineHeight: '1.65', letterSpacing: '-0.006em' }],
         copy: ['1rem', { lineHeight: '1.6', letterSpacing: '-0.011em' }],
         note: ['0.8125rem', { lineHeight: '1.45' }],
+        'page-title': ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.014em', fontWeight: '600' }],
       },
       // Colours are GENERATED from scripts/color/palette.mjs (OKLCH source of truth) — see docs/design/COLOR_TOKENS.md.
       ...tailwindTheme,
