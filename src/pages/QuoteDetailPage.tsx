@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { BackButton } from '@/components/ui/BackButton';
+import { CommentsPanel } from '@/components/comments/CommentsPanel';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
