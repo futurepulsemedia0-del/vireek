@@ -10,6 +10,9 @@ Run from the repo root. "CI" = run by a workflow in `.github/workflows` (verify 
 | `preview` | Serve the built app | after `build` |
 | `test` | Vitest unit tests | before every commit; CI |
 | `test:watch` | Vitest watch mode | while coding |
+| `storybook` | Component catalogue dev server (port 6006); see `docs/design/STORYBOOK.md` | when building or reviewing UI primitives |
+| `build-storybook` | Static Storybook build into `storybook-static/` | before publishing the catalogue |
+| `typecheck:storybook` | `tsc` over `.storybook` (stories + config) | after editing stories |
 | `mutation:money` | Stryker mutation run on `regionConfig/money.ts` (pilot, no gate) | manual; see `docs/testing/mutation.md` |
 | `mutation:compliance` | Stryker mutation run on the compliance-rules engine (pilot, no gate) | manual |
 | `mutation:scoring` | Stryker mutation run on `fragilityScore.ts` (pilot, no gate) | manual |
