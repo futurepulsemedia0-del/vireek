@@ -703,7 +703,7 @@ export function buildLocalPage(industry: Industry, city: City): LocalPage {
     path,
     canonical: `${SITE_URL}${path}`,
     title: `${name} AI Receptionist in ${place} | Vireek`,
-    description: `Vireek's AI receptionist answers every call for ${name} companies in ${place}: ${roi.emergencyLabel} triaged, jobs booked 24/7. Start free.`,
+    description: `Vireek's AI receptionist answers every call for ${name} companies in ${place}: ${roi.emergencyLabel} triaged, jobs booked 24/7. Free trial.`,
     h1: `AI Receptionist for ${name} Companies in ${place}`,
     intro:
       `${name} calls in ${place} follow the weather: ${lowerFirst(lead)} ${city.seasonNote} ` +
