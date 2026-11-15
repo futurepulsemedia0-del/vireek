@@ -186,6 +186,14 @@ const RESOURCES = [
   { label: 'Responsible AI Policy', description: 'How we disclose, oversee, and govern AI in the product.', href: '/responsible-ai' },
   { label: 'AI Call Disclosure & Recording', description: 'How callers are told they are speaking with an AI, and how calls are recorded and retained.', href: '/ai-disclosure' },
   { label: 'Refund & Cancellation Policy', description: 'How billing and cancellation work.', href: '/refund-policy' },
+  { label: 'Call Recording & Consent Policy', description: 'How callers are notified, how consent works and who is responsible.', href: '/call-recording-consent' },
+  { label: 'Data Retention & Deletion Policy', description: 'How long data is kept and how deletion works.', href: '/data-retention' },
+  { label: 'Billing & Payment Terms', description: 'Subscriptions, usage, taxes and failed payments.', href: '/billing-terms' },
+  { label: 'Incident Response & Data Breach Policy', description: 'How incidents are handled and communicated.', href: '/incident-response' },
+  { label: 'Limitation of Liability', description: 'Plain-language liability cap and exclusions.', href: '/limitation-of-liability' },
+  { label: 'Disclaimer', description: 'Limits on AI output, advice and results.', href: '/disclaimer' },
+  { label: 'Intellectual Property Policy', description: 'Ownership of the platform, data and AI output.', href: '/intellectual-property' },
+  { label: 'Export Control & Sanctions Policy', description: 'Sanctions and export compliance.', href: '/export-control' },
 ];
 
 export function TrustCenterPage() {
