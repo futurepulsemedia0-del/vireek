@@ -95,6 +95,12 @@
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>https://vireek.com/data-retention</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
     <url>
     <loc>https://vireek.com/enterprise</loc>
     <lastmod>2026-09-12</lastmod>
