@@ -37,6 +37,8 @@
     "lint:regional": "node scripts/check-regional-assumptions.mjs",
     "test:scripts:regional": "node --test scripts/lib/regionalAssumptions.test.mjs",
     "test:scripts:insurance": "node --test scripts/compliance/insurance-program.test.mjs",
+    "report:board-pack": "node scripts/reporting/board-pack.mjs",
+    "test:scripts:board-pack": "node --test scripts/reporting/board-pack.test.mjs",
     "lint:voice": "node scripts/check-voice.mjs",
     "claims:check": "node scripts/check-claims.mjs",
     "i18n:keys": "node scripts/i18n-missing-keys.mjs",
