@@ -348,7 +348,7 @@ function CustomerDrawer({
 
 export function CustomersPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const { defs: cfDefs } = useCustomFieldDefs('customer');
 
