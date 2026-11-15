@@ -244,11 +244,6 @@ export function BusinessProfilePage() {
     loadProfile();
   }, [loadProfile]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   useKeyboardShortcut({
     key: 'Escape',
