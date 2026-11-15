@@ -83,7 +83,7 @@ export const USE_CASES: UseCase[] = [
     related: [
       { label: 'SMS Text-Back', href: '/features/sms-text-back', blurb: 'How the automatic follow-up text works.' },
       { label: 'AI Lead Qualification', href: '/features/lead-qualification', blurb: 'What Sarah asks every caller.' },
-      { label: 'Pricing', href: '/pricing', blurb: 'Plans start with a free tier.' },
+      { label: 'Pricing', href: '/pricing', blurb: 'Plans start with a free trial.' },
     ],
     faq: [
       {
