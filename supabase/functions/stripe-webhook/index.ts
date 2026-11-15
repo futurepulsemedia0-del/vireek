@@ -40,7 +40,7 @@
 import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
-import { minutesForPlan, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
+import { minutesForPlan, minutesToSyncOnPlanSync, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
 import {
   chargeRefundToClawbackArgs,
   disputeToClawbackArgs,
@@ -405,10 +405,25 @@ Deno.serve(async (req: Request) => {
           (subscription.metadata?.plan_id as string | undefined);
         if (!customerId || !planId) break;
 
-                await admin
+        // Grandfathering: this event also fires on renewals, payment retries and metadata edits, so the included
+        // minutes may only be (re)written when the plan really changed (see minutesToSyncOnPlanSync).
+        const { data: current, error: currentError } = await admin
           .from("profiles")
-          .update({ plan: planId, minutes_included: minutesForPlan(planId) ?? undefined })
+          .select("plan, minutes_included")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
+        if (currentError) throw new Error(`profile lookup failed: ${currentError.message}`); // => 500, Stripe retries
+        if (!current) break;
+        const syncedMinutes = minutesToSyncOnPlanSync({
+          currentPlan: current.plan,
+          currentMinutes: current.minutes_included,
+          targetPlan: planId,
+        });
+        const { error: syncError } = await admin
+          .from("profiles")
+          .update(syncedMinutes === undefined ? { plan: planId } : { plan: planId, minutes_included: syncedMinutes })
           .eq("stripe_customer_id", customerId);
+        if (syncError) throw new Error(`profile plan sync failed: ${syncError.message}`);
         break;
       }
       case "charge.refunded": {
@@ -444,7 +459,6 @@ Deno.serve(async (req: Request) => {
         // Not a dunning-relevant event — acknowledged and ignored.
         break;
     }
-  } catch (err) {
    } catch (err) {
     console.error(`Error handling Stripe event ${event.type} (${event.id}):`, err);
     await admin.rpc("complete_billing_event", {
