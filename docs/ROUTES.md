@@ -27,6 +27,7 @@ Routes found: **683**.
 | `/staff/trust-admin` | `StaffTrustAdminPage` | StaffRoute |
 | `/staff/open-voice-benchmark` | `StaffOpenVoiceBenchmarkPage` | StaffRoute |
 | `/staff/value-scoreboard` | `StaffValueScoreboardPage` | StaffRoute |
+| `/staff/win-loss` | `StaffWinLossPage` | StaffRoute |
 | `/staff/partners` | `PartnerApplicationsAdminPage` | StaffRoute |
 | `/staff/customers` | `StaffCustomersPage` | StaffRoute |
 | `/staff/evidence-partners` | `EvidencePartnersAdminPage` | StaffRoute |
