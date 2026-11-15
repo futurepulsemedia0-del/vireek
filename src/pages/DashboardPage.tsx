@@ -793,15 +793,15 @@ export function DashboardPage() {
   const otherInsights = insights.filter((i) => i.id !== dailyDigest?.id);
 
   const quickActions: { to: string; icon: typeof Phone; title: string; sub: string; show: boolean }[] = [
-    { to: '/dashboard/analytics', icon: TrendingUp, title: 'Analytics', sub: 'Deep dive into performance', show: isOwner || permissions.can_view_billing },
-    { to: '/dashboard/calls', icon: Phone, title: 'Call History', sub: 'Review and manage calls', show: true },
-    { to: '/dashboard/leads', icon: User, title: 'Leads', sub: 'Kanban board & pipeline', show: true },
-    { to: '/dashboard/jobs', icon: Wrench, title: isOwner || permissions.can_view_all_jobs ? 'Jobs' : 'My Jobs', sub: 'Work orders & invoicing', show: true },
+    { to: '/dashboard/analytics', icon: TrendingUp, title: 'Analytics', sub: 'Call, job and revenue trends', show: isOwner || permissions.can_view_billing },
+    { to: '/dashboard/calls', icon: Phone, title: 'Call History', sub: 'Every inbound call and its outcome', show: true },
+    { to: '/dashboard/leads', icon: User, title: 'Leads', sub: 'Open leads by stage', show: true },
+    { to: '/dashboard/jobs', icon: Wrench, title: isOwner || permissions.can_view_all_jobs ? 'Jobs' : 'My Jobs', sub: 'Work orders and invoices', show: true },
     { to: '/dashboard/business-profile', icon: Settings, title: 'Business Profile', sub: 'Services, hours & FAQs', show: isOwner || permissions.can_edit_business_profile },
-    { to: '/dashboard/insights', icon: Lightbulb, title: 'Insights', sub: 'AI smart suggestions', show: true },
-    { to: '/dashboard/team', icon: ShieldCheck, title: 'Team', sub: 'Manage members & permissions', show: isOwner || permissions.can_manage_team },
-    { to: '/dashboard/billing', icon: CreditCard, title: 'Billing', sub: 'Plan & customer invoices', show: isOwner || permissions.can_view_billing },
-    { to: '/dashboard/integrations', icon: Plug, title: 'Integrations', sub: 'Connect your tools', show: true },
+    { to: '/dashboard/insights', icon: Lightbulb, title: 'Insights', sub: 'Suggestions from recent activity', show: true },
+    { to: '/dashboard/team', icon: ShieldCheck, title: 'Team', sub: 'Members and permissions', show: isOwner || permissions.can_manage_team },
+    { to: '/dashboard/billing', icon: CreditCard, title: 'Billing', sub: 'Your plan and your invoices', show: isOwner || permissions.can_view_billing },
+    { to: '/dashboard/integrations', icon: Plug, title: 'Integrations', sub: 'Calendar, accounting and more', show: true },
   ];
   const renderWidget = (id: OverviewWidgetId): React.ReactNode => {
     switch (id) {
