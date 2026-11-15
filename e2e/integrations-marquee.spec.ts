@@ -60,7 +60,7 @@ for (const width of [375, 1280] as const) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const section = await openHome(page, 'light', width);
     await expect(section.locator('.logo-marquee__track')).toHaveCount(0);
-    await expect(section.getByRole('list', { name: 'Supported integrations' }).getByRole('link')).toHaveCount(11);
+    await expect(section.getByRole('list', { name: 'Supported integrations' }).getByRole('link')).toHaveCount(13);
     await expect(section).toHaveScreenshot(`marquee-reduced-${width}.png`, { maxDiffPixelRatio: 0.02 });
   });
 }
