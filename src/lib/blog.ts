@@ -131,16 +131,16 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'p',
-        text: 'Vireek\u2019s published plans are a useful reference point here because the pricing is public rather than quoted case by case: a Free tier with 50 minutes to try it, Starter at $79/month for 400 minutes, Professional at $199/month for 1,500 minutes (the plan most solo and small-crew contractors land on), Business at $399/month for 4,000 minutes across up to 3 locations, and custom Enterprise pricing starting around $999/month for unlimited minutes and locations. Every plan answers every call, 24/7 \u2014 the coverage gap that costs the most with a single in-house hire or a capped answering-service plan simply doesn\u2019t exist.',
+        text: 'Vireek\u2019s published plans are a useful reference point here because the pricing is public rather than quoted case by case: a free Trial with 60 minutes to try it, Starter at $99/month for 200 minutes, Professional at $249/month for 600 minutes (the plan most solo and small-crew contractors land on), Business at $549/month for 1,500 minutes across up to 3 locations, and Enterprise from $1,799/month with 6,000 committed minutes. Every plan answers every call, 24/7 \u2014 the coverage gap that costs the most with a single in-house hire or a capped answering-service plan simply doesn\u2019t exist.',
       },
       {
         type: 'list',
         items: [
-          'Free \u2014 $0/month, 50 minutes, 1 seat, 1 location. For proving the value before spending anything.',
-          'Starter \u2014 $79/month, 400 minutes, 2 seats. Smart booking, SMS confirmations, 1 CRM integration.',
-          'Professional \u2014 $199/month, 1,500 minutes, 5 seats. Emergency detection, live dispatch, full CRM sync.',
-          'Business \u2014 $399/month, 4,000 minutes, up to 3 locations. Custom voice and script per location.',
-          'Enterprise \u2014 from $999/month, unlimited minutes and locations. Custom-trained voice, dedicated account manager.',
+          'Trial \u2014 $0, 60 minutes, 1 seat, 1 location. For proving the value before spending anything.',
+          'Starter \u2014 $99/month, 200 minutes, 2 seats. Smart booking, online booking page, 1 CRM integration.',
+          'Professional \u2014 $249/month, 600 minutes, 5 seats. Emergency live dispatch, dispatch board, price book, CRM sync.',
+          'Business \u2014 $549/month, 1,500 minutes, up to 3 locations. Advanced analytics, QuickBooks and Xero sync.',
+          'Enterprise \u2014 from $1,799/month, 6,000 committed minutes. SSO, audit logs, API access, dedicated account manager.',
         ],
       },
       {
