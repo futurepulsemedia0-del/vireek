@@ -3,6 +3,7 @@ import { Snowflake, AlertTriangle, ShieldCheck, ShieldAlert, Loader2, Ban } from
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { JobLeakBanner } from '@/components/leak/JobLeakBanner';
 import {
   addEntry,
   voidEntry,
