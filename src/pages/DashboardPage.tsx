@@ -5,6 +5,7 @@ import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck a
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
+import { IconButton } from '@/components/ui/IconButton';
 import { UsageAlertBanner } from '@/pages/BillingPage';
 import { supabase, Call, Job, Lead, AiInsight, BusinessProfile } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
@@ -85,7 +86,7 @@ function KpiCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+      className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
     >
       <div className="flex items-center justify-between">
         <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${accentColor}`}>
@@ -895,14 +896,13 @@ export function DashboardPage() {
                       <h3 className="text-sm font-medium text-text-primary">{insight.title}</h3>
                       <p className="mt-0.5 text-sm text-text-secondary">{insight.description}</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDismissInsight(insight.id)}
-                      className="focus-ring -m-2 shrink-0 rounded-control p-2 text-text-secondary transition-colors hover:text-text-primary"
-                      aria-label="Dismiss insight"
-                    >
-                      <XCircle size={16} />
-                    </button>
+                    <IconButton
+                     label="Dismiss insight"
+                         icon={XCircle}
+                         size="xs"
+                    className="shrink-0"
+                  onClick={() => handleDismissInsight(insight.id)}
+                   />
                   </li>
                 );
               })}
@@ -967,14 +967,13 @@ export function DashboardPage() {
                 <div className="mt-3 flex items-center gap-2 rounded-xl border border-accent/20 bg-accent/5 px-4 py-2.5">
                   <Lightbulb size={16} className="shrink-0 text-accent" />
                   <p className="text-sm text-text-primary">{dailyDigest.title}. {dailyDigest.description}</p>
-                  <button
-                    type="button"
-                    onClick={() => handleDismissInsight(dailyDigest.id)}
-                    className="focus-ring shrink-0 rounded text-text-secondary transition-colors hover:text-text-primary"
-                    aria-label="Dismiss"
-                  >
-                    <X size={14} />
-                  </button>
+                  <IconButton
+                label="Dismiss"
+                   icon={X}
+                  size="xs"
+                   className="-my-1 ml-auto shrink-0"
+                      onClick={() => handleDismissInsight(dailyDigest.id)}
+                 />
                 </div>
               )}
             </>
