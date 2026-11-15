@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader as Loader2, Send, Sparkles, Phone, CheckCircle2, Circle, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { SkeletonForm } from '@/components/Skeleton';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase, BusinessProfile } from '@/lib/supabase';
 import { ThemeToggle } from '@/components/ThemeToggle';
