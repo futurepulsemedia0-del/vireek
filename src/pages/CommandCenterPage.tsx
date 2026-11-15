@@ -189,11 +189,6 @@ export function CommandCenterPage() {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   // ---------------------------------------------------------
   // Realtime subscriptions — new calls, new leads, job changes
