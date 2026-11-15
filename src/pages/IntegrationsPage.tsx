@@ -149,11 +149,6 @@ export function IntegrationsPage() {
     loadIntegrations();
   }, [loadIntegrations]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   const getIntegration = (type: string): Integration | undefined =>
     integrations.find((i) => i.integration_type === type);
