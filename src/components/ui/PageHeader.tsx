@@ -16,7 +16,7 @@ export function PageHeader({ title, context, primaryAction, controls, className 
   return (
     <div className={`flex flex-wrap items-end justify-between gap-x-6 gap-y-3 pb-4 ${className}`}>
       <div className="min-w-0">
-        <h1 className="truncate text-lg font-semibold tracking-tight text-text-primary">{title}</h1>
+        <h1 className="truncate text-page-title text-text-primary">{title}</h1>
         {context && <p className="mt-0.5 text-xs text-text-secondary">{context}</p>}
       </div>
       {(controls || primaryAction) && (
