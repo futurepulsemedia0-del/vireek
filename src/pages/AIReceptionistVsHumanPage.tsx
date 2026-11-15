@@ -470,7 +470,7 @@ export function AIReceptionistVsHumanPage() {
                   <ul className="mt-6 space-y-3 text-sm leading-relaxed text-text-secondary">
                     <li className="flex items-start gap-2.5">
                       <Wallet size={15} className="mt-0.5 shrink-0 text-accent" />
-                      Flat monthly plans starting at $79/month — no payroll tax, no benefits
+                      Flat monthly plans starting at $99/month — no payroll tax, no benefits
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Clock3 size={15} className="mt-0.5 shrink-0 text-accent" />
