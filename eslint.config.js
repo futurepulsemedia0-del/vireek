@@ -26,7 +26,6 @@ export default tseslint.config(
     },
   },
   {
-  {
     files: ['src/**/*.{jsx,tsx}'],
     ignores: ['**/*.test.{ts,tsx}', 'src/components/ui/Img.tsx'],
     plugins: { 'jsx-a11y': jsxA11y, 'vireek-img': vireekImg },
@@ -36,6 +35,7 @@ export default tseslint.config(
       'vireek-img/policy': 'error',
     },
   },
+  {
     // Formatting policy: use @/lib/format (or useFormat()). CI enforces a ratchet via
     // `npm run lint:locale`; this rule gives immediate editor feedback.
     files: ['src/**/*.{ts,tsx}'],
