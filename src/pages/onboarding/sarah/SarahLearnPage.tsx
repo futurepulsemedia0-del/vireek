@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from 'i18next';
 import { Phone } from 'lucide-react';
@@ -15,6 +15,8 @@ import { ReadinessStep } from './ReadinessStep';
 import { ReviewStep } from './ReviewStep';
 import { SourcesStep } from './SourcesStep';
 import { SuggestionsPanel } from './SuggestionsPanel';
+import { SarahKnowledgeSummary } from '@/components/sarah/SarahKnowledgeSummary';
+import { normalizeWebsite } from '@/lib/sarahKnowledge';
 import { ApiError, loadLatestRun, loadRunDetail, track, type ScenarioResultDto } from './sarahLearnApi';
 import { formatDuration, type LearnField, type LearnRun, type LearnSource } from './sarahLearnLogic';
 
@@ -33,10 +35,12 @@ function stageFromRun(run: LearnRun, fieldCount: number): Stage {
   return fieldCount > 0 || run.status === 'drafted' ? 'interview' : 'sources';
 }
 
-export function SarahLearnPage() {
+export function SarahLearnPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { t, i18n: inst } = useTranslation('sarahLearn');
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const prefillSite = normalizeWebsite(searchParams.get('website') ?? '') ?? '';
   const locale: 'en' | 'es' = (inst.language ?? 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
 
   const [stage, setStage] = useState<Stage>('sources');
@@ -117,14 +121,14 @@ export function SarahLearnPage() {
 
   if (authLoading || loading) {
     return (
-      <div role="status" aria-label={t('page.loading')} className="flex min-h-screen items-center justify-center bg-bg-primary">
+      <div role="status" aria-label={t('page.loading')} className={`flex items-center justify-center bg-bg-primary ${embedded ? 'min-h-[240px]' : 'min-h-screen'}`}> تغییر دهید.
         <MiniLoader size={28} />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen bg-bg-primary px-4 pb-16 pt-20 sm:px-6">
+    <div className={embedded ? 'relative' : 'relative min-h-screen bg-bg-primary px-4 pb-16 pt-20 sm:px-6'}>
       <header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6">
         <span className="flex items-center gap-2.5">
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
@@ -139,6 +143,7 @@ export function SarahLearnPage() {
           <ThemeToggle />
         </div>
       </header>
+      )}
 
       <main className="mx-auto w-full max-w-2xl space-y-6">
         <div>
@@ -146,6 +151,7 @@ export function SarahLearnPage() {
           <p className="mt-2 text-sm text-text-secondary">{t('page.subtitle')}</p>
         </div>
 
+       {embedded && <SarahKnowledgeSummary run={run} fields={fields} />}
         {stage !== 'live' && (
           <nav aria-label={t('steps.list')}>
             <ol className="flex flex-wrap gap-2 text-xs font-medium">
@@ -179,7 +185,7 @@ export function SarahLearnPage() {
 
         {user && (
           <Card interactive={false} className="!p-5 sm:!p-8">
-            {stage === 'sources' && <SourcesStep locale={locale} parentRunId={rerunOf} initialUrl={run?.website_url ?? ''} onDone={onDrafted} />}
+            {stage === 'sources' && <SourcesStep locale={locale} parentRunId={rerunOf} initialUrl={run?.website_url ?? prefillSite}} onDone={onDrafted} />}
             {stage === 'interview' && run && <InterviewStep runId={run.id} locale={run.locale} onDone={toReview} />}
             {stage === 'review' && run && (
               <ReviewStep
