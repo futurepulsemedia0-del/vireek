@@ -53,6 +53,7 @@ describe('IntegrationsMarquee (animated)', () => {
       'Supported integrations',
       'Field service, CRM and accounting integrations',
       'Calendar, messaging and payments integrations',
+      'Trades we support',
     ]);
     const full = screen.getByRole('list', { name: 'Supported integrations' });
     const names = within(full)
@@ -136,6 +137,36 @@ describe('IntegrationsMarquee (prefers-reduced-motion)', () => {
     expect(screen.queryByRole('button', { name: /logo scroll/i })).toBeNull();
     const list = screen.getByRole('list', { name: 'Supported integrations' });
     expect(within(list).getAllByRole('link')).toHaveLength(MARQUEE_ITEMS.length);
+  });
+});
+
+describe('IntegrationsMarquee (logos and trades)', () => {
+  it('shows the visible brand name next to a decorative mark on every tile', () => {
+    const { container } = renderSection();
+    const full = screen.getByRole('list', { name: 'Supported integrations' });
+    for (const item of MARQUEE_ITEMS) {
+      const link = within(full).getByRole('link', { name: item.name });
+      expect(link.querySelector('svg, [data-initial]'), `${item.name} needs a mark`).not.toBeNull();
+      expect(link.textContent).toBe(item.name);
+    }
+    container.querySelectorAll('svg').forEach((svg) => expect(svg).toHaveAttribute('aria-hidden', 'true'));
+  });
+
+  it('lists the four trades with decorative icons', () => {
+    renderSection();
+    const trades = screen.getByRole('list', { name: 'Trades we support' });
+    expect(within(trades).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'Plumbing',
+      'HVAC',
+      'Electrical',
+      'Roofing',
+    ]);
+  });
+
+  it('keeps gradient ids unique across repeated marks', () => {
+    const { container } = renderSection();
+    const ids = Array.from(container.querySelectorAll('[id]')).map((n) => n.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 
