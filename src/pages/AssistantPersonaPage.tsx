@@ -66,7 +66,7 @@ const DEFAULT_DISCLOSURE_SCRIPT =
 
 export function AssistantPersonaPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
