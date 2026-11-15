@@ -7,7 +7,9 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { BackButton } from '@/components/ui/BackButton';
 import { HelpSearch } from '@/components/HelpSearch';
 import { HelpFeedback } from '@/components/HelpFeedback';
+import { HelpArticleList } from '@/components/help/HelpArticleList';
 import { useSEO } from '@/lib/seo';
+import { parseHelpBody } from '@/lib/helpBody';
 import { HELP_CATEGORIES } from '@/lib/helpContent';
 import {
   HELP_ARTICLES, getHelpArticle, getHelpCategory, getRelatedHelpArticles, type HelpArticleRecord,
@@ -115,12 +117,19 @@ function ArticleNotFound() {
   );
 }
 
+function formatUpdated(iso: string): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+}
+
 function ArticleView({ article }: { article: HelpArticleRecord }) {
   const category = getHelpCategory(article.categoryId);
   const CategoryIcon = category?.icon ?? BookOpen;
   const related = useMemo(() => getRelatedHelpArticles(article, 3), [article]);
   const siblings = useMemo(() => HELP_ARTICLES.filter((a) => a.categoryId === article.categoryId), [article.categoryId]);
-  const paragraphs = article.body.split(/\n{2,}/);
+  const blocks = useMemo(() => parseHelpBody(article.body), [article.body]);
 
   return (
     <>
@@ -159,10 +168,28 @@ function ArticleView({ article }: { article: HelpArticleRecord }) {
                 <h1 className="mt-5 text-balance text-3xl font-extrabold leading-tight tracking-tight text-text-primary sm:text-4xl">
                   {article.title}
                 </h1>
+                {article.updated && (
+                  <p className="mt-3 text-sm text-text-secondary">
+                    Last updated <time dateTime={article.updated}>{formatUpdated(article.updated)}</time>
+                  </p>
+                )}
                 <div className="mt-6 space-y-5 text-base leading-8 text-text-secondary sm:text-lg">
-                  {paragraphs.map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
+                  {blocks.map((block, i) => {
+                    if (block.type === 'p') return <p key={i}>{block.text}</p>;
+                    const Tag = block.type === 'ol' ? 'ol' : 'ul';
+                    return (
+                      <Tag
+                        key={i}
+                        className={`ms-6 space-y-2 ${block.type === 'ol' ? 'list-decimal' : 'list-disc'} marker:text-accent`}
+                      >
+                        {block.items.map((item, j) => (
+                          <li key={j} className="ps-1">
+                            {item}
+                          </li>
+                        ))}
+                      </Tag>
+                    );
+                  })}
                 </div>
               </article>
 
@@ -175,19 +202,11 @@ function ArticleView({ article }: { article: HelpArticleRecord }) {
                   <h2 id="related-title" className="text-xl font-bold tracking-tight text-text-primary">
                     Related articles
                   </h2>
-                  <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {related.map((r) => (
-                      <li key={r.slug}>
-                        <Link
-                          to={`/help/${r.slug}`}
-                          className="focus-ring flex h-full min-h-11 flex-col rounded-2xl border border-border bg-bg-secondary p-4 transition-colors hover:border-accent/40"
-                        >
-                          <span className="text-xs font-semibold text-accent">{r.categoryName}</span>
-                          <span className="mt-1 text-base font-semibold text-text-primary">{r.title}</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                  <HelpArticleList
+                    className="mt-4"
+                    label="Related articles"
+                    items={related.map((r) => ({ slug: r.slug, title: r.title, eyebrow: r.categoryName }))}
+                  />
                 </section>
               )}
             </div>
