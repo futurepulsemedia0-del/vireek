@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FileText, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { TaxBreakdownLines } from '@/components/tax/TaxBreakdownLines';
 import { fetchQuoteForToken, respondToQuote, recordQuoteView, calculateQuoteTotals, formatCents, PublicQuoteInfo } from '@/lib/quotes';
 import { isTieredQuote } from '@/lib/estimates';
 import { QuoteVideoSection } from '@/components/quotes/QuoteVideoSection';
