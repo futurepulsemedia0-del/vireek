@@ -7,6 +7,8 @@ export interface HelpArticleRecord {
   excerpt: string;
   categoryId: string;
   categoryName: string;
+  /** ISO date (YYYY-MM-DD) when the author set one; otherwise undefined. */
+  updated?: string;
 }
 
 const MAX_SLUG_LENGTH = 80;
@@ -60,9 +62,11 @@ export function buildHelpArticles(categories: HelpCategory[]): HelpArticleRecord
         slug,
         title: art.q.trim(),
         body: art.a.trim(),
-        excerpt: makeExcerpt(art.a),
+        // First paragraph only, so list markers never leak into meta descriptions or search results.
+        excerpt: makeExcerpt(art.a.split(/\n{2,}/)[0]),
         categoryId: cat.id,
         categoryName: cat.name,
+        ...(art.updated && /^\d{4}-\d{2}-\d{2}$/.test(art.updated) ? { updated: art.updated } : {}),
       });
     }
   }
