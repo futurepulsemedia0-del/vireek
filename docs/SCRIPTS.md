@@ -35,6 +35,8 @@ Run from the repo root. "CI" = run by a workflow in `.github/workflows` (verify 
 | `lint:migrations` | Migration lint (additive-only, destructive SQL) | every new migration; CI |
 | `migrations:check` | Unique-version check | every new migration; CI |
 | `migrations:plan` | Plan for resolving duplicate versions | when repairing history (see `docs/runbooks/migration-version-repair.md`) |
+| `report:board-pack` | Monthly board pack (markdown) from existing SQL views; missing data shown as "not available". Needs `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`; `--dry-run` needs none. See `docs/finance/board-pack-template.md` | monthly, after month end |
+| `test:scripts:board-pack` | Tests for the board pack generator (no database) | changes to the generator |
 | `db:audit` | DB hygiene check vs `scripts/db-audit.baseline.json` | after migrations; CI (`db-perf.yml`) |
 | `openapi:generate` / `openapi:check` | Regenerate / verify `public/openapi.json` | API changes |
 | `check:bundle` | Bundle-size budget | before release |
