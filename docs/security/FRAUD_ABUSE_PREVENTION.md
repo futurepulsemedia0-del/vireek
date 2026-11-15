@@ -22,15 +22,15 @@ Generated from `maxLossPerSignupCents()`; tests prove no sequence of allowed act
 
 | Plan | Unverified | Verified | outbound/SMS/clone (cap) | refunded price + dispute fee |
 |---|---|---|---|---|
-| free | $7.55 | $12.55 | $5.00 | $0.00 |
-| starter | $145.45 | $595.45 | $450.00 | $94.00 |
-| professional | $321.50 | $1821.50 | $1500.00 | $214.00 |
-| business | $711.50 | $5211.50 | $4500.00 | $414.00 |
+| free | $8.75 | $13.75 | $5.00 | $0.00 |
+| starter | $165.45 | $615.45 | $450.00 | $114.00 |
+| professional | $371.50 | $1871.50 | $1500.00 | $264.00 |
+| business | $861.50 | $5361.50 | $4500.00 | $564.00 |
 | enterprise | $965.00 | $15965.00 | $15000.00 | $15.00 |
 
 Assumptions (edit in `planLimits.ts`, calibrate against invoices): domestic call 12c/min (the existing `DEFAULT_VOICE_COST_PER_MIN`),
 standard-international 30c/min, SMS 2c (domestic) / 8c (standard), number rental 115c/month, dispute fee $15.
-The free figure includes 50 included inbound AI minutes at 12c, now enforced by the inbound hard stop (`free_minutes_mode`:
+The free figure includes 60 included inbound AI minutes at 12c, now enforced by the inbound hard stop (`free_minutes_mode`:
 `monthly` = current product behaviour, `lifetime` = strict). Reservations are worst case and are refunded on call completion.
 
 ## 3. Operations
