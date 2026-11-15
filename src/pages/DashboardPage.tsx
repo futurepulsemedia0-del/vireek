@@ -566,7 +566,7 @@ export function DashboardPage() {
 
     // Plan usage is a billing-cycle gauge, not a period KPI, so it has no delta.
     const minutesUsed = profile?.minutes_used_this_month ?? 0;
-    const minutesIncluded = profile?.minutes_included ?? 50;
+    const minutesIncluded = profile?.minutes_included ?? 60;
     const minutesRemaining = Math.max(0, minutesIncluded - minutesUsed);
     const usagePercent = minutesIncluded > 0 ? Math.min(100, (minutesUsed / minutesIncluded) * 100) : 0;
 
