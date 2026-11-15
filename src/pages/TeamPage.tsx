@@ -570,7 +570,7 @@ function MyPermissionsCard() {
 
 export function TeamPage() {
   const navigate = useNavigate();
-  const { user, isOwner, profile, profileLoading } = useAuth();
+  const { user, isOwner, profile } = useAuth();
   const { toast } = useToast();
 
   useKeyboardShortcut({
