@@ -117,11 +117,6 @@ export function AssistantPersonaPage() {
     loadProfile();
   }, [loadProfile]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   const handleSave = async () => {
     if (!user) return;
