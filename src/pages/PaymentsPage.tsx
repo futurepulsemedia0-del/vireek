@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { formatMoney as fmtRegional, getActiveRegional } from '@/lib/regional';
 import { useRegional } from '@/contexts/RegionalContext';
 import { Card } from '@/components/ui/Card';
+import { TippingToggle } from '@/components/payments/TippingToggle';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase, Job } from '@/lib/supabase';
 import {
