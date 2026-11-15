@@ -7,7 +7,7 @@ import { IntegrationsStrip } from '@/components/home/IntegrationsStrip';
 import { StickyMobileCta } from '@/components/home/StickyMobileCta';
 import { useSEO } from '@/lib/seo';
 import { useScrollDepthTracking } from '@/lib/homeAnalytics';
-import { HOME_FAQS, SITE_URL } from '@/lib/homeContent';
+import { HOME_FAQS, SARAH_SAMPLE_AUDIO, SITE_URL, TRIAL_CARD_PHRASE } from '@/lib/homeContent';
 
 // Everything below the fold is code-split so the hero paints without waiting on it.
 const CostOfMissedCalls = lazy(() => import('@/components/home/CostOfMissedCalls').then((m) => ({ default: m.CostOfMissedCalls })));
@@ -17,6 +17,8 @@ const ProductProof = lazy(() => import('@/components/home/ProductProof').then((m
 const FoundingProgram = lazy(() => import('@/components/home/FoundingProgram').then((m) => ({ default: m.FoundingProgram })));
 const HomePricing = lazy(() => import('@/components/home/HomePricing').then((m) => ({ default: m.HomePricing })));
 const HomeFaq = lazy(() => import('@/components/home/HomeFaq').then((m) => ({ default: m.HomeFaq })));
+const SampleCall = lazy(() => import('@/components/home/SampleCall').then((m) => ({ default: m.SampleCall })));
+const FounderNote = lazy(() => import('@/components/home/FounderNote').then((m) => ({ default: m.FounderNote })));
 const FinalCta = lazy(() => import('@/components/home/FinalCta').then((m) => ({ default: m.FinalCta })));
 
 /** Reserves space while a lazy section loads, so nothing below shifts when it arrives (CLS). */
@@ -49,7 +51,7 @@ export function HomePage() {
   useSEO({
     title: 'Vireek: AI Receptionist for Plumbing, HVAC, Electrical & Roofing Contractors',
     description:
-      'Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, no credit card.',
+    description: `Vireek answers every call for home-service contractors, 24/7: books the job, flags emergencies and texts the customer. 14-day free trial, ${TRIAL_CARD_PHRASE}.`,
     canonical: `${SITE_URL}/`,
     jsonLd,
   });
@@ -61,11 +63,13 @@ export function HomePage() {
       <main id="main">
         <Hero />
         <IntegrationsStrip />
+        <Slot minHeight={760}><LiveDemo /></Slot>
+        {SARAH_SAMPLE_AUDIO && <Slot minHeight={0}><SampleCall /></Slot>}
         <Slot minHeight={640}><CostOfMissedCalls /></Slot>
         <Slot minHeight={520}><HowItWorks /></Slot>
-        <Slot minHeight={760}><LiveDemo /></Slot>
         <Slot minHeight={620}><ProductProof /></Slot>
         <Slot minHeight={360}><FoundingProgram /></Slot>
+        <Slot minHeight={0}><FounderNote /></Slot>
         <Slot minHeight={760}><HomePricing /></Slot>
         <Slot minHeight={720}><HomeFaq /></Slot>
         <Slot minHeight={380}><FinalCta /></Slot>
