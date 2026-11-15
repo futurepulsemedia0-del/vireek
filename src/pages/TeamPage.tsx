@@ -613,11 +613,6 @@ export function TeamPage() {
     loadMembers();
   }, [loadMembers]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   const handleRemove = async (member: TeamMember) => {
     try {
