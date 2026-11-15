@@ -8,7 +8,7 @@ describe('tenant ROI inputs', () => {
     expect(computeRoi([], planCostCents('free', 90)).status).toBe('not_enough_data');
   });
   it('paid plan cost scales with the window and is an integer', () => {
-    const c = planCostCents('starter', 90); expect(Number.isInteger(c)).toBe(true); expect(c).toBe(Math.round(79 * 100 * 3));
+    const c = planCostCents('starter', 90); expect(Number.isInteger(c)).toBe(true); expect(c).toBe(Math.round(99 * 100 * 3));
   });
   it('parses rows, tags the attribution rule, ignores malformed rows', () => {
     const p = parseRoiInputs({ outcomes_total: 7, rows: [{ id: 'a', action_slug: 'send_invoice_reminder', action_at: '2026-01-01T00:00:00Z', outcome_at: '2026-01-02T00:00:00Z', value_cents: 5000, confidence: 0.9 }, { nope: 1 }] });
