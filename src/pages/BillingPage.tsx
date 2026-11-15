@@ -187,11 +187,6 @@ export function BillingPage() {
     loadJobs();
   }, [loadJobs]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   // Usage alert: insert ai_insight when crossing 80%
   useEffect(() => {
