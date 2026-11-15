@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LoadingBoundary, SkeletonBlock } from '@/components/loading';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import { SarahOrb } from '@/components/sarah/SarahOrb';
+import { SarahKnowledgeCard } from '@/components/sarah/SarahKnowledgeCard';
 import { RecoveredHero } from './RecoveredHero';
 import { useToday } from './useToday';
 import type { AttentionItem } from '@/lib/todayHome.logic';
@@ -165,6 +166,7 @@ export function TodayHome({ variant = 'app' }: { variant?: 'app' | 'tv' }) {
         </div>
       </header>
 
+      {!tv && <SarahKnowledgeCard />}
       {stale && (
         <div role="status" data-testid="today-stale" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
           <span className="flex items-center gap-2">
