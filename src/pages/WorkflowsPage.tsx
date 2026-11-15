@@ -9,6 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { SkeletonTable } from '@/components/Skeleton';
 import {
   CheckCircle2,
   ChevronDown,
