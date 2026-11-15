@@ -888,65 +888,54 @@ export function DashboardPage() {
       case 'ai_insights':
         return !dataLoading && otherInsights.length > 0 ? (
           <div>
-            <h2 className="text-lg font-semibold text-text-primary">AI Insights</h2>
-            <div className="mt-4 grid gap-4">
-              {otherInsights.map((insight, i) => {
+            <h2 className="text-sm font-semibold text-text-primary">AI Insights</h2>
+            <ul className="mt-2 divide-y divide-border rounded-surface border border-border bg-bg-secondary">
+              {otherInsights.map((insight) => {
                 const Icon = insight.insight_type === 'pattern' ? TrendingUp : insight.insight_type === 'suggestion' ? Lightbulb : AlertTriangle;
-                const colorClass = insight.insight_type === 'pattern' ? 'bg-accent/10 text-accent' : insight.insight_type === 'suggestion' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500';
+                const iconClass = insight.insight_type === 'pattern' ? 'text-accent' : insight.insight_type === 'suggestion' ? 'text-success-500' : 'text-warning-500';
                 return (
-                  <motion.div
-                    key={insight.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: i * 0.05 }}
-                    className="flex items-start gap-4 rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark"
-                  >
-                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${colorClass}`}>
-                      <Icon size={20} />
-                    </span>
-                    <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-text-primary">{insight.title}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-text-secondary">{insight.description}</p>
+                  <li key={insight.id} className="flex items-start gap-3 px-4 py-3">
+                    <Icon size={16} className={`mt-0.5 shrink-0 ${iconClass}`} />
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-medium text-text-primary">{insight.title}</h3>
+                      <p className="mt-0.5 text-sm text-text-secondary">{insight.description}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleDismissInsight(insight.id)}
-                      className="focus-ring shrink-0 rounded text-text-secondary transition-colors hover:text-text-primary"
+                      className="focus-ring -m-2 shrink-0 rounded-control p-2 text-text-secondary transition-colors hover:text-text-primary"
                       aria-label="Dismiss insight"
                     >
-                      <XCircle size={18} />
+                      <XCircle size={16} />
                     </button>
-                  </motion.div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </div>
         ) : null;
       case 'quick_actions':
         return (
           <div>
-            <h2 className="text-lg font-semibold text-text-primary">Quick Actions</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <h2 className="text-sm font-semibold text-text-primary">Quick Actions</h2>
+            <ul className="mt-2 divide-y divide-border rounded-surface border border-border bg-bg-secondary">
               {quickActions
                 .filter((a) => a.show)
                 .map(({ to, icon: Icon, title, sub }) => (
-                  <button
-                    key={to}
-                    type="button"
-                    onClick={() => navigate(to)}
-                    className="group flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 text-left shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card-hover dark:shadow-card-dark"
-                  >
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                      <Icon size={20} />
-                    </span>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-text-primary">{title}</p>
-                      <p className="text-xs text-text-secondary">{sub}</p>
-                    </div>
-                    <ArrowRight size={18} className="text-text-secondary transition-transform group-hover:translate-x-0.5" />
-                  </button>
+                  <li key={to}>
+                    <button
+                      type="button"
+                      onClick={() => navigate(to)}
+                      className="focus-ring group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-bg-tertiary"
+                    >
+                      <Icon size={16} className="shrink-0 text-text-secondary" />
+                      <span className="min-w-0 flex-1 truncate text-sm text-text-primary">{title}</span>
+                      <span className="hidden truncate text-xs text-text-secondary sm:inline">{sub}</span>
+                      <ArrowRight size={14} className="shrink-0 text-text-secondary" />
+                    </button>
+                  </li>
                 ))}
-            </div>
+            </ul>
           </div>
         );
       case 'leak_cases':
