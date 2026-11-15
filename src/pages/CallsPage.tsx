@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRealtimeSubscription } from '@/lib/realtime';
+import { SealedAudio } from '@/components/trust-pack/SealedContent';
 import { LiveIndicator } from '@/components/LiveIndicator';
 import {
   Phone,
