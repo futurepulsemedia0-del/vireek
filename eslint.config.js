@@ -8,7 +8,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y'
 import vireekImg from './eslint-rules/vireek-img.mjs'
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'storybook-static'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
