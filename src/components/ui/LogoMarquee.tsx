@@ -10,6 +10,8 @@ export interface MarqueeItem {
   href?: string;
   /** Official inline SVG that paints with `currentColor`. Omit to render a text wordmark. */
   logo?: ReactNode;
+  /** Render a bordered tile with the mark and the visible brand name next to it. Needs `logo`. */
+  showName?: boolean;
 }
 
 export interface LogoMarqueeProps {
@@ -33,21 +35,33 @@ const LINK_CLASS =
   'focus-visible:-translate-y-0.5 focus-visible:text-text-primary ' +
   'motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0';
 
+const TILE_CLASS =
+  'focus-ring inline-flex h-12 items-center gap-3 whitespace-nowrap rounded-xl border border-border bg-bg-primary px-4 ' +
+  'text-text-primary transition-[border-color,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-border-strong ' +
+  'focus-visible:-translate-y-0.5 focus-visible:border-border-strong ' +
+  'motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0';
+
 function Mark({ item, decorative }: { item: MarqueeItem; decorative: boolean }) {
+  const tile = Boolean(item.logo && item.showName);
+  const linkClass = tile ? TILE_CLASS : LINK_CLASS;
   const inner = item.logo ? (
     <>
       <span aria-hidden="true" className="flex h-6 items-center [&>svg]:h-full [&>svg]:w-auto">
         {item.logo}
       </span>
-      <span className="sr-only">{item.name}</span>
+      {tile ? (
+        <span className="text-sm font-semibold tracking-tight sm:text-base">{item.name}</span>
+      ) : (
+        <span className="sr-only">{item.name}</span>
+      )}
     </>
   ) : (
     <span className="font-display text-lg font-semibold tracking-tight sm:text-xl">{item.name}</span>
   );
 
-  if (!item.href) return <span className={LINK_CLASS}>{inner}</span>;
+  if (!item.href) return <span className={linkClass}>{inner}</span>;
   return (
-    <Link to={item.href} tabIndex={decorative ? -1 : undefined} className={LINK_CLASS}>
+    <Link to={item.href} tabIndex={decorative ? -1 : undefined} className={linkClass}>
       {inner}
     </Link>
   );
@@ -65,7 +79,10 @@ function Entries({
   return (
     <>
       {items.map((item) => (
-        <li key={item.id} className={padded ? 'shrink-0 pr-12 sm:pr-14' : undefined}>
+        <li
+          key={item.id}
+          className={padded ? (item.logo && item.showName ? 'shrink-0 pr-3 sm:pr-4' : 'shrink-0 pr-12 sm:pr-14') : undefined}
+        >
           <Mark item={item} decorative={decorative} />
         </li>
       ))}
