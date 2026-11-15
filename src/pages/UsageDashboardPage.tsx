@@ -265,11 +265,6 @@ export function UsageDashboardPage() {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   const now = new Date();
   const totalDaysInMonth = daysInMonth(now);
