@@ -37,7 +37,7 @@ describe('buildTenantMargins', () => {
     expect(m.voiceBasis).toBe('provider_reported');
     expect(m.voiceEstimatedUsd).toBe(0);
     expect(m.totalCostUsd).toBe(12);
-    expect(m.revenueUsd).toBe(79);
+    expect(m.revenueUsd).toBe(99);
   });
   it('prices only the uncovered share with the fallback and labels it mixed', () => {
     const [m] = buildTenantMargins([row({ voice_seconds: 6000, voice_calls: 10, calls_with_cost: 5, reported_voice_cost_usd: 5 })], { fallbackVoiceCpm: 0.1, days: 30 });
@@ -59,7 +59,7 @@ describe('buildTenantMargins', () => {
   });
   it('adds overage revenue beyond prorated included minutes', () => {
     const [m] = buildTenantMargins([row({ voice_seconds: 500 * 60, voice_calls: 1, calls_with_cost: 1 })], { fallbackVoiceCpm: null, days: 30 });
-    expect(m.revenueUsd).toBeCloseTo(79 + 100 * 0.2);
+    expect(m.revenueUsd).toBeCloseTo(99 + 300 * 0.25);
   });
 });
 
@@ -75,7 +75,7 @@ describe('aggregates', () => {
     expect(stats.find((s) => s.plan === 'starter')?.tenants).toBe(2);
     expect(stats.find((s) => s.plan === 'starter')?.lossTenants).toBe(1);
     const sum = summarizeMargins(ms);
-    expect(sum.revenueUsd).toBe(158);
+    expect(sum.revenueUsd).toBe(198);
     expect(sum.totalCostUsd).toBeCloseTo(6 + 200 + 1 + 3);
     expect(negativeMarginOrgs(ms).map((m) => m.accountId)).toEqual(['2']);
   });
