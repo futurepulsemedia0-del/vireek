@@ -25,7 +25,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   tone?: 'default' | 'cta';
 }
 
-const baseStyles = `focus-ring relative inline-flex items-center justify-center gap-2 rounded-xl font-semibold ${motionClass} ${pressable} ${disabledLook}`;
+const baseStyles = `focus-ring relative inline-flex items-center justify-center gap-2 rounded-control font-medium ${motionClass} ${pressable} ${disabledLook}`;
 
 const sizeStyles: Record<ButtonSize, string> = {
   xs: 'px-2.5 py-1.5 text-xs min-h-[32px]',
@@ -40,7 +40,7 @@ const surfaceFor: Record<ButtonVariant, SurfaceKind> = { primary: 'solid', secon
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { variant = 'primary', size = 'md', className = '', children, loading = false, loadingLabel, disabledReason, selected, iconOnly = false, tooltip, fullWidth = false, tone = 'default', disabled, onClick, ...props },
+    { variant = 'primary', size = 'sm', className = '', children, loading = false, loadingLabel, disabledReason, selected, iconOnly = false, tooltip, fullWidth = false, tone = 'default', disabled, onClick, ...props },
     ref,
   ) => {
     const { t } = useTranslation();
