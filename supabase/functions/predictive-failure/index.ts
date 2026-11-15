@@ -24,6 +24,7 @@ import {
   type AtlasCell, type Learning, type ModeDef, type UnitForecast, type UnitHistoryEvent, type UnitInput,
 } from "../_shared/predictive-failure/engine.ts";
 import { parseSignals, type PassportSignals } from "../_shared/equipment-lifecycle/score.ts";
+import { buildPfnSnapshotRow, PFN_SNAPSHOT_CONFLICT_TARGET } from "../_shared/feature-snapshots/pfn.ts";
 
 type Admin = ReturnType<typeof createClient>;
 // deno-lint-ignore no-explicit-any
@@ -299,9 +300,20 @@ async function scanAccount(admin: Admin, owner: string, counts: Counts, only: st
       }
       if (prev) await admin.from("pfn_forecasts").update({ status: "superseded", last_checked_at: now.toISOString() }).eq("id", prev.id).eq("status", "open");
 
-      const { error: insErr } = await admin.from("pfn_forecasts").insert(forecastRow(owner, unit, f, now));
+      const forecastId = crypto.randomUUID();
+      const { error: insErr } = await admin.from("pfn_forecasts").insert({ ...forecastRow(owner, unit, f, now), id: forecastId });
       if (insErr) { if (insErr.code !== "23505") console.error(JSON.stringify({ event: "pfn_insert_failed", error: insErr.message })); continue; }
       counts.forecasts_issued++;
+      // Feature-store pilot: log the exact inputs behind this forecast. Best effort - never blocks the scan.
+      try {
+        const { error: snapErr } = await admin.from("ml_feature_snapshots").upsert(
+          buildPfnSnapshotRow({ owner, unit, asOf: now, engineVersion: ENGINE_VERSION, sourceId: forecastId }),
+          { onConflict: PFN_SNAPSHOT_CONFLICT_TARGET, ignoreDuplicates: true },
+        );
+        if (snapErr) console.error(JSON.stringify({ event: "pfn_snapshot_failed", equipment_id: eq.id, error: snapErr.message }));
+      } catch (snapEx) {
+        console.error(JSON.stringify({ event: "pfn_snapshot_failed", equipment_id: eq.id, error: errMsg(snapEx) }));
+      }
       if (f.probability >= threshold && f.recommended) crossed.push(f);
     } catch (err) {
       console.error(JSON.stringify({ event: "pfn_unit_failed", equipment_id: eq.id, error: errMsg(err) }));
