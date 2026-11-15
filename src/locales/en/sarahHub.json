@@ -1,0 +1,115 @@
+{
+  "card": {
+    "region": "Sarah's knowledge of your business",
+    "tier": {
+      "new": "Getting to know you",
+      "learning": "Learning",
+      "confident": "Confident",
+      "expert": "Expert"
+    },
+    "scoreAria": "Sarah's knowledge score: {{score}} out of 100",
+    "scoreLabel": "{{score}}%",
+    "notStarted": {
+      "title": "Teach Sarah your business",
+      "body": "Paste your website. Sarah reads it, drafts everything she needs, and asks only about what she can't find. Keep using Vireek while she learns.",
+      "urlLabel": "Your website",
+      "urlPlaceholder": "yourcompany.com",
+      "urlInvalid": "Enter a valid website, like yourcompany.com.",
+      "start": "Let Sarah read it",
+      "noSite": "No website? Answer a few questions instead"
+    },
+    "stage": {
+      "learning": {
+        "title": "Sarah is learning your business",
+        "body": "She knows {{score}}% so far. A few quick answers make her sound like you."
+      },
+      "review": {
+        "title": "Review what Sarah learned",
+        "body": "Confirm her draft before she answers real callers. It takes about two minutes."
+      },
+      "ready_to_test": {
+        "title": "Hear Sarah before your customers do",
+        "body": "Run her readiness check, make one test call, then go live."
+      },
+      "live": {
+        "title": "Sarah is live",
+        "body": "{{n}} more details would make her sharper."
+      }
+    },
+    "cta": {
+      "answer": "Answer a quick question",
+      "review": "Review now",
+      "test": "Run the readiness check",
+      "go_live": "Finish and go live",
+      "maintain": "Improve Sarah"
+    },
+    "notNow": "Not now",
+    "snoozed": "Sarah's knowledge: {{score}}%",
+    "continue": "Continue",
+    "inline": {
+      "heading": "One quick question",
+      "loading": "Loading your question...",
+      "answerLabel": "Your answer",
+      "send": "Save answer",
+      "skip": "Skip",
+      "close": "Close",
+      "done": "That's everything Sarah needed for now.",
+      "reviewCta": "Review what she learned",
+      "error": "We couldn't load the question. Please try again.",
+      "saved": "Saved. Sarah just got a little smarter."
+    },
+    "error": {
+      "load": "We couldn't load Sarah's status.",
+      "retry": "Try again"
+    }
+  },
+  "summary": {
+    "heading": "What Sarah knows",
+    "coverage": "Coverage by area",
+    "gapsHeading": "Biggest gaps",
+    "noGaps": "No gaps. Sarah has what she needs.",
+    "required": "Required before go-live: {{list}}",
+    "reason": {
+      "missing": "Not known yet",
+      "unconfirmed": "Needs your confirmation",
+      "sensitive_pending": "Needs your approval"
+    },
+    "group": {
+      "basics": "Basics",
+      "services": "Services",
+      "hours_area": "Hours and area",
+      "pricing": "Pricing",
+      "trust": "Trust",
+      "voice": "Voice",
+      "faq": "Common questions"
+    }
+  },
+  "field": {
+    "business_name": "Business name",
+    "trade": "Trade",
+    "languages": "Languages",
+    "brand_pronunciation": "Name pronunciation",
+    "team_names": "Team names",
+    "tone_samples": "Tone samples",
+    "tone_preference": "Tone of voice",
+    "services_offered": "Services you offer",
+    "services_not_offered": "Services you don't offer",
+    "never_book": "Jobs to never book",
+    "differentiators": "What sets you apart",
+    "service_area": "Service area",
+    "service_area_notes": "Service area notes",
+    "hours": "Business hours",
+    "holiday_hours": "Holiday hours",
+    "emergency_policy": "Emergency policy",
+    "pricing_signals": "Pricing",
+    "diagnostic_fee": "Diagnostic fee",
+    "financing": "Financing",
+    "licenses_insurance": "Licenses and insurance",
+    "warranties": "Warranties",
+    "escalation_contact": "Who to call for urgent issues",
+    "faqs": "Common questions"
+  },
+  "page": {
+    "navLabel": "Sarah Knowledge"
+  }
+}
