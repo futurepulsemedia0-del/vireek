@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { TrustSubNav } from '@/components/trust/TrustChrome';
 import { motion } from 'framer-motion';
 import {
   Sparkles,
