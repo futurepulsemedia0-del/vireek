@@ -1,7 +1,20 @@
 import { useId, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Pause, Play } from 'lucide-react';
+import { ArrowRight, Droplets, House, Pause, Play, Snowflake, Zap, type LucideIcon } from 'lucide-react';
+import {
+  GoogleCalendarMark,
+  HubSpotMark,
+  InitialMark,
+  MicrosoftTeamsMark,
+  QuickBooksMark,
+  SalesforceMark,
+  SlackMark,
+  StripeMark,
+  WhatsAppMark,
+  XeroMark,
+} from '@/components/brand/thirdPartyLogos';
 import { LogoMarquee, type MarqueeItem } from '@/components/ui/LogoMarquee';
+import { TRADES } from '@/lib/homeContent';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 
 /**
@@ -13,21 +26,30 @@ import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
  * `logo` (see the brand guidelines of each vendor).
  */
 const ROW_A: readonly MarqueeItem[] = [
-  { id: 'servicetitan', name: 'ServiceTitan', href: '/integrations/servicetitan' },
-  { id: 'jobber', name: 'Jobber', href: '/integrations/jobber' },
-  { id: 'housecall-pro', name: 'Housecall Pro', href: '/integrations' },
-  { id: 'hubspot', name: 'HubSpot', href: '/integrations/hubspot' },
-  { id: 'salesforce', name: 'Salesforce', href: '/integrations/salesforce' },
-  { id: 'quickbooks', name: 'QuickBooks', href: '/integrations/quickbooks' },
+  { id: 'servicetitan', name: 'ServiceTitan', href: '/integrations/servicetitan', showName: true, logo: <InitialMark name="ServiceTitan" /> },
+  { id: 'jobber', name: 'Jobber', href: '/integrations/jobber', showName: true, logo: <InitialMark name="Jobber" /> },
+  { id: 'housecall-pro', name: 'Housecall Pro', href: '/integrations', showName: true, logo: <InitialMark name="Housecall Pro" /> },
+  { id: 'hubspot', name: 'HubSpot', href: '/integrations/hubspot', showName: true, logo: <HubSpotMark /> },
+  { id: 'salesforce', name: 'Salesforce', href: '/integrations/salesforce', showName: true, logo: <SalesforceMark /> },
+  { id: 'quickbooks', name: 'QuickBooks', href: '/integrations/quickbooks', showName: true, logo: <QuickBooksMark /> },
+  { id: 'xero', name: 'Xero', href: '/integrations', showName: true, logo: <XeroMark /> },
 ];
 
 const ROW_B: readonly MarqueeItem[] = [
-  { id: 'google-calendar', name: 'Google Calendar', href: '/integrations/google-calendar' },
-  { id: 'microsoft-365', name: 'Microsoft 365', href: '/integrations/microsoft-365' },
-  { id: 'slack', name: 'Slack', href: '/integrations/slack' },
-  { id: 'microsoft-teams', name: 'Microsoft Teams', href: '/integrations' },
-  { id: 'stripe', name: 'Stripe', href: '/integrations/stripe' },
+  { id: 'google-calendar', name: 'Google Calendar', href: '/integrations/google-calendar', showName: true, logo: <GoogleCalendarMark /> },
+  { id: 'microsoft-365', name: 'Microsoft 365', href: '/integrations/microsoft-365', showName: true, logo: <InitialMark name="Microsoft 365" /> },
+  { id: 'slack', name: 'Slack', href: '/integrations/slack', showName: true, logo: <SlackMark /> },
+  { id: 'microsoft-teams', name: 'Microsoft Teams', href: '/integrations', showName: true, logo: <MicrosoftTeamsMark /> },
+  { id: 'whatsapp', name: 'WhatsApp', href: '/integrations', showName: true, logo: <WhatsAppMark /> },
+  { id: 'stripe', name: 'Stripe', href: '/integrations/stripe', showName: true, logo: <StripeMark /> },
 ];
+
+const TRADE_ICONS: Record<(typeof TRADES)[number], LucideIcon> = {
+  Plumbing: Droplets,
+  HVAC: Snowflake,
+  Electrical: Zap,
+  Roofing: House,
+};
 
 export const MARQUEE_ITEMS: readonly MarqueeItem[] = [...ROW_A, ...ROW_B];
 
@@ -78,7 +100,27 @@ export function IntegrationsMarquee() {
           )}
         </div>
 
-        <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+        <div className="mt-8 border-t border-border/60 pt-6 sm:mt-10">
+          <h3 className="text-center text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-text-secondary sm:text-xs sm:tracking-[0.18em]">
+            Built for the vocabulary of each trade
+          </h3>
+          <ul aria-label="Trades we support" className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            {TRADES.map((trade) => {
+              const Icon = TRADE_ICONS[trade];
+              return (
+                <li
+                  key={trade}
+                  className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-bg-primary px-4 text-sm font-semibold text-text-primary"
+                >
+                  <Icon size={16} aria-hidden="true" className="text-text-secondary" />
+                  {trade}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <p className="text-xs text-text-secondary">
             Logos are trademarks of their respective owners. Names shown for compatibility; no
             partnership is implied.
