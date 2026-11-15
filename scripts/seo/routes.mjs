@@ -26,6 +26,8 @@ export const STATIC_PUBLIC_PATHS = [
   '/accessibility', '/accessibility/conformance', '/careers', '/talent', '/culture', '/press', '/brand',
   '/partners', '/affiliate', '/referral', '/beta', '/webinars', '/roi', '/system-requirements',
   '/sitemap',
+  '/call-recording-consent', '/data-retention', '/billing-terms', '/disclaimer',
+  '/limitation-of-liability', '/intellectual-property', '/incident-response', '/export-control',
 ];
 export const FLAG_GATED_PUBLIC_PATHS = ['/legal/company'];
 /** Routes whose pages come from data modules (one URL per slug). */
