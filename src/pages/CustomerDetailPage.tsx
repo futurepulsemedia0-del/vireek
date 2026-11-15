@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { CommentsPanel } from '@/components/comments/CommentsPanel';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
