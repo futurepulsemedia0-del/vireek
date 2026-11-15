@@ -159,7 +159,7 @@ export const BRAND_FACT_CHUNKS: BrandFactChunk[] = [
     sourceUrl: "https://vireek.com/pricing",
     title: "Signing up and getting Sarah live",
     content:
-      "A new customer signs up (the Free plan needs no credit card), connects or forwards their business phone number, and describes their services, service area, and escalation/emergency rules -- then the AI receptionist goes live with no hardware install required. Paid plans (Starter and above) start with a 14-day trial with no commitment. Optional white-glove onboarding, where a Vireek team member configures everything for the customer, is available on Professional and above.",
+      "A new customer signs up (starting on the free Trial), connects or forwards their business phone number, and describes their services, service area, and escalation/emergency rules -- then the AI receptionist goes live with no hardware install required. Enterprise includes assisted onboarding, from $2,500.",
   },
 
   // ---------------------------------------------------------------
