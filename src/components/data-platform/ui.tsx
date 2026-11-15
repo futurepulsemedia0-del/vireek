@@ -1,4 +1,5 @@
 import { Check, Copy, Lock } from 'lucide-react';
+import { CopyButton } from '@/components/ui/CopyButton';
 
 export const SELECT =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary disabled:cursor-not-allowed disabled:opacity-60';
