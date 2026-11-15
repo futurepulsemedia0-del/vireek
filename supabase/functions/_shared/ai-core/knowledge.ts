@@ -5,13 +5,13 @@
 // for real RAG later without touching any caller — everyone goes through
 // the functions below, never the KNOWLEDGE_BASE array directly.
 //
-// SOURCE OF TRUTH WARNING: the pricing facts are GENERATED from src/lib/pricing.ts
-// (run `node scripts/knowledge-build.mjs`); the industries facts below are still a
-// hand-kept mirror of src/lib/industries.ts (not a live import —
-// those files pull in React/lucide-react, which can't run in the Deno
-// edge runtime). If you change a plan price, a feature list, or add an
-// industry in src/lib/, update the matching facts below in the same PR,
-// or the AI will start giving customers stale answers.
+// SOURCE OF TRUTH: plan prices, minutes, feature lists and the trade list come from
+// src/lib/pricing.ts and src/lib/industries.ts via coreFacts.generated.ts
+// (PRICING_FACTS / INDUSTRIES_FACTS — those files pull in React, which can't run in
+// the Deno edge runtime, so they are compiled by scripts/knowledge-build.mjs).
+// Run `node scripts/knowledge-build.mjs` after changing them. Only the curated
+// narrative below (billing mechanics, per-trade handling) is hand-kept.
+import { PRICING_FACTS, INDUSTRIES_FACTS } from "./coreFacts.generated.ts";
 
 export type KnowledgeTopic =
   | "company"
