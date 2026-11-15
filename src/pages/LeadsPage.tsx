@@ -1013,11 +1013,6 @@ export function JobsPage() {
     }
   }, [location, navigate]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   useKeyboardShortcut({
     key: '/',
