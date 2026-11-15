@@ -87,7 +87,7 @@ export function PricingTeaser() {
               </div>
               <p className="mt-1 text-xs font-medium text-text-secondary/70">
                 {plan.monthly === 0
-                  ? 'No card required'
+                  ? plan.ctaHint
                   : plan.monthly === null
                     ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
                     : `or ${formatPrice(plan.annual!, currency)}/yr`}
@@ -145,7 +145,7 @@ export function PricingTeaser() {
               </div>
               <p className="mt-1 text-xs font-medium text-text-secondary/70">
                 {plan.monthly === 0
-                  ? 'No card required'
+                  ? plan.ctaHint
                   : plan.monthly === null
                     ? `from ${formatPrice(plan.startingAt!, currency)}/mo`
                     : `or ${formatPrice(plan.annual!, currency)}/yr`}
