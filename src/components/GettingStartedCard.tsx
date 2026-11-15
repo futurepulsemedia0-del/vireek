@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Rocket, X } from 'lucide-react';
+import { ProductTour } from '@/components/ProductTour';
 import { useGettingStarted } from '@/hooks/useGettingStarted';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/Skeleton';
