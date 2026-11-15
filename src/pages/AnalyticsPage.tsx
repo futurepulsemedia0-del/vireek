@@ -557,7 +557,7 @@ interface AnalyticsMetrics {
 
 export function AnalyticsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, isOwner, permissions } = useAuth();
+  const { user, isOwner, permissions } = useAuth();
   const { toast } = useToast();
 
   const canAccess = isOwner || permissions.can_view_billing;
