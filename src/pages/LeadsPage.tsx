@@ -898,7 +898,7 @@ const NO_ROWS: Job[] = [];
 export function JobsPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, profile, profileLoading, isOwner, permissions, teamMember } = useAuth();
+  const { user, profile, isOwner, permissions, teamMember } = useAuth();
   const { toast } = useToast();
 
   const [allJobs, setAllJobs] = useState<Job[]>([]);
