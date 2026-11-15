@@ -5,8 +5,9 @@
 // for real RAG later without touching any caller — everyone goes through
 // the functions below, never the KNOWLEDGE_BASE array directly.
 //
-// SOURCE OF TRUTH WARNING: this is a hand-kept mirror of
-// src/lib/pricing.ts and src/lib/industries.ts (not a live import —
+// SOURCE OF TRUTH WARNING: the pricing facts are GENERATED from src/lib/pricing.ts
+// (run `node scripts/knowledge-build.mjs`); the industries facts below are still a
+// hand-kept mirror of src/lib/industries.ts (not a live import —
 // those files pull in React/lucide-react, which can't run in the Deno
 // edge runtime). If you change a plan price, a feature list, or add an
 // industry in src/lib/, update the matching facts below in the same PR,
@@ -41,15 +42,7 @@ const KNOWLEDGE_BASE: KnowledgeEntry[] = [
   },
   {
     topic: "pricing",
-    facts:
-      "Five plans, billed monthly or annually (annual = 10 months' price): " +
-      "Free — $0/mo, 50 min included, 1 seat, 1 location: 24/7 AI call answering, voicemail-to-text, missed-call text-back, email call summaries, community support. " +
-      "Starter — $79/mo, 400 min ($0.20/min overage), 2 seats, 1 location: everything in Free plus smart calendar booking, SMS appointment confirmations, 1 CRM integration, 7-day call transcript history, standard 24h support. " +
-      "Professional (most popular) — $199/mo, 1,500 min ($0.15/min overage), 5 seats, 1 location: everything in Starter plus emergency detection & live dispatch, warm transfer to on-call staff, ServiceTitan/Housecall Pro/Jobber sync, unlimited call recording history, custom after-hours routing, automated review requests, priority 4h support. " +
-      "Business — $399/mo, 4,000 min ($0.12/min overage), 15 seats, up to 3 locations: everything in Professional plus custom voice & script per location, advanced call-outcome analytics, role-based team access, dedicated Slack support. " +
-      "Enterprise — starts at $999/mo, unlimited minutes/seats/locations, SLA-backed (no metering): everything in Business plus a custom-trained voice model, full API & webhook access, a dedicated account manager, audit logs & advanced access controls, written SLA — sales-assisted, no self-serve checkout. " +
-      "No setup fee on any plan (optional white-glove onboarding on Professional+). Plans can be upgraded or downgraded anytime, prorated, effective next billing cycle. A minute = total talk time per call rounded to the nearest minute; hold time and voicemail transcription are never billed.",
-  },
+    facts: PRICING_FACTS,  },
   {
     topic: "industries",
     facts:
