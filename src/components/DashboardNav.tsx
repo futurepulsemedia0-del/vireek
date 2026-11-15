@@ -94,6 +94,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Support', href: '/dashboard/support', icon: LifeBuoy },
   { label: 'Getting Started', href: '/dashboard/getting-started', icon: Rocket },
+  { label: 'Sarah Knowledge', href: '/dashboard/sarah', icon: BookOpenCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'Success Center', href: '/dashboard/success', icon: TrendingUp },
   { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'Calendar Feeds', href: '/dashboard/calendar-feeds', icon: Calendar },
