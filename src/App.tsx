@@ -532,6 +532,7 @@ const StaffTrustAdminPage = lazy(() => import('@/pages/StaffTrustAdminPage').the
 const RefundPolicyPage = lazy(() => import('@/pages/RefundPolicyPage').then((m) => ({ default: m.RefundPolicyPage })));
 const SlaPage = lazy(() => import('@/pages/SlaPage').then((m) => ({ default: m.SlaPage })));
 const AcceptableUsePage = lazy(() => import('@/pages/AcceptableUsePage').then((m) => ({ default: m.AcceptableUsePage })));
+const LegalDocPage = lazy(() => import('@/pages/LegalDocPage').then((m) => ({ default: m.LegalDocPage })));
 const ResponsibleAiPage = lazy(() => import('@/pages/ResponsibleAiPage').then((m) => ({ default: m.ResponsibleAiPage })));
 const MsaPage = lazy(() => import('@/pages/MsaPage').then((m) => ({ default: m.MsaPage })));
 const AiDisclosurePage = lazy(() => import('@/pages/AiDisclosurePage').then((m) => ({ default: m.AiDisclosurePage })));
@@ -933,6 +934,14 @@ function AppRoutes() {
         <Route path="/refund-policy" element={<RefundPolicyPage />} />
         <Route path="/sla" element={<SlaPage />} />
         <Route path="/acceptable-use-policy" element={<AcceptableUsePage />} />
+        <Route path="/call-recording-consent" element={<LegalDocPage slug="call-recording-consent" />} />
+        <Route path="/data-retention" element={<LegalDocPage slug="data-retention" />} />
+        <Route path="/billing-terms" element={<LegalDocPage slug="billing-terms" />} />
+        <Route path="/disclaimer" element={<LegalDocPage slug="disclaimer" />} />
+        <Route path="/limitation-of-liability" element={<LegalDocPage slug="limitation-of-liability" />} />
+        <Route path="/intellectual-property" element={<LegalDocPage slug="intellectual-property" />} />
+        <Route path="/incident-response" element={<LegalDocPage slug="incident-response" />} />
+        <Route path="/export-control" element={<LegalDocPage slug="export-control" />} />
         <Route path="/responsible-ai" element={<ResponsibleAiPage />} />
         <Route path="/msa" element={<MsaPage />} />
         <Route path="/ai-disclosure" element={<AiDisclosurePage />} />
