@@ -6,7 +6,7 @@ import { ButtonAnchor, ButtonLink } from '@/components/ui/ButtonLink';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useExperiment } from '@/contexts/ExperimentContext';
 import { formatPrice } from '@/lib/currency';
-import { HOME_PLAN_IDS } from '@/lib/homeContent';
+import { HOME_PLAN_IDS, TRIAL, TRIAL_CARD_PHRASE, TRIAL_MINUTES } from '@/lib/homeContent';
 import { trackHomeCta } from '@/lib/homeAnalytics';
 import { PRICING_PLANS, getPlanHref, isExternalLink, type BillingCycle, type PricingPlan } from '@/lib/pricing';
 import { container, eyebrow, h2, panel, sectionY, textLink } from './sectionStyles';
@@ -84,7 +84,7 @@ export function HomePricing() {
         </ul>
 
         <p className="mt-6 text-sm text-text-secondary">
-          14-day free trial, no credit card. No contracts, cancel anytime. There is also a Free plan with 50 minutes.
+          {TRIAL.days}-day free trial, {TRIAL_CARD_PHRASE}. No contracts, cancel anytime. The trial includes {TRIAL_MINUTES} voice minutes.
         </p>
         <Link to="/pricing" className={textLink}>Compare every plan</Link>
       </div>
