@@ -446,11 +446,6 @@ export function DashboardPage() {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   useEffect(() => {
     loadData();
