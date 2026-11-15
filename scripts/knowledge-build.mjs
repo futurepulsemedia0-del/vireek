@@ -313,6 +313,11 @@ function manualDocs() {
 // ---------------------------------------------------------------------
 // Core facts: the lean, always-on block. Generated from the same data.
 // ---------------------------------------------------------------------
+// Full plan line incl. the verified feature list — used for PRICING_FACTS only (CORE_FACTS stays token-lean).
+function planDetailLine(p) {
+  return `${planLine(p)} Features: ${p.features.join('; ')}.`;
+}
+
 function buildCoreFacts({ pricing, industries, integrations, brand, support }) {
   const byId = Object.fromEntries(brand.BRAND_FACT_CHUNKS.map((c) => [c.id, c]));
   const need = ['about-what-is-vireek', 'about-company-stage-honesty', 'security-no-certifications-claim', 'faq-emergency-calls-caveat', 'contact-channels'];
@@ -325,7 +330,7 @@ function buildCoreFacts({ pricing, industries, integrations, brand, support }) {
 
   const PRICING_FACTS =
     `Vireek has ${pricing.PRICING_PLANS.length} plans (annual billing is shown per year on /pricing): ` +
-    pricing.PRICING_PLANS.map(planLine).join(' ') +
+    pricing.PRICING_PLANS.map(planDetailLine).join(' ') +
     ' ' + pricing.PRICING_FAQS.map((f) => `${f.q} ${f.a}`).join(' ');
 
   const INDUSTRIES_FACTS =
