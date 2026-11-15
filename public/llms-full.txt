@@ -7,12 +7,11 @@ Source of truth: https://vireek.com/pricing. Prices below were copied from the s
 
 | Plan | Monthly | Annual | Included minutes | Overage | Seats | Locations |
 | --- | --- | --- | --- | --- | --- | --- |
-| Free | $0 | $0 | 50 min | none | 1 seat | 1 location |
-| Starter | $79 | $790 | 400 min | $0.20/min after | 2 seats | 1 location |
-| Professional | $199 | $1990 | 1,500 min | $0.15/min after | 5 seats | 1 location |
-| Business | $399 | $3990 | 4,000 min | $0.12/min after | 15 seats | Up to 3 locations |
-| Enterprise | custom | custom | Unlimited | SLA-backed, no metering | Unlimited seats | Unlimited locations |
-
+| Trial | $0 | $0 | 60 min | none | 1 seat | 1 location |
+| Starter | $99 | $990 | 200 min | $0.25/min after | 2 seats | 1 location |
+| Professional | $249 | $2490 | 600 min | $0.25/min after | 5 seats | 1 location |
+| Business | $549 | $5490 | 1,500 min | $0.25/min after | 15 seats | Up to 3 locations |
+| Enterprise | custom | custom | 6,000 min committed | $0.20/min after committed minutes | Custom seats | Custom locations |
 ## What Vireek does not claim
 - No SOC 2 report: Vireek has not completed a SOC 2 audit.
 - No HIPAA compliance claim and no Business Associate Agreement.
