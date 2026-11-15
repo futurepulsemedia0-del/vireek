@@ -51,7 +51,7 @@ export const motionClass =
 
 /** Touch press feedback + no double-tap-zoom delay. */
 export const pressable =
-  'touch-manipulation select-none active:scale-[0.97] motion-reduce:active:scale-100';
+  'touch-manipulation select-none active:scale-[0.98] motion-reduce:active:scale-100';
 
 /** Disabled looks identical for native `disabled` and `aria-disabled`. */
 export const disabledLook =
@@ -60,7 +60,7 @@ export const disabledLook =
 export const SURFACES: Record<SurfaceKind, SurfaceRecipe> = {
   solid: {
     rest: 'bg-accent text-white shadow-sm dark:text-bg-primary',
-    hover: 'hover:brightness-110 hover:shadow-glow-accent',
+    hover: 'hover:brightness-110',
     active: 'active:brightness-90 active:shadow-none',
     selected: 'data-[selected=true]:brightness-90',
     error: '',
@@ -124,8 +124,8 @@ export const SURFACES: Record<SurfaceKind, SurfaceRecipe> = {
   },
   card: {
     rest: 'border border-border/80 bg-bg-secondary',
-    hover: 'hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:hover:shadow-card-hover-dark',
-    active: 'active:translate-y-0 active:shadow-card',
+    hover: '',
+    active: '',hover:border-accent/25
     selected: 'data-[selected=true]:border-accent data-[selected=true]:bg-accent/5',
     error: 'border-danger',
   },
