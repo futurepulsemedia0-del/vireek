@@ -609,11 +609,6 @@ export function AnalyticsPage() {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   const rangeState = dateRange.range;
 
