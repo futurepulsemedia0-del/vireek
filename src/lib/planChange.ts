@@ -85,7 +85,7 @@ export function classifyPlanChange(
   return planRank(target) > planRank(current) ? 'upgrade' : 'downgrade';
 }
 
-/** "1,500 min" -> 1500. Returns null for "Unlimited" or anything unparseable. */
+/** "1,500 min" -> 1500, "6,000 min committed" -> 6000. Returns null for anything without a number. */
 export function parsePlanMinutes(minutes: string): number | null {
   const match = minutes.replace(/,/g, '').match(/(\d+)/);
   return match ? parseInt(match[1], 10) : null;
