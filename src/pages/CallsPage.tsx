@@ -496,11 +496,6 @@ const updateCall = useCallback(
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   // Realtime: new calls land in the list instantly instead of waiting for
   // the next page load. Filtered by account owner id — for a team member
