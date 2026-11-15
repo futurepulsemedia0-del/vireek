@@ -3,7 +3,7 @@
 > Vireek is an AI voice receptionist for home-service businesses (HVAC, plumbing, electrical, roofing, restoration, locksmith). Its receptionist, "Sarah", answers calls, captures lead details and books jobs. Vireek is an early-stage, founder-led company and publishes no customer counts.
 
 ## Product and pricing
-- [Pricing](https://vireek.com/pricing): plans from Free to Enterprise, monthly or annual billing
+- [Pricing](https://vireek.com/pricing): plans from a free Trial to Enterprise, monthly or annual billing
 - [Integrations](https://vireek.com/integrations): supported third-party integrations
 - [Help center](https://vireek.com/help): how-to guides and answers
 
