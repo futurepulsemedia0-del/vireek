@@ -1,0 +1,77 @@
+name: Mutation testing (pilot)
+
+# Manual only. Measures how well the unit tests catch deliberate bugs in three pure modules.
+# NOT a gate: nothing here fails a build on a low score. See docs/testing/mutation.md.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which module to mutate
+        type: choice
+        options: [all, money, compliance, scoring]
+        default: all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    name: Plan targets
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.pick.outputs.targets }}
+    steps:
+      - id: pick
+        env:
+          TARGET: ${{ inputs.target }}
+        run: |
+          case "$TARGET" in
+            all) echo 'targets=["money","compliance","scoring"]' >> "$GITHUB_OUTPUT" ;;
+            money|compliance|scoring) echo "targets=[\"$TARGET\"]" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Unknown target: $TARGET" >&2; exit 1 ;;
+          esac
+
+  mutation:
+    name: Mutate ${{ matrix.target }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.plan.outputs.targets) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Stryker (${{ matrix.target }})
+        run: npx stryker run stryker/${{ matrix.target }}.conf.mjs
+
+      - name: Score summary
+        if: always()
+        run: |
+          if [ -f "reports/mutation/${{ matrix.target }}/mutation.json" ]; then
+            node scripts/testing/mutation-summary.mjs "reports/mutation/${{ matrix.target }}/mutation.json" --markdown --github-summary --title "Mutation score: ${{ matrix.target }}"
+          else
+            echo "No mutation.json produced for ${{ matrix.target }}." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-${{ matrix.target }}
+          path: reports/mutation/${{ matrix.target }}
+          if-no-files-found: ignore
+          retention-days: 30
