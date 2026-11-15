@@ -9,6 +9,7 @@ import { createExpertAssistRequest, snapshotFromBrief } from '@/lib/expertAssist
 import { useComplianceStartGuard } from '@/components/jobs/ComplianceStartGuard';
 import { PermitCompliancePanel } from '@/components/jobs/PermitCompliancePanel';
 import { SiteSafetyBriefCard } from '@/components/safety/SiteSafetyBriefCard';
+import { JobRefrigerantPanel } from '@/components/jobs/JobRefrigerantPanel';
 import { LoneWorkerPanel } from '@/components/safety/LoneWorkerPanel';
 import { CollectPaymentPanel } from '@/components/technician/CollectPaymentPanel';
 import { JobUnknownsPanel } from '@/components/jobs/JobUnknownsPanel';
