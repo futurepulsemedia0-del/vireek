@@ -1,4 +1,4 @@
-import { openWhatsNew } from '@/lib/feedback/events';
+import { Link } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import { useWhatsNew } from '@/contexts/WhatsNewContext';
 import { badgeLabel } from '@/lib/whatsNew';
