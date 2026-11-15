@@ -151,7 +151,7 @@ const DEFAULT_ASSISTANT_VOICE = 'sarah-warm-f-us';
 
 export function BusinessProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
