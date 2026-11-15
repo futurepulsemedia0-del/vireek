@@ -30,7 +30,7 @@ const FAQS = [
   },
   {
     q: 'How much does it cost?',
-    a: 'Starter is $79/month and includes 400 minutes. Professional is $199/month and includes 1,500 minutes. You can start a 14-day free trial with no credit card required.',
+    a: 'Starter is $99/month and includes 200 minutes. Professional is $249/month and includes 600 minutes. You can start a 14-day trial; a card is required and you can cancel anytime before day 14.',
   },
 ];
 
