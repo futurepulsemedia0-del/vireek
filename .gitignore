@@ -47,3 +47,6 @@ check-report.txt
 # Mutation testing (Stryker) output
 .stryker-tmp/
 reports/mutation/
+
+# Storybook static build
+storybook-static/
