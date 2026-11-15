@@ -109,7 +109,7 @@ function StatCard({
 
 export function CommandCenterPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, isOwner, teamMember } = useAuth();
+  const { user, profile, isOwner, teamMember } = useAuth();
   const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
 
   const [calls, setCalls] = useState<Call[]>([]);
