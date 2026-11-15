@@ -21,7 +21,7 @@ export const POPULAR_LINKS: readonly PopularLink[] = [
   { to: '/security', labelKey: 'navflow.nf.security', fallback: 'Security', keywords: 'security privacy trust' },
   { to: '/status', labelKey: 'navflow.nf.status', fallback: 'System status', keywords: 'status uptime incident' },
   { to: '/login', labelKey: 'navflow.nf.login', fallback: 'Sign in', keywords: 'login sign in account' },
-  { to: '/signup', labelKey: 'navflow.nf.signup', fallback: 'Start free', keywords: 'signup register trial start' },
+  { to: '/signup', labelKey: 'navflow.nf.signup', fallback: 'Start free trial', keywords: 'signup register trial start' },
 ];
 
 export function levenshtein(a: string, b: string): number {
