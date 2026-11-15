@@ -43,3 +43,7 @@ android/keystore.properties
 sbom/
 check.cjs
 check-report.txt
+
+# Mutation testing (Stryker) output
+.stryker-tmp/
+reports/mutation/
