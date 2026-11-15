@@ -122,7 +122,7 @@ function InsightCard({
 
 export function InsightsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const [insights, setInsights] = useState<AiInsight[]>([]);
