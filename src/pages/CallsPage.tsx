@@ -435,7 +435,7 @@ function CallDetailPanel({
 
 export function CallsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, isOwner, teamMember } = useAuth();
+  const { user, profile, isOwner, teamMember } = useAuth();
   const { toast } = useToast();
 
   const [allCalls, setAllCalls] = useState<Call[]>([]);
