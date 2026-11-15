@@ -169,7 +169,7 @@ function LogOutcomeModal({
 
 export function ReviewsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
 
   const [requests, setRequests] = useState<ReviewRequest[]>([]);
