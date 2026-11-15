@@ -16,6 +16,8 @@ export interface HelpArticle {
   a: string;
   /** Optional stable URL slug. Set it once an article is live so editing the question never changes its URL. */
   slug?: string;
+  /** Optional ISO date (YYYY-MM-DD) of the last content review. Shown on the article only when set — never invent one. */
+  updated?: string;
 }
 
 export interface HelpCategory {
@@ -43,7 +45,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       },
       {
         q: 'How long does setup take?',
-        a: 'Most businesses are live within about 15 minutes: create an account, complete the Business Profile (services, hours, FAQs, escalation contact), forward your calls, and place a test call to confirm the greeting sounds right.',
+        a: 'Most businesses are live within about 15 minutes.\n\n1. Create your account.\n2. Complete the Business Profile: services, hours, FAQs, and escalation contact.\n3. Forward your calls.\n4. Place a test call to confirm the greeting sounds right.',
       },
       {
         q: 'Can I test Sarah before going live?',
@@ -107,7 +109,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     articles: [
       {
         q: 'How do I invite a team member?',
-        a: 'Go to Dashboard → Team and send an invite by email. The invite includes a secure sign-up link, and you can resend it if it expires before they accept.',
+        a: 'Invite a teammate by email from Dashboard → Team.\n\n1. Go to Dashboard → Team.\n2. Send an invite by email. It includes a secure sign-up link.\n3. If the invite expires before they accept, resend it.',
       },
       {
         q: 'Can I limit what a team member sees?',
@@ -159,7 +161,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       },
       {
         q: 'An integration shows as disconnected. What should I do?',
-        a: 'Reconnect it from Dashboard → Integrations — this usually resolves an expired authorization. If it reconnects and then drops again, contact support so we can check the connection logs on our side.',
+        a: 'Reconnecting usually resolves an expired authorization.\n\n1. Go to Dashboard → Integrations.\n2. Reconnect the integration.\n3. If it reconnects and then drops again, contact support so we can check the connection logs on our side.',
       },
     ],
   },
@@ -215,7 +217,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     articles: [
       {
         q: 'Calls aren\u2019t reaching Sarah.',
-        a: 'Double-check the call-forwarding number configured with your phone carrier matches the number shown in Dashboard → Business Profile exactly, including country code. Most issues come from a forwarding rule pointing at the wrong number or being scoped to \u201cbusy only\u201d instead of \u201cno answer.\u201d',
+        a: 'Most issues come from a forwarding rule pointing at the wrong number or being scoped to \u201cbusy only\u201d instead of \u201cno answer.\u201d\n\n1. Open Dashboard → Business Profile and note the number shown there, including country code.\n2. Check the call-forwarding number configured with your phone carrier.\n3. Confirm the two match exactly.\n4. Confirm the forwarding rule is scoped to \u201cno answer,\u201d not \u201cbusy only.\u201d',
       },
       {
         q: 'A caller says Sarah didn\u2019t understand them.',
@@ -223,11 +225,11 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       },
       {
         q: 'I don\u2019t see a booked appointment on my calendar.',
-        a: 'Confirm the integration is still connected at Dashboard → Integrations, then check Dashboard → Calendar directly, since a booking always lands there first regardless of external sync status.',
+        a: 'A booking always lands in Dashboard → Calendar first, regardless of external sync status.\n\n1. Confirm the integration is still connected at Dashboard → Integrations.\n2. Check Dashboard → Calendar directly.',
       },
       {
         q: 'I\u2019m not receiving email or SMS alerts.',
-        a: 'Check Dashboard → Settings → Notification Preferences to confirm the relevant toggle is on, and check your spam folder for the sending address. If alerts still don\u2019t arrive, contact support.',
+        a: 'Work through these checks in order.\n\n1. Open Dashboard → Settings → Notification Preferences and confirm the relevant toggle is on.\n2. Check your spam folder for the sending address.\n3. If alerts still don\u2019t arrive, contact support.',
       },
     ],
   },
