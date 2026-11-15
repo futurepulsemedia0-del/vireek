@@ -10,6 +10,11 @@ Run from the repo root. "CI" = run by a workflow in `.github/workflows` (verify 
 | `preview` | Serve the built app | after `build` |
 | `test` | Vitest unit tests | before every commit; CI |
 | `test:watch` | Vitest watch mode | while coding |
+| `mutation:money` | Stryker mutation run on `regionConfig/money.ts` (pilot, no gate) | manual; see `docs/testing/mutation.md` |
+| `mutation:compliance` | Stryker mutation run on the compliance-rules engine (pilot, no gate) | manual |
+| `mutation:scoring` | Stryker mutation run on `fragilityScore.ts` (pilot, no gate) | manual |
+| `mutation:summary` | Print a score table from a Stryker `mutation.json` | after a mutation run |
+| `test:scripts:mutation` | Unit tests for the mutation summary script | when editing it |
 | `test:built` | Tests against the built output (`vitest.built.config.ts`) | after `build` |
 | `test:live` | Live/integration tests (`vitest.live.config.ts`) — needs real endpoints/secrets | manual, staging only |
 | `test:e2e` | Playwright suites in `e2e/` | before release; CI (authenticated specs need `E2E_*` secrets) |
