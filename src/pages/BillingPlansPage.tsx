@@ -61,7 +61,7 @@ function errorMessage(err: unknown, fallback: string): string {
 }
 
 function priceParts(plan: PricingPlan, live: LivePrice | undefined): { amount: string; suffix: string } {
-  if (plan.id === 'enterprise') return { amount: `From $${plan.startingAt ?? 999}`, suffix: '/mo' };
+  if (plan.id === 'enterprise') return { amount: `From $${plan.startingAt ?? 1799}`, suffix: '/mo' };
   if (live) {
     return { amount: formatMinor(live.amountMinor, live.currency).replace(/[.,]00$/, ''), suffix: `/${live.interval}` };
   }
