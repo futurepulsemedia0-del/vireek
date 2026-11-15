@@ -102,7 +102,7 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
 
 export function IntegrationsPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, isOwner } = useAuth();
+  const { user, isOwner } = useAuth();
   const { toast } = useToast();
 
   useKeyboardShortcut({
