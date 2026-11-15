@@ -1,0 +1,115 @@
+{
+  "card": {
+    "region": "Lo que Sarah sabe de tu negocio",
+    "tier": {
+      "new": "Conociéndote",
+      "learning": "Aprendiendo",
+      "confident": "Segura",
+      "expert": "Experta"
+    },
+    "scoreAria": "Nivel de conocimiento de Sarah: {{score}} de 100",
+    "scoreLabel": "{{score}} %",
+    "notStarted": {
+      "title": "Enséñale tu negocio a Sarah",
+      "body": "Pega tu sitio web. Sarah lo lee, redacta todo lo que necesita y solo te pregunta lo que no encuentra. Sigue usando Vireek mientras aprende.",
+      "urlLabel": "Tu sitio web",
+      "urlPlaceholder": "tuempresa.com",
+      "urlInvalid": "Escribe un sitio web válido, como tuempresa.com.",
+      "start": "Que Sarah lo lea",
+      "noSite": "¿Sin sitio web? Responde unas preguntas"
+    },
+    "stage": {
+      "learning": {
+        "title": "Sarah está aprendiendo tu negocio",
+        "body": "Hasta ahora sabe un {{score}} %. Unas respuestas rápidas la hacen sonar como tú."
+      },
+      "review": {
+        "title": "Revisa lo que aprendió Sarah",
+        "body": "Confirma su borrador antes de que atienda llamadas reales. Toma unos dos minutos."
+      },
+      "ready_to_test": {
+        "title": "Escucha a Sarah antes que tus clientes",
+        "body": "Ejecuta su prueba de preparación, haz una llamada de prueba y actívala."
+      },
+      "live": {
+        "title": "Sarah está en vivo",
+        "body": "Con {{n}} datos más respondería mejor."
+      }
+    },
+    "cta": {
+      "answer": "Responder una pregunta rápida",
+      "review": "Revisar ahora",
+      "test": "Ejecutar la prueba de preparación",
+      "go_live": "Terminar y activar",
+      "maintain": "Mejorar a Sarah"
+    },
+    "notNow": "Ahora no",
+    "snoozed": "Conocimiento de Sarah: {{score}} %",
+    "continue": "Continuar",
+    "inline": {
+      "heading": "Una pregunta rápida",
+      "loading": "Cargando tu pregunta...",
+      "answerLabel": "Tu respuesta",
+      "send": "Guardar respuesta",
+      "skip": "Omitir",
+      "close": "Cerrar",
+      "done": "Eso es todo lo que Sarah necesitaba por ahora.",
+      "reviewCta": "Revisar lo que aprendió",
+      "error": "No pudimos cargar la pregunta. Inténtalo de nuevo.",
+      "saved": "Guardado. Sarah acaba de aprender un poco más."
+    },
+    "error": {
+      "load": "No pudimos cargar el estado de Sarah.",
+      "retry": "Reintentar"
+    }
+  },
+  "summary": {
+    "heading": "Lo que sabe Sarah",
+    "coverage": "Cobertura por área",
+    "gapsHeading": "Mayores vacíos",
+    "noGaps": "Sin vacíos. Sarah tiene lo que necesita.",
+    "required": "Requerido antes de activar: {{list}}",
+    "reason": {
+      "missing": "Aún no lo sabe",
+      "unconfirmed": "Necesita tu confirmación",
+      "sensitive_pending": "Necesita tu aprobación"
+    },
+    "group": {
+      "basics": "Datos básicos",
+      "services": "Servicios",
+      "hours_area": "Horario y zona",
+      "pricing": "Precios",
+      "trust": "Confianza",
+      "voice": "Voz",
+      "faq": "Preguntas frecuentes"
+    }
+  },
+  "field": {
+    "business_name": "Nombre del negocio",
+    "trade": "Oficio",
+    "languages": "Idiomas",
+    "brand_pronunciation": "Pronunciación del nombre",
+    "team_names": "Nombres del equipo",
+    "tone_samples": "Ejemplos de tono",
+    "tone_preference": "Tono de voz",
+    "services_offered": "Servicios que ofreces",
+    "services_not_offered": "Servicios que no ofreces",
+    "never_book": "Trabajos que nunca se agendan",
+    "differentiators": "Lo que te distingue",
+    "service_area": "Zona de servicio",
+    "service_area_notes": "Notas de la zona",
+    "hours": "Horario de atención",
+    "holiday_hours": "Horario en festivos",
+    "emergency_policy": "Política de emergencias",
+    "pricing_signals": "Precios",
+    "diagnostic_fee": "Tarifa de diagnóstico",
+    "financing": "Financiamiento",
+    "licenses_insurance": "Licencias y seguro",
+    "warranties": "Garantías",
+    "escalation_contact": "A quién llamar en urgencias",
+    "faqs": "Preguntas frecuentes"
+  },
+  "page": {
+    "navLabel": "Conocimiento de Sarah"
+  }
+}
