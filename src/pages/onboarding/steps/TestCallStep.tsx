@@ -1,3 +1,4 @@
+import { recordActivation } from '@/lib/activation';
 import { useEffect, useRef, useState } from 'react';
 import { Mic, PhoneCall, PhoneOff } from 'lucide-react';
 import { StepShell } from '../StepShell';
@@ -19,6 +20,7 @@ export function TestCallStep({ data, update, onBack, onNext, onSkip, saving }: S
       vapi.on('call-end', () => {
         setCallState('ended');
         update({ testCallCompleted: true });
+        recordActivation('first_test_call');
       });
       vapi.on('error', (err: unknown) => {
         setErrorMsg(err instanceof Error ? err.message : 'The test call could not connect.');
