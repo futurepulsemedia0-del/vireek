@@ -5,6 +5,12 @@ export const SERVICES_DEEP: DeepContentData = {
   title: 'What Sarah does on a real call, and where her limits are',
   intro:
     'The headline capabilities are easy to list. This section shows how they behave in situations contractors actually face, including the ones where a human should take over.',
+  related: [
+    { label: 'Industries', href: '/industries' },
+    { label: 'Emergency dispatch', href: '/use-cases/emergency-dispatch' },
+    { label: 'After-hours coverage', href: '/use-cases/after-hours' },
+    { label: 'Pricing', href: '/pricing' },
+  ],
   sections: [
     {
       id: 'call-types',
