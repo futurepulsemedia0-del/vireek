@@ -31,7 +31,8 @@
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { claimCoordinationSlot, recordCoordinationOutcome } from "../_shared/ai-core/emergentCoordination.ts";
-import { sendSms } from "../_shared/notify/deliver.ts";
+import { sendSms } from "../_shared/notify/deliver.ts"; // technician / staff alerts only (internal)
+import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -264,7 +265,7 @@ async function actNotifyCustomer(admin: SupabaseClient, incidentId: string, job:
     return;
   }
   const body = `Hi ${job.customer_name}, this is your service provider — we noticed your appointment is running behind and wanted to reach out before you had to ask. We're already working on it and will text you the moment we have an update. Thanks for your patience.`;
-  const result = await sendSms(job.customer_phone, body);
+  const result = await sendGuardedSms(admin, job.user_id, job.customer_phone, body, { purpose: "service", source: "self-healing-orchestrator" });
   await recordCoordinationOutcome(admin, claim.bidId, result.ok ? "success" : "failed");
   await logAction(admin, job.user_id, incidentId, "notify_customer", result.ok ? "success" : "failed", { channel: "sms", ok: result.ok, error: result.error });
 }
@@ -312,7 +313,7 @@ async function actReassignTechnician(admin: SupabaseClient, incidentId: string, 
   }
 
   if (job.customer_phone) {
-    await sendSms(job.customer_phone, `Update: we've assigned ${best.name ?? "a fresh technician"} to get to you as quickly as possible. We'll keep you posted on the new arrival time.`);
+     await sendGuardedSms(admin, job.user_id, job.customer_phone, `Update: we've assigned ${best.name ?? "a fresh technician"} to get to you as quickly as possible. We'll keep you posted on the new arrival time.`, { purpose: "service", source: "self-healing-orchestrator" });
   }
   if (best.phone) {
     await sendSms(best.phone, `You've been auto-assigned job for ${job.customer_name} at ${job.address ?? "the job address"} by the self-healing dispatch system — the originally scheduled technician is delayed.`);
@@ -386,7 +387,7 @@ async function actRescheduleDownstream(admin: SupabaseClient, incidentId: string
     const newTime = new Date(new Date(d.scheduled_datetime!).getTime() + pushMinutes * 60_000).toISOString();
     await admin.from("jobs").update({ scheduled_datetime: newTime }).eq("id", d.id);
     if (d.customer_phone) {
-      await sendSms(d.customer_phone, `Hi ${d.customer_name}, a heads up: today's schedule shifted slightly and your appointment is now expected about ${pushMinutes} minutes later than originally booked. We'll confirm the exact time as your technician gets closer.`);
+      await sendGuardedSms(admin, job.user_id, d.customer_phone, `Hi ${d.customer_name}, a heads up: today's schedule shifted slightly and your appointment is now expected about ${pushMinutes} minutes later than originally booked. We'll confirm the exact time as your technician gets closer.`, { purpose: "service", source: "self-healing-orchestrator" });
     }
     shifted.push({ job_id: d.id, old_time: d.scheduled_datetime!, new_time: newTime });
   }
@@ -482,7 +483,7 @@ async function actOfferCustomerOptions(admin: SupabaseClient, incidentId: string
   }
   const link = `${siteUrl}/reschedule/${job.reschedule_token}`;
   const body = `We're sorry for the wait, ${job.customer_name}. If today's timing no longer works for you, you can pick a new time here: ${link} — or just reply and we'll keep working to get there as soon as possible.`;
-  const result = await sendSms(job.customer_phone, body);
+  const result = await sendGuardedSms(admin, job.user_id, job.customer_phone, body, { purpose: "service", source: "self-healing-orchestrator" });
   await logAction(admin, job.user_id, incidentId, "offer_customer_options", result.ok ? "success" : "failed", { link, ok: result.ok, error: result.error });
 }
 
