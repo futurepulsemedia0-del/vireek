@@ -9,6 +9,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { ABOUT_DEEP } from '@/lib/deepContent/about';
 
 const OUR_VALUES = [
   {
@@ -302,6 +304,7 @@ export function AboutPage() {
           </div>
         </section>
 
+        <DeepContent data={ABOUT_DEEP} idPrefix="about" />
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
           <motion.div
