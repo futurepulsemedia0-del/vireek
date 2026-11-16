@@ -3,6 +3,9 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useLoginAlert } from '@/hooks/useLoginAlert';
+import { useMfaEnforcement } from '@/hooks/useMfaEnforcement';
+import { MfaGraceBanner } from '@/components/security/MfaGraceBanner';
+import { SECURITY_SETTINGS_PATH } from '@/lib/mfaChallenge';
 import { trackActivity, getIdleMinutes, getSessionAgeHours, clearSessionStart } from '@/lib/enterpriseSecurity';
 
 /** Enforces the account's session policy (idle timeout / max session
@@ -90,6 +93,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   useSessionPolicyEnforcement(Boolean(session));
   const mfaPending = useMfaPending(session?.user?.id ?? null);
+  const enforcement = useMfaEnforcement(session?.user?.id ?? null);
   useLoginAlert(Boolean(session));
 
   if (loading) {
@@ -106,7 +110,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (!session) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
-  if (mfaPending === null) {
+  if (mfaPending === null || enforcement.loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg-primary">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
@@ -117,5 +121,13 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (mfaPending) {
     return <Navigate to="/mfa" state={{ from: location.pathname + location.search }} replace />;
   }
-  return <>{children}</>;
+  if (enforcement.decision === 'must_enroll' && !location.pathname.startsWith(SECURITY_SETTINGS_PATH)) {
+    return <Navigate to={`${SECURITY_SETTINGS_PATH}?mfa=required`} replace />;
+  }
+  return (
+    <>
+      {enforcement.decision === 'grace' && <MfaGraceBanner daysLeft={enforcement.state?.days_left ?? null} />}
+      {children}
+    </>
+  );
 }
