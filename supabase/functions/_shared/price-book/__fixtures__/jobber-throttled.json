@@ -1,0 +1,2 @@
+{ "errors": [ { "message": "Throttled", "extensions": { "code": "THROTTLED" } } ],
+  "extensions": { "cost": { "requestedQueryCost": 500, "throttleStatus": { "currentlyAvailable": 0, "restoreRate": 1000 } } } }
