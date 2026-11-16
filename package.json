@@ -47,6 +47,7 @@
     "report:board-pack": "node scripts/reporting/board-pack.mjs",
     "test:scripts:board-pack": "node --test scripts/reporting/board-pack.test.mjs",
     "lint:voice": "node scripts/check-voice.mjs",
+    "chaos:voice": "node --experimental-strip-types --no-warnings scripts/chaos/voice-all.ts",
     "claims:check": "node scripts/check-claims.mjs",
     "i18n:keys": "node scripts/i18n-missing-keys.mjs",
     "i18n:coverage": "node scripts/i18n-coverage.mjs",
