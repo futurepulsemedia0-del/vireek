@@ -9,8 +9,8 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { getFinancingProvider } from "../_shared/financing/registry.ts";
-import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
-
+import { sendEmail } from "../_shared/notify/deliver.ts";
+import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -137,7 +137,7 @@ Deno.serve(async (req: Request) => {
 
     const amountLabel = `$${(amountCents / 100).toFixed(2)}`;
     if (customerPhone) {
-      await sendSms(customerPhone, `Hi ${job.customer_name}, you can finance your ${amountLabel} job over time. Apply here (soft credit check, no obligation): ${offerPageUrl}`);
+      await sendGuardedSms(admin, ownerId, customerPhone, `Hi ${job.customer_name}, you can finance your ${amountLabel} job over time. Apply here (soft credit check, no obligation): ${offerPageUrl}`, { purpose: "service", source: "financing-create-offer" });
     }
     if (customerEmail) {
       await sendEmail(
