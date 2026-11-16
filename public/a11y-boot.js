@@ -13,8 +13,10 @@
     if (!raw) return;
     var s = JSON.parse(raw);
     if (!s || typeof s !== 'object') return;
-    var D = { textSize: 1, contentScale: 1, lineHeight: 1.6, letterSpacing: 0, wordSpacing: 0 };
-    var R = { textSize: [0.875, 1.5], contentScale: [0.9, 1.2], lineHeight: [1.4, 2.2], letterSpacing: [0, 0.2], wordSpacing: [0, 0.3] };
+    var D = { textSize: 1, contentScale: 1, lineHeight: 1.6, letterSpacing: 0, wordSpacing: 0, focusWidth: 3 };
+    var R = { textSize: [0.875, 1.5], contentScale: [0.9, 1.2], lineHeight: [1.4, 2.2], letterSpacing: [0, 0.2], wordSpacing: [0, 0.3], focusWidth: [2, 6] };
+    var FC = { default: ['rgb(var(--accent-primary))', 'rgb(var(--accent-primary) / 0.2)'], black: ['#000000', '#ffffff'], white: ['#ffffff', '#000000'], yellow: ['#ffd400', '#000000'], blue: ['#0050ff', '#ffffff'] };
+    function ch(k) { var v = s[k]; return typeof v === 'string' && Object.prototype.hasOwnProperty.call(FC, v) ? v : 'default'; }
     function num(k) {
       var v = s[k];
       if (typeof v !== 'number' || !isFinite(v)) return D[k];
@@ -22,7 +24,7 @@
     }
     function on(k) { return s[k] === true; }
     function near(a, b) { return Math.abs(a - b) < 1e-6; }
-    var ts = num('textSize'), cs = num('contentScale'), lh = num('lineHeight'), ls = num('letterSpacing'), ws = num('wordSpacing');
+    var ts = num('textSize'), cs = num('contentScale'), lh = num('lineHeight'), ls = num('letterSpacing'), ws = num('wordSpacing'), fw = num('focusWidth'), fcol = ch('focusColor'), ccol = ch('cursorColor');
     var f = [];
     if (on('invertColors')) f.push('invert(1) hue-rotate(180deg)');
     if (on('grayscale')) f.push('grayscale(1)');
@@ -36,6 +38,9 @@
     st.setProperty('--a11y-letter-spacing', ls + 'em');
     st.setProperty('--a11y-word-spacing', ws + 'em');
     st.setProperty('--a11y-filter', f.length ? f.join(' ') : 'none');
+    st.setProperty('--a11y-focus-width', fw + 'px');
+    st.setProperty('--a11y-focus-color', FC[fcol][0]);
+    st.setProperty('--a11y-focus-halo', FC[fcol][1]);
     var m = {
       'a11y-readable-font': on('readableFont'), 'a11y-dyslexia-font': on('dyslexiaFont'),
       'a11y-large-cursor': on('largeCursor'), 'a11y-highlight-links': on('highlightLinks'),
@@ -47,6 +52,8 @@
       'a11y-hide-images': on('hideImages'), 'a11y-screen-reader': on('screenReaderMode'),
       'a11y-text-scaled': !near(ts, 1), 'a11y-zoomed': !near(cs, 1),
       'a11y-lh': !near(lh, 1.6), 'a11y-ls': ls > 0, 'a11y-ws': ws > 0
+      'a11y-unstick': on('unstickHeaders'), 'a11y-custom-focus': fcol !== 'default' || !near(fw, 3),
+      'a11y-cursor-black': ccol === 'black', 'a11y-cursor-white': ccol === 'white', 'a11y-cursor-yellow': ccol === 'yellow', 'a11y-cursor-blue': ccol === 'blue',
     };
 for (var k in m) if (Object.prototype.hasOwnProperty.call(m, k)) c.toggle(k, m[k]);
     motionAttr(on('stopAnimations'), on('reduceMotion'));
