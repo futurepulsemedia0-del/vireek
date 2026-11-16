@@ -65,6 +65,8 @@ import { useEntitlements } from '@/hooks/useEntitlement';
 import { passesModuleGate } from '@/lib/entitlements';
 import { navLabelKey } from '@/lib/navLabel';
 import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
+import { useSimpleMode } from '@/hooks/useSimpleMode';
+import { filterToSimpleNav } from '@/lib/simpleMode';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
 import { Icon } from '@/components/ui/Icon';
 import { IconButton } from '@/components/ui/IconButton';
@@ -634,7 +636,9 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     });
   const labsVisible = showLabs || isLab(location.pathname);
   const [openPillars, setOpenPillars] = useState<Record<string, boolean>>({});
-  const pillarGroups = groupByPillar([...visiblePrimary, ...visibleAccount], { audience, showLabs: labsVisible });
+  const simpleMode = useSimpleMode();
+  const allVisible = [...visiblePrimary, ...visibleAccount];
+  const pillarGroups = groupByPillar(simpleMode.active ? filterToSimpleNav(allVisible) : allVisible, { audience, showLabs: labsVisible && !simpleMode.active });
   const overview = visiblePrimary.find((i) => i.href === '/dashboard');
   = useState(false);
 
@@ -697,9 +701,19 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           </div>
         );
       })}
+      {simpleMode.eligible && (
+        <button
+          type="button"
+          onClick={() => simpleMode.setShowEverything(!simpleMode.showEverything)}
+          className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-accent hover:underline"
+        >
+          {simpleMode.showEverything ? t('nav.simple.hide', { defaultValue: 'Show simple menu' }) : t('nav.simple.show', { defaultValue: 'Show all features' })}
+        </button>
+      )}
       <button
         type="button"
         onClick={toggleLabs}
+        hidden={simpleMode.active}
         className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs text-text-muted hover:text-text-secondary"
       >
         {showLabs ? t('nav.labs.hide', { defaultValue: 'Hide Labs (Beta)' }) : t('nav.labs.show', { defaultValue: 'Show Labs (Beta)' })}
