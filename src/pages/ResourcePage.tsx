@@ -13,6 +13,8 @@ import { MissedCallCalculator } from '@/components/sections/MissedCallCalculator
 import { EstimateRoiCalculator } from '@/components/sections/EstimateRoiCalculator';
 import { EASE, eyebrowClass } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { RESOURCE_DEEP } from '@/lib/deepContent/resourcesDeep';
 import { readUnlock } from '@/lib/resourceLeads';
 import {
   KIND_LABEL,
@@ -241,6 +243,9 @@ export function ResourcePage() {
           </section>
         )}
       </main>
+        {RESOURCE_DEEP[resource.slug] && (
+          <DeepContent data={RESOURCE_DEEP[resource.slug]} idPrefix={`resource-${resource.slug}`} />
+        )}
       <Footer />
       <CookieConsent />
     </>
