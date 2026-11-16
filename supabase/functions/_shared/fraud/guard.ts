@@ -25,6 +25,13 @@ import {
 
 export const EMERGENCY_HANDOFF_DAILY_CEILING = 200;
 export const THROTTLE_FACTOR = 0.2;
+/**
+ * Purpose semantics for the SHARED daily buckets: marketing traffic may fill at most this share of the daily
+ * call / SMS / cost caps, so a marketing blast can never starve service-critical messages (appointment confirmations,
+ * payment links, refunds) that are reserved against the FULL cap. Emergency hand-offs use their own ledger bucket.
+ * This does not change any PLAN_LIMITS number: the cap passed to fraud_reserve() is simply lower for marketing.
+ */
+export const MARKETING_CAP_SHARE = 0.8;
 
 export interface FraudDb {
   rpc(fn: string, args?: Record<string, unknown>): PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -45,6 +52,12 @@ export interface GuardRequest {
   /** Calling function name, for the audit trail (e.g. "outbound-dialer"). */
   source: string;
   now?: Date;
+  /**
+   * Which rollout switch decides shadow vs enforce. "global" (default, unchanged) = fraud_settings.enforce, used by
+   * the OTP / inbound paths. "outbound" = fraud_settings.outbound_guard_mode (default 'shadow'), used by the
+   * customer-driven senders. fraud_settings.enforce = false forces shadow for both.
+   */
+  rollout?: "global" | "outbound";
 }
 
 export type GuardCode =
@@ -67,6 +80,8 @@ export type GuardResult =
 
 interface GuardContext {
   enforce: boolean;
+  /** Missing (migration 20290303000000 not applied yet) is treated as 'shadow'. */
+  outbound_guard_mode?: "shadow" | "enforce";
   kill_outbound_calls: boolean;
   kill_sms: boolean;
   kill_international: boolean;
