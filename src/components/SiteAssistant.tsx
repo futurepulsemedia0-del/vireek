@@ -141,7 +141,7 @@ export function SiteAssistant() {
         aria-expanded={open}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-[84px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-white dark:border-white/90 bg-gradient-to-br from-[#3448E8] to-[#D6582A] text-white shadow-lg shadow-black/40 ring-1 ring-black/10 transition-all duration-200 hover:shadow-xl hover:brightness-110 print:hidden"
+        className="fixed bottom-[84px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-white dark:border-white/90 bg-gradient-to-br from-brand-from to-brand-to text-on-brand shadow-lg shadow-black/40 ring-1 ring-black/10 transition-all duration-200 hover:shadow-xl hover:brightness-110 print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -170,7 +170,7 @@ export function SiteAssistant() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 8 }}
               transition={{ duration: 0.15 }}
-              className="pointer-events-none absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-black/10 bg-[#15161c] px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-black/30 dark:border-white/10 dark:bg-[#0a0a0d]"
+              className="pointer-events-none absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-black/10 bg-surface-inverse px-3 py-1.5 text-xs font-medium text-on-inverse shadow-lg shadow-black/30 dark:border-white/10"
             >
               Ask Vireek
             </motion.span>
@@ -191,7 +191,7 @@ export function SiteAssistant() {
             aria-label="Ask Vireek"
           >
             <div className="flex items-center gap-3 border-b border-border/80 bg-gradient-to-b from-bg-secondary to-bg-secondary/60 px-5 py-4">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-[#3448E8] to-[#D6582A] text-white shadow-sm">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-brand-from to-brand-to text-on-brand shadow-sm">
                 <HelpCircle size={17} strokeWidth={2.25} />
               </span>
                             <div className="min-w-0">
@@ -255,7 +255,7 @@ export function SiteAssistant() {
                 aria-label="Send"
                 whileHover={input.trim() && !thinking ? { scale: 1.06 } : undefined}
                 whileTap={input.trim() && !thinking ? { scale: 0.94 } : undefined}
-                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-[#3448E8] to-[#D6582A] text-white transition-opacity disabled:opacity-40"
+                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-brand-from to-brand-to text-on-brand transition-opacity disabled:opacity-40"
               >
                 <Send size={16} />
               </motion.button>
