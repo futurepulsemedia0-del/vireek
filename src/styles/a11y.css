@@ -6,6 +6,9 @@
   --a11y-letter-spacing: 0em;
   --a11y-word-spacing: 0em;
   --a11y-filter: none;
+  --a11y-focus-width: 3px;
+  --a11y-focus-color: rgb(var(--accent-primary));
+  --a11y-focus-halo: rgb(var(--accent-primary) / 0.2);
 }
 
 html { filter: var(--a11y-filter); }
@@ -38,7 +41,15 @@ html.a11y-text-scaled { font-size: calc(16px * var(--a11y-font-scale)); }
 .a11y-large-cursor * {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%234F46E5' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
 }
-
+/* Pointer color: a 32px two-tone pointer (outline + fill) that stays visible on light and dark backgrounds. */
+.a11y-cursor-black,
+.a11y-cursor-black * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' stroke='%23000000' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23ffffff'/%3E%3C/svg%3E") 4 4, auto; }
+.a11y-cursor-white,
+.a11y-cursor-white * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' stroke='%23ffffff' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23000000'/%3E%3C/svg%3E") 4 4, auto; }
+.a11y-cursor-yellow,
+.a11y-cursor-yellow * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' stroke='%23000000' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23ffd400'/%3E%3C/svg%3E") 4 4, auto; }
+.a11y-cursor-blue,
+.a11y-cursor-blue * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' stroke='%23ffffff' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%230050ff'/%3E%3C/svg%3E") 4 4, auto; }
 .a11y-highlight-links a {
   text-decoration: underline !important;
   text-decoration-thickness: 2px !important;
@@ -49,10 +60,12 @@ html.a11y-text-scaled { font-size: calc(16px * var(--a11y-font-scale)); }
   outline-offset: 2px;
   border-radius: 2px;
 }
-.a11y-strong-focus *:focus-visible {
-  outline: 3px solid rgb(var(--accent-primary)) !important;
+/* Strong focus and the custom ring (color/thickness) share one rule driven by the --a11y-focus-* variables. */
+.a11y-strong-focus *:focus-visible,
+.a11y-custom-focus *:focus-visible {
+  outline: var(--a11y-focus-width) solid var(--a11y-focus-color) !important;
   outline-offset: 2px !important;
-  box-shadow: 0 0 0 5px rgb(var(--accent-primary) / 0.2) !important;
+  box-shadow: 0 0 0 calc(var(--a11y-focus-width) + 2px) var(--a11y-focus-halo) !important;
 }
 
 .a11y-high-contrast {
@@ -102,3 +115,7 @@ html.a11y-text-scaled { font-size: calc(16px * var(--a11y-font-scale)); }
 
 /* The color-blindness SVG defs are aria-hidden: never display:none them (filters would break) */
 .a11y-screen-reader [aria-hidden="true"]:not(#vk-a11y-filters) { display: none !important; }
+
+/* Stop sticky bars: sticky headers scroll away so they cannot cover content or the focused element (WCAG 2.4.11).
+   Table headers and the Accessibility Center itself keep their behaviour. */
+.a11y-unstick :is(.sticky, [class*=":sticky"]):not(th, thead, [data-a11y-ui]) { position: static !important; }
