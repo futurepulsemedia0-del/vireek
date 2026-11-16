@@ -1,7 +1,21 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 
-export interface Hel
+export interface HelpArticleListItem {
+  slug: string;
+  title: string;
+  eyebrow?: string;
+}
+
+interface HelpArticleListProps {
+  items: HelpArticleListItem[];
+  label?: string;
+  className?: string;
+}
+
+export function HelpArticleList({ items, label, className = '' }: HelpArticleListProps) {
+  if (items.length === 0) return null;
+  return (
     <nav aria-label={label} className={className}>
       <ul className="space-y-2">
         {items.map((item) => (
