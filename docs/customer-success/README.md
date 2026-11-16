@@ -5,6 +5,7 @@ Four playbooks that turn the signals Vireek **already computes** into repeatable
 | Playbook | Stage | Primary signal |
 |---|---|---|
 | [Onboarding](./onboarding.md) | Days 0-30 | `health.band = 'new'`, activation factor, `PLAYBOOKS` in `successTools.ts` |
+| [Time-to-value](./ttv.md) | Days 0-60 | Per-account milestone times (`account_ttv_v`), stall alerts |
 | [At-risk](./at-risk.md) | Any active account | `computeSuccessRisk()` level `high` / `medium` |
 | [Churn-save](./churn-save.md) | Billing trouble or cancel intent | `profiles.dunning_stage`, `subscription_cancellations` |
 | [Expansion](./expansion.md) | Healthy, growing accounts | usage factor, `nps_responses`, `success_feature_catalog` |
