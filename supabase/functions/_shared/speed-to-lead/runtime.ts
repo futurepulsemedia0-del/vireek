@@ -16,6 +16,7 @@ import { getPreferences } from "../compliance/preferenceCheck.ts";
 import { buildRecordingConsentNotice } from "../compliance/recordingConsent.ts";
 import { gateOutbound } from "../messaging/quietHours.ts";
 import { voiceOverride } from "../voice/voiceMap.ts";
+import { asFraudDb, attachOutboundCall, gateCustomerOutbound, releaseOutboundReservation } from "../fraud/outboundGate.ts";
 import {
   CONSENT_SCOPE,
   buildAssistantBrief,
@@ -493,6 +494,23 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
   const businessName = (profile?.company_name as string | null) ?? "our team";
   const seq = req.attempt_count + 1;
   const sla = slaResult(new Date(req.received_at), now, settings.slaSeconds);
+  // Fraud guard (shadow/enforce per fraud_settings.outbound_guard_mode) BEFORE the attempt is logged or the provider is
+  // called. The lead asked to be contacted, so this is transactional traffic ("service"). A refusal is never left
+  // to be retried on the next sweep: a cap that resets re-queues at retryAt, anything else goes to a human now.
+  const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+    userId: owner, kind: "call", to: req.phone_e164, purpose: "service", source: "speed-to-lead", campaign: "speed_to_lead",
+  });
+  if (!fraud.allowed) {
+    const b = fraud.blocked;
+    log("fraud_blocked", { id: req.id, code: b.code, retryable: b.retryable });
+    if (b.retryable && b.retryAt) {
+      await logAttempt(admin, req, { decision: "failed", reason: `fraud_guard:${b.code}`, timezone: tz.timezone, local_time: tz.localTime });
+      await patchRequest(admin, req.id, { status: "queued", next_attempt_at: b.retryAt });
+      return "failed";
+    }
+    await park(`fraud_guard:${b.code}`);
+    return "needs_review";
+  }
 
   // Log BEFORE the call so an attempt can never exist without a record.
   const attemptId = await logAttempt(admin, req, { decision: "dialed", reason: "OK", timezone: tz.timezone, local_time: tz.localTime, detail: { sla_ms: sla.ms, sla_met: sla.met } });
@@ -506,8 +524,9 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
       body: JSON.stringify({
         assistantId: biz.vapi_assistant_id,
         phoneNumberId: biz.vapi_phone_number_id,
-        customer: { number: req.phone_e164, name: req.full_name ?? undefined },
+        customer: { number: fraud.e164, name: req.full_name ?? undefined },
         assistantOverrides: {
+          maxDurationSeconds: fraud.maxCallSeconds,
 ...voiceOverride(biz.assistant_voice),
           firstMessage: buildFirstMessage({ businessName, firstName: req.first_name, service: req.service }),
           variableValues: {
@@ -532,6 +551,7 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
     if (!res.ok) {
       // Definitive rejection: the call was NOT placed, so a retry is safe.
       const body = (await res.text().catch(() => "")).slice(0, 300);
+      await releaseOutboundReservation(asFraudDb(admin), fraud); // the call was not placed: give the reserved budget back
       if (attemptId) await admin.from("speed_to_lead_attempts").update({ decision: "failed", reason: `vapi_http_${res.status}`, detail: { body } }).eq("id", attemptId);
       const retryAt = nextRetryAt(now, settings, seq);
       if (retryAt) {
@@ -543,6 +563,7 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
       return "failed";
     }
     callId = ((await res.json()) as { id?: string }).id ?? null;
+    await attachOutboundCall(asFraudDb(admin), fraud, callId); // end-of-call settles the real duration
   } catch (e) {
     // Timeout / network error: the call MAY have been placed. Never retry blindly.
     log("dial_state_unknown", { id: req.id, error: e instanceof Error ? e.message : String(e) });
