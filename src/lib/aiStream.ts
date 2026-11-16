@@ -32,6 +32,8 @@ interface StreamAiChatOptions {
   onDelta: (delta: string) => void;
   /** Called once, before any delta, if the server sends a structured `fields` payload (used by onboarding-concierge). */
   onFields?: (fields: Record<string, unknown>) => void;
+  /** Called at most once, just before `onDone`, with answer metadata (sources, follow-ups, hand-off, answerId). */
+  onMeta?: (meta: Record<string, unknown>) => void;
   /** Called once the stream ends normally. */
   onDone?: (meta: { provider?: string; model?: string }) => void;
   /** Called if the server (or the network) reports a failure. */
@@ -54,6 +56,7 @@ export async function streamAiChat({
   extraBody,
   onDelta,
   onFields,
+  onMeta,
   onDone,
   onError,
   signal,
@@ -116,7 +119,7 @@ export async function streamAiChat({
         const payload = line.slice(5).trim();
         if (!payload) continue;
 
-        let parsed: { delta?: string; done?: boolean; error?: string; provider?: string; model?: string; fields?: Record<string, unknown> };
+        let parsed: { delta?: string; done?: boolean; error?: string; provider?: string; model?: string; fields?: Record<string, unknown>; meta?: Record<string, unknown> };
         try {
           parsed = JSON.parse(payload);
         } catch {
@@ -128,6 +131,8 @@ export async function streamAiChat({
           onError(parsed.error);
         } else if (parsed.fields) {
           onFields?.(parsed.fields);
+        } else if (parsed.meta) {
+          onMeta?.(parsed.meta);
         } else if (typeof parsed.delta === 'string' && parsed.delta) {
           onDelta(parsed.delta);
         } else if (parsed.done) {
