@@ -1,0 +1,211 @@
+--- a/src/components/DashboardNav.tsx
++++ b/src/components/DashboardNav.tsx
+@@ -47,7 +47,9 @@
+ import { WhatsNewProvider } from '@/contexts/WhatsNewContext';
+ import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
+ import { AiAssistant } from '@/components/AiAssistant';
+-import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
++import { GlobalSearchPalette, openPalette } from '@/components/GlobalSearchPalette';
++import { Logo } from '@/components/brand/Logo';
++import { Search as SearchIcon } from 'lucide-react';
+ import { NpsPrompt } from '@/components/success/NpsPrompt';
+ import { FeedbackButton } from '@/components/feedback/FeedbackButton';
+ import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+@@ -547,6 +549,23 @@
+ ];
+ type NavGates = Partial<Record<'landscaping', boolean>>;
+ const NO_MODULES: ReadonlySet<string> = new Set();
++/** Always-visible entry to the global command palette (⌘K / Ctrl K). */
++function SidebarSearchButton() {
++  const { t } = useTranslation('dashboard');
++  const isMac = typeof navigator !== 'undefined' && /mac|iphone|ipad/i.test(navigator.platform || navigator.userAgent);
++  return (
++    <button
++      type="button"
++      onClick={() => openPalette()}
++      className="focus-ring flex w-full items-center gap-2.5 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-secondary transition-colors hover:border-accent/40 hover:text-text-primary"
++    >
++      <SearchIcon size={16} aria-hidden="true" />
++      <span className="flex-1 text-start">{t('nav.search', { defaultValue: 'Search' })}</span>
++      <kbd className="rounded border border-border px-1.5 py-0.5 text-xs font-medium text-text-secondary">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
++    </button>
++  );
++}
++
+ export function filterItems(
+   items: NavItem[],
+   isOwner: boolean,
+@@ -660,9 +679,10 @@
+         key={item.href}
+         to={item.href}
+         onClick={() => setDrawerOpen(false)}
++        aria-current={active ? 'page' : undefined}
+         className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+           active
+-            ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/15'
++            ? 'bg-accent/10 text-accent'
+             : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+         }`}
+       >
+@@ -685,12 +705,12 @@
+               type="button"
+               aria-expanded={open}
+               onClick={() => setOpenPillars((v) => ({ ...v, [pillar]: !open }))}
+-              className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
++              className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-text-primary"
+             >
+               <span>
+                 {t(`nav.pillars.${pillar}`, { defaultValue: meta.label })}
+                 {pillar === 'labs' && (
+-                  <span className="ml-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">Beta</span>
++                  <span className="ms-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">Beta</span>
+                 )}
+               </span>
+               <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+@@ -708,7 +728,7 @@
+       <button
+         type="button"
+         onClick={toggleLabs}
+-        className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs text-text-secondary/70 hover:text-text-secondary"
++        className="focus-ring mt-2 rounded-xl px-3 py-2 text-start text-xs text-text-secondary hover:text-text-primary"
+       >
+         {showLabs ? t('nav.labs.hide', { defaultValue: 'Hide Labs (Beta)' }) : t('nav.labs.show', { defaultValue: 'Show Labs (Beta)' })}
+       </button>
+@@ -717,7 +737,7 @@
+         <button
+           type="button"
+           onClick={() => setThemeOpen((v) => !v)}
+-          className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
++          className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-text-primary"
+         >
+           {t('nav.appearance')}
+           <ChevronDown size={14} className={`transition-transform ${themeOpen ? 'rotate-180' : ''}`} />
+@@ -741,7 +761,7 @@
+                       onClick={() => setThemePreference(option.value)}
+                       className={`focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                         active
+-                          ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/15'
++                          ? 'bg-accent/10 text-accent'
+                           : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+                       }`}
+                     >
+@@ -764,28 +784,28 @@
+   return (
+     <>
+       {/* Desktop sidebar */}
+-      <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
++      <aside className="fixed start-0 top-0 z-30 hidden h-full w-60 flex-col border-e border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
+         <div className="flex items-center justify-between gap-2.5 px-5 py-5">
+-          <Link to="/dashboard" className="flex items-center gap-2.5">
+-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+-              <Phone size={16} strokeWidth={2.5} />
+-            </span>
+-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
++          <Link to="/dashboard" aria-label="Vireek" className="focus-ring flex items-center rounded-lg">
++            <Logo variant="lockup" size={34} />
+           </Link>
+-          <div className="flex items-center gap-1">
+-            <ReplayTourMenu align="start" />
+-            <FeedbackButton />
+-            <WhatsNewButton />
+-            <NotificationBell />
+-          </div>
++          <NotificationBell />
++        </div>
++        <div className="px-3 pb-2">
++          <SidebarSearchButton />
+         </div>
+-        <div className="flex-1 overflow-y-auto px-3 py-4">
+-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-secondary/60">
++        <div className="flex-1 overflow-y-auto px-3 py-2">
++          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-secondary">
+             {activeLabel}
+           </p>
+           {navContent}
+         </div>
+-        <div className="border-t border-border px-3 py-4">
++        <div className="border-t border-border px-3 py-3">
++          <div className="mb-1 flex items-center gap-1 px-1">
++            <ReplayTourMenu align="start" />
++            <FeedbackButton />
++            <WhatsNewButton />
++          </div>
+           <button
+             type="button"
+             onClick={handleSignOut}
+@@ -800,16 +820,18 @@
+       {/* Mobile header */}
+       <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden print:hidden">
+         <div className="flex items-center justify-between px-4 py-3">
+-          <Link to="/dashboard" className="flex items-center gap-2.5">
+-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+-              <Phone size={16} strokeWidth={2.5} />
+-            </span>
+-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
++          <Link to="/dashboard" aria-label="Vireek" className="focus-ring flex items-center rounded-lg">
++            <Logo variant="lockup" size={34} />
+           </Link>
+           <div className="flex items-center gap-2">
+-            <ReplayTourMenu align="end" />
+-            <FeedbackButton />
+-            <WhatsNewButton />
++            <button
++              type="button"
++              onClick={() => openPalette()}
++              aria-label={t('nav.search', { defaultValue: 'Search' })}
++              className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary text-text-secondary hover:text-text-primary"
++            >
++              <SearchIcon size={18} />
++            </button>
+             <NotificationBell />
+             <button
+               type="button"
+@@ -841,15 +863,10 @@
+               animate={{ x: 0 }}
+               exit={{ x: isRtl ? '100%' : '-100%' }}
+               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+-              className="fixed left-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-bg-secondary lg:hidden"
++              className="fixed start-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-e border-border bg-bg-secondary lg:hidden"
+             >
+               <div className="flex items-center justify-between px-5 py-4">
+-                <div className="flex items-center gap-2.5">
+-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+-                    <Phone size={16} strokeWidth={2.5} />
+-                  </span>
+-                  <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
+-                </div>
++                <Logo variant="lockup" size={34} />
+                 <button
+                   type="button"
+                   onClick={() => setDrawerOpen(false)}
+@@ -863,6 +880,11 @@
+                 {navContent}
+               </div>
+               <div className="border-t border-border px-3 py-4">
++                <div className="mb-1 flex items-center gap-1 px-1">
++                  <ReplayTourMenu align="start" />
++                  <FeedbackButton />
++                  <WhatsNewButton />
++                </div>
+                 <button
+                   type="button"
+                   onClick={handleSignOut}
+@@ -905,7 +927,7 @@
+         <ChatUnreadProvider>
+           <div className="min-h-screen bg-bg-primary">
+             <DashboardNav activeLabel={activeLabel} />
+-            <div className="lg:pl-60 print:pl-0">
++            <div className="lg:ps-60 print:ps-0">
+               <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-24 lg:px-8 lg:py-8 print:max-w-none print:p-0">
+                 <Breadcrumbs className="no-print mb-4" />
+                 <div className="no-print">
+--- a/src/locales/en/dashboard.json
++++ b/src/locales/en/dashboard.json
+@@ -11,6 +11,7 @@
+   },
+   "nav": {
+     "pillars": { "answer": "Answer", "dispatch": "Book & Dispatch", "grow": "Grow & Get Paid", "settings": "Settings", "labs": "Labs" },
++    "search": "Search",
+     "labs": { "show": "Show Labs (Beta)", "hide": "Hide Labs (Beta)" },
+     "items": {
+       "overview": "Overview",
