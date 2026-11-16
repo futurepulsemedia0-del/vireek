@@ -23,13 +23,17 @@ const VERIFY = process.argv.includes('--verify');
 
 // ------------------------------------------------------------------ scope
 const EXT = new Set(['.ts', '.tsx', '.js', '.mjs', '.cjs', '.jsx', '.css', '.html', '.svg', '.json', '.webmanifest', '.xml', '.plist', '.swift', '.kt', '.java', '.gradle']);
-const SKIP_DIR = new Set(['node_modules', '.git', 'dist', 'build', 'docs', 'patches', 'reports', 'e2e', 'eval', 'load', 'evidence', 'rc', 'vireek-a11y', 'vireek-docs-phase1', 'color', 'brand-audit', 'ops', 'locales']);
+// Folders skipped ANYWHERE (build output / VCS) and folders skipped only at the repository ROOT or by exact relative path
+// (a nested `reports/` or `ops/` folder inside src/ or supabase/ is real product code and MUST be migrated).
+const SKIP_ANYWHERE = new Set(['node_modules', '.git', 'dist', 'build']);
+const SKIP_ROOT = new Set(['docs', 'patches', 'reports', 'e2e', 'eval', 'load', 'evidence', 'rc', 'vireek-a11y', 'vireek-docs-phase1', 'ops', 'locales']);
+const SKIP_PATH = new Set(['scripts/color', 'scripts/brand-audit']);
 const SKIP_REL = new Set(['scripts/brand/check-pwa.mjs', 'src/components/brand/Logo.tsx', 'src/components/brand/LogoConstruction.tsx', 'src/components/brand/BrandLogoGuide.tsx']); // 1st: lists BANNED legacy colours; rest: hand-edited (role-specific logo colours) // lists the BANNED legacy colours on purpose
 const SKIP_FILE = /(\.test\.|\.spec\.|tokens\.generated|brand-colors\.ts$|package-lock\.json$|\.min\.)/;
 
 // ------------------------------------------------------------------ the new palette (all derived from palette.mjs)
 const themeTok = Object.fromEntries(THEMES.map((t) => [t, Object.fromEntries(Object.entries(buildTheme(t).tok).map(([k, v]) => [k, toHex(v)]))]));
-const FAMILY_ANCHORS = { accent: ['#D97757'], cta: ['#635BFF', '#7E6BFD'], success: ['#34C759', '#30D158'], danger: ['#FF383C', '#FF4245'], warning: ['#FFCC00', '#FFD600'], info: ['#6A9BCC'] };
+const FAMILY_ANCHORS = { accent: ['#F9774C'], cta: ['#533AFD', '#7E6BFD'], success: ['#34C759', '#30D158'], danger: ['#FF383C', '#FF4245', '#FF2D55', '#FF375F'], warning: ['#FFCC00', '#FFD600'], info: ['#0071E3', '#0091FF'] };
 const NEUTRAL_ANCHORS = ['#141413', '#FAF9F5', '#F0EEE6', '#E8E6DC', '#B0AEA5', '#73726C']; // Anthropic Slate / Ivory / surface / Light Gray / Mid Gray / muted
 const scales = Object.fromEntries(FAMILY_NAMES.map((n) => [n, [...Object.values(buildScale({ ...FAMILY_DEFS[n] })), ...FAMILY_ANCHORS[n]]]));
 const neutralSet = [...Object.values(NEUTRAL_SCALE), ...NEUTRAL_ANCHORS];
@@ -68,16 +72,171 @@ const LEGACY_ROLE = {
   '#F6F4F0': 'bg-tertiary|light',
   '#FDFCFA': 'bg-primary|light',
   '#FF8A5A': 'cta-text|dark',
+  // v2 ("Claude-first") token values -> same-named v3 token (so a repo that already ran the v2 migration upgrades in place)
+  '#004173': 'viz-seq-2|dark',
+  '#005492': 'viz-seq-3|dark',
+  '#006020': 'success-strong|light',
+  '#0068B1': 'viz-seq-4|dark',
+  '#007228': 'success-text|light',
+  '#009638': 'success-graphic|light',
+  '#082F51': 'viz-seq-1|dark',
+  '#0966AC': 'viz-div-1|light',
+  '#13273A': 'info-subtle|dark',
+  '#141413': 'bg-primary|dark',
+  '#152B18': 'success-subtle|dark',
+  '#163F65': 'info-subtle-border|dark',
+  '#1B4823': 'success-subtle-border|dark',
+  '#1C1C1A': 'bg-secondary|dark',
+  '#201F1C': 'disabled-bg|dark',
+  '#217CCA': 'viz-seq-5|dark',
+  '#23223A': 'cta-subtle|dark',
+  '#242422': 'bg-tertiary|dark',
+  '#253F59': 'viz-seq-9|light',
+  '#255480': 'viz-seq-8|light',
+  '#265582': 'info-strong|light',
+  '#2669A6': 'viz-seq-7|light',
+  '#272724': 'surface-inverse|dark',
+  '#2C2508': 'warning-subtle|dark',
+  '#2D2D2A': 'surface-overlay|dark',
+  '#2E2E2C': 'border-default|dark',
+  '#2E80C8': 'viz-seq-6|light',
+  '#302D2C': 'viz-div-5|dark',
+  '#3089EB': 'viz-7|light',
+  '#30D158': 'success-text|dark',
+  '#346391': 'info-text|light',
+  '#34C759': 'success-fill|light',
+  '#381C1A': 'danger-subtle|dark',
+  '#381D14': 'accent-subtle|dark',
+  '#393665': 'cta-subtle-border|dark',
+  '#3D4F61': 'viz-div-4|dark',
+  '#4097E6': 'viz-seq-5|light',
+  '#4176A9': 'viz-4|light',
+  '#424241': 'viz-8|light',
+  '#4292DC': 'viz-seq-6|dark',
+  '#43DE65': 'success-hover|dark',
+  '#46D466': 'success-hover|light',
+  '#4831D7': 'cta-strong|light',
+  '#4A3C00': 'warning-subtle-border|dark',
+  '#4E3DE1': 'cta-active|light',
+  '#4E7296': 'viz-div-3|dark',
+  '#4F3DE2': 'cta-text|light',
+  '#5088BF': 'viz-div-2|light',
+  '#54EC72': 'success-active|dark',
+  '#5586B6': 'info-graphic|light',
+  '#5646B6': 'viz-2|light',
+  '#56E272': 'success-active|light',
+  '#584BEF': 'cta-hover|light',
+  '#5BAFFE': 'viz-seq-4|light',
+  '#5D5B55': 'text-secondary|light',
+  '#5E97CE': 'viz-div-2|dark',
+  '#5F463E': 'viz-div-6|dark',
+  '#602A27': 'danger-subtle-border|dark',
+  '#602C1B': 'accent-subtle-border|dark',
+  '#6259FD': 'cta-fill|light',
+  '#635BFF': 'cta-graphic|light',
+  '#64635E': 'disabled-fg|dark',
+  '#65A7E8': 'viz-seq-7|dark',
+  '#664F00': 'warning-strong|light',
+  '#676660': 'border-inverse|light',
+  '#695200': 'viz-5|light',
+  '#6A9BCC': 'info-fill|light',
+  '#6B0E77': 'viz-6|light',
+  '#6C6A65': 'text-muted|light',
+  '#6EA4D9': 'viz-2|dark',
+  '#76746E': 'border-inverse|dark',
+  '#76A7D9': 'info-hover|light',
+  '#7ABDFF': 'viz-div-1|dark',
+  '#7B7A73': 'border-strong|dark',
+  '#7D72E7': 'viz-3|dark',
+  '#7E6400': 'warning-text|light',
+  '#7E6BFD': 'cta-graphic|dark',
+  '#7F6CFE': 'cta-fill|dark',
+  '#81B3E5': 'info-text|dark',
+  '#82B4E6': 'info-active|light',
+  '#82F594': 'viz-4|dark',
+  '#83B5E7': 'info-strong|dark',
+  '#84AAD1': 'viz-div-3|light',
+  '#86847E': 'border-strong|light',
+  '#8A7EFF': 'cta-hover|dark',
+  '#8BBDEF': 'viz-seq-8|dark',
+  '#8EC6FF': 'viz-seq-3|light',
+  '#8F3513': 'accent-strong|light',
+  '#926050': 'viz-div-7|dark',
+  '#93928D': 'disabled-fg|light',
+  '#968FFF': 'cta-active|dark',
+  '#97968F': 'text-muted|dark',
+  '#9F4223': 'accent-text|light',
+  '#9F7E00': 'warning-graphic|light',
+  '#A14120': 'viz-div-9|light',
+  '#A19CFF': 'cta-text|dark',
+  '#A44668': 'viz-3|light',
+  '#A56D7F': 'viz-5|dark',
+  '#A80015': 'danger-strong|light',
+  '#A8A6FF': 'cta-strong|dark',
+  '#ACAAA1': 'viz-8|dark',
+  '#B0AEA5': 'text-secondary|dark',
+  '#B3D1F1': 'viz-seq-9|dark',
+  '#B86D55': 'viz-div-8|light',
+  '#B8CCE2': 'viz-div-4|light',
+  '#B90019': 'danger-text|light',
+  '#BADBFE': 'info-subtle-border|light',
+  '#BB001C': 'danger-active|dark',
+  '#BC0019': 'danger-active|light',
+  '#BCDDFF': 'viz-seq-2|light',
+  '#BEE3C1': 'success-subtle-border|light',
+  '#C2CAFF': 'viz-7|dark',
+  '#C76747': 'viz-1|light',
+  '#C76748': 'accent-graphic|light',
+  '#C87B63': 'viz-div-8|dark',
+  '#CD9886': 'viz-div-7|light',
+  '#CED4FF': 'cta-subtle-border|light',
+  '#CF0020': 'danger-hover|dark',
+  '#D1001D': 'danger-hover|light',
+  '#D97757': 'accent-fill|light',
+  '#E01A2B': 'danger-fill|dark',
+  '#E1C2B8': 'viz-div-6|light',
+  '#E40B24': 'danger-fill|light',
+  '#E78363': 'accent-hover|light',
+  '#E7D7AB': 'warning-subtle-border|light',
+  '#E7F9E8': 'success-subtle|light',
+  '#E8E6DC': 'border-default|light',
+  '#E8F3FF': 'viz-seq-1|light',
+  '#EBF5FF': 'info-subtle|light',
+  '#ECEBE7': 'disabled-bg|light',
+  '#F0EEE6': 'bg-tertiary|light',
+  '#F0F3FF': 'cta-subtle|light',
+  '#F2EDEC': 'viz-div-5|light',
+  '#F5906F': 'accent-active|light',
+  '#F69271': 'accent-text|dark',
+  '#F83036': 'danger-graphic|light',
+  '#F99473': 'accent-strong|dark',
+  '#FAA05D': 'viz-6|dark',
+  '#FAF9F5': 'bg-primary|light',
+  '#FBF3DD': 'warning-subtle|light',
+  '#FCCBBB': 'accent-subtle-border|light',
+  '#FDC9C3': 'danger-subtle-border|light',
+  '#FF4245': 'danger-graphic|dark',
+  '#FF8078': 'danger-text|dark',
+  '#FF8E85': 'danger-strong|dark',
+  '#FF9877': 'viz-div-9|dark',
+  '#FFCC00': 'warning-fill|light',
+  '#FFD600': 'warning-text|dark',
+  '#FFDC7B': 'warning-hover|light',
+  '#FFE686': 'warning-hover|dark',
+  '#FFECB7': 'warning-active|light',
+  '#FFEFED': 'danger-subtle|light',
+  '#FFF0EB': 'accent-subtle|light',
+  '#FFF4C9': 'warning-active|dark',
 };
 // Logo artwork: the same old hex plays different roles, so these files are rewritten by occurrence order.
-// letters = Slate (Ivory on dark), tile = Clay, "V" on the tile = Slate, pulse dot = Clay (Ivory on the Clay tile).
+// letters = Slate (Ivory on dark), tile = Vivid Clay #F9774C, "V" on the tile = Slate, tile dot = Ivory, pulse dot = #D95A2E on light / #F9774C on dark.
 const SVG_SEQUENCE = {
-  'public/brand/vireek-lockup-horizontal-color.svg': { from: ['#203AD8', '#FFFFFF', '#FF8A5A', '#203AD8', '#C14F26'], to: ['#D97757', '#141413', '#FAF9F5', '#141413', '#D97757'] },
-  'public/brand/vireek-lockup-stacked-color.svg': { from: ['#203AD8', '#FFFFFF', '#FF8A5A', '#203AD8', '#C14F26'], to: ['#D97757', '#141413', '#FAF9F5', '#141413', '#D97757'] },
-  'public/brand/vireek-symbol-color.svg': { from: ['#203AD8', '#C14F26'], to: ['#141413', '#D97757'] },
-  'public/brand/vireek-wordmark-color.svg': { from: ['#203AD8', '#C14F26'], to: ['#141413', '#D97757'] },
-  'public/brand/vireek-wordmark-reverse.svg': { from: ['#6C82FF', '#FF8A5A'], to: ['#FAF9F5', '#D97757'] },
-  'public/favicon.svg': { from: ['#203AD8', '#FFFFFF', '#FF8A5A'], to: ['#D97757', '#141413', '#FAF9F5'] },
+  'public/brand/vireek-lockup-horizontal-color.svg': { from: ['#203AD8', '#FFFFFF', '#FF8A5A', '#203AD8', '#C14F26'], v2: ['#D97757', '#141413', '#FAF9F5', '#141413', '#D97757'], to: ['#F9774C', '#141413', '#FAF9F5', '#141413', '#D95A2E'] },
+  'public/brand/vireek-lockup-stacked-color.svg': { from: ['#203AD8', '#FFFFFF', '#FF8A5A', '#203AD8', '#C14F26'], v2: ['#D97757', '#141413', '#FAF9F5', '#141413', '#D97757'], to: ['#F9774C', '#141413', '#FAF9F5', '#141413', '#D95A2E'] },
+  'public/brand/vireek-symbol-color.svg': { from: ['#203AD8', '#C14F26'], v2: ['#141413', '#D97757'], to: ['#141413', '#D95A2E'] },
+  'public/brand/vireek-wordmark-color.svg': { from: ['#203AD8', '#C14F26'], v2: ['#141413', '#D97757'], to: ['#141413', '#D95A2E'] },
+  'public/brand/vireek-wordmark-reverse.svg': { from: ['#6C82FF', '#FF8A5A'], v2: ['#FAF9F5', '#D97757'], to: ['#FAF9F5', '#F9774C'] },
+  'public/favicon.svg': { from: ['#203AD8', '#FFFFFF', '#FF8A5A'], v2: ['#D97757', '#141413', '#FAF9F5'], to: ['#F9774C', '#141413', '#FAF9F5'] },
 };
 
 // The previous brand-blue lineage (cobalt / indigo / the old default blue) was the PRIMARY colour -> it becomes the new primary, Clay.
@@ -152,7 +311,7 @@ function rewrite(text, rel) {
     const seq = SVG_SEQUENCE[rel]; let i = 0;
     const found = [...text.matchAll(/#[0-9A-Fa-f]{6}/g)].map((m) => m[0].toUpperCase());
     if (JSON.stringify(found) === JSON.stringify(seq.to)) return { text, n: 0 }; // already migrated (idempotent)
-    if (JSON.stringify(found) !== JSON.stringify(seq.from)) throw new Error(`${rel}: unexpected colour sequence ${found.join(' ')}`);
+    if (JSON.stringify(found) !== JSON.stringify(seq.from) && JSON.stringify(found) !== JSON.stringify(seq.v2)) throw new Error(`${rel}: unexpected colour sequence ${found.join(' ')}`);
     return { text: text.replace(/#[0-9A-Fa-f]{6}/g, () => { n++; return seq.to[i++]; }), n };
   }
   const colour = (chunk) => {
@@ -175,7 +334,7 @@ const files = [];
 (function walk(d) {
   for (const e of readdirSync(d)) {
     const p = join(d, e);
-    if (statSync(p).isDirectory()) { if (!SKIP_DIR.has(e)) walk(p); continue; }
+    if (statSync(p).isDirectory()) { const rel = relative(ROOT, p).split(sep).join('/'); if (!SKIP_ANYWHERE.has(e) && !(d === ROOT && SKIP_ROOT.has(e)) && !SKIP_PATH.has(rel)) walk(p); continue; }
     if (EXT.has(extname(e).toLowerCase()) && !SKIP_FILE.test(p) && !SKIP_REL.has(relative(ROOT, p).split(sep).join('/')) && basename(p) !== 'rebrand-hex.mjs') files.push(p);
   }
 })(ROOT);
