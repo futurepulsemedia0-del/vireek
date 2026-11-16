@@ -3,6 +3,7 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { findEscalationTarget, isValidE164 } from "../voice-hardening/escalation.ts";
 import { sendWithFailover, telnyxSms, twilioSms } from "./adapters.ts";
+import { bulkheadGuard } from "./bulkhead.ts";
 import type { Capability, SmsPort } from "./providers.ts";
 import { selectProvider } from "./providers.ts";
 import type { Level } from "./ladder.ts";
@@ -72,8 +73,8 @@ export async function smsPorts(admin: Admin, callKey: string, userId?: string | 
   const sid = Deno.env.get("TWILIO_ACCOUNT_SID"), tok = Deno.env.get("TWILIO_AUTH_TOKEN"), from = Deno.env.get("TWILIO_FROM_NUMBER");
   const tk = Deno.env.get("TELNYX_API_KEY"), tfrom = Deno.env.get("TELNYX_FROM_NUMBER");
   const all = new Map<string, SmsPort>();
-  if (sid && tok && from) all.set("twilio", twilioSms({ accountSid: sid, authToken: tok, from }));
-  if (tk && tfrom) all.set("telnyx", telnyxSms({ apiKey: tk, from: tfrom, messagingProfileId: Deno.env.get("TELNYX_MESSAGING_PROFILE_ID") ?? undefined }));
+  if (sid && tok && from) all.set("twilio", twilioSms({ accountSid: sid, authToken: tok, from, guard: bulkheadGuard("twilio:sms", Deno.env) }));
+  if (tk && tfrom) all.set("telnyx", telnyxSms({ apiKey: tk, from: tfrom, messagingProfileId: Deno.env.get("TELNYX_MESSAGING_PROFILE_ID") ?? undefined, guard: bulkheadGuard("telnyx:sms", Deno.env) }));
   try {
     const [{ data: provs }, { data: health }, { data: sw }, orgRes] = await Promise.all([
       admin.from("voice_providers").select("provider_id, capability, priority, enabled").eq("capability", "sms"),
