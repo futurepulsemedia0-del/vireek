@@ -94,6 +94,14 @@ Deno.serve(async (req: Request) => {
 });
       } else {
         sendResult = { ok: false, error: `No ${step.channel} contact info on this enrollment` };
+      // Fraud guard refusal that clears later (daily cap, outage): hold THIS step until then instead of failing it,
+      // and never re-attempt on the next tick. Refusals a retry cannot fix fall through and are recorded as failed.
+      const guardBlock = (sendResult as { block?: { retryable: boolean; retryAt: string | null } }).block;
+      if (!sendResult.ok && guardBlock?.retryable && guardBlock.retryAt) {
+        await admin.from("marketing_campaign_enrollments").update({ next_send_at: guardBlock.retryAt }).eq("id", enrollment.id);
+        held += 1;
+        continue;
+      }
       }
 
       await admin.from("marketing_campaign_sends").insert({
