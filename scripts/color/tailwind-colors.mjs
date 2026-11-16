@@ -69,6 +69,8 @@ const neutrals = {
   'brand-to': v('brand-to'),
   'on-brand': v('on-brand'),
   viz: Object.fromEntries([...Array(8)].map((_, i) => [i + 1, v(`viz-${i + 1}`)])),
+  // decorative wash colours behind hero / auth panels (`bg-gradient-aurora` in index.css) — same in every theme
+  aurora: Object.fromEntries([1, 2, 3, 4].map((i) => [i, v(`aurora-${i}`)])),
 };
 for (const [p, n] of [['on', FAMILY_NAMES]]) for (const f of n) neutrals[`${p}-${f}`] = v(`on-${f}`);
 
