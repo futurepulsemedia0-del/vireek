@@ -8,6 +8,7 @@
 | Access Control & Review Policy | `access-control.md` |
 | Change Management Policy | `change-management.md` |
 | Incident Response Policy | `incident-response.md` |
+| AI Incident Response Policy (extends the above) | `ai-incident-response.md` |
 | Backup & Disaster Recovery Policy | `backup-and-disaster-recovery.md` |
 | Vendor & Sub-processor Management Policy | `vendor-management.md` |
 | Risk Assessment Policy | `risk-assessment.md` |
