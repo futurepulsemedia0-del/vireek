@@ -22,15 +22,19 @@ import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { SkeletonCardList } from '@/components/Skeleton';
 import { EmptyState, EmptyStateError } from '@/components/EmptyState';
+import { SaveOffersStep } from '@/components/billing/SaveOffersStep';
+import { useChurnSaveT } from '@/i18n/churnSaveNamespace';
 import {
   CANCEL_REASON_OPTIONS,
   MAX_DETAIL_LENGTH,
   PAUSE_MONTH_OPTIONS,
   USAGE_WINDOW_DAYS,
+  acceptSaveOffer,
   acceptWinBackOffer,
   daysUntil,
   exportAccountData,
   fetchCancellationContext,
+   fetchSaveOffers,
   fetchUsageStats,
   formatLongDate,
   formatPrice,
@@ -44,13 +48,14 @@ import {
   type CancellationContext,
   type ExportKind,
   type FlowResult,
+  type SaveOfferView,
   type PauseMonths,
   type UsageStats,
 } from '@/lib/cancellation';
 
 type Step = 'survey' | 'alternatives' | 'confirm';
-type Busy = 'pause' | 'offer' | 'resume' | null;
-type Outcome = { kind: 'cancelled' | 'paused' | 'offer' | 'resumed'; ctx: CancellationContext };
+type Busy = 'pause' | 'offer' | 'resume' | 'offers' | null;
+type Outcome = { kind: 'cancelled' | 'paused' | 'offer' | 'resumed' | 'downgraded'; ctx: CancellationContext };
 type LoadState =
   | { kind: 'loading' }
   | { kind: 'ready'; ctx: CancellationContext }
@@ -172,6 +177,8 @@ export function CancelSubscriptionPage() {
   const [reasonError, setReasonError] = useState(false);
   const [pauseMonths, setPauseMonths] = useState<PauseMonths>(1);
   const [busy, setBusy] = useState<Busy>(null);
+  const [saveOffers, setSaveOffers] = useState<SaveOfferView[]>([]);
+  const [saveBusyId, setSaveBusyId] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -213,7 +220,7 @@ export function CancelSubscriptionPage() {
       return true;
     }
     // The state changed under us (e.g. cancelled in another tab): resync instead of guessing.
-    if (['already_scheduled', 'not_pausable', 'offer_used', 'offer_unavailable', 'nothing_to_resume'].includes(res.code)) {
+    if (['already_scheduled', 'not_pausable', 'offer_used', 'offer_unavailable', 'nothing_to_resume', 'use_save_offers'].includes(res.code)) {
       toast(res.error, 'error');
       setStep('survey');
       void loadContext();
@@ -223,14 +230,44 @@ export function CancelSubscriptionPage() {
     return false;
   };
 
-  const onContinueFromSurvey = (ctx: CancellationContext) => {
+  const onContinueFromSurvey = async (ctx: CancellationContext) => {
     if (!reason) {
       setReasonError(true);
       document.getElementById('cancel-reason-first')?.focus();
       return;
     }
     const canOffer = ctx.status === 'active' || ctx.status === 'trialing';
-    setStep(reasonSkipsAlternatives(reason) || !canOffer ? 'confirm' : 'alternatives');
+    if (reasonSkipsAlternatives(reason) || !canOffer) {
+      setStep('confirm');
+      return;
+    }
+    if (ctx.save_offers_enabled) {
+      // Admin-configured offers: the server filters by caps, targeting and live Stripe state.
+      if (busy) return;
+      setBusy('offers');
+      const res = await fetchSaveOffers(reason, detail.trim());
+      if (!alive.current) return;
+      setBusy(null);
+      const offers = res.ok ? (res.data.save_offers ?? []) : []; // fail closed: no offers, the customer can still cancel
+      setSaveOffers(offers);
+      setStep(offers.length > 0 ? 'alternatives' : 'confirm');
+      return;
+    }
+    setStep('alternatives');
+  };
+
+  const onAcceptSave = async (offer: SaveOfferView) => {
+    if (saveBusyId || !reason) return;
+    setSaveBusyId(offer.id);
+    const res = await acceptSaveOffer(offer.id, reason, detail.trim());
+    if (!alive.current) return;
+    setSaveBusyId(null);
+    if (res.ok) {
+      const k = res.data.save_result?.kind;
+      setOutcome({ kind: k === 'pause' ? 'paused' : k === 'downgrade' ? 'downgraded' : 'offer', ctx: res.data });
+    } else {
+      afterAction('offer', res);
+    }
   };
 
   const onPause = async () => {
@@ -429,7 +466,10 @@ export function CancelSubscriptionPage() {
             <Button type="button" variant="ghost" onClick={goBack}>
               Keep my subscription
             </Button>
-            <Button type="button" onClick={() => onContinueFromSurvey(ctx)}>
+            <Button type="button" onClick={() => void onContinueFromSurvey(ctx)} disabled={busy !== null}>
+              {busy === 'offers' && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+              Continue
+            </Button>
               Continue
             </Button>
           </div>
@@ -447,7 +487,9 @@ export function CancelSubscriptionPage() {
             <p className="mt-1 text-sm text-text-secondary">Either option is reversible, and neither changes your data.</p>
           </div>
 
-          {ctx.offer && (
+          {ctx.save_offers_enabled && <SaveOffersStep offers={saveOffers} busyId={saveBusyId} onAccept={(o) => void onAcceptSave(o)} />}
+
+          {!ctx.save_offers_enabled && ctx.offer && (
             <section aria-label="Special offer" className="rounded-2xl border-2 border-accent/40 bg-accent/5 p-5 sm:p-6">
               <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
                 <Gift size={14} aria-hidden="true" /> One-time offer
@@ -546,7 +588,9 @@ export function CancelSubscriptionPage() {
               <Button type="button" variant="ghost" onClick={goBack}>
                 Keep my subscription
               </Button>
-              <Button type="button" variant="ghost" onClick={() => setStep(reasonSkipsAlternatives(reason) ? 'survey' : 'alternatives')}>
+              onClick={() =>
+              <Button type="button" variant="ghost" onClick={() => setStep(reasonSkipsAlternatives(reason) || (ctx.save_offers_enabled && saveOffers.length === 0) ? 'survey' : 'alternatives')
+              }
                 Back
               </Button>
             </div>
@@ -599,7 +643,11 @@ function OutcomeView({
   headingRef: React.RefObject<HTMLHeadingElement>;
 }) {
   const { kind, ctx } = outcome;
+  const { t, language } = useChurnSaveT();
+  const dateOf = (iso: string | null | undefined) =>
+    iso && !Number.isNaN(Date.parse(iso)) ? new Date(iso).toLocaleDateString(language, { dateStyle: 'long' }) : formatLongDate(null);
   const copy: Record<Outcome['kind'], { title: string; text: string }> = {
+    downgraded: { title: 'Your plan change is scheduled', text: 'Your plan will change at the end of the current billing period.' },
     cancelled: {
       title: 'Your cancellation is scheduled',
       text: `Your subscription won't renew. You keep full access until ${formatLongDate(ctx.current_period_end)}. Changed your mind? You can undo this from this page any time before then.`,
@@ -619,7 +667,11 @@ function OutcomeView({
       text: 'Your subscription is active again and will renew as normal.',
     },
   };
-  const c = copy[kind];
+  let c = copy[kind];
+  const sr = ctx.save_result;
+  if (sr?.kind === 'pause') c = { title: t('outcome.pause.title'), text: t('outcome.pause.text', { date: dateOf(sr.resumes_at) }) };
+  else if (sr?.kind === 'discount') c = { title: t('outcome.discount.title'), text: t('outcome.discount.text', { percent: sr.percent_off, months: sr.months }) };
+  else if (sr?.kind === 'downgrade') c = { title: t('outcome.downgrade.title'), text: t('outcome.downgrade.text', { plan: sr.plan, date: dateOf(sr.effective_at) }) };
   return (
     <div role="status" className={`${CARD} text-center`}>
       <CheckCircle2 size={36} className="mx-auto text-success" aria-hidden="true" />
