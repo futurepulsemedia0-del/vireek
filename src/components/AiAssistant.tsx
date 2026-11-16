@@ -144,7 +144,7 @@ export function AiAssistant() {
         data-floating-launcher
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.94 }}
-        className="fixed bottom-[calc(92px_+_var(--vk-bottom-nav-h,0px))] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-glow-accent print:hidden"
+        className="fixed bottom-[calc(92px_+_var(--vk-bottom-nav-h,0px)_+_var(--vk-consent-lift,0px))] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-glow-accent print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
