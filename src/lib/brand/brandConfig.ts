@@ -24,10 +24,17 @@ export const BRAND = {
    */
   registered: false,
   colors: {
+<<<<<<< HEAD
     light: { bg: '#FAF9F5', text: '#141413', muted: '#6C6A65', accent: '#AE3600', live: '#533AFD' },
     dark: { bg: '#141413', text: '#FAF9F5', muted: '#97968F', accent: '#FF916C', live: '#7F6CFE' },
     accent500: '#F9774C',
     accent300: '#FF916C',
+=======
+    light: { bg: '#FAF9F5', text: '#141413', muted: '#6C6A65', accent: '#F9774C', live: '#533AFD' },
+    dark: { bg: '#141413', text: '#FAF9F5', muted: '#97968F', accent: '#F9774C', live: '#7F6CFE' },
+    accent500: '#A93B0F',
+    accent300: '#F9774C',
+>>>>>>> 5d158cfe (chore: apply Aurora Clay palette)
   },
 } as const;
 
