@@ -17,6 +17,7 @@ const FOOTER_COLUMN_TITLE_KEYS: Record<string, string> = {
   Integrations: 'footer.integrations',
   Industries: 'footer.industries',
   Resources: 'footer.resources',
+  Compare: 'nav.compare',
   Company: 'footer.company',
   Legal: 'footer.legal',
 };
@@ -72,7 +73,19 @@ const FOOTER_COLUMNS = [
       { label: 'Live Escalation', href: '/features/live-escalation' },
       { label: 'Platform', href: '/platform' },
       { label: 'Pricing', href: '/pricing' },
-      { label: 'Compare', href: '/compare' },
+      { label: 'Revenue Calculator', href: '/calculator' },
+      { label: 'Book a Demo', href: '/demo' },
+      { label: 'Security', href: '/security' },
+      { label: 'Security Whitepaper', href: '/security/whitepaper' },
+      { label: 'Enterprise', href: '/enterprise' },
+      { label: 'Switch Guides', href: '/switch' },
+      { label: 'Services', href: '/services' },
+    ],
+  },
+  {
+title: 'Compare',
+    links: [
+      { label: 'All Comparisons', href: '/compare' },
       { label: 'Full Feature Matrix', href: '/compare/matrix' },
       { label: 'vs ServiceTitan', href: '/compare/servicetitan' },
       { label: 'vs Housecall Pro', href: '/compare/housecall-pro' },
@@ -90,13 +103,6 @@ const FOOTER_COLUMNS = [
       { label: 'vs Workiz', href: '/compare/workiz' },
       { label: 'vs Dialzara', href: '/compare/dialzara' },
       { label: 'vs Ruby Receptionists', href: '/compare/ruby-receptionists' },
-      { label: 'Revenue Calculator', href: '/calculator' },
-      { label: 'Book a Demo', href: '/demo' },
-      { label: 'Security', href: '/security' },
-      { label: 'Security Whitepaper', href: '/security/whitepaper' },
-      { label: 'Enterprise', href: '/enterprise' },
-      { label: 'Switch Guides', href: '/switch' },
-      { label: 'Services', href: '/services' },
     ],
   },
   {
@@ -173,7 +179,6 @@ const FOOTER_COLUMNS = [
       { label: 'About', href: '/about' },
       { label: 'Manifesto', href: '/manifesto' },
       { label: 'Leadership', href: '/leadership' },
-      { label: 'Docs', href: '/docs' },
       { label: 'Careers', href: '/careers' },
       { label: 'Culture & Values', href: '/culture' },
       { label: 'Press', href: '/press' },
@@ -215,7 +220,7 @@ const FOOTER_COLUMNS = [
       { label: 'CCPA Rights', href: '/ccpa' },
       { label: 'SMS Terms', href: '/sms-terms' },
       { label: 'Data Request', href: '/data-request' },
-      { label: 'Accessibility', href: '/accessibility-statement' },
+      { label: 'Accessibility Statement', href: '/accessibility-statement' },
       { label: 'Accessibility', href: '/accessibility' },
     ],
   },
@@ -228,6 +233,7 @@ const EASE = [0.16, 1, 0.0, 1] as const;
 type NewsletterState = 'idle' | 'loading' | 'success' | 'error';
 
 function NewsletterSection() {
+  const { t } = useTranslation();
   const [emailValue, setEmailValue] = useState('');
   const [state, setState] = useState<NewsletterState>('idle');
   const [message, setMessage] = useState('');
@@ -264,7 +270,7 @@ function NewsletterSection() {
         .insert({ email: emailValue.trim().toLowerCase() });
       if (error && error.code !== '23505') throw error;
       setState('success');
-      setMessage("You're subscribed! Check your inbox for a confirmation.");
+      setMessage(t('footer.newsletterSuccess'));
       setEmailValue('');
     } catch {
       setState('error');
@@ -319,10 +325,10 @@ function NewsletterSection() {
           </motion.div>
           <div>
             <h3 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
-              Get our weekly newsletter
+              {t('footer.newsletterTitle')}
             </h3>
             <p className="mt-1.5 text-sm leading-relaxed text-text-secondary sm:text-[0.925rem]">
-              Stay updated with AI insights, product updates, and industry trends.
+              {t('footer.newsletterSubtitle')}
             </p>
           </div>
         </div>
@@ -349,7 +355,7 @@ function NewsletterSection() {
                   setEmailValue(e.target.value);
                   if (state === 'error' || state === 'success') handleReset();
                 }}
-                placeholder="Enter your email"
+                placeholder={t('footer.newsletterPlaceholder')}
                 disabled={state === 'loading' || state === 'success'}
                 aria-label="Email address"
                 aria-invalid={state === 'error'}
@@ -400,7 +406,7 @@ function NewsletterSection() {
                     transition={{ duration: 0.15 }}
                     className="flex items-center gap-2"
                   >
-                    <span>Subscribe</span>
+                    <span>{t('footer.newsletterButton')}</span>
                     <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                   </motion.span>
                 )}
@@ -516,7 +522,7 @@ const { t } = useTranslation();
             space next to every shorter one in its row — this flows each
             titled block independently so the layout stays even and never
             looks lopsided or "jumbled" on narrow screens. */}
-        <div className="mt-12 columns-2 gap-x-8 sm:mt-14 sm:columns-3 lg:columns-5 lg:gap-x-10">
+        <div role="navigation" aria-label="Footer" className="mt-12 columns-2 gap-x-8 sm:mt-14 sm:columns-3 lg:columns-5 lg:gap-x-10">
           {FOOTER_COLUMNS.map((col) => (
             <div key={col.title} className="mb-9 break-inside-avoid last:mb-0">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-text-primary">
@@ -563,7 +569,7 @@ const { t } = useTranslation();
 
         {/* Bottom bar */}
         <div className="mt-6 flex flex-col items-center gap-5 border-t border-border pt-8 sm:mt-8 sm:flex-row sm:justify-between sm:gap-4">
-          <p className="order-2 text-sm text-text-secondary sm:order-1">© {new Date().getFullYear()} Vireek. All rights reserved.</p>
+          <p className="order-2 text-sm text-text-secondary sm:order-1">© {new Date().getFullYear()} Vireek. {t('footer.rightsReserved')}</p>
           <div className="order-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:order-2 sm:justify-end sm:gap-6">
             <Link
               to="/privacy"
@@ -583,24 +589,14 @@ const { t } = useTranslation();
             >
               Cookie Policy
             </Link>
-            <Link
-              to="/trust"
-              className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-            >
-              Trust Center
-            </Link>
+            
             <Link
               to="/sitemap"
               className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
               Sitemap
             </Link>
-            <a
-              href={`mailto:${EMAIL}`}
-              className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
-            >
-              Contact
-            </a>
+           
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event('vireek:open-consent'))}
