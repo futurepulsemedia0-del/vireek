@@ -5,7 +5,7 @@
 // owner notification with an appeal path. Every change is reversible by calling it again with status "active".
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
-import { sendEmail } from "../notify/deliver.ts";
+import { notifyFraudRestriction } from "../billing/notices/dispatch.ts";
 import type { AnomalySignal } from "./anomaly.ts";
 
 export type OrgStatus = "active" | "throttled" | "suspended";
@@ -57,12 +57,9 @@ export async function upsertCase(admin: SupabaseClient, userId: string, severity
 
 async function notifyOwner(admin: SupabaseClient, userId: string, status: OrgStatus): Promise<void> {
   try {
-    const { data: p } = await admin.from("profiles").select("email").eq("id", userId).maybeSingle();
-    const site = Deno.env.get("SITE_URL") ?? "https://vireek.com";
     const headline = status === "suspended" ? "Outbound calling and texting is paused on your account" : "Outbound calling and texting is temporarily limited on your account";
-    const text = `${headline}.\n\nWe saw activity that looks unusual and paused it to protect you from unexpected charges. Incoming calls and your AI receptionist keep working, and emergency transfers are not affected.\n\nIf this is a mistake, reply to this email or appeal in Settings > Security at ${site}/dashboard. A person will review it.`;
-    await admin.from("ai_insights").insert({ user_id: userId, insight_type: "alert", title: headline, description: "Unusual outbound activity was detected. Open Settings > Security to appeal." });
-    if (p?.email) await sendEmail(p.email, headline, `<p>${text.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br>")}</p>`, text);
+    await admin.from("ai_insights").insert({ user_id: userId, insight_type: "alert", title: headline, description: "Outbound calling and texting is restricted. Open Settings > Security to appeal." });
+    await notifyFraudRestriction(admin, userId, status === "suspended" ? "suspended" : "throttled");
   } catch (e) {
     console.error(JSON.stringify({ event: "fraud_owner_notify_failed", error: String(e) }));
   }
