@@ -5,6 +5,9 @@ import { useToast } from '@/contexts/ToastContext';
 import { supabase, BusinessProfile } from '@/lib/supabase';
 import { purchasePhoneNumber } from '@/lib/phoneNumbers';
 import { recordActivation } from '@/lib/activation';
+import { installTradePlaybook } from '@/lib/tradePlaybooks';
+import { getTradePlaybook } from '@/lib/tradePlaybookCatalog';
+import { tradeSlugFor } from '@/lib/onboardingTradeDefaults';
 import { createArticle, EMPTY_ARTICLE_FORM } from '@/lib/knowledge';
 import { fetchVerticalSettings, getPack, normalizeVerticalId, saveVerticalSelection } from '@/lib/voicePlatform';
 import {
@@ -120,7 +123,7 @@ export function useOnboardingWizard() {
       // Resume exactly where they left off, but never past "confirm" —
       // launch is always a deliberate final click, not something to
       // silently jump back into.
-      if (wizardState?.current_step && wizardState.current_step !== 'launch') {
+      if (wizardState?.current_step && wizardState.current_step !== 'launch' && wizardState.current_step in STEP_INDEX) {
         setStepId(wizardState.current_step);
       }
 
@@ -314,6 +317,11 @@ export function useOnboardingWizard() {
       await seedKnowledgeIfNeeded();
       await persistWizardState('launch', STEPS.map((s) => s.id));
       recordActivation('assistant_configured');
+      const playbook = getTradePlaybook(tradeSlugFor(data.primaryIndustry));
+      if (playbook) {
+        try { await installTradePlaybook(playbook, user.id, user.id, data.priceLevel); }
+        catch { toast('Your services were saved, but we could not add starter prices. Add them from Price Book.', 'info'); }
+      }
 
       try {
         localStorage.removeItem(DRAFT_KEY);
