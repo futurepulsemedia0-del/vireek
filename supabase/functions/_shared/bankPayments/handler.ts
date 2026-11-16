@@ -10,7 +10,7 @@ export interface BankContact { name?: string | null; email?: string | null; phon
 export interface BankEventDeps {
   fetchPaymentMethod(id: string): Promise<any>;
   activateMembership(admin: any, membershipId: string): Promise<void>;
-  notifyCustomer(contact: { customer_phone?: string | null; customer_email?: string | null }, subject: string, text: string): Promise<void>;
+   notifyCustomer(contact: { customer_phone?: string | null; customer_email?: string | null; link_kind?: string; link_id?: string }, subject: string, text: string): Promise<void>;
   buildLink(kind: "pay" | "installment", id: string): string;
   log(event: string, data: Record<string, unknown>): void;
 }
@@ -113,14 +113,14 @@ export async function processBankIntentEvent(admin: any, event: any, deps: BankE
       const who = contact.name ? `Hi ${contact.name}, ` : "";
       if (target === "failed") {
         await deps.notifyCustomer(
-          { customer_email: contact.email, customer_phone: contact.phone },
+          { customer_email: contact.email, customer_phone: contact.phone, link_kind: contact.link_kind, link_id: contact.link_id },
           `Your ${dollars(amount)} bank payment didn’t go through`,
           `${who}your ${dollars(amount)} bank payment didn’t go through: ${failure.customerMessage} You can pay again here: ${link}`,
         );
       } else if (target === "verification_required") {
         const url = pi.next_action?.verify_with_microdeposits?.hosted_verification_url;
         await deps.notifyCustomer(
-          { customer_email: contact.email, customer_phone: contact.phone },
+          { customer_email: contact.email, customer_phone: contact.phone, link_kind: contact.link_kind, link_id: contact.link_id },
           "Verify your bank account to finish paying",
           `${who}to finish your ${dollars(amount)} payment, verify your bank account${url ? ` here: ${url}` : ` using the small deposits your bank will show in 1–2 business days (continue at ${link})`}`,
         );
