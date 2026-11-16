@@ -28,6 +28,8 @@
 /supabase/config.toml                          @OWNER_DATA
 /scripts/security/                             @OWNER_SECURITY
 /docs/security/                                @OWNER_SECURITY
+/docs/ai-governance/                           @OWNER_COMPLIANCE
+/scripts/ai-governance/                        @OWNER_SECURITY
 /SECURITY.md                                   @OWNER_SECURITY
 /.gitleaks.toml                                @OWNER_SECURITY
 
