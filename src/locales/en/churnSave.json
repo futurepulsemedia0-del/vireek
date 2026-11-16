@@ -1,0 +1,154 @@
+{
+  "save": {
+    "pause": {
+      "title": "Pause billing for {{months}} month(s)",
+      "body": "Skip billing for {{months}} month(s). Billing resumes by itself and your data stays untouched.",
+      "cta": "Pause my billing"
+    },
+    "discount": {
+      "title": "Stay and get {{percent}}% off",
+      "body": "{{percent}}% off your next {{months}} invoice(s) automatically. After that your regular price returns.",
+      "cta": "Claim this discount"
+    },
+    "downgrade": {
+      "title": "Switch to the {{plan}} plan",
+      "body": "Move to {{plan}} at the end of your current billing period: {{price}} per period, {{minutes}} minutes included. You keep your current plan until then.",
+      "cta": "Switch plan at period end",
+      "priceUnknown": "a lower price"
+    }
+  },
+  "outcome": {
+    "pause": {
+      "title": "Billing is paused",
+      "text": "You won't be charged until {{date}}. Billing resumes automatically."
+    },
+    "discount": {
+      "title": "Discount applied — thanks for staying!",
+      "text": "{{percent}}% off is applied to your next {{months}} invoice(s). Your regular price returns afterwards."
+    },
+    "downgrade": {
+      "title": "Your plan change is scheduled",
+      "text": "You keep your current plan until {{date}}, then switch to {{plan}}. You can undo this from the plans page before then."
+    }
+  },
+  "staff": {
+    "title": "Churn-save offers",
+    "subtitle": "Configure the offers shown when an owner starts to cancel, set caps, and track what they save.",
+    "loading": "Loading churn-save data…",
+    "loadError": "Couldn't load churn-save data",
+    "loadErrorHelp": "Check your connection or staff permissions and try again.",
+    "saved": "Saved.",
+    "saveFailed": "Couldn't save. Check the values and try again.",
+    "on": "On",
+    "off": "Off",
+    "edit": "Edit",
+    "addKind": "Add {{kind}} offer",
+    "capsLine": "Caps: {{perAccount}} per account · {{cooldown}}-day cooldown · {{used}} of {{total}} used in the last {{window}} days",
+    "tabs": {
+      "offers": "Offers",
+      "outcomes": "Outcomes",
+      "audit": "Audit log"
+    },
+    "kind": {
+      "pause": "Pause",
+      "downgrade": "Downgrade",
+      "discount": "Discount"
+    },
+    "reason": {
+      "too_expensive": "Too expensive",
+      "missing_features": "Missing features",
+      "not_using": "Not using it",
+      "switching": "Switching",
+      "closing_business": "Closing business",
+      "technical_issues": "Technical issues",
+      "other": "Other",
+      "unknown": "Unknown"
+    },
+    "band": {
+      "healthy": "Healthy",
+      "watch": "Watch",
+      "at_risk": "At risk",
+      "critical": "Critical",
+      "new": "New",
+      "unknown": "Unknown"
+    },
+    "terms": {
+      "pause": "{{months}} month pause",
+      "downgrade": "to {{plan}} at period end",
+      "discount": "{{percent}}% off for {{months}} months"
+    },
+    "settings": {
+      "title": "Global controls",
+      "killSwitch": "Save offers are live",
+      "killSwitchHelp": "Turn off to hide every offer immediately. The cancel flow falls back to the default options.",
+      "globalCooldown": "Global cooldown (days)",
+      "globalCooldownHelp": "One save of any kind per account within this many days."
+    },
+    "form": {
+      "newTitle": "New offer",
+      "editTitle": "Edit offer",
+      "kind": "Type",
+      "name": "Name (staff only)",
+      "pauseMonths": "Pause length (months, 1–3)",
+      "plan": "Target plan",
+      "percent": "Discount percent",
+      "percentHelp": "Maximum 50%.",
+      "discountMonths": "Discount length (months, 1–6)",
+      "priority": "Priority",
+      "priorityHelp": "Lower numbers are shown first.",
+      "reasons": "Show only for these cancel reasons",
+      "bands": "Show only for these health bands",
+      "bandsHelp": "Uses the existing staff health score, so healthy accounts need not be discounted.",
+      "emptyMeansAll": "None selected means everyone.",
+      "perAccount": "Max per account",
+      "cooldown": "Cooldown on this offer (days)",
+      "capTotal": "Total cap",
+      "capTotalHelp": "Max redemptions across all accounts in the window. Empty = no total cap.",
+      "window": "Cap window (days)",
+      "starts": "Starts",
+      "ends": "Ends",
+      "enabled": "Enabled",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "errors": {
+      "name": "Name must be 3–80 characters.",
+      "priority": "Priority must be 1–1000.",
+      "pauseMonths": "Pause must be 1–3 months.",
+      "plan": "Choose a target plan.",
+      "percent": "Percent must be above 0 and at most 50.",
+      "discountMonths": "Discount must last 1–6 months.",
+      "perAccount": "Per-account cap must be 1–3.",
+      "cooldown": "Cooldown must be 0–730 days.",
+      "capTotal": "Total cap must be a whole number above 0.",
+      "window": "Window must be 1–365 days.",
+      "dates": "End must be after start."
+    },
+    "empty": {
+      "title": "No offers yet",
+      "text": "Add a pause, downgrade or discount offer. Offers start disabled until you enable them."
+    },
+    "outcomes": {
+      "note": "Last {{days}} days. Retention counts accounts still active now; Stripe remains the source of truth.",
+      "cols": {
+        "offer": "Offer",
+        "presented": "Shown",
+        "accepted": "Accepted",
+        "acceptRate": "Accept rate",
+        "declined": "Declined",
+        "retained": "Active after 30 days"
+      },
+      "byReason": "By cancel reason (shown → accepted)",
+      "byBand": "By health band (shown → accepted)",
+      "recent": "Recent redemptions",
+      "none": "No data yet."
+    },
+    "audit": {
+      "offer_created": "Offer created",
+      "offer_updated": "Offer updated",
+      "offer_enabled": "Offer enabled",
+      "offer_disabled": "Offer disabled",
+      "settings_updated": "Global controls updated"
+    }
+  }
+}
