@@ -15,12 +15,12 @@ const selectClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary focus-visible:border-accent';
 
 export function NewTicketForm({
-  ctx, onCreated, onCancel,
-}: { ctx: CreateTicketContext; onCreated: (ticket: Ticket) => void; onCancel: () => void }) {
+  ctx, onCreated, onCancel, initial,,
+}: { ctx: CreateTicketContext; onCreated: (ticket: Ticket) => void; onCancel: () => void; initial?: { subject?: string; body?: string; category?: TicketCategory } }) {
   const { toast } = useToast();
-  const [subject, setSubject] = useState('');
-  const [body, setBody] = useState('');
-  const [category, setCategory] = useState<TicketCategory>('technical');
+  const [subject, setSubject] = useState(initial?.subject ?? '');
+  const [body, setBody] = useState(initial?.body ?? '');
+  const [category, setCategory] = useState<TicketCategory>(initial?.category ?? 'technical');
   const [priority, setPriority] = useState<TicketPriority>('normal');
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Partial<Record<'subject' | 'body', string>>>({});
