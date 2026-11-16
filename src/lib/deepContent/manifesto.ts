@@ -5,6 +5,12 @@ export const MANIFESTO_DEEP: DeepContentData = {
   title: 'The convictions, explained: why we hold each one and what it changes in the product',
   intro:
     'A manifesto is only useful if it changes decisions. Here is what each belief means in practice, and where you can check that we are following it.',
+  related: [
+    { label: 'About Vireek', href: '/about' },
+    { label: 'Trust Center', href: '/trust' },
+    { label: 'Security', href: '/security' },
+    { label: 'Pricing', href: '/pricing' },
+  ],
   sections: [
     {
       id: 'every-ring',
