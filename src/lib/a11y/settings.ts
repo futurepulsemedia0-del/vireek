@@ -1,3 +1,5 @@
+import { DEFAULT_SHORTCUTS, sanitizeShortcuts, type ShortcutMap } from './shortcuts';
+
 export type ColorBlindMode = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
 export const COLOR_BLIND_MODES: readonly ColorBlindMode[] = ['none', 'protanopia', 'deuteranopia', 'tritanopia'];
 
@@ -12,11 +14,13 @@ export interface AccessibilitySettings {
   textSize: number; // 0.875–1.5
   contentScale: number; // 0.9–1.2
   readableFont: boolean;
+  simpleFont: boolean;
   dyslexiaFont: boolean;
   largeCursor: boolean;
   highlightLinks: boolean;
   highlightHeadings: boolean;
   strongFocus: boolean;
+  magnifier: boolean;
   // Color & contrast
   highContrast: boolean;
   invertColors: boolean;
@@ -32,12 +36,21 @@ export interface AccessibilitySettings {
   lineHeight: number; // 1.4–2.2
   letterSpacing: number; // 0–0.2em
   wordSpacing: number; // 0–0.3em
-  // Motion & media
+  readingMask: boolean;
+  readingGuide: boolean;
+  ttsRate: number;
+  ttsPitch: number;
+  ttsVolume: number;
+  ttsVoiceURI: string;
+  // Motion, media & focus
   reduceMotion: boolean;
   stopAnimations: boolean;
   hideImages: boolean;
+  focusMode: boolean;
   // Navigation
   highlightKeyboardFocus: boolean;
+  largeTargets: boolean;
+  screenReaderMode: boolean;
   // Cognitive support, hearing & audio, cursor & focus
   unstickHeaders: boolean;
   muteMedia: boolean;
@@ -45,18 +58,20 @@ export interface AccessibilitySettings {
   cursorColor: ColorChoice;
   focusColor: ColorChoice;
   focusWidth: number; // 2–6 px
-  screenReaderMode: boolean;
+  shortcuts: ShortcutMap;
 }
 
 export const DEFAULT_SETTINGS: AccessibilitySettings = {
   textSize: 1,
   contentScale: 1,
   readableFont: false,
+  simpleFont: false,
   dyslexiaFont: false,
   largeCursor: false,
   highlightLinks: false,
   highlightHeadings: false,
   strongFocus: false,
+  magnifier: false,
   highContrast: false,
   invertColors: false,
   grayscale: false,
@@ -70,17 +85,26 @@ export const DEFAULT_SETTINGS: AccessibilitySettings = {
   lineHeight: 1.6,
   letterSpacing: 0,
   wordSpacing: 0,
+  readingMask: false,
+  readingGuide: false,
+  ttsRate: 1,
+  ttsPitch: 1,
+  ttsVolume: 1,
+  ttsVoiceURI: '',
   reduceMotion: false,
   stopAnimations: false,
   hideImages: false,
+  focusMode: false,
   highlightKeyboardFocus: false,
+  largeTargets: false,
+  screenReaderMode: false,
   unstickHeaders: false,
   muteMedia: false,
   captionsAlways: false,
   cursorColor: 'default',
   focusColor: 'default',
   focusWidth: 3,
-  screenReaderMode: false,
+  shortcuts: { ...DEFAULT_SHORTCUTS },
 };
 
 export const RANGES = {
@@ -89,16 +113,20 @@ export const RANGES = {
   lineHeight: [1.4, 2.2],
   letterSpacing: [0, 0.2],
   wordSpacing: [0, 0.3],
+  ttsRate: [0.5, 2],
+  ttsPitch: [0.5, 1.5],
+  ttsVolume: [0, 1],
+  focusWidth: [2, 6],
 } as const;
 
-type NumericKey = keyof typeof RANGES;
-type BooleanKey = {
+export type NumericSettingKey = keyof typeof RANGES;
+export type BooleanSettingKey = {
   [K in keyof AccessibilitySettings]: AccessibilitySettings[K] extends boolean ? K : never;
 }[keyof AccessibilitySettings];
 
-const NUMERIC_KEYS = Object.keys(RANGES) as NumericKey[];
-const BOOLEAN_KEYS = (Object.keys(DEFAULT_SETTINGS) as (keyof AccessibilitySettings)[]).filter(
-  (k): k is BooleanKey => typeof DEFAULT_SETTINGS[k] === 'boolean',
+const NUMERIC_KEYS = Object.keys(RANGES) as NumericSettingKey[];
+export const BOOLEAN_KEYS = (Object.keys(DEFAULT_SETTINGS) as (keyof AccessibilitySettings)[]).filter(
+  (k): k is BooleanSettingKey => typeof DEFAULT_SETTINGS[k] === 'boolean',
 );
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -107,7 +135,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 
 /** Merge untrusted/partial/legacy data over the defaults; clamp numbers, drop unknown keys. */
 export function sanitizeSettings(raw: unknown): AccessibilitySettings {
-  const next: AccessibilitySettings = { ...DEFAULT_SETTINGS };
+  const next: AccessibilitySettings = { ...DEFAULT_SETTINGS, shortcuts: { ...DEFAULT_SHORTCUTS } };
   if (!isRecord(raw)) return next;
   for (const k of BOOLEAN_KEYS) {
     const v = raw[k];
@@ -124,5 +152,12 @@ export function sanitizeSettings(raw: unknown): AccessibilitySettings {
   if (typeof cb === 'string' && (COLOR_BLIND_MODES as readonly string[]).includes(cb)) {
     next.colorBlind = cb as ColorBlindMode;
   }
+  for (const k of CHOICE_KEYS) {
+    const v = raw[k];
+    if (typeof v === 'string' && (COLOR_CHOICES as readonly string[]).includes(v)) next[k] = v as ColorChoice;
+  }
+  const voice = raw.ttsVoiceURI;
+  if (typeof voice === 'string' && voice.length <= 200) next.ttsVoiceURI = voice;
+  if ('shortcuts' in raw) next.shortcuts = sanitizeShortcuts(raw.shortcuts);
   return next;
 }
