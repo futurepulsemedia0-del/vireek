@@ -11,6 +11,7 @@ import {
   ClipboardCheck,
   Rocket,
   Briefcase,
+  Tags,
 } from 'lucide-react';
 
 // ============================================================
@@ -26,6 +27,7 @@ import {
 export type StepId =
   | 'business'
   | 'vertical'
+  | 'services'
   | 'operations'
   | 'hours'
   | 'phone'
@@ -47,12 +49,10 @@ export interface StepDef {
 export const STEPS: StepDef[] = [
   { id: 'business', label: 'Business Info', shortLabel: 'Business', icon: Building2, optional: false },
   { id: 'vertical', label: 'Industry', shortLabel: 'Industry', icon: Briefcase, optional: true },
-  { id: 'operations', label: 'Operations', shortLabel: 'Ops', icon: Wrench, optional: true },
+  { id: 'services', label: 'Services & Prices', shortLabel: 'Prices', icon: Tags, optional: false },
   { id: 'hours', label: 'Business Hours', shortLabel: 'Hours', icon: Clock, optional: true },
   { id: 'phone', label: 'Phone Number', shortLabel: 'Phone', icon: Phone, optional: true },
-  { id: 'calendar', label: 'Calendar', shortLabel: 'Calendar', icon: CalendarDays, optional: true },
   { id: 'sarah', label: 'Meet Sarah', shortLabel: 'Sarah', icon: Sparkles, optional: true },
-  { id: 'knowledge', label: 'Knowledge Base', shortLabel: 'Knowledge', icon: BookOpen, optional: true },
   { id: 'test_call', label: 'Test Call', shortLabel: 'Test Call', icon: PhoneCall, optional: true },
   { id: 'confirm', label: 'Review', shortLabel: 'Review', icon: ClipboardCheck, optional: false },
   { id: 'launch', label: 'Launch', shortLabel: 'Launch', icon: Rocket, optional: false },
@@ -183,6 +183,8 @@ export interface WizardData {
   verticalId: string;
   verticalComplianceAck: boolean;
 
+  // Services & prices
+  priceLevel: number;
   // Operations
   primaryIndustry: string;
   teamSize: string;
@@ -228,7 +230,8 @@ export const EMPTY_WIZARD_DATA: WizardData = {
 
   verticalId: 'home_services',
   verticalComplianceAck: false,
-
+  
+  priceLevel: 1,
   primaryIndustry: '',
   teamSize: '',
   currentCallHandling: '',
