@@ -10,6 +10,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { GLOSSARY_DEEP } from '@/lib/deepContent/glossaryDeep';
 import { GLOSSARY_CATEGORIES, GLOSSARY_TERMS, getCategoryBySlug, getSortedTerms, type GlossaryTerm } from '@/lib/glossary';
 
 function SEO() {
@@ -273,6 +275,7 @@ export function GlossaryPage() {
             </div>
           </div>
         </section>
+        <DeepContent data={GLOSSARY_DEEP} idPrefix="glossary" />
       </main>
       <Footer />
       <CookieConsent />
