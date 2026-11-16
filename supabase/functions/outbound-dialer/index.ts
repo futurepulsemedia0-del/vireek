@@ -9,6 +9,7 @@ import { VapiEngine } from "../_shared/voice-engine/vapiEngine.ts";
 import { OpenAiRealtimeEngine } from "../_shared/voice-engine/openAiRealtimeEngine.ts";
 import { resolveVoiceEngine } from "../_shared/voice-engine/resolve.ts";
 import { voiceOverride } from "../_shared/voice/voiceMap.ts";
+import { attachCallRef, guardOutbound } from "../_shared/fraud/guard.ts";
 import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
 import { asFraudDb, attachOutboundCall, gateCustomerOutbound, releaseOutboundReservation } from "../_shared/fraud/outboundGate.ts";
 
