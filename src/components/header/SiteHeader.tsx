@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDirection } from '@/hooks/useDirection';
 import { SARAH_PHONE } from '@/lib/site';
 import { DesktopMegaNav } from '@/components/header/MegaMenu';
 import { MobileNav } from '@/components/header/MobileNav';
@@ -87,8 +88,8 @@ function DesktopActions() {
       </Link>
       <Link to="/signup" className={primary}>
         <span className="relative">{t('cta.startFreeTrial')}</span>
-        <ArrowRight size={15} className="relative transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
-        <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full motion-reduce:hidden" />
+        <ArrowRight size={15} className="relative transition-transform duration-200 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
+        <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full motion-reduce:hidden rtl:hidden" />
       </Link>
     </>
   );
@@ -110,7 +111,7 @@ function DrawerActions({ onNavigate }: { onNavigate: () => void }) {
         <>
           <Link to="/signup" onClick={onNavigate} className={`group ${base} bg-accent text-white shadow-sm hover:shadow-glow-accent`}>
             {t('cta.startFreeTrial')}
-            <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
           </Link>
           <Link to="/login" onClick={onNavigate} className={`${base} border border-border bg-bg-tertiary text-text-primary`}>
             <LogIn size={16} aria-hidden="true" />
@@ -175,6 +176,7 @@ export function SiteHeader() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const reduce = useReducedMotion();
+  const { isRtl } = useDirection();
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
@@ -317,11 +319,11 @@ export function SiteHeader() {
               role="dialog"
               aria-modal="true"
               aria-label="Site menu"
-              initial={{ x: '100%' }}
+              initial={{ x: isRtl ? '-100%' : '100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: isRtl ? '-100%' : '100%' }}
               transition={{ duration: reduce ? 0 : 0.35, ease: EASE }}
-              className="fixed inset-y-0 right-0 z-modal flex w-11/12 max-w-sm flex-col border-l border-border bg-bg-secondary shadow-elevation-4 xl:hidden"
+              className="fixed inset-y-0 end-0 z-modal flex w-11/12 max-w-sm flex-col border-s border-border bg-bg-secondary shadow-elevation-4 xl:hidden"
             >
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <Link to="/" className="focus-ring flex items-center gap-2.5 rounded-lg" onClick={() => closeDrawer()} aria-label="Vireek home">
