@@ -44,6 +44,26 @@ export function reasonSkipsAlternatives(reason: CancelReason | null): boolean {
 // CONTEXT (live from Stripe via the edge function)
 // ============================================================
 
+export type SaveOfferKind = 'pause' | 'downgrade' | 'discount';
+
+/** One admin-configured save offer this account may claim (already filtered by caps/targeting server-side). */
+export interface SaveOfferView {
+  id: string;
+  kind: SaveOfferKind;
+  name: string;
+  pause_months?: number;
+  discount_percent?: number;
+  discount_months?: number;
+  downgrade_plan?: string;
+  downgrade_price_cents?: number | null;
+  downgrade_currency?: string;
+  downgrade_minutes?: number | null;
+}
+
+export type SaveResult =
+  | { kind: 'pause'; resumes_at: string; months: number }
+  | { kind: 'discount'; percent_off: number; months: number }
+  | { kind: 'downgrade'; plan: string; effective_at: string | null };
 export interface CancellationContext {
   plan: string;
   status: string;
@@ -53,6 +73,10 @@ export interface CancellationContext {
   price_cents: number | null;
   currency: string;
   offer: { percent_off: number; months: number } | null;
+  /** True when admin-configured save offers replace the legacy pause/coupon options. */
+  save_offers_enabled?: boolean;
+  save_offers?: SaveOfferView[];
+  save_result?: SaveResult;
 }
 
 export type FlowResult<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
@@ -78,6 +102,8 @@ type Request =
   | { action: 'cancel'; reason: CancelReason; detail: string }
   | { action: 'pause'; months: PauseMonths; reason: CancelReason | null; detail: string }
   | { action: 'accept_offer'; reason: CancelReason | null; detail: string }
+  | { action: 'offers'; reason: CancelReason; detail: string }
+  | { action: 'accept_save_offer'; offer_id: string; reason: CancelReason; detail: string }
   | { action: 'resume' };
 
 async function callFunction(body: Request): Promise<FlowResult<CancellationContext>> {
@@ -104,6 +130,9 @@ export const pauseSubscription = (months: PauseMonths, reason: CancelReason | nu
 export const acceptWinBackOffer = (reason: CancelReason | null, detail: string) =>
   callFunction({ action: 'accept_offer', reason, detail });
 export const resumeSubscription = () => callFunction({ action: 'resume' });
+export const fetchSaveOffers = (reason: CancelReason, detail: string) => callFunction({ action: 'offers', reason, detail });
+export const acceptSaveOffer = (offerId: string, reason: CancelReason, detail: string) =>
+  callFunction({ action: 'accept_save_offer', offer_id: offerId, reason, detail });
 
 // ============================================================
 // REAL USAGE — "what you'd be leaving behind" (RLS-scoped, last 90 days)
