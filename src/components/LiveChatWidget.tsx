@@ -196,12 +196,12 @@ export function LiveChatWidget() {
                   <div
                     className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
                       isVisitor
-                        ? 'rounded-br-sm bg-gradient-to-br from-accent to-accent-600 text-white'
+                        ? 'rounded-br-sm bg-accent text-on-accent'
                         : 'rounded-bl-sm border border-border/70 bg-bg-tertiary text-text-primary'
                     }`}
                   >
                     {m.body}
-                    <span className={`mt-1 block text-[10px] ${isVisitor ? 'text-white/70' : 'text-text-secondary'}`}>
+                    <span className={`mt-1 block text-[10px] ${isVisitor ? 'text-on-accent/70' : 'text-text-secondary'}`}>
                       {formatMessageTime(m.created_at)}
                     </span>
                   </div>
@@ -250,7 +250,7 @@ export function LiveChatWidget() {
               type="submit"
               disabled={!input.trim() || sending}
               aria-label="Send"
-              className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-[#3448E8] to-[#D6582A] text-white transition-opacity disabled:opacity-40"
+              className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-brand-from to-brand-to text-on-brand transition-opacity disabled:opacity-40"
             >
               <Send size={16} />
             </button>
