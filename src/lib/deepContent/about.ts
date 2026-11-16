@@ -5,6 +5,13 @@ export const ABOUT_DEEP: DeepContentData = {
   title: 'What Vireek is, how it works, and what it deliberately is not',
   intro:
     'Vireek is early, and we would rather explain it plainly than oversell it. This section covers the problem we are solving, how a call moves through the product, where the human stays in charge, and the limits you should know before you start.',
+  related: [
+    { label: 'Features', href: '/features' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Industries', href: '/industries' },
+    { label: 'Manifesto', href: '/manifesto' },
+    { label: 'Trust Center', href: '/trust' },
+  ],
   sections: [
     {
       id: 'problem',
