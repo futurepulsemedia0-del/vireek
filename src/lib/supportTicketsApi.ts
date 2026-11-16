@@ -105,6 +105,7 @@ export interface CreateTicketContext {
 
 export async function createTicket(
   ctx: CreateTicketContext, input: TicketInput, files: File[],
+  extra?: { diagnostics?: unknown; pagePath?: string },
 ): Promise<{ ticket: Ticket; failedUploads: string[] }> {
   const { data, error } = await supabase
     .from('support_conversations')
@@ -112,7 +113,8 @@ export async function createTicket(
       visitor_id: ctx.userId,
       visitor_name: ctx.name,
       visitor_email: ctx.email,
-      page_path: '/dashboard/support',
+      page_path: extra?.pagePath ?? '/dashboard/support',
+      diagnostics: extra?.diagnostics ?? null,
       kind: 'ticket',
       subject: input.subject.trim(),
       category: input.category,
