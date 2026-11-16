@@ -4,6 +4,7 @@ import { Inbox, LayoutDashboard, MoreHorizontal, PhoneCall, Wrench } from 'lucid
 import { useTranslation } from 'react-i18next';
 import { BOTTOM_NAV_ITEMS, getBottomNavActiveKey, type BottomNavKey } from '@/lib/mobileNav';
 import { tapHaptic } from '@/lib/pwa/tapHaptic';
+import { useKeyboardInset } from '@/hooks/useKeyboardInset';
 
 const ICONS: Record<BottomNavKey, typeof LayoutDashboard> = {
   overview: LayoutDashboard,
@@ -34,11 +35,19 @@ export function MobileBottomNav({ onMore, moreOpen }: { onMore: () => void; more
   const activeKey = getBottomNavActiveKey(pathname);
 
   // Lets floating widgets/toasts lift themselves above the bar via --vk-bottom-nav-h (see index.css).
+  // While the on-screen keyboard is open the bar is hidden: it would otherwise float above the keyboard and eat
+  // ~64px of the little space left for the form being typed into.
+  const keyboardOpen = useKeyboardInset(true) > 0;
+
+  // Lets floating widgets/toasts lift themselves above the bar via --vk-bottom-nav-h (see index.css).
   useEffect(() => {
+    if (keyboardOpen) return undefined;
     const root = document.documentElement;
     root.setAttribute('data-bottom-nav', '');
     return () => root.removeAttribute('data-bottom-nav');
-  }, []);
+  }, [keyboardOpen]);
+
+  if (keyboardOpen) return null;
 
   return (
     <nav
