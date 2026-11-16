@@ -18,6 +18,7 @@ import { requirePlanFeature } from "../_shared/billing/requirePlanFeature.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { requirePlanFeature } from "../_shared/billing/requirePlanFeature.ts";
 import { callbackUrl, normalizeE164 } from "../_shared/call-bridge/logic.ts";
+import { asFraudDb, attachOutboundCall, blockedBody, gateCustomerOutbound, releaseOutboundReservation } from "../_shared/fraud/outboundGate.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -99,11 +100,24 @@ Deno.serve(async (req: Request) => {
       .eq("id", camp.phone_number_id).eq("account_id", attempt.account_owner_id).maybeSingle();
     const callerId = normalizeE164(line?.phone_number);
     if (!callerId) return json({ error: "caller_id_missing" }, 422);
+    // Fraud guard: the call to the CONTACT is a customer-driven outbound marketing call. Budget is reserved here and
+    // settled with the real duration by call-bridge-voice (dialer-status / dialer-leg). A refusal never leaves the
+    // contact claimed to be retried in a loop: a cap that resets defers it to retryAt, anything else ends the attempt.
+    const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+      userId: attempt.account_owner_id, kind: "call", to: contact.phone_e164, purpose: "marketing",
+      source: "dialer-call", campaign: attempt.campaign_id,
+    });
+    if (!fraud.allowed) {
+      const b = fraud.blocked;
+      if (b.retryable && b.retryAt) await authClient.rpc("dialer_defer_contact", { p_contact_id: contact.id, p_until: b.retryAt });
+      else await authClient.rpc("dialer_complete_attempt", { p_contact_id: contact.id, p_disposition: "failed", p_note: `Blocked by safety checks (${b.code}).` });
+      return json({ blocked: "fraud_guard", ...blockedBody(b) }, 200);
+    }
 
     let sid: string;
     try {
       const res = await twilioApi("Calls.json", { form: {
-        To: agentPhone, From: callerId,
+        To: agentPhone, From: callerId, TimeLimit: String(fraud.maxCallSeconds),
         Url: callbackUrl(base, "dialer-join", { attempt: attempt.id }), Method: "POST",
         StatusCallback: callbackUrl(base, "dialer-leg", { attempt: attempt.id }), StatusCallbackMethod: "POST",
         StatusCallbackEvent: "completed", Timeout: "25",
@@ -111,7 +125,9 @@ Deno.serve(async (req: Request) => {
       sid = res.sid as string;
     } catch (e) {
       console.error("dialer_twilio_failed", e instanceof Error ? e.message : e);
+      await releaseOutboundReservation(asFraudDb(admin), fraud);
       return json({ error: "twilio_failed" }, 502);
+    await attachOutboundCall(asFraudDb(admin), fraud, sid); // dialer-status settles the real duration against this sid
     }
 
     await admin.rpc("dialer_attach_call", { p_attempt_id: attempt.id, p_call_sid: sid });
