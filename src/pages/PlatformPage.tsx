@@ -14,6 +14,8 @@ import { AiCallCoach } from '@/components/sections/AiCallCoach';
 import { RevenueIntelligence } from '@/components/sections/RevenueIntelligence';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { PLATFORM_DEEP } from '@/lib/deepContent/platform';
 
 /**
  * Platform page — the deep technical dive. These five sections (moved here
@@ -131,6 +133,7 @@ export function PlatformPage() {
         <AiCallCoach />
         <RevenueIntelligence />
 
+        <DeepContent data={PLATFORM_DEEP} idPrefix="platform" />
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
           <motion.div
