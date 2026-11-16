@@ -51,9 +51,11 @@ import {
 import {
   TOPUP_PRICE_ENV,
   isTopupSession,
+  processTopupReversal,
   processTopupSession,
   type TopupDeps,
   type TopupLineItemLike,
+  type TopupReversalDeps,
   type TopupSessionLike,
 } from "../_shared/billing/topup.ts";
 import { notifyPaymentSuspended } from "../_shared/billing/notices/dispatch.ts";
@@ -186,9 +188,14 @@ type AdminClient = ReturnType<typeof createClient>;
 function buildOverageDeps(stripe: Stripe, admin: AdminClient): OverageDeps {
   return {
     findProfilesByCustomer: async (customerId) => {
-      const { data, error } = await admin.from("profiles").select("id, plan").eq("stripe_customer_id", customerId).limit(2);
+      const { data, error } = await admin.from("profiles").select("id, plan, usage_period_plan").eq("stripe_customer_id", customerId).limit(2);
       if (error) throw new Error(`profile lookup failed: ${error.message}`);
-      return (data ?? []) as { id: string; plan: string | null }[];
+      return (data ?? []) as { id: string; plan: string | null; usage_period_plan: string | null }[];
+    },
+    planFromPriceId: (priceId) => planIdFromPriceId(priceId, (key) => Deno.env.get(key)),
+    setPeriodPlan: async (userId, plan) => {
+      const { error } = await admin.from("profiles").update({ usage_period_plan: plan }).eq("id", userId);
+      if (error) throw new Error(`usage_period_plan update failed: ${error.message}`);
     },
     retrieveInvoice: async (invoiceId) => (await stripe.invoices.retrieve(invoiceId)) as unknown as InvoiceLike,
     listInvoiceItems: async (invoiceId) => {
@@ -217,6 +224,17 @@ function buildOverageDeps(stripe: Stripe, admin: AdminClient): OverageDeps {
   };
 }
 
+/** Real Supabase I/O for top-up refund / dispute reversal (logic lives in _shared/billing/topup.ts). */
+function buildReversalDeps(admin: AdminClient): TopupReversalDeps {
+  return {
+    reverse: async (args) => {
+      const { data, error } = await admin.rpc("reverse_topup", args);
+      if (error) throw new Error(`reverse_topup failed: ${error.message}`);
+      return data as "reversed" | "noop" | "not_topup";
+    },
+    log: (event, detail) => console.log(JSON.stringify({ event, ...detail })),
+  };
+}
 /** Real Stripe/Supabase I/O for top-up credits (logic lives in _shared/billing/topup.ts). */
 function buildTopupDeps(stripe: Stripe, admin: AdminClient): TopupDeps {
   return {
@@ -552,7 +570,7 @@ Deno.serve(async (req: Request) => {
       case "invoice.created": {
         // Renewal draft invoice: close the previous usage period and (policy = bill) add ONE overage item.
         const invoice = event.data.object as Stripe.Invoice;
-        if (invoice.billing_reason !== "subscription_cycle") break;
+        if (invoice.billing_reason !== "subscription_cycle" && invoice.billing_reason !== "subscription_create") break;
         const result = await processOverageInvoice(invoice as unknown as InvoiceLike, buildOverageDeps(stripe, admin));
         console.log(JSON.stringify({ event: "overage_invoice_processed", invoice: invoice.id, result }));
         break;
@@ -563,6 +581,26 @@ Deno.serve(async (req: Request) => {
         if (!isTopupSession(session)) break;
         const result = await processTopupSession(session as unknown as TopupSessionLike, buildTopupDeps(stripe, admin));
         console.log(JSON.stringify({ event: "topup_session_processed", session: session.id, result }));
+        break;
+      }
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        const paymentIntentId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+        const result = await processTopupReversal(
+          { paymentIntentId, cumulativeAmountCents: charge.amount_refunded, reason: "refund" },
+          buildReversalDeps(admin),
+        );
+        console.log(JSON.stringify({ event: "topup_refund_processed", charge: charge.id, result }));
+        break;
+      }
+      case "charge.dispute.created": {
+        const dispute = event.data.object as Stripe.Dispute;
+        const paymentIntentId = typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id;
+        const result = await processTopupReversal(
+          { paymentIntentId, cumulativeAmountCents: dispute.amount, reason: "dispute" },
+          buildReversalDeps(admin),
+        );
+        console.log(JSON.stringify({ event: "topup_dispute_processed", dispute: dispute.id, result }));
         break;
       }
       default:
