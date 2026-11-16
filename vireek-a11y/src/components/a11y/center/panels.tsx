@@ -8,7 +8,7 @@ import { downloadText, parseImportedSettings, serializeSettings } from '@/lib/a1
 import { collectHeadings, collectLinks, jumpTo, type PageItem } from '@/lib/a11y/pageIndex';
 import { PROFILE_DEFS, buildProfileSettings, detectActiveProfile } from '@/lib/a11y/profiles';
 import type { RegistryItem } from '@/lib/a11y/registry';
-import { COLOR_BLIND_MODES, DEFAULT_SETTINGS, RANGES } from '@/lib/a11y/settings';
+import { COLOR_BLIND_MODES, COLOR_CHOICES, DEFAULT_SETTINGS, RANGES } from '@/lib/a11y/settings';
 import { DEFAULT_SHORTCUTS, SHORTCUT_ACTIONS, comboFromEvent, findConflict, formatCombo, isValidCombo, type ShortcutAction } from '@/lib/a11y/shortcuts';
 import { getSpeechState, pauseSpeech, pickVoice, resumeSpeech, stopSpeech, subscribeSpeech } from '@/lib/a11y/speech';
 import { detectSystemPreferences } from '@/lib/a11y/system';
@@ -18,8 +18,8 @@ import { Btn, Notice, SelectRow, SliderRow, ToggleRow } from './controls';
 import { setCapturingShortcut, speakCurrent, useRuntime } from './runtime';
 
 /* ---------------------------------- registry rows ---------------------------------- */
-const fmt = (unit: 'percent' | 'plain' | 'em', v: number): string =>
-  unit === 'percent' ? `${Math.round(v * 100)}%` : unit === 'em' ? `${v.toFixed(2)}em` : v.toFixed(1);
+const fmt = (unit: 'percent' | 'plain' | 'em' | 'px', v: number): string =>
+  unit === 'px' ? `${v}px` : unit === 'percent' ? `${Math.round(v * 100)}%` : unit === 'em' ? `${v.toFixed(2)}em` : v.toFixed(1);
 
 export function RegistryRow({ item }: { item: RegistryItem }) {
   const { settings, updateSetting } = useAccessibility();
@@ -49,6 +49,12 @@ export function RegistryRow({ item }: { item: RegistryItem }) {
       <SelectRow id={id} label={label} desc={desc} value={settings.colorBlind}
         options={COLOR_BLIND_MODES.map((m) => ({ value: m, label: t(`cb_${m}` as A11yKey) }))}
         onChange={(v) => { const m = COLOR_BLIND_MODES.find((x) => x === v); if (m) { updateSetting('colorBlind', m); announce(t('announceValue', { label, value: t(`cb_${m}` as A11yKey) })); } }} />
+    );
+  }  if (c.kind === 'choice') {
+    return (
+      <SelectRow id={id} label={label} desc={desc} value={settings[c.key]}
+        options={COLOR_CHOICES.map((o) => ({ value: o, label: t(`clr_${o}` as A11yKey) }))}
+        onChange={(v) => { const o = COLOR_CHOICES.find((x) => x === v); if (o) { updateSetting(c.key, o); announce(t('announceValue', { label, value: t(`clr_${o}` as A11yKey) })); } }} />
     );
   }
   return (
