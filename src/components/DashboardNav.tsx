@@ -23,7 +23,7 @@ import {
   ListChecks, CalendarCheck, Navigation, Siren, Layers, FolderKanban, MousePointerClick, Library, Handshake, Store,
   PackageSearch, HeartPulse, Factory, MessageSquareWarning, CalendarOff, MessageSquareText, MessageSquareHeart,
   MessageSquare, Stethoscope, Radar, Fingerprint, Dna, Crosshair, Microscope, MessageCircle, Receipt, Coins,
-  Percent, Monitor, Moon, Sun, Check, Skull, FileSearch, FileCheck2, UserMinus, Infinity as InfinityIcon,
+  Percent, Monitor, Skull, FileSearch, FileCheck2, UserMinus, Infinity as InfinityIcon,
   Satellite, Beaker, Undo2, Trash2, GitMerge, FolderDown, SlidersHorizontal, Images, Camera, Paintbrush,
   CalendarHeart, Trophy, Eye, Banknote, Snowflake, PackageCheck, Coffee, Landmark as ValuationIcon, Mic, Crown,
   DoorOpen, CalendarRange, Warehouse, PencilRuler, Languages, Smartphone, Briefcase, Repeat, Video, RefreshCw,
@@ -33,7 +33,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
 import { useToast } from '@/contexts/ToastContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { ThemeSegmentedControl } from '@/components/ThemeSegmentedControl';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
 import { SecurityAlertBanner } from '@/components/security/SecurityAlertBanner';
 import { SurgeModeBanner } from '@/components/SurgeModeBanner';
@@ -544,11 +544,6 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Help', href: '/dashboard/help', icon: LifeBuoy },
 ];
 
-const THEME_OPTIONS: { value: 'dark' | 'light' | 'system'; label: string; icon: typeof Sun }[] = [
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'system', label: 'System', icon: Monitor },
-];
 type NavGates = Partial<Record<'landscaping', boolean>>;
 const NO_MODULES: ReadonlySet<string> = new Set();
 export function filterItems(
@@ -593,7 +588,6 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   ]);
   const { isEnabled: isFlagOn } = useFeatureFlags();
   const { toast } = useToast();
-  const { preference, setThemePreference } = useTheme();
   const { t } = useTranslation('dashboard');
   const { isRtl } = useDirection();
   const label = (text: string) => t(navLabelKey(text), { defaultValue: text });
@@ -642,7 +636,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const [openPillars, setOpenPillars] = useState<Record<string, boolean>>({});
   const pillarGroups = groupByPillar([...visiblePrimary, ...visibleAccount], { audience, showLabs: labsVisible });
   const overview = visiblePrimary.find((i) => i.href === '/dashboard');
-  const [themeOpen, setThemeOpen] = useState(false);
+  = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -711,50 +705,14 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         {showLabs ? t('nav.labs.hide', { defaultValue: 'Hide Labs (Beta)' }) : t('nav.labs.show', { defaultValue: 'Show Labs (Beta)' })}
       </button>
 
-      <div className="mt-2">
-        <button
-          type="button"
-          onClick={() => setThemeOpen((v) => !v)}
-          className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted hover:text-text-secondary"
+      <div className="mt-3 border-t border-border/60 px-1 pt-3">
+        <p
+          id="theme-seg-label"
+          className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/70"
         >
           {t('nav.appearance')}
-          <ChevronDown size={14} className={`transition-transform ${themeOpen ? 'rotate-180' : ''}`} />
-        </button>
-        <AnimatePresence initial={false}>
-          {themeOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden"
-            >
-              <div className="flex flex-col gap-1 pt-1">
-                {THEME_OPTIONS.map((option) => {
-                  const active = preference === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setThemePreference(option.value)}
-                      className={`focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                        active
-                          ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/15'
-                          : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
-                      }`}
-                    >
-                      <span className="flex items-center gap-3">
-                        <Icon icon={option.icon} size="md" className={active ? 'text-accent' : 'text-text-secondary'} />
-                        {label(option.label)}
-                      </span>
-                      {active && <Check size={16} className="text-accent" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </p>
+        <ThemeSegmentedControl labelledBy="theme-seg-label" />
       </div>
     </nav>
   );
