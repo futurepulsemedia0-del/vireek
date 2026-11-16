@@ -10,8 +10,6 @@ import {
   SalesforceMark,
   SlackMark,
   StripeMark,
-  WhatsAppMark,
-  XeroMark,
 } from '@/components/brand/thirdPartyLogos';
 import { LogoMarquee, type MarqueeItem } from '@/components/ui/LogoMarquee';
 import { TRADES } from '@/lib/homeContent';
@@ -32,7 +30,6 @@ const ROW_A: readonly MarqueeItem[] = [
   { id: 'hubspot', name: 'HubSpot', href: '/integrations/hubspot', showName: true, logo: <HubSpotMark /> },
   { id: 'salesforce', name: 'Salesforce', href: '/integrations/salesforce', showName: true, logo: <SalesforceMark /> },
   { id: 'quickbooks', name: 'QuickBooks', href: '/integrations/quickbooks', showName: true, logo: <QuickBooksMark /> },
-  { id: 'xero', name: 'Xero', href: '/integrations', showName: true, logo: <XeroMark /> },
 ];
 
 const ROW_B: readonly MarqueeItem[] = [
@@ -40,7 +37,6 @@ const ROW_B: readonly MarqueeItem[] = [
   { id: 'microsoft-365', name: 'Microsoft 365', href: '/integrations/microsoft-365', showName: true, logo: <InitialMark name="Microsoft 365" /> },
   { id: 'slack', name: 'Slack', href: '/integrations/slack', showName: true, logo: <SlackMark /> },
   { id: 'microsoft-teams', name: 'Microsoft Teams', href: '/integrations', showName: true, logo: <MicrosoftTeamsMark /> },
-  { id: 'whatsapp', name: 'WhatsApp', href: '/integrations', showName: true, logo: <WhatsAppMark /> },
   { id: 'stripe', name: 'Stripe', href: '/integrations/stripe', showName: true, logo: <StripeMark /> },
 ];
 
