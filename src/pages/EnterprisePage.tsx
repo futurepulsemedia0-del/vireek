@@ -24,6 +24,8 @@ import { EnterpriseDemoBookingCalendar } from '@/components/EnterpriseDemoBookin
 import { SecurityPrivacy } from '@/components/sections/SecurityPrivacy';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { ENTERPRISE_DEEP } from '@/lib/deepContent/enterprisePricingDeep';
 import { PRICING_PLANS, SALES_EMAIL } from '@/lib/pricing';
 
 /**
@@ -656,6 +658,7 @@ export function EnterprisePage() {
           </div>
         </section>
 
+        <DeepContent data={ENTERPRISE_DEEP} idPrefix="enterprise" />
         {/* FAQ */}
         <section className="px-6 pb-24">
           <div className="mx-auto max-w-4xl">
