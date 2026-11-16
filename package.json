@@ -22,6 +22,8 @@
     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
     "a11y:targets": "node scripts/a11y/audit-targets.mjs",
+    "audit:mobile": "node scripts/a11y/mobile-debt.mjs",
+    "test:e2e:mobile": "playwright test e2e/mobile-web.spec.ts --project=m-iphone-se --project=m-iphone-15-pro --project=m-pixel-7 --project=m-tablet",
     "a11y:targets:check": "node scripts/a11y/audit-targets.mjs --check",
     "a11y:names:codemod": "node scripts/a11y/codemod-names.mjs",
     "a11y:icons:codemod": "node scripts/a11y/codemod-icons.mjs --targets",
