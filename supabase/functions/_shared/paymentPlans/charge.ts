@@ -1,14 +1,42 @@
 import { stripe, StripeError } from "./stripe.ts";
 import { chargeIdempotencyKey, formatMoney } from "./logic.ts";
-import { sendEmail, sendSms } from "../notify/deliver.ts";
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { sendEmail } from "../notify/deliver.ts";
+import { sendGuardedSms } from "../messaging/gatedSend.ts";
 
 export type ChargeOutcome = "paid" | "failed" | "requires_action" | "skipped" | "pending";
 
 export const payLinkFor = (kind: "p" | "i", id: string) =>
   `${(Deno.env.get("SUPABASE_URL") ?? "").replace(/\/$/, "")}/functions/v1/payment-plan-pay?${kind}=${id}`;
 
+/**
+ * The account that owns a customer contact, needed so the SMS can pass the fraud guard. Callers pass user_id when they
+ * have it; the bank-payment handler only has the pay link, so it is resolved from the link here.
+ */
+async function resolveContactOwner(plan: any): Promise<string | null> {
+  if (typeof plan?.user_id === "string" && plan.user_id) return plan.user_id;
+  if (!plan?.link_id || !plan?.link_kind) return null;
+  const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+  if (plan.link_kind === "pay") {
+    const { data } = await admin.from("payment_requests").select("user_id").eq("public_token", plan.link_id).maybeSingle();
+    return (data?.user_id as string | undefined) ?? null;
+  }
+  const { data } = await admin.from("payment_plan_installments").select("payment_plans(user_id)").eq("id", plan.link_id).maybeSingle();
+  const p = (data as { payment_plans?: { user_id?: string } | { user_id?: string }[] } | null)?.payment_plans;
+  return (Array.isArray(p) ? p[0]?.user_id : p?.user_id) ?? null;
+}
+
 export async function notifyCustomer(plan: any, subject: string, text: string): Promise<void> {
-  if (plan.customer_phone) await sendSms(plan.customer_phone, text);
+  if (plan.customer_phone) {
+    // Customer SMS goes through the fraud guard (purpose "service": payment links / reminders are transactional).
+    const owner = await resolveContactOwner(plan);
+    if (!owner) console.error(JSON.stringify({ event: "customer_sms_skipped_owner_unresolved" }));
+    else {
+      const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+      const r = await sendGuardedSms(admin, owner, plan.customer_phone, text, { purpose: "service", source: "payment-plan-notify" });
+      if (!r.ok && r.blocked) console.error(JSON.stringify({ event: "customer_sms_blocked_by_guard", code: r.blocked.code, retryable: r.blocked.retryable }));
+    }
+  }
   if (plan.customer_email) {
     const esc = text.replace(/[&<>"]/g, (c: string) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[c]);
     await sendEmail(plan.customer_email, subject, `<p style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:15px;line-height:1.5">${esc}</p>`, text);
