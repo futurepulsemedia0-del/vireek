@@ -41,6 +41,7 @@ import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
 import { minutesForPlan, minutesToSyncOnPlanSync, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
+import { notifyPaymentSuspended } from "../_shared/billing/notices/dispatch.ts";
 import {
   chargeRefundToClawbackArgs,
   disputeToClawbackArgs,
@@ -335,6 +336,16 @@ Deno.serve(async (req: Request) => {
           .from("profiles")
           .update({ subscription_status: "suspended", status: "suspended" })
           .eq("stripe_customer_id", customerId);
+        // Owner notice only when Stripe gave up on payment (not on a voluntary cancel).
+        // Idempotent (billing_notice_log); the hourly send-billing-notices pass re-tries any failure.
+        if (subscription.cancellation_details?.reason === "payment_failed") {
+          try {
+            const { data: suspendedProfile } = await admin.from("profiles").select("id").eq("stripe_customer_id", customerId).maybeSingle();
+            if (suspendedProfile?.id) await notifyPaymentSuspended(admin, suspendedProfile.id as string, subscription.id);
+          } catch (noticeErr) {
+            console.error("payment suspension notice failed (reconciled hourly):", noticeErr);
+          }
+        }
         break;
       }
       case "checkout.session.completed": {
