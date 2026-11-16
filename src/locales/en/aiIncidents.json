@@ -1,0 +1,113 @@
+{
+  "title": "AI incidents",
+  "subtitle": "Register of incidents involving Vireek's AI agents. Process and notification rules: docs/compliance/policies/ai-incident-response.md.",
+  "privacy": "Never enter names, phone numbers, e-mail addresses, transcripts or prompts. Use identifiers such as a call id or a security event id.",
+  "refresh": "Refresh",
+  "report": "Report incident",
+  "loading": "Loading incidents…",
+  "loadError": "Could not load AI incidents. Try again.",
+  "forbidden": "Staff access is required for this page.",
+  "stats": {
+    "active": "Active incidents",
+    "critical": "Critical and active",
+    "awaitingNotification": "High/critical awaiting a notification decision"
+  },
+  "filters": {
+    "status": "Status",
+    "severity": "Severity",
+    "all": "All",
+    "active": "Active (not closed)"
+  },
+  "empty": {
+    "title": "No AI incidents recorded",
+    "description": "When an AI agent causes harm or a near miss, report it here so it is owned, tracked and reviewed.",
+    "filteredTitle": "No incidents match these filters",
+    "filteredDescription": "Change or clear the filters to see more."
+  },
+  "form": {
+    "heading": "Report an AI incident",
+    "title": "Title",
+    "summary": "What happened (no personal data)",
+    "summaryHelp": "Facts only: what the agent did, who was affected (counts, not names), how it was found.",
+    "type": "Incident type",
+    "severity": "Severity",
+    "owner": "Owner role",
+    "source": "How it was found",
+    "callId": "Call id (optional)",
+    "detectedAt": "Detected at (optional, defaults to now)",
+    "submit": "Create incident",
+    "submitting": "Saving…",
+    "cancel": "Cancel"
+  },
+  "row": {
+    "detected": "Detected",
+    "owner": "Owner",
+    "call": "Call",
+    "status": "Status",
+    "customerNotification": "Customer notification",
+    "regulatorNotification": "Regulator notification",
+    "postmortemRef": "Postmortem reference",
+    "postmortemHelp": "Required to close a high or critical incident.",
+    "notificationHelp": "Legal decision. Use “sent” only after counsel approved the wording.",
+    "save": "Save changes",
+    "saving": "Saving…"
+  },
+  "types": {
+    "wrong_diagnosis": "Wrong diagnosis",
+    "wrong_price_commitment": "Wrong price commitment",
+    "pii_leak_on_call": "PII leak on a call",
+    "discriminatory_behavior": "Discriminatory behavior",
+    "prompt_injection": "Prompt injection",
+    "other": "Other"
+  },
+  "severities": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "critical": "Critical"
+  },
+  "statuses": {
+    "open": "Open",
+    "investigating": "Investigating",
+    "contained": "Contained",
+    "resolved": "Resolved",
+    "closed": "Closed"
+  },
+  "roles": {
+    "ai_safety_lead": "AI safety lead",
+    "security_lead": "Security lead",
+    "engineering_lead": "Engineering lead",
+    "support_lead": "Support lead",
+    "legal_counsel": "Legal counsel"
+  },
+  "sources": {
+    "ai_security_event": "AI security event",
+    "customer_report": "Customer report",
+    "staff_review": "Staff review",
+    "vdp_report": "Vulnerability disclosure report",
+    "monitoring": "Monitoring",
+    "other": "Other"
+  },
+  "notice": {
+    "not_assessed": "Not assessed",
+    "not_required": "Not required",
+    "counsel_review": "With counsel for review",
+    "sent": "Sent"
+  },
+  "errors": {
+    "required": "This field is required.",
+    "tooShort": "This is too short.",
+    "tooLong": "This is too long.",
+    "email": "Remove e-mail addresses and other personal data.",
+    "future": "The detection time cannot be in the future.",
+    "invalid": "This value is not valid.",
+    "forbidden": "Staff access is required for this action.",
+    "pii": "Remove e-mail addresses and other personal data, then try again.",
+    "postmortemRequired": "Add a postmortem reference before closing a high or critical incident.",
+    "generic": "Could not save. Try again."
+  },
+  "toast": {
+    "created": "Incident {{ref}} created.",
+    "updated": "Incident {{ref}} updated."
+  }
+}
