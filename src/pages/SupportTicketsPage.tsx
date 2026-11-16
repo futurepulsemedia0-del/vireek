@@ -21,6 +21,8 @@ import { useRealtimeSubscription } from '@/lib/realtime';
 import { fetchTickets } from '@/lib/supportTicketsApi';
 import { filterTickets, sortTickets, ticketRef, type Ticket, type TicketFilter } from '@/lib/supportTickets';
 import { SUPPORT_HOURS_LABEL } from '@/lib/supportHours';
+import { getSessionStore } from '@/lib/supportAgent/chatMemory';
+import { clearTicketDraft, peekTicketDraft } from '@/lib/supportAgent/ticketDraft';
 
 const FILTERS: { value: TicketFilter; label: string }[] = [
   { value: 'open', label: 'Open' },
@@ -37,7 +39,9 @@ export function SupportTicketsPage() {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [filter, setFilter] = useState<TicketFilter>('open');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
+  // Draft handed over by the Support Agent. Peek here (StrictMode may run initializers twice); it is spent below.
+  const [draft] = useState(() => peekTicketDraft(getSessionStore()));
+  const [creating, setCreating] = useState(!!draft);
 
   const load = useCallback(
     async (initial: boolean) => {
@@ -76,6 +80,10 @@ export function SupportTicketsPage() {
     : null;
 
   const showDetail = creating || !!selected; // mobile: swap list for detail
+
+  // The draft is only spent once the form is actually on screen.
+  const formReady = creating && !!ctx;
+  useEffect(() => { if (formReady) clearTicketDraft(getSessionStore()); }, [formReady]);
 
   return (
     <DashboardLayout activeLabel="Support">
@@ -160,6 +168,7 @@ export function SupportTicketsPage() {
             <div className={showDetail ? '' : 'hidden lg:block'}>
               {creating && ctx ? (
                 <NewTicketForm
+                  initial={draft ?? undefined}
                   ctx={ctx}
                   onCancel={() => setCreating(false)}
                   onCreated={(t) => {
