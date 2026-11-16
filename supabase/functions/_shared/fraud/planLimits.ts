@@ -136,7 +136,7 @@ export const PLAN_LIMITS: Readonly<Record<PlanId, PlanLimits>> = {
 };
 
 export function normalizePlan(plan: string | null | undefined): PlanId {
-  return plan && plan in PLAN_LIMITS ? (plan as PlanId) : "free"; // unknown => most restrictive
+  return plan && Object.prototype.hasOwnProperty.call(PLAN_LIMITS, plan) ? (plan as PlanId) : "free"; // unknown (incl. prototype keys like "constructor") => most restrictive
 }
 
 /** New accounts get a fraction of their caps while they build history (stolen-card / farming ramp). */
