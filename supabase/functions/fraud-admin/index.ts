@@ -127,6 +127,14 @@ Deno.serve(async (req: Request) => {
         }
         if (typeof body.consent_mode === "string" && ["off", "log", "enforce"].includes(body.consent_mode)) patch.consent_mode = body.consent_mode;
         if (typeof body.free_minutes_mode === "string" && ["monthly", "lifetime"].includes(body.free_minutes_mode)) patch.free_minutes_mode = body.free_minutes_mode;
+        if (typeof body.paid_overage_policy === "string") {
+          // 'bill' may only be enabled after docs/OVERAGE_AND_TOPUPS.md section 4 passed in Stripe TEST mode.
+          if (!["allow", "bill"].includes(body.paid_overage_policy)) return json({ error: "Bad request" }, 400);
+          if (typeof body.reason !== "string" || body.reason.trim().length < 10) {
+            return json({ error: "A reason (at least 10 characters) is required to change the paid overage policy." }, 400);
+          }
+          patch.paid_overage_policy = body.paid_overage_policy;
+        }
         if (typeof body.enforcement_mode === "string" && ["shadow", "enforce"].includes(body.enforcement_mode)) patch.enforcement_mode = body.enforcement_mode;
         if (typeof body.campaign_approval_days === "number" && Number.isInteger(body.campaign_approval_days) && body.campaign_approval_days >= 0 && body.campaign_approval_days <= 90) patch.campaign_approval_days = body.campaign_approval_days;
         if (typeof body.reason === "string") patch.reason = body.reason.slice(0, 300);
