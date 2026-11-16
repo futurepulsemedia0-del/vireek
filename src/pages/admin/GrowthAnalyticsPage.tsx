@@ -5,6 +5,7 @@ import { AcquisitionTab } from '@/components/staff/growth/AcquisitionTab';
 import { PlansChurnTab } from '@/components/staff/growth/PlansChurnTab';
 import { ExperimentsTab } from '@/components/staff/growth/ExperimentsTab';
 import { OperationsTab } from '@/components/staff/growth/OperationsTab';
+import { NorthStarTreeCard } from '@/components/staff/growth/NorthStarTreeCard';
 
 const TABS = ['revenue', 'acquisition', 'plans', 'experiments', 'operations'] as const;
 type Tab = (typeof TABS)[number];
@@ -43,8 +44,10 @@ export function GrowthAnalyticsPage() {
       <header className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary">{t('page.title')}</h1>
         <p className="text-sm text-text-secondary">{t('page.subtitle')}</p>
-        <p className="rounded-xl bg-bg-secondary p-3 text-xs text-text-primary">{t('page.northStar')}</p>
+
       </header>
+      
+      <NorthStarTreeCard />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div role="tablist" aria-label={t('page.sections')} className="flex flex-wrap gap-1">
