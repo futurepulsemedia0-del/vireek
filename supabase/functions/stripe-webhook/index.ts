@@ -40,7 +40,7 @@
 import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
-import { minutesForPlan, minutesToSyncOnPlanSync, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
+import { minutesForPlan, minutesToSyncOnPlanSync, minutesToWriteOnSync, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
 import {
   processOverageInvoice,
   type InvoiceItemLike,
