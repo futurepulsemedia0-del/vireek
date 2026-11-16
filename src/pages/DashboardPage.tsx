@@ -419,6 +419,8 @@ export function DashboardPage() {
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
+  // Bound the overview queries (previously unbounded). Period metrics undercount beyond this cap.
+  const DASH_ROW_CAP = 2000;
   const loadData = useCallback(async () => {
     if (!user) return;
     setDataLoading(true);
@@ -426,10 +428,10 @@ export function DashboardPage() {
       const [callsRes, jobsRes, leadsRes, insightsRes, allCallsRes, allJobsRes, businessProfileRes] = await Promise.all([
         supabase.from('calls').select('*').order('call_datetime', { ascending: false }).limit(20),
         supabase.from('jobs').select('*').order('created_at', { ascending: false }).limit(20),
-        supabase.from('leads').select('*').order('created_at', { ascending: false }),
-        supabase.from('ai_insights').select('*').eq('is_dismissed', false).order('created_at', { ascending: false }),
-        supabase.from('calls').select('*').order('call_datetime', { ascending: false }),
-        supabase.from('jobs').select('*').order('created_at', { ascending: false }),
+        supabase.from('leads').select('*').order('created_at', { ascending: false }).limit(DASH_ROW_CAP),
+        supabase.from('ai_insights').select('*').eq('is_dismissed', false).order('created_at', { ascending: false }).limit(200),
+        supabase.from('calls').select('*').order('call_datetime', { ascending: false }).limit(DASH_ROW_CAP),
+        supabase.from('jobs').select('*').order('created_at', { ascending: false }).limit(DASH_ROW_CAP),
         supabase.from('business_profile').select('*').maybeSingle(),
       ]);
 
