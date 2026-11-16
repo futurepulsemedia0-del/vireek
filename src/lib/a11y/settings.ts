@@ -1,6 +1,12 @@
 export type ColorBlindMode = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
 export const COLOR_BLIND_MODES: readonly ColorBlindMode[] = ['none', 'protanopia', 'deuteranopia', 'tritanopia'];
 
+/** Shared palette for the pointer and focus-ring pickers. 'default' keeps the Vireek look. */
+export type ColorChoice = 'default' | 'black' | 'white' | 'yellow' | 'blue';
+export const COLOR_CHOICES: readonly ColorChoice[] = ['default', 'black', 'white', 'yellow', 'blue'];
+export const CHOICE_KEYS = ['cursorColor', 'focusColor'] as const;
+export type ChoiceSettingKey = (typeof CHOICE_KEYS)[number];
+
 export interface AccessibilitySettings {
   // Vision
   textSize: number; // 0.875–1.5
@@ -32,6 +38,13 @@ export interface AccessibilitySettings {
   hideImages: boolean;
   // Navigation
   highlightKeyboardFocus: boolean;
+  // Cognitive support, hearing & audio, cursor & focus
+  unstickHeaders: boolean;
+  muteMedia: boolean;
+  captionsAlways: boolean;
+  cursorColor: ColorChoice;
+  focusColor: ColorChoice;
+  focusWidth: number; // 2–6 px
   screenReaderMode: boolean;
 }
 
@@ -61,6 +74,12 @@ export const DEFAULT_SETTINGS: AccessibilitySettings = {
   stopAnimations: false,
   hideImages: false,
   highlightKeyboardFocus: false,
+  unstickHeaders: false,
+  muteMedia: false,
+  captionsAlways: false,
+  cursorColor: 'default',
+  focusColor: 'default',
+  focusWidth: 3,
   screenReaderMode: false,
 };
 
