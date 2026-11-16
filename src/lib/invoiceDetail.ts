@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
-import { calculateQuoteTotals, isOverdue, type Invoice } from '@/lib/invoices';
-
+import { isOverdue, type Invoice } from '@/lib/invoices';
+import { invoiceTotalsSqlParity } from '@/lib/invoiceMoney';
 // ============================================================
 // Types
 // ============================================================
@@ -92,7 +92,7 @@ export function computeInvoiceLedger(
   payments: Pick<InvoicePayment, 'amount_cents'>[],
   refunds: Pick<InvoiceRefund, 'amount_cents'>[],
 ): InvoiceLedger {
-  const { subtotalCents, taxCents, totalCents } = calculateQuoteTotals(invoice.line_items ?? [], invoice.tax_percent ?? 0);
+  const { subtotalCents, taxCents, totalCents } = invoiceTotalsSqlParity(invoice.line_items ?? [], invoice.tax_percent ?? 0);
   const paidCents = payments.reduce((s, p) => s + p.amount_cents, 0);
   const refundedCents = refunds.reduce((s, r) => s + r.amount_cents, 0);
   const netPaidCents = paidCents - refundedCents;
