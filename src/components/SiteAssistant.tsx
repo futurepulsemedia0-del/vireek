@@ -141,7 +141,7 @@ export function SiteAssistant() {
         aria-expanded={open}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-[84px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-white dark:border-white/90 bg-gradient-to-br from-brand-from to-brand-to text-on-brand shadow-lg shadow-black/40 ring-1 ring-black/10 transition-all duration-200 hover:shadow-xl hover:brightness-110 print:hidden"
+        className="fixed bottom-[calc(84px_+_var(--vk-consent-lift,0px))] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-white dark:border-white/90 bg-gradient-to-br from-brand-from to-brand-to text-on-brand shadow-lg shadow-black/40 ring-1 ring-black/10 transition-all duration-200 hover:shadow-xl hover:brightness-110 print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
