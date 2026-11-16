@@ -7,8 +7,19 @@ import { formatMessageTime, SupportConversation, SupportMessage } from '@/lib/su
 import { MessageAttachments, SlaBadge, StateBadge } from '@/components/support/TicketParts';
 import { fetchAttachments } from '@/lib/supportTicketsApi';
 import { ticketRef, type Ticket, type TicketAttachment } from '@/lib/supportTickets';
+import { useToast } from '@/contexts/ToastContext';
+import { fetchOverdueTickets, setTicketSeverity } from '@/lib/supportSlaApi';
+import { isSeverity, overdueLabel, SEVERITIES, SEVERITY_LABEL, type OverdueTicket } from '@/lib/supportSla';
 
 const asTicket = (c: SupportConversation) => c as unknown as Ticket;
+const severityOf = (c: SupportConversation): string => (c as unknown as { severity?: string | null }).severity ?? '';
+const needsTriage = (c: SupportConversation): boolean =>
+  asTicket(c).subject != null && !(c as unknown as { severity_confirmed_at?: string | null }).severity_confirmed_at;
+
+function OverdueChip({ row }: { row?: OverdueTicket }) {
+  if (!row) return null;
+  return <p className="mt-1 text-[11px] font-medium text-danger">{row.severity} · {overdueLabel(row)}</p>;
+}
 
 export function SupportInboxPage() {
   const { user } = useAuth();
@@ -18,9 +29,13 @@ export function SupportInboxPage() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [attachments, setAttachments] = useState<TicketAttachment[]>([]);
+  const { toast } = useToast();
+  const [overdue, setOverdue] = useState<Map<string, OverdueTicket>>(new Map());
+  const [overdueOnly, setOverdueOnly] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const selected = conversations.find((c) => c.id === selectedId) ?? null;
+  const visible = overdueOnly ? conversations.filter((c) => overdue.has(c.id)) : conversations;
 
   const loadConversations = useCallback(async () => {
     const { data } = await supabase
@@ -29,6 +44,9 @@ export function SupportInboxPage() {
       .neq('status', 'closed')
       .order('last_message_at', { ascending: false });
     setConversations((data as SupportConversation[]) || []);
+    fetchOverdueTickets()
+      .then((rows) => setOverdue(new Map(rows.map((r) => [r.id, r]))))
+      .catch(() => setOverdue(new Map()));
   }, []);
 
   useEffect(() => {
@@ -88,7 +106,15 @@ export function SupportInboxPage() {
     if (data) setMessages((prev) => [...prev, data as SupportMessage]);
     setSending(false);
   };
-
+  const handleSeverity = async (value: string) => {
+    if (!selected || !isSeverity(value)) return;
+    try {
+      await setTicketSeverity(selected.id, value);
+      await loadConversations();
+    } catch {
+      toast('Could not update severity.', 'error');
+    }
+  };
   const handleClose = async () => {
     if (!selected) return;
     await supabase.from('support_conversations').update({ status: 'closed' }).eq('id', selected.id);
@@ -102,10 +128,14 @@ export function SupportInboxPage() {
           <Inbox size={16} className="text-accent" />
           <h1 className="text-sm font-semibold text-text-primary">Live chat inbox</h1>
         </div>
-        {conversations.length === 0 ? (
+        <label className="flex items-center gap-2 border-b border-border px-4 py-2 text-xs text-text-secondary">
+          <input type="checkbox" checked={overdueOnly} onChange={(e) => setOverdueOnly(e.target.checked)} />
+          Overdue only ({overdue.size})
+        </label>
+        {visible.length === 0 ? (
           <p className="p-4 text-sm text-text-secondary">No open conversations right now.</p>
         ) : (
-          conversations.map((c) => (
+          visible.map((c) => (
             <button
               key={c.id}
               type="button"
@@ -121,7 +151,17 @@ export function SupportInboxPage() {
               <p className="mt-0.5 text-[11px] text-text-muted">
                 {c.status === 'open' ? 'Waiting' : 'In progress'} · {new Date(c.last_message_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
               </p>
-              {asTicket(c).subject && <div className="mt-1.5"><SlaBadge ticket={asTicket(c)} /></div>}
+              {asTicket(c).subject && (
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  {severityOf(c) && (
+                    <span className="inline-flex rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-medium text-text-primary">
+                      {severityOf(c)}{needsTriage(c) ? ' · triage' : ''}
+                    </span>
+                  )}
+                  <SlaBadge ticket={asTicket(c)} />
+                </div>
+              )}
+              <OverdueChip row={overdue.get(c.id)} />
             </button>
           ))
         )}
@@ -141,6 +181,25 @@ export function SupportInboxPage() {
                     <span className="text-xs font-medium text-text-primary">{ticketRef(asTicket(selected).ticket_number)} · {asTicket(selected).subject}</span>
                     <StateBadge ticket={asTicket(selected)} />
                     <SlaBadge ticket={asTicket(selected)} />
+                    <select
+                      aria-label="Severity"
+                      value={severityOf(selected)}
+                      onChange={(e) => handleSeverity(e.target.value)}
+                      className="focus-ring rounded-lg border border-border bg-bg-primary px-2 py-1 text-xs text-text-primary"
+                    >
+                      {SEVERITIES.map((s) => (
+                        <option key={s} value={s}>{SEVERITY_LABEL[s]}</option>
+                      ))}
+                    </select>
+                    {needsTriage(selected) && (
+                      <button
+                        type="button"
+                        onClick={() => handleSeverity(severityOf(selected))}
+                        className="focus-ring rounded-lg border border-border px-2 py-1 text-xs font-medium text-text-secondary hover:text-text-primary"
+                      >
+                        Confirm severity
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
