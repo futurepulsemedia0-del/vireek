@@ -22,6 +22,7 @@ import {
   emergencyTwiml, forwardTwiml, thanksTwiml, twimlForLevel, voicemailTwiml, wrap, xmlEsc, type FallbackCtx,
 } from "../_shared/voice-resilience/twimlFallback.ts";
 import { activeChaos, effectiveLevel, loadOrgContact, notifyInApp, recordOutcome, sendOwnerSms } from "../_shared/voice-resilience/runtime.ts";
+import { ensureMissedCallRecord, type MissedCallReason } from "../_shared/voice-resilience/missedCallGuard.ts";
 
 const xml = (body: string) => new Response(body, { status: 200, headers: { "Content-Type": "text/xml; charset=utf-8" } });
 
@@ -64,6 +65,7 @@ Deno.serve(async (req: Request) => {
         // Engine did not answer THIS call: degrade just this call, regardless of the org-wide level.
         const next = degradeFrom(1, ALL_HEALTHY);
         await markFallback(admin, owner, sid, next, params.From);
+        await recordMissedCall(admin, owner, sid, params.From, "engine_no_answer");
         return xml(twimlForLevel(next, ctx));
       }
       case "emergency-check": {
@@ -140,7 +142,20 @@ async function inbound(admin: ReturnType<typeof createClient>, params: Record<st
   // Engine unavailable (by ladder, config, or chaos): serve at least L2.
   const served = Math.max(level, 2) as Level;
   await markFallback(admin, owner, sid, served, from);
+  await recordMissedCall(admin, owner, sid, from, level <= 1 ? "engine_unavailable" : "level_forced");
   return xml(twimlForLevel(served, ctx));
+}
+
+// Guarantees a lead row + in-app owner alert for degraded calls. Bounded to 2.5 s so it can never delay the TwiML reply.
+async function recordMissedCall(admin: ReturnType<typeof createClient>, owner: string, sid: string, from: string | null | undefined, reason: MissedCallReason): Promise<void> {
+  const work = ensureMissedCallRecord({
+    insertCallIfAbsent: async (row) => {
+      const { error } = await admin.from("calls").upsert(row, { onConflict: "vapi_call_id", ignoreDuplicates: true });
+      if (error) throw new Error(error.message);
+    },
+    alertOwner: async (o, title, body) => { await notifyInApp(admin, o, title, body); return true; },
+  }, { ownerId: owner, callSid: sid, callerPhone: from ?? null, reason });
+  await Promise.race([work, new Promise<void>((r) => setTimeout(r, 2500))]).catch(() => undefined);
 }
 
 async function markFallback(admin: ReturnType<typeof createClient>, owner: string, sid: string, level: Level, from?: string): Promise<void> {
