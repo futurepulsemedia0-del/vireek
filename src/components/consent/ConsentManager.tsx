@@ -1,14 +1,25 @@
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useConsentT } from '@/i18n/consentNamespace';
+import { BANNER_EXIT_MS, clearBannerDismissal, markBannerDismissed, readBannerDismissed } from '@/lib/consent/bannerTiming';
 import { OPEN_PREFERENCES_EVENT } from '@/lib/consent/engine';
 import { linkConsentToAccount, startConsentSync } from '@/lib/consent/sync';
 import { useConsent } from '@/lib/consent/useConsent';
 import { ConsentBanner } from '@/components/consent/ConsentBanner';
+import { useBannerReveal } from '@/components/consent/useBannerReveal';
 
 // Loaded only when the visitor opens the settings: keeps the first load light.
 const PreferenceCenter = lazy(() => import('@/components/consent/PreferenceCenter'));
+
+
+const SKIP_LINK_CLASS =
+  'sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[200] focus:rounded-xl focus:bg-accent focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white';
+
+function prefersReducedMotion(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
 
 /** Mount once (src/main.tsx). Owns the banner, the settings dialog, focus return and the live announcement. */
 export function ConsentManager() {
