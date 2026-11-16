@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 import type { BridgeRaw } from '@/lib/growth/growthMetrics';
 import type { ArmCounts, ExperimentMeta, ExperimentResultsRaw, GrowthAlpha, GrowthMetric } from '@/lib/growth/growthExperiments';
 import type { SendArgs } from '@/lib/growth/growthAttribution';
+import { parseNorthStar, type NorthStarRaw } from '@/lib/growth/northStar';
 
 type Rec = Record<string, unknown>;
 const rec = (v: unknown): Rec => (typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Rec) : {});
@@ -240,3 +241,7 @@ export async function runReconciliation(): Promise<void> {
 export async function recordSignupAttribution(a: SendArgs): Promise<void> {
   await call('record_signup_attribution', { ...a });
 }
+
+/* ---------- North Star metric tree (staff only; docs/analytics/north-star.md) ---------- */
+export const fetchNorthStar = async (weeks = 12): Promise<NorthStarRaw> =>
+  parseNorthStar(await call('staff_north_star_tree', { p_weeks: weeks }));
