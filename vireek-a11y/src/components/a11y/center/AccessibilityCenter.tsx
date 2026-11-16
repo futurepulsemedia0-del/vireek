@@ -14,7 +14,7 @@ import { translate } from '@/lib/a11y/strings';
 import { useA11yText } from '../useA11yText';
 import { LiveRegion, Magnifier, ReadingAids } from '../AccessibilityOverlays';
 import { Btn, Notice, Section } from './controls';
-import { DataPanel, LanguagePanel, PageMapPanel, ProfilesPanel, RegistryRow, ShortcutsPanel, TtsPanel, VoicePanel } from './panels';
+import { CursorPreview, CustomProfilesPanel, DataPanel, LanguagePanel, PageMapPanel, ProfilesPanel, RegistryRow, ShortcutsPanel, TtsPanel, VoicePanel } from './panels';
 import { RuntimeProvider, useRuntimeValue } from './runtime';
 
 const DIALOG_ID = 'a11y-center-dialog';
@@ -40,6 +40,7 @@ function usePortalRoot(): HTMLElement | null {
 function SectionBody({ id }: { id: SectionDef['id'] }) {
   switch (id) {
     case 'profiles': return <ProfilesPanel />;
+    case 'customProfiles': return <CustomProfilesPanel />;
     case 'tts': return <TtsPanel />;
     case 'voice': return <VoicePanel />;
     case 'shortcuts': return <ShortcutsPanel />;
@@ -55,11 +56,13 @@ function TabContent({ tab }: { tab: CenterTab }) {
   const items = REGISTRY.filter((i) => i.tab === tab);
   const sections = SECTIONS.filter((s) => s.tab === tab);
   const tabLabel = t(CENTER_TABS.find((c) => c.id === tab)?.labelKey ?? 'title');
-  const before = sections.filter((s) => s.id === 'profiles');
-  const after = sections.filter((s) => s.id !== 'profiles');
+  const isTop = (s: SectionDef): boolean => s.id === 'profiles' || s.id === 'customProfiles';
+  const before = sections.filter(isTop);
+  const after = sections.filter((s) => !isTop(s));
   return (
     <div className="space-y-4">
       <p className="break-words text-sm text-text-primary">{t(`help_${tab}` as A11yKey)}</p>
+      {tab === 'cursor' && <CursorPreview />}
       {before.map((s) => <Section key={s.id} id={`a11y-s-${s.id}`} title={t(s.titleKey)}><SectionBody id={s.id} /></Section>)}
       {items.length > 0 && (
         <Section id={`a11y-s-${tab}`} title={tabLabel}>
