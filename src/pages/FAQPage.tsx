@@ -9,6 +9,8 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { BackButton } from '@/components/ui/BackButton';
 import { EASE, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { FAQ_DEEP } from '@/lib/deepContent/faq';
 
 const FAQ_CATEGORIES = [
   {
@@ -264,6 +266,7 @@ export function FAQPage() {
             <div className="mt-8"><Link to="/login"><Button variant="primary" size="lg">Start Free Trial</Button></Link></div>
           </div>
         </section>
+        <DeepContent data={FAQ_DEEP} idPrefix="faq-deep" />
       </main>
       <Footer />
       <CookieConsent />
