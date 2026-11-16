@@ -64,7 +64,14 @@ Deno.serve(async (req: Request) => {
 
       if (upsertError) throw upsertError;
     }
-
+    // Consent revocation: a segment that no longer clears k-anonymity (or whose contributors withdrew
+    // consent) is absent from this run. Remove every row not written in this run, even when the run
+    // returned zero rows, so withdrawn data never lingers in the published table.
+    const { error: purgeError } = await admin
+      .from("regional_demand_snapshots")
+      .delete()
+      .lt("computed_at", computedAt);
+    if (purgeError) throw purgeError;
     return jsonResponse({ segments_computed: safeRows.length });
   } catch (error) {
     console.error(JSON.stringify({ event: "compute_regional_demand_failed", error: error instanceof Error ? error.message : String(error) }));
