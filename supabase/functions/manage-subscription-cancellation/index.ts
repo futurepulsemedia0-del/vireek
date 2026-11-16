@@ -207,15 +207,16 @@ Deno.serve(async (req: Request) => {
         paused_until: iso(s.pause_collection?.resumes_at ?? null),
         price_cents: item?.price?.unit_amount ?? null,
         currency: (item?.price?.currency ?? "usd").toUpperCase(),
-        offer: isOfferEligible({ ...stateOf(s), terms, alreadyUsedOffer }) && terms
+        offer: !saveActive && isOfferEligible({ ...stateOf(s), terms, alreadyUsedOffer }) && terms
           ? { percent_off: terms.percentOff, months: terms.months }
           : null,
+        save_offers_enabled: saveActive,
       };
     };
 
     // ---- Recording helper ------------------------------------------------------
     const record = async (
-      action: "cancel_scheduled" | "paused" | "offer_accepted" | "resumed",
+      action: "cancel_scheduled" | "paused" | "offer_accepted" | "resumed" | "downgrade_scheduled",
       auditAction: string,
       extra: Record<string, unknown> = {},
       survey: { reason: CancelReason | null; detail: string } = { reason: null, detail: "" },
@@ -269,10 +270,20 @@ Deno.serve(async (req: Request) => {
           reason: request.reason,
           detail: request.detail,
         });
+        if (saveActive) {
+          // Outcome tracking: offers shown in the last 24h that got no answer = declined. Best effort.
+          try {
+            const risk = await loadRisk(admin, user.id);
+            await admin.rpc("churn_save_mark_declined", { p_user: user.id, p_reason: request.reason, p_band: risk?.band ?? null });
+          } catch (err) {
+            console.error(JSON.stringify({ event: "churn_save_mark_declined_failed", error: err instanceof Error ? err.message : String(err) }));
+          }
+        }
         return json(buildContext(sub));
       }
 
       case "pause": {
+        if (saveActive) return fail("use_save_offers", "Please choose one of the available options.", 409);
         if (!canModifySubscription(stateOf(sub))) {
           return fail("not_pausable", "This subscription can't be paused right now.", 409);
         }
@@ -288,6 +299,7 @@ Deno.serve(async (req: Request) => {
       }
 
       case "accept_offer": {
+        if (saveActive) return fail("use_save_offers", "Please choose one of the available options.", 409);
         if (!couponId || !terms) return fail("offer_unavailable", "No offer is available right now.", 409);
         if (alreadyUsedOffer) return fail("offer_used", "This offer has already been used on your account.", 409);
         if (!canModifySubscription(stateOf(sub))) return fail("offer_unavailable", "No offer is available right now.", 409);
@@ -299,6 +311,165 @@ Deno.serve(async (req: Request) => {
         return json(buildContext(sub));
       }
 
+      case "offers": {
+        if (!saveActive) return json({ ...buildContext(sub), save_offers: [] as SaveOfferView[] });
+        const risk = await loadRisk(admin, user.id);
+        const { data: rows, error: rowsError } = await admin.rpc("churn_save_eligible_offers", {
+          p_user: user.id,
+          p_reason: request.reason,
+          p_band: risk?.band ?? null,
+        });
+        if (rowsError) {
+          // Fail closed: no offers is always safe, the customer can still cancel.
+          console.error(JSON.stringify({ event: "churn_save_offers_failed", error: rowsError.message }));
+          return json({ ...buildContext(sub), save_offers: [] as SaveOfferView[] });
+        }
+        const live = liveOf(sub);
+        const views: SaveOfferView[] = [];
+        for (const row of (rows ?? []) as SaveOfferRow[]) {
+          const t = termsOf(row);
+          const priceId = t?.kind === "downgrade" ? Deno.env.get(getPlanDef(t.plan).priceEnv) : undefined;
+          if (offerFeasibility(t, live, { currentPlan: profile.plan as string | null, targetPriceConfigured: t?.kind !== "downgrade" || !!priceId })) continue;
+          let extra: { priceCents?: number | null; currency?: string } = {};
+          if (t?.kind === "downgrade" && priceId) {
+            try {
+              const price = await stripe.prices.retrieve(priceId);
+              extra = { priceCents: price.unit_amount, currency: price.currency.toUpperCase() };
+            } catch {
+              continue; // can't show an honest price -> don't show the offer
+            }
+          }
+          const view = toOfferView(row, extra);
+          if (view) views.push(view);
+        }
+        if (views.length > 0) {
+          const { error: logError } = await admin.rpc("churn_save_log_presented", {
+            p_user: user.id,
+            p_offers: views.map((v) => v.id),
+            p_reason: request.reason,
+            p_band: risk?.band ?? null,
+          });
+          if (logError) console.error(JSON.stringify({ event: "churn_save_presented_log_failed", error: logError.message }));
+        }
+        return json({ ...buildContext(sub), save_offers: views });
+      }
+
+      case "accept_save_offer": {
+        if (!saveActive) return fail("offer_unavailable", "That offer isn't available right now.", 409);
+        const deny = (code: string) => {
+          const d = denialFor(code);
+          return fail(d.code, d.error, d.status);
+        };
+        const { data: offerRow } = await admin
+          .from("churn_save_offers")
+          .select("id, kind, name, pause_months, downgrade_plan, discount_percent, discount_months")
+          .eq("id", request.offer_id)
+          .maybeSingle();
+        if (!offerRow) return deny("not_found");
+        const t = termsOf(offerRow as SaveOfferRow);
+        const targetPriceId = t?.kind === "downgrade" ? Deno.env.get(getPlanDef(t.plan).priceEnv) : undefined;
+        const infeasible = offerFeasibility(t, liveOf(sub), {
+          currentPlan: profile.plan as string | null,
+          targetPriceConfigured: t?.kind !== "downgrade" || !!targetPriceId,
+        });
+        if (infeasible || !t) return deny(infeasible ?? "invalid_terms");
+
+        // 1) Claim FIRST: caps/cooldown/targeting are enforced atomically in SQL.
+        const risk = await loadRisk(admin, user.id);
+        const { data: claim, error: claimError } = await admin.rpc("churn_save_claim", {
+          p_user: user.id,
+          p_offer: request.offer_id,
+          p_reason: request.reason,
+          p_band: risk?.band ?? null,
+          p_score: risk?.score ?? null,
+          p_subscription: subscriptionId,
+        });
+        if (claimError) throw new Error(`churn_save_claim: ${claimError.message}`);
+        if (!claim?.ok) return deny(String(claim?.code ?? "not_found"));
+        const redemptionId = claim.redemption_id as string;
+
+        // 2) Change Stripe. Any failure releases the claim so the customer keeps their allowance.
+        let ledgerExtra: Record<string, unknown> = {};
+        let saveResult: Record<string, unknown> = { kind: t.kind };
+        try {
+          if (t.kind === "pause") {
+            const resumesAt = addMonthsClamped(new Date(), t.months);
+            sub = await stripe.subscriptions.update(
+              subscriptionId,
+              { pause_collection: { behavior: "void", resumes_at: Math.floor(resumesAt.getTime() / 1000) } },
+              { idempotencyKey: `save-pause:${redemptionId}` },
+            );
+            ledgerExtra = { resumes_at: resumesAt.toISOString(), pause_months: t.months };
+            saveResult = { kind: "pause", resumes_at: resumesAt.toISOString(), months: t.months };
+          } else if (t.kind === "discount") {
+            const coupon = await ensureSaveCoupon(stripe, t.percentOff, t.months);
+            sub = await stripe.subscriptions.update(
+              subscriptionId,
+              { discounts: [{ coupon }] },
+              { idempotencyKey: `save-discount:${redemptionId}` },
+            );
+            ledgerExtra = { offer_coupon_id: coupon, offer_percent_off: t.percentOff };
+            saveResult = { kind: "discount", percent_off: t.percentOff, months: t.months };
+          } else {
+            const item = sub.items.data[0];
+            const quantity = item.quantity ?? 1;
+            const schedule = await stripe.subscriptionSchedules.create(
+              { from_subscription: sub.id },
+              { idempotencyKey: `save-downgrade:${redemptionId}` },
+            );
+            try {
+              const phase0 = schedule.phases[0];
+              await stripe.subscriptionSchedules.update(schedule.id, {
+                end_behavior: "release",
+                proration_behavior: "none",
+                phases: [
+                  {
+                    items: [{ price: item.price.id, quantity }],
+                    start_date: phase0.start_date,
+                    end_date: phase0.end_date,
+                    discounts: carryDiscounts(phase0.discounts as { discount?: string | { id: string } | null; coupon?: string | { id: string } | null }[]),
+                    metadata: { plan_id: String(profile.plan) },
+                    ...schedulePhaseTax(subscriptionHasAutomaticTax(sub)),
+                  },
+                  {
+                    items: [{ price: targetPriceId as string, quantity }],
+                    iterations: 1,
+                    metadata: { plan_id: t.plan },
+                    ...schedulePhaseTax(subscriptionHasAutomaticTax(sub)),
+                  },
+                ],
+              });
+            } catch (err) {
+              await stripe.subscriptionSchedules.release(schedule.id).catch(() => undefined);
+              throw err;
+            }
+            sub = await stripe.subscriptions.retrieve(subscriptionId);
+            ledgerExtra = { downgrade_plan: t.plan, period_end: iso(sub.current_period_end) };
+            saveResult = { kind: "downgrade", plan: t.plan, effective_at: iso(sub.current_period_end) };
+          }
+        } catch (err) {
+          const { error: releaseError } = await admin.rpc("churn_save_finalize", {
+            p_redemption: redemptionId,
+            p_ok: false,
+            p_error: err instanceof Error ? err.message : String(err),
+          });
+          if (releaseError) console.error(JSON.stringify({ event: "churn_save_release_failed", redemption_id: redemptionId, error: releaseError.message }));
+          throw err;
+        }
+
+        // 3) Finalize (retry once) + history + audit. Stripe is already changed: never fail the request.
+        let finalizeError = (await admin.rpc("churn_save_finalize", { p_redemption: redemptionId, p_ok: true, p_error: null })).error;
+        if (finalizeError) finalizeError = (await admin.rpc("churn_save_finalize", { p_redemption: redemptionId, p_ok: true, p_error: null })).error;
+        if (finalizeError) {
+          console.error(JSON.stringify({ event: "churn_save_finalize_failed", redemption_id: redemptionId, error: finalizeError.message }));
+        }
+        const ledger = ledgerActionFor(t.kind);
+        await record(ledger.action, ledger.audit, { ...ledgerExtra, save_offer_id: request.offer_id }, {
+          reason: request.reason,
+          detail: request.detail,
+        });
+        return json({ ...buildContext(sub), save_result: saveResult });
+      }
       case "resume": {
         if (!sub.cancel_at_period_end && !sub.pause_collection) {
           return fail("nothing_to_resume", "There is nothing to undo on this subscription.", 409);
