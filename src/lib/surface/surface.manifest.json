@@ -53,10 +53,7 @@
   {"href":"/dashboard/seasonal-stabilizer","old":"Seasonal Revenue Stabilizer","new":"Slow-Season Plan","synonyms":["seasonal","stabilizer"]},
   {"href":"/dashboard/capacity-demand","old":"Capacity Demand Control","new":"Workload vs Crew","synonyms":["capacity demand","control"]},
   {"href":"/dashboard/ask-vireek","old":"Ask Vireek","new":"Ask Vireek","synonyms":["ai chat","assistant","question"]},
-  {"href":"/dashboard/ai-quality","old":"AI Quality","new":"Call Answer Quality","synonyms":["ai quality","score"]}
- ]
-},
-,
+  {"href":"/dashboard/ai-quality","old":"AI Quality","new":"Call Answer Quality","synonyms":["ai quality","score"]},
   {"href":"/dashboard/conversations","old":"Conversation Intelligence","new":"Conversations","synonyms":["conversation intelligence","transcripts","call analysis"]},
   {"href":"/dashboard/job-autopsy","old":"AI Job Autopsy","new":"Job Review","synonyms":["autopsy","post-mortem","what went wrong"]},
   {"href":"/dashboard/parts-market","old":"AI Parts Market","new":"Parts Marketplace","synonyms":["parts market","buy parts"]},
@@ -94,3 +91,5 @@
   {"href":"/dashboard/ai-disclosure-ledger","old":"AI Disclosure Ledger","new":"AI Disclosures","synonyms":["disclosure ledger","consent log"]},
   {"href":"/dashboard/security-center","old":"AI Security Center","new":"AI Security","synonyms":["ai security center","guardrails"]},
   {"href":"/dashboard/review-shield","old":"Review Shield","new":"Review Protection","synonyms":["review shield","bad reviews"]}
+ ]
+}
