@@ -104,6 +104,8 @@
     "check:direct-llm": "node scripts/check-direct-llm-calls.mjs",
     "db:audit": "node scripts/db-audit.mjs --check",
     "check:agent-governance": "node scripts/check-agent-governance.mjs",
+    "ai-governance:inventory": "node scripts/ai-governance/inventory.mjs",
+    "ai-governance:check": "node scripts/ai-governance/inventory.mjs --check",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
