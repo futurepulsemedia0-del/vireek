@@ -22,6 +22,7 @@ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { resolveCallerId } from "../_shared/pbx/runtime.ts";
 import { twilioApi } from "../_shared/pbx/twilio.ts";
+import { asFraudDb, attachOutboundCall, gateCustomerOutbound, releaseOutboundReservation } from "../_shared/fraud/outboundGate.ts";
 import {
   MAX_BODY_BYTES, blockedDestination, buildBridgeTwiml, buildLeadNotes, countryAllowed, isTerminalStatus,
   isValidE164, isValidRequestId, jwtClaims, leadMatchFilter, mapProviderStatus, mapTwilioError, maskPhone,
@@ -245,20 +246,33 @@ async function clickToCall(c: Ctx, body: Row): Promise<Response> {
 
   const from = await callerId(c, agent.ext);
   if (!from) return fail(409, "no_caller_id", "No active business phone number is available for calling.");
+  // Fraud guard before the request slot is claimed (a refused click must not burn the idempotency key): budget,
+  // destination policy and the plan's call-length cap. Shadow/enforce per fraud_settings.outbound_guard_mode.
+  const fraud = await gateCustomerOutbound(asFraudDb(c.admin), {
+    userId: c.owner, kind: "call", to, purpose: leadId ? "service" : "marketing", source: "browser-extension",
+  });
+  if (!fraud.allowed) {
+    const b = fraud.blocked;
+    return fail(b.httpStatus, b.code.toLowerCase(), b.message, b.retryAfterSeconds ? { retry_after: b.retryAfterSeconds } : undefined);
+  }
 
   const page = safePageUrl(body.page_url);
   const slot = await claim(c, "click_to_call", body.request_id, {
     to_number: to, from_number: from, agent_hint: maskPhone(agent.e164), lead_id: leadId, page_host: page?.host ?? null,
   });
-  if (!slot) return fail(500, "internal_error", "Could not record the request.");
-  if (slot.replay) return json({ ok: true, replay: true, ...publicEvent(slot.event) });
+  if (!slot) { await releaseOutboundReservation(asFraudDb(c.admin), fraud); return fail(500, "internal_error", "Could not record the request."); }
+  if (slot.replay) { await releaseOutboundReservation(asFraudDb(c.admin), fraud); return json({ ok: true, replay: true, ...publicEvent(slot.event) }); }
 
   const eventId = slot.event.id as string;
   try {
     const twiml = buildBridgeTwiml({ customerE164: to, callerId: from, whisper: "Vireek is connecting your call. Please hold." });
-    const res = await twilioApi("Calls.json", { form: { To: agent.e164, From: from, Twiml: twiml, Timeout: "22" } });
+    const res = await twilioApi("Calls.json", { form: { To: agent.e164, From: from, Twiml: twiml, Timeout: "22", TimeLimit: String(fraud.maxCallSeconds) } });
+    // No status callback exists for this inline-TwiML call, so the reservation is not settled with the real duration:
+    // it is held at worst-case price until the daily bucket rolls over (rate-limited by CALLS_PER_DAY above).
+    await attachOutboundCall(asFraudDb(c.admin), fraud, res?.sid ?? null);
     await patch(c, eventId, { provider_sid: res?.sid ?? null, status: "ringing" });
     return json({ ok: true, ...publicEvent({ ...slot.event, status: "ringing", provider_sid: res?.sid }) }, 201);
+    await releaseOutboundReservation(asFraudDb(c.admin), fraud); // Twilio did not place the call
   } catch (e) {
     const m = mapTwilioError(String(e));
     await patch(c, eventId, { status: "failed", error_code: m.code, error_message: m.message });
