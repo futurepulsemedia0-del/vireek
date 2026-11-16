@@ -121,3 +121,18 @@ export function detectPriceDrift(
   const expectedMinor = getPlanDef(planId).monthlyPriceCents;
   return live.amountMinor === expectedMinor ? null : { planId, expectedMinor, actualMinor: live.amountMinor };
 }
+
+export const OVERAGE_CENTS_PER_MINUTE: Readonly<Record<PurchasablePlanId, number>> = {
+  starter: 20,
+  professional: 15,
+  business: 12,
+};
+
+export const ENTERPRISE_OVERAGE_CENTS: number | null = null;
+
+/** Cents per overage minute for a plan, or null when the plan is not auto-billed for overage. */
+export function overageCentsPerMinute(planId: string | null | undefined): number | null {
+  if (planId === "enterprise") return ENTERPRISE_OVERAGE_CENTS;
+  if (isPurchasablePlan(planId)) return OVERAGE_CENTS_PER_MINUTE[planId];
+  return null;
+}
