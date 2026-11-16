@@ -38,6 +38,7 @@ import { approvalParkMs, completeFollowupRun, runGovernedFollowup } from "../_sh
 import { isAgentRuntimeEnabled } from "../_shared/agent-run/runtimeFlags.ts";
 import type { RunHandle } from "../_shared/agent-run/store.ts";
 import { twilioSmsLookup } from "../_shared/agent-run/twilioLookup.ts";
+import { asFraudDb, attachOutboundCall, gateCustomerOutbound, releaseOutboundReservation, type BlockedSend } from "../_shared/fraud/outboundGate.ts";
 
 const BATCH_SIZE = 20;
 const MAX_ATTEMPTS_PER_STEP = 3;
@@ -187,7 +188,15 @@ async function scheduleNext(admin: SupabaseClient, enrollment: Enrollment, justR
   }
 }
 
-async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: Step | "legacy_call", vapiKey: string) {
+/** Fraud-guard purpose for a follow-up: reminders are transactional (service); quote follow-ups and review requests are marketing. */
+function followupFraudPurpose(c: CampaignType): "service" | "marketing" {
+  return c === "appointment_reminder" ? "service" : "marketing";
+}
+
+/** A step either succeeded (true), failed (false), or was refused by the fraud guard (never retried in a loop). */
+type StepResult = boolean | { blocked: BlockedSend };
+
+async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: Step | "legacy_call", vapiKey: string): Promise<StepResult> {
   const { data: business } = await admin
     .from("business_profile")
     .select("vapi_assistant_id, vapi_phone_number_id")
@@ -202,6 +211,20 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
       step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
       customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone,
       status: "failed", outcome_notes: "No Vapi assistant/phone number configured for this business.",
+  // Fraud guard immediately before the provider call (shadow/enforce per fraud_settings.outbound_guard_mode).
+  const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+    userId: enrollment.user_id, kind: "call", to: enrollment.customer_phone ?? "", purpose: followupFraudPurpose(enrollment.campaign_type),
+    source: "followup-agent-dispatcher", campaign: enrollment.campaign_type,
+  });
+  if (!fraud.allowed) {
+    await admin.from("outbound_calls").insert({
+      user_id: enrollment.user_id, campaign_type: enrollment.campaign_type, enrollment_id: enrollment.id,
+      step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
+      customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone,
+      status: "failed", outcome_notes: `Blocked by safety checks (${fraud.blocked.code}): ${fraud.blocked.message}`,
+    });
+    return { blocked: fraud.blocked };
+  }
     });
     return false;
   }
@@ -213,14 +236,15 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
   if (step !== "legacy_call" && step.call_context) variableValues.followup_context = step.call_context;
 
   try {
+      await releaseOutboundReservation(asFraudDb(admin), fraud);
     const res = await fetch(VAPI_CALL_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${vapiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         assistantId: business.vapi_assistant_id,
         phoneNumberId: business.vapi_phone_number_id,
-        customer: { number: enrollment.customer_phone },
-        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues },
+        customer: { number: fraud.e164 },
+        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues, maxDurationSeconds: fraud.maxCallSeconds },
       }),
     });
 
@@ -231,6 +255,7 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
         step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
         customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone,
         status: "failed", outcome_notes: `Vapi error ${res.status}: ${bodyText.slice(0, 300)}`,
+    await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
       });
       return false;
     }
@@ -244,6 +269,7 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
     });
     return true;
   } catch (err) {
+    await releaseOutboundReservation(asFraudDb(admin), fraud);
     await admin.from("outbound_calls").insert({
       user_id: enrollment.user_id, campaign_type: enrollment.campaign_type, enrollment_id: enrollment.id,
       step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
@@ -274,25 +300,40 @@ async function placeVapiCall(
   };
   if (step !== "legacy_call" && step.call_context) variableValues.followup_context = step.call_context;
 
-  const res = await fetch(VAPI_CALL_URL, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${vapiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      assistantId: business.vapi_assistant_id,
-      phoneNumberId: business.vapi_phone_number_id,
-      customer: { number: enrollment.customer_phone },
-      assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues },
-    }),
+  const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+    userId: enrollment.user_id, kind: "call", to: enrollment.customer_phone ?? "", purpose: followupFraudPurpose(enrollment.campaign_type),
+    source: "followup-agent-dispatcher", campaign: enrollment.campaign_type,
   });
+  // A guard refusal is a policy decision: ToolError "policy_blocked" is never retried by the run runtime.
+  if (!fraud.allowed) throw new ToolError(`fraud_guard:${fraud.blocked.code}: ${fraud.blocked.message}`, "policy_blocked", false, false);
+
+  let res: Response;
+  try {
+    res = await fetch(VAPI_CALL_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${vapiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        assistantId: business.vapi_assistant_id,
+        phoneNumberId: business.vapi_phone_number_id,
+        customer: { number: fraud.e164 },
+        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues, maxDurationSeconds: fraud.maxCallSeconds },
+      }),
+    });
+  } catch (e) {
+    await releaseOutboundReservation(asFraudDb(admin), fraud); // network error: the call may or may not exist; the runtime's verify() decides, the budget is not held
+    throw e;
+  }
   if (!res.ok) {
+    await releaseOutboundReservation(asFraudDb(admin), fraud);
     const bodyText = await res.text();
     throw Object.assign(new Error(`Vapi error ${res.status}: ${bodyText.slice(0, 300)}`), { status: res.status });
+  await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
   }
   const json = await res.json();
   return { providerId: json.id ?? null };
 }
 
-async function runSmsStep(admin: SupabaseClient, enrollment: Enrollment, step: Step) {
+async function runSmsStep(admin: SupabaseClient, enrollment: Enrollment, step: Step): Promise<StepResult> {
   const vars = await buildTemplateVars(admin, enrollment);
   const body = renderTemplate(step.sms_body ?? "", vars);
 
@@ -306,7 +347,9 @@ async function runSmsStep(admin: SupabaseClient, enrollment: Enrollment, step: S
     return false;
   }
 
-  const result = await sendCompliantSms(admin, enrollment.user_id, enrollment.customer_phone, body);
+  const result = await sendCompliantSms(admin, enrollment.user_id, enrollment.customer_phone, body, {
+    fraudPurpose: followupFraudPurpose(enrollment.campaign_type), source: "followup-agent-dispatcher",
+  });
 
   if (result.ok) {
     await admin.from("outbound_sms").insert({
@@ -324,7 +367,7 @@ async function runSmsStep(admin: SupabaseClient, enrollment: Enrollment, step: S
     customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone, body,
     status: result.reason === "OPTED_OUT" ? "opted_out" : "failed", outcome_notes: result.detail ?? result.reason,
   });
-  return false;
+  return result.reason === "FRAUD_BLOCKED" ? { blocked: result.block } : false;
 }
 
 Deno.serve(async (req: Request) => {
@@ -473,19 +516,34 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    let ok: boolean;
+    let stepResult: StepResult;
     if (governedHandled) {
-      ok = governedOk;
+      stepResult = governedOk;
     } else if (channel === "call") {
       if (!vapiKey) {
         await admin.from("followup_agent_enrollments").update({ status: "completed", stop_reason: "vapi_not_configured" }).eq("id", enrollment.id);
         stopped += 1;
         continue;
       }
-      ok = await runCallStep(admin, enrollment, step, vapiKey);
+      stepResult = await runCallStep(admin, enrollment, step, vapiKey);
     } else {
-      ok = await runSmsStep(admin, enrollment, step as Step);
+      stepResult = await runSmsStep(admin, enrollment, step as Step);
     }
+
+    if (typeof stepResult === "object") {
+      // Fraud guard refusal. Never counted as a failed attempt and never retried on the 30-minute loop:
+      // a cap that resets parks the enrollment until retryAt; anything a retry cannot fix stops the sequence.
+      await recordCoordinationOutcome(admin, claim.bidId, "failed");
+      const b = stepResult.blocked;
+      if (b.retryable && b.retryAt) {
+        await admin.from("followup_agent_enrollments").update({ next_action_at: b.retryAt }).eq("id", enrollment.id);
+      } else {
+        await admin.from("followup_agent_enrollments").update({ status: "stopped", stop_reason: `fraud_guard:${b.code}` }).eq("id", enrollment.id);
+        stopped += 1;
+      }
+      continue;
+    }
+    const ok = stepResult;
 
     await recordCoordinationOutcome(admin, claim.bidId, ok ? "success" : "failed");
 
