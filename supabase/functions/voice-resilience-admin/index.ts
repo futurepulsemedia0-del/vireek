@@ -8,6 +8,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { twilioCarrier } from "../_shared/voice-resilience/adapters.ts";
+import { bulkheadGuard, isBulkheadRejection } from "../_shared/voice-resilience/bulkhead.ts";
 import { E164, expiryFor, evaluateForwardTest, planFor, type CarrierFamily, type ForwardCheck } from "../_shared/voice-resilience/carrierForwarding.ts";
 import { isValidE164 } from "../_shared/voice-hardening/escalation.ts";
 
@@ -118,7 +119,7 @@ Deno.serve(async (req: Request) => {
       }).select("id").single();
       if (error || !row) return json({ error: "Could not start" }, 500);
       try {
-        const placed = await twilioCarrier({ accountSid: sid, authToken: tok }).placeCall({
+        const placed = await twilioCarrier({ accountSid: sid, authToken: tok, guard: bulkheadGuard("twilio:carrier", Deno.env) }).placeCall({
           to: bn, from: probeFrom, timeoutSeconds: ring + 15,
           twiml: `<Response><Say>This is a Vireek phone test. Please do not answer.</Say><Pause length="${ring + 20}"/></Response>`,
           statusCallback: `${base}?action=check-status&check=${row.id}`,
@@ -126,6 +127,7 @@ Deno.serve(async (req: Request) => {
         await admin.from("voice_forward_checks").update({ outbound_sid: placed.callSid, outbound_status: "ringing" }).eq("id", row.id);
       } catch (e) {
         await admin.from("voice_forward_checks").update({ status: "error", finished_at: new Date().toISOString() }).eq("id", row.id);
+        if (isBulkheadRejection(e)) return json({ error: "Phone line is busy, try again in a moment", retry_after_seconds: 5 }, 503);
         return json({ error: "Test call could not be placed", detail: e instanceof Error ? e.message.slice(0, 120) : "error" }, 502);
       }
       return json({ check_id: row.id, instruction: kind === "forward_on" ? "Let your phone ring. Do NOT answer." : "Let your phone ring. After cancelling forwarding it must ring out here only." });
