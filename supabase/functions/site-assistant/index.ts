@@ -29,6 +29,8 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { askVireekAiStream, safeFallbackMessage } from "../_shared/ai-core/index.ts";
 import type { ChatMessage } from "../_shared/ai-core/types.ts";
 import { buildDiagnosticsPrefix } from "../_shared/ai-core/diagnosticsPrefix.ts";
+import { formatSiteMatches, retrieveSiteKnowledge, toRetrievedChunks } from "../_shared/ai-core/siteKnowledge.ts";
+import { buildLogRow, buildTurn, logAnswer, type InsertClient } from "../_shared/ai-core/siteAssistantTurn.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -125,6 +127,20 @@ Deno.serve(async (req: Request) => {
       request_count: currentCount + 1,
     });
 
+    // Public hybrid RAG (soft-fails to "unavailable"; never throws). Runs AFTER the rate-limit check so
+    // throttled requests cost nothing, and its verdict decides whether the model may answer from memory.
+    const startedAt = Date.now();
+    const retrieval = await retrieveSiteKnowledge(message);
+    const turn = buildTurn({
+      question: message,
+      available: retrieval.available,
+      grounded: retrieval.grounded,
+      topSimilarity: retrieval.topSimilarity,
+      fromCache: retrieval.fromCache,
+      chunks: toRetrievedChunks(retrieval.matches),
+      kbBlock: formatSiteMatches(retrieval.matches),
+    });
+    let firstTokenMs: number | null = null;
     const trimmedHistory: ChatMessage[] = history.slice(-MAX_HISTORY_TURNS * 2).map((m) => ({
       role: m.role === "assistant" ? "assistant" : "user",
       content: String(m.content).slice(0, MAX_MESSAGE_LENGTH),
@@ -139,11 +155,14 @@ Deno.serve(async (req: Request) => {
               task: "general",
               messages: [...trimmedHistory, { role: "user", content: message }],
               maxTokens: 320,
-              extraInstructions: buildDiagnosticsPrefix(body?.diagnostics) +
+              extraInstructions: buildDiagnosticsPrefix(body?.diagnostics) + turn.instructions +
                 "You are the 'Ask Vireek' help widget shown on every public marketing page — a visitor may be stuck, confused, or just curious, about anything from pricing to how a specific feature works to which page covers a topic. Answer directly and completely using the reference knowledge below when relevant. Keep replies conversational (short paragraphs or a tight list, not a wall of text). If something genuinely isn't covered in your reference knowledge (an exact number, a legal specifics, account-specific detail), say so plainly and point them to the right page (Pricing, Contact, Help Center) rather than guessing.",
             },
             (delta) => {
-              if (delta) receivedAny = true;
+              if (delta) {
+                receivedAny = true;
+                if (firstTokenMs === null) firstTokenMs = Date.now() - startedAt;
+              }
               controller.enqueue(sseLine({ delta }));
             },
           );
@@ -160,6 +179,12 @@ Deno.serve(async (req: Request) => {
           if (!receivedAny) {
             controller.enqueue(sseLine({ delta: "Sorry, could you rephrase that?" }));
           }
+          // Privacy-safe answer log (redacted question, no IP, no user id) → id for the thumbs-up/down RPC.
+          const answerId = await logAnswer(
+            supabase as unknown as InsertClient,
+            buildLogRow(turn, { provider: result.meta.provider, model: result.meta.model, latencyMs: Date.now() - startedAt, firstTokenMs }),
+          );
+          controller.enqueue(sseLine({ meta: { answerId, sources: turn.sources, suggestions: turn.suggestions, handoff: turn.handoff } }));
           controller.enqueue(sseLine({ done: true, provider: result.meta.provider, model: result.meta.model }));
         } catch (err) {
           console.error("[site-assistant] AI Core error (all providers failed):", err);
