@@ -31,7 +31,7 @@
 //   https://<project-ref>.supabase.co/functions/v1/stripe-webhook
 // subscribed to: invoice.payment_failed, invoice.payment_succeeded,
 // customer.subscription.deleted, checkout.session.completed,
-// customer.subscription.updated.
+// customer.subscription.updated, invoice.created, checkout.session.async_payment_succeeded.
 //
 // --no-verify-jwt is required because Stripe calls this endpoint directly
 // with no Supabase auth header — the Stripe signature check below (via
@@ -41,6 +41,21 @@ import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
 import { minutesForPlan, minutesToSyncOnPlanSync, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
+import {
+  processOverageInvoice,
+  type InvoiceItemLike,
+  type InvoiceLike,
+  type OverageDeps,
+  type UsagePeriodRow,
+} from "../_shared/billing/overage.ts";
+import {
+  TOPUP_PRICE_ENV,
+  isTopupSession,
+  processTopupSession,
+  type TopupDeps,
+  type TopupLineItemLike,
+  type TopupSessionLike,
+} from "../_shared/billing/topup.ts";
 import { notifyPaymentSuspended } from "../_shared/billing/notices/dispatch.ts";
 import {
   chargeRefundToClawbackArgs,
@@ -163,6 +178,69 @@ async function sendEmail(params: { to: string; subject: string; html: string; te
   if (!res.ok) {
     console.error("Resend error sending dunning email:", await res.text());
   }
+}
+
+type AdminClient = ReturnType<typeof createClient>;
+
+/** Real Stripe/Supabase I/O for overage invoicing (logic lives in _shared/billing/overage.ts). */
+function buildOverageDeps(stripe: Stripe, admin: AdminClient): OverageDeps {
+  return {
+    findProfilesByCustomer: async (customerId) => {
+      const { data, error } = await admin.from("profiles").select("id, plan").eq("stripe_customer_id", customerId).limit(2);
+      if (error) throw new Error(`profile lookup failed: ${error.message}`);
+      return (data ?? []) as { id: string; plan: string | null }[];
+    },
+    retrieveInvoice: async (invoiceId) => (await stripe.invoices.retrieve(invoiceId)) as unknown as InvoiceLike,
+    listInvoiceItems: async (invoiceId) => {
+      const out: InvoiceItemLike[] = [];
+      for await (const item of stripe.invoiceItems.list({ invoice: invoiceId, limit: 100 })) {
+        out.push({ id: item.id, metadata: item.metadata });
+        if (out.length >= 250) break;
+      }
+      return out;
+    },
+    createInvoiceItem: async (params, idempotencyKey) => {
+      const item = await stripe.invoiceItems.create(params, { idempotencyKey });
+      return { id: item.id };
+    },
+    rollover: async (args) => {
+      const { data, error } = await admin.rpc("period_rollover", args);
+      if (error || !data) throw new Error(`period_rollover failed: ${error?.message ?? "empty result"}`);
+      return data as UsagePeriodRow;
+    },
+    setBilling: async (args) => {
+      const { data, error } = await admin.rpc("usage_period_set_billing", args);
+      if (error) throw new Error(`usage_period_set_billing failed: ${error.message}`);
+      return (data ?? null) as UsagePeriodRow | null;
+    },
+    log: (event, detail) => console.log(JSON.stringify({ event, ...detail })),
+  };
+}
+
+/** Real Stripe/Supabase I/O for top-up credits (logic lives in _shared/billing/topup.ts). */
+function buildTopupDeps(stripe: Stripe, admin: AdminClient): TopupDeps {
+  return {
+    expectedPriceId: Deno.env.get(TOPUP_PRICE_ENV) || undefined,
+    listLineItems: async (sessionId) => {
+      const out: TopupLineItemLike[] = [];
+      for await (const li of stripe.checkout.sessions.listLineItems(sessionId, { limit: 100 })) {
+        out.push({ price: li.price ? { id: li.price.id } : null, quantity: li.quantity });
+        if (out.length >= 100) break;
+      }
+      return out;
+    },
+    findProfilesByCustomer: async (customerId) => {
+      const { data, error } = await admin.from("profiles").select("id, stripe_customer_id").eq("stripe_customer_id", customerId).limit(2);
+      if (error) throw new Error(`profile lookup failed: ${error.message}`);
+      return (data ?? []) as { id: string; stripe_customer_id: string | null }[];
+    },
+    recordCredit: async (args) => {
+      const { data, error } = await admin.rpc("credit_topup", args);
+      if (error) throw new Error(`credit_topup failed: ${error.message}`);
+      return data as "credited" | "duplicate" | "rejected";
+    },
+    log: (event, detail) => console.log(JSON.stringify({ event, ...detail })),
+  };
 }
 
 Deno.serve(async (req: Request) => {
@@ -350,6 +428,11 @@ Deno.serve(async (req: Request) => {
       }
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
+        if (isTopupSession(session)) {
+          const result = await processTopupSession(session as unknown as TopupSessionLike, buildTopupDeps(stripe, admin));
+          console.log(JSON.stringify({ event: "topup_session_processed", session: session.id, result }));
+          break;
+        }
         if (session.mode !== "subscription" || !session.subscription) break;
         {
           const r = await applyCheckoutSession(admin, stripe as unknown as StripeClientLike, session as unknown as Parameters<typeof applyCheckoutSession>[2], event.created, (k) => Deno.env.get(k));
@@ -466,11 +549,26 @@ Deno.serve(async (req: Request) => {
         }
         break;
       }
+      case "invoice.created": {
+        // Renewal draft invoice: close the previous usage period and (policy = bill) add ONE overage item.
+        const invoice = event.data.object as Stripe.Invoice;
+        if (invoice.billing_reason !== "subscription_cycle") break;
+        const result = await processOverageInvoice(invoice as unknown as InvoiceLike, buildOverageDeps(stripe, admin));
+        console.log(JSON.stringify({ event: "overage_invoice_processed", invoice: invoice.id, result }));
+        break;
+      }
+      case "checkout.session.async_payment_succeeded": {
+        // Delayed payment methods: credit the top-up pack once the money has really arrived.
+        const session = event.data.object as Stripe.Checkout.Session;
+        if (!isTopupSession(session)) break;
+        const result = await processTopupSession(session as unknown as TopupSessionLike, buildTopupDeps(stripe, admin));
+        console.log(JSON.stringify({ event: "topup_session_processed", session: session.id, result }));
+        break;
+      }
       default:
         // Not a dunning-relevant event — acknowledged and ignored.
         break;
     }
-   } catch (err) {
     console.error(`Error handling Stripe event ${event.type} (${event.id}):`, err);
     await admin.rpc("complete_billing_event", {
       p_event_id: event.id,
