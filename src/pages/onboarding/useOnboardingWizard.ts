@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase, BusinessProfile } from '@/lib/supabase';
 import { purchasePhoneNumber } from '@/lib/phoneNumbers';
+import { recordActivation } from '@/lib/activation';
 import { createArticle, EMPTY_ARTICLE_FORM } from '@/lib/knowledge';
 import { fetchVerticalSettings, getPack, normalizeVerticalId, saveVerticalSelection } from '@/lib/voicePlatform';
 import {
@@ -193,6 +194,7 @@ export function useOnboardingWizard() {
         number_type: 'local',
         forwarding_number: data.forwardingNumber.trim() || null,
       });
+      recordActivation('phone_connected');
     } catch {
       toast('Could not reserve that number automatically — add it from Phone Numbers in your dashboard.', 'info');
     }
@@ -311,6 +313,7 @@ export function useOnboardingWizard() {
       await provisionPhoneIfNeeded();
       await seedKnowledgeIfNeeded();
       await persistWizardState('launch', STEPS.map((s) => s.id));
+      recordActivation('assistant_configured');
 
       try {
         localStorage.removeItem(DRAFT_KEY);
