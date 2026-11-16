@@ -75,7 +75,10 @@ export class VapiEngine implements VoiceEngine {
         assistantId: input.assistantId,
         phoneNumberId: input.phoneNumberId,
         customer: { number: input.customerNumber },
-        assistantOverrides: { variableValues: input.variableValues },
+        assistantOverrides: {
+          variableValues: input.variableValues,
+          ...(input.maxDurationSeconds ? { maxDurationSeconds: Math.floor(input.maxDurationSeconds) } : {}),
+        },
       }),
     });
 
