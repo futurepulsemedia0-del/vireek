@@ -250,11 +250,7 @@ export function LiveChatWidget() {
               type="submit"
               disabled={!input.trim() || sending}
               aria-label="Send"
-<<<<<<< HEAD
               className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-brand-from to-brand-to text-on-brand transition-opacity disabled:opacity-40"
-=======
-              className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-on-inverse/30 bg-gradient-to-br from-[#A93B0F] to-[#533AFD] text-white transition-opacity disabled:opacity-40"
->>>>>>> 5d158cfe (chore: apply Aurora Clay palette)
             >
               <Send size={16} />
             </button>
