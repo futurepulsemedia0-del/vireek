@@ -234,7 +234,7 @@ export function defaultDesign(docType: DocType): DocumentDesign {
   return {
     version: 1,
     page: { size: 'a4', margin: 48 },
-    theme: { primary: '#203AD8', accent: '#D6582A', text: '#171717', muted: '#6E6E78', font: 'helvetica', baseSize: 10 },
+    theme: { primary: '#AE3600', accent: '#533AFD', text: '#171717', muted: '#6E6E78', font: 'helvetica', baseSize: 10 },
     header: {
       showLogo: true,
       logoAlign: 'left',
@@ -266,7 +266,7 @@ export const PRESET_IDS = ['classic', 'modern', 'minimal', 'executive'] as const
 export type PresetId = (typeof PRESET_IDS)[number];
 
 export const PRESETS: { id: PresetId; label: string; description: string }[] = [
-  { id: 'classic', label: 'Classic', description: 'Blue accent, thin top bar, clean table.' },
+  { id: 'classic', label: 'Classic', description: 'Orange accent, thin top bar, clean table.' },
   { id: 'modern', label: 'Modern', description: 'Dark header band, striped rows.' },
   { id: 'minimal', label: 'Minimal', description: 'No color blocks, hairline table.' },
   { id: 'executive', label: 'Executive', description: 'Serif type, restrained and formal.' },
