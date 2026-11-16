@@ -15,6 +15,7 @@ import {
   shouldRecord, toE164, xml, type Destination, type Schedule, type Strategy,
 } from "../_shared/pbx/logic.ts";
 import { LEG_STATUS, twiml, validTwilioSignature } from "../_shared/pbx/twilio.ts";
+import { asFraudDb, settleCall } from "../_shared/fraud/outboundGate.ts";
 import { SEALED_UNAVAILABLE, getSealPolicy, sealField } from "../_shared/trust/vault.ts";
 import {
   appendIvrPath, decideIvr, ivrDepth, ivrPromptText, ivrRetryMessage, IVR_MAX_DEPTH, toIvrMenuConfig,
@@ -627,6 +628,8 @@ Deno.serve(async (req: Request) => {
         let upd = admin.from("pbx_call_legs").update(patch).eq("id", q("leg")).eq("call_id", q("call"));
         if (!terminal) upd = upd.not("status", "in", `(${TERMINAL.join(",")})`); // callbacks can arrive out of order
         const { data: leg } = await upd.select("id, role, extension_id, answered_at").maybeSingle();
+        // Outbound softphone legs hold a fraud-guard reservation keyed by this sid: settle the real duration (0 s if it never connected).
+        if (leg && terminal && leg.role === "customer") bg(settleCall(asFraudDb(admin), params.CallSid, Number(params.CallDuration ?? 0) || 0));
         if (leg && terminal) bg(onLegTerminal(admin, q("call"), leg));
         return empty();
       }
