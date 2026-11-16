@@ -23,8 +23,11 @@ export type CancellationRequest =
   | { action: "cancel"; reason: CancelReason; detail: string }
   | { action: "pause"; months: PauseMonths; reason: CancelReason | null; detail: string }
   | { action: "accept_offer"; reason: CancelReason | null; detail: string }
+  | { action: "offers"; reason: CancelReason; detail: string }
+  | { action: "accept_save_offer"; offer_id: string; reason: CancelReason; detail: string }
   | { action: "resume" };
 
+export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export type ParseResult = { ok: true; request: CancellationRequest } | { ok: false; error: string };
 
 function parseReason(value: unknown): CancelReason | null | undefined {
@@ -65,6 +68,16 @@ export function parseRequest(body: unknown): ParseResult {
       return { ok: true, request: { action: "pause", months: months as PauseMonths, reason, detail } };
     }
     return { ok: true, request: { action: "accept_offer", reason, detail } };
+  }
+  if (b.action === "offers" || b.action === "accept_save_offer") {
+    const reason = parseReason(b.reason);
+    if (reason === undefined) return { ok: false, error: "Unknown cancellation reason." };
+    if (reason === null) return { ok: false, error: "Please tell us why you're cancelling." };
+    const detail = parseDetail(b.detail);
+    if (detail === null) return { ok: false, error: `Feedback must be ${MAX_DETAIL_LENGTH} characters or fewer.` };
+    if (b.action === "offers") return { ok: true, request: { action: "offers", reason, detail } };
+    if (typeof b.offer_id !== "string" || !UUID_RE.test(b.offer_id)) return { ok: false, error: "Invalid offer." };
+    return { ok: true, request: { action: "accept_save_offer", offer_id: b.offer_id.toLowerCase(), reason, detail } };
   }
   return { ok: false, error: "Unknown action." };
 }
