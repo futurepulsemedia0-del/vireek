@@ -12,6 +12,7 @@
 - [ ] **Architecture:** `node scripts/governance/check-layers.mjs --check` passes; ADR added/updated for a new decision (`docs/adr/`)
 - [ ] **Changelog:** line added under `[Unreleased]` in `CHANGELOG.md`, or label `no-changelog`
 - [ ] **Claims:** no new public claim without evidence (`npm run claims:check`)
+- [ ] **AI:** no new AI / model use, or `npm run ai-governance:inventory` re-run and the new register rows have an owner + review date (risk class only with counsel — [COUNSEL]); `npm run ai-governance:check` passes
 
 **Rollback / recovery plan (required for migrations and edge-function changes):**
 
