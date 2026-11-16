@@ -20,7 +20,6 @@ Routes found: **683**.
 | `/onboarding-guide` | `OnboardingGuidePage` | public |
 | `/academy` | `AcademyPage` | public |
 | `/academy/certificate` | `AcademyCertificatePage` | public |
-| AI Incident Response Policy (extends the above) | `ai-incident-response.md` |
 | `/community` | `CommunityPage` | public |
 | `/ambassador` | `AmbassadorPage` | public |
 | `/staff/web-vitals` | `StaffWebVitalsPage` | StaffRoute |
@@ -230,6 +229,7 @@ Routes found: **683**.
 | `/dashboard/usage` | `UsageDashboardPage` | ProtectedRoute |
 | `/dashboard/feedback/mine` | `MyFeedbackPage` | ProtectedRoute |
 | `/staff/feedback` | `PageLoader` | StaffRoute |
+| `/staff/ai-incidents` | `PageLoader` | StaffRoute |
 | `/dashboard/feedback` | `FeedbackPage` | ProtectedRoute |
 | `/dashboard/notifications` | `NotificationsPage` | ProtectedRoute |
 | `/dashboard/crm-sync` | `CrmSyncPage` | ProtectedRoute |
