@@ -8,6 +8,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { SWITCH_GUIDE_DEEP } from '@/lib/deepContent/switchGuidesDeep';
 import { SWITCH_GUIDES, getSwitchGuideBySlug } from '@/lib/switchGuides';
 
 export function SwitchGuidePage() {
@@ -160,6 +162,9 @@ export function SwitchGuidePage() {
           </section>
         )}
 
+        {SWITCH_GUIDE_DEEP[guide.slug] && (
+          <DeepContent data={SWITCH_GUIDE_DEEP[guide.slug]} idPrefix={`switch-${guide.slug}`} />
+        )}
         {/* Other switch guides */}
         {otherGuides.length > 0 && (
           <section className="px-6 py-16 sm:py-20">
