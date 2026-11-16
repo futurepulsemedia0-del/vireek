@@ -8,6 +8,14 @@
 //   pause         pause billing for 1-3 months (Stripe pause_collection)
 //   accept_offer  apply the win-back coupon (once per account)
 //   resume        undo a scheduled cancellation or end a pause early
+//   offers        (churn-save) list the admin-configured save offers this account may
+//                 claim for the chosen reason; records "presented" for outcome tracking
+//   accept_save_offer  (churn-save) claim + apply one offer: pause / downgrade / discount.
+//                 Caps are enforced atomically in SQL (churn_save_claim) BEFORE Stripe is
+//                 touched; a Stripe failure releases the claim.
+//
+// When churn-save offers are live (churn_save_is_active()), the legacy `pause` and
+// `accept_offer` actions are refused (use_save_offers) so no uncapped path remains.
 //
 // Design rules:
 //   * Stripe is the source of truth. Nothing about the live subscription is
@@ -28,7 +36,24 @@
 // Deploy: supabase functions deploy manage-subscription-cancellation
 
 import Stripe from "npm:stripe@17.4.0";
-import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { getPlanDef } from "../_shared/billing/planCatalog.ts";
+import { schedulePhaseTax, subscriptionHasAutomaticTax } from "../_shared/billing/stripeTax.ts";
+import {
+  carryDiscounts,
+  couponMatches,
+  denialFor,
+  ledgerActionFor,
+  offerFeasibility,
+  riskFromRow,
+  saveCouponId,
+  termsOf,
+  toOfferView,
+  type ChurnRisk,
+  type LiveSubscription,
+  type SaveOfferRow,
+  type SaveOfferView,
+} from "../_shared/billing/churnSaveLogic.ts";
 import {
   addMonthsClamped,
   canModifySubscription,
@@ -55,6 +80,45 @@ function fail(code: string, error: string, status: number) {
 }
 
 const iso = (unixSeconds: number | null | undefined) => (unixSeconds ? new Date(unixSeconds * 1000).toISOString() : null);
+
+/** Reuses the staff health score (computeHealth) for this one account. Never throws. */
+async function loadRisk(admin: SupabaseClient, userId: string): Promise<ChurnRisk | null> {
+  try {
+    const { data, error } = await admin.rpc("churn_save_account_signals", { p_user: userId });
+    if (error) return null;
+    return riskFromRow(Array.isArray(data) ? data[0] : data);
+  } catch {
+    return null;
+  }
+}
+
+/** One Stripe coupon per distinct (percent, months). Verifies an existing coupon carries the same terms. */
+async function ensureSaveCoupon(stripe: Stripe, percentOff: number, months: number): Promise<string> {
+  const id = saveCouponId(percentOff, months);
+  const verifyExisting = async () => {
+    if (!couponMatches(await stripe.coupons.retrieve(id), percentOff, months)) throw new Error("save_coupon_terms_mismatch");
+    return id;
+  };
+  try {
+    return await verifyExisting();
+  } catch (err) {
+    if ((err as { code?: string }).code !== "resource_missing") throw err;
+  }
+  try {
+    await stripe.coupons.create({
+      id,
+      percent_off: percentOff,
+      duration: "repeating",
+      duration_in_months: months,
+      name: `Vireek save offer ${percentOff}% x ${months}m`,
+      metadata: { source: "vireek_churn_save" },
+    });
+    return id;
+  } catch (err) {
+    if ((err as { code?: string }).code === "resource_already_exists") return await verifyExisting();
+    throw err;
+  }
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
@@ -118,12 +182,21 @@ Deno.serve(async (req: Request) => {
       .eq("action", "offer_accepted");
     const alreadyUsedOffer = (usedOffers ?? 0) > 0;
 
+    // Churn-save offers are live only when the kill switch is on AND >=1 offer is enabled.
+    // Before the migration is applied this resolves to false and the legacy flow is unchanged.
+    const { data: saveActiveData } = await admin.rpc("churn_save_is_active");
+    const saveActive = saveActiveData === true;
     const stateOf = (s: Stripe.Subscription) => ({
       status: s.status,
       cancelAtPeriodEnd: s.cancel_at_period_end,
       paused: !!s.pause_collection,
     });
 
+    const liveOf = (s: Stripe.Subscription): LiveSubscription => ({
+      ...stateOf(s),
+      discountCount: (s.discounts?.length ?? 0) + (s.discount ? 1 : 0),
+      hasSchedule: !!s.schedule,
+    });
     const buildContext = (s: Stripe.Subscription) => {
       const item = s.items.data[0];
       return {
