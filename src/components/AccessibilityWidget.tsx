@@ -766,7 +766,7 @@ export function AccessibilityWidget() {
   if (onWallboard) return null;
 
   return (
-    <div className="a11y-widget fixed bottom-[calc(1.25rem_+_var(--vk-bottom-nav-h,0px))] right-5 z-[75] print:hidden">
+    <div data-floating-launcher className="a11y-widget fixed bottom-[calc(1.25rem_+_var(--vk-bottom-nav-h,0px))] right-5 z-[75] print:hidden">
       <AnimatePresence>
         {showOnboarding && !isOpen && <OnboardingTip onDismiss={dismissOnboarding} />}
       </AnimatePresence>
