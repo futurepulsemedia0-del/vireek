@@ -175,6 +175,7 @@ export function LoginPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Sign in failed. Please try again.';
       const lower = msg.toLowerCase();
+      window.dispatchEvent(new CustomEvent('vireek:auth-issue', { detail: { message: msg } }));
 
       if (lower.includes('confirm')) {
         // Account exists but the email hasn't been verified yet — send a
