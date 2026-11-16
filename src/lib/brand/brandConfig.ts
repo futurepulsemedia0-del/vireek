@@ -24,10 +24,10 @@ export const BRAND = {
    */
   registered: false,
   colors: {
-    light: { bg: '#FDFCFA', text: '#17171A', muted: '#676770', accent: '#203AD8', live: '#D6582A' },
-    dark: { bg: '#090A0D', text: '#F2F1EE', muted: '#9A9AA3', accent: '#6C82FF', live: '#FF8A5A' },
-    accent500: '#3448E8',
-    accent300: '#8FA0FB',
+    light: { bg: '#FAF9F5', text: '#141413', muted: '#6C6A65', accent: '#AE3600', live: '#533AFD' },
+    dark: { bg: '#141413', text: '#FAF9F5', muted: '#97968F', accent: '#FF916C', live: '#7F6CFE' },
+    accent500: '#F9774C',
+    accent300: '#FF916C',
   },
 } as const;
 
