@@ -12,6 +12,8 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { TRUST_DEEP } from '@/lib/deepContent/securityDeep';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { SUBPROCESSOR_CATEGORIES } from '@/lib/subprocessors';
 import { TrustClaimsSection } from '@/components/compliance/TrustClaimsSection';
@@ -446,6 +448,7 @@ export function TrustCenterPage() {
           </div>
         </section>
 
+        <DeepContent data={TRUST_DEEP} idPrefix="trust" />
         {/* Final CTA */}
         <section className="px-5 pb-16 sm:px-6 sm:pb-24">
           <div className="mx-auto max-w-4xl rounded-[2rem] border border-border bg-bg-secondary p-8 text-center shadow-card dark:shadow-card-dark sm:p-12">
