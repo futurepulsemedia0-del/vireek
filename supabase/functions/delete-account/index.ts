@@ -75,7 +75,7 @@ Deno.serve(async (req: Request) => {
     // themselves cascade automatically once the auth user is deleted
     // (see 20260821101104_create_profiles_and_team_members.sql).
     const trust = await eraseTrustPackData(admin, userId);
-if (!trust.ok) return json({ error: "Some encrypted data could not be removed yet. Please try again shortly." }, 503);
+    if (!trust.ok) return json({ error: "Some encrypted data could not be removed yet. Please try again shortly." }, 503);
     const prov = await eraseProviderData(admin, userId, {
       elevenLabsKey: Deno.env.get("ELEVENLABS_API_KEY") ?? undefined,
       vapiKey: Deno.env.get("VAPI_PRIVATE_KEY") ?? undefined,
