@@ -141,6 +141,7 @@ export function AiAssistant() {
         onMouseLeave={() => setShowTooltip(false)}
         aria-label={open ? 'Close AI Assistant' : 'Open AI Assistant'}
         aria-expanded={open}
+        data-floating-launcher
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.94 }}
         className="fixed bottom-[calc(92px_+_var(--vk-bottom-nav-h,0px))] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent print:hidden"
