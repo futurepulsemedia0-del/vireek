@@ -14,6 +14,7 @@ import { InputsPanel } from '@/components/staff/margins/InputsPanel';
 import { PlanListMarginPanel } from '@/components/staff/margins/PlanListMarginPanel';
 import { ReportPanel } from '@/components/staff/margins/ReportPanel';
 import { LedgerPanel } from '@/components/staff/margins/LedgerPanel';
+import { CogsPanel } from '@/components/staff/margins/CogsPanel';
 import { INPUT } from '@/components/staff/margins/shared';
 import { useToast } from '@/contexts/ToastContext';
 import { useSEO } from '@/lib/seo';
@@ -30,6 +31,7 @@ const TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'planning', label: 'Simulator & quotes' },
   { id: 'ledger', label: 'Ledger & unit costs' },
+  { id: 'cogs', label: 'Realised COGS' },
   { id: 'inputs', label: 'Inputs' },
   { id: 'report', label: 'Report' },
 ] as const;
@@ -183,6 +185,7 @@ export function StaffMarginsPage() {
                 {tab === 'overview' && <MarginOverview summary={summary} plans={plans} negative={negativeMarginOrgs(margins)} drivers={drivers} cohorts={cohortStats(margins, extras.signupByAccount)} features={extras.features} freeTier={freeTierSummary(margins)} daily={daily} coverage={coverage} measuredCpm={measuredCpm} usage={priced} truncated={ue.truncated} />}
                 {tab === 'planning' && <PlanningPanel margins={margins} plans={plans} days={win.days} defaultCpm={measuredCpm ?? fallbackCpm} />}
                 {tab === 'ledger' && <LedgerPanel start={win.start} end={win.end} />}
+                {tab === 'cogs' && <CogsPanel />}
                 {tab === 'inputs' && <InputsPanel onChanged={() => void load(true)} />}
                 {tab === 'report' && <ReportPanel model={reportModel} />}
               </div>
