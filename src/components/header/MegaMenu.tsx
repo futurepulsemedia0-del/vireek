@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useDirection } from '@/hooks/useDirection';
 import {
   NAV_ITEMS,
   isInternalHref,
@@ -85,7 +86,7 @@ function PanelContent({ panel, onNavigate }: { panel: MegaPanel; onNavigate: () 
                 className="focus-ring group mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-accent"
               >
                 {f.cta.label}
-                <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
               </Link>
             ) : (
               <a
@@ -94,7 +95,7 @@ function PanelContent({ panel, onNavigate }: { panel: MegaPanel; onNavigate: () 
                 className="focus-ring group mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-accent"
               >
                 {f.cta.label}
-                <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
               </a>
             )}
           </div>
@@ -107,7 +108,7 @@ function PanelContent({ panel, onNavigate }: { panel: MegaPanel; onNavigate: () 
           className="focus-ring group inline-flex items-center gap-1.5 rounded text-sm font-semibold text-text-primary hover:text-accent"
         >
           {panel.overview.label}
-          <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
         </Link>
       </div>
     </>
@@ -120,6 +121,7 @@ export function DesktopMegaNav() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const reduce = useReducedMotion();
+  const { isRtl } = useDirection();
   const baseId = useId();
   const [openId, setOpenId] = useState<string | null>(null);
   const mode = useRef<OpenMode>(null);
@@ -206,7 +208,8 @@ export function DesktopMegaNav() {
       }
     } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       e.preventDefault();
-      const next = (index + (e.key === 'ArrowRight' ? 1 : -1) + NAV_ITEMS.length) % NAV_ITEMS.length;
+      const forward = (e.key === 'ArrowRight') !== isRtl;
+      const next = (index + (forward ? 1 : -1) + NAV_ITEMS.length) % NAV_ITEMS.length;
       triggers.current[next]?.focus();
     }
   };
@@ -253,7 +256,7 @@ export function DesktopMegaNav() {
                 className="absolute inset-x-2.5 bottom-0.5 h-px bg-accent"
               />
             ) : (
-              <span className="absolute bottom-0.5 left-2.5 h-px w-0 bg-accent transition-all duration-200 ease-out group-hover:w-[calc(100%-1.25rem)]" />
+              <span className="absolute bottom-0.5 start-2.5 h-px w-0 bg-accent transition-all duration-200 ease-out group-hover:w-[calc(100%-1.25rem)]" />
             );
             return (
               <li key={item.id}>
