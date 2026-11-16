@@ -67,7 +67,9 @@ type AuthInputProps = InputHTMLAttributes<HTMLInputElement> & {
   showPasswordToggle?: boolean;
   hint?: React.ReactNode;
 };
-
+/** True on phones/tablets (primary pointer is a finger). Auto-focusing there pops the keyboard over the form on load. */
+const isTouchPrimary = (): boolean =>
+  typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
 export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
   (
     {
@@ -81,6 +83,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
       type = 'text',
       id,
       className = '',
+      autoFocus,
       ...props
     },
     ref
@@ -97,7 +100,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
         </label>
         <div className="relative">
           <span
-            className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+            className={`pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
               showError
                 ? 'text-danger'
                 : showSuccess
@@ -111,8 +114,8 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             ref={ref}
             id={id}
             type={inputType}
-            className={`focus-ring w-full rounded-xl border bg-bg-primary py-3 pl-11 text-base text-text-primary transition-all duration-200 placeholder:text-text-secondary/50 ${
-              showPasswordToggle ? 'pr-11' : 'pr-4'
+            className={`focus-ring w-full rounded-xl border bg-bg-primary py-3 ps-11 text-base text-text-primary transition-all duration-200 placeholder:text-text-secondary/50 ${
+              showPasswordToggle ? 'pe-12' : 'pe-4'
             } ${
               showError
                 ? 'border-danger/50 focus-visible:border-danger'
@@ -122,6 +125,8 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             } ${className}`}
             aria-invalid={showError || undefined}
             aria-describedby={error ? `${id}-error` : undefined}
+            autoFocus={autoFocus && !isTouchPrimary()}
+            {...(type === 'email' ? { inputMode: 'email' as const, autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false } : {})}
             {...props}
           />
           {showPasswordToggle && (
