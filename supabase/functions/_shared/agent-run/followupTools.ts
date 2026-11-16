@@ -60,6 +60,9 @@ function baseRow(a: Args, userId: string, key: string) {
 export function mapSmsFailure(r: Extract<SendSmsResult, { ok: false }>): ToolError {
   const msg = `${r.reason}${r.detail ? `: ${r.detail}` : ""}`;
   if (r.reason === "OPTED_OUT") return new ToolError(msg, "policy_blocked", false, false);
+  // Fraud guard refusal: a deliberate policy decision, never retried by the runtime (a cap that resets is re-planned
+  // by the dispatcher via BlockedSend.retryAt instead of being hammered every 15 minutes).
+  if (r.reason === "FRAUD_BLOCKED") return new ToolError(msg, "policy_blocked", false, false);
   if (r.reason === "TWILIO_ERROR" && /^HTTP 5\d\d$/.test(r.detail ?? "")) return new ToolError(msg, "dependency_down", false, true);
   // A2P not approved / not configured / queue error / Twilio 4xx text: retryable later, but NOT a provider outage
   return new ToolError(msg, "transient", false, false);
