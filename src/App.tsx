@@ -53,7 +53,7 @@ const CommunityThreadPage = lazy(() => import('@/pages/CommunityThreadPage').the
 const AmbassadorPage = lazy(() => import('@/pages/AmbassadorPage').then((m) => ({ default: m.AmbassadorPage })));
 const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
-const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const DashboardHome = lazy(() => import('@/pages/DashboardHome').then((m) => ({ default: m.DashboardHome })));
 const SupportTicketsPage = lazy(() => import('@/pages/SupportTicketsPage').then((m) => ({ default: m.SupportTicketsPage })));
 const GettingStartedPage = lazy(() => import('@/pages/GettingStartedPage').then((m) => ({ default: m.GettingStartedPage })));
 const SuccessCenterPage = lazy(() => import('@/pages/SuccessCenterPage').then((m) => ({ default: m.SuccessCenterPage })));
