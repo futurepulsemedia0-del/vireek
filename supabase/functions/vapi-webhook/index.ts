@@ -129,6 +129,7 @@ import {
   pickAreaTechnician,
   type ServiceAreaSettingsRow,
 } from "../_shared/service-areas/resolve.ts";
+import { asFraudDb, resolveInboundCap, settleCall } from "../_shared/fraud/outboundGate.ts";
 
 // ---------------------------------------------------------------------------
 // Types (only the fields we actually read — Vapi payloads carry much more)
@@ -869,6 +870,11 @@ service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regi
     voice_persona: voicePersonaContext,
      ai_disclosure: disclosurePlan?.text ?? "",
     interpreter_context: buildInterpreterContext(interpSettings),
+  // Per-call duration cap (PLAN_LIMITS[plan].maxCallSeconds). Applied only when fraud_settings.outbound_guard_mode =
+  // 'enforce'; in shadow it is logged. An unreadable plan applies nothing (fail open: never cut live calls short on a hiccup).
+  const durationCap = await resolveInboundCap(asFraudDb(admin), tenant.userId);
+  if (durationCap && !durationCap.enforce) logEvent("inbound_duration_cap_shadow", requestId, { user_id: tenant.userId, would_cap_seconds: durationCap.seconds });
+  const maxDurationOverride = durationCap?.enforce ? { maxDurationSeconds: durationCap.seconds } : {};
   };
 
   if (tenant.agentOrchestrationEnabled) {
@@ -881,6 +887,7 @@ service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regi
   return jsonResponse({
     assistantId: tenant.assistantId,
     assistantOverrides: {
+    ...maxDurationOverride,
     ...(tenantVoice ? { voice: tenantVoice } : {}),
           ...voiceOverride,
       variableValues: sharedVariableValues,
@@ -2412,11 +2419,28 @@ async function updateOutboundCallStatus(admin: SupabaseClient, outboundCallId: s
       outcome_notes: message.summary ?? message.analysis?.summary ?? message.endedReason ?? null,
     })
     .eq("id", outboundCallId);
+/**
+ * Settles the fraud-guard reservation of an OUTBOUND call from Vapi's end-of-call report: records the real duration and
+ * refunds the unused worst-case reservation. The reservation was linked to this Vapi call id by attachCallRef at dial
+ * time; calls without a reservation (inbound, legacy) are a harmless no-op. Idempotent, never throws.
+ */
+async function settleReservationFromReport(admin: SupabaseClient, message: VapiMessage): Promise<void> {
+  const id = message.call?.id;
+  if (!id) return;
+  let seconds = message.durationSeconds ?? null;
+  if (seconds == null && message.call?.startedAt && message.call?.endedAt) {
+    const d = (Date.parse(message.call.endedAt) - Date.parse(message.call.startedAt)) / 1000;
+    if (Number.isFinite(d) && d >= 0) seconds = Math.round(d);
+  }
+  // A call that ended without ever connecting has no timestamps: settle as 0 s so the whole reservation is released.
+  await settleCall(asFraudDb(admin), id, seconds ?? 0);
+}
 }
 
 async function handleCallLifecycleEvent(admin: SupabaseClient, message: VapiMessage, requestId: string) {
   // Missed-Call Audit test calls are handled by their own pipeline and are not tenant calls.
   if (await handleAuditWebhookEvent(message)) return jsonResponse({ received: true });
+  if (message.type === "end-of-call-report") await settleReservationFromReport(admin, message);
   if (message.type === "end-of-call-report") await recordAttemptOutcome(admin, message);
   const tenant = await resolveTenant(admin, message, requestId);
   if (!tenant) {
